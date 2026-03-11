@@ -113,85 +113,92 @@ export function addWorksheetControl(controlName, cb = () => {}) {
   };
 }
 
+const getDispatchData = (data = {}) => {
+  const extendDatas = data.extendDatas || {};
+  const shareConfig = safeParse(extendDatas.shareConfig) || {};
+  shareConfig.title = shareConfig.title || `${data.name} - ${_l('公开填写')}`;
+  shareConfig.desc = shareConfig.desc || _l('请填写内容');
+  extendDatas.shareConfig = JSON.stringify(shareConfig);
+
+  return {
+    type: 'PUBLICWORKSHEET_LOAD_SUCCESS',
+    controls: data.controls,
+    originalControls: data.originalControls.map(c => ({
+      ...c,
+      advancedSetting:
+        c.type === 29 && _.includes(['2', '6'], _.get(c, 'advancedSetting.showtype'))
+          ? { ...(c.advancedSetting || {}), showtype: '5' }
+          : c.advancedSetting,
+    })),
+    shareId: data.shareId,
+    url: data.url,
+    worksheetInfo: {
+      themeIndex: data.themeColor,
+      themeBgColor: data.themeBgColor,
+      logoUrl: data.logo,
+      coverUrl: data.cover,
+      ..._.pick(data, [
+        'worksheetName',
+        'advancedSetting',
+        'name',
+        'desc',
+        'worksheetId',
+        'projectId',
+        'projectName',
+        'visibleType',
+        'submitBtnName',
+        'appId',
+      ]),
+    },
+    worksheetSettings: {
+      extendDatas,
+      ..._.pick(data, [
+        'limitWriteFrequencySetting',
+        'ipControlId',
+        'browserControlId',
+        'deviceControlId',
+        'systemControlId',
+        'receipt',
+        'extendSourceId',
+        'extends',
+        'needCaptcha',
+        'smsVerification',
+        'smsVerificationFiled',
+        'smsSignature',
+        'writeScope',
+        'linkSwitchTime',
+        'limitWriteTime',
+        'limitWriteCount',
+        'limitPasswordWrite',
+        'cacheDraft',
+        'cacheFieldData',
+        'weChatSetting',
+        'abilityExpand',
+        'completeNumber',
+        'boundControlIds',
+      ]),
+    },
+    hidedControlIds: data.hidedControlIds || [],
+  };
+};
+
 export function loadPublicWorksheet({ worksheetId }) {
   return dispatch => {
-    publicWorksheetAjax
-      .getPublicWorksheetInfo({ worksheetId })
-      .then(data => {
-        const extendDatas = data.extendDatas;
-        const shareConfig = safeParse(extendDatas.shareConfig);
-        shareConfig.title = shareConfig.title || `${data.name} - ${_l('公开填写')}`;
-        shareConfig.desc = shareConfig.desc || _l('请填写内容');
-        extendDatas.shareConfig = JSON.stringify(shareConfig);
-        dispatch({
-          type: 'PUBLICWORKSHEET_LOAD_SUCCESS',
-          controls: data.controls,
-          originalControls: data.originalControls.map(c => ({
-            ...c,
-            advancedSetting:
-              c.type === 29 && _.includes(['2', '6'], _.get(c, 'advancedSetting.showtype'))
-                ? { ...(c.advancedSetting || {}), showtype: '5' }
-                : c.advancedSetting,
-          })),
-          shareId: data.shareId,
-          url: data.url,
-          worksheetInfo: {
-            themeIndex: data.themeColor,
-            themeBgColor: data.themeBgColor,
-            logoUrl: data.logo,
-            coverUrl: data.cover,
-            ..._.pick(data, [
-              'worksheetName',
-              'advancedSetting',
-              'name',
-              'desc',
-              'worksheetId',
-              'projectId',
-              'projectName',
-              'visibleType',
-              'submitBtnName',
-              'appId',
-            ]),
-          },
-          worksheetSettings: {
-            extendDatas,
-            ..._.pick(data, [
-              'limitWriteFrequencySetting',
-              'ipControlId',
-              'browserControlId',
-              'deviceControlId',
-              'systemControlId',
-              'receipt',
-              'extendSourceId',
-              'extends',
-              'needCaptcha',
-              'smsVerification',
-              'smsVerificationFiled',
-              'smsSignature',
-              'writeScope',
-              'linkSwitchTime',
-              'limitWriteTime',
-              'limitWriteCount',
-              'limitPasswordWrite',
-              'cacheDraft',
-              'cacheFieldData',
-              'weChatSetting',
-              'abilityExpand',
-              'completeNumber',
-              'boundControlIds',
-            ]),
-          },
-          hidedControlIds: data.hidedControlIds || [],
-        });
-      })
-      .then(() => {});
+    publicWorksheetAjax.getPublicWorksheetInfo({ worksheetId }).then(data => {
+      dispatch(getDispatchData(data));
+    });
   };
 }
 
-export const changeControls = controls => (dispatch, getState) => {
-  dispatch({ type: 'PUBLICWORKSHEET_UPDATE_CONTROLS', controls });
-  updateBaseConfig(dispatch, getState, { controls: controls.map(c => _.pick(c, ['controlId', 'col', 'row', 'size'])) });
-};
+export const changeControls =
+  (controls, isSave = true) =>
+  (dispatch, getState) => {
+    dispatch({ type: 'PUBLICWORKSHEET_UPDATE_CONTROLS', controls });
+    isSave &&
+      updateBaseConfig(dispatch, getState, {
+        controls: controls.map(c => _.pick(c, ['controlId', 'col', 'row', 'size'])),
+      });
+  };
 
 export const updateWorksheetInfo = value => (dispatch, getState) => {
   dispatch({ type: 'PUBLICWORKSHEET_UPDATE_INFO', value });
@@ -226,22 +233,28 @@ export const hideControl = controlId => (dispatch, getState) => {
   dispatch({ type: 'PUBLICWORKSHEET_UPDATE_CONTROLS', controls: newControls });
 };
 
-export function showControl(control) {
+export function showControl(showControls = []) {
   return (dispatch, getState) => {
     const state = getState();
     const {
       publicWorksheet: { controls, hidedControlIds, originalControls, worksheetSettings },
     } = state;
-    const rowCol = getNewControlColRow(controls, control.half);
-    control.col = rowCol.col;
-    control.row = rowCol.row;
+
+    const newShowControls = showControls.reduce((acc, control) => {
+      // 将原始 controls 和已经处理过的控件合并，用于计算新控件位置
+      const currentControls = controls.concat(acc);
+      const rowCol = getNewControlColRow(currentControls, control.half);
+      return acc.concat({ ...control, col: rowCol.col, row: rowCol.row });
+    }, []);
 
     //每次更改字段显隐时，需要将禁用的字段隐藏
     const disabledControlIds = getDisabledControls(originalControls, worksheetSettings);
     const newHidedControlIds = _.uniqBy(
-      hidedControlIds.concat(disabledControlIds).filter(controlId => controlId !== control.controlId),
+      hidedControlIds.concat(disabledControlIds).filter(controlId => !_.find(newShowControls, { controlId })),
     );
-    const newControls = controls.concat(_.pick(control, ['controlId', 'col', 'row']));
+    const newControls = controls.concat(
+      newShowControls.map(control => _.pick(control, ['controlId', 'col', 'row', 'size'])),
+    );
 
     updateBaseConfig(dispatch, getState, { hidedControlIds: newHidedControlIds, controls: newControls });
     if (_.isFunction(window.scrollToFormEnd)) {
@@ -249,8 +262,8 @@ export function showControl(control) {
     }
     dispatch({
       type: 'WORKSHEET_SHOW_CONTROL',
-      controlId: control.controlId,
-      control: _.pick(control, ['controlId', 'col', 'row']),
+      controlIds: newShowControls.map(control => control.controlId),
+      controls: newShowControls.map(control => _.pick(control, ['controlId', 'col', 'row', 'size'])),
     });
   };
 }
@@ -266,64 +279,7 @@ export function resetControls() {
       .reset({ worksheetId })
       .then(data => {
         if (data && data.success) {
-          data = data.info;
-          dispatch({
-            type: 'PUBLICWORKSHEET_LOAD_SUCCESS',
-            controls: data.controls,
-            originalControls: data.originalControls.filter(
-              control =>
-                !(
-                  (control.type === 29 && !_.includes([0, 1], control.enumDefault2)) ||
-                  (control.type === 51 && _.get(control, 'advancedSetting.showtype') === '2')
-                ) && !_.includes(['caid', 'ownerid', 'ctime', 'utime'], control.controlId),
-            ),
-            shareId: data.shareId,
-            url: data.url,
-            worksheetInfo: {
-              themeIndex: data.themeColor,
-              themeBgColor: data.themeBgColor,
-              logoUrl: data.logo,
-              coverUrl: data.cover,
-              ..._.pick(data, [
-                'worksheetName',
-                'name',
-                'desc',
-                'worksheetId',
-                'projectId',
-                'visibleType',
-                'submitBtnName',
-                'appId',
-              ]),
-            },
-            worksheetSettings: {
-              ..._.pick(data, [
-                'limitWriteFrequencySetting',
-                'ipControlId',
-                'browserControlId',
-                'deviceControlId',
-                'systemControlId',
-                'receipt',
-                'extendSourceId',
-                'extends',
-                'needCaptcha',
-                'smsVerification',
-                'smsVerificationFiled',
-                'smsSignature',
-                'writeScope',
-                'linkSwitchTime',
-                'limitWriteTime',
-                'limitWriteCount',
-                'limitPasswordWrite',
-                'cacheDraft',
-                'cacheFieldData',
-                'weChatSetting',
-                'abilityExpand',
-                'completeNumber',
-                'boundControlIds',
-              ]),
-            },
-            hidedControlIds: data.hidedControlIds || [],
-          });
+          dispatch(getDispatchData(data.info));
         }
       })
       .catch(() => {

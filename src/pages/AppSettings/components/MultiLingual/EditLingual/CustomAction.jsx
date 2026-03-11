@@ -18,7 +18,7 @@ const Wrap = styled.div`
       padding: 0 10px;
       margin-right: 12px;
       &:hover {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-hover);
       }
     }
   }
@@ -62,7 +62,9 @@ export default function CustomAction(props) {
 
   if (!sheetBtns.length) {
     return (
-      <div className="flexRow alignItemsCenter justifyContentCenter h100 Gray_9e Font14">{_l('没有自定义动作')}</div>
+      <div className="flexRow alignItemsCenter justifyContentCenter h100 textTertiary Font14">
+        {_l('没有自定义动作')}
+      </div>
     );
   }
 
@@ -244,7 +246,7 @@ export default function CustomAction(props) {
               {!!withoutRemarkoptions.length && `，${_l('%0个没有译文', withoutRemarkoptions.length)}`}
             </div>
             <div className="flex">
-              <span className="ThemeColor pointer" onClick={() => setOptionsEditDialogVisible(btn.btnId)}>
+              <span className="colorPrimary pointer" onClick={() => setOptionsEditDialogVisible(btn.btnId)}>
                 {_l('编辑译文')}
               </span>
             </div>
@@ -284,7 +286,7 @@ export default function CustomAction(props) {
     <Wrap className="flexRow pAll10 h100">
       <div className="customActionNav flexColumn">
         <div className="searchWrap flexRow alignItemsCenter mBottom10">
-          <Icon className="Gray_9e Font20 mRight5" icon="search" />
+          <Icon className="textTertiary Font20 mRight5" icon="search" />
           <input
             placeholder={_l('自定义动作')}
             className="flex"
@@ -293,7 +295,9 @@ export default function CustomAction(props) {
               setSearchValue(e.target.value);
             }}
           />
-          {searchValue && <Icon className="Gray_9e pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />}
+          {searchValue && (
+            <Icon className="textTertiary pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />
+          )}
         </div>
         <ScrollView className="h100">
           {sheetBtns.filter(btn => btn.name.includes(searchValue)).map(btn => renderBtnNav(btn))}

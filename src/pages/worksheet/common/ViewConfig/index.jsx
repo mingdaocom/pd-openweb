@@ -65,7 +65,7 @@ export default class ViewConfig extends React.Component {
         {isCustomize ? (
           <SvgIcon
             url={_.get(view, 'pluginInfo.iconUrl') || 'https://fp1.mingdaoyun.cn/customIcon/sys_12_4_puzzle.svg'}
-            fill={_.get(view, 'pluginInfo.iconColor') || '#445A65'}
+            fill={_.get(view, 'pluginInfo.iconColor') || 'var(--color-cyan-dark)'}
             size={18}
           />
         ) : (
@@ -81,7 +81,7 @@ export default class ViewConfig extends React.Component {
                   '管理所有工作表数据。所有字段可见、可编辑；所有打印模版、自定义动作均可用；开启所有功能开关。',
                 )}
               >
-                <Icon icon="help" className="mLeft6 Font16 Gray_9e Hover_21" />
+                <Icon icon="help" className="mLeft6 Font16 textTertiary hoverColorPrimary" />
               </Tooltip>
             </span>
             <Support className="mRight16" type={3} href="https://help.mingdao.com/view/operations" text={_l('帮助')} />
@@ -119,7 +119,7 @@ export default class ViewConfig extends React.Component {
             className="Font16"
           />
         )}
-        <Icon icon="close" className="Gray_9d Font20 pointer" onClick={this.props.onClose} />
+        <Icon icon="close" className="textTertiary Font20 pointer" onClick={this.props.onClose} />
       </div>
     );
   }

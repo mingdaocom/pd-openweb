@@ -35,11 +35,12 @@ const DATA_INFO = [
     key: 'effective',
     label: _l('LDAP登录'),
     showSetting: true,
-    description: md.global.Config.IsLocal
-      ? _l('启用后，成员可在组织专属登录页使用 LDAP 登录。系统将通过邮箱进行身份匹配，请确保成员账号已绑定对应邮箱')
-      : _l(
-          '在付费版下，您可以通过组织的二级域名登录页面，通过集成LDAP账号登录，实现统一身份认证管理 （确保员工的账号已与邮箱绑定，系统通过邮箱进行映射）',
-        ),
+    description:
+      window.platformENV.isOverseas || window.platformENV.isLocal
+        ? _l('启用后，成员可在组织专属登录页使用 LDAP 登录。系统将通过邮箱进行身份匹配，请确保成员账号已绑定对应邮箱')
+        : _l(
+            '在付费版下，您可以通过组织的二级域名登录页面，通过集成LDAP账号登录，实现统一身份认证管理 （确保员工的账号已与邮箱绑定，系统通过邮箱进行映射）',
+          ),
     featureId: VersionProductType.LDAPIntergration,
     showCustomName: true,
     iconClassName: 'icon-lock',
@@ -55,9 +56,10 @@ const DATA_INFO = [
   {
     key: 'enabledMDLogin',
     label: _l('平台帐号登录'),
-    description: md.global.Config.IsLocal
-      ? _l('在组织专属登录页，当开启了SSO、LDAP或第三方平台账号登录时，可关闭平台账号登录入口')
-      : _l('在组织的二级域名登录页面，当组织启用了LDAP、SSO或第三方平台账号登录时，可以关闭本系统账号登录'),
+    description:
+      window.platformENV.isOverseas || window.platformENV.isLocal
+        ? _l('在组织专属登录页，当开启了SSO、LDAP或第三方企业身份登录时，可关闭平台账号登录入口')
+        : _l('在组织的二级域名登录页面，当组织启用了LDAP、SSO或第三方企业身份登录时，可以关闭本系统账号登录'),
   },
   {
     key: 'orgKey',
@@ -400,7 +402,7 @@ export default class OtherTool extends Component {
       case 'group':
         return (
           <div className="DNGroup w100">
-            <div className="Gray_9e Font12 mTop8">{_l('根据组在对应的DN检索账户')}</div>
+            <div className="textTertiary Font12 mTop8">{_l('根据组在对应的DN检索账户')}</div>
             <div className="groupItem">
               <div className="flex">DN</div>
               <div className="flex mLeft12">{_l('组名')}</div>
@@ -461,7 +463,7 @@ export default class OtherTool extends Component {
               );
             })}
 
-            <span className="Hand ThemeColor" onClick={this.addDNGroup}>
+            <span className="Hand colorPrimary" onClick={this.addDNGroup}>
               <Icon icon="plus" className="mRight5" /> {_l('添加')}
             </span>
           </div>
@@ -531,7 +533,7 @@ export default class OtherTool extends Component {
         {this.renderFormCommon(formListTop)}
         <div className="splitLine"></div>
         <div className="formModuleTitle mBottom15">{_l('登录设置')}</div>
-        <div className="Gray_9e mBottom15">{_l('设置LDAP登录时作为用户登录账号的字段')}</div>
+        <div className="textTertiary mBottom15">{_l('设置LDAP登录时作为用户登录账号的字段')}</div>
         {this.renderFormCommon(
           accountTxtType === 100
             ? loginSetting.concat({
@@ -542,7 +544,7 @@ export default class OtherTool extends Component {
             : loginSetting,
         )}
         <div className="formModuleTitle mBottom15">{_l('账号映射')}</div>
-        <div className="Gray_9e mBottom15">{_l('设置LDAP服务器中用于和本系统账号匹配的字段')}</div>
+        <div className="textTertiary mBottom15">{_l('设置LDAP服务器中用于和本系统账号匹配的字段')}</div>
         {this.renderFormCommon(formListBottom.slice(0, 1))}
         <div style={{ marginLeft: 150 }}>
           <Checkbox
@@ -552,7 +554,7 @@ export default class OtherTool extends Component {
           />
         </div>
         <div className="formModuleTitle mBottom15">{_l('同步信息')}</div>
-        <div className="Gray_9e mBottom15">{_l('勾选后，在用户使用LDAP登录时，将同步以下账号信息')}</div>
+        <div className="textTertiary mBottom15">{_l('勾选后，在用户使用LDAP登录时，将同步以下账号信息')}</div>
         {this.renderFormCommon(formListBottom.slice(1))}
 
         <Button
@@ -835,9 +837,9 @@ export default class OtherTool extends Component {
                 </div>
                 {showCustomName && (
                   <Fragment>
-                    {key === 'sso' && md.global.Config.IsLocal ? (
+                    {key === 'sso' && (window.platformENV.isOverseas || window.platformENV.isLocal) ? (
                       <div className="customNameWrap mTop8">
-                        <span className="Gray_9e">{_l('自定义显示登录文案：')}</span>
+                        <span className="textTertiary">{_l('自定义显示登录文案：')}</span>
                         {this.state[`set${key}Name`] ? (
                           <input
                             ref={node => (this.customNameInput = node)}
@@ -850,11 +852,14 @@ export default class OtherTool extends Component {
                         )}
                         {this.state[`set${key}Name`] ? (
                           <Fragment>
-                            <span className="ThemeColor Hand mLeft16 mRight20" onClick={() => this.saveCustomName(key)}>
+                            <span
+                              className="colorPrimary Hand mLeft16 mRight20"
+                              onClick={() => this.saveCustomName(key)}
+                            >
                               {_l('保存')}
                             </span>
                             <span
-                              className="ThemeColor Hand"
+                              className="colorPrimary Hand"
                               onClick={() => {
                                 this.setState({
                                   [`set${key}Name`]: false,
@@ -868,7 +873,7 @@ export default class OtherTool extends Component {
                         ) : this.state[key] ? (
                           <Icon
                             icon="edit"
-                            className="Font12 mLeft8 Gray_9e Hover_21 Hand"
+                            className="Font12 mLeft8 textTertiary hoverColorPrimary Hand"
                             onClick={() => {
                               setTimeout(() => {
                                 this.customNameInput.focus();
@@ -945,7 +950,7 @@ export default class OtherTool extends Component {
               placement="bottom"
               title={_l('若”WEB-移动端“未填写，通过WEB-移动端登录时，系统默认使用”WEB-PC端“地址登录')}
             >
-              <Icon icon="info" className="Gray_9e mLeft10" />
+              <Icon icon="info" className="textTertiary mLeft10" />
             </Tooltip>
           </div>
           <div className="formRight">

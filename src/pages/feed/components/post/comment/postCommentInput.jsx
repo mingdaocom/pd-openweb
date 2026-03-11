@@ -106,7 +106,7 @@ class PostCommentInput extends React.Component {
       .removeAttr('data-mentions-input')
       .removeData('mentionsInput')
       .focus(function commentInputOnFocus() {
-        $(this).removeClass('Gray_c');
+        $(this).removeClass('textPlaceholder');
         if (!isToComment && $(this).val() === LET_ME_REPLY) {
           $(this).val('');
         }
@@ -335,7 +335,7 @@ class PostCommentInput extends React.Component {
                       this.textarea = textarea;
                     }}
                     id={'text_' + postItem.postID + '_' + postItem.commentID + 'C'}
-                    className={'commentBoxTextarea ' + (this.state.isEditing ? '' : 'Gray_c')}
+                    className={'commentBoxTextarea ' + (this.state.isEditing ? '' : 'textPlaceholder')}
                     defaultValue={isToComment ? '' : LET_ME_REPLY}
                   />
                 </div>
@@ -360,7 +360,7 @@ class PostCommentInput extends React.Component {
                 <div className="left faceArea mRight12">
                   <div>
                     <a
-                      className="faceBtn icon-smile Font18 Gray_c TxtMiddle"
+                      className="faceBtn icon-smile Font18 textPlaceholder TxtMiddle"
                       ref={faceBtn => {
                         this.faceBtn = faceBtn;
                       }}

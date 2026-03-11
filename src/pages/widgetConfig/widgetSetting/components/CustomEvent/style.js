@@ -7,33 +7,33 @@ export const AddEventWrap = styled.div`
   ${props =>
     props.type === 'action'
       ? 'width: fit-content;'
-      : 'width: 100%; height: 36px;justify-content: center; border: 1px dashed #dddddd;margin-top: 20px;border-radius: 4px;'}
+      : 'width: 100%; height: 36px;justify-content: center; border: 1px dashed var(--color-border-primary);margin-top: 20px;border-radius: 4px;'}
   cursor: pointer;
-  color: #1677ff;
+  color: var(--color-primary);
   ${props =>
     props.disabled
-      ? 'background: #f5f5f5;border-color: #f5f5f5;color: #9e9e9e !important;cursor: not-allowed !important;'
+      ? 'background: var(--color-background-secondary);border-color: var(--color-background-secondary);color: var(--color-text-tertiary) !important;cursor: not-allowed !important;'
       : ''}
   i {
     margin-right: 4px;
-    color: #1677ff;
+    color: var(--color-primary);
     font-size: 16px;
-    ${props => (props.disabled ? 'color: #9e9e9e !important;' : '')}
+    ${props => (props.disabled ? 'color: var(--color-text-tertiary) !important;' : '')}
   }
   &:hover {
     i {
-      color: #1565c0;
+      color: var(--color-link-hover);
     }
-    color: #1565c0;
+    color: var(--color-link-hover);
   }
 `;
 
 export const IconWrap = styled.span`
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   cursor: pointer;
   font-size: 16px;
   &:hover {
-    color: ${props => (props.type === 'danger' ? '#F44336' : '#1677ff')};
+    color: ${props => (props.type === 'danger' ? 'var(--color-error)' : 'var(--color-primary)')};
   }
 `;
 
@@ -52,7 +52,7 @@ export const EventActionWrap = styled.div`
     cursor: pointer;
     .customEventInput {
       border: none;
-      border-bottom: 1px solid #dddddd;
+      border-bottom: 1px solid var(--color-border-primary);
       flex: 1;
       min-width: 0;
     }
@@ -64,7 +64,7 @@ export const EventActionWrap = styled.div`
       line-height: 16px;
       background: ${props => props.bgColor};
       margin-right: 10px;
-      color: #000000;
+      color: var(--color-text-primary);
     }
     .titleEvent {
       color: ${props => props.eventColor};
@@ -99,7 +99,7 @@ export const CustomActionWrap = styled.div`
     width: 100%;
     margin: 24px 0;
     height: 1px;
-    background: #dddddd;
+    background: var(--color-border-primary);
   }
   .alertContent {
     padding: 0 20px;
@@ -108,9 +108,9 @@ export const CustomActionWrap = styled.div`
     display: flex;
     align-items: center;
     cursor: pointer;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     &:hover {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
       .deleteBtn {
         display: block;
       }
@@ -119,7 +119,7 @@ export const CustomActionWrap = styled.div`
       display: none;
     }
     &.active {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
       position: relative;
       &::after {
         content: '';
@@ -128,25 +128,25 @@ export const CustomActionWrap = styled.div`
         top: 0;
         width: 0;
         height: 0;
-        border: 7px solid #1677ff;
+        border: 7px solid var(--color-primary);
         border-bottom-color: transparent;
         border-left-color: transparent;
       }
     }
   }
   .deleteBtn {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     cursor: pointer;
     margin-left: 10px;
     &:hover {
-      color: #fb0038;
+      color: var(--color-error);
     }
   }
   .setValueContent {
     display: flex;
     flex-direction: column;
-    .Gray_70 {
-      color: #707070;
+    .textSecondary {
+      color: var(--color-text-secondary);
     }
     .setItem {
       display: flex;
@@ -165,11 +165,11 @@ export const CustomActionWrap = styled.div`
         display: flex;
         line-height: 36px;
         align-items: center;
-        background: #f5f5f5;
+        background: var(--color-background-secondary);
         border-radius: 3px;
       }
       .errorBorder {
-        border: 1px solid #ff0000;
+        border: 1px solid var(--color-error);
         height: 36px;
         border-radius: 3px;
         cursor: not-allowed;
@@ -188,21 +188,21 @@ export const DynamicBtn = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fafafa;
+  background: var(--color-background-secondary);
   border-radius: 4px;
-  color: #1677ff;
+  color: var(--color-primary);
   cursor: pointer;
   font-weight: 600;
   i {
-    color: #1677ff;
+    color: var(--color-primary);
     margin-right: 4px;
     font-size: 15px;
   }
   &:hover(:not(.disabled)) {
     i {
-      color: #1565c0;
+      color: var(--color-link-hover);
     }
-    color: #1565c0;
+    color: var(--color-link-hover);
   }
 
   &.disabled {
@@ -213,12 +213,12 @@ export const DynamicBtn = styled.div`
 
 export const ActionWrap = styled.div`
   padding: 8px 12px;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   border-radius: 4px;
   margin-top: 10px;
   cursor: pointer;
   .title {
-    color: #707070;
+    color: var(--color-text-secondary);
   }
   .actionHeader {
     display: flex;
@@ -255,10 +255,10 @@ export const SpliceWrap = styled.div`
     left: 0;
     right: 0;
     top: 12px;
-    background: #dddddd;
+    background: var(--color-border-primary);
   }
   .ming.Dropdown {
-    background: #fff;
+    background: var(--color-background-primary);
   }
   .ming.Dropdown .Dropdown--input {
     padding: 2px 8px !important;

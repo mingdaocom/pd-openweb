@@ -51,7 +51,7 @@ export default class RenameModal extends Component {
         visible={dialogVisible}
         destroyOnClose={true}
         centered={true}
-        closeIcon={<Icon icon="close" className="Font20 pointer Gray_9e" />}
+        closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
         footer={this.renderFooter()}
         onCancel={() => {
           this.props.onHideDialogVisible(false);

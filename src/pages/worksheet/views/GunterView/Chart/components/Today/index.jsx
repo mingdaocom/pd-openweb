@@ -10,10 +10,10 @@ import * as actions from 'worksheet/redux/actions/gunterview';
 const TodayWrapper = styled.div`
   position: absolute;
   bottom: 5px;
-  color: #fff;
+  color: var(--color-white);
   padding: 1px 5px;
   border-radius: 4px;
-  background-color: #1677ff;
+  background-color: var(--color-primary);
   &.left {
     left: 5px;
   }

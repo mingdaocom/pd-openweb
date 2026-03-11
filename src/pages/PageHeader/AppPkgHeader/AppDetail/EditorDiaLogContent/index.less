@@ -5,12 +5,12 @@
 
     .editorNull {
       padding: 0 24px;
-      color: #ccc;
+      color: var(--color-text-placeholder);
     }
 
     .leftContent {
-      border-top: 1px solid #eaeaea;
-      border-right: 1px solid #eaeaea;
+      border-top: 1px solid var(--color-border-secondary);
+      border-right: 1px solid var(--color-border-secondary);
       .editorNull {
         border: none;
       }
@@ -87,24 +87,24 @@
       .caption {
         font-size: 17px;
         font-weight: bold;
-        color: #151515;
+        color: var(--color-text-title);
       }
 
       .mdEditorTipColor {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
     }
     .mdEditorCancel {
       font-size: 13px;
       cursor: pointer;
       &:not(:hover) {
-        color: #9e9e9e !important;
+        color: var(--color-text-tertiary) !important;
       }
     }
     .mdEditorSave {
       font-size: 13px;
       cursor: pointer;
-      color: #fff;
+      color: var(--color-white);
       border-radius: 3px;
       margin-left: 32px;
       height: 32px;
@@ -114,7 +114,7 @@
   }
   .sheetEditor {
     .Input {
-      border-color: #eaeaea;
+      border-color: var(--color-border-secondary);
       padding-right: 50px;
     }
     .resumeLength {
@@ -124,12 +124,12 @@
     }
     .colorWrap {
       height: 36px;
-      border: 1px solid #eaeaea;
+      border: 1px solid var(--color-border-secondary);
       border-radius: 4px;
       width: 100px;
       justify-content: space-around;
       .icon {
-        color: #cdcdcd;
+        color: var(--color-text-placeholder);
       }
     }
     .sheetIntroInfo,
@@ -137,11 +137,11 @@
       padding: 0 24px;
     }
     .mdEditorContentWrap .editorContent {
-      border: 1px solid #eaeaea;
+      border: 1px solid var(--color-border-secondary);
       border-radius: 4px;
       .ck-sticky-panel .ck-toolbar {
         border: none !important;
-        border-bottom: 1px solid #eaeaea !important;
+        border-bottom: 1px solid var(--color-border-secondary) !important;
       }
     }
   }
@@ -164,7 +164,7 @@
       margin-left: -10px;
       /*transition: margin 0.2s;*/
       img {
-        border: 2px solid #fff;
+        border: 2px solid var(--color-white);
       }
     }
     .clearCache {
@@ -172,7 +172,7 @@
       right: 20px;
       top: 20px;
       &:hover {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
       &.isLoading .icon {
         display: inline-block;

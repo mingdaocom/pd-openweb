@@ -13,23 +13,23 @@ const Wrap = styled.div`
   padding: 6px 20px;
   display: flex;
   width: 100%;
-  background: #fff;
+  background: var(--color-background-primary);
   left: 0;
   .cancle,
   .save {
     flex: 1;
     height: 36px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     border-radius: 22px;
     opacity: 1;
-    border: 1px solid #dddddd;
-    color: #757575;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border-primary);
     line-height: 36px;
     &.save {
-      background: #1677ff;
-      color: #fff;
-      border: 1px solid #1677ff;
+      background: var(--color-primary);
+      color: var(--color-white);
+      border: 1px solid var(--color-primary);
     }
   }
 `;
@@ -135,7 +135,7 @@ export default class AvatarEditor extends Component {
           />
           {!(from === 'integration' && !preview) && (
             <div className="reviewBox">
-              <span className="Block Gray_9e mBottom16">{_l('预览')}</span>
+              <span className="Block textTertiary mBottom16">{_l('预览')}</span>
               <img src={preview || avatar} style={{ width: 80, height: 80, borderRadius: '50%' }} />
             </div>
           )}

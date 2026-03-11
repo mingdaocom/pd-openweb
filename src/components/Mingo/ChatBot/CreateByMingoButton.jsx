@@ -7,19 +7,19 @@ const Con = styled.div`
   justify-content: center;
   gap: 5px;
   cursor: pointer;
-  border: 1px solid #dedede;
+  border: 1px solid var(--color-border-primary);
   border-radius: 34px;
   line-height: 34px;
   padding: 0 15px;
-  color: #151515;
+  color: var(--color-text-title);
   font-size: 14px;
   margin-top: 32px;
   .icon {
     font-size: 18px;
-    color: var(--ai-primary-color);
+    color: var(--color-mingo);
   }
   &:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
 `;
 

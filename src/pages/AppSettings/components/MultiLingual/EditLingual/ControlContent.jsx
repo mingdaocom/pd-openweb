@@ -103,7 +103,7 @@ export default function ControlContent(props) {
             </div>
             <div className="flex">
               <span
-                className="ThemeColor pointer"
+                className="colorPrimary pointer"
                 onClick={() => {
                   setExpandedKeys(['optionsEntrance']);
                   onSelectedKeys([dataSource], {
@@ -130,7 +130,7 @@ export default function ControlContent(props) {
               <div className="Font13 mRight20 label">{_l('选项')}</div>
               {dataSource && !_.find(collections, { collectionId: dataSource }) ? (
                 <div className="flex mRight20">
-                  <span className="Gray_9e">{_l('暂不支持跨应用数据')}</span>
+                  <span className="textTertiary">{_l('暂不支持跨应用数据')}</span>
                 </div>
               ) : (
                 <Fragment>
@@ -142,7 +142,7 @@ export default function ControlContent(props) {
               )}
               {dataSource && !_.find(collections, { collectionId: dataSource }) ? null : (
                 <div className="flex">
-                  <span className="ThemeColor pointer" onClick={() => setOptionsEditDialogVisible(control.controlId)}>
+                  <span className="colorPrimary pointer" onClick={() => setOptionsEditDialogVisible(control.controlId)}>
                     {_l('编辑译文')}
                   </span>
                 </div>
@@ -249,7 +249,7 @@ export default function ControlContent(props) {
           width={860}
           title={
             <div className="flexRow alignItemsCenter mBottom10">
-              <Icon icon={getIconByType(type)} className="Font20 Gray_9e mRight10" />
+              <Icon icon={getIconByType(type)} className="Font20 textTertiary mRight10" />
               <span>{translateInfo.name || control.controlName}</span>
             </div>
           }

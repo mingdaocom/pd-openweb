@@ -1,7 +1,8 @@
 import _ from 'lodash';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet.js';
-import { controlState, getCurrentValue } from 'src/components/Form/core/formUtils';
+import { getCurrentValue } from 'src/components/Form/core/formUtils';
+import { controlState } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 import { compatibleMDJS } from 'src/utils/project';
 

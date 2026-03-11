@@ -193,11 +193,11 @@ export default class Text extends React.Component {
             style={needRTL ? { direction: 'rtl', unicodeBidi: isPureNumber ? 'bidi-override' : 'normal' } : {}}
           >
             {displayName}
-            {department.deleteCount > 1 && <span className="Gray mLeft5">{department.deleteCount}</span>}
+            {department.deleteCount > 1 && <span className="textPrimary mLeft5">{department.deleteCount}</span>}
           </div>
           {isediting && allowDelete && (
             <i
-              className="Font14 Gray_9e icon-close Hand mLeft4"
+              className="Font14 textTertiary icon-close Hand mLeft4"
               onClick={() => this.deleteDepartment(department.departmentId)}
             ></i>
           )}
@@ -240,7 +240,7 @@ export default class Text extends React.Component {
           {value.map(department => this.renderDepartmentTag(department, !(cell.required && value.length === 1)))}
           {!single && (
             <span className="addUserBtn" onClick={this.handleSelect}>
-              <i className="icon icon-add Gray_75 Font14"></i>
+              <i className="icon icon-add textSecondary Font14"></i>
             </span>
           )}
         </div>

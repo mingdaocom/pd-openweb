@@ -28,13 +28,13 @@ export default function (props) {
         <WrapTxt className="flexRow w100">
           <div className="txtFilter flex">
             <p>
-              <span className="titleTxt Gray">{_l('提示文字')}</span>
-              <span className="txt Gray WordBreak">{_.get(doubleconfirm, 'confirmMsg')}</span>
+              <span className="titleTxt textPrimary">{_l('提示文字')}</span>
+              <span className="txt textPrimary WordBreak">{_.get(doubleconfirm, 'confirmMsg')}</span>
             </p>
             {!!(_.get(doubleconfirm, 'confirmContent') || '').trim() && (
               <p className="mTop5 flexRow w100">
-                <span className="titleTxt Gray">{_l('详细内容')}</span>
-                <span className="txt Gray WordBreak overflow_ellipsis flex">
+                <span className="titleTxt textPrimary">{_l('详细内容')}</span>
+                <span className="txt textPrimary WordBreak overflow_ellipsis flex">
                   {_.get(doubleconfirm, 'confirmContent')}
                 </span>
               </p>
@@ -42,7 +42,7 @@ export default function (props) {
           </div>
           <Icon
             icon="hr_edit"
-            className="Gray_9d Font18 editFilter Hand"
+            className="textTertiary Font18 editFilter Hand"
             onClick={() => setState({ showDoubleConfirm: true })}
           />
         </WrapTxt>
@@ -85,7 +85,7 @@ export default function (props) {
     return (
       <div className={cx('itemText flexRow alignItemsCenter', { isCur })}>
         <Checkbox className="Hand" checked={isCur} />
-        <span className="mLeft10 flex Gray overflow_ellipsis">{item.text}</span>
+        <span className="mLeft10 flex textPrimary overflow_ellipsis">{item.text}</span>
       </div>
     );
   };
@@ -126,7 +126,7 @@ export default function (props) {
         <div className="moreActionCon flexRow">
           <div className="flex">
             <h6 className="mTop20">{_l('AI填写')}</h6>
-            <p className="Gray_9e">
+            <p className="textTertiary">
               {_l('在表单中显示“AI填写”按钮。支持上传文字、图片或文档，AI 将自动解析并填写字段')}
             </p>
           </div>
@@ -141,7 +141,7 @@ export default function (props) {
       <div className="moreActionCon flexRow">
         <div className="flex">
           <h6 className="mTop20">{_l('存草稿')}</h6>
-          <p className="Gray_9e">{_l('在表单中显示存草稿按钮，草稿数据在下次打开时可以继续编辑并提交')}</p>
+          <p className="textTertiary">{_l('在表单中显示存草稿按钮，草稿数据在下次打开时可以继续编辑并提交')}</p>
         </div>
         <div className="mRight16 mLeft40 Relative">
           <Switch
@@ -154,7 +154,7 @@ export default function (props) {
         <div className="flexRow alignItemsCenter">
           <div className="flex">
             <h6 className="mTop20">{_l('继续创建时，保留本次提交内容')}</h6>
-            <p className="Gray_9e">{_l('启用后，在连续创建数据时可以自动填充上次提交的内容，减少重复输入')}</p>
+            <p className="textTertiary">{_l('启用后，在连续创建数据时可以自动填充上次提交的内容，减少重复输入')}</p>
           </div>
           <div className="mRight16 mLeft40 Relative">
             <Switch
@@ -206,7 +206,7 @@ export default function (props) {
                 />
               )}
             </div>
-            <div className="mTop12 Gray_75 Font13 Bold">{_l('保留方式')}</div>
+            <div className="mTop12 textSecondary Font13 Bold">{_l('保留方式')}</div>
             <RadioGroup
               className="autoreserveCon flexColumn"
               data={[
@@ -227,7 +227,7 @@ export default function (props) {
         <div className="flexRow alignItemsCenter">
           <div className="flex">
             <h6 className="mTop20">{_l('提交记录时二次确认')}</h6>
-            <p className="Gray_9e">{_l('在点击表单提交时，弹出二次确认层确认后提交')}</p>
+            <p className="textTertiary">{_l('在点击表单提交时，弹出二次确认层确认后提交')}</p>
           </div>
           <div className="mRight16 mLeft40 Relative">
             <Switch
@@ -265,9 +265,9 @@ export default function (props) {
         <div className="flex">
           <h6 className="mTop20">
             {_l('通过提交按钮新增时，立即执行工作流')}
-            <i className="icon-beta1 Font16 mLeft5" style={{ color: '#4caf50' }} />
+            <i className="icon-beta1 Font16 mLeft5" style={{ color: 'var(--color-success)' }} />
           </h6>
-          <p className="Gray_9e">
+          <p className="textTertiary">
             {_l(
               '启用后，通过点击表单提交按钮创建的记录，在触发工作流后会立即开始执行（无需系统默认的5s延时等待）。当执行完成或等待时会同时刷新前端数据。',
             )}

@@ -9,15 +9,15 @@ const ChartColorSettingBox = styled.div(
   ({ select = false }) => `
   width: 150px;
   height: 110px;
-  background: #FFFFFF;
-  border: 1px solid #DDDDDD;
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border-primary);
   border-radius: 4px;
   display: flex;
   justify-content: space-between;
   flex-direction: column;
   position: relative;
   &:hover {
-    border: 1px solid #1677ff;
+    border: 1px solid var(--color-primary);
     .chartWrap,
     .titleWrap {
       opacity: 1;
@@ -37,7 +37,7 @@ const ChartColorSettingBox = styled.div(
     &:hover {
       & + .ChartColorSetting_checkbox {
         .Checkbox-box {
-          border: 1px solid #1677ff;
+          border: 1px solid var(--color-primary);
         }
       }
     }
@@ -47,7 +47,7 @@ const ChartColorSettingBox = styled.div(
     }
   }
   .titleWrap {
-    border-top: 1px solid #DDDDDD;
+    border-top: 1px solid var(--color-border-primary);
     padding: 5px 3px 5px 10px;
     display: flex;
     justify-content: space-between;
@@ -63,9 +63,9 @@ const ChartColorSettingBox = styled.div(
       align-items: center;
       cursor: pointer;
       i {
-        color: #9E9E9E;
+        color: var(--color-text-tertiary);
         &:hover {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }
@@ -84,7 +84,7 @@ const ChartColorSettingBox = styled.div(
 const Menu = styled.div`
   width: 120px;
   padding: 6px 0;
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
   opacity: 1;
   border-radius: 4px;
@@ -96,13 +96,13 @@ const Menu = styled.div`
     display: flex;
     align-items: center;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
   .deleteItem {
-    color: #f44336;
+    color: var(--color-error);
     .icon {
-      color: #f44336;
+      color: var(--color-error);
     }
   }
 `;
@@ -136,7 +136,7 @@ export default function ChartColorSetting(props) {
               openDialog();
             }}
           >
-            <Icon icon="edit" className="Font18 Gray_9e mRight10" />
+            <Icon icon="edit" className="Font18 textTertiary mRight10" />
             {_l('编辑')}
           </div>
           <div
@@ -147,7 +147,7 @@ export default function ChartColorSetting(props) {
               copy();
             }}
           >
-            <Icon icon="copy" className="Font18 Gray_9e mRight10" />
+            <Icon icon="copy" className="Font18 textTertiary mRight10" />
             {_l('复制')}
           </div>
           <div
@@ -171,7 +171,7 @@ export default function ChartColorSetting(props) {
             openDialog();
           }}
         >
-          <Icon icon="follow" className="Font18 Gray_9e mRight10" />
+          <Icon icon="follow" className="Font18 textTertiary mRight10" />
           {_l('查看')}
         </div>
       )}

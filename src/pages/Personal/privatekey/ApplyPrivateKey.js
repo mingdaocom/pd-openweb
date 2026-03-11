@@ -100,7 +100,7 @@ export default class ApplyPrivateKey extends Component {
 
     return (
       <Fragment>
-        <span className="flexRow valignWrapper Gray_75 pointer" onClick={this.props.onClose}>
+        <span className="flexRow valignWrapper textSecondary pointer" onClick={this.props.onClose}>
           <Icon icon="backspace" className="mRight3 Font20" />
           {_l('返回')}
         </span>
@@ -108,7 +108,7 @@ export default class ApplyPrivateKey extends Component {
           <div className="Bold Font28 mBottom30">{_l('密钥申请')}</div>
           <div className="formItem">
             <div className="Font14 Bold mBottom5">{_l('服务器 ID')}</div>
-            <div className="mTop16 mBottom24 Gray_75">{serverId}</div>
+            <div className="mTop16 mBottom24 textSecondary">{serverId}</div>
           </div>
           <div className="formItem">
             <div className="Font14 Bold mBottom5">{_l('组织名称')}</div>

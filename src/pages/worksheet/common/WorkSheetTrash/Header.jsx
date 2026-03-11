@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
@@ -21,7 +21,7 @@ const Con = styled.div`
     margin-right: 8px;
     border-radius: 5px;
     &:hover {
-      background: #f7f7f7;
+      background: var(--color-background-hover);
     }
   }
   .worksheetFilterBtn {
@@ -33,7 +33,7 @@ const Con = styled.div`
 
 const Tip = styled.div`
   margin-top: 2px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
 `;
 
 const Clear = styled.span`
@@ -41,7 +41,7 @@ const Clear = styled.span`
   margin-top: 2px;
   font-weight: 600;
   cursor: pointer;
-  color: #1677ff;
+  color: var(--color-primary);
 `;
 
 const Title = styled.div`
@@ -55,7 +55,7 @@ const Operate = styled.span`
   .icon-worksheet_filter,
   .inputCon > .icon-search {
     &:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
   .actionWrap {
@@ -66,7 +66,7 @@ const Operate = styled.span`
     border-radius: 5px;
     padding: 0 5px;
     &:hover {
-      background: #f7f7f7;
+      background: var(--color-background-hover);
     }
   }
 `;
@@ -75,9 +75,9 @@ const Close = styled.span`
   cursor: pointer;
   line-height: 1em;
   font-size: 22px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   &:hover {
-    color: #1677ff;
+    color: var(--color-primary);
   }
 `;
 
@@ -93,6 +93,7 @@ function Header(props, ref) {
     pageIndex,
     pageSize = 25,
     count = 0,
+    errorCode,
     controls = [],
     loadRows = () => {},
     onClear = () => {},
@@ -126,12 +127,13 @@ function Header(props, ref) {
     <Con>
       <div className="flex flexRow overflow_ellipsis">
         <Title className="overflow_ellipsis">{title}</Title>
+
         <Tip> {_l('%0%1天后将被自动删除', entityName, md.global.SysSettings.worksheetRowRecycleDays)} </Tip>
-        {isCharge && (
+        {isCharge && errorCode !== 300016 && (
           <Clear
             onClick={() => {
               Dialog.confirm({
-                title: <span style={{ color: '#f44336' }}>{_l('是否清空回收站')}</span>,
+                title: <span style={{ color: 'var(--color-error)' }}>{_l('是否清空回收站')}</span>,
                 buttonType: 'danger',
                 anim: false,
                 description: _l('清空后，记录无法恢复，请谨慎操作！'),
@@ -144,52 +146,56 @@ function Header(props, ref) {
         )}
       </div>
       <Operate>
-        <SearchInput
-          ref={inputRef}
-          active={searchActive}
-          value={searchText}
-          className="queryInput"
-          onFocus={() => !searchActive && setSearchActive(true)}
-          onBlur={() => searchActive && setSearchActive(false)}
-          onOk={value => {
-            setSearchText(value);
-            loadRows({ pageIndex: 1, searchText: value });
-          }}
-          onClear={() => {
-            loadRows({ pageIndex: 1, searchText: '' });
-            setSearchActive(false);
-          }}
-        />
-        <WorkSheetFilter
-          type="trash"
-          className="actionWrap"
-          onlyUseEditing
-          zIndex={1000}
-          isCharge={isCharge}
-          appId={appId}
-          viewId={viewId}
-          projectId={projectId}
-          worksheetId={worksheetId}
-          filterResigned={false}
-          columns={controls}
-          onChange={({ searchType, filterControls }) => {
-            loadRows({ pageIndex: 1, searchType, filterControls });
-          }}
-        />
-        <Pagination
-          className="pagination"
-          pageIndex={pageIndex}
-          pageSize={pageSize}
-          allCount={count}
-          onPrev={() => {
-            loadRows({ pageIndex: pageIndex - 1 });
-          }}
-          onNext={() => {
-            loadRows({ pageIndex: pageIndex + 1 });
-          }}
-          changePageSize={changePageSize}
-          changePageIndex={changePageIndex}
-        />
+        {errorCode !== 300016 && (
+          <Fragment>
+            <SearchInput
+              ref={inputRef}
+              active={searchActive}
+              value={searchText}
+              className="queryInput"
+              onFocus={() => !searchActive && setSearchActive(true)}
+              onBlur={() => searchActive && setSearchActive(false)}
+              onOk={value => {
+                setSearchText(value);
+                loadRows({ pageIndex: 1, searchText: value });
+              }}
+              onClear={() => {
+                loadRows({ pageIndex: 1, searchText: '' });
+                setSearchActive(false);
+              }}
+            />
+            <WorkSheetFilter
+              type="trash"
+              className="actionWrap"
+              onlyUseEditing
+              zIndex={1000}
+              isCharge={isCharge}
+              appId={appId}
+              viewId={viewId}
+              projectId={projectId}
+              worksheetId={worksheetId}
+              filterResigned={false}
+              columns={controls}
+              onChange={({ searchType, filterControls }) => {
+                loadRows({ pageIndex: 1, searchType, filterControls });
+              }}
+            />
+            <Pagination
+              className="pagination"
+              pageIndex={pageIndex}
+              pageSize={pageSize}
+              allCount={count}
+              onPrev={() => {
+                loadRows({ pageIndex: pageIndex - 1 });
+              }}
+              onNext={() => {
+                loadRows({ pageIndex: pageIndex + 1 });
+              }}
+              changePageSize={changePageSize}
+              changePageIndex={changePageIndex}
+            />
+          </Fragment>
+        )}
         <Close onClick={onCancel}>
           <i className="icon icon-close" />
         </Close>

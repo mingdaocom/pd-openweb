@@ -40,7 +40,7 @@ const OnlySyncWrapper = styled.div`
     width: 64px;
     min-width: 64px;
     height: 56px;
-    color: #1677ff;
+    color: var(--color-primary);
   }
   .dbItem {
     display: flex;
@@ -55,9 +55,9 @@ const OnlySyncWrapper = styled.div`
   }
   .multiplePkTips {
     padding: 10px 16px;
-    background: #f7f7f7;
+    background: var(--color-background-secondary);
     border-radius: 3px;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     margin-bottom: 20px;
     width: fit-content;
   }
@@ -67,18 +67,18 @@ const OnlySyncWrapper = styled.div`
     width: fit-content;
     margin-top: 20px;
     cursor: pointer;
-    color: #1677ff;
+    color: var(--color-primary);
     &:hover {
-      color: #1565c0;
+      color: var(--color-link-hover);
       i {
-        color: #1565c0;
+        color: var(--color-link-hover);
       }
     }
   }
   .timingSettingWrapper {
     margin-bottom: 16px;
     padding-bottom: 32px;
-    border-bottom: 1px solid #bdbdbd;
+    border-bottom: 1px solid var(--color-text-disabled);
   }
 `;
 
@@ -90,7 +90,7 @@ const NoDataContent = styled.div`
   width: 100%;
   min-height: 200px;
   margin-top: 24px;
-  border: 2px solid #f2f2f2;
+  border: 2px solid var(--color-background-disabled);
   border-radius: 5px;
 
   .noContentIcon {
@@ -99,9 +99,9 @@ const NoDataContent = styled.div`
     align-items: center;
     width: 130px;
     height: 130px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     border-radius: 50%;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 `;
 
@@ -588,8 +588,8 @@ export default function OnlySyncStep(props) {
         return {
           label: (
             <div className="flexRow alignItemsCenter">
-              <Icon icon={getIconByType(item.mdType, false)} className="Gray_9e Font18" />
-              <span title={item.name} className="mLeft8 overflow_ellipsis Gray">
+              <Icon icon={getIconByType(item.mdType, false)} className="textTertiary Font18" />
+              <span title={item.name} className="mLeft8 overflow_ellipsis textPrimary">
                 {item.name}
               </span>
             </div>
@@ -601,7 +601,7 @@ export default function OnlySyncStep(props) {
     return (
       <React.Fragment>
         <p className="mTop20 mBottom8 bold">{_l('重复数据')}</p>
-        <p className="mBottom12 Gray_9e">{_l('未选择目标字段时, 会根据数据源的主键字段判断重复')}</p>
+        <p className="mBottom12 textTertiary">{_l('未选择目标字段时, 会根据数据源的主键字段判断重复')}</p>
         <div className="flexRow alignItemsCenter">
           <span className="nowrap">{_l('在同步时，依据目标字段')}</span>
           <div className="Width120 mLeft12 mRight12">
@@ -629,7 +629,7 @@ export default function OnlySyncStep(props) {
           </div>
           {_.get(sheetData, [currentTab.db, currentTab.table, 'writeMode']) === 'OVERWRITE' && (
             <Tooltip title={_l('“覆盖”会导致数据同步变慢。')}>
-              <Icon icon="info_outline" className="Font16 Gray_bd pointer" />
+              <Icon icon="info_outline" className="Font16 textDisabled pointer" />
             </Tooltip>
           )}
         </div>
@@ -674,8 +674,8 @@ export default function OnlySyncStep(props) {
         return {
           label: (
             <div className="flexRow alignItemsCenter">
-              <Icon icon={getIconByType(item.mdType, false)} className="Gray_9e Font18" />
-              <span title={item.name} className="mLeft8 overflow_ellipsis Gray">
+              <Icon icon={getIconByType(item.mdType, false)} className="textTertiary Font18" />
+              <span title={item.name} className="mLeft8 overflow_ellipsis textPrimary">
                 {item.name}
               </span>
             </div>
@@ -744,7 +744,7 @@ export default function OnlySyncStep(props) {
                 : _l('仅用于数据同步，不会改变数据库字段属性，建议使用索引列。')
             }
           >
-            <Icon icon="info_outline" className="Font16 Gray_bd pointer mLeft12" />
+            <Icon icon="info_outline" className="Font16 textDisabled pointer mLeft12" />
           </Tooltip>
         </div>
       </React.Fragment>
@@ -951,7 +951,7 @@ export default function OnlySyncStep(props) {
                                 <div className="noContentIcon">
                                   <Icon icon="ic-line" className="Font64" />
                                 </div>
-                                <p className="Gray_75 Font15 mTop24 mBottom0">{_l('数据源暂无可映射字段')}</p>
+                                <p className="textSecondary Font15 mTop24 mBottom0">{_l('数据源暂无可映射字段')}</p>
                               </div>
                             </NoDataContent>
                           ) : (
@@ -993,7 +993,7 @@ export default function OnlySyncStep(props) {
                               {isDestAppType && (
                                 <React.Fragment>
                                   <p className="mTop20 mBottom8 bold">{_l('触发工作流')}</p>
-                                  <p className="mBottom12 Gray_9e">
+                                  <p className="mBottom12 textTertiary">
                                     {_l('同步数据时，是否触发工作表绑定的自动化工作流')}
                                   </p>
                                   <div className="flexRow">
@@ -1030,7 +1030,7 @@ export default function OnlySyncStep(props) {
                 <div className="noContentIcon">
                   <Icon icon="ic-line" className="Font64" />
                 </div>
-                <p className="Gray_75 Font15 mTop24 mBottom0">{_l('请先从左侧选择数据对象')}</p>
+                <p className="textSecondary Font15 mTop24 mBottom0">{_l('请先从左侧选择数据对象')}</p>
               </div>
             </NoDataContent>
           )}

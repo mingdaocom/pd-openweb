@@ -9,7 +9,7 @@ export const socketInit = () => {
       reconnectionAttempts: 100,
       timeout: 15000,
       query:
-        !md.global.Config.IsLocal ||
+        (!window.platformENV.isOverseas && !window.platformENV.isLocal) ||
         window.top !== window.self ||
         md.global.Config.IsMultiMds2 ||
         location.href.indexOf('localhost') > -1

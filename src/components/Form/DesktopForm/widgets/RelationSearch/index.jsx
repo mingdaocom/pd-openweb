@@ -15,8 +15,8 @@ import { getCardColNum, LoadingButton } from 'worksheet/components/RelateRecordC
 import RelateRecordTable from 'worksheet/components/RelateRecordTable';
 import { Button } from 'worksheet/components/RelateRecordTable/RelateRecordBtn.jsx';
 import { RECORD_INFO_FROM, RELATION_SEARCH_SHOW_TYPE } from 'worksheet/constants/enum';
-import { controlState, getTitleTextFromRelateControl, getValueStyle } from 'src/components/Form/core/utils';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { controlState, getTitleTextFromRelateControl, getValueStyle } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 import { addBehaviorLog } from 'src/utils/project';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
@@ -73,8 +73,8 @@ const RecordTextAdd = styled(FlexCenter)`
   height: 20px;
   color: var(--color-text-primary);
   font-size: 13px;
-  background: #f7f6f8;
-  color: #9d9d9d;
+  background: var(--color-background-secondary);
+  color: var(--color-text-tertiary);
   &:hover {
     color: var(--color-primary);
   }
@@ -127,6 +127,7 @@ function Cards(props) {
     pageIndex,
     onAdd,
     onOpen,
+    appId,
   } = props;
   let { records } = props;
   if (control.type === 51 && control.enumDefault === 1) {
@@ -152,6 +153,7 @@ function Cards(props) {
             <RecordCoverCard
               projectId={projectId}
               viewId={viewId}
+              appId={appId}
               disabled
               isCharge={isCharge}
               hideTitle={hideTitle}
@@ -261,6 +263,7 @@ function RelationSearch(props) {
     advancedSetting,
     enumDefault,
     enumDefault2,
+    appId,
   } = props;
 
   const control = { ...props };
@@ -315,6 +318,7 @@ function RelationSearch(props) {
       control: { ...control, relationControls, recordId },
       formData: control.formData,
       filterKey: 'resultfilters',
+      appId,
     });
     cache.current.filter = filterControls;
     if (filterControls === false) {
@@ -406,6 +410,7 @@ function RelationSearch(props) {
       control: { ...control, relationControls: controls, recordId },
       formData: control.formData,
       filterKey: 'resultfilters',
+      appId,
     });
     if (!_.isUndefined(cache.current.filter) && newFilter && !_.isEqual(cache.current.filter, newFilter)) {
       cache.current.filter = newFilter;
@@ -450,6 +455,7 @@ function RelationSearch(props) {
             colNum,
             projectId,
             viewId,
+            appId,
             isCharge,
             controls,
             advancedSetting,
@@ -562,11 +568,12 @@ export function RelationSearchDialog(props) {
 export const openRelationSearchDialog = props => functionWrap(RelationSearchDialog, props);
 
 export default function (props) {
-  const { isCharge, worksheetId, recordId, disabled, formData, updateWorksheetControls } = props;
+  const { isCharge, appId, worksheetId, recordId, disabled, formData, updateWorksheetControls } = props;
 
   if (props.advancedSetting.showtype === String(RELATION_SEARCH_SHOW_TYPE.EMBED_LIST)) {
     return (
       <RelateRecordTable
+        appId={appId}
         control={{ ...props }}
         isDraft={props.isDraft}
         allowEdit={!disabled}

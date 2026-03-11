@@ -40,7 +40,7 @@ export default function SortConfig(props) {
         />
       </SettingItem>
       {isDefault ? (
-        <div className="Gray_9e mTop10">
+        <div className="textTertiary mTop10">
           {_.get(
             _.find(RELATE_SORT_DISPLAY, r => r.value === sorttype),
             'text',

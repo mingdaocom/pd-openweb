@@ -1,34 +1,36 @@
-import React, { Component, createRef, useEffect, useState } from 'react';
+import React, { Component, createRef, Fragment, useEffect, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, Icon, Input, Textarea } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import projectEncryptAjax from 'src/api/projectEncrypt';
+import AddEditRulesDialog from './AddEditRulesDialog';
 import { encryptList } from './constant';
 
 const BaseInfoWrap = styled(Dialog)`
   .ming.Input {
     height: 34px;
-    border: 1px solid #eaeaea;
-    background: #fff;
+    border: 1px solid var(--color-border-secondary);
+    background: var(--color-background-primary);
     border-radius: 4px;
   }
   .ming.Textarea {
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
   }
   .ming.Input:hover,
   .ming.Input:focus,
   .ming.Textarea:hover:not(:disabled),
   .ming.Textarea:focus {
-    border-color: #eaeaea;
+    border-color: var(--color-border-secondary);
   }
 `;
 
 const Wrap = styled.div`
   width: 100%;
-  color: #757575;
+  color: var(--color-text-secondary);
   font-size: 13px;
   padding: 20px 20px 0;
+  overflow: auto;
   .keyInfo {
     white-space: pre-wrap;
     word-break: break-word;
@@ -44,7 +46,7 @@ const handleMask = (val, isMask) => {
 
   let arr = val.split('');
   let result = arr.map((it, index) => {
-    if (index < 4 || index > arr.length - 5) {
+    if (arr.length > 15 && (index < 4 || index > arr.length - 5)) {
       return it;
     }
     return '*';
@@ -126,6 +128,9 @@ export default class EncryptBaseInfo extends Component {
     this.state = {
       maskKey: true,
       maskIv: true,
+      maskEncryptUrl: true,
+      maskDecryptUrl: true,
+      maskToken: true,
     };
   }
   componentDidMount() {
@@ -146,44 +151,109 @@ export default class EncryptBaseInfo extends Component {
       });
   };
   render() {
-    const { showEditBaseInfo, ruleDetail = {}, maskIv, maskKey } = this.state;
+    const {
+      showEditBaseInfo,
+      ruleDetail = {},
+      maskIv,
+      maskKey,
+      maskEncryptUrl,
+      maskDecryptUrl,
+      maskToken,
+      showEditEncryptConfig,
+    } = this.state;
     const { projectId } = this.props;
 
     return (
       <Wrap>
-        <div className="encryptWay">
-          <span className="Font17 bold mRight6 Gray">{ruleDetail.name}</span>
-          {!ruleDetail.isSystem && (
-            <Icon icon="edit" className="Gray_bd Hand" onClick={() => this.setState({ showEditBaseInfo: true })} />
+        <div className="encryptWay flexRow">
+          <span className="Font17 bold mRight6 textPrimary">{ruleDetail.name}</span>
+          {ruleDetail.type !== 1000 && !ruleDetail.isSystem && (
+            <Icon icon="edit" className="textDisabled Hand" onClick={() => this.setState({ showEditBaseInfo: true })} />
+          )}
+          {ruleDetail.type === 1000 && (
+            <Fragment>
+              <div className="flex"></div>
+              <div className="flex-shrink-0">
+                <span
+                  className="ThemeColor3 ThemeHoverColor2 Hand"
+                  onClick={() => this.setState({ showEditEncryptConfig: true })}
+                >
+                  {_l('编辑配置')}
+                </span>
+              </div>
+            </Fragment>
           )}
         </div>
         <div className="mBottom30 ellipsis" title={ruleDetail.remark}>
           {ruleDetail.remark}
         </div>
         <div>{_l('加密方式')}</div>
-        <div className="Gray mBottom30">
+        <div className="textPrimary mBottom30">
           {_.get(_.find(encryptList, it => it.value === ruleDetail.type) || {}, 'label')}
         </div>
-        <div>Key</div>
-        <div className="Gray mBottom30 keyInfo">
-          {handleMask(ruleDetail.key, maskKey)}
-          <Tooltip title={maskKey ? _l('解码') : _l('掩码')}>
-            <i
-              className={`icon Font14 Gray_bd mLeft10 ${maskKey ? 'icon-eye_off' : 'icon-eye'}`}
-              onClick={() => this.setState({ maskKey: !maskKey })}
-            ></i>
-          </Tooltip>
-        </div>
-        <div>IV</div>
-        <div className="Gray mBottom30">
-          {handleMask(ruleDetail.iv, maskIv)}
-          <Tooltip title={maskIv ? _l('解码') : _l('掩码')}>
-            <i
-              className={`icon Font14 Gray_bd mLeft10 ${maskIv ? 'icon-eye_off' : 'icon-eye'}`}
-              onClick={() => this.setState({ maskIv: !maskIv })}
-            ></i>
-          </Tooltip>
-        </div>
+        {ruleDetail.type == 1000 ? (
+          <Fragment>
+            <div>加密请求地址</div>
+            <div className="Gray mBottom30">
+              {handleMask(ruleDetail.encryptUrl, maskEncryptUrl)}
+              <Tooltip title={maskIv ? _l('解码') : _l('掩码')}>
+                <i
+                  className={`icon Font14 textDisabled mLeft10 ${maskEncryptUrl ? 'icon-eye_off' : 'icon-eye'}`}
+                  onClick={() => this.setState({ maskEncryptUrl: !maskEncryptUrl })}
+                ></i>
+              </Tooltip>
+            </div>
+            <div>解密请求地址</div>
+            <div className="Gray mBottom30">
+              {handleMask(ruleDetail.decryptUrl, maskDecryptUrl)}
+              <Tooltip title={maskDecryptUrl ? _l('解码') : _l('掩码')}>
+                <i
+                  className={`icon Font14 textDisabled mLeft10 ${maskDecryptUrl ? 'icon-eye_off' : 'icon-eye'}`}
+                  onClick={() => this.setState({ maskDecryptUrl: !maskDecryptUrl })}
+                ></i>
+              </Tooltip>
+            </div>
+            <div>Token</div>
+            <div className="Gray mBottom30">
+              {ruleDetail.token ? (
+                <Fragment>
+                  {handleMask(ruleDetail.token, maskToken)}
+                  <Tooltip title={maskToken ? _l('解码') : _l('掩码')}>
+                    <i
+                      className={`icon Font14 textDisabled mLeft10 ${maskToken ? 'icon-eye_off' : 'icon-eye'}`}
+                      onClick={() => this.setState({ maskToken: !maskToken })}
+                    ></i>
+                  </Tooltip>
+                </Fragment>
+              ) : (
+                ''
+              )}
+            </div>
+          </Fragment>
+        ) : (
+          <Fragment>
+            <div>Key</div>
+            <div className="Gray mBottom30 keyInfo">
+              {handleMask(ruleDetail.key, maskKey)}
+              <Tooltip title={maskKey ? _l('解码') : _l('掩码')}>
+                <i
+                  className={`icon Font14 textDisabled mLeft10 ${maskKey ? 'icon-eye_off' : 'icon-eye'}`}
+                  onClick={() => this.setState({ maskKey: !maskKey })}
+                ></i>
+              </Tooltip>
+            </div>
+            <div>IV</div>
+            <div className="Gray mBottom30">
+              {handleMask(ruleDetail.iv, maskIv)}
+              <Tooltip title={maskIv ? _l('解码') : _l('掩码')}>
+                <i
+                  className={`icon Font14 textDisabled mLeft10 ${maskIv ? 'icon-eye_off' : 'icon-eye'}`}
+                  onClick={() => this.setState({ maskIv: !maskIv })}
+                ></i>
+              </Tooltip>
+            </div>
+          </Fragment>
+        )}
 
         <EditBaseInfo
           visible={showEditBaseInfo}
@@ -193,6 +263,22 @@ export default class EncryptBaseInfo extends Component {
           getDetail={this.getDetail}
           onCancel={() => this.setState({ showEditBaseInfo: false })}
         />
+
+        {showEditEncryptConfig && (
+          <AddEditRulesDialog
+            type="edit"
+            projectId={projectId}
+            visible={showEditEncryptConfig}
+            ruleList={[]}
+            ruleDetail={ruleDetail}
+            onCancel={() => this.setState({ showEditEncryptConfig: false })}
+            getDataList={() => this.setState({ pageIndex: 1 }, this.getDataList)}
+            updateCurrentRow={data => {
+              this.setState({ ruleDetail: { ...ruleDetail, ...data } });
+              this.props.updateCurrentRow(data);
+            }}
+          />
+        )}
       </Wrap>
     );
   }

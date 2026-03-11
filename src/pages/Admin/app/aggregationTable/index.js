@@ -207,42 +207,38 @@ export default class AggregationTable extends Component {
         <AdminTitle prefix={_l('聚合表')} />
         <div className="orgManagementHeader">{_l('聚合表')}</div>
         <div className="orgManagementContent flexColumn">
-          {!md.global.Config.IsLocal && (
-            <div className="appManagementCount">
-              {featureType === '2' ? (
-                <Fragment>
-                  <span>{_l('升级版本后可在应用中创建聚合表')}</span>
-                  <a
-                    href="javascript:void(0);"
-                    className="ThemeColor3 ThemeHoverColor2 mLeft8 NoUnderline"
-                    onClick={() => buriedUpgradeVersionDialog(projectId, VersionProductType.aggregation)}
-                  >
-                    {_l('升级版本')}
-                  </a>
-                </Fragment>
-              ) : (
-                <Fragment>
-                  <span className="Gray_9e mRight5">{_l('已启用聚合表个数')}</span>
-                  <span className="bold">
-                    {_l('%0 / %1 个', effectiveAggregationTableCount, limitAggregationTableCount)}
-                  </span>
-                  <span className="Gray_9e mLeft15 mRight5">{_l('剩余')}</span>
-                  <span className="bold">
-                    {_l('%0个', limitAggregationTableCount - effectiveAggregationTableCount)}
-                  </span>
-                  {!md.global.Config.IsLocal && (
-                    <PurchaseExpandPack
-                      className="ThemeHoverColor2 mLeft5"
-                      text={_l('扩充')}
-                      type="aggregationtable"
-                      routePath="expansionserviceAggregationtable"
-                      projectId={projectId}
-                    />
-                  )}
-                </Fragment>
-              )}
-            </div>
-          )}
+          <div className="appManagementCount">
+            {featureType === '2' ? (
+              <Fragment>
+                <span>{_l('升级版本后可在应用中创建聚合表')}</span>
+                <a
+                  href="javascript:void(0);"
+                  className="ThemeColor3 ThemeHoverColor2 mLeft8 NoUnderline"
+                  onClick={() => buriedUpgradeVersionDialog(projectId, VersionProductType.aggregation)}
+                >
+                  {_l('升级版本')}
+                </a>
+              </Fragment>
+            ) : (
+              <Fragment>
+                <span className="textTertiary mRight5">{_l('已启用聚合表个数')}</span>
+                <span className="bold">
+                  {_l('%0 / %1 个', effectiveAggregationTableCount, limitAggregationTableCount)}
+                </span>
+                <span className="textTertiary mLeft15 mRight5">{_l('剩余')}</span>
+                <span className="bold">{_l('%0个', limitAggregationTableCount - effectiveAggregationTableCount)}</span>
+                {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+                  <PurchaseExpandPack
+                    className="ThemeHoverColor2 mLeft5"
+                    text={_l('扩充')}
+                    type="aggregationtable"
+                    routePath="expansionserviceAggregationtable"
+                    projectId={projectId}
+                  />
+                )}
+              </Fragment>
+            )}
+          </div>
           <div className="flexRow">
             <Select
               className="w180 mdAntSelect"
@@ -257,7 +253,7 @@ export default class AggregationTable extends Component {
                   .indexOf(inputValue.toLowerCase()) > -1
               }
               suffixIcon={<Icon icon="arrow-down-border Font14" />}
-              notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
+              notFoundContent={<span className="textTertiary">{_l('无搜索结果')}</span>}
               onSearch={_.debounce(val => this.setState({ keyword: val, appPageIndex: 1 }, this.getAppList), 500)}
               onChange={value => this.setState({ appId: value, pageIndex: 1 }, this.searchDataList)}
               onPopupScroll={e => {
@@ -287,6 +283,7 @@ export default class AggregationTable extends Component {
               placeholder={_l('搜索创建人')}
               projectId={projectId}
               userInfo={userInfo}
+              isAdmin
               changeData={data => this.setState({ userInfo: data }, this.searchDataList)}
             />
             <div className="flex" />
@@ -367,16 +364,19 @@ export default class AggregationTable extends Component {
                         <div
                           className="iconWrap"
                           style={{
-                            backgroundColor: item.taskStatus !== TASK_STATUS_TYPE.RUNNING ? '#bdbdbd' : '#0096EF',
+                            backgroundColor:
+                              item.taskStatus !== TASK_STATUS_TYPE.RUNNING
+                                ? 'var(--color-text-disabled)'
+                                : 'var(--color-primary)',
                           }}
                         >
-                          <Icon icon="aggregate_table" className="Font24 White" />
+                          <Icon icon="aggregate_table" className="Font24 textWhite" />
                         </div>
                         <div className="flex flexColumn name mLeft10 mRight40 ellipsis">
                           <div className="ellipsis Font14" title={name}>
                             {name}
                           </div>
-                          <div className="ellipsis Font12 Gray_bd" title={appName}>
+                          <div className="ellipsis Font12 textDisabled" title={appName}>
                             {appName}
                           </div>
                         </div>
@@ -405,7 +405,7 @@ export default class AggregationTable extends Component {
                             this.changeTask(item);
                           }}
                         />
-                        {aggTableTaskStatus === 0 && <span className="Gray_75">{_l('未发布')}</span>}
+                        {aggTableTaskStatus === 0 && <span className="textSecondary">{_l('未发布')}</span>}
                         {taskStatus !== TASK_STATUS_TYPE.RUNNING && errorInfo && (
                           <Tooltip
                             placement="bottomRight"

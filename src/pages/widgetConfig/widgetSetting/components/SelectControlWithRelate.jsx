@@ -75,7 +75,7 @@ export default function SelectControlWithRelate({
     <SelectFieldsWrap ref={ref} className={className}>
       {searchable && (
         <div className="search">
-          <i className="icon-search Gray_9e" />
+          <i className="icon-search textTertiary" />
           <input
             value={searchValue}
             onChange={e => setSearchValue(e.target.value)}

@@ -19,7 +19,7 @@ import ScrollBar from './ScrollBar';
 
 const Con = styled.div`
   position: relative;
-  border-top: 1px solid #f1f1f1;
+  border-top: 1px solid var(--color-background-disabled);
   > div {
     box-sizing: border-box;
   }
@@ -36,7 +36,7 @@ const Con = styled.div`
 `;
 
 const TableBorder = styled.div`
-  border-left: 1px solid #f1f1f1;
+  border-left: 1px solid var(--color-background-disabled);
   width: 0px;
   position: absolute;
   top: 0;
@@ -72,6 +72,7 @@ function setScrollY(cache, newTop) {
 function FixedTable(props, ref) {
   const {
     noRenderEmpty,
+    isGroupTableView,
     isSubList,
     loading,
     showLoadingMask,
@@ -99,6 +100,7 @@ function FixedTable(props, ref) {
     disablePanVertical,
     tableFooter,
     onScroll = () => {},
+    renderCompInMainCenter,
   } = props;
   let height = props.height;
   let withFooterHeight = props.height;
@@ -129,7 +131,8 @@ function FixedTable(props, ref) {
     [width, tableSize.width, leftFixedCount, rightFixedCount, columnCount],
   );
   const YIsScroll = useMemo(
-    () => !disableYScroll && tableSize.height > height - columnHeadHeight - (bottomFixedCount ? 28 : 0),
+    () =>
+      !disableYScroll && tableSize.height > height - (showHead ? columnHeadHeight : 0) - (bottomFixedCount ? 28 : 0),
     [height, tableSize.height, topFixedCount, columnHeadHeight, bottomFixedCount, rowCount],
   );
   const tableConfigs = [
@@ -155,7 +158,7 @@ function FixedTable(props, ref) {
       leftFixed: true,
       visible: leftFixedCount > 0 && rowCount > 0,
     },
-    { id: 'main-center', visible: rowCount > 0 },
+    { id: 'main-center', visible: rowCount > 0, renderCustomComp: renderCompInMainCenter },
     { id: 'main-right', rightFixed: true, visible: rightFixedCount > 0 && rowCount > 0 },
     {
       id: 'bottom-left',
@@ -190,6 +193,7 @@ function FixedTable(props, ref) {
     .map(t => (
       <Grid
         {...Object.assign(t, {
+          isGroupTableView,
           width: YIsScroll ? width - barWidth : width,
           height: XIsScroll ? height + barWidth * -1 : height,
           columnHeadHeight,
@@ -489,7 +493,7 @@ function FixedTable(props, ref) {
             width: '100%',
             height: `calc(100% - ${columnHeadHeight}px)`,
             overflow: 'hidden',
-            backgroundColor: '#fff',
+            backgroundColor: 'var(--color-background-primary)',
           }}
         >
           <Skeleton
@@ -512,7 +516,7 @@ function FixedTable(props, ref) {
             height: '100%',
             overflow: 'hidden',
             backgroundColor: 'rgba(255,255,255,0.9)',
-            color: '#777',
+            color: 'var(--color-text-secondary)',
           }}
         >
           {loadingMaskChildren}

@@ -124,12 +124,12 @@ export const FLOW_FAIL_REASON = {
  * 状态对应的颜色值
  */
 export const STATUS2COLOR = {
-  delete: { color: '#ffa340', bgColor: '#fff5eb' },
-  pending: { color: '#2195f3', bgColor: '#e7f3fd' },
-  fail: { color: '#f44336', bgColor: '#fdebe9' },
-  suspend: { color: '#ffa340', bgColor: '#fff5eb' },
-  completed: { color: '#01ca83', bgColor: '#e5f9f1' },
-  revoke: { color: '#ffa340', bgColor: '#fff5eb' },
+  delete: { color: '#ffa340', bgColor: 'var(--color-warning-bg)' },
+  pending: { color: '#2195f3', bgColor: 'var(--color-info-bg)' },
+  fail: { color: '#F44336', bgColor: 'var(--color-error-bg)' },
+  suspend: { color: '#ffa340', bgColor: 'var(--color-warning-bg)' },
+  completed: { color: '#01ca83', bgColor: 'var(--color-success-bg)' },
+  revoke: { color: '#ffa340', bgColor: 'var(--color-warning-bg)' },
 };
 
 /**

@@ -23,7 +23,9 @@ const RadioWidget = props => {
       return <CustomOptionCapsule tagColor={item.color}>{content}</CustomOptionCapsule>;
     }
 
-    return <span style={{ background: checkIds.length > 1 ? 'var(--color-background-tertiary)' : '' }}>{content}</span>;
+    return (
+      <span style={{ background: checkIds.length > 1 ? 'var(--color-background-secondary)' : '' }}>{content}</span>
+    );
   };
 
   const onChange = key => {

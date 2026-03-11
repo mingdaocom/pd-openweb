@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import store from 'redux/configureStore';
 import { Drawer } from 'antd';
 import { SpinLoading } from 'antd-mobile';
 import cx from 'classnames';
@@ -12,6 +11,7 @@ import worksheetApi from 'src/api/worksheet';
 import { formatFilterValues } from 'worksheet/common/Sheet/QuickFilter/utils';
 import { formatFilters } from 'src/pages/customPage/components/editWidget/filter/util';
 import { updateFiltersGroup, updatePageInfo } from 'src/pages/customPage/redux/action';
+import store from 'src/redux/configureStore';
 import { getTranslateInfo } from 'src/utils/app';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import * as actions from '../redux/actions';
@@ -32,14 +32,16 @@ const FilterEntry = styled.div`
   &.big {
     width: 100%;
   }
-  &.highlight {
-    color: #1677ff;
-    .icon {
-      color: #1677ff !important;
-    }
+  .highlight {
+    color: var(--color-primary);
   }
   .name {
     color: var(--title-color);
+  }
+  .filterContent {
+    border-top: 1px solid var(--color-background-disabled);
+    overflow-x: auto;
+    overflow-y: hidden;
   }
 `;
 
@@ -52,13 +54,15 @@ const DrawerWrap = styled(Drawer)`
 
 function FilterContent(props) {
   const { ids = {}, apk = {}, widget, className = '' } = props;
-  const { id, value } = widget;
+  const { id, value, mobile } = widget;
   const [loading, setLoading] = useState(true);
   const [filtersGroup, setFiltersGroup] = useState({});
   const [visible, setVisible] = useState(false);
   const [otherFiltersGroup, setOtherFiltersGroup] = useState([]);
+  const [filtersText, setFiltersText] = useState([]);
   const isEdit = className.includes('disableFiltersGroup');
   const translateInfo = getTranslateInfo(ids.appId, null, id);
+  const height = _.get(mobile, 'layout.h') || 1;
 
   const filters = formatFilters(filtersGroup.filters || []).filter(c => !c.className.includes('disable'));
 
@@ -148,23 +152,36 @@ function FilterContent(props) {
   }
 
   return (
-    <Wrap className={cx('flexRow valignWrapper w100', className)} style={{ height: 40 }}>
-      <FilterEntry
-        className={cx('flexRow valignWrapper big', {
-          highlight: otherFiltersGroup.length,
-        })}
-        onClick={() => {
-          setVisible(true);
-        }}
-      >
-        <Icon className="Font20 Gray_9e" icon="filter" />
-        <div className="flexRow valignWrapper w100">
-          <span className="Font15 flex mLeft5 name">{_l('筛选')}</span>
-          {!!otherFiltersGroup.length && (
-            <span className="mLeft5 mRight6">{_l('已筛%0项', otherFiltersGroup.length)}</span>
-          )}
-          <Icon className="Font18 Gray_9e" icon="arrow-right-border" />
+    <Wrap className={cx('w100 h100', className)}>
+      <FilterEntry className="flexColumn valignWrapper big">
+        <div
+          className={cx('flexRow valignWrapper flex w100', { highlight: otherFiltersGroup.length })}
+          onClick={() => {
+            setVisible(true);
+          }}
+        >
+          <Icon className="Font20 textTertiary" icon="filter" />
+          <div className="flexRow valignWrapper w100">
+            <span className="Font15 flex mLeft5 name">{_l('筛选')}</span>
+            {!!otherFiltersGroup.length && (
+              <span className="mLeft5 mRight6">{_l('已筛%0项', otherFiltersGroup.length)}</span>
+            )}
+            <Icon className="Font18 textTertiary" icon="arrow-right-border" />
+          </div>
         </div>
+        {height > 1 && (
+          <div
+            className={cx('flexRow flex alignItemsCenter w100 filterContent', {
+              justifyContentCenter: !otherFiltersGroup.length,
+            })}
+          >
+            {otherFiltersGroup.length ? (
+              <div className="nowrap Font13 bold">{filtersText.join('; ')}</div>
+            ) : (
+              <span className="textDisabled">{_l('无筛选内容')}</span>
+            )}
+          </div>
+        )}
       </FilterEntry>
       <DrawerWrap
         forceRender={true}
@@ -184,6 +201,7 @@ function FilterContent(props) {
           filters={filters.filter(
             c => c.control && !(window.shareState.shareId && _.includes([26, 27, 48], c.control.type)),
           )}
+          getFiltersText={values => setFiltersText(values)}
           updateQuickFilter={values => {
             setOtherFiltersGroup(values);
           }}

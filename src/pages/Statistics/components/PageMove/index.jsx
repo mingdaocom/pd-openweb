@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import store from 'redux/configureStore';
 import cx from 'classnames';
 import { Button, Dialog, Dropdown } from 'ming-ui';
 import reportConfig from '../../api/reportConfig';
 import homeApp from 'src/api/homeApp';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
+import store from 'src/redux/configureStore';
 
 const formatApps = function (validProject, projectId, appId) {
   const appList = [];
@@ -124,7 +124,7 @@ export default class SheetMove extends Component {
         footer={this.renderFooter()}
       >
         <div className="flexRow valignWrapper mTop25">
-          <span className="Gray_75 mRight10 TxtRight name">{_l('应用')}</span>
+          <span className="textSecondary mRight10 TxtRight name">{_l('应用')}</span>
           <Dropdown
             border
             isAppendToBody
@@ -138,7 +138,7 @@ export default class SheetMove extends Component {
           />
         </div>
         <div className="flexRow valignWrapper mTop15">
-          <span className="Gray_75 mRight10 TxtRight name">{_l('页面')}</span>
+          <span className="textSecondary mRight10 TxtRight name">{_l('页面')}</span>
           <Dropdown
             disabled={!appValue}
             placeholder={_l('请选择页面')}

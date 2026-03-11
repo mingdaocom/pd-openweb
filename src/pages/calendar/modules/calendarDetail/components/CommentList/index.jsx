@@ -60,7 +60,7 @@ export default class CalendarCommentList extends Component {
             this.handleFocusClick.bind(this)(checked);
           }}
         >
-          <span className="Gray_9">{_l('只显示与我相关')}</span>
+          <span className="textTertiary">{_l('只显示与我相关')}</span>
         </CheckBox>
         <CommentList
           sourceId={id}

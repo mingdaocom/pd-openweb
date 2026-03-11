@@ -26,19 +26,19 @@ const DisplayRowListWrap = styled.div`
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    background: #fff;
-    ${props => (props.widgetPanelFixed ? 'border-left: 10px solid #F5F5F5' : '')}
-    ${props => (props.settingPanelFixed ? 'border-right: 10px solid #F5F5F5' : '')}
+    background: var(--color-background-primary);
+    ${props => (props.widgetPanelFixed ? 'border-left: 10px solid var(--color-background-secondary);' : '')}
+    ${props => (props.settingPanelFixed ? 'border-right: 10px solid var(--color-background-secondary);' : '')}
     .addWidgetIcon {
       width: 28px;
       height: 28px;
       text-align: center;
       padding-top: 2px;
       border-radius: 50%;
-      background: #2196f3;
-      color: #fff;
+      background: var(--color-link-hover);
+      color: var(--color-white);
       &:hover {
-        background: #1e88e5;
+        background: var(--color-primary);
       }
     }
   }
@@ -46,7 +46,7 @@ const DisplayRowListWrap = styled.div`
     border-radius: 8px;
     padding: 8px 0;
     box-sizing: border-box;
-    background: #ffffff;
+    background: var(--color-background-primary);
     display: flex;
     flex-direction: column;
   }
@@ -72,7 +72,7 @@ const DisplayRowListWrap = styled.div`
     right: 0;
     height: 100%;
     width: 4px;
-    background: #1677ff;
+    background: var(--color-primary);
     &.top,
     &.bottom {
       width: 100%;
@@ -169,8 +169,9 @@ export default function DisplayRow(props) {
                   </Tooltip>
                 )}
                 <span className="Font17 Bold mLeft12">{_l('表单设计')}</span>
+
                 <Tooltip title={_l('最多添加%0个字段', MAX_CONTROLS_COUNT)}>
-                  <span className="controlNum Font12 Gray_9e pTop3">
+                  <span className="controlNum Font12 textTertiary pTop3">
                     {_l('%0/%1', allControls.length, MAX_CONTROLS_COUNT)}
                   </span>
                 </Tooltip>

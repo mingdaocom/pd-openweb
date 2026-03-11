@@ -13,8 +13,8 @@ import Settings from 'src/pages/widgetConfig/widgetSetting/settings';
 const Wrapper = styled.div`
   width: 348px;
   padding: 20px;
-  background: #fff;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.24);
+  background: var(--color-background-primary);
+  box-shadow: var(--shadow-lg);
   border-radius: 3px;
   position: relative;
 
@@ -24,13 +24,13 @@ const Wrapper = styled.div`
     .ant-select-selector {
       min-height: 36px;
       padding: 2px 11px !important;
-      border: 1px solid #ccc !important;
+      border: 1px solid var(--color-border-tertiary) !important;
       border-radius: 3px !important;
       box-shadow: none !important;
     }
     &.ant-select-focused {
       .ant-select-selector {
-        border-color: #1e88e5 !important;
+        border-color: var(--color-primary) !important;
       }
     }
     &.disabled {
@@ -263,7 +263,7 @@ export default function SelectType(props) {
       <div className="numberTips">
         {!isDestDbType && destField.mdType === 6 && (
           <Tooltip title={_l('数值最大支持16位数字')} placement="top">
-            <Icon icon="info" className="Gray_bd mLeft5" />
+            <Icon icon="info" className="textDisabled mLeft5" />
           </Tooltip>
         )}
       </div>

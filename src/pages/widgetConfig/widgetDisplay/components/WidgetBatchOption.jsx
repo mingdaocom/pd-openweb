@@ -15,7 +15,7 @@ import WidgetWarning from '../../widgetSetting/components/WidgetBase/WidgetWarni
 
 const WidgetBatchWrap = styled.div`
   position: absolute;
-  background: #fff;
+  background: var(--color-background-primary);
   top: 0;
   left: 0;
   width: 100%;
@@ -27,11 +27,11 @@ const WidgetBatchWrap = styled.div`
   .titleBox {
     height: 48px;
     padding: 8px 16px;
-    background: #3c3c3c;
+    background: var(--color-background-inverse);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    color: #fff;
+    color: var(--color-white);
     cursor: pointer;
     .titleBtn {
       width: 32px;
@@ -43,7 +43,7 @@ const WidgetBatchWrap = styled.div`
       margin-right: 6px;
       font-size: 20px;
       &:hover {
-        background: #505050;
+        background: var(--color-background-inverse);
       }
     }
   }

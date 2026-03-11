@@ -12,7 +12,6 @@ import { WithoutRows } from 'mobile/RecordList/SheetRows';
 import ChildTableContext from 'worksheet/components/ChildTable/ChildTableContext';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
 import { FROM } from 'src/components/Form/core/config';
-import { controlState, getTitleTextFromRelateControl } from 'src/components/Form/core/utils';
 import RelateScanQRCode from 'src/components/Form/MobileForm/components/RelateScanQRCode';
 import { getIsScanQR } from 'src/components/Form/MobileForm/components/ScanQRCode';
 import { selectRecords } from 'src/components/SelectRecords';
@@ -24,7 +23,7 @@ import { searchRecordInDialog } from 'src/pages/worksheet/components/SearchRelat
 import { updateRelateRecordSorts } from 'src/pages/worksheet/controllers/record';
 import { getTranslateInfo } from 'src/utils/app';
 import { browserIsMobile } from 'src/utils/common';
-import { completeControls } from 'src/utils/control';
+import { completeControls, controlState, getTitleTextFromRelateControl } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
@@ -49,16 +48,16 @@ export const Button = styled.div`
   padding: 0 16px;
   display: flex;
   align-items: center;
-  color: #151515;
-  border: 1px solid #dddddd;
+  color: var(--color-text-title);
+  border: 1px solid var(--color-border-primary);
   border-radius: 4px;
   max-width: 150px;
   > .icon {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     font-weight: normal;
   }
   &:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
 `;
 
@@ -68,7 +67,7 @@ export const LoadingButton = styled.div`
   height: 29px;
   line-height: 29px;
   padding: 0 12px;
-  color: #1677ff;
+  color: var(--color-primary);
   border-radius: 3px;
   font-size: 13px;
   .loading {
@@ -79,7 +78,7 @@ export const LoadingButton = styled.div`
     }
   }
   &:hover {
-    background: #f8f8f8;
+    background: var(--color-background-hover);
   }
 `;
 
@@ -107,10 +106,10 @@ const OperateCon = styled.div`
 
 const RelateScanQRCodeWrap = styled(RelateScanQRCode)`
   &.lineWrap {
-    color: #1677ff;
+    color: var(--color-primary);
     width: 100%;
     .scanIcon {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
       margin-right: 5px;
     }
     .scanButton {
@@ -124,7 +123,7 @@ const RelateScanQRCodeWrap = styled(RelateScanQRCode)`
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
     margin-left: 10px;
     border-radius: 3px;
   }
@@ -135,14 +134,14 @@ const SearchRecordsButton = styled(Icon)`
   cursor: pointer;
   right: 10px;
   font-size: 20px;
-  color: #bdbdbd;
+  color: var(--color-text-disabled);
   &:hover {
-    color: #757575;
+    color: var(--color-text-secondary);
   }
 `;
 
 const WithoutRowsWrap = styled.div`
-  background-color: #f8f8f8;
+  background-color: var(--color-background-secondary);
 `;
 
 export function getCardColNum({ width, isMobile, enumDefault }) {
@@ -935,7 +934,7 @@ class RelateRecordCards extends Component {
     if (sheetTemplateLoading) {
       return null;
     }
-    const filterControls = getFilter({ control, formData });
+    const filterControls = getFilter({ control, formData, appId });
     const NewRecordComponent = isMobile ? MobileNewRecord : NewRecord;
     const controlPermission = controlState(control, from);
     const allowRemove = control.advancedSetting.allowcancel !== '0' || enumDefault === 1;
@@ -1038,12 +1037,12 @@ class RelateRecordCards extends Component {
                       </Button>
                     ))
                   ) : !records.length ? (
-                    <span className="Gray_bd">{renderHint()}</span>
+                    <span className="textDisabled">{renderHint()}</span>
                   ) : null}
                 </Fragment>
               )}
               {disabledManualWrite && !isScanQR && (
-                <div className="Gray_9e mBottom5 mTop5 pTop3 pBottom3">{_l('请在移动端扫码添加关联')}</div>
+                <div className="textTertiary mBottom5 mTop5 pTop3 pBottom3">{_l('请在移动端扫码添加关联')}</div>
               )}
               {!isCard && (mobileShowAddAsDropdown ? this.renderDropDownRecordsCon() : this.renderRecordsCon())}
               {from !== FROM.PUBLIC_ADD &&
@@ -1119,7 +1118,7 @@ class RelateRecordCards extends Component {
               )}
             </div>
             {!disabled && (!isCard || (isCard && isMobile && showAddAsDropdown)) && !onlyRelateByScanCode && (
-              <Icon icon="arrow-right-border" className="Font16 Gray_bd" style={{ marginRight: -5 }} />
+              <Icon icon="arrow-right-border" className="Font16 textDisabled" style={{ marginRight: -5 }} />
             )}
           </Con>
           {(!records.length || multiple) &&
@@ -1144,9 +1143,9 @@ class RelateRecordCards extends Component {
                 }}
               >
                 <div className="scanButton">
-                  <i className="scanIcon icon icon-qr_code_19 Font20 Gray_75"></i>
+                  <i className="scanIcon icon icon-qr_code_19 Font20 textSecondary"></i>
                   {!addRelationButtonVisible && _l('扫码关联%0', sourceEntityName || '')}
-                  {/*!records.length && <i className="rightArrow icon icon-arrow-right-border Font16 Gray_bd"></i>*/}
+                  {/*!records.length && <i className="rightArrow icon icon-arrow-right-border Font16 textDisabled"></i>*/}
                 </div>
               </RelateScanQRCodeWrap>
             )}

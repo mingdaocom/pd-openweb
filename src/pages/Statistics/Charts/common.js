@@ -358,7 +358,7 @@ export const getAuxiliaryLineConfig = (auxiliaryLines = [], data, { yaxisList, c
  */
 export const getAlienationColor = (xaxes, { originalId }) => {
   const item = _.find(xaxes.options, { key: originalId });
-  return item ? item.color : '#E0E0E0';
+  return item ? item.color : 'var(--color-border-secondary)';
 };
 
 /**
@@ -811,8 +811,8 @@ export const getStyleColor = ({ value = 0, controlMinAndMax, rule, controlId, re
     return colors[percent];
   }
   if (model === 2) {
-    const { scopeRules } = rule;
-    return getScopeRuleColor(value, controlMinAndMax[controlId], scopeRules, emptyShowType);
+    const { scopeRules, controlId: applyControlId } = rule;
+    return getScopeRuleColor(value, controlMinAndMax[applyControlId || controlId], scopeRules, emptyShowType);
   }
 };
 

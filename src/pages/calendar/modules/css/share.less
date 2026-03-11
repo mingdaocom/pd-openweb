@@ -45,11 +45,12 @@
     width: 250px;
     height: 100%;
     z-index: 1;
+    box-shadow: var(--shadow-md);
   }
 
   .calendarMenu .calendarMenuTop {
     padding: 10px 0;
-    border-bottom: 1px solid #5e646e;
+    border-bottom: 1px solid var(--color-border-secondary);
   }
 
   .calendarMenu li {
@@ -79,8 +80,8 @@
 
   .calendarMenu .calendarNumber {
     border-radius: 18px;
-    background: #ff0000;
-    color: #fff;
+    background: var(--color-error);
+    color: var(--color-white);
     height: 18px;
     line-height: 18px;
     display: inline-block;
@@ -107,6 +108,9 @@
     font-size: 16px;
     right: 18px;
     top: 11px;
+    &:hover {
+      color: var(--color-primary-focus) !important;
+    }
   }
 
   .calendarMenu .icon-account_circle {
@@ -123,7 +127,7 @@
     padding: 16px 18px 0;
     height: 48px;
     text-align: center;
-    border-top: 1px solid #fff;
+    border-top: 1px solid var(--color-border-secondary);
     box-sizing: border-box;
   }
 
@@ -138,7 +142,7 @@
     padding: 20px 0 10px 0;
     display: none;
     position: relative;
-    border-top: 1px solid #5e646e;
+    border-top: 1px solid var(--color-border-secondary);
   }
 
   #hideOneself .cbComplete {
@@ -156,7 +160,7 @@
   }
 
   #allOtherUserDel {
-    color: #7fb2e5;
+    color: var(--color-primary-light);
     cursor: pointer;
     position: absolute;
     top: 20px;
@@ -180,7 +184,7 @@
   #invitedCalendars {
     display: none;
     margin: 13px 20px 0 20px;
-    background: #fff;
+    background: var(--color-background-primary);
     box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
     -moz-box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
     -webkit-box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
@@ -196,7 +200,7 @@
     padding: 0 30px 30px;
     display: block;
     overflow-y: auto;
-    background-color: white;
+    background-color: var(--color-background-primary);
   }
 
   #invitedMain {
@@ -205,7 +209,7 @@
 
   #invitedMain .exitInvited {
     display: block;
-    color: #fff;
+    color: var(--color-white);
     width: 110px;
     height: 30px;
     line-height: 30px;
@@ -240,12 +244,12 @@
 
   .messageMain {
     width: 198px;
-    border: 1px solid #c7c7c7;
+    border: 1px solid var(--color-text-placeholder);
     height: 168px;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     border-radius: 5px;
-    background: #fff;
+    background: var(--color-background-primary);
   }
 
   .messageBottomArrow {
@@ -271,55 +275,55 @@
   }
 
   .arrowTopLeft .messageBottomArrow {
-    border-color: transparent transparent #c3c3c3 transparent;
+    border-color: transparent transparent var(--color-text-placeholder) transparent;
     left: 20px;
     top: -9px;
   }
 
   .arrowTopLeft .bottomArrowInner {
-    border-color: transparent transparent #f8f8f8 transparent;
+    border-color: transparent transparent var(--color-background-secondary) transparent;
     left: 20px;
     top: -8px;
   }
 
   .arrowTopRight .messageBottomArrow {
-    border-color: transparent transparent #c3c3c3 transparent;
+    border-color: transparent transparent var(--color-text-placeholder) transparent;
     right: 20px;
     top: -9px;
   }
 
   .arrowTopRight .bottomArrowInner {
-    border-color: transparent transparent #f8f8f8 transparent;
+    border-color: transparent transparent var(--color-background-secondary) transparent;
     left: 158px;
     top: -8px;
   }
 
   .arrowBottomLeft .messageBottomArrow {
-    border-color: #c3c3c3 transparent transparent transparent;
+    border-color: var(--color-text-placeholder) transparent transparent transparent;
     left: 20px;
     bottom: -9px;
   }
 
   .arrowBottomLeft .bottomArrowInner {
-    border-color: #fff transparent transparent transparent;
+    border-color: var(--color-white) transparent transparent transparent;
     left: 20px;
     bottom: -8px;
   }
 
   .arrowBottomRight .messageBottomArrow {
-    border-color: #c3c3c3 transparent transparent transparent;
+    border-color: var(--color-text-placeholder) transparent transparent transparent;
     right: 20px;
     bottom: -9px;
   }
 
   .arrowBottomRight .bottomArrowInner {
-    border-color: #fff transparent transparent transparent;
+    border-color: var(--color-white) transparent transparent transparent;
     left: 160px;
     bottom: -8px;
   }
 
   .messageDivHeader {
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     height: 50px;
     width: 100%;
     -moz-border-radius: 5px 5px 0 0;
@@ -330,12 +334,12 @@
   .messageDivContent {
     width: 182px;
     height: 72px;
-    border-bottom: 1px solid #c5c5c5;
+    border-bottom: 1px solid var(--color-text-placeholder);
     line-height: 22px;
     font-size: 12px;
     padding-left: 16px;
     padding-top: 5px;
-    color: #919191;
+    color: var(--color-text-tertiary);
     position: relative;
   }
 
@@ -360,11 +364,11 @@
 
   .messageBtnRemove {
     width: 87px;
-    border-right: 1px solid #c5c5c5;
+    border-right: 1px solid var(--color-text-placeholder);
     text-align: center;
     height: 40px;
     line-height: 40px;
-    color: #919191;
+    color: var(--color-text-tertiary);
     display: inline-block;
     font-size: 12px;
     float: left;
@@ -375,7 +379,7 @@
     text-align: center;
     height: 40px;
     line-height: 40px;
-    color: #919191;
+    color: var(--color-text-tertiary);
     display: inline-block;
     font-size: 12px;
     float: left;
@@ -386,7 +390,7 @@
     text-align: center;
     height: 40px;
     line-height: 40px;
-    color: #919191;
+    color: var(--color-text-tertiary);
     display: inline-block;
     font-size: 12px;
   }
@@ -403,7 +407,7 @@
   .messageBtnPerson a,
   .messageBtnEntrust a,
   .wxBtnRemove a {
-    color: #000;
+    color: var(--color-text-primary);
     display: inline-block;
     width: 100%;
     height: 100%;
@@ -413,7 +417,7 @@
   .messageBtnPerson a:hover,
   .messageBtnEntrust a:hover,
   .wxBtnRemove a:hover {
-    color: #0066cc;
+    color: var(--color-link-hover);
     text-decoration: none;
   }
 
@@ -439,12 +443,12 @@
   }
 
   .messageDivHeader .messageName a {
-    color: #515151;
+    color: var(--color-text-title);
     font-size: 14px;
   }
 
   .messageDivHeader .messageName a:hover {
-    color: #0066cc;
+    color: var(--color-link-hover);
     text-decoration: none;
   }
 
@@ -483,11 +487,11 @@
   }
 
   .messageHeaderLetter a {
-    color: #666;
+    color: var(--color-text-secondary);
   }
 
   .messageHeaderLetter a:hover {
-    color: #0066cc;
+    color: var(--color-link-hover);
     text-decoration: none;
   }
 
@@ -497,7 +501,7 @@
   }
 
   .messageBtnDisable {
-    color: #ccc;
+    color: var(--color-text-placeholder);
   }
 
   .messageDivStyle1 {
@@ -515,7 +519,7 @@
   #container.detail {
     width: 800px;
     margin-top: 76px;
-    background: #fff;
+    background: var(--color-background-primary);
     border-radius: 3px;
     box-sizing: border-box;
   }
@@ -526,15 +530,15 @@
     right: 25px;
     font-size: 16px;
     cursor: pointer;
-    color: #666;
+    color: var(--color-text-secondary);
   }
 
   .detail .shareCalendar:hover {
-    color: #1e88e5;
+    color: var(--color-primary);
   }
 
   .calendarDetailMianTitle {
-    color: #000;
+    color: var(--color-text-primary);
     font-size: 16px;
     padding: 20px 0 0 20px;
   }
@@ -551,7 +555,7 @@
   }
 
   .iconClockStyle {
-    color: #999;
+    color: var(--color-text-tertiary);
   }
 
   .iconClockStyle .icon-access_time {
@@ -625,7 +629,7 @@
     display: block;
     width: 11px;
     height: 11px;
-    border: 1px solid #999;
+    border: 1px solid var(--color-text-tertiary);
     border-radius: 2px;
     -webkit-transition: 240ms;
     -o-transition: 240ms;
@@ -635,7 +639,7 @@
   }
 
   .iconClockStyle .checkboxIcon.checked:before {
-    border-color: #999;
+    border-color: var(--color-text-tertiary);
   }
 
   .calendarLine .DetailLine .DetailLineItem {
@@ -670,14 +674,14 @@
     padding: 7px 20px;
     display: none;
     font-size: 14px;
-    color: #fff;
+    color: var(--color-white);
     border-radius: 3px;
     cursor: pointer;
     margin-right: 15px;
   }
 
   .calendarDetailBtn span.blue {
-    background: #0091ea;
+    background: var(--color-primary);
   }
 
   .calendarDetailBtn span.blue:hover {
@@ -685,15 +689,15 @@
   }
 
   .calendarDetailBtn span.green {
-    background: #3cbf2a;
+    background: var(--color-success);
   }
 
   .calendarDetailBtn span.green:hover {
-    background: #2a7e2d;
+    background: var(--color-success-hover);
   }
 
   .calendarDetailBtn span.red {
-    background: #f73838;
+    background: var(--color-calendar);
   }
 
   .calendarDetailBtn span.red:hover {
@@ -710,14 +714,14 @@
 
   .calendarDetailBtn #btnRefuse {
     cursor: default;
-    background: #e0e0e0;
+    background: var(--color-background-secondary);
   }
 
   .calendarDetailBtn #addOutlook {
     display: inline;
     margin-left: 20px;
-    border: 1px solid #0091ea;
-    color: #0091ea;
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
   }
 
   .calendarDetailBtn #addOutlook:hover {
@@ -765,7 +769,7 @@
   }
 
   .dropDown {
-    background: #fff;
+    background: var(--color-background-primary);
     font-size: 12px;
   }
 
@@ -791,7 +795,7 @@
 
   .calendarCenterLabel .memberNameLabel {
     padding-left: 2px;
-    color: #a1a1a1;
+    color: var(--color-text-tertiary);
   }
 
   #attendp {
@@ -811,7 +815,7 @@
     width: 41px;
     height: 24px;
     line-height: 24px;
-    border: 1px solid #e3e3e3;
+    border: 1px solid var(--color-border-secondary);
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
     border-radius: 3px;
@@ -833,13 +837,13 @@
   }
 
   .inviteCalendarTypeList {
-    border: 1px solid #e3e3e3;
+    border: 1px solid var(--color-border-secondary);
     position: absolute;
     top: 25px;
     z-index: 100;
     left: -1px;
     padding: 5px 0;
-    background: #fff;
+    background: var(--color-background-primary);
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
@@ -861,7 +865,7 @@
   }
 
   .inviteCalendarTypeList li:hover {
-    background: #e3e3e3;
+    background: var(--color-border-secondary);
   }
 
   .calendarDetailMianTitle .icon-arrow-down-border {
@@ -909,7 +913,7 @@
   .SelTaskDetailMain .SelTaskDetailMainTitle {
     width: 342px;
     text-align: center;
-    color: #000;
+    color: var(--color-text-primary);
     font-size: 16px;
   }
 
@@ -920,11 +924,11 @@
     width: 68px;
     height: 30px;
     font-size: 14px !important;
-    border: 1px solid #999;
+    border: 1px solid var(--color-text-tertiary);
     text-align: center;
     display: inline-block;
-    background: #fff;
-    color: #666;
+    background: var(--color-background-primary);
+    color: var(--color-text-secondary);
     border-radius: 3px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
@@ -1020,7 +1024,7 @@
     height: 70px;
     margin-top: 14px;
     font-size: 16px;
-    color: #000;
+    color: var(--color-text-primary);
     display: none;
     border: 1px solid rgb(169, 169, 169);
   }
@@ -1037,8 +1041,8 @@
 
   #refuserCalendar {
     padding: 5px 29px;
-    color: white;
-    background: #0062cc;
+    color: var(--color-white);
+    background: var(--color-link-hover);
     cursor: pointer;
   }
 }

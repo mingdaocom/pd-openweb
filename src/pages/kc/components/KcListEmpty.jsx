@@ -50,7 +50,7 @@ export default function KcListEmpty(props) {
           )}
         </span>
       </div>
-      <div className="noListBG ThemeBG" />
+      <div className="noListBG bgTertiary" />
     </ul>
   );
 }

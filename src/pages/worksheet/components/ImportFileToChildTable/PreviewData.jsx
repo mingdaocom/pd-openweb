@@ -17,7 +17,7 @@ const Header = styled.div`
   .title {
     font-weight: 500;
     font-size: 17px;
-    color: #151515;
+    color: var(--color-text-title);
   }
 `;
 
@@ -54,7 +54,7 @@ const Footer = styled.div`
 const CellText = styled.div`
   display: block;
   font-size: 13px;
-  color: #151515;
+  color: var(--color-text-title);
   line-height: 20px;
 `;
 
@@ -139,7 +139,7 @@ export default function PreviewData(props) {
       )}
       <Header>
         <span className="title">{_l('设置导入数据')}</span>
-        <span className="Font13 Gray_9e mLeft8">{_l('检查即将导入的数据，你可以调整导入数据对应的字段')}</span>
+        <span className="Font13 textTertiary mLeft8">{_l('检查即将导入的数据，你可以调整导入数据对应的字段')}</span>
       </Header>
       <Content>
         {showHeader && (
@@ -159,7 +159,7 @@ export default function PreviewData(props) {
                   />
                   <Tooltip title={_l('只有表头下方的数据才会被导入')} placement="bottom">
                     <span className="mLeft8 LineHeight1em">
-                      <i className="icon-info_outline Font18 Gray_bd"></i>
+                      <i className="icon-info_outline Font18 textDisabled"></i>
                     </span>
                   </Tooltip>
                 </div>
@@ -170,7 +170,7 @@ export default function PreviewData(props) {
                     placement="bottom"
                   >
                     <span className="mLeft8 LineHeight1em">
-                      <i className="icon-info_outline Font18 Gray_bd"></i>
+                      <i className="icon-info_outline Font18 textDisabled"></i>
                     </span>
                   </Tooltip>
                 </div>
@@ -241,14 +241,14 @@ export default function PreviewData(props) {
             __html: _l(
               '导入 %0 行数据， %1/共 %2 列',
               needImportCellData.length,
-              `<span style="color:#f1a04a">${_.values(mapConfig).filter(_.identity).length}</span>`,
+              `<span style="color:var(--color-warning)">${_.values(mapConfig).filter(_.identity).length}</span>`,
               controls.length,
             ),
           }}
         />
         <div className="operate">
           <Support
-            className="customSubtotalMessage Gray_bd"
+            className="customSubtotalMessage textDisabled"
             type={2}
             href="https://help.mingdao.com"
             text={_l('帮助')}

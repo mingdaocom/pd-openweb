@@ -87,7 +87,7 @@ export default function FilterControl(props) {
           {loading ? (
             <LoadDiv className="mLeft0" size="small" />
           ) : sheet ? (
-            <span className="Gray bold">{_l('工作表：%0', _.get(sheet, 'name'))}</span>
+            <span className="textPrimary bold">{_l('工作表：%0', _.get(sheet, 'name'))}</span>
           ) : (
             <span className="Red">{_l('工作表已删除')}</span>
           )}
@@ -97,7 +97,7 @@ export default function FilterControl(props) {
           className={cx('customPageSelect w100', { Red: item.controlId && !currentControl })}
           value={item.controlId ? (currentControl ? item.controlId : _l('字段已删除')) : undefined}
           disabled={index && (lastControl.controlId ? false : true)}
-          suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+          suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           placeholder={_l('请选择筛选字段')}
           notFoundContent={notFoundContent()}
           getPopupContainer={() => document.querySelector('.customPageFilterWrap .setting')}
@@ -193,7 +193,7 @@ export default function FilterControl(props) {
             .map(c => (
               <Select.Option className="selectOptionWrapper" key={c.controlId} value={c.controlId}>
                 <div className="valignWrapper h100 w100">
-                  <Icon className="Gray_9e Font16" icon={getIconByType(c.type)} />
+                  <Icon className="textTertiary Font16" icon={getIconByType(c.type)} />
                   <span className="mLeft5 Font13 ellipsis">{c.controlName}</span>
                 </div>
               </Select.Option>
@@ -212,7 +212,7 @@ export default function FilterControl(props) {
       <div className="valignWrapper mBottom8">
         <div className="flex Font13 bold">{_l('筛选字段')}</div>
       </div>
-      <div className="Gray_75 Font13 mBottom14 Font13">
+      <div className="textSecondary Font13 mBottom14 Font13">
         {filterObjectControls.length <= 1
           ? _l('选择筛选对象的数据源表中的字段进行筛选')
           : _l('选择了来源于多个工作表数据的组件，请选择同类型字段以进行合并筛选')}

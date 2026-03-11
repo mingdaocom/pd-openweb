@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import cx from 'classnames';
 import _ from 'lodash';
 import departmentAjax from 'src/api/department.js';
 import fixedDataController from 'src/api/fixedData';
@@ -42,6 +43,7 @@ function GroupFilter(props) {
     getNavGroupCount,
     navGroupFilters,
     worksheetInfo,
+    isSingle,
   } = props;
 
   const searchRef = useRef({});
@@ -458,7 +460,7 @@ function GroupFilter(props) {
 
   return (
     <Con
-      className="groupFilterWrap h100 flexColumn"
+      className={cx('groupFilterWrap h100 flexColumn', { groupFilterWrapForSingle: isSingle })}
       width={width}
       style={{ borderRight: !isOpenGroup ? '1px solid rgba(0, 0, 0, 0.04)' : '0' }}
     >

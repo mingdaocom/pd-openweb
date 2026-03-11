@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useReducer, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import axios from 'axios';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -9,7 +9,8 @@ import { Tooltip } from 'ming-ui/antd-components';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import RecordFav from 'src/pages/AppHomepage/RecordFav';
-import { getToken } from 'src/utils/common';
+import { getRgbaByColor } from 'src/pages/widgetConfig/util';
+import { emitter, getToken } from 'src/utils/common';
 import { CreateActions, initialState, reducer } from '../AppCenter/appHomeReducer';
 import AppGrid from '../AppCenter/components/AppGrid';
 import NoProjectsStatus from '../AppCenter/components/NoProjectsStatus';
@@ -25,6 +26,16 @@ import { CardItem, getGreetingText, MODULE_TYPES, urlToBase64 } from './utils';
 const Wrapper = styled.div`
   flex: 1;
   overflow: hidden;
+  position: relative;
+
+  .dashboardMask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
 
   .dashboardContent {
     padding: 0 36px;
@@ -55,10 +66,10 @@ const Wrapper = styled.div`
         border-radius: 4px;
         cursor: pointer;
         i {
-          color: #676767;
+          color: var(--color-text-secondary);
         }
         &:hover {
-          background: #fff;
+          background: var(--color-background-card);
         }
       }
     }
@@ -140,7 +151,7 @@ export default function Dashboard(props) {
   const { logo, logoSwitch, slogan, boardSwitch, logoHeight, bulletinBoards = [] } = platformSetting;
   const { displayCommonApp, rowCollect, todoDisplay, displayApp, displayChart, sortItems } = origin.homeSetting || {};
 
-  const hasNewTheme = !md.global.Config.IsLocal && !!advancedThemes.length;
+  const hasNewTheme = !window.platformENV.isOverseas && !window.platformENV.isLocal && !!advancedThemes.length;
   const newTheme = advancedThemes[0] || {};
   const hasProjectSetting = hasPermission(myPermissions, PERMISSION_ENUM.DASHBOARD_SETTING);
 
@@ -148,17 +159,32 @@ export default function Dashboard(props) {
     !isExternal ? actions.loadDashboardInfo({ projectId, noCache }) : actions.loadAppAndGroups({ projectId, noCache });
   };
 
+  const handlerMaskColor = useCallback(
+    value => {
+      if (dashboardColor.themeColor) {
+        const isDark = value === 'dark';
+        const color = getRgbaByColor(dashboardColor.themeColor, isDark ? '0.1' : '0.08');
+        $('.appCenterHeaderMask').css('background', color);
+        $('.sideNavMask').css('background', color);
+        $('.dashboardMask').css('background', color);
+      }
+    },
+    [dashboardColor],
+  );
+
+  useEffect(() => {
+    emitter.addListener('CHANGE_THEME_MODE', handlerMaskColor);
+    return () => {
+      emitter.removeListener('CHANGE_THEME_MODE', handlerMaskColor);
+    };
+  }, [handlerMaskColor]);
+
   useEffect(fetchData, [projectId]);
 
   useEffect(() => {
-    dashboardColor.themeColor &&
-      $('.appCenterHeader').css(
-        'background',
-        dashboardColor.themeColor === '#1677ff' ? '#fff' : dashboardColor.bgColor,
-      );
-
+    handlerMaskColor(window.themeMode);
     return () => {
-      $('.appCenterHeader').css('background', '#fff');
+      $('.appCenterHeaderMask').css('background', '');
     };
   }, [dashboardColor]);
 
@@ -290,7 +316,12 @@ export default function Dashboard(props) {
   };
 
   return (
-    <Wrapper style={{ backgroundColor: hasBgImg ? 'unset' : dashboardColor.bgColor }} logoHeight={logoHeight || 40}>
+    <Wrapper
+      className="dashboardWrapper"
+      style={{ backgroundColor: hasBgImg ? 'unset' : 'var(--color-background-primary)' }}
+      logoHeight={logoHeight || 40}
+    >
+      <div className="dashboardMask" />
       <ScrollView className="dashboardScrollView h100 pRight10">
         <div className="dashboardContent">
           <div className="dashboardHeader">

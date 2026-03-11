@@ -18,7 +18,7 @@ export default class AddBox extends Component {
     return (
       <div className="appBox h100">
         <div className="content">
-          {md.global.Config.IsLocal ? (
+          {window.platformENV.isOverseas || window.platformENV.isLocal ? (
             <AppWarehouse />
           ) : (
             <iframe src={`${md.global.Config.MarketUrl}/apps`} className="w100 h100" style={{ border: 'none' }} />

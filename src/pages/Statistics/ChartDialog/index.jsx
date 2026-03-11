@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import store from 'redux/configureStore';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
 import { DndProvider } from 'react-dnd-latest';
 import DocumentTitle from 'react-document-title';
@@ -17,6 +16,7 @@ import worksheetAjax from 'src/api/worksheet';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import store from 'src/redux/configureStore';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import MoreOverlay from '../Card/MoreOverlay';
@@ -292,7 +292,7 @@ export default class ChartDialog extends Component {
             <Tooltip title={_l('设置')} placement="bottom">
               <Icon
                 icon="settings"
-                className={cx('Font20 pointer Gray_9e', { active: settingVisible })}
+                className={cx('Font20 pointer textTertiary', { active: settingVisible })}
                 onClick={() => {
                   this.setState(
                     {
@@ -318,7 +318,7 @@ export default class ChartDialog extends Component {
           {!settingVisible && this.renderChartOperation()}
           {!settingVisible && !isPublicShareChart && !isPublicSharePage && (
             <MoreOverlay
-              className="Gray_9e pointer mLeft16 Font24"
+              className="textTertiary pointer mLeft16 Font24"
               reportType={currentReport.reportType}
               reportData={reportData}
               reportStatus={reportData.status}
@@ -351,7 +351,7 @@ export default class ChartDialog extends Component {
           )}
           {!isPublicShareChart && (
             <Tooltip title={_l('关闭')} placement="bottom">
-              <Icon icon="close" className="Font24 pointer mLeft16 Gray_9e" onClick={this.handleCancel} />
+              <Icon icon="close" className="Font24 pointer mLeft16 textTertiary" onClick={this.handleCancel} />
             </Tooltip>
           )}
         </div>
@@ -470,7 +470,7 @@ export default class ChartDialog extends Component {
           <div className="pAll20">
             <div className="flexColumn valignWrapper mTop9 mBottom20">
               <Icon
-                className="Gray_9e Font18 pointer"
+                className="textTertiary Font18 pointer"
                 icon="arrow-left-border"
                 onClick={() => {
                   this.setState({ chartIsUnfold: !chartIsUnfold });
@@ -489,7 +489,7 @@ export default class ChartDialog extends Component {
           <div className="flexRow valignWrapper mTop4 mBottom20 pLeft20 pRight20">
             <div className="Font18 Bold flex">{_l('图表')}</div>
             <Icon
-              className="Gray_9e Font18 pointer"
+              className="textTertiary Font18 pointer"
               icon="arrow-right-border"
               onClick={() => {
                 this.setState({ chartIsUnfold: !chartIsUnfold });

@@ -19,17 +19,17 @@ const Wrap = styled.div`
     z-index: 1;
     width: 16px;
     height: 32px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
     border-left: none;
     border-radius: 0 4px 4px 0;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     .icon {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
     &:hover {
-      border: 1px solid #1677ff;
+      border: 1px solid var(--color-primary);
       .icon {
-        color: #2195f3;
+        color: var(--color-primary);
       }
     }
   }
@@ -43,25 +43,25 @@ const Wrap = styled.div`
     overflow-y: hidden;
   }
   .isBg {
-    background: rgba(0, 0, 0, 0.02);
+    background: var(--view-bg-subtle);
   }
   .headCon {
     height: 44px;
     line-height: 44px;
     .today {
-      color: #fff;
+      color: var(--color-white);
       padding: 0 8px;
       height: 28px;
       line-height: 28px;
       &:hover {
-        color: #1677ff;
-        background: #f5f5f5;
+        color: var(--color-primary);
+        background: var(--color-background-hover);
         border-radius: 3px 3px 3px 3px;
       }
     }
     .pre,
     .next {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       width: 28px;
       height: 28px;
       text-align: center;
@@ -71,8 +71,8 @@ const Wrap = styled.div`
         margin: 0 auto;
       }
       &:hover {
-        color: #1677ff;
-        background: #f5f5f5;
+        color: var(--color-primary);
+        background: var(--color-background-hover);
         border-radius: 3px 3px 3px 3px;
       }
     }
@@ -99,12 +99,12 @@ const GridCon = styled.div`
       width: ${timeWidth}px;
       min-width: ${timeWidth}px;
       max-width: ${timeWidth}px;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.09);
+      border-bottom: 1px solid var(--view-border-color);
     }
     .gridWeek {
       line-height: 28px;
       height: 28px;
-      border-bottom: 1px solid #ddd;
+      border-bottom: 1px solid var(--color-border-primary);
       box-sizing: border-box;
       width: ${props => props.weekWidth}px;
       min-width: ${props => props.weekWidth}px;
@@ -118,7 +118,7 @@ const GridCon = styled.div`
     width: ${timeWidth * 2}px;
     line-height: 28px;
     height: 28px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-primary);
     box-sizing: border-box;
   }
   .gridWeekCon {
@@ -130,25 +130,22 @@ const GridCon = styled.div`
   }
   .gridDayCon {
     overflow-y: hidden;
-    border-top: 1px solid rgba(0, 0, 0, 0.09);
+    border-top: 1px solid var(--view-border-color);
     & > div.timeG {
-      border-right: 1px solid rgba(0, 0, 0, 0.12);
+      border-right: 1px solid var(--view-border-color-thick);
       width: ${timeWidthHalf * dayTimeByPart}px;
       max-width: ${timeWidthHalf * dayTimeByPart}px;
       min-width: ${timeWidthHalf * dayTimeByPart}px;
       flex: 1;
-      &:last-child {
-        // border-right: none;
-      }
       .timeGTxt {
-        border-bottom: 1px solid rgba(0, 0, 0, 0.09);
+        border-bottom: 1px solid var(--view-border-color);
       }
       .timeGH {
         .gridOneHalf {
           width: ${timeWidthHalf}px;
           min-width: ${timeWidthHalf}px;
           max-width: ${timeWidthHalf}px;
-          border-right: 1px solid rgba(0, 0, 0, 0.09);
+          border-right: 1px solid var(--view-border-color);
           &:last-child {
             border-right: none;
           }
@@ -173,7 +170,7 @@ const GridOne = styled.div`
   width: ${props => props.gridWidth}px;
   min-width: ${props => props.gridWidth}px;
   max-width: ${props => props.gridWidth}px;
-  border-right: ${props => (props.isBorder2 ? 2 : 1)}px solid rgba(0, 0, 0, 0.06);
+  border-right: ${props => (props.isBorder2 ? 2 : 1)}px solid var(--view-border-color-thin);
   .todayLine {
     position: absolute;
     left: 0;
@@ -181,7 +178,7 @@ const GridOne = styled.div`
     height: calc(100% + 5px);
     width: 1px;
     z-index: 1;
-    background-color: #f44336;
+    background-color: var(--color-error);
     .dot {
       width: 7px;
       height: 7px;
@@ -190,7 +187,7 @@ const GridOne = styled.div`
       position: absolute;
       bottom: 0;
       top: -3px;
-      background-color: #f44336;
+      background-color: var(--color-error);
     }
   }
 `;
@@ -270,7 +267,7 @@ export default function Timegrid(props) {
           <div className="flexRow alignItemsCenter mRight15">
             {(isNotToday || (!isNotToday && todayVisible)) && (
               <div
-                className={cx('Hand today Gray_75 ThemeHoverColor3 Bold mRight8')}
+                className={cx('Hand today textSecondary Bold mRight8')}
                 onClick={() => {
                   if (!isNotToday) {
                     setState({ todayVisible: false });
@@ -316,7 +313,7 @@ export default function Timegrid(props) {
                   );
                 }}
               >
-                <Icon icon="arrow-left-border" className="Gray_9e ThemeHoverColor3" />
+                <Icon icon="arrow-left-border" className="textTertiary ThemeHoverColor3" />
               </div>
             </Tooltip>
             <Tooltip
@@ -349,7 +346,7 @@ export default function Timegrid(props) {
                   );
                 }}
               >
-                <Icon icon="arrow-right-border" className="Gray_9e ThemeHoverColor3" />
+                <Icon icon="arrow-right-border" className="textTertiary ThemeHoverColor3" />
               </div>
             </Tooltip>
           </div>

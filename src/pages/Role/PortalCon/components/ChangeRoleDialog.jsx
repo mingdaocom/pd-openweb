@@ -15,8 +15,8 @@ const ChangeRoleDialogWrap = styled.div`
   }
   .Dropdown--input {
     border-radius: 3px;
-    background: #ffffff;
-    border: 1px solid #e6e6e6;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-secondary);
     display: flex;
     line-height: 36px;
     padding: 0 10px !important;

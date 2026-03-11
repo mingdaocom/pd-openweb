@@ -8,7 +8,7 @@ export default props => {
 
   return (
     <span
-      className="Font14 mLeft5 Gray_9e RefreshBtn"
+      className="Font14 mLeft5 textTertiary RefreshBtn"
       onClick={e => {
         e.stopPropagation();
         if (isRefresh) return;

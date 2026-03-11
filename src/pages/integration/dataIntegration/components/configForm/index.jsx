@@ -35,13 +35,13 @@ const SelectCard = styled.div`
   height: 90px;
   padding: 20px;
   margin: 24px 0px;
-  background: #fff;
-  border: 2px solid #ededed;
+  background: var(--color-background-primary);
+  border: 2px solid var(--color-border-secondary);
   border-radius: 12px;
   cursor: pointer;
 
   &:hover {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
   }
 
   .svg-icon {
@@ -56,13 +56,13 @@ const SelectCard = styled.div`
     width: 36px;
     height: 36px;
     border-radius: 18px;
-    color: #bdbdbd;
-    background: #fff;
+    color: var(--color-text-disabled);
+    background: var(--color-background-primary);
     font-size: 20px;
 
     &:hover {
-      color: #1677ff;
-      background: #f5f5f5;
+      color: var(--color-primary);
+      background: var(--color-background-secondary);
     }
   }
 `;
@@ -79,7 +79,7 @@ const FormFooter = styled.div`
 
 const FormItem = styled.div`
   margin-top: 16px;
-  color: #757575;
+  color: var(--color-text-secondary);
   font-size: 13px;
   font-weight: bold;
 `;
@@ -89,26 +89,26 @@ const SourceSelectFormWrapper = styled.div`
     position: absolute;
     top: 0;
     margin: 3px 0 0 -8px;
-    color: #f44336;
+    color: var(--color-error);
   }
   .sourceNameInput {
     width: 50%;
     padding-right: 12px;
 
     .Input {
-      background: #f7f7f7;
-      border: 1px solid #f7f7f7 !important;
+      background: var(--color-background-secondary);
+      border: 1px solid var(--color-background-secondary) !important;
       border-radius: 4px;
       padding: 8px 12px 6px;
       font-size: 13px;
 
       :hover {
-        border-color: #f2f2f2 !important;
-        background: #f2f2f2;
+        border-color: var(--color-background-disabled) !important;
+        background: var(--color-background-disabled);
       }
       :focus {
-        border-color: #1677ff !important;
-        background: #fff;
+        border-color: var(--color-primary) !important;
+        background: var(--color-background-primary);
       }
     }
   }
@@ -242,7 +242,7 @@ export default function ConfigForm(props) {
   const renderSourceSelectForm = () => {
     return (
       <SourceSelectFormWrapper>
-        <div className="Font13 Gray_75 bold mBottom16 relative">
+        <div className="Font13 textSecondary bold mBottom16 relative">
           <div className="requiredStar">*</div>
           {_l('数据源')}
         </div>
@@ -293,8 +293,8 @@ export default function ConfigForm(props) {
         </svg>
 
         <div className="flex mLeft16">
-          <h3 className="Gray Font20 mBottom0">{connectorConfigData[roleType].name}</h3>
-          <span className="Font14 Gray_9e">{getCardDescription(connectorConfigData[roleType].type)}</span>
+          <h3 className="textPrimary Font20 mBottom0">{connectorConfigData[roleType].name}</h3>
+          <span className="Font14 textTertiary">{getCardDescription(connectorConfigData[roleType].type)}</span>
         </div>
         <Tooltip title={_l('更换数据源类型')}>
           <div className="selectIcon">
@@ -425,9 +425,9 @@ export default function ConfigForm(props) {
       {((!isApplicationSheet && connectorConfigData[roleType].createType !== CREATE_TYPE.SELECT_EXIST) ||
         !isCreateConnector) && (
         <FormFooter>
-          {!md.global.Config.IsLocal && (
+          {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
             <div className="mTop24">
-              <p className="Gray Font13">{_l('请将以下IP加入数据库服务器的访问白名单')}</p>
+              <p className="textPrimary Font13">{_l('请将以下IP加入数据库服务器的访问白名单')}</p>
               <div className="info">{whitelistIp.join(', ')}</div>
             </div>
           )}

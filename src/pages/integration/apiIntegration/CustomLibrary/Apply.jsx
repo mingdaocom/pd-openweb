@@ -8,11 +8,11 @@ const ApplyBtn = styled.div`
   padding: 0 32px;
   height: 36px;
   border-radius: 18px;
-  background: #1677ff;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-white);
   cursor: pointer;
   &:hover {
-    background: #1764c0;
+    background: var(--color-link-hover);
   }
 `;
 
@@ -29,9 +29,9 @@ const IconWrapper = styled.div`
 
 const Item = styled.div`
   padding: 13px 0;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--color-border-secondary);
   &:not(.noBG):hover {
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
   }
 `;
 
@@ -80,13 +80,13 @@ export default function Apply(props) {
           <img src={apiDetail.iconName} alt="" width="60" height="60" />
         ) : (
           <IconWrapper>
-            <Icon icon="connect" className="Font32 Gray_9e" />
+            <Icon icon="connect" className="Font32 textTertiary" />
           </IconWrapper>
         )}
 
         <div className="flex flexColumn mLeft12 mRight60 minWidth0">
           <div className="Font20 bold ellipsis">{apiDetail.name}</div>
-          <div className="Gray_75 ellipsis">{apiDetail.explain}</div>
+          <div className="textSecondary ellipsis">{apiDetail.explain}</div>
         </div>
 
         <ApplyBtn
@@ -105,7 +105,7 @@ export default function Apply(props) {
         </ApplyBtn>
       </div>
       <div className="Font14 bold mTop40">{_l('API 列表（%0）', apiList.length)}</div>
-      <Item className="flexRow alignItemsCenter Gray_75 noBG">
+      <Item className="flexRow alignItemsCenter textSecondary noBG">
         <div className="Width110 ellipsis">{_l('API 名称')}</div>
         <div className="flex mLeft10">{_l('描述')}</div>
       </Item>
@@ -127,7 +127,7 @@ export default function Apply(props) {
         })
       )}
 
-      <div className="mTop50 Gray_75">
+      <div className="mTop50 textSecondary">
         {_l(
           'API 由企业组织应用管理员开放提供，申请使用后需选择授权使用的应用，管理员审核通过后被授权的应用将可以使用 API',
         )}

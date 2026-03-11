@@ -162,14 +162,14 @@ function PortalBar(props) {
                           }}
                         >
                           <Switch checked={isChecked} size="small" />
-                          <span className="Gray_75">
-                            <span className="Font13 Gray">{item.controlName}</span>
+                          <span className="textSecondary">
+                            <span className="Font13 textPrimary">{item.controlName}</span>
                           </span>
                         </div>
                       );
                     })
                   ) : (
-                    <div className="Gray_75 TxtCenter pTop20 Font14 pBottom20">{_l('无相关字段')}</div>
+                    <div className="textSecondary TxtCenter pTop20 Font14 pBottom20">{_l('无相关字段')}</div>
                   )}
                 </div>
               </Popup>

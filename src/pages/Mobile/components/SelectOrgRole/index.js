@@ -159,7 +159,7 @@ export default class SelectOrgRole extends Component {
             <span className="ellipsis curSelected">{item.organizeName}</span>
             <Icon
               icon="close"
-              className="Gray_9e Font15"
+              className="textTertiary Font15"
               onClick={() => {
                 const { selectedOrgRole } = this.state;
                 this.setState({
@@ -227,7 +227,7 @@ export default class SelectOrgRole extends Component {
               onClick={() => this.checkOrgRoles(roleItem)}
             />
           )}
-          <div className="flex organizeName Gray">{roleItem.organizeName}</div>
+          <div className="flex organizeName textPrimary">{roleItem.organizeName}</div>
         </div>
       );
     });
@@ -246,7 +246,7 @@ export default class SelectOrgRole extends Component {
     ) {
       return (
         <div className="emptyWrap h100 flexCenter justifyContentCenter">
-          <div className="Gray_bd Font14">{_l('没有可选组织角色')}</div>
+          <div className="textDisabled Font14">{_l('没有可选组织角色')}</div>
         </div>
       );
     }
@@ -277,7 +277,7 @@ export default class SelectOrgRole extends Component {
                 >
                   <Icon
                     icon="task_custom_btn_unfold"
-                    className={cx('Gray_9e mRight13 expendIcon InlineBlock', {
+                    className={cx('textTertiary mRight13 expendIcon InlineBlock', {
                       rotate: !expendTreeNodeKey.includes(groupItem.orgRoleGroupId),
                     })}
                   />
@@ -286,7 +286,7 @@ export default class SelectOrgRole extends Component {
                 {this.renderChildren(groupItem)}
                 {groupItem.hasMore && expendTreeNodeKey.includes(groupItem.orgRoleGroupId) && (
                   <div
-                    className="organizeName Hand valignWrapper ThemeColor pLeft20 pTop13 pBottom13"
+                    className="organizeName Hand valignWrapper colorPrimary pLeft20 pTop13 pBottom13"
                     onClick={() => this.getData(undefined, groupItem.orgRoleGroupId, groupItem.pageIndex + 1)}
                   >
                     <span className={cx({ mLeft16: list.length > 1 })}>{_l('加载更多')}</span>

@@ -123,7 +123,7 @@ export default function InvoiceConfirm(props) {
   ) : (
     <Popup position="bottom" className="mobileModal topRadius invoicePopup" visible onMaskClick={onCancel}>
       <div className="flexRow header LineHeight24">
-        <div className="Font20 bold Gray">{title}</div>
+        <div className="Font20 bold textPrimary">{title}</div>
         <div className="closeIcon TxtCenter" onClick={onCancel}>
           <icon className="icon icon-close" />
         </div>

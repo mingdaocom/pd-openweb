@@ -64,7 +64,7 @@ export default function (props) {
     const isIndeterminate = checkedWorksheets.length > 0 && !isAllSelected;
     return (
       <div className="flex flexColumn mLeft20 h100">
-        <h3 className="mTop15 Gray_9e Font14">{_l('请选择工作表')}</h3>
+        <h3 className="mTop15 textTertiary Font14">{_l('请选择工作表')}</h3>
         <Checkbox
           checked={isAllSelected}
           indeterminate={isIndeterminate}
@@ -90,7 +90,12 @@ export default function (props) {
                   className="w100"
                 >
                   <span className="flexRow alignItemsCenter w100">
-                    <SvgIcon url={o.iconUrl} className="flex-shrink-0 minWidth0" fill={'#757575'} size={18} />
+                    <SvgIcon
+                      url={o.iconUrl}
+                      className="flex-shrink-0 minWidth0"
+                      fill={'var(--color-text-secondary)'}
+                      size={18}
+                    />
                     <span
                       className="mLeft5 flex overflow_ellipsis WordBreak flex-shrink-0 minWidth0"
                       title={o.sheetName || _l('未命名')}
@@ -147,7 +152,7 @@ export default function (props) {
                   </Checkbox>
                   {o.tips && (
                     <Tooltip title={o.tips}>
-                      <i className="icon-info_outline Font16 Gray_bd mLeft3 TxtMiddle" />
+                      <i className="icon-info_outline Font16 textDisabled mLeft3 TxtMiddle" />
                     </Tooltip>
                   )}
                 </div>
@@ -161,7 +166,7 @@ export default function (props) {
   const otherSet = type => {
     return (
       <React.Fragment>
-        <p className="mBottom0 mTop24 Gray_75">{_l('其他')}</p>
+        <p className="mBottom0 mTop24 textSecondary">{_l('其他')}</p>
         <div className={'tipItem flexRow alignItemsCenter mTop20'}>
           <Switch
             size="small"
@@ -178,7 +183,7 @@ export default function (props) {
           </span>
           {type !== 'read' && (
             <Tooltip title={_l('在组织管理【汇报关系】中管理用户的下属')}>
-              <i className="icon-info_outline Font16 mLeft6 Gray_bd" />
+              <i className="icon-info_outline Font16 mLeft6 textDisabled" />
             </Tooltip>
           )}
         </div>
@@ -208,7 +213,7 @@ export default function (props) {
             <div className="flexRow alignItemsCenter">
               {(type === 'read' ? dataPermissionOptions : operationPermissionOptions).map(option => (
                 <MDRadio
-                  className="InlineFlex cascaderRadio Gray"
+                  className="InlineFlex cascaderRadio textPrimary"
                   text={option.label}
                   checked={option.value === value}
                   onClick={() => {
@@ -303,12 +308,12 @@ export default function (props) {
         <div className="sideNav flexColumn h100">{worksheets()}</div>
         <div className="flex h100 flexColumn">
           <div className="flex con">
-            <h3 className="Gray_9e Font14">{_l('未设置的权限项，将不会修改')}</h3>
-            <h4 className="Font16 Gray Bold mTop8">{_l('数据权限')}</h4>
+            <h3 className="textTertiary Font14">{_l('未设置的权限项，将不会修改')}</h3>
+            <h4 className="Font16 textPrimary Bold mTop8">{_l('数据权限')}</h4>
             {renderCon('read')}
             {renderCon('edit')}
             {renderCon('remove')}
-            <h4 className="Font16 Gray Bold mTop50">{_l('操作权限')}</h4>
+            <h4 className="Font16 textPrimary Bold mTop50">{_l('操作权限')}</h4>
             {renderPermissionSection('worksheet')}
             {renderPermissionSection('record')}
           </div>

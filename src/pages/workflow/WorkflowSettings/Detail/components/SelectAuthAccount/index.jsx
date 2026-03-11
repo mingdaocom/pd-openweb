@@ -12,7 +12,7 @@ const Member = styled.span`
   height: 26px;
   vertical-align: top;
   margin-right: 10px;
-  background: #f7f7f7;
+  background: var(--color-background-secondary);
   border-radius: 26px;
   padding-right: 10px;
   position: relative;
@@ -44,7 +44,7 @@ const Message = styled.div`
   left: 1px;
   right: 37px;
   border-radius: 4px 0 0 4px;
-  background: #fff;
+  background: var(--color-background-primary);
 `;
 
 /**
@@ -115,7 +115,7 @@ export default props => {
       <div className="Font13">
         {_l('选择账户')}
         {required && (
-          <span className="mLeft5" style={{ color: '#f44336' }}>
+          <span className="mLeft5" style={{ color: 'var(--color-error)' }}>
             *
           </span>
         )}
@@ -129,7 +129,7 @@ export default props => {
           renderTitle={
             authId && list.length && !list.find(o => o.value === authId)
               ? () => {
-                  return <span style={{ color: '#f44336' }}>{_l('账户已删除')}</span>;
+                  return <span style={{ color: 'var(--color-error)' }}>{_l('账户已删除')}</span>;
                 }
               : null
           }
@@ -149,7 +149,7 @@ export default props => {
             <i className="icon-lookup Font18 mRight10" />
             <span className="flex">{_l('查询账户')}</span>
             <i
-              className="icon-cancel Font16 Gray_75 ThemeHoverColor3 pointer"
+              className="icon-cancel Font16 textSecondary ThemeHoverColor3 pointer"
               onClick={() => onChange({ authIdAccounts: [], authIdKeywords: '' })}
             />
           </Message>
@@ -193,7 +193,7 @@ export default props => {
 
             <i
               className={cx(
-                'Font26 Gray_75 ThemeHoverColor3 pointer',
+                'Font26 textSecondary ThemeHoverColor3 pointer',
                 users.length ? 'icon-task-folder-charge' : 'icon-task-add-member-circle',
               )}
               onClick={selectUser}

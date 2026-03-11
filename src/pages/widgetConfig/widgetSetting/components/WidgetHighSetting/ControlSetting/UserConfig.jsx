@@ -182,7 +182,7 @@ export default function UserConfig(props) {
                 '用户通讯录指当前操作人的通讯录；组织通讯录指当前组织的通讯录。此外，使用部门作为选择范围时，所设置部门及所有子部门中的人员可选；使用组织角色作为选择范围时，所设置角色下的所有人员可选。',
               )}
             >
-              <i className="icon-help Gray_9e Font16 Hand mLeft4"></i>
+              <i className="icon-help textTertiary Font16 Hand mLeft4"></i>
             </Tooltip>
           </div>
 
@@ -241,7 +241,7 @@ export default function UserConfig(props) {
                       })}
                     </Fragment>
                   ) : (
-                    <span className="Gray_75 mTop4">{_l('请选择')}</span>
+                    <span className="textSecondary mTop4">{_l('请选择')}</span>
                   )}
                 </div>
               </Dropdown>

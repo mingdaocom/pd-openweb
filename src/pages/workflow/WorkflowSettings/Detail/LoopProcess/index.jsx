@@ -129,7 +129,7 @@ export default class LoopProcess extends Component {
         </div>
         <div className="flexRow mTop5 alignItemsCenter mBottom20">
           <div className="ellipsis">
-            {data.subProcessName || <span style={{ color: '#f44336' }}>{_l('流程已删除')}</span>}
+            {data.subProcessName || <span style={{ color: 'var(--color-error)' }}>{_l('流程已删除')}</span>}
           </div>
           {data.subProcessId && data.subProcessName && (
             <i
@@ -143,7 +143,7 @@ export default class LoopProcess extends Component {
         <LoopProcessParameters {...this.props} key={cacheKey} data={data} updateSource={this.updateSource} />
 
         <div className="Font13 mTop20 bold">{_l('循环退出条件')}</div>
-        <div className="Font13 mTop5 Gray_75">
+        <div className="Font13 mTop5 textSecondary">
           {data.actionId === ACTION_ID.CONDITION_LOOP
             ? _l('参数满足下面条件时退出循环，请在循环中更新参数值以触发条件')
             : _l('当“start”参数值大于“end”参数值时，退出循环')}
@@ -180,7 +180,7 @@ export default class LoopProcess extends Component {
             updateSource={({ fieldValue }) => this.updateSource({ maxLoopCount: fieldValue })}
           />
         </div>
-        <div className="Font13 mTop10 Gray_75">
+        <div className="Font13 mTop10 textSecondary">
           {_l('值范围为1~10000。为避免影响性能或超时，到达最大循环次数时将自动终止循环并进入后续流程。')}
         </div>
 
@@ -209,7 +209,7 @@ export default class LoopProcess extends Component {
     return (
       <div className="addActionBtn mTop15">
         <span
-          className={data.appId ? 'ThemeBorderColor3' : 'Gray_bd borderColor_c'}
+          className={data.appId ? 'ThemeBorderColor3' : 'textDisabled borderTertiary'}
           onClick={() => this.updateSource({ conditions: [[{}]] })}
         >
           <i className="icon-add Font16" />

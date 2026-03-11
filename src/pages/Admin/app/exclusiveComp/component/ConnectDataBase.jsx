@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, Icon, Switch, Textarea } from 'ming-ui';
@@ -23,6 +24,14 @@ const DialogContentWrap = styled.div`
       margin-bottom: 4px !important;
     }
   }
+  .deleteIcon {
+    color: var(--color-text-secondary);
+    font-size: 16px;
+    cursor: pointer;
+    &:hover {
+      color: var(--color-error);
+    }
+  }
 `;
 
 function ConnectDataBase(props) {
@@ -30,8 +39,6 @@ function ConnectDataBase(props) {
 
   const [data, setData] = useState({
     name: undefined,
-    host: undefined,
-    port: 27017,
     account: undefined,
     password: undefined,
     dbName: undefined,
@@ -41,23 +48,35 @@ function ConnectDataBase(props) {
   });
   const [errors, setErrors] = useState([]);
   const [pending, setPending] = useState(false);
+  const [addressList, setAddressList] = useState([{ host: '', port: 27017 }]);
+  const hostInputRefs = useRef([]);
 
   useState(() => {
-    id && setData(info);
+    if (id) {
+      setData(info);
+      const hosts = (info.hosts || []).length > 1 ? info.hosts : [{ host: info.host, port: info.port }];
+      setAddressList(hosts);
+    }
   }, [id]);
 
+  const updateAddressPost = (data, index) => {
+    const newAddressList = addressList.map((item, i) => (i === index ? data : item));
+    setAddressList(newAddressList);
+  };
+
   const handleChangeData = value => {
-    setData({
-      ...data,
-      ...value,
-    });
+    setData({ ...data, ...value });
   };
 
   const check = () => {
-    const request = ['name', 'host', 'port', 'account', 'password', 'dbName'];
+    const request = ['name', 'account', 'password', 'dbName'];
     const _errors = [];
     request.forEach(key => {
       if (!data[key]) _errors.push(key);
+    });
+    addressList.forEach((item, index) => {
+      if (!item.host) _errors.push(`host${index}`);
+      if (!item.port) _errors.push(`port${index}`);
     });
     setErrors(_errors);
     return _errors;
@@ -66,12 +85,16 @@ function ConnectDataBase(props) {
   const createDB = () => {
     const err = check();
     if (err.length > 0) return;
+    const hostParams =
+      addressList.length > 1 ? { hosts: addressList } : { host: addressList[0].host, port: addressList[0].port };
+
     let promiseAjax = id ? projectAjax.editDBInstance : projectAjax.createDBInstance;
     promiseAjax({
-      ...data,
+      ..._.omit(data, ['host', 'port']),
       id,
       projectId: projectId,
       password: /^[*]+$/.test(data.password) ? undefined : encrypt(data.password),
+      ...hostParams,
     }).then(res => {
       if (res) {
         alert('保存成功');
@@ -84,13 +107,17 @@ function ConnectDataBase(props) {
     const err = check();
     if (err.length > 0) return;
     setPending(true);
+    const hostParams =
+      addressList.length > 1 ? { hosts: addressList } : { host: addressList[0].host, port: addressList[0].port };
+
     projectAjax
       .testConnection(
         {
-          ...data,
+          ..._.omit(data, ['host', 'port']),
           id,
           projectId: projectId,
           password: /^[*]+$/.test(data.password) ? undefined : encrypt(data.password),
+          ...hostParams,
         },
         { silent: true },
       )
@@ -112,9 +139,12 @@ function ConnectDataBase(props) {
 
   const isEdited = () => {
     if (!id) return true;
-    return _.some(
-      ['name', 'host', 'port', 'account', 'password', 'dbName', 'other', 'remark', 'status'],
-      l => info[l] !== data[l],
+    const oldAddressList = (info.hosts || []).length > 1 ? info.hosts : [{ host: info.host, port: info.port }];
+    return (
+      _.some(
+        ['name', 'host', 'port', 'account', 'password', 'dbName', 'other', 'remark', 'status'],
+        l => info[l] !== data[l],
+      ) || !_.isEqual(oldAddressList, addressList)
     );
   };
 
@@ -127,8 +157,17 @@ function ConnectDataBase(props) {
       okDisabled={!isEdited()}
       okText={id ? _l('保存') : _l('创建')}
       footerLeftElement={() => (
-        <div className="ThemeColor ThemeHoverColor2 Hand" onClick={testConnection}>
-          {pending ? _l('连接中，请稍后…') : _l('测试连接')}
+        <div className="flexRow alignItemsCenter">
+          <div className="colorPrimary ThemeHoverColor2 Hand" onClick={testConnection}>
+            {pending ? _l('连接中，请稍后…') : _l('测试连接')}
+          </div>
+          <Tooltip
+            title={_l(
+              '将向配置的数据库地址运行一条内容为 “ping=1”的命令 ，若在 5 秒内可以正常连接并收到返回内容，则视为测试通过。注：未通过测试不可保存，系统会强制校验',
+            )}
+          >
+            <Icon icon="info_outline" className="Font16 textDisabled mLeft8" />
+          </Tooltip>
         </div>
       )}
       onOk={createDB}
@@ -144,32 +183,65 @@ function ConnectDataBase(props) {
           onChange={e => handleChangeData({ name: e.target.value })}
           onFocus={() => clearError('name')}
         />
-        <div className="rowFlex mBottom16">
-          <TextInput
-            className="mRight16 textInput"
-            value={data.host}
-            // disabled={id && numberOfApp > 0}
-            label={_l('数据库地址')}
-            isRequired={true}
-            error={errors.includes('host')}
-            onChange={e => handleChangeData({ host: e.target.value })}
-            onFocus={() => clearError('host')}
-          />
-          <TextInput
-            className="textInput"
-            label={_l('端口号')}
-            value={data.port}
-            // disabled={id && numberOfApp > 0}
-            isRequired={true}
-            error={errors.includes('port')}
-            onChange={e => {
-              const value = Number(e.target.value);
-              handleChangeData({
-                port: _.isNumber(value) && !_.isNaN(value) ? value : '',
-              });
-            }}
-            onFocus={() => clearError('port')}
-          />
+        {addressList.map((item, index) => (
+          <div key={index} className="rowFlex mBottom12">
+            <TextInput
+              className="mRight16 textInput"
+              value={item.host}
+              // disabled={id && numberOfApp > 0}
+              label={_l('数据库地址')}
+              isRequired={true}
+              error={errors.includes(`host${index}`)}
+              onChange={e => updateAddressPost({ ...item, host: e.target.value }, index)}
+              onFocus={() => clearError(`host${index}`)}
+              tips={_l('支持单机与副本集，副本集请输入多个数据库地址和端口，且包含主节点')}
+              hideLabel={index !== 0}
+              ref={el => (hostInputRefs.current[index] = el)}
+            />
+            <TextInput
+              className="textInput"
+              label={_l('端口号')}
+              hideLabel={index !== 0}
+              value={item.port}
+              // disabled={id && numberOfApp > 0}
+              isRequired={true}
+              error={errors.includes(`port${index}`)}
+              onChange={e => {
+                const value = Number(e.target.value);
+                updateAddressPost(
+                  {
+                    ...item,
+                    port: _.isNumber(value) && !_.isNaN(value) ? value : '',
+                  },
+                  index,
+                );
+              }}
+              onFocus={() => clearError(`port${index}`)}
+            />
+            <div className={cx('flexRow alignItemsCenter mLeft8 Height36', { Hidden: addressList.length === 1 })}>
+              <Icon
+                icon="delete1"
+                className={cx('deleteIcon', { Visibility: index === 0 })}
+                onClick={() => {
+                  setAddressList(addressList.filter((_, i) => i !== index));
+                }}
+              />
+            </div>
+          </div>
+        ))}
+        <div
+          style={{ width: 'fit-content' }}
+          className="colorPrimary ThemeHoverColor2 Hand mTop4 mBottom16"
+          onClick={() => {
+            const newIndex = addressList.length;
+            setAddressList(addressList.concat({ host: '', port: 27017 }));
+            setTimeout(() => {
+              hostInputRefs.current[newIndex]?.focus();
+            }, 0);
+          }}
+        >
+          <Icon icon="add" className="Font14" />
+          <span className="mLeft2">{_l('地址')}</span>
         </div>
         <TextInput
           className="mBottom16 textInput"
@@ -196,6 +268,8 @@ function ConnectDataBase(props) {
           onBlur={() => {
             if (id && !data.password) handleChangeData({ password: info.password });
           }}
+          type="password"
+          tips={_l('密码保存之后数据库将加密存储，同时在界面上将掩码展示')}
         />
         <TextInput
           className="mBottom16 textInput"
@@ -203,6 +277,7 @@ function ConnectDataBase(props) {
           // disabled={id && numberOfApp > 0}
           label={_l('数据库名称')}
           isRequired={true}
+          error={errors.includes('dbName')}
           onChange={e => handleChangeData({ dbName: e.target.value })}
         />
         <TextInput
@@ -215,7 +290,7 @@ function ConnectDataBase(props) {
         <div className="Font14 mBottom4 valignWrapper">
           {_l('新增应用')}
           <Tooltip title={_l('开启时，允许拥有“应用服务和资源”的管理员，新增应用到这个数据库')}>
-            <Icon icon="info_outline" className="Font16 Gray_bd mLeft8" />
+            <Icon icon="info_outline" className="Font16 textDisabled mLeft8" />
           </Tooltip>
         </div>
         <div className="SwitchCon mBottom16">

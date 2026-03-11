@@ -10,11 +10,11 @@ import { getFeatureStatus } from 'src/utils/project';
 const ConfigItemWrap = styled.div`
   padding: 0 32px;
   &.hoverStyle:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
   .content {
     padding: 24px 24px 24px 0;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
   }
 `;
 
@@ -57,22 +57,22 @@ export default function FeatureListWrap(props) {
             }}
           >
             <div className="content flexRow alignItemsCenter">
-              <div className="flex">
+              <div className="flex minWidth0">
                 <div className="bold mBottom5 Font14">
-                  {icon && <Icon icon={icon} className="Gray_9e Font18 mRight8" />}
+                  {icon && <Icon icon={icon} className="textTertiary Font18 mRight8" />}
                   {title}
                   {!_.isUndefined(featureId) && featureType === '2' && <UpgradeIcon />}
                 </div>
-                {description && <div className={cx('Gray_9e', { mTop5: customContent })}>{description}</div>}
+                {description && <div className={cx('textTertiary', { mTop5: customContent })}>{description}</div>}
                 {customContent && <div>{customContent}</div>}
               </div>
               {showSetting && (
-                <span className="ThemeColor Hand mRight20" onClick={clickSetting}>
+                <span className="colorPrimary Hand mRight20" onClick={clickSetting}>
                   {_l('设置')}
                 </span>
               )}
               {showSwitch && <Switch checked={switchChecked} onClick={clickSwitch} />}
-              {showSlideIcon && <Icon icon="arrow-right-border" className="Font18 Gray_9d Right Hand" />}
+              {showSlideIcon && <Icon icon="arrow-right-border" className="Font18 textTertiary Right Hand" />}
             </div>
           </ConfigItemWrap>
         );

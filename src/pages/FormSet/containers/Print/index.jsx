@@ -5,7 +5,7 @@ import { Icon, LoadDiv, SortableList, Support, UpgradeIcon } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { PRINT_TYPE } from 'src/pages/Print/config';
+import { PRINT_TYPE } from 'src/pages/Print/core/config';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import EditPrint from '../../components/EditPrint';
@@ -320,9 +320,9 @@ class Print extends React.Component {
           <div className="h100 overflowHidden">
             <div className="topBoxText">
               <div className="textCon">
-                <h5 className="formName Gray Font17 Bold">{_l('打印模板')}</h5>
+                <h5 className="formName textPrimary Font17 Bold">{_l('打印模板')}</h5>
                 <p className="desc mTop8">
-                  <span className="Font13 Gray_9e">
+                  <span className="Font13 textTertiary">
                     {_l('保存系统打印的配置为模板，或上传 Word、Excel 模板自由定义记录打印的样式。')}
                   </span>
                   <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/worksheet/print-template" />
@@ -343,7 +343,7 @@ class Print extends React.Component {
               <React.Fragment>
                 <div className="printTemplatesList withPrintTemp flex overflowHidden flexColumn">
                   <div className="printTemplatesList-header">
-                    <div className="name flex mRight20 valignWrapper overflow_ellipsis">{_l('名称')}</div>
+                    <div className="name flex mRight20 valignWrapper overflow_ellipsis pLeft35">{_l('名称')}</div>
                     <div className="views flex mRight20">{_l('使用范围')}</div>
                     <div className="action mRight8 w180px">{_l('操作')}</div>
                     <div className="more w80px"></div>

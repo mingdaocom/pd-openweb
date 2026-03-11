@@ -137,6 +137,7 @@ function generate() {
           'auth-chat-tools',
           'auth-welink',
           'auth-feishu',
+          'auth-microsoft',
           'auth-dingding',
           'sso-dingding',
           'sso-sso',
@@ -181,18 +182,20 @@ function generate() {
         if (!isProduction) {
           // 开发模式
           $entryScript.replaceWith(
-            ['node_modules', 'cookies', 'vendors', 'core', 'common', 'globals', moduleName]
+            ['runtime', 'node_modules', 'cookies', 'vendors', 'core', 'common', 'globals', moduleName]
               .map(src => `<script src="${getPublicPath(entry.type) + src}.dev.js"></script>`)
               .join(''),
           );
         } else {
           // 发布模式
-          const baseEntry =
-            entry.type === 'single'
+          const baseEntry = [
+            'runtime',
+            ...(entry.type === 'single'
               ? ['cookies', 'vendors', 'globals']
               : entry.type === 'singleExtractModules'
                 ? ['node_modules', 'cookies', 'vendors', 'common', 'globals']
-                : ['node_modules', 'cookies', 'vendors', 'core', 'common', 'globals'];
+                : ['node_modules', 'cookies', 'vendors', 'core', 'common', 'globals']),
+          ];
 
           let manifestData = JSON.parse(
             fs
@@ -201,7 +204,7 @@ function generate() {
           );
 
           $entryScript.replaceWith(
-            [...(!noCommonResource ? baseEntry : ['cookies']), moduleName]
+            [...(!noCommonResource ? baseEntry : ['runtime', 'cookies']), moduleName]
               .filter(key => !!manifestData[key] && manifestData[key].js)
               .map(key => `<script src="${getPublicPath(entry.type) + manifestData[key].js}"></script>`)
               .join(''),

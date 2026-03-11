@@ -1,4 +1,5 @@
-.customMobileFormContainer {
+﻿.customMobileFormContainer {
+  position: relative;
   background: var(--color-background-primary);
   margin: 0 -12px;
   color: var(--color-text-primary);
@@ -23,6 +24,15 @@
     flex-direction: column;
     padding: 6px 12px;
     box-sizing: border-box;
+
+    &.isFilledByAi {
+      .customFormItemLabel .controlLabelName {
+        color: var(--color-mingo-dark);
+      }
+      .customFormControlBox {
+        background-color: #f5f1fe;
+      }
+    }
 
     &.customFormItemRow {
       flex-direction: row;
@@ -49,7 +59,7 @@
   // 字段之间的分割线
   .customFormLine {
     height: 1px;
-    background: var(--color-background-tertiary);
+    background: var(--color-border-secondary);
     clear: both;
     margin: 0 12px;
   }
@@ -129,7 +139,7 @@
     }
 
     &.controlEditReadonly {
-      background: var(--color-background-secondary) !important;
+      background: var(--color-background-disabled) !important;
       position: initial !important;
     }
 
@@ -370,7 +380,7 @@
     margin: 0 -12px;
     width: calc(100% + 24px);
     height: 10px;
-    background-color: var(--color-background-tertiary);
+    background-color: var(--color-background-secondary);
   }
 }
 
@@ -380,8 +390,8 @@
   display: inline-block;
   padding: 2px 12px;
   border-radius: 16px;
-  background: var(--color-background-tertiary);
-  border: 1px solid var(--color-background-tertiary);
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-background-secondary);
   word-break: break-all;
   white-space: pre-wrap;
 
@@ -394,7 +404,7 @@
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: var(--color-background-tertiary);
+    background: var(--color-background-secondary);
   }
 
   &.capsuleLink {
@@ -422,7 +432,7 @@
   transform: translateY(-5px);
   z-index: 3;
   left: 0;
-  color: var(--color-background-primary);
+  color: var(--color-white);
   padding: 3px 8px;
   white-space: nowrap;
   background: var(--color-error);
@@ -471,6 +481,6 @@
   a:active,
   a:focus,
   a:visited {
-    color: initial !important;
+    color: var(--color-text-primary) !important;
   }
 }

@@ -308,7 +308,7 @@ export default class EnterpriseCard extends Component {
     const { card } = this.props;
     switch (type) {
       case 'open':
-        if (!md.global.Config.IsLocal) {
+        if (!window.platformENV.isOverseas && !window.platformENV.isLocal) {
           return (
             <span className="openNowBtn" onClick={() => this.handleOpenCard(card)}>
               {_l('购买')}
@@ -320,10 +320,13 @@ export default class EnterpriseCard extends Component {
       case 'review':
         return (
           <span>
-            <span className="ThemeColor3 Hover_49 Hand" onClick={() => this.handleReview(card)}>
+            <span className="ThemeColor3 hoverTextPrimaryLight Hand" onClick={() => this.handleReview(card)}>
               {_l('待审核')}
             </span>
-            <span className="cancelApplication Hover_49 Hand mLeft24" onClick={() => this.cancelApplication(card)}>
+            <span
+              className="cancelApplication hoverTextPrimaryLight Hand mLeft24"
+              onClick={() => this.cancelApplication(card)}
+            >
               {_l('取消申请')}
             </span>
           </span>
@@ -362,7 +365,7 @@ export default class EnterpriseCard extends Component {
       title: _l('恢复组织：%0', card.companyName),
       okText: _l('恢复组织'),
       description: (
-        <span className="Font14 Gray_75">
+        <span className="Font14 textSecondary">
           {_l('关闭超过90天的组织，所有应用已自动进入回收站，进入回收站60天后，所有应用会被彻底物理删除')}
         </span>
       ),
@@ -399,13 +402,13 @@ export default class EnterpriseCard extends Component {
         )}
         <div className="cardItemHeader Hand">
           <div className="cardItemLeft">
-            <div className="Font17 Bold mBottom12 Gray">{card.companyName}</div>
+            <div className="Font17 Bold mBottom12 textPrimary">{card.companyName}</div>
             <div className="cardItemInfo">
               <div className={cx('itemTag', isClose ? 'closeActive' : isWaitOpen ? 'grayActive' : 'active')}>
                 {isClose ? _l('已关闭') : currentLicense.version ? currentLicense.version.name : _l('免费版')}
               </div>
               <div className="mLeft24 mRight24 itemDivice"></div>
-              <div className={cx('Gray_75', { hover_blue: !isClose })}>
+              <div className={cx('textSecondary', { hover_blue: !isClose })}>
                 {isClose ? (
                   _l('%0 于%1关闭', closedOperatorName, closedTime ? createTimeSpan(closedTime) : '-')
                 ) : (
@@ -419,8 +422,8 @@ export default class EnterpriseCard extends Component {
                   </ClipboardButton>
                 )}
               </div>
-              {md.global.Config.IsLocal && (
-                <div className="Gray_75 hover_blue mLeft16">
+              {(window.platformENV.isOverseas || window.platformENV.isLocal) && (
+                <div className="textSecondary hover_blue mLeft16">
                   <ClipboardButton
                     component="span"
                     data-clipboard-text={card.projectId}
@@ -435,7 +438,9 @@ export default class EnterpriseCard extends Component {
           </div>
           <div className="cardItemRight">
             {!isClose && this.renderOption(parmas.buttonState)}
-            <span className={cx('Font20 mLeft12 Gray_70', showItem ? 'icon-expand_more' : 'icon-navigate_next')}></span>
+            <span
+              className={cx('Font20 mLeft12 textSecondary', showItem ? 'icon-expand_more' : 'icon-navigate_next')}
+            ></span>
           </div>
         </div>
         <div className={cx('infoContent', showItem ? 'extendInfo' : 'closeInfo')}>
@@ -444,7 +449,7 @@ export default class EnterpriseCard extends Component {
           ) : (
             <Fragment>
               <div className="extendItemBox">
-                <div className="extendItemLabel Gray_75">{_l('组织名片')}</div>
+                <div className="extendItemLabel textSecondary">{_l('组织名片')}</div>
                 <div className="extendRight">
                   <div className="flexRow mBottom8">
                     <div className="extendRightLabel">{_l('姓名')}</div>
@@ -462,17 +467,18 @@ export default class EnterpriseCard extends Component {
                   </div>
                 </div>
               </div>
-              <div className="extendItemBox Gray_75">
+              <div className="extendItemBox textSecondary">
                 {(isClose
                   ? closeOptionsList
-                  : optionsList.filter(
-                      v => !(md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal && v.key === 'exit'),
-                    )
+                  : optionsList.filter(v => !(!window.platformENV.isPlatform && v.key === 'exit'))
                 ).map((item, index) => {
                   return (
                     <span
                       key={index}
-                      className={cx('flexRow mRight40', parmas[item.key] ? 'Hand Gray hover_blue' : 'Gray_9e')}
+                      className={cx(
+                        'flexRow mRight40',
+                        parmas[item.key] ? 'Hand textPrimary hover_blue' : 'textTertiary',
+                      )}
                       onClick={() => (parmas[item.key] ? this[item.click](userInfo, isClose) : null)}
                     >
                       <span className={cx('mRight12 LineHeight20 childTag', item.icon)}></span>

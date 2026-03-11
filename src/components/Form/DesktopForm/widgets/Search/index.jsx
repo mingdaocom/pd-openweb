@@ -31,7 +31,7 @@ const SearchBtn = styled.div`
   color: var(--color-text-primary);
   font-size: 13px;
   &:hover {
-    background: var(--color-background-tertiary);
+    background: var(--color-background-hover);
   }
   .successIcon {
     color: var(--color-success);
@@ -208,7 +208,7 @@ const Search = props => {
       <React.Fragment>
         <div className={cx('itemTitleBox ellipsis', { Bold: itemDesc.length > 0 })}>{titleValue || _l('无标题')}</div>
         {itemDescValues.length ? (
-          <span className={cx('Font12 Gray_75 LineHeight16')} style={{ whiteSpace: 'normal' }}>
+          <span className={cx('Font12 textSecondary LineHeight16')} style={{ whiteSpace: 'normal' }}>
             {itemDescValues.join(' | ')}
           </span>
         ) : null}
@@ -349,7 +349,7 @@ const Search = props => {
           loading ? (
             <LoadDiv className="flexCenter" size="small" />
           ) : data ? (
-            <span className="Gray_9e">{_l('没有返回结果')}</span>
+            <span className="textTertiary">{_l('没有返回结果')}</span>
           ) : null
         }
         onSelect={(value, option) => handleSelect(option)}

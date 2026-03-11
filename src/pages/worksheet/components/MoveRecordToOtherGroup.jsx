@@ -11,7 +11,7 @@ import { handleRecordError } from 'src/utils/record';
 
 const MoveRecordToOtherGroupWrap = styled.div`
   width: 360px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   border-radius: 3px 3px 3px 3px;
   display: flex;
   flex-direction: column;
@@ -20,13 +20,13 @@ const MoveRecordToOtherGroupWrap = styled.div`
 const Header = styled.div`
   height: 38px;
   border-radius: 3px 3px 0 0;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-border-primary);
   padding: 0 12px;
   display: flex;
   flex-direction: row;
   align-items: center;
   .icon-search {
-    color: #757575;
+    color: var(--color-text-secondary);
     font-size: 20px;
   }
   input {
@@ -57,7 +57,7 @@ const Content = styled(ScrollView)`
       overflow: hidden;
     }
     &:hover {
-      background-color: #f0f0f0;
+      background-color: var(--color-background-disabled);
     }
   }
 `;
@@ -66,7 +66,7 @@ const Empty = styled.div`
   line-height: 36px;
   font-size: 13px;
   text-align: center;
-  color: #757575;
+  color: var(--color-text-secondary);
 `;
 
 function updateRecord({ appId, viewId, worksheetId, recordId, value, control } = {}, cb = () => {}) {
@@ -138,7 +138,7 @@ export default function MoveRecordToOtherGroup(props) {
       <Header>
         <i className="icon icon-search" />
         <Input value={keyWords} onChange={setKeyWords} placeholder={_l('将记录移动到...')} />
-        {!!keyWords && <i className="icon icon-cancel Hand Gray_9e Font16" onClick={() => setKeyWords('')}></i>}
+        {!!keyWords && <i className="icon icon-cancel Hand textTertiary Font16" onClick={() => setKeyWords('')}></i>}
       </Header>
       <Content style={{ maxHeight: '300px' }}>
         {!groupsForShow.length && <Empty>{_l('没有搜索结果')}</Empty>}

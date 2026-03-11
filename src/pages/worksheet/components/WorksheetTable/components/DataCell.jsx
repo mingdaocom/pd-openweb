@@ -5,6 +5,7 @@ import CellControl from 'worksheet/components/CellControls';
 export default function MDCell(props) {
   const {
     key,
+    direction,
     isTrash,
     className,
     style,
@@ -19,6 +20,7 @@ export default function MDCell(props) {
     isDraft,
     leftFixedCount,
     inView,
+    cellProps = {},
   } = props;
   const {
     tableType,
@@ -57,6 +59,7 @@ export default function MDCell(props) {
     checkRulesErrorOfControl,
     registerRef,
     chatButton,
+    updateSheetColumnWidths,
   } = props;
   const onClick = (options = {}) => {
     if (control.key === 'number' || !row.rowid || allowlink === '0') return;
@@ -67,6 +70,7 @@ export default function MDCell(props) {
     <CellControl
       chatButton={chatButton}
       key={key}
+      direction={direction}
       isTrash={isTrash}
       tableId={tableId}
       tableType={tableType}
@@ -136,6 +140,8 @@ export default function MDCell(props) {
       onCellFocus={onCellFocus}
       checkRulesErrorOfControl={checkRulesErrorOfControl}
       registerRef={registerRef}
+      cellProps={cellProps}
+      updateSheetColumnWidths={updateSheetColumnWidths}
     />
   );
 }

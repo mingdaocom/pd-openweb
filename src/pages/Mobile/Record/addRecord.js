@@ -30,7 +30,7 @@ const Success = styled.div`
   }
   .status {
     font-size: 17px;
-    color: #757575;
+    color: var(--color-text-secondary);
     margin: 24px 0 32px;
   }
 `;
@@ -84,7 +84,7 @@ class AddRecord extends Component {
     const { loading, worksheetInfo, writeControls, status } = this.state;
 
     return (
-      <div className="h100" style={{ backgroundColor: '#fff' }}>
+      <div className="h100" style={{ backgroundColor: 'var(--color-background-primary)' }}>
         {loading ? (
           <div className="flexRow justifyContentCenter alignItemsCenter h100">
             <SpinLoading color="primary" />

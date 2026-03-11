@@ -20,8 +20,10 @@ const Con = styled.div`
   justify-content: center;
   align-items: center;
   overflow: auto;
-  ${({ type }) => type === PREVIEW_TYPE.CODE && 'background-color: #151515 !important'}
-  ${({ type }) => (type === PREVIEW_TYPE.MARKDOWN || type === PREVIEW_TYPE.TXT) && 'background-color: #fff !important'}
+  ${({ type }) => type === PREVIEW_TYPE.CODE && 'background-color: var(--color-background-inverse) !important'}
+  ${({ type }) =>
+    (type === PREVIEW_TYPE.MARKDOWN || type === PREVIEW_TYPE.TXT) &&
+    'background-color: var(--color-background-primary) !important'}
 `;
 
 const Content = styled.div`
@@ -31,7 +33,7 @@ const Content = styled.div`
   .txt-viewer {
     width: 100%;
     height: 100%;
-    background: #fff;
+    background: var(--color-background-primary);
     border: none;
     white-space: break-spaces;
   }

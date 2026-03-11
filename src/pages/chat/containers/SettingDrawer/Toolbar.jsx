@@ -9,7 +9,7 @@ const Mingo = styled.div`
   height: 25px;
   img {
     border-radius: 50%;
-    border: 0.5px solid #eaeaea;
+    border: 0.5px solid var(--color-border-secondary);
   }
 `;
 
@@ -26,18 +26,19 @@ export default props => {
     commonAppOpenType,
     messageListShowType,
   } = accountSettings;
+  const { aiBrandName, aiBrandLogoUrl, aiBrandThemeColor } = md.global.SysSettings;
 
   return (
     <div className="flex">
-      <div className="Font14 Gray bold">{_l('工具')}</div>
-      <div className="Font13 Gray_75 mTop10 mBottom10">{_l('设置在侧边栏中显示的工具')}</div>
+      <div className="Font14 textPrimary bold">{_l('工具')}</div>
+      <div className="Font13 textSecondary mTop10 mBottom10">{_l('设置在侧边栏中显示的工具')}</div>
       <div className="flexRow alignItemsCenter widthMaxContent mBottom15">
         <Tooltip placement="bottom" title={_l('此工具不允许被关闭')}>
           <div>
             <Switch checked={isOpenMessage} disabled={true} />
           </div>
         </Tooltip>
-        <Icon icon="chat-line" className="Font22 Gray_75 mLeft10" />
+        <Icon icon="chat-line" className="Font22 textSecondary mLeft10" />
         <span className="mLeft5 mRight10">{_l('消息')}</span>
       </div>
       <div className="flexRow alignItemsCenter widthMaxContent mBottom15">
@@ -51,11 +52,11 @@ export default props => {
             });
           }}
         />
-        <Icon icon="search" className="Font22 Gray_75 mLeft10" />
+        <Icon icon="search" className="Font22 textSecondary mLeft10" />
         <span className="mLeft5 mRight10">{_l('超级搜索')}</span>
       </div>
       {!md.global.SysSettings.hideAIBasicFun && (
-        <div className="flexRow alignItemsCenter widthMaxContent mBottom15">
+        <div className="flexRow alignItemsCenter mBottom15">
           <Switch
             checked={isOpenMingoAI}
             onClick={value => {
@@ -67,10 +68,12 @@ export default props => {
             }}
           />
           <Mingo className="flexRow alignItemsCenter justifyContentCenter mLeft10">
-            <img src={mingoLogo} className="w100" />
+            <img src={aiBrandLogoUrl || mingoLogo} className="w100" />
           </Mingo>
-          <span className="mLeft5 mRight10">Mingo</span>
-          <Icon icon="ai-l" className="Font18" style={{ color: '#6E09F9' }} />
+          <span className="mLeft5 mRight10 flex minWidth0">
+            <div className="ellipsis">{aiBrandName || 'AI助手'}</div>
+          </span>
+          <Icon icon="ai-l" className="Font18" style={{ color: aiBrandThemeColor || 'var(--color-mingo)' }} />
         </div>
       )}
       {/*
@@ -85,7 +88,7 @@ export default props => {
             });
           }}
         />
-        <Icon icon="fav-line" className="Font22 Gray_75 mLeft10" />
+        <Icon icon="fav-line" className="Font22 textSecondary mLeft10" />
         <span className="mLeft5 mRight10">{_l('收藏')}</span>
       </div>
       */}
@@ -104,8 +107,8 @@ export default props => {
         </Checkbox>
       </span>
       <div className="divider mTop20 mBottom20" />
-      <div className="Font14 Gray bold">{_l('快捷方式')}</div>
-      <div className="Font13 Gray_75 mTop10 mBottom10">{_l('设置在工具下方显示的快捷方式列表')}</div>
+      <div className="Font14 textPrimary bold">{_l('快捷方式')}</div>
+      <div className="Font13 textSecondary mTop10 mBottom10">{_l('设置在工具下方显示的快捷方式列表')}</div>
       <div className="flexRow alignItemsCenter widthMaxContent mBottom10">
         <Switch
           checked={isOpenMessageList}
@@ -122,7 +125,7 @@ export default props => {
       {isOpenMessageList && (
         <div className="mLeft60 mTop10 mBottom20">
           <Dropdown
-            className="w100 Gray"
+            className="w100 textPrimary"
             border
             value={messageListShowType}
             data={[
@@ -155,7 +158,7 @@ export default props => {
       {isOpenCommonApp && (
         <div className="mLeft60 mTop10">
           <Dropdown
-            className="w100 Gray"
+            className="w100 textPrimary"
             border
             value={commonAppShowType}
             data={[
@@ -173,7 +176,7 @@ export default props => {
           <div className="flexRow alignItemsCenter mTop10">
             <div className="mRight10">{_l('打开方式')}</div>
             <Dropdown
-              className="flex Gray"
+              className="flex textPrimary"
               border
               value={commonAppOpenType}
               data={[

@@ -20,8 +20,8 @@ const MenuIcon = styled.i`
   width: 32px;
   height: 32px;
   border-radius: 4px;
-  border: 1px solid #ddd;
-  background-color: #fff;
+  border: 1px solid var(--color-border-primary);
+  background-color: var(--color-background-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -30,7 +30,7 @@ const MenuIcon = styled.i`
 
 const DrawerBox = styled.div`
   width: 280px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   .listItem {
     padding: 0 10px;
     height: 40px;
@@ -40,7 +40,7 @@ const DrawerBox = styled.div`
     cursor: pointer;
     &:hover,
     &.active {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
 `;
@@ -180,7 +180,7 @@ class History extends Component {
             {_l('触发了以下子流程')}
           </div>
           <MdLink
-            className="pointer Gray_75 ThemeHoverColor3 Font16 mLeft20"
+            className="pointer textSecondary ThemeHoverColor3 Font16 mLeft20"
             to={`${isPlugin ? '/workflowplugin' : '/workflowedit'}/${this.props.flowInfo.id}/2`}
             onClick={() => {
               this.setState({ workId: '', instanceId: '', instanceData: null }, this.handleFilter);
@@ -234,14 +234,14 @@ class History extends Component {
       <DrawerBox>
         <div className="flexColumn h100">
           <div className="flexRow alignItemsCenter mTop15 mLeft20 mRight15">
-            <div className="Font12 bold flex Gray_75">{_l('历史对话')}</div>
+            <div className="Font12 bold flex textSecondary">{_l('历史对话')}</div>
             {selectConversationId && (
-              <div className="Gray_75 ThemeHoverColor3 pointer mRight10" onClick={() => selectFunc('')}>
+              <div className="textSecondary ThemeHoverColor3 pointer mRight10" onClick={() => selectFunc('')}>
                 {_l('重置')}
               </div>
             )}
             <i
-              className="icon-menu_left Font20 Gray_9e ThemeHoverColor3 pointer"
+              className="icon-menu_left Font20 textTertiary ThemeHoverColor3 pointer"
               onClick={() => this.setState({ showTalksDrawer: false })}
             />
           </div>
@@ -253,7 +253,7 @@ class History extends Component {
                 onClick={() => selectFunc(item.conversationId)}
               >
                 <div className="ellipsis flex">{item.title}</div>
-                <div className="Gray_9e Font12 mLeft10">{createTimeSpan(item.ctime)}</div>
+                <div className="textTertiary Font12 mLeft10">{createTimeSpan(item.ctime)}</div>
               </div>
             ))}
           </ScrollView>
@@ -282,6 +282,7 @@ class History extends Component {
             <HistoryDetail
               isPlugin={isPlugin}
               id={selectActionId}
+              moduleType={flowInfo.moduleType}
               onClick={() => {
                 if (match.params.operator) {
                   location.replace(
@@ -322,7 +323,7 @@ class History extends Component {
             />
           ) : (
             <Fragment>
-              <div className="flex Gray_75">
+              <div className="flex textSecondary">
                 {!parentId && !lastPublishDate ? (
                   _l('待流程发布后，在此处查看流程的运行历史')
                 ) : parentId ? (
@@ -407,7 +408,7 @@ class History extends Component {
           this.renderTalksDrawer()
         ) : (
           <MenuIcon
-            className="icon-menu_right Gray_9e ThemeHoverColor3 mLeft24 mTop20 Font20"
+            className="icon-menu_right textTertiary ThemeHoverColor3 mLeft24 mTop20 Font20"
             onClick={() => this.setState({ showTalksDrawer: true })}
           />
         )}

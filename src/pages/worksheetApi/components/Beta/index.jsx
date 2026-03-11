@@ -10,18 +10,18 @@ const BetaWrapper = styled.div`
   height: 16px;
   line-height: 12px;
   font-size: 12px;
-  background: #67ad5b;
+  background: var(--color-success);
   border-radius: 2px;
   span {
     display: inline-block;
     padding: 0 2px;
   }
   .betaTitle {
-    color: #fff;
+    color: var(--color-white);
   }
   .betaSign {
-    color: #67ad5b;
-    background: #fff;
+    color: var(--color-success);
+    background: var(--color-background-primary);
   }
 `;
 

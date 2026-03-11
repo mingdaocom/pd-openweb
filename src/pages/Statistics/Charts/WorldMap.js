@@ -13,13 +13,13 @@ const ZoomWrapper = styled.div`
   width: 40px;
   height: 90px;
   border-radius: 4px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   position: absolute;
   bottom: 25px;
   right: 25px;
   z-index: 10;
   .icon:hover {
-    color: #1677ff !important;
+    color: var(--color-primary) !important;
   }
 `;
 
@@ -43,14 +43,15 @@ const getSizeLavel = data => {
 };
 
 const getPointData = reportData => {
-  const { xaxes, split, map, locationMap, valueMap, yaxisList } = reportData;
+  const { xaxes, split, map, locationMap, valueMap, yaxisList, style = {} } = reportData;
   const xaxesValueMap = valueMap[xaxes.controlId] || {};
+  const { inheritLastYaxis } = style;
   let features = [];
 
   if (split.controlId) {
     const { value } = map[0];
     const nControlId = _.get(yaxisList[0], 'controlId');
-    const sizeControlId = _.get(yaxisList[1], 'controlId');
+    const sizeControlId = _.get(yaxisList[inheritLastYaxis ? 0 : 1], 'controlId');
     value.map(item => {
       map.forEach((element, index) => {
         const target = element.value.filter(n => n.x === item.x)[0];
@@ -64,7 +65,7 @@ const getPointData = reportData => {
               name: xaxesValueMap[target.x],
               value,
               mag: 20,
-              size: yaxisList.length > 1 ? target.m[sizeControlId] : 0,
+              size: yaxisList.length > 1 ? target.m[sizeControlId] : sizeControlId ? target.v : 0,
               groupKey: element.key,
               colorIndex: index,
             },
@@ -99,7 +100,8 @@ const getPointData = reportData => {
     });
   } else {
     const baseMap = _.get(_.find(map, { c_id: _.get(yaxisList[0], 'controlId') }), 'value');
-    const sizeMap = _.get(_.find(map, { c_id: _.get(yaxisList[1], 'controlId') }), 'value');
+    const sizeMap =
+      _.get(_.find(map, { c_id: _.get(yaxisList[1], 'controlId') }), 'value') || (inheritLastYaxis ? baseMap : null);
     const sizeLavel = getSizeLavel(sizeMap || []);
     features = baseMap.map(data => {
       const location = locationMap[data.x];
@@ -273,7 +275,7 @@ export default class extends Component {
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light' } = customPageConfig;
     const styleConfig = reportData.style || {};
     const { displaySetup, split, xaxes } = reportData;
-    const isDark = pageStyleType === 'dark' && isThumbnail;
+    const isDark = window.themeMode === 'dark' || (pageStyleType === 'dark' && isThumbnail);
     const style =
       chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
         ? { ...styleConfig, ...chartColor }
@@ -372,13 +374,13 @@ export default class extends Component {
       <Menu className="chartMenu" style={{ width: 160 }}>
         <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
           <div className="flexRow valignWrapper">
-            <Icon icon="link1" className="mRight8 Gray_9e Font20 autoLinkageIcon" />
+            <Icon icon="link1" className="mRight8 textTertiary Font20 autoLinkageIcon" />
             <span>{_l('联动')}</span>
           </div>
         </Menu.Item>
         <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
           <div className="flexRow valignWrapper">
-            <Icon icon="table" className="mRight8 Gray_9e Font18" />
+            <Icon icon="table" className="mRight8 textTertiary Font18" />
             <span>{_l('查看原始数据')}</span>
           </div>
         </Menu.Item>
@@ -416,7 +418,7 @@ export default class extends Component {
         <ZoomWrapper className="flexColumn alignItemsCenter justifyContentCenter card">
           <Tooltip title={_l('放大')}>
             <Icon
-              className="pointer Font20 Gray_75"
+              className="pointer Font20 textSecondary"
               icon="add"
               onClick={() => {
                 this.scene.zoomIn();
@@ -425,7 +427,7 @@ export default class extends Component {
           </Tooltip>
           <Tooltip title={_l('完整显示')}>
             <Icon
-              className="pointer Font17 Gray_75 mTop10 mBottom10"
+              className="pointer Font17 textSecondary mTop10 mBottom10"
               icon="gps_fixed"
               onClick={() => {
                 this.scene.setZoom(1);
@@ -434,7 +436,7 @@ export default class extends Component {
           </Tooltip>
           <Tooltip title={_l('缩小')}>
             <Icon
-              className="pointer Font20 Gray_75"
+              className="pointer Font20 textSecondary"
               icon="minus"
               onClick={() => {
                 this.scene.zoomOut();

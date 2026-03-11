@@ -27,6 +27,7 @@ export default class Operates extends Component {
 
   componentDidMount() {
     this.loadBtns();
+    this.props.setRef(this);
     this.props.addRefreshEvents('loadcustombtns', () => {
       setTimeout(() => {
         this.setState({ btnDisable: {} });
@@ -56,10 +57,12 @@ export default class Operates extends Component {
   customButtonsCon = React.createRef();
 
   loadBtns = async (rowId, viewId) => {
+    const { updateAiActionButtons } = this.props;
     const { api } = this.context;
     const buttons = await api().getWorksheetBtns(rowId ? { rowId, ...(viewId ? { viewId } : {}) } : {});
+    updateAiActionButtons(buttons.filter(btn => btn.btnType === 1 && !btn.disabled));
     this.setState({
-      customBtns: buttons,
+      customBtns: buttons.filter(btn => btn.btnType === 0),
     });
   };
 

@@ -107,7 +107,7 @@ export const WorksheetField = props => {
         {(i.references || []).map(item => {
           return (
             <div className="referenceItem">
-              <div className="Gray_75 overflow_ellipsis flexCenter">
+              <div className="textSecondary overflow_ellipsis flexCenter">
                 <Icon icon="worksheet" className="Font16 mRight8" />
                 {_.get(item, 'parentName')}
                 {!isWorksheet && item.parentId === globalSheetInfo.worksheetId && `（${_l('本表')}）`}
@@ -123,7 +123,7 @@ export const WorksheetField = props => {
   if (appType === 'total') {
     return (
       <SettingCollapseWrap
-        contentBg="#fafafa"
+        contentBg="var(--color-background-secondary)"
         headerPadding={12}
         bordered={false}
         activeKey={expandKeys}
@@ -163,9 +163,12 @@ export const WorksheetWorkflow = props => {
           return (
             <div className="referenceItem">
               <div className="ruleContent">
-                <div className="flex overflow_ellipsis Gray Bold">{i.parentName}</div>
+                <div className="flex overflow_ellipsis textPrimary Bold">{i.parentName}</div>
                 <div className="ruleStatus flexCenter justifyContentRight">
-                  <div className="point" style={{ background: i.enabled ? '#00CA83' : '#cccccc' }}></div>
+                  <div
+                    className="point"
+                    style={{ background: i.enabled ? 'var(--color-task)' : 'var(--color-text-placeholder)' }}
+                  ></div>
                   <div className="mLeft6">{i.enabled ? _l('开启') : _l('关闭')}</div>
                 </div>
               </div>
@@ -208,7 +211,7 @@ export const WorksheetWorkflow = props => {
       <SettingCollapseWrap
         bordered={false}
         headerPadding={12}
-        contentBg="#fafafa"
+        contentBg="var(--color-background-secondary)"
         activeKey={expandKeys}
         expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
         onChange={value => {
@@ -261,7 +264,7 @@ export const WorksheetRules = props => {
     <SettingCollapseWrap
       bordered={false}
       headerPadding={12}
-      contentBg="#fafafa"
+      contentBg="var(--color-background-secondary)"
       activeKey={expandKeys}
       expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
       onChange={value => {
@@ -296,7 +299,7 @@ export const WorksheetView = props => {
           const { color, icon } = _.find(VIEW_TYPE_ICON, v => v.id === viewType) || {};
           return (
             <div className="referenceItem">
-              <div className="Gray_75 overflow_ellipsis flexCenter">
+              <div className="textSecondary overflow_ellipsis flexCenter">
                 <Icon icon="worksheet" className="Font16 mRight8" />
                 {item.parentName}
                 {item.parentId === globalSheetInfo.worksheetId && `（${_l('本表')}）`}
@@ -308,7 +311,7 @@ export const WorksheetView = props => {
                 <Icon style={{ color, fontSize: '16px', marginRight: '6px' }} icon={icon} />
                 <div className="flex overflow_ellipsis Bold">{item.name}</div>
               </div>
-              <div className="mTop8 Gray pLeft44">{REFERENCE_TYPE[item.referenceType]}</div>
+              <div className="mTop8 textPrimary pLeft44">{REFERENCE_TYPE[item.referenceType]}</div>
             </div>
           );
         })}
@@ -321,7 +324,7 @@ export const WorksheetView = props => {
       <SettingCollapseWrap
         bordered={false}
         headerPadding={12}
-        contentBg="#fafafa"
+        contentBg="var(--color-background-secondary)"
         activeKey={expandKeys}
         expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
         onChange={value => {

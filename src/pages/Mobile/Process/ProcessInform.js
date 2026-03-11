@@ -130,7 +130,7 @@ export default class ProcessInform extends Component {
     return (
       <div className="searchWrapper flexRow">
         <div className="inputWrap valignWrapper flex">
-          <Icon icon="search" className="Gray_9e Font20 pointer" />
+          <Icon icon="search" className="textTertiary Font20 pointer" />
           <input
             value={searchValue}
             type="text"
@@ -147,7 +147,7 @@ export default class ProcessInform extends Component {
           {searchValue && (
             <Icon
               icon="close"
-              className="Gray_75 Font20 pointer"
+              className="textSecondary Font20 pointer"
               onClick={() => {
                 this.setState(
                   {
@@ -165,7 +165,7 @@ export default class ProcessInform extends Component {
           <div className="filterWrap" onClick={() => this.setState({ filterVisible: true })}>
             <Icon
               icon="filter"
-              className={cx('Font20 Gray_9e', { active: !_.isEmpty(_.omitBy(queryParam, _.isNil)) })}
+              className={cx('Font20 textTertiary', { active: !_.isEmpty(_.omitBy(queryParam, _.isNil)) })}
             />
           </div>
         )}
@@ -214,8 +214,8 @@ export default class ProcessInform extends Component {
           <div className="valignWrapper w100 pTop15 pBottom15 pRight15 pLeft15 Height50">
             <div className="flex Font15 bold">{_l('%0个待查看', countData.waitingExamine)}</div>
             <div className="pointer" onClick={this.handleAllRead}>
-              <Icon icon="done_all" className="Font18 Gray_75" />
-              <span className="Font15 mLeft5 Gray_75 bold">{_l('全部已读')}</span>
+              <Icon icon="done_all" className="Font18 textSecondary" />
+              <span className="Font15 mLeft5 textSecondary bold">{_l('全部已读')}</span>
             </div>
           </div>
         ) : (

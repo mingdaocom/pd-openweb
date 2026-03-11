@@ -30,8 +30,8 @@ export default props => {
   };
   return (
     <Fragment>
-      <div className="Gray Font14 bold mTop20 mBottom10">{_l('链接参数')}</div>
-      <div className="Gray_9e Font13 mBottom10">
+      <div className="textPrimary Font14 bold mTop20 mBottom10">{_l('链接参数')}</div>
+      <div className="textTertiary Font13 mBottom10">
         {_l(
           '指定参数名，可作为查询字符串附加在自定义页面链接后。在加载页面时可动态获取参数值用于自定义页面的筛选条件。',
         )}
@@ -58,7 +58,7 @@ export default props => {
           <Tooltip title={_l('删除')} placement="top">
             <Icon
               icon="trash"
-              className="Gray_9e Font19 pointer"
+              className="textTertiary Font19 pointer"
               onClick={() => {
                 const newParams = urlParams.filter((_, i) => i !== index);
                 updatePageInfo({
@@ -70,7 +70,7 @@ export default props => {
         </div>
       ))}
       <div
-        className="flexRow alignItemsCenter pointer Gray_9e mTop10 hoverText"
+        className="flexRow alignItemsCenter pointer textTertiary mTop10 hoverText"
         onClick={onAdd}
         style={{ width: 'fit-content' }}
       >

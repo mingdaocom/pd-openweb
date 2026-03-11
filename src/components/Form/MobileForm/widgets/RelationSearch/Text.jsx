@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Tooltip } from 'ming-ui/antd-components';
-import { getTitleTextFromRelateControl } from '../../../core/utils';
+import { getTitleTextFromRelateControl } from 'src/utils/control';
 
 const MobileTextWrap = styled.div`
   display: flex;

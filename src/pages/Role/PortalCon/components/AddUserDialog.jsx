@@ -12,16 +12,16 @@ import * as actions from '../redux/actions';
 
 const Wrap = styled.div`
   .listCon {
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     border-radius: 6px;
     padding: 13px 16px;
     display: flex;
   }
   .down,
   .uploadUser {
-    color: #1677ff;
+    color: var(--color-primary);
     &:hover {
-      color: #1e88e5 !important;
+      color: var(--color-primary) !important;
     }
     span {
       display: inline-block;
@@ -112,7 +112,7 @@ function AddUserDialog(props) {
       }}
     >
       <Wrap>
-        <p className="Gray_9e pAll0 mBottom10">
+        <p className="textTertiary pAll0 mBottom10">
           {_l('上传成功后会发送短信/邮箱邀请用户注册外部门户')}
           <br />
           {_l('Excel表格第一行必须是字段名称，为保证短信发送成功请务必保证手机号真实有效，')}
@@ -131,16 +131,16 @@ function AddUserDialog(props) {
           <React.Fragment>
             <div className="listCon">
               <span className="txt flex flexRow">
-                <Icon className="Font18 TxtMiddle" type="new_excel" style={{ color: '#4CAF50' }} />
+                <Icon className="Font18 TxtMiddle" type="new_excel" style={{ color: 'var(--color-success)' }} />
                 <span className="mLeft8 mRight8 flex overflow_ellipsis Font13 WordBreak"> {(file || {}).name}</span>
               </span>
             </div>
             <Checkbox
-              className="TxtCenter InlineBlock Hand mTop10 Gray_75"
+              className="TxtCenter InlineBlock Hand mTop10 textSecondary"
               text={
                 <span>
                   {_l('邀请用户并发送短信/邮箱')}
-                  {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) &&
+                  {window.platformENV.isPlatform &&
                     _l(
                       '（短信%0/条、邮箱%1/封，自动从企业账户扣除。）',
                       _.get(md, 'global.PriceConfig.SmsPrice'),

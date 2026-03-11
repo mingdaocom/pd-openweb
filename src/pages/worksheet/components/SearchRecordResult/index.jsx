@@ -4,16 +4,16 @@ import styled from 'styled-components';
 import { LoadDiv, Modal } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
-import { controlState } from 'src/components/Form/core/utils';
 import RecordCard from 'src/components/recordCard';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { getFilterRelateControls } from 'src/pages/widgetConfig/util';
+import { controlState } from 'src/utils/control';
 import { useRecords } from './useRecords';
 
 const Title = styled.div`
   font-size: 18px;
   font-weight: 500;
-  color: #151515;
+  color: var(--color-text-title);
   line-height: 70px;
   padding: 0 26px;
 `;
@@ -98,7 +98,7 @@ export default function SearchRecordResult({
         )}
         {!loading && !records.length && (
           <div className="pAll35 TxtCenter">
-            <div className="Gray_9e Font12">{error ? _l('已删除或无权限') : _l('没有找到符合条件的记录')}</div>
+            <div className="textTertiary Font12">{error ? _l('已删除或无权限') : _l('没有找到符合条件的记录')}</div>
           </div>
         )}
         {!loading &&

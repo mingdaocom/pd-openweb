@@ -23,6 +23,7 @@ export default class TabBar extends Component {
           <Icon icon="home" />
           <span>{_l('工作台')}</span>
         </div>
+
         {!md.global.SysSettings.hideTemplateLibrary && (
           <div
             className={cx('itemTab', { action: action === 'appBox' })}
@@ -30,10 +31,10 @@ export default class TabBar extends Component {
               history.push('/mobile/appBox');
             }}
           >
-            {md.global.Config.IsLocal ? (
+            {window.platformENV.isOverseas || window.platformENV.isLocal ? (
               <Fragment>
                 <Icon icon="application_library" />
-                <span>{_l('应用库')}</span>
+                <span>{_l('模板库')}</span>
               </Fragment>
             ) : (
               <Fragment>
@@ -43,6 +44,7 @@ export default class TabBar extends Component {
             )}
           </div>
         )}
+
         <div
           className={cx('itemTab', { action: action === 'myHome' })}
           onClick={() => {

@@ -178,7 +178,7 @@ export default class HistoryHeader extends Component {
             <Icon
               className={cx(
                 'Font18 pointer ThemeHoverColor3 Block',
-                isRefresh ? 'historyRefresh ThemeColor3' : 'Gray_75',
+                isRefresh ? 'historyRefresh ThemeColor3' : 'textSecondary',
               )}
               icon="ic_refresh_black"
             />

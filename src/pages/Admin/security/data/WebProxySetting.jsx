@@ -16,14 +16,14 @@ const FormBox = styled.div`
   min-height: 0;
   padding: 0 32px;
   .formModuleTitle {
-    color: #151515;
+    color: var(--color-text-title);
     font-size: 15px;
     font-weight: 600;
     margin: 25px 0 32px 30px;
   }
   .formItem {
     display: flex;
-    color: #151515;
+    color: var(--color-text-title);
     font-size: 13px;
     margin-bottom: 10px;
     .formLabel {
@@ -61,7 +61,7 @@ const FormBox = styled.div`
     .errorMsg {
       padding-top: 4px;
       height: 25px;
-      color: #fb0038;
+      color: var(--color-error);
     }
   }
   .mLeft150 {

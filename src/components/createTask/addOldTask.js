@@ -9,7 +9,7 @@ import { htmlEncodeReg } from 'src/utils/common';
 import './css/addOldTask.css';
 
 const SearchTaskCon = styled.ul`
-  background: #fff;
+  background: var(--color-background-primary);
   display: block;
   padding: 6px 0;
   -webkit-box-shadow:
@@ -26,16 +26,16 @@ const SearchTaskCon = styled.ul`
     white-space: nowrap;
     padding: 0 15px;
     &.active {
-      color: #fff;
-      background-color: #1e88e5;
+      color: var(--color-white);
+      background-color: var(--color-primary);
     }
     &:hover {
-      color: #fff;
-      background-color: #1e88e5;
+      color: var(--color-white);
+      background-color: var(--color-primary);
     }
     &.noData {
-      color: #151515 !important;
-      background-color: #fff !important;
+      color: var(--color-text-title) !important;
+      background-color: var(--color-background-primary) !important;
     }
   }
 `;
@@ -138,7 +138,7 @@ $.extend(AddOldTask.prototype, {
       okText: _l('确认'),
       children: (
         <div class="pAll10">
-          <div class="Gray_a">{_l('注：将动态更新作为讨论的内容加入到已有任务（包括文档、图片等）')}</div>
+          <div class="textTertiary">{_l('注：将动态更新作为讨论的内容加入到已有任务（包括文档、图片等）')}</div>
           <div class="mTop5 oldTaskContainer">
             <SearchTask
               onSelect={item => {

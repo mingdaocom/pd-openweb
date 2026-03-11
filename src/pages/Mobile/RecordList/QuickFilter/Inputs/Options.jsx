@@ -11,21 +11,21 @@ export const Option = styled.div`
   font-size: 12px;
   display: inline-block;
   margin: 0 12px 12px 0;
-  color: #151515;
+  color: var(--color-text-title);
   padding: 4px 12px;
   border-radius: 28px;
   max-width: 200px;
   user-select: none;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
   &.checked {
-    color: #fff;
-    border-color: #1677ff;
-    background-color: #1677ff;
+    color: var(--color-white);
+    border-color: var(--color-primary);
+    background-color: var(--color-primary);
   }
   &.more {
     padding: 3px 12px;
-    border: 1px solid #eaeaea;
-    background-color: #fff;
+    border: 1px solid var(--color-border-secondary);
+    background-color: var(--color-background-primary);
   }
   .ming.Checkbox {
     padding: 1px 0;

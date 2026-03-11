@@ -1,0 +1,21 @@
+.printItemsBox {
+  font-family: 'Arial,Microsoft YaHei,SimHei,SimSun' !important;
+  color: var(--color-text-primary);
+  max-width: 800px;
+  margin: 20px auto;
+  background: var(--color-background-primary);
+  padding: 18px 36px;
+  // min-height: calc(100% + 1px);
+
+  .printItemSeparator {
+    margin: 50px 0;
+    width: 100%;
+    height: 5px;
+    background: var(--color-background-disabled);
+  }
+}
+@media print {
+  .printItemSeparator {
+    break-after: page;
+  }
+}

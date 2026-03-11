@@ -1,15 +1,16 @@
-import React, { Fragment, useEffect, useMemo, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { isCustomWidget } from 'src/pages/widgetConfig/util';
 import { isRelateRecordTableControl } from 'src/utils/control';
+import { controlState } from 'src/utils/control';
 import { addBehaviorLog } from 'src/utils/project.js';
 import FreeField from '../../components/FreeField';
 import WidgetsDesc from '../../components/WidgetsDesc';
 import { FROM } from '../../core/config';
 import { ADD_EVENT_ENUM } from '../../core/enum';
-import { controlState, convertControl, isUnTextWidget } from '../../core/utils';
+import { convertControl, isUnTextWidget } from '../../core/utils';
 import widgets from '../widgets';
 
 export default function MobileFormWidget(props) {
@@ -48,6 +49,7 @@ export default function MobileFormWidget(props) {
     submitFormData,
   } = props;
   const [showMaskValue, setShowMaskValue] = useState(false);
+  const itemRef = useRef(null);
 
   // controlItem 处理
   const item = useMemo(() => {
@@ -85,6 +87,7 @@ export default function MobileFormWidget(props) {
   }, [originItem]);
 
   const { advancedSetting = {}, controlId } = item;
+  itemRef.current = item;
 
   const isEditable = controlState(item, from).editable;
   const controlDisabled =
@@ -174,7 +177,7 @@ export default function MobileFormWidget(props) {
 
     if (item.notSupport) {
       return (
-        <div className="center Gray_9e GrayBGFA pTop20 pBottom20">
+        <div className="center textTertiary bgSecondary pTop20 pBottom20">
           {item.notSupportTip || _l('%0暂不支持', item.controlName)}
         </div>
       );
@@ -231,46 +234,50 @@ export default function MobileFormWidget(props) {
       handleMaskClick,
       renderMaskContent,
       onChange: (value, cid = controlId, searchByChange) => {
-        handleChange(value, cid, item, searchByChange);
+        // 使用 ref 获取最新的 item，自动避开闭包问题
+        const currentItem = itemRef.current;
+        handleChange(value, cid, currentItem, searchByChange);
         // 非文本change校验重复、文本失焦校验
-        if (item.unique && value && isUnTextWidget(item)) {
-          checkControlUnique(controlId, item.type, value);
+        if (currentItem.unique && value && isUnTextWidget(currentItem)) {
+          checkControlUnique(controlId, currentItem.type, value);
         }
 
         // h5附件上传完成后才能触发自定义事件
         if (
-          item.type === 14 &&
-          item.value !== value &&
+          currentItem.type === 14 &&
+          currentItem.value !== value &&
           !$('.customMobileFormContainer').find('.fileUpdateLoading').length
         ) {
-          item.value = value;
-          triggerCustomEvent({ ...item, value, triggerType: ADD_EVENT_ENUM.CHANGE });
+          currentItem.value = value;
+          triggerCustomEvent({ ...currentItem, value, triggerType: ADD_EVENT_ENUM.CHANGE });
           return;
         }
 
         // 非文本类值改变时触发自定义事件
-        if (isUnTextWidget(item) && item.value !== value) {
-          triggerCustomEvent({ ...item, value, triggerType: ADD_EVENT_ENUM.CHANGE });
+        if (isUnTextWidget(currentItem) && currentItem.value !== value && currentItem.type !== 34) {
+          triggerCustomEvent({ ...currentItem, value, triggerType: ADD_EVENT_ENUM.CHANGE });
         }
       },
       onBlur: (originValue, newVal) => {
+        // 使用 ref 获取最新的 item，自动避开闭包问题
+        const currentItem = itemRef.current;
         // 由输入法和onCompositionStart结合引起的组件内部未更新value值的情况，主动抛出新值
-        const newValue = newVal || (`${item.value || ''}` ? `${item.value || ''}`.trim() : '');
-        if (item.unique && newValue) {
-          checkControlUnique(controlId, item.type, newValue);
+        const newValue = newVal || (`${currentItem.value || ''}` ? `${currentItem.value || ''}`.trim() : '');
+        if (currentItem.unique && newValue) {
+          checkControlUnique(controlId, currentItem.type, newValue);
         }
         if (newValue && newValue !== originValue) {
           dataFormat.current.updateDataBySearchConfigs({
-            control: { ...item, value: newValue },
+            control: { ...currentItem, value: newValue },
             searchType: 'onBlur',
           });
           // 文本类失焦触发自定义事件
-          if (!isUnTextWidget(item)) {
-            triggerCustomEvent({ ...item, triggerType: ADD_EVENT_ENUM.CHANGE });
+          if (!isUnTextWidget(currentItem)) {
+            triggerCustomEvent({ ...currentItem, triggerType: ADD_EVENT_ENUM.CHANGE });
           }
         }
         onBlur(controlId);
-        triggerCustomEvent({ ...item, triggerType: ADD_EVENT_ENUM.BLUR });
+        triggerCustomEvent({ ...currentItem, triggerType: ADD_EVENT_ENUM.BLUR });
       },
       openRelateSheet,
       registerCell: cell => {

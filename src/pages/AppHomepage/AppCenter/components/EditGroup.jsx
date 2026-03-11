@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { func, number, string } from 'prop-types';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Modal, RadioGroup, SvgIcon } from 'ming-ui';
+import { dialogSelectIcon } from 'ming-ui/functions';
 import OrgNameMultipleLanguages from 'src/pages/Admin/components/OrgNameMultipleLanguages.jsx';
-import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 
 const RadioGroupComp = styled(RadioGroup)`
   .ming.Radio {
@@ -17,10 +16,10 @@ const IconInputCon = styled.div`
   padding: 8px 0 8px 12px;
   height: 36px;
   align-items: center;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border-tertiary);
   border-radius: 4px;
   &.focus {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
   }
   input {
     flex: 1;
@@ -29,7 +28,7 @@ const IconInputCon = styled.div`
   .changeIconBtn {
     cursor: pointer;
     padding: 0 10px;
-    border-left: 1px solid #ddd;
+    border-left: 1px solid var(--color-border-primary);
     font-size: 0px;
   }
 `;
@@ -38,7 +37,6 @@ function IconInput(props) {
   const { projectId, icon, name, setIcon, setName, groupType, editingGroupId, type, actions, projectGroupsLang } =
     props;
   const inputRef = useRef();
-  const [selectVisible, setSelectVisible] = useState();
 
   useEffect(() => {
     if (inputRef.current) {
@@ -73,39 +71,26 @@ function IconInput(props) {
           }}
         />
       )}
-      <Trigger
-        action={['click']}
-        popupVisible={selectVisible}
-        popupAlign={{
-          points: ['tr', 'br'],
-          offset: [0, 10],
+      <span
+        onClick={() => {
+          dialogSelectIcon({
+            hideColor: true,
+            hideInput: true,
+            projectId,
+            icon,
+            name,
+            iconColor: 'var(--color-text-secondary)',
+            onModify: newIcon => setIcon(newIcon.icon),
+          });
         }}
-        popup={
-          <SelectIcon
-            className="Relative"
-            hideColor={true}
-            hideInput
-            projectId={projectId}
-            icon={icon}
-            name={icon}
-            iconColor="#757575"
-            onModify={newIcon => {
-              setIcon(newIcon.icon);
-              if (newIcon.closeTrigger !== false) setSelectVisible(false);
-            }}
-          />
-        }
-        onPopupVisibleChange={setSelectVisible}
       >
-        <span>
-          <SvgIcon
-            className="changeIconBtn"
-            size={18}
-            url={`${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`}
-            fill="#757575"
-          />
-        </span>
-      </Trigger>
+        <SvgIcon
+          className="changeIconBtn"
+          size={18}
+          url={`${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`}
+          fill="var(--color-text-secondary)"
+        />
+      </span>
     </IconInputCon>
   );
 }

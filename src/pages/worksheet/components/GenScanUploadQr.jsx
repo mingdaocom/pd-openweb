@@ -11,13 +11,13 @@ import { getTemporaryAttachmentFromUrl } from 'src/utils/common';
 
 const Popup = styled.div`
   position: relative;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   padding: 12px 20px 20px;
   width: 240px;
   box-shadow: 0px 1px 6px 1px rgba(0, 0, 0, 0.24);
   border-radius: 6px;
   .error {
-    color: #f44336;
+    color: var(--color-error);
     text-align: center;
     line-height: 200px;
   }
@@ -33,32 +33,32 @@ const Popup = styled.div`
     height: 200px;
     background-color: rgba(255, 255, 255, 0.95);
     .icon {
-      color: #1677ff;
+      color: var(--color-primary);
     }
     .qrExpired {
       font-size: 13px;
-      color: #333;
+      color: var(--color-text-primary);
       margin-top: 6px;
     }
     .refresh {
       padding: 4px 20px;
       border-radius: 45px;
-      background: #2195f3;
-      color: #fff;
+      background: var(--color-primary);
+      color: var(--color-white);
       &:hover {
-        background: #1e88e5;
+        background: var(--color-primary);
       }
     }
   }
   .tip {
     font-size: 14px;
-    color: #333;
+    color: var(--color-text-primary);
     font-weight: bold;
     text-align: center;
   }
   .danger {
     font-size: 14px;
-    color: #f44336;
+    color: var(--color-error);
     margin: 3px 0 10px;
     text-align: center;
   }
@@ -76,7 +76,7 @@ const Popup = styled.div`
     height: 0px;
     border-left: 12px solid transparent;
     border-right: 12px solid transparent;
-    border-bottom: 11px solid #eee;
+    border-bottom: 11px solid var(--color-border-secondary);
     top: -11px;
     left: calc(50% - 12px);
   }
@@ -87,20 +87,20 @@ const Popup = styled.div`
     height: 0px;
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
-    border-bottom: 10px solid #fff;
+    border-bottom: 10px solid var(--color-white);
     top: -10px;
     left: calc(50% - 10px);
   }
   &.top {
     &::before {
       border-bottom: none;
-      border-top: 11px solid #eee;
+      border-top: 11px solid var(--color-border-secondary);
       top: auto;
       bottom: -11px;
     }
     &::after {
       border-bottom: none;
-      border-top: 10px solid #fff;
+      border-top: 10px solid var(--color-white);
       top: auto;
       bottom: -10px;
     }

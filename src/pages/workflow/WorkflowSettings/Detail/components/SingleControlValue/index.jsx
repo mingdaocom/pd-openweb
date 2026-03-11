@@ -17,8 +17,7 @@ import {
 } from 'ming-ui';
 import { DateTime, DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
 import { dialogSelectDept, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
-import { previewQiniuUrl } from 'src/components/previewAttachments';
-import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
 import { formatResponseData } from 'src/components/UploadFiles/utils';
 import RegExpValidator from 'src/utils/expression';
 import { FORMAT_TEXT, NODE_TYPE } from '../../../enum';
@@ -138,7 +137,7 @@ export default class SingleControlValue extends Component {
               className="flowDetailMemberNodeName ellipsis"
               style={{ paddingRight: 10, borderRadius: 26, borderRightWidth: 1 }}
             >
-              <i className="Font14 mRight5 icon-workflow_empty Gray_75" />
+              <i className="Font14 mRight5 icon-workflow_empty textSecondary" />
               {_l('清空')}
             </div>
           </div>
@@ -392,10 +391,12 @@ export default class SingleControlValue extends Component {
    */
   previewAttachments(file) {
     if (file.serverName) {
-      previewQiniuUrl(file.url, {
-        ext: RegExpValidator.getExtOfFileName(file.fileExt),
-        name: file.originalFileName,
-      });
+      previewAttachments(
+        transformQiniuUrl(file.url, {
+          ext: RegExpValidator.getExtOfFileName(file.fileExt),
+          name: file.originalFileName,
+        }),
+      );
     } else {
       previewAttachments({
         attachments: [Object.assign({}, file, { path: file.privateDownloadUrl })],
@@ -408,12 +409,12 @@ export default class SingleControlValue extends Component {
     const { appName, appTypeName, nodeId, nodeName, nodeTypeId, appType, actionId } = obj || {};
 
     if (nodeId && !nodeName) {
-      return <span style={{ color: '#f44336' }}>{_l('节点已删除')}</span>;
+      return <span style={{ color: 'var(--color-error)' }}>{_l('节点已删除')}</span>;
     }
 
     return (
       <Fragment>
-        <span className={`${getIcons(nodeTypeId, appType, actionId)} Font16 Gray_75 mRight5`} />
+        <span className={`${getIcons(nodeTypeId, appType, actionId)} Font16 textSecondary mRight5`} />
         <span>{nodeName}</span>
         <span className="bold mLeft4 mRight5">{appTypeName}</span>
         {appName && <span className="bold">{`“${appName}”`}</span>}
@@ -426,7 +427,7 @@ export default class SingleControlValue extends Component {
   }, 500);
 
   render() {
-    const { controls, item, i, hideOtherField, selectNodeType, moreNodesMenuStyle } = this.props;
+    const { controls, item, i, hideOtherField, selectNodeType, moreNodesMenuStyle, hideUserMoreObject } = this.props;
     const { isUploading, search, keywords } = this.state;
     const formulaMap = _.cloneDeep(this.props.formulaMap);
     let list = [];
@@ -660,13 +661,17 @@ export default class SingleControlValue extends Component {
     // 单选项 || 下拉框 || 检查项 || 外部门户角色
     if (item.type === 9 || item.type === 11 || item.type === 36 || item.type === 44) {
       const disabledOtherFields = _.includes(['folder_stage_id', 'portal_role', 'portal_status'], item.fieldId);
+      const options = (_.find(controls, obj => obj.controlId === item.fieldId) || {}).options || [];
+      const selectItem = options.find(o => o.key === item.fieldValue) || {};
 
-      list = ((_.find(controls, obj => obj.controlId === item.fieldId) || {}).options || []).map(o => {
-        return {
-          text: o.value,
-          value: o.key,
-        };
-      });
+      list = options
+        .filter(o => !o.isDeleted)
+        .map(o => {
+          return {
+            text: o.value,
+            value: o.key,
+          };
+        });
 
       if (item.fieldValue) {
         list.unshift({
@@ -693,6 +698,14 @@ export default class SingleControlValue extends Component {
               border
               isAppendToBody
               openSearch
+              renderTitle={() =>
+                item.fieldValue && (
+                  <Fragment>
+                    {selectItem.value}
+                    {selectItem.isDeleted && <span style={{ color: 'var(--color-error)' }}>{_l('（已过期）')}</span>}
+                  </Fragment>
+                )
+              }
               onChange={fieldValue => this.updateSingleControlValue({ fieldValue }, i)}
             />
           )}
@@ -788,7 +801,7 @@ export default class SingleControlValue extends Component {
                   return (
                     <div
                       key={fileIndex}
-                      className="InlineFlex boderRadAll_3 GrayBG alignItemsCenter mRight10 mTop3 mBottom3 pRight5 TxtTop relative"
+                      className="InlineFlex boderRadAll_3 bgTertiary alignItemsCenter mRight10 mTop3 mBottom3 pRight5 TxtTop relative"
                       style={{ height: 28, zIndex: 2 }}
                     >
                       {RegExpValidator.fileIsPicture('.' + ext) ? (
@@ -812,7 +825,7 @@ export default class SingleControlValue extends Component {
                       </span>
                       <Icon
                         icon="close"
-                        className="pointer Gray_75 ThemeHoverColor3 mLeft10"
+                        className="pointer textSecondary ThemeHoverColor3 mLeft10"
                         onClick={() => {
                           const newFieldValue = JSON.parse(item.fieldValue);
 
@@ -826,9 +839,9 @@ export default class SingleControlValue extends Component {
                   );
                 })}
                 {!JSON.parse(item.fieldValue || '[]').length && !isUploading && (
-                  <span className="Gray_bd LineHeight34">{_l('选择附件')}</span>
+                  <span className="textDisabled LineHeight34">{_l('选择附件')}</span>
                 )}
-                {isUploading && <span className="Gray_75 LineHeight34">{_l('上传中...')}</span>}
+                {isUploading && <span className="textSecondary LineHeight34">{_l('上传中...')}</span>}
               </div>
             </Fragment>
           ) : (
@@ -870,13 +883,13 @@ export default class SingleControlValue extends Component {
                 {item.fieldValue ? (
                   moment(item.fieldValue).format(FORMAT_TEXT[showType])
                 ) : (
-                  <span className="Gray_bd">{_l('请选择日期')}</span>
+                  <span className="textDisabled">{_l('请选择日期')}</span>
                 )}
               </DateTime>
               {item.fieldValue && (
                 <Icon
                   icon="cancel"
-                  className="Font16 Gray_75 ThemeHoverColor3 Absolute"
+                  className="Font16 textSecondary ThemeHoverColor3 Absolute"
                   style={{ top: 9, right: 10 }}
                   onClick={() => this.updateSingleControlValue({ fieldValue: '' }, i)}
                 />
@@ -915,7 +928,7 @@ export default class SingleControlValue extends Component {
                 {rangeValue.length ? (
                   `${moment(rangeValue[0]).format(formatText)} ~ ${moment(rangeValue[1]).format(formatText)}`
                 ) : (
-                  <span className="Gray_bd">{_l('请选择日期')}</span>
+                  <span className="textDisabled">{_l('请选择日期')}</span>
                 )}
               </DateTimeRange>
             </div>
@@ -973,7 +986,7 @@ export default class SingleControlValue extends Component {
               {cityText && (
                 <Icon
                   icon="cancel"
-                  className="Font16 Gray_75 ThemeHoverColor3 Absolute"
+                  className="Font16 textSecondary ThemeHoverColor3 Absolute"
                   style={{ top: 9, right: 10 }}
                   onClick={() => {
                     this.setState({ search: '', keywords: '' });
@@ -1048,7 +1061,7 @@ export default class SingleControlValue extends Component {
                 >
                   <ul className="pLeft6 tagWrap">
                     {!JSON.parse(item.fieldValue || '[]').length && (
-                      <span className="Gray_bd LineHeight34 mLeft4">{TYPES[item.type].placeholder}</span>
+                      <span className="textDisabled LineHeight34 mLeft4">{TYPES[item.type].placeholder}</span>
                     )}
                     {JSON.parse(item.fieldValue || '[]').map((list, index) => {
                       return (
@@ -1072,7 +1085,7 @@ export default class SingleControlValue extends Component {
                 </div>
               )}
 
-              {!JSON.parse(item.fieldValue || '[]').length && !hideOtherField && (
+              {!JSON.parse(item.fieldValue || '[]').length && !hideOtherField && !hideUserMoreObject && (
                 <Dropdown
                   key={this.updateComponentsKeyMaps[item.fieldId] || ''}
                   className={item.nodeId ? 'flowDropdown flex clearBorderRadius' : 'flowDropdownOnlyIcon'}
@@ -1199,7 +1212,7 @@ export default class SingleControlValue extends Component {
                 showNow={false}
                 bordered={false}
                 suffixIcon={null}
-                clearIcon={<Icon icon="cancel" className="Font16 Gray_75 ThemeHoverColor3" />}
+                clearIcon={<Icon icon="cancel" className="Font16 textSecondary ThemeHoverColor3" />}
                 inputReadOnly
                 placeholder={_l('请选择时间')}
                 format={timeFormat}

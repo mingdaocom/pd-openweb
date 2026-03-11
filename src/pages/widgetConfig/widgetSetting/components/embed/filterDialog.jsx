@@ -5,7 +5,7 @@ import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/Filt
 import 'src/pages/worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
 import { getAdvanceSetting } from '../../../util/setting';
 import EmptyRuleConfig from '../EmptyRuleConfig';
-import '../FilterData/filterDialog.less';
+import '../FilterData/FilterDialog.less';
 
 export default function FilterDialog(props) {
   const {

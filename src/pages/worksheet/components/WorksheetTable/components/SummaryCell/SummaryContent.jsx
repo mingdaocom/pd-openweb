@@ -1,26 +1,31 @@
 import React from 'react';
 import cx from 'classnames';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 import { arrayOf, bool, number, shape, string } from 'prop-types';
 import { toFixed } from 'src/utils/control';
 import { controlIsNumber, formatNumberThousand } from 'src/utils/control';
 import { getSummaryNameByType, getSummaryResult } from 'src/utils/record';
 
 export default function SummaryContent({
+  isChildTableSummaryCell,
   control,
   type,
   summaryType,
   summaryValue,
-  rows,
+  rows = [],
   selectedIds,
   allWorksheetIsSelected,
+  disabled,
 }) {
   const isPercent = _.get(control, 'advancedSetting.numshow') === '1';
   let summaryName;
   let summaryDataValue = summaryValue;
   if (summaryType) {
     summaryName = getSummaryNameByType(summaryType);
-    if (rows.length && selectedIds.length && !allWorksheetIsSelected) {
+    if (rows.length && ((selectedIds.length && !allWorksheetIsSelected) || isChildTableSummaryCell)) {
+      if (isChildTableSummaryCell && isEmpty(selectedIds)) {
+        selectedIds = rows.map(row => row.rowid);
+      }
       summaryDataValue = getSummaryResult(
         rows.filter(row => _.includes(selectedIds, row.rowid)),
         control,
@@ -51,7 +56,7 @@ export default function SummaryContent({
         {typeof summaryDataValue === 'undefined' || summaryType === 0 ? '-' : summaryDataValue}
       </div>
       {!isNumber && <div className="flex"></div>}
-      <i className="iconArrow icon icon-arrow-down-border"></i>
+      {!disabled && <i className="iconArrow icon icon-arrow-down-border"></i>}
     </div>
   );
 }
@@ -64,4 +69,5 @@ SummaryContent.propTypes = {
   rows: arrayOf(shape({})),
   selectedIds: arrayOf(string),
   allWorksheetIsSelected: bool,
+  disabled: bool,
 };

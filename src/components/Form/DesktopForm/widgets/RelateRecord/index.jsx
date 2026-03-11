@@ -5,8 +5,8 @@ import RelateRecordCards from 'worksheet/components/RelateRecordCards';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
 import RelateRecordTable from 'worksheet/components/RelateRecordTable';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { controlState } from 'src/components/Form/core/utils';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+import { controlState } from 'src/utils/control';
 import { formatRecordToRelateRecord, getRelateRecordCountFromValue } from 'src/utils/record';
 
 export default class Widgets extends Component {
@@ -169,6 +169,7 @@ export default class Widgets extends Component {
     if (showtype === RELATE_RECORD_SHOW_TYPE.TABLE) {
       return (
         <RelateRecordTable
+          appId={appId}
           allowEdit={!disabled}
           saveSync={false}
           instanceId={instanceId}

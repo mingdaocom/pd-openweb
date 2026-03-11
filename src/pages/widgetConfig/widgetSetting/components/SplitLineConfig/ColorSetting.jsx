@@ -5,8 +5,8 @@ import { ColorPicker } from 'ming-ui';
 const ColorBox = styled.div`
   width: 100px;
   height: 32px;
-  background: #ffffff;
-  border: 1px solid #e0e0e0;
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border-primary);
   border-radius: 3px;
   cursor: pointer;
   padding: 4px;
@@ -25,7 +25,7 @@ const ColorBox = styled.div`
     margin-left: 5px;
     border-radius: 3px;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
 `;

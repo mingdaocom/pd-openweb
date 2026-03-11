@@ -39,14 +39,14 @@ const NodeWrap = styled.div`
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         font-size: 12px;
       }
       .name {
         font-size: 15px;
         max-width: 135px;
         margin-bottom: 4px;
-        color: #151515;
+        color: var(--color-text-title);
         height: 20px;
         flex: unset;
       }
@@ -56,8 +56,8 @@ const NodeWrap = styled.div`
       height: 20px;
       line-height: 20px;
       border-radius: 12px;
-      color: #fff;
-      background-color: #bdbdbd;
+      color: var(--color-white);
+      background-color: var(--color-text-disabled);
       font-size: 12px;
     }
     .subordinateCount {
@@ -83,10 +83,10 @@ const EmptyWrap = styled.div`
     width: fit-content;
     padding: 30px;
     border-radius: 50%;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     margin: auto;
     .icon {
-      color: #aaa;
+      color: var(--color-text-tertiary);
       font-size: 90px;
     }
   }
@@ -217,7 +217,7 @@ function NodeDialogWrap(props) {
               <div className="iconWrap">
                 <Icon icon="manage" className="" />
               </div>
-              <div className="pTop20 Font15 Gray_9e">{_l('成员暂无汇报关系')}</div>
+              <div className="pTop20 Font15 textTertiary">{_l('成员暂无汇报关系')}</div>
             </Fragment>
           )}
         </div>

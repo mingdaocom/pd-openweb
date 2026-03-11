@@ -27,7 +27,10 @@ export default class SyncDialog extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(this.props.isBindRelationship, nextProps.isBindRelationship) && nextProps.isBindRelationship) {
+    if (
+      (!_.isEqual(this.props.isBindRelationship, nextProps.isBindRelationship) && nextProps.isBindRelationship) ||
+      (nextProps.integrationType === 7 && nextProps.visible)
+    ) {
       this.setState({ loading: true }, () => {
         this.getBindList();
       });
@@ -166,7 +169,7 @@ export default class SyncDialog extends Component {
     return (
       <div className="selectUserWrap flexColumn">
         <div className="searchBox">
-          <Icon icon="search" className="Gray_bd Font20 mRight16" />
+          <Icon icon="search" className="textDisabled Font20 mRight16" />
           <input
             ref={ele => (this.input = ele)}
             placeholder={_l('搜索姓名、部门、职位')}
@@ -177,7 +180,7 @@ export default class SyncDialog extends Component {
           {searchLoading ? (
             <LoadDiv />
           ) : _.isEmpty(qwUserList) ? (
-            <div className="mTop50 TxtCenter Gray_75 Font15">{_l('无数据')}</div>
+            <div className="mTop50 TxtCenter textSecondary Font15">{_l('无数据')}</div>
           ) : (
             <ScrollView className="h100">
               {qwUserList.map(item => {
@@ -185,8 +188,8 @@ export default class SyncDialog extends Component {
                 let qwDepartmentNames = (item.departmentNames || []).join(';');
                 return (
                   <div className="listItem" key={item.userId} onClick={() => this.bindQWUser(accountId, item)}>
-                    <div className="Font14 bold Gray">{item.fullname}</div>
-                    <div className="userInfo ellipsis Gray_75 Font13">
+                    <div className="Font14 bold textPrimary">{item.fullname}</div>
+                    <div className="userInfo ellipsis textSecondary Font13">
                       {qvJobNames && qwDepartmentNames
                         ? `${qvJobNames} | ${qwDepartmentNames}`
                         : qvJobNames || qwDepartmentNames}
@@ -277,10 +280,9 @@ export default class SyncDialog extends Component {
     const { projectId, integrationType } = this.props;
     Dialog.confirm({
       title: _l('确定解绑'),
-      description: _l(
-        '%0账号与平台账号解绑后，将不能通过平台官网登录；后续点击同步可以重新选择账号绑定。',
-        INTEGRATION_INFO[integrationType].text,
-      ),
+      description:
+        _l('%0账号与平台账号解绑后，将不能通过平台官网登录', INTEGRATION_INFO[integrationType].text) +
+        (integrationType !== 7 ? _l('；后续点击同步可以重新选择账号绑定。') : ''),
       onOk: () => {
         const params =
           integrationType === 3
@@ -396,18 +398,18 @@ export default class SyncDialog extends Component {
           <Fragment>
             <div className="syncInfo">
               <div className="Font15 bold mBottom3">{_l('同步内容')}</div>
-              <div className="Gray_75">
+              <div className="textSecondary">
                 {_l('新增组织用户')}
-                <span className="bold Gray mLeft3 mRight3">
+                <span className="bold textPrimary mLeft3 mRight3">
                   {this.getCount(4) - bindQWUserIds.length >= 0 ? this.getCount(4) - bindQWUserIds.length : 0}
                 </span>
                 {_l('个；匹配到已有组织用户')}
-                <span className="bold Gray mLeft3 mRight3">{bindQWUserIds.length}</span>
+                <span className="bold textPrimary mLeft3 mRight3">{bindQWUserIds.length}</span>
                 {_l('个')}
                 {this.getCount(6) ? (
                   <span>
                     {_l('; 同步%0用户信息', INTEGRATION_INFO[integrationType].text)}
-                    <span className="bold Gray mLeft3 mRight3">{this.getCount(6)}</span>
+                    <span className="bold textPrimary mLeft3 mRight3">{this.getCount(6)}</span>
                     {_l('个')}
                   </span>
                 ) : (
@@ -416,7 +418,7 @@ export default class SyncDialog extends Component {
                 {this.getCount(5) ? (
                   <span>
                     {_l('；解除与组织用户绑定关系')}
-                    <span className="bold Gray mLeft3 mRight3">{this.getCount(5)}</span>
+                    <span className="bold textPrimary mLeft3 mRight3">{this.getCount(5)}</span>
                     {_l('个')}
                   </span>
                 ) : (
@@ -425,7 +427,7 @@ export default class SyncDialog extends Component {
                 {this.getCount(17) ? (
                   <span>
                     {_l('；已恢复离职用户')}
-                    <span className="bold Gray mLeft3 mRight3">{this.getCount(17)}</span>
+                    <span className="bold textPrimary mLeft3 mRight3">{this.getCount(17)}</span>
                     {_l('个')}
                   </span>
                 ) : (
@@ -454,7 +456,7 @@ export default class SyncDialog extends Component {
             <div className="emptyIconWrap">
               <Icon icon="Empty_data" className="Font40" />
             </div>
-            <div className="Gray_75 Font15">
+            <div className="textSecondary Font15">
               {isBindRelationship
                 ? _l('无数据')
                 : _l('没有查询到未绑定%0用户的组织用户', INTEGRATION_INFO[integrationType].text)}
@@ -485,7 +487,7 @@ export default class SyncDialog extends Component {
                         <img className={cx('avatar', { bg: !item.avatar })} src={item.avatar} />
                         <div className="flex userInfo">
                           <div className="name bold">{item.fullname}</div>
-                          <div className="Gray_75 ellipsis">
+                          <div className="textSecondary ellipsis">
                             {mdJobNames && mdDepartmentNames
                               ? `${mdJobNames} | ${mdDepartmentNames}`
                               : mdJobNames || mdDepartmentNames}
@@ -495,7 +497,7 @@ export default class SyncDialog extends Component {
                       <div className="flex workwxInfo flexRow alignItemsCenter pLeft16">
                         <div className="flex userInfo">
                           <div className="name bold">{userInfo.fullname}</div>
-                          <div className="Gray_75 ellipsis">
+                          <div className="textSecondary ellipsis">
                             {qvJobNames && qwDepartmentNames
                               ? `${qvJobNames} | ${qwDepartmentNames}`
                               : qvJobNames || qwDepartmentNames}
@@ -508,7 +510,7 @@ export default class SyncDialog extends Component {
                         )}
                         {!isBindRelationship && (
                           <div className="remove">
-                            <span className="Hand Hover_21" onClick={() => this.removeWXUser(item.accountId)}>
+                            <span className="Hand hoverColorPrimary" onClick={() => this.removeWXUser(item.accountId)}>
                               {_l('移除')}
                             </span>
                           </div>
@@ -516,7 +518,7 @@ export default class SyncDialog extends Component {
                       </div>
                       {isBindRelationship ? (
                         <div
-                          className="Hand Hover_21 cancelBind flexRow alignItemsCenter"
+                          className="Hand hoverColorPrimary cancelBind flexRow alignItemsCenter"
                           onClick={() => {
                             this.cancelBind(item.accountId, userInfo.userId);
                           }}
@@ -535,7 +537,7 @@ export default class SyncDialog extends Component {
                       <img className={cx('avatar', { bg: !item.avatar })} src={item.avatar} />
                       <div className="flex userInfo">
                         <div className="name bold">{item.fullname}</div>
-                        <div className="Gray_75 ellipsis">
+                        <div className="textSecondary ellipsis">
                           {mdJobNames && mdDepartmentNames
                             ? `${mdJobNames} | ${mdDepartmentNames}`
                             : mdJobNames || mdDepartmentNames}
@@ -560,7 +562,7 @@ export default class SyncDialog extends Component {
                         }}
                         popup={() => this.renderSelectUsers(item.accountId)}
                       >
-                        <span className="addUser Hand Hover_21" onClick={this.getWorkWXUsers}>
+                        <span className="addUser Hand hoverColorPrimary" onClick={this.getWorkWXUsers}>
                           <Icon icon="plus" className="mRight6" />
                           {_l('绑定%0用户', INTEGRATION_INFO[integrationType].text)}
                         </span>

@@ -1,6 +1,6 @@
-import React from 'react';
+﻿import React from 'react';
 import cx from 'classnames';
-import _ from 'lodash';
+import _, { includes } from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import { Menu, MenuItem } from 'ming-ui';
@@ -52,7 +52,7 @@ export default class extends React.Component {
 
   renderMenu() {
     const { control } = this.props;
-    let type = control.sourceControlType || control.type;
+    let type = includes([29, 34], control.type) ? control.type : control.sourceControlType || control.type;
     const summaryInfo = getSummaryInfo(type, control);
     return (
       <Menu>
@@ -82,8 +82,11 @@ export default class extends React.Component {
 
   render() {
     const {
+      disabled,
+      isChildTableSummaryCell,
       className,
       isGroupTitle,
+      noBackground,
       control,
       summaryType,
       summaryValue,
@@ -103,9 +106,9 @@ export default class extends React.Component {
         <div
           style={{
             ...style,
-            backgroundColor: '#f6f6f6',
+            backgroundColor: noBackground ? 'transparent' : 'var(--color-background-secondary)',
           }}
-          className={className}
+          className={cx(className, 'sheetSummaryInfo noRightBorder')}
         />
       );
     }
@@ -116,7 +119,7 @@ export default class extends React.Component {
     if (type === 'summaryhead') {
       return (
         <div
-          className={cx('summaryCellHead', className)}
+          className={cx('summaryCellHead noRightBorder', className)}
           style={{ ...style, padding: rowHeadOnlyNum ? '0 12px' : '0 24px 0 40px' }}
         >
           =
@@ -130,12 +133,16 @@ export default class extends React.Component {
     return (
       <ClickAwayable
         className={cx('sheetSummaryInfo ellipsis', className, {
-          withBackground: !isGroupTitle,
+          withBackground: !isGroupTitle && !noBackground,
           'cell groupTitleSummary': isGroupTitle,
+          disabled,
         })}
         onClickAwayExceptions={['.summaryCellMenu']}
         style={style}
         onClick={() => {
+          if (disabled) {
+            return;
+          }
           this.setState({ menuVisible: true });
         }}
         onClickAway={() => this.setState({ menuVisible: false })}
@@ -143,7 +150,7 @@ export default class extends React.Component {
         <Trigger
           style={style}
           action={['click']}
-          popupVisible={menuVisible}
+          popupVisible={!disabled && menuVisible}
           popupClassName={'summaryCellMenu'}
           popup={this.renderMenu()}
           popupAlign={{
@@ -161,6 +168,8 @@ export default class extends React.Component {
           }}
         >
           <SummaryContent
+            isChildTableSummaryCell={isChildTableSummaryCell}
+            disabled={disabled}
             control={control}
             type={type}
             summaryType={summaryType}

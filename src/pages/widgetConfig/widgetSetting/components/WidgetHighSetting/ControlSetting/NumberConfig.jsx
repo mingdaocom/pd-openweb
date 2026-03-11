@@ -49,7 +49,7 @@ export default function NumberConfig(props) {
         </div>
         {itemnames && (
           <EditInfo style={{ marginTop: '8px' }} onClick={() => setNameVisible(true)}>
-            <div className="text overflow_ellipsis Gray">{itemnames.map(i => i.value).join('、')}</div>
+            <div className="text overflow_ellipsis textPrimary">{itemnames.map(i => i.value).join('、')}</div>
             <div className="edit">
               <i className="icon-edit"></i>
             </div>

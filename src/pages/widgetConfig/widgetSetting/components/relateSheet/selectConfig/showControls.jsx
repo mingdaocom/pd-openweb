@@ -20,7 +20,6 @@ export default function ShowControls(props) {
   return (
     <Fragment>
       <SettingItem>
-        <div className="settingItemTitle">{_l('显示规则')}</div>
         <RadioGroup
           size="middle"
           className="fixedWidth"
@@ -58,7 +57,7 @@ export default function ShowControls(props) {
           showTabs={true}
         />
       ) : (
-        <div className="Gray_9e mTop10">{_l('显示%0个', showControls.length)}</div>
+        <div className="textTertiary mTop10">{_l('显示%0个', showControls.length)}</div>
       )}
     </Fragment>
   );

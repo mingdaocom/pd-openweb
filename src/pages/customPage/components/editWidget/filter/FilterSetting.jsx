@@ -25,19 +25,19 @@ import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilte
 const RadioWrap = styled.div`
   border-radius: 3px;
   padding: 3px;
-  background-color: #eff0f0;
+  background-color: var(--color-background-disabled);
   > div {
     justify-content: center;
     box-sizing: border-box;
     padding: 4px 10px;
-    color: #757575;
+    color: var(--color-text-secondary);
     font-size: 13px;
     cursor: pointer;
     &.active {
-      color: #1677ff;
+      color: var(--color-primary);
       font-weight: bold;
       border-radius: 3px;
-      background-color: #fff;
+      background-color: var(--color-background-primary);
     }
   }
 `;
@@ -98,12 +98,12 @@ export default function FilterSetting(props) {
     };
     return (
       <Fragment>
-        <div className="Gray Font13 mBottom8 Font13">{data.txt}</div>
+        <div className="textPrimary Font13 mBottom8 Font13">{data.txt}</div>
         {data.key === 'filterType' ? (
           <Select
             className="customPageSelect mBottom12 w100"
             value={value || data.default}
-            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
               handleChange(value);
             }}
@@ -137,7 +137,7 @@ export default function FilterSetting(props) {
           </RadioWrap>
         )}
         {data.key === 'filterType' && firstControlData.encryId && (
-          <div className="Gray_75 mBottom12">
+          <div className="textSecondary mBottom12">
             {_l('当前字段已加密，只支持按照')}
             {(types.find(o => o.value === FILTER_CONDITION_TYPE.EQ) || {}).text}
           </div>
@@ -149,7 +149,7 @@ export default function FilterSetting(props) {
   const renderShowType = data => {
     return (
       <Fragment>
-        <div className="Gray Font13 mBottom8 Font13">{data.txt}</div>
+        <div className="textPrimary Font13 mBottom8 Font13">{data.txt}</div>
         <RadioWrap className="valignWrapper mBottom12">
           {data.types.map(item => (
             <div

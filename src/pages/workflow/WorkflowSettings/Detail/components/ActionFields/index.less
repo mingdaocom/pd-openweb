@@ -5,8 +5,8 @@
   z-index: 100;
   padding-bottom: 24px;
   .conditionWrapContent {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.26);
-    background-color: #fff;
+    box-shadow: var(--shadow-lg);
+    background-color: var(--color-background-card);
     border-radius: 3px;
     overflow: hidden;
   }
@@ -21,20 +21,20 @@
       align-items: center;
       height: 36px;
       cursor: pointer;
-      color: #151515;
+      color: var(--color-text-title);
     }
     .conditionFieldBox {
       height: 0;
       display: none;
       overflow: hidden;
-      background-color: #f5f5f5;
+      background-color: var(--color-background-secondary);
       transition: all 20s ease-in-out;
       &.show {
         display: block;
         height: 100%;
       }
       .divider {
-        background: #ddd;
+        background: var(--color-border-primary);
         height: 1px;
         margin-top: 3px;
       }
@@ -48,11 +48,11 @@
         }
         .field {
           margin-right: 5px;
-          color: #8f8f8f;
+          color: var(--color-text-secondary);
         }
         &:not(.conditionFieldNull):hover {
           span {
-            color: #fff;
+            color: var(--color-white);
           }
         }
         &.agentField {

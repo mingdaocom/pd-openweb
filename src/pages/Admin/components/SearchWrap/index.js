@@ -36,16 +36,16 @@ const Item = styled.div(
     ${fullShow ? `flex: 1;width: 0;margin: 0 10px;` : `min-width:200px;margin: 0 18px 0 10px;`}
     min-height: 34px;
     input::-webkit-input-placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
     input::-moz-placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
     input::-moz-placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
     input::-ms-input-placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
   }
 `,
@@ -57,29 +57,29 @@ const ExpandBtn = styled.div`
   line-height: 36px;
   margin-left: 34px;
   cursor: pointer;
-  color: #1677ff;
+  color: var(--color-primary);
   font-size: 13px;
   .icon {
     margin-right: 2px;
     font-size: 15px;
   }
   &:hover {
-    color: #1565c0;
+    color: var(--color-link-hover);
   }
 `;
 
 const Input = styled.input`
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border-tertiary);
   box-sizing: border-box;
   height: 36px;
   border-radius: 3px;
   padding: 0 12px;
   font-size: 14px;
   &:hover {
-    border-color: #bbb;
+    border-color: var(--color-text-disabled);
   }
   &:focus {
-    border-color: #1e88e5;
+    border-color: var(--color-primary);
   }
 `;
 const { RangePicker } = DatePicker;
@@ -115,6 +115,7 @@ export default function SearchWrap(props) {
             projectId={projectId}
             userInfo={searchValues[key] || []}
             changeData={data => onChange({ ...searchValues, [key]: data })}
+            isAdmin
             {...extra}
           />
         );
@@ -218,7 +219,7 @@ export default function SearchWrap(props) {
             maxWidth={`${100 / colNum}%`}
             isLastLine={Math.ceil((i + 1) / colNum) === Math.ceil((searchList.length + (showExpand ? 1 : 0)) / colNum)}
           >
-            <div className={cx('label Gray_75', { pLeft16: i === 0 && !fullShow })}>{item.label}</div>
+            <div className={cx('label textSecondary', { pLeft16: i === 0 && !fullShow })}>{item.label}</div>
             <div className="searcValueContent">{renderSearchCon(item)}</div>
           </Item>
         );

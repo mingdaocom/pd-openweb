@@ -62,7 +62,7 @@ export default function OtherInput(props) {
           disabled={disabled}
           className={cx('customFormControlBox customFormTextareaBox escclose', {
             mTop10: isSelect,
-            controlDisabled: disabled,
+            'controlDisabled controlOtherDisabled': disabled,
           })}
           manualRef={ref => (textRef.current = ref)}
           minHeight={36}

@@ -26,9 +26,11 @@ export default class LoopContent extends Component {
         {data.repeatType === DATE_TYPE.CUSTOM && this.renderFrequencyContent()}
 
         <div className="workflowDetailDesc pTop15 pBottom15 mTop20" style={{ background: 'rgba(255, 163, 64, 0.12)' }}>
-          <div className="Gray_75 mBottom5">
+          <div className="textSecondary mBottom5">
             {_l('新版定时触发器可以综合小时、天/星期、月三个维度来设置定时任务。')}
-            <span style={{ color: '#ffa340' }}>{_l('注意：切换为新方式并保存配置后，将无法恢复到旧的配置方式')}</span>
+            <span style={{ color: 'var(--color-warning)' }}>
+              {_l('注意：切换为新方式并保存配置后，将无法恢复到旧的配置方式')}
+            </span>
           </div>
           <span
             className="ThemeColor3 ThemeHoverColor2 pointer"
@@ -78,13 +80,13 @@ export default class LoopContent extends Component {
       { text: _l('年'), value: DATE_TYPE.YEAR },
     ];
 
-    if (md.global.Config.IsLocal) {
+    if (window.platformENV.isOverseas || window.platformENV.isLocal) {
       list.unshift({ text: _l('分钟'), value: DATE_TYPE.MINUTE });
     }
 
     return (
       <Fragment>
-        <div className="Font13 mTop20 Gray_75">{_l('频率')}</div>
+        <div className="Font13 mTop20 textSecondary">{_l('频率')}</div>
         <div className="mTop10 flexRow alignItemsCenter">
           {_l('每')}
           <input
@@ -105,10 +107,10 @@ export default class LoopContent extends Component {
             onChange={value => updateSource({ frequency: value }, this.switchFrequency)}
           />
           {data.frequency === DATE_TYPE.MONTH && (
-            <span className="Gray_75 mLeft15">{_l('第%0天', moment(data.executeTime).format('DD'))}</span>
+            <span className="textSecondary mLeft15">{_l('第%0天', moment(data.executeTime).format('DD'))}</span>
           )}
           {data.frequency === DATE_TYPE.YEAR && (
-            <span className="Gray_75 mLeft15">{moment(data.executeTime).format('MMMDo')}</span>
+            <span className="textSecondary mLeft15">{moment(data.executeTime).format('MMMDo')}</span>
           )}
         </div>
 
@@ -165,7 +167,7 @@ export default class LoopContent extends Component {
 
     return (
       <Fragment>
-        <div className="Font13 mTop20 Gray_75">{_l('时间')}</div>
+        <div className="Font13 mTop20 textSecondary">{_l('时间')}</div>
         <div className="mTop10 weekList">
           {days.map((item, i) => {
             return (
@@ -241,7 +243,7 @@ export default class LoopContent extends Component {
 
     return (
       <Fragment>
-        {md.global.Config.IsLocal && this.renderMinute()}
+        {(window.platformENV.isOverseas || window.platformENV.isLocal) && this.renderMinute()}
         {this.renderMonth()}
         {this.renderDay()}
         {this.renderHour()}
@@ -800,7 +802,12 @@ export default class LoopContent extends Component {
                     updateSource({ weekDays: [e.days()] });
                   }
 
-                  if (data.repeatType === DATE_TYPE.CUSTOM && !isOldCustom && !md.global.Config.IsLocal) {
+                  if (
+                    data.repeatType === DATE_TYPE.CUSTOM &&
+                    !isOldCustom &&
+                    !window.platformENV.isOverseas &&
+                    !window.platformENV.isLocal
+                  ) {
                     this.updateConfigValue({ minute: { type: 3, values: [e.format('m')] } });
                   }
                 })
@@ -808,11 +815,11 @@ export default class LoopContent extends Component {
             >
               {data.executeTime ? moment(data.executeTime).format('YYYY-MM-DD HH:mm') : _l('请选择')}
             </DateTime>
-            <i className="icon-task_custom_today Absolute Font16 Gray_75" style={{ right: 10, top: 10 }} />
+            <i className="icon-task_custom_today Absolute Font16 textSecondary" style={{ right: 10, top: 10 }} />
           </div>
 
           <div className="Font13 bold mTop20">{_l('结束执行时间')}</div>
-          <div className="Font13 Gray_75 mTop5">{_l('当到达此时间点后，流程将会被自动关闭')}</div>
+          <div className="Font13 textSecondary mTop5">{_l('当到达此时间点后，流程将会被自动关闭')}</div>
           <div className="actionControlBox ThemeBorderColor3 mTop10 Relative">
             <DateTime
               selectedValue={data.executeEndTime ? moment(data.executeEndTime) : ''}
@@ -823,7 +830,7 @@ export default class LoopContent extends Component {
             >
               {data.executeEndTime ? moment(data.executeEndTime).format('YYYY-MM-DD HH:mm') : _l('请选择')}
             </DateTime>
-            <i className="icon-task_custom_today Absolute Font16 Gray_75" style={{ right: 10, top: 10 }} />
+            <i className="icon-task_custom_today Absolute Font16 textSecondary" style={{ right: 10, top: 10 }} />
           </div>
 
           {data.executeTime && (

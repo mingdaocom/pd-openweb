@@ -148,13 +148,13 @@ export default class AppLog extends React.Component {
               }}
               popupAlign={{ points: ['tl', 'tl'] }}
             >
-              <div className="optionItem Hand Hover_49 Width90">
+              <div className="optionItem Hand hoverTextPrimaryLight Width90">
                 <span>{handleTypeLabel}</span>
-                <span className="icon-expand_more mLeft8 Gray_9e"></span>
+                <span className="icon-expand_more mLeft8 textTertiary"></span>
               </div>
             </Trigger>
           ) : (
-            <span className="Gray_9e">{_l('导出的应用文件有效期为30天，请尽快下载')}</span>
+            <span className="textTertiary">{_l('导出的应用文件有效期为30天，请尽快下载')}</span>
           )}
 
           <div className="optionItem">
@@ -177,7 +177,7 @@ export default class AppLog extends React.Component {
                 }
               >
                 <Tooltip placement="top" title={_l('按日期筛选')}>
-                  <span className="Font18 Gray_9e Hover_49 icon-event Hand"></span>
+                  <span className="Font18 textTertiary hoverTextPrimaryLight icon-event Hand"></span>
                 </Tooltip>
               </Trigger>
             )}
@@ -190,7 +190,7 @@ export default class AppLog extends React.Component {
 
             <Tooltip placement="top" title={_l('搜索')}>
               <span
-                className="mLeft24 Font18 Hover_49 Gray_9e icon-search Hand"
+                className="mLeft24 Font18 hoverTextPrimaryLight textTertiary icon-search Hand"
                 onClick={() => this.setState({ searchVisible: true }, () => this.search.focus())}
               ></span>
             </Tooltip>
@@ -206,7 +206,7 @@ export default class AppLog extends React.Component {
             placeholder={_l('搜索应用名称/操作者')}
             onChange={_.throttle(e => this.updateState({ keyword: e.target.value }), 500)}
           />
-          <Icon icon="search" className="search Gray_9e Font16" />
+          <Icon icon="search" className="search textTertiary Font16" />
           <Icon
             icon="close"
             onClick={() => this.updateState({ keyword: '', searchVisible: false })}
@@ -256,7 +256,7 @@ export default class AppLog extends React.Component {
           });
           return (
             <div className="appLogListItem">
-              <div className="appLogListItemTop Gray_9e">
+              <div className="appLogListItemTop textTertiary">
                 <span className="flexCenter">
                   <span className={cx('Font15 mRight10 mBottom2', optionTypeIcon[item.handleType])}></span>
                   <span dangerouslySetInnerHTML={{ __html: message }}></span>
@@ -271,7 +271,7 @@ export default class AppLog extends React.Component {
                 <span>{item.createTime}</span>
               </div>
               <div className="appLogListItemBottom mTop5">
-                {isAppItem && <span className="Gray_9e mRight8">{_l('所属应用')}</span>}
+                {isAppItem && <span className="textTertiary mRight8">{_l('所属应用')}</span>}
                 {this.getAppNames(item.appNames)}
               </div>
             </div>
@@ -287,7 +287,7 @@ export default class AppLog extends React.Component {
         <div className="clearfix mBottom24">
           <span className="Left Font15">{_l('查看密码')}</span>
           <span
-            className="Right icon-delete Font16 Hover_49 Gray_9e Hand"
+            className="Right icon-delete Font16 hoverTextPrimaryLight textTertiary Hand"
             onClick={() => this.setState({ passwordDialogVisible: null })}
           ></span>
         </div>
@@ -307,7 +307,7 @@ export default class AppLog extends React.Component {
               data-clipboard-text={item.password}
               onSuccess={() => alert(_l('复制成功'))}
             >
-              <span className="icon-content-copy mLeft15 Gray_9e Hover_49 Hand LineHeight36"></span>
+              <span className="icon-content-copy mLeft15 textTertiary hoverTextPrimaryLight Hand LineHeight36"></span>
             </ClipboardButton>
           </Tooltip>
         </div>

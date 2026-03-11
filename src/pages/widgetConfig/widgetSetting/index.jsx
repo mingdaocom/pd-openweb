@@ -22,7 +22,7 @@ const SettingWrap = styled.div`
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   ${props => (!props.showSetting ? 'display: none;' : '')}
   .widgetSettingHeader {
     margin: 14px 20px 0 20px;

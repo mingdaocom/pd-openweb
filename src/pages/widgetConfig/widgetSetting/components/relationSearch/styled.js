@@ -5,27 +5,27 @@ export const AddRelate = styled.div`
     font-size: 14px;
     span {
       margin-left: 6px;
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .relateWrap {
     position: relative;
     margin-top: 40px;
     min-height: 300px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 8px;
     padding: 20px 18px;
     .relateWarning {
       height: 44px;
-      background: #f5f5f5;
-      border: 1px solid #dddddd;
+      background: var(--color-background-secondary);
+      border: 1px solid var(--color-border-primary);
       display: flex;
       align-items: center;
       padding: 0 14px;
       margin-top: 16px;
       &.active {
-        background: #f0f8ff;
-        border: 1px solid #1677ff;
+        background: var(--color-primary-transparent);
+        border: 1px solid var(--color-primary);
       }
     }
     .selectItem {
@@ -36,7 +36,7 @@ export const AddRelate = styled.div`
     display: flex;
     position: absolute;
     top: -18px;
-    background: #fff;
+    background: var(--color-background-primary);
     left: 50%;
     border-radius: 3px;
     transform: translateX(-50%);
@@ -46,20 +46,20 @@ export const AddRelate = styled.div`
       line-height: 34px;
       padding: 0 22px;
       transition: all 0.25s;
-      border: 1px solid #bdbdbd;
+      border: 1px solid var(--color-text-disabled);
       cursor: pointer;
       &:last-child {
         margin-left: -1px !important;
         border-left: none !important;
       }
       &:first-child {
-        border-right: 1px solid #1677ff !important;
+        border-right: 1px solid var(--color-primary) !important;
       }
 
       &.active,
       &:hover {
-        color: #1677ff;
-        border: 1px solid #1677ff;
+        color: var(--color-primary);
+        border: 1px solid var(--color-primary);
       }
       &.active {
         font-weight: bold;
@@ -83,7 +83,7 @@ export const AddRelate = styled.div`
       border-radius: 5px;
       cursor: pointer;
       &:hover {
-        background-color: #f8f8f8;
+        background-color: var(--color-background-hover);
       }
       &.active {
         background-color: rgba(33, 150, 243, 0.1);
@@ -114,7 +114,7 @@ export const FilterContent = styled.div`
       display: flex;
       .dynamicSource {
         width: 130px;
-        border-color: #e0e0e0;
+        border-color: var(--color-border-secondary);
         height: 36px;
         border-radius: 4px;
         box-shadow: none !important;
@@ -128,7 +128,7 @@ export const FilterContent = styled.div`
           margin-top: -8px !important;
         }
         .ant-select-selector {
-          border-color: #e0e0e0;
+          border-color: var(--color-border-secondary);
           height: 36px;
           width: 130px;
           border-radius: 4px;

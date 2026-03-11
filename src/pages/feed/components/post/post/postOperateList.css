@@ -1,7 +1,7 @@
 /*编辑动态*/
 .editUpdaterDialog .editUpdaterUploadMore {
-  background-color: #fafafa;
-  border: 1px solid #f0f0f0;
+  background-color: var(--color-background-secondary);
+  border: 1px solid --color-background-disabled;
   padding: 7px;
   margin-top: 5px;
 }
@@ -20,8 +20,8 @@
 .fastCreateTaskSchedule {
   z-index: 2;
   padding: 5px 0;
-  background-color: #fff;
-  border: 1px solid #d5d5d5;
+  background-color: var(--color-background-primary);
+  border: 1px solid var(--color-border-primary);
   position: absolute;
   display: block;
   border-radius: 5px;

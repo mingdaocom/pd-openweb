@@ -26,11 +26,11 @@ export default class Email extends Component {
     return (
       <div className="pLeft8 pRight8">
         <div className="pTop5">
-          <span className="Gray_75">{_l('收件人：')}</span>
+          <span className="textSecondary">{_l('收件人：')}</span>
           <MembersName {...this.props} accounts={item.accounts} />
         </div>
         <div className="pBottom5 mTop4">
-          <span className="Gray_75">{_l('主题：')}</span>
+          <span className="textSecondary">{_l('主题：')}</span>
           <span>{replaceField(item.emailSubject, item.formulaMap) || _l('无主题')}</span>
         </div>
       </div>
@@ -57,7 +57,11 @@ export default class Email extends Component {
             </div>
             <NodeOperate nodeClassName="BGBlue" {...this.props} />
             <div className="workflowContent Font13">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? (
+                <span className="pLeft8 pRight8 textSecondary">{_l('加载中...')}</span>
+              ) : (
+                this.renderContent()
+              )}
             </div>
           </div>
           <CreateNode {...this.props} />

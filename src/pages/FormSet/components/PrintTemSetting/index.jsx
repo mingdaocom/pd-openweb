@@ -24,16 +24,16 @@ const ALLOW_SYS_IDS = ['ownerid', 'caid', 'uaid'];
 
 const DefaultName = styled.div`
   height: 36px;
-  background: #f8f8f8;
+  background: var(--color-background-secondary);
   border-radius: 3px;
-  border: 1px solid #dddddd;
+  border: 1px solid var(--color-border-primary);
   width: 100%;
   padding: 0 9px;
   display: flex;
   align-items: center;
   span {
     height: 24px;
-    background: #eaeaea;
+    background: var(--color-border-secondary);
     border-radius: 18px;
     padding: 0 13px;
     line-height: 24px;
@@ -166,7 +166,7 @@ function PrintTemSetting(props) {
       </div>
       <div>
         {type === '0' ? (
-          <DefaultName className="Gray_9e Font12">
+          <DefaultName className="textTertiary Font12">
             <span className="InlineFlex flex-shrink-0">{_l('模版名称')}</span>_
             {titleControl && (
               <Fragment>
@@ -196,7 +196,7 @@ function PrintTemSetting(props) {
           />
         )}
       </div>
-      <div className="Font13 Gray_9e mLeft8 mTop10">
+      <div className="Font13 textTertiary mLeft8 mTop10">
         {_l('预览：')}
         {getPreviewText()}
       </div>

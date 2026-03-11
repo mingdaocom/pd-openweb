@@ -34,8 +34,14 @@ const WidgetContent = styled.div`
   }
   &.embedUrl,
   &.view,
-  &.richText {
+  &.richText,
+  &.carousel,
+  &.filter {
     padding: 0 !important;
+  }
+  &.filter {
+    align-items: center;
+    display: flex;
   }
   &.analysis {
     padding: 0;
@@ -91,6 +97,17 @@ const WidgetContent = styled.div`
   .mdEditorContent {
     overflow: initial !important;
   }
+  .layoutInfo {
+    color: var(--color-white);
+    background: #2d3239;
+    padding: 5px 10px;
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    border-radius: 4px;
+    z-index: 10;
+    display: none;
+  }
 `;
 
 const WidgetDisplay = forwardRef((props, $cardRef) => {
@@ -99,6 +116,8 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
   const { worksheetId, appId } = ids;
   const componentType = getEnumType(type);
   const ref = useRef(null);
+  const layoutInfo = _.get(widget[layoutType], 'layout') || {};
+
   const renderContent = () => {
     if (componentType === 'embedUrl') {
       const { newTab = false, reload = false } = config;
@@ -196,32 +215,32 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
         <Image themeColor={props.themeColor} widget={widget} editable={editable} customPageConfig={rest.config || {}} />
       );
     }
-  };
-  if (componentType === 'filter') {
-    if (layoutType === 'mobile') {
-      return <MobileFilter ids={ids} widget={widget} className={cx({ disableFiltersGroup: editable })} />;
-    } else {
+    if (componentType === 'carousel') {
+      const { config, componentConfig } = widget;
       return (
-        <FiltersGroupPreview
-          className={cx({ disableFiltersGroup: editable })}
-          appId={ids.appId}
-          projectId={projectId}
-          widget={widget}
+        <CarouselPreview
+          editable={editable}
+          config={config}
+          componentConfig={componentConfig}
+          customPageConfig={rest.config || {}}
         />
       );
     }
-  }
-  if (componentType === 'carousel') {
-    const { config, componentConfig } = widget;
-    return (
-      <CarouselPreview
-        editable={editable}
-        config={config}
-        componentConfig={componentConfig}
-        customPageConfig={rest.config || {}}
-      />
-    );
-  }
+    if (componentType === 'filter') {
+      if (layoutType === 'mobile') {
+        return <MobileFilter ids={ids} widget={widget} className={cx({ disableFiltersGroup: editable })} />;
+      } else {
+        return (
+          <FiltersGroupPreview
+            className={cx({ disableFiltersGroup: editable })}
+            appId={ids.appId}
+            projectId={projectId}
+            widget={widget}
+          />
+        );
+      }
+    }
+  };
 
   return (
     <WidgetContent
@@ -234,6 +253,12 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
       ref={ref}
     >
       {renderContent()}
+      {editable && (
+        <div className="layoutInfo">
+          <div>{_l('宽：%0格', layoutInfo.w)}</div>
+          <div>{_l('高：%0格', layoutInfo.h)}</div>
+        </div>
+      )}
     </WidgetContent>
   );
 });

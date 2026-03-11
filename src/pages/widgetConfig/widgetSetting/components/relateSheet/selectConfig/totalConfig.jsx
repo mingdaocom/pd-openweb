@@ -13,15 +13,15 @@ const TotalConfigWrap = styled.div`
   .addTotalControl {
     margin-top: 12px;
     line-height: 32px;
-    color: #757575;
+    color: var(--color-text-secondary);
     font-weight: bold;
     display: inline-flex;
     align-items: center;
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
     &.disabled {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       cursor: not-allowed;
     }
   }
@@ -36,7 +36,7 @@ const TotalConfigWrap = styled.div`
       height: 36px;
       line-height: 36px;
       border-radius: 3px;
-      border: 1px solid #dddddd;
+      border: 1px solid var(--color-border-primary);
     }
     .ming.Dropdown {
       .Menu.List {
@@ -44,12 +44,12 @@ const TotalConfigWrap = styled.div`
       }
     }
     .deleteBtn {
-      color: #9d9d9d;
+      color: var(--color-text-tertiary);
       font-size: 16px;
       cursor: pointer;
       margin-left: 12px;
       &:hover {
-        color: #f44336;
+        color: var(--color-error);
       }
     }
   }

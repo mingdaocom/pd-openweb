@@ -2,12 +2,15 @@ import styled from 'styled-components';
 import { browserIsMobile } from 'src/utils/common';
 
 export const WrapCom = styled.div`
+  .mHeight100 {
+    min-height: 100%;
+  }
   flex-direction: column;
   display: flex;
   width: 100%;
   min-height: 100%;
   overflow: auto;
-  background-color: ${browserIsMobile() ? '#fff' : '#f2f5f7'};
+  background-color: ${browserIsMobile() ? '#fff' : 'var(--color-background-secondary)'};
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
@@ -19,7 +22,7 @@ export const WrapCom = styled.div`
       padding: 48px;
       box-sizing: border-box;
       margin: 0 auto;
-      background: #ffffff;
+      background: var(--color-background-primary);
       border-radius: 12px;
       margin-bottom: 15px;
       position: relative;
@@ -29,7 +32,7 @@ export const WrapCom = styled.div`
         position: absolute;
         left: 0;
         top: 0;
-        background: #1677ff;
+        background: var(--color-primary);
         animation-name: fadeMove;
         animation-duration: 1s;
         animation-timing-function: ease-in-out;
@@ -56,14 +59,14 @@ export const WrapCom = styled.div`
         .title {
           text-align: left;
           font-size: 26px;
-          color: #151515;
+          color: var(--color-text-title);
           line-height: 1.75;
 
           span {
             display: block;
             width: 8px;
             height: 3px;
-            background: #1677ff;
+            background: var(--color-primary);
             margin-top: 12px;
           }
         }
@@ -71,11 +74,13 @@ export const WrapCom = styled.div`
     }
   }
 
-  @media screen and (max-width: 414px) {
+  @media screen and (max-width: 600px) {
     .loginBox {
       padding: 46px 0;
       .loginContainer {
         margin: 0;
+        width: 100%;
+        max-width: 100%;
         padding: 48px 24px 23px;
       }
     }

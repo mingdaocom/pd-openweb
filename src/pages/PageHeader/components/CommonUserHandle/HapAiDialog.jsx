@@ -18,22 +18,22 @@ const DialogWrap = styled(Dialog)`
     top: 0;
     width: 45px;
     height: 45px;
-    background-color: #fbfbfc;
+    background-color: var(--color-background-secondary);
   }
   .mui-dialog-close-btn {
     top: 10px !important;
     margin-right: 6px;
     .Icon {
-      color: #757575 !important;
+      color: var(--color-text-secondary) !important;
       &:hover {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
   }
   .mui-dialog-body {
     padding: 0 !important;
     overflow: hidden !important;
-    /* background-color: #fbfbfc !important; */
+    /* background-color: var(--color-background-secondary) !important; */
   }
   .aiWrap {
     width: 100%;

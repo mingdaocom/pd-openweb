@@ -15,11 +15,11 @@
   }
   #calendarDate {
     .mui-datetime-picker {
-      color: #151515 !important;
+      color: var(--color-text-title) !important;
     }
   }
   .createCalendarLabel {
-    color: #9e9e9e;
+    color: var(--color-text-secondary);
     font-size: 14px;
     text-align: right;
     position: absolute;
@@ -38,10 +38,10 @@
     border-style: solid;
   }
   .infoInput {
-    border-color: #9e9e9e !important;
+    border-color: var(--color-border-primary) !important;
     &:focus,
     &:hover {
-      border-color: #2196f3 !important;
+      border-color: var(--color-primary-focus) !important;
     }
   }
   .createCalendarTitle .createCalendarLabel {
@@ -57,29 +57,29 @@
     cursor: pointer;
   }
   .createCalendarTitle .calendarColorRed {
-    background: #d34e5e;
+    background: var(--color-error);
   }
   .createCalendarTitle .calendarColorViolet {
-    background: #9b559e;
+    background: var(--color-mingo-dark);
   }
   .createCalendarTitle .calendarColorBrown {
     background: #af653c;
   }
   .createCalendarTitle .calendarColorOrange {
-    background: #ff9800;
+    background: var(--color-warning);
   }
   .createCalendarTitle .calendarColorBlue {
-    background: #0066cc;
+    background: #0958d9;
   }
   .createCalendarTitle .calendarColorGreen {
     background: #0aa610;
   }
   .createCalendarTitle .calendarColorYellow {
-    background: #ffeb3b;
+    background: var(--color-yellow);
   }
   .createCalendarTitle .icon-arrow-down-border {
     font-size: 16px;
-    color: #fff;
+    color: var(--color-white);
   }
   .createCalendarTitle .icon-arrow-down-border:before {
     display: inline-block;
@@ -91,7 +91,7 @@
     position: absolute;
     right: 26px;
     top: 38px;
-    background: #fff;
+    background: var(--color-background-primary);
     display: none;
     z-index: 100;
   }
@@ -115,25 +115,28 @@
     font-size: 16px;
     border: none;
   }
+  .createCalendarTitle .calendarColorMain li {
+    background: var(--color-background-hover) !important;
+  }
   .createCalendarTitle .calendarColorMain li:not(:hover) {
-    background: #fff !important;
+    background: var(--color-background-card) !important;
   }
   .createCalendarTitle .calendarColorMain li.selected {
-    background: #fff !important;
+    background: var(--color-background-hover) !important;
   }
   .createCalendarTitle .calendarColorMain li:not(.selected) span {
-    color: #151515 !important;
+    color: var(--color-text-title) !important;
   }
   .createCalendarTitle .calendarColorMain li:hover:not(.selected) {
-    color: #fff;
+    color: var(--color-white);
   }
   .createCalendarTitle .calendarColorMain li:hover:not(.selected) span {
-    color: #fff !important;
+    color: var(--color-white) !important;
   }
   .createCalendarTitle .calendarColorMain li i {
     width: 16px;
     height: 16px;
-    border: 1px solid #fff;
+    border: 1px solid var(--color-border-primary);
     margin-right: 12px;
     display: inline-block;
     vertical-align: top;
@@ -142,7 +145,7 @@
   }
   .calendarTime {
     margin-top: 25px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   #txtBeginDatebox,
   #txtEndDatebox {
@@ -159,10 +162,10 @@
   #txtEndDatebox:not(:hover) input:not(:focus) + span,
   #txtEndTimeCreate:not(:hover):not(:focus),
   #remindTextCreate:not(:hover):not(:focus) {
-    color: #666 !important;
+    color: var(--color-text-secondary) !important;
   }
   .calendarRemind .titleLink:not(.titleClick) span {
-    color: #666 !important;
+    color: var(--color-text-secondary) !important;
   }
   #txtBeginDate,
   #txtEndDate {
@@ -178,7 +181,7 @@
     margin-left: 4px;
     border-width: 0 0 1px 0;
     border-style: solid;
-    border-color: #151515;
+    border-color: var(--color-text-title);
     cursor: pointer;
     box-sizing: initial;
   }
@@ -200,15 +203,15 @@
     cursor: pointer;
   }
   .calendarTime .timezone:not(:hover):not(.selected) {
-    color: #9e9e9e !important;
-    border-color: #9e9e9e !important;
+    color: var(--color-text-tertiary) !important;
+    border-color: var(--color-border-primary) !important;
   }
   .calendarTime .bgImageLink {
     position: absolute;
     right: -4px;
     top: -2px;
     font-size: 24px !important;
-    color: #151515;
+    color: var(--color-text-title);
   }
   .calendarRemind {
     margin-top: 25px;
@@ -220,7 +223,7 @@
   .remindTextLable {
     vertical-align: top;
     display: inline-block;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .calendarRemind .remindText {
     text-align: center;
@@ -231,7 +234,7 @@
     padding: 0;
     border-width: 0 0 1px 0;
     border-style: solid;
-    border-color: #151515;
+    border-color: var(--color-text-title);
     vertical-align: top;
     margin-top: 2px;
   }
@@ -246,33 +249,17 @@
     margin-top: 20px;
   }
   .calendarTabs span {
-    border-bottom: 1px solid #9e9e9e;
+    border-bottom: 1px solid var(--color-border-primary);
     margin-right: 36px;
     cursor: pointer;
   }
   .calendarTabs span:not(:hover) {
-    border-color: #9e9e9e !important;
-    color: #9e9e9e !important;
+    border-color: var(--color-border-primary) !important;
+    color: var(--color-text-secondary) !important;
   }
   .calendarPrivate {
     margin-top: 30px;
     height: 24px;
-  }
-  .calendarPrivate label {
-    color: #9e9e9e;
-    font-size: 14px;
-    margin-left: -76px;
-  }
-  .calendarPrivate .iconHelp {
-    color: #999;
-    width: 14px;
-    height: 14px;
-    margin-left: 12px;
-  }
-  .calendarPrivate .iconHelp:after {
-    width: 217px;
-    word-break: break-all;
-    white-space: normal;
   }
   .chekboxIcon {
     position: relative;
@@ -291,7 +278,7 @@
     left: 5px;
     width: 4px;
     height: 10px;
-    border: 2px solid #fff;
+    border: 2px solid var(--color-border-primary);
     border-top-width: 0;
     border-left-width: 0;
     z-index: 1;
@@ -315,22 +302,22 @@
     -ms-transform: 240ms;
     -moz-transform: 240ms;
     transition: 240ms;
-    background: white;
-    border: 1px solid #ccc;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-tertiary);
   }
   .calendarPrivate .isPrivateLabel:hover {
-    color: #666;
+    color: var(--color-text-secondary);
   }
   .calendarPrivate .isPrivateLabel:hover .chekboxIcon:after {
-    border-color: #9e9e9e !important;
+    border-color: var(--color-border-primary) !important;
   }
   .chekboxIcon.checked:after {
-    background-color: #1677ff !important;
-    border-color: #1677ff !important;
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
   }
   #repeatContent {
     margin-top: 15px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   #repeatContent .createCalendarLabel {
     cursor: pointer;
@@ -367,11 +354,11 @@
     vertical-align: top;
     width: 32px;
     height: 32px;
-    background-color: #666;
+    background-color: var(--color-text-secondary);
     position: absolute;
     margin-right: -32px;
     text-align: center;
-    color: #fff;
+    color: var(--color-white);
     font-size: 16px;
     opacity: 0.7;
   }
@@ -396,7 +383,7 @@
   .createAddMemberBox .busyIcon {
     width: 15px;
     height: 15px;
-    background-color: #de2c00;
+    background-color: var(--color-error);
     border-radius: 50%;
     display: block;
   }
@@ -408,7 +395,7 @@
     display: block;
     width: 2px;
     height: 6px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     position: absolute;
     top: 3px;
     left: 7px;
@@ -418,7 +405,7 @@
     display: block;
     width: 2px;
     height: 2px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     position: absolute;
     top: 10px;
     left: 7px;
@@ -432,7 +419,7 @@
     margin-bottom: 8px;
   }
   .createAddMember:not(:hover) {
-    color: #9e9e9e !important;
+    color: var(--color-text-tertiary) !important;
   }
   .txtAddress {
     height: 40px;
@@ -448,10 +435,17 @@
   .createCalendarDesc,
   .txtAddress {
     width: 100%;
-    border: 1px solid #9e9e9e;
+    border: 1px solid var(--color-border-primary);
     padding: 7px;
     line-height: 24px;
     resize: none;
+  }
+  .infoInput,
+  .txtAddress,
+  .createCalendarDesc {
+    &::placeholder {
+      color: var(--color-text-placeholder);
+    }
   }
   .addAttachmentBtn {
     margin-top: 10px;
@@ -474,7 +468,7 @@
     height: 18px;
     line-height: 18px;
     padding: 2px;
-    border: 1px solid #9e9e9e;
+    border: 1px solid var(--color-border-primary);
     text-align: center;
     vertical-align: top;
     margin: 13px 2px 0;
@@ -492,16 +486,16 @@
     display: inline-block;
     border-width: 1px 1px 1px 0;
     border-style: solid;
-    border-color: #9e9e9e;
-    background-color: #fff;
+    border-color: var(--color-border-primary);
+    background-color: var(--color-background-field);
     outline: none;
     line-height: initial;
   }
   .repeatTypeGroupBtn.ThemeBGColor3 {
-    color: #fff;
+    color: var(--color-white);
   }
   .repeatTypeGroupBtn:first-child {
-    border-left: 1px solid #9e9e9e;
+    border-left: 1px solid var(--color-border-primary);
     border-radius: 3px 0 0 3px;
   }
   .repeatTypeGroupBtn:last-child {
@@ -536,7 +530,7 @@
     line-height: 40px;
     font-size: 15px;
     padding: 0 35px;
-    color: #fff;
+    color: var(--color-white);
     cursor: pointer;
   }
   /*名片层调整*/
@@ -549,8 +543,8 @@
   display: none;
 }
 
-.allDay {
-  padding: 30px 110px 0 110px;
+#allDay {
+  padding: 30px 110px 0 116px;
 }
 
 .repeatDialogMain .createCalendarLabel {

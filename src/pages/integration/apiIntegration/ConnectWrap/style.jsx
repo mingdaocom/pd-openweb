@@ -61,12 +61,12 @@ export const ConnetWrap = styled.div`
     }
     padding: 20px 20px 0 37px;
     border-bottom: 1px solid rgb(235, 235, 235);
-    background: #ffffff;
+    background: var(--color-background-primary);
     .logo {
       width: 64px;
       height: 64px;
-      background: #ffffff;
-      border: 1px solid #efefef;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-secondary);
       border-radius: 32px;
     }
   }
@@ -81,7 +81,7 @@ export const ConnetWrap = styled.div`
       .icon {
         opacity: 1;
         &:hover {
-          color: #1677ff !important;
+          color: var(--color-primary) !important;
         }
       }
     }
@@ -91,18 +91,18 @@ export const ConnetWrap = styled.div`
     li {
       font-size: 15px;
       font-weight: 600;
-      color: #151515;
+      color: var(--color-text-title);
       display: inline-block;
       margin: 0 18px;
       padding: 24px 8px 10px;
       box-sizing: border-box;
       border-bottom: 3px solid rgba(0, 0, 0, 0);
       &.disble {
-        color: #757575;
+        color: var(--color-text-secondary);
       }
       &.isCur {
-        color: #1677ff;
-        border-bottom: 3px solid #1677ff;
+        color: var(--color-primary);
+        border-bottom: 3px solid var(--color-primary);
       }
     }
   }
@@ -111,8 +111,8 @@ export const ConnetWrap = styled.div`
       width: 880px;
       padding: 24px;
       margin: 22px auto 0;
-      background: #ffffff;
-      border: 1px solid #dddddd;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-primary);
       box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.16);
       border-radius: 10px;
       text-align: center;
@@ -121,13 +121,13 @@ export const ConnetWrap = styled.div`
         font-size: 17px;
         font-weight: 600;
         line-height: 22px;
-        color: #151515;
+        color: var(--color-text-title);
       }
       .btn {
         margin: 40px auto 0;
         padding: 11px 50px;
-        background: #1677ff;
-        color: #fff;
+        background: var(--color-primary);
+        color: var(--color-white);
         line-height: 1em;
         border-radius: 30px;
 
@@ -135,7 +135,7 @@ export const ConnetWrap = styled.div`
           opacity: 0.5;
         }
         &:hover {
-          background: #1764c0;
+          background: var(--color-link-hover);
         }
       }
     }
@@ -156,7 +156,7 @@ export const UpgradeContentWrap = styled.div`
   .unusualSkeletonWrap {
     width: 240px;
     height: 100%;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
   .unusualContent {
     display: flex;
@@ -164,7 +164,7 @@ export const UpgradeContentWrap = styled.div`
     justify-content: center;
     align-items: center;
     flex: 1;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
     .imgWrap {
       display: flex;
@@ -175,7 +175,7 @@ export const UpgradeContentWrap = styled.div`
       line-height: 110px;
       border-radius: 50%;
       text-align: center;
-      background-color: #f5f5f5;
+      background-color: var(--color-background-secondary);
     }
   }
 `;

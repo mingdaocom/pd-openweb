@@ -14,6 +14,7 @@ export const urlList = [
   'mobile/discuss/',
   'mobile/addDiscuss/',
   'printForm/',
+  'printFormBatch/',
 ];
 
 export const getSuffix = url => {

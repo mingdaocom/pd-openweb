@@ -7,7 +7,7 @@ import { Icon } from 'ming-ui';
 const Item = styled.div`
   padding: 8px 0;
   .icon-done {
-    color: #1677ff;
+    color: var(--color-primary);
   }
 `;
 

@@ -5,8 +5,8 @@ const Com = styled.span`
   display: inline-block;
   font-size: 12px;
   padding: 0 3px;
-  color: #fff;
-  background: #67ad5b;
+  color: var(--color-white);
+  background: var(--color-success);
   border-radius: 2px 2px 2px 2px;
   height: 16px;
   line-height: 14px;

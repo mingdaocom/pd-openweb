@@ -12,7 +12,7 @@ const Con = styled.div`
   position: absolute;
   width: 100%;
   height: 100%;
-  background: #fff;
+  background: var(--color-background-primary);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -24,7 +24,7 @@ const Con = styled.div`
     border-radius: 50%;
     background: url(${emptyPng}) no-repeat;
     background-size: 130px 130px;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
   }
 `;
 export default function NoRecords(props) {
@@ -45,7 +45,7 @@ export default function NoRecords(props) {
           }}
         >
           {height > 200 && (icon || <i className="iconBox mBottom12" />)}
-          <span className="Gray_9e Block mBottom20 TxtCenter Font17 Gray_9e">
+          <span className="textTertiary Block mBottom20 TxtCenter Font17 textTertiary">
             {text
               ? text
               : sheetIsFiltered

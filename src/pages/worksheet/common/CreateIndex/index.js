@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { Checkbox, Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
+import DrawerFooter from 'src/pages/FormSet/components/DrawerFooter';
 import './index.less';
 
 const { Option } = Select;
@@ -116,9 +117,9 @@ export default class CreateIndex extends Component {
   renderTitle = () => {
     const { isEdit } = this.props;
     return (
-      <div className="title Gray">
+      <div className="title textPrimary">
         <span>{isEdit ? _l('编辑索引') : _l('创建索引')}</span>
-        <Icon icon="close" className="Gray_9d Font20 pointer" onClick={this.props.onClose} />
+        <Icon icon="close" className="textTertiary Font20 pointer" onClick={this.props.onClose} />
       </div>
     );
   };
@@ -158,6 +159,7 @@ export default class CreateIndex extends Component {
     if (isExistTestIndexFileds && selectedIndexList.some(item => item.type === 3)) {
       return alert(_l('索引不能同时包含文本索引与多选类型字段'), 3);
     }
+    this.setState({ saveLoading: true });
     let params = {
       appId,
       worksheetId, // 工作表Id
@@ -178,44 +180,57 @@ export default class CreateIndex extends Component {
       params.systemIndexName = currentIndexInfo.systemIndexName;
     }
     if (!isEdit) {
-      worksheetAjax.addRowIndex(params).then(res => {
-        if (res.responseEnum === 0) {
-          alert(_l('操作成功'));
-        } else if (res.responseEnum == -1) {
-          alert(_l('操作失败'), 2);
-        } else if (res.responseEnum == 1) {
-          alert(_l('参数错误'), 3);
-        } else if (res.responseEnum == 2) {
-          alert(_l('排队中'), 3);
-        } else if (res.responseEnum === 3) {
-          alert(_l('超出索引最多显示'), 3);
-        } else if (res.responseEnum === 4) {
-          alert(_l('索引已存在'), 3);
-        }
-        getIndexesInfo();
-      });
+      worksheetAjax
+        .addRowIndex(params)
+        .then(res => {
+          if (res.responseEnum === 0) {
+            alert(_l('操作成功'));
+          } else if (res.responseEnum == -1) {
+            alert(_l('操作失败'), 2);
+          } else if (res.responseEnum == 1) {
+            alert(_l('参数错误'), 3);
+          } else if (res.responseEnum == 2) {
+            alert(_l('排队中'), 3);
+          } else if (res.responseEnum === 3) {
+            alert(_l('超出索引最多显示'), 3);
+          } else if (res.responseEnum === 4) {
+            alert(_l('索引已存在'), 3);
+          }
+          this.setState({ saveLoading: false });
+          getIndexesInfo();
+        })
+        .catch(() => {
+          this.setState({ saveLoading: false });
+        });
     } else {
-      worksheetAjax.updateRowIndex(params).then(res => {
-        if (res.responseEnum === 0) {
-          let indexStateId =
-            (res.rowIndexConfigs || []).filter(item => item.indexConfigId === currentIndexInfo.indexConfigId).length &&
-            (res.rowIndexConfigs || []).filter(item => item.indexConfigId === currentIndexInfo.indexConfigId)[0]
-              .indexStateId;
-          if (indexStateId === -1) return alert(_l('操作失败'), 2);
-          alert(_l('操作成功'));
-        } else if (res.responseEnum == -1) {
-          alert(_l('操作失败'), 2);
-        } else if (res.responseEnum == 1) {
-          alert(_l('参数错误'), 3);
-        } else if (res.responseEnum == 2) {
-          alert(_l('排队中'), 3);
-        } else if (res.responseEnum === 3) {
-          alert(_l('超出索引最多显示'), 3);
-        } else if (res.responseEnum === 4) {
-          alert(_l('索引已存在'), 3);
-        }
-        getIndexesInfo();
-      });
+      worksheetAjax
+        .updateRowIndex(params)
+        .then(res => {
+          if (res.responseEnum === 0) {
+            let indexStateId =
+              (res.rowIndexConfigs || []).filter(item => item.indexConfigId === currentIndexInfo.indexConfigId)
+                .length &&
+              (res.rowIndexConfigs || []).filter(item => item.indexConfigId === currentIndexInfo.indexConfigId)[0]
+                .indexStateId;
+            if (indexStateId === -1) return alert(_l('操作失败'), 2);
+            alert(_l('操作成功'));
+          } else if (res.responseEnum == -1) {
+            alert(_l('操作失败'), 2);
+          } else if (res.responseEnum == 1) {
+            alert(_l('参数错误'), 3);
+          } else if (res.responseEnum == 2) {
+            alert(_l('排队中'), 3);
+          } else if (res.responseEnum === 3) {
+            alert(_l('超出索引最多显示'), 3);
+          } else if (res.responseEnum === 4) {
+            alert(_l('索引已存在'), 3);
+          }
+          this.setState({ saveLoading: false });
+          getIndexesInfo();
+        })
+        .catch(() => {
+          this.setState({ saveLoading: false });
+        });
     }
     this.props.onClose();
   };
@@ -292,16 +307,30 @@ export default class CreateIndex extends Component {
     }
     this.setState({ showQAList: temp });
   };
+
   render() {
     const {
-      isEdit,
       currentIndexInfo,
       worksheetAvailableFields,
       getFieldObjById = () => {},
       worksheetRowIndexLimit,
     } = this.props;
-    let { selectedIndexList = [], wildcardIndex, uniqueIndex, customeIndexName, showQAList = [] } = this.state;
+    let {
+      selectedIndexList = [],
+      wildcardIndex,
+      uniqueIndex,
+      customeIndexName,
+      showQAList = [],
+      saveLoading,
+    } = this.state;
     let maxWorksheetAvailableFields = selectedIndexList.length > worksheetAvailableFields.length - 1;
+    const initParams = {
+      ..._.pick(currentIndexInfo, ['customeIndexName', 'uniqueIndex', 'wildcardIndex']),
+      selectedIndexList: this.props.selectedIndexList,
+    };
+    const params = { customeIndexName, uniqueIndex, wildcardIndex, selectedIndexList };
+    const disabledSave = currentIndexInfo.indexStateId == 0 || saveLoading || _.isEqual(initParams, params);
+
     return (
       <div className="createIndexContainer">
         {this.renderTitle()}
@@ -314,7 +343,7 @@ export default class CreateIndex extends Component {
               )}
               placement="bottom"
             >
-              <Icon icon="help" className="mLeft8 Gray_9d" />
+              <Icon icon="help" className="mLeft8 textTertiary" />
             </Tooltip>
           </div>
           <div className="selectedInfo">
@@ -377,14 +406,14 @@ export default class CreateIndex extends Component {
                   </Select>
                   <Icon
                     icon="remove_circle_outline"
-                    className={cx('Font16 remove Hand Gray_9d', {
+                    className={cx('Font16 remove Hand textTertiary', {
                       disabledAct: selectedIndexList.length <= 1,
                     })}
                     onClick={() => this.removeCurrentField(index)}
                   />
                   <Icon
                     icon="add_circle_outline"
-                    className={cx('Font16 Hand Gray_9d', {
+                    className={cx('Font16 Hand textTertiary', {
                       disabledAct: selectedIndexList.length >= worksheetRowIndexLimit || maxWorksheetAvailableFields,
                     })}
                     onClick={this.addField}
@@ -408,7 +437,7 @@ export default class CreateIndex extends Component {
               )}
               placement="bottom"
             >
-              <Icon icon="help" className="mLeft8 lineHeight20 mRight24 Gray_9d" />
+              <Icon icon="help" className="mLeft8 lineHeight20 mRight24 textTertiary" />
             </Tooltip>
             <Checkbox
               checked={wildcardIndex}
@@ -421,7 +450,7 @@ export default class CreateIndex extends Component {
               title={_l('支持所有文本字段全文检索。工作表创建文本索引后不可再创建此类型索引')}
               placement="bottom"
             >
-              <Icon icon="help" className="mLeft8 lineHeight20 Gray_9d" />
+              <Icon icon="help" className="mLeft8 lineHeight20 textTertiary" />
             </Tooltip>
           </div>
           <div className="minBold sunTitle">{_l('索引名称')}</div>
@@ -454,21 +483,14 @@ export default class CreateIndex extends Component {
             })}
           </div>
         </div>
-        <div className="createIndexFooter">
-          {currentIndexInfo.indexStateId !== 0 && (
-            <span className="confirmBtn Hand" onClick={this.saveIndex}>
-              {isEdit ? _l('修改保存') : _l('创建索引')}
-            </span>
-          )}
-          {currentIndexInfo.indexStateId == 0 && (
-            <Tooltip title={_l('不能修改排队中的索引')} placement="top">
-              <span className="confirmBtn disabled">{_l('修改保存')}</span>
-            </Tooltip>
-          )}
-          <span className="cancelBtn Hand" onClick={this.props.onClose}>
-            {_l('取消')}
-          </span>
-        </div>
+        <DrawerFooter
+          saveLoading={saveLoading}
+          disabled={disabledSave}
+          showTooltips={currentIndexInfo.indexStateId == 0}
+          tipsTxt={_l('不能修改排队中的索引')}
+          handleSave={this.saveIndex}
+          onCancel={this.props.onClose}
+        />
       </div>
     );
   }

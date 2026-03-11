@@ -1224,7 +1224,7 @@ class FolderChart extends Component {
           }}
         >
           <div className="mTop10 mRight10 pointer">
-            <Icon icon="calander" className="Font16 Gray_9" />
+            <Icon icon="calander" className="Font16 textTertiary" />
           </div>
         </DateFilter>,
       );
@@ -1249,7 +1249,7 @@ class FolderChart extends Component {
           }}
         >
           <div className="mTop10 mRight10 pointer">
-            <Icon icon="calander" className="Font16 Gray_9" />
+            <Icon icon="calander" className="Font16 textTertiary" />
           </div>
         </DateFilter>,
       );

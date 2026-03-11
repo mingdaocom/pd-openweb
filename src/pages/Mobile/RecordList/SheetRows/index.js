@@ -188,7 +188,7 @@ class SheetRows extends Component {
               <LoadDiv />
             ) : (
               <div
-                className="mTop10 mBottom10 ThemeColor Font15 TxtCenter"
+                className="mTop10 mBottom10 colorPrimary Font15 TxtCenter"
                 onClick={() => {
                   updateGroupDataInfo({ groupKey: key, currentKeyPageIndex: pageIndex + 1 });
                   loadGroupMore(key);

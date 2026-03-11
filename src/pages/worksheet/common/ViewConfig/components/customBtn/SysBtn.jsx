@@ -15,17 +15,17 @@ const SwitchStyle = styled.div`
       color: #00c345;
     }
     &-ic_toggle_off {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
   }
 `;
 const Wrap = styled.div`
-  border: 1px solid #dddddd;
+  border: 1px solid var(--color-border-primary);
   opacity: 1;
   border-radius: 6px;
   margin-top: 13px;
   .actionLi {
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     padding: 0 20px 0 26px;
     height: 44px;
     &:last-child {
@@ -71,7 +71,7 @@ const actions = [
 export default function ActionBtn(props) {
   return (
     <React.Fragment>
-      <p className="Bold Gray_75 Font13 mTop25 mBottom0">{_l('系统操作')}</p>
+      <p className="Bold textSecondary Font13 mTop25 mBottom0">{_l('系统操作')}</p>
       <Wrap>
         {actions
           .filter(o => (props.isListOption ? !['share'].includes(o.value) : !['edit', 'export'].includes(o.value)))
@@ -79,7 +79,7 @@ export default function ActionBtn(props) {
             const data = props.data || [];
             return (
               <div className="flexRow alignItemsCenter actionLi">
-                <Icon className={cx('Font18 mRight12', o.value !== 'delete' ? 'Gray_75' : 'Red')} type={o.icon} />
+                <Icon className={cx('Font18 mRight12', o.value !== 'delete' ? 'textSecondary' : 'Red')} type={o.icon} />
                 <span className="flex Bold Font13">{o.text}</span>
                 <SwitchStyle>
                   <Icon

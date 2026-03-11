@@ -12,7 +12,7 @@ const Tips = styled.div`
   max-width: 230;
   max-height: 200;
   overflow-y: auto;
-  color: var(--color-background-primary);
+  color: var(--color-white);
   white-space: 'pre-wrap';
   .customSubtotalMessage {
     color: var(--color-background-primary) !important;
@@ -43,7 +43,7 @@ const Subtotal = ({ value, dot, unit, advancedSetting = {}, enumDefault2, enumDe
 
   if (content === 'max') {
     return (
-      <div className="customFormControlBox customFormTextareaBox customFormReadonly Gray_9e">
+      <div className="customFormControlBox customFormTextareaBox customFormReadonly textTertiary">
         {_l('超出汇总数量上限')}
 
         <Tooltip

@@ -5,7 +5,7 @@ const Con = styled.div`
   display: inline-block;
   margin: 5px 10px 5px 0;
   position: relative;
-  background: #f0f0f0;
+  background: var(--color-background-disabled);
   border-radius: 5px;
   max-width: 97%;
   padding: 0 12px;
@@ -19,7 +19,7 @@ const DeleteButton = styled.span`
   top: -5px;
   right: -8px;
   font-size: 20px;
-  color: #757575;
+  color: var(--color-text-secondary);
   line-height: 1em;
   overflow: hidden;
 `;
@@ -27,7 +27,7 @@ const DeleteButton = styled.span`
 const Title = styled.div`
   font-weight: 500;
   font-size: 14px;
-  color: #151515;
+  color: var(--color-text-title);
   width: 100%;
 `;
 

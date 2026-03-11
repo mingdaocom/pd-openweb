@@ -27,7 +27,7 @@ const MingoContentWrap = styled.div`
     font-weight: bold;
     margin: 26px 0 6px;
     font-size: 15px;
-    color: #151515;
+    color: var(--color-text-title);
   }
   .sendCon {
     position: relative;
@@ -48,22 +48,22 @@ const MingoContentWrap = styled.div`
       padding: 0 8px;
       height: 30px;
       border-radius: 30px;
-      color: #757575;
+      color: var(--color-text-secondary);
       margin-bottom: 6px;
       .starIcon {
         font-size: 15px;
-        color: #dedede;
+        color: var(--color-border-primary);
         margin-right: 2px;
       }
       .enabledIcon {
         display: none;
         font-size: 15px;
         margin-left: 3px;
-        color: #4caf50;
+        color: var(--color-success);
       }
       &.active {
         .starIcon {
-          color: #f9b81a;
+          color: var(--color-warning-border);
         }
         .enabledIcon {
           display: inline-block;
@@ -92,7 +92,7 @@ const MessageRecommendWrap = styled.div`
   font-size: 15px;
   hr {
     border: none;
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-secondary);
     margin: 20px 0;
   }
   .icon {
@@ -102,7 +102,7 @@ const MessageRecommendWrap = styled.div`
   }
   .tip {
     font-size: 13px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
 `;
 
@@ -232,7 +232,7 @@ function MingoContent(props, ref) {
     }
     emitter.on('MINGO_CREATE_RECORD_CLEAN', handleClean);
     emitter.on('NEW_RECORD_UNMOUNT', handleBackAndClose);
-    emitter.emit('MINGO_CREATE_RECORD');
+    emitter.emit('MINGO_CREATE_RECORD', base);
     setTimeout(() => {
       emitter.emit('MINGO_CREATE_RECORD_ACTIVE', true);
     }, 10);

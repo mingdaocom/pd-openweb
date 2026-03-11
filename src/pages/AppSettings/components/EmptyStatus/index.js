@@ -16,16 +16,16 @@ const EmptyStatusWrap = styled.div`
     justify-content: center;
     align-items: center;
     border-radius: 50%;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     text-align: center;
     .icon {
       font-size: 36px;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
     .emptyTxt {
       margin-top: 12px;
       font-size: 15px;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
   }
 `;

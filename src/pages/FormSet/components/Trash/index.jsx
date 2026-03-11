@@ -20,7 +20,7 @@ const WrapHeader = styled.div`
     input {
       width: 184px;
       height: 30px;
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       border-radius: 16px 16px 16px 16px;
     }
   }
@@ -47,7 +47,7 @@ const Wrap = styled.div`
       justify-content: center;
       .icon {
         font-size: 24px;
-        color: #fff;
+        color: var(--color-white);
       }
     }
     .optionWrapTr {
@@ -68,9 +68,9 @@ const Wrap = styled.div`
         width: 130px;
         height: 130px;
         border-radius: 130px;
-        background: #f5f5f5;
+        background: var(--color-background-secondary);
         .icon {
-          color: #bdbdbd;
+          color: var(--color-text-disabled);
           font-size: 66px;
         }
       }
@@ -82,29 +82,29 @@ const Wrap = styled.div`
     }
     .trashLi {
       padding: 15px 10px;
-      border-bottom: 1px solid #e0e0e0;
-      background: #fff;
+      border-bottom: 1px solid var(--color-border-secondary);
+      background: var(--color-background-primary);
       .icon-reply1,
       .icon-trash {
-        color: #9d9d9d;
+        color: var(--color-text-tertiary);
         cursor: pointer;
         opacity: 0;
         font-size: 20px;
       }
       &:hover {
-        background: #f5f5f5;
+        background: var(--color-background-secondary);
         .icon-reply1,
         .icon-trash {
           opacity: 1;
         }
         .icon-reply1 {
           &:hover {
-            color: #1677ff;
+            color: var(--color-primary);
           }
         }
         .icon-trash {
           &:hover {
-            color: #f32121;
+            color: var(--color-error);
           }
         }
       }
@@ -113,13 +113,15 @@ const Wrap = styled.div`
 `;
 //回收站
 export default function TrashDialog(props) {
-  const { projectId, appId, worksheetId, views } = props;
+  const { projectId, appId, worksheetId, views, btnType = 0 } = props;
   const [{ loading, list, allList, keyWords }, setState] = useSetState({
     loading: false,
     list: [],
     allList: [],
     keyWords: '',
   });
+  const isAIAction = btnType === 1; //  -1:全部 0：按钮 1：AI Action
+
   useEffect(() => {
     getList();
   }, []);
@@ -133,6 +135,7 @@ export default function TrashDialog(props) {
         appId,
         status: 9,
         worksheetId,
+        btnType,
       })
       .then(res => {
         setState({
@@ -221,9 +224,9 @@ export default function TrashDialog(props) {
         return (
           <div className="flexRow flex alignItemsCenter">
             <div
-              className={cx('iconWrap', { 'Border BorderGrayColor': data.color === 'transparent' })}
+              className={cx('iconWrap', { 'Border borderTertiary': data.color === 'transparent' })}
               style={{
-                backgroundColor: !data.color ? '#9e9e9e' : data.color,
+                backgroundColor: !data.color ? 'var(--color-text-tertiary)' : data.color,
               }}
             >
               {!!data.iconUrl && data.icon.endsWith('_svg') ? (
@@ -231,13 +234,13 @@ export default function TrashDialog(props) {
                   className="InlineBlock TxtTop Icon iconTitle"
                   addClassName="TxtMiddle"
                   url={data.iconUrl}
-                  fill={data.color === 'transparent' ? '#151515' : '#fff'}
+                  fill={data.color === 'transparent' ? 'var(--color-text-primary)' : '#fff'}
                   size={16}
                 />
               ) : (
                 <Icon
-                  icon={data.icon || 'custom_actions'}
-                  className={cx('iconTitle Font16 White', { Gray: data.color === 'transparent' })}
+                  icon={isAIAction ? 'auto_awesome' : data.icon || 'custom_actions'}
+                  className={cx('iconTitle Font16 textWhite', { textPrimary: data.color === 'transparent' })}
                 />
               )}
             </div>
@@ -257,12 +260,12 @@ export default function TrashDialog(props) {
         return (
           <div className="view flex overflow_ellipsis">
             {it.isAllView === 1 ? (
-              <span className="viewText Gray_9e WordBreak overflow_ellipsis" title={_l('所有记录')}>
+              <span className="viewText textTertiary WordBreak overflow_ellipsis" title={_l('所有记录')}>
                 {_l('所有记录')}
               </span>
             ) : (
               <span
-                className="viewText Gray_9e WordBreak overflow_ellipsis"
+                className="viewText textTertiary WordBreak overflow_ellipsis"
                 style={{ WebkitBoxOrient: 'vertical' }}
                 title={renderTxt(it, true)}
               >
@@ -378,8 +381,10 @@ export default function TrashDialog(props) {
       <Wrap className="flexColumn">
         <WrapHeader className="flexRow alignItemsCenter">
           <div className="Font17 flex">
-            {_l('回收站')}（ {_l('自定义动作')}）
-            <span className="Gray_9e Font13 mLeft10">{_l('可恢复60天内删除的自定义动作')}</span>
+            {_l('回收站')}（ {isAIAction ? _l('AI 动作') : _l('自定义动作')}）
+            <span className="textTertiary Font13 mLeft10">
+              {_l('可恢复60天内删除的%0', isAIAction ? _l('AI 动作') : _l('自定义动作'))}
+            </span>
           </div>
           <Search
             className="trashSearch"
@@ -396,7 +401,7 @@ export default function TrashDialog(props) {
               <div className="emptyIcon">
                 <i className="icon icon-recycle"></i>
               </div>
-              <p className="TxtCenter Gray_9e Font17 mTop10">
+              <p className="TxtCenter textTertiary Font17 mTop10">
                 {keyWords ? _l('没有找到符合条件的结果') : _l('回收站暂无内容')}
               </p>
             </div>

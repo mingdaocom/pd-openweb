@@ -43,7 +43,7 @@ export default class MoreOption extends React.Component {
                 });
               }}
             >
-              <Icon icon="edit" className="Font16 Gray_9e mRight10" />
+              <Icon icon="edit" className="Font16 textTertiary mRight10" />
               {_l('重命名')}
             </li>
           )}
@@ -55,7 +55,7 @@ export default class MoreOption extends React.Component {
                 onCopy();
               }}
             >
-              <Icon icon="copy" className="Font16 Gray_9e mRight10" />
+              <Icon icon="copy" className="Font16 textTertiary mRight10" />
               {_l('复制')}
             </li>
           )}
@@ -67,7 +67,7 @@ export default class MoreOption extends React.Component {
             }}
           >
             <Icon icon="trash" className="Font16 deleteIcon mRight10" />
-            {delTxt || _l('删除模板')}
+            {delTxt || _l('删除')}
           </li>
         </ul>
       </React.Fragment>

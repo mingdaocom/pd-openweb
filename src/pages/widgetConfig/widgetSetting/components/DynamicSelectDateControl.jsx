@@ -14,7 +14,7 @@ import SelectControl from './SelectControl';
 
 const DateInfoWrap = styled.div`
   display: flex;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border-tertiary);
   border-radius: 4px;
   .contentWrap {
     display: flex;
@@ -27,7 +27,7 @@ const DateInfoWrap = styled.div`
   }
   .clearValue {
     font-size: 18px;
-    color: #757575;
+    color: var(--color-text-secondary);
     padding: 0 6px;
     cursor: pointer;
   }
@@ -46,11 +46,11 @@ const DateInfoWrap = styled.div`
     text-align: center;
     line-height: 34px;
     font-size: 22px;
-    border-left: 1px solid #ccc;
-    color: #9e9e9e;
+    border-left: 1px solid var(--color-border-tertiary);
+    color: var(--color-text-tertiary);
     cursor: pointer;
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;

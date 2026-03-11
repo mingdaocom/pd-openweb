@@ -8,7 +8,7 @@ const AxisLabel = styled.div`
   font-size: 14px;
   font-weight: 500;
   white-space: nowrap;
-  background: #fff;
+  background: var(--color-background-primary);
 `;
 
 const YearLabel = styled.div`

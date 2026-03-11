@@ -9,7 +9,7 @@
   height: 66px;
   line-height: 76px;
   margin: 0px 30px 0px 30px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-border-primary);
 }
 #postDetail .postCard {
   padding: 20px 30px 30px 30px;

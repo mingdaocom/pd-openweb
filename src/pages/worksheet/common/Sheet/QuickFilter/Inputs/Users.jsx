@@ -13,7 +13,7 @@ const Con = styled.div`
   line-height: 32px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  border: 1px solid ${({ active }) => (active ? '#1677ff' : 'var(--border-color)')} !important;
+  border: 1px solid ${({ active }) => (active ? 'var(--color-primary)' : 'var(--border-color)')} !important;
   .clearIcon {
     display: none;
   }
@@ -37,8 +37,8 @@ const UsersCon = styled.div`
 const UserItem = styled.div`
   font-size: 13px;
   display: inline-block;
-  color: #151515;
-  background: #e5e5e5;
+  color: var(--color-text-title);
+  background: var(--color-border-secondary);
   height: 24px;
   line-height: 24px;
   border-radius: 24px;
@@ -56,7 +56,7 @@ const UserItem = styled.div`
 
 const SingleUserItem = styled.div`
   font-size: 13px;
-  color: #151515;
+  color: var(--color-text-title);
   .userHead {
     display: inline-block !important;
     margin-right: 8px;
@@ -66,12 +66,12 @@ const SingleUserItem = styled.div`
 const Icon = styled.i`
   cursor: pointer;
   font-size: 13px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   margin-right: 8px;
 `;
 
 const Empty = styled.span`
-  color: #bdbdbd;
+  color: var(--color-text-disabled);
 `;
 export default function Users(props) {
   const { projectId, isMultiple, advancedSetting = {}, onChange = () => {}, appId, from } = props;
@@ -212,7 +212,7 @@ export default function Users(props) {
                 />
                 {user.fullname}
                 <i
-                  className="icon icon-delete Gray_9e Font10 mLeft6 Hand"
+                  className="icon icon-delete textTertiary Font10 mLeft6 Hand"
                   onClick={e => {
                     e.stopPropagation();
                     handleChange({ values: values.filter(v => v.accountId !== user.accountId) });

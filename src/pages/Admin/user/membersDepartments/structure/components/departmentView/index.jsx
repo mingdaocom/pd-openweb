@@ -300,7 +300,7 @@ class DepartmentTree extends React.Component {
                         }
                       }}
                     >
-                      <Icon className="Font20 Gray_9e treeNodeIcon" icon="moreop" />
+                      <Icon className="Font20 textTertiary treeNodeIcon" icon="moreop" />
                     </span>
                   </Trigger>
                 </span>
@@ -309,7 +309,7 @@ class DepartmentTree extends React.Component {
             icon={
               <Icon
                 icon={item.disabled ? 'folder_off' : 'folder'}
-                className={`Font16 Gray_9e treeNodeIcon ${item.disabled ? 'disabledDepartmentIcon' : ''}`}
+                className={`Font16 textTertiary treeNodeIcon ${item.disabled ? 'disabledDepartmentIcon' : ''}`}
               />
             }
             dataRef={item}
@@ -371,11 +371,11 @@ class DepartmentTree extends React.Component {
     const { newDepartments, expandedKeys, selectedKeys, autoExpandParent, height } = this.state;
     if (_.isEmpty(newDepartments)) {
       return (
-        <div className="Gray_9e Font13 mLeft24 mTop16">
+        <div className="textTertiary Font13 mLeft24 mTop16">
           {_l('暂无部门，可')}
           <span
             className="Hand mLeft3"
-            style={{ color: '#1677ff' }}
+            style={{ color: 'var(--color-primary)' }}
             onClick={() => {
               this.props.updateShowExport(true);
               this.props.updateImportType('importDepartment');

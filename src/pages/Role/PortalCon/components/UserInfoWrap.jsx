@@ -20,21 +20,12 @@ const Wrap = styled.div(
   display: flex;
   flex-flow: column nowrap;
   width: ${width || '580px'};
-  background: #fff;
-  .cover {
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    right: ${width || '580px'};
-    // background: rgba(0, 0, 0, 0.7);
-    z-index: -1;
-  }
+  background: var(--color-background-primary);
   .headerWrap {
     padding: 24px;
     font-size: 17px;
     font-weight: 600;
-    color: #151515;
+    color: var(--color-text-title);
   }
   .footerWrap {
     padding: 18px 22px;
@@ -44,26 +35,26 @@ const Wrap = styled.div(
       border-radius: 3px;
       box-sizing: border-box;
       &.saveBtn {
-        color: #fff;
-        background: #1677ff;
+        color: var(--color-white);
+        background: var(--color-primary);
         &:hover {
-          background: #1e88e5;
+          background: var(--color-primary);
         }
       }
       &.cancelBtn {
-        color: #9e9e9e;
-        border: 1px solid #dddddd;
+        color: var(--color-text-tertiary);
+        border: 1px solid var(--color-border-primary);
         &:hover {
-          color: #1677ff;
-          border: 1px solid #1677ff;
+          color: var(--color-primary);
+          border: 1px solid var(--color-primary);
         }
       }
     }
     .del {
       line-height: 36px;
-      color: #757575;
+      color: var(--color-text-secondary);
       &:hover {
-        color: red;
+        color: var(--color-error);
       }
     }
   }
@@ -86,23 +77,24 @@ const UserInfoDialogWrap = styled.div`
   }
 `;
 export default function UserInfoWrap(props) {
-  const { setShow, title, onDel, currentData, renderCancel, okText, isPage, disable, width, showClose, show } = props;
+  const { setShow, title, onDel, currentData, renderCancel, okText, isPage, disable, width, showClose, show, appId } =
+    props;
   const customwidget = useRef(null);
   const [ids, setIds] = useState([]);
   const renderCon = () => {
     return (
       <Wrap className="flexColumn" width={width}>
-        <span className="cover" onClick={() => setShow(false)}></span>
         <div className="headerWrap flexRow">
           <span className="flex">{title || _l('修改用户信息')}</span>
           {showClose && (
-            <Icon className="Gray_9e Font22 Hand ThemeHoverColor3" icon="close" onClick={() => setShow(false)} />
+            <Icon className="textTertiary Font22 Hand ThemeHoverColor3" icon="close" onClick={() => setShow(false)} />
           )}
         </div>
-        <UserInfoDialogWrap className="flex userInfoCon pLeft24 pRight24">
+        <UserInfoDialogWrap className="flex userInfoCon">
           <CustomFields
             disableRules
             ref={customwidget}
+            appId={appId}
             data={currentData
               .map(o => {
                 return { ...o, size: 12 }; //全部按整行显示

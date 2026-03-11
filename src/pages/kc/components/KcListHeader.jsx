@@ -196,7 +196,7 @@ export default class KcListHeader extends Component {
             popup={
               <Menu className={cx('kcAddNodeBtnMenu', { hide: !showAddNodeBtnMenu || isRecycle })}>
                 <MenuItem
-                  icon={<Icon icon="attachment" className="Gray_9e" />}
+                  icon={<Icon icon="attachment" className="textTertiary" />}
                   onClick={() => {
                     openUploadAssistant();
                     this.setState({ showAddNodeBtnMenu: false });
@@ -205,7 +205,7 @@ export default class KcListHeader extends Component {
                   {_l('上传本地文件')}
                 </MenuItem>
                 <MenuItem
-                  icon={<Icon icon="link" className="Gray_9e" />}
+                  icon={<Icon icon="link" className="textTertiary" />}
                   onClick={() => {
                     addLinkFile();
                     this.setState({ showAddNodeBtnMenu: false });
@@ -215,7 +215,7 @@ export default class KcListHeader extends Component {
                 </MenuItem>
                 <MenuItem
                   className="uploadFileForGuide"
-                  icon={<Icon icon="task-folder-solid" className="Gray_9e" />}
+                  icon={<Icon icon="task-folder-solid" className="textTertiary" />}
                   onClick={() => {
                     onShowAddNewFolder();
                     this.setState({ showAddNodeBtnMenu: false });

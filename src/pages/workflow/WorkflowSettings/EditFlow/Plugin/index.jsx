@@ -62,13 +62,21 @@ export default class Plugin extends Component {
               ) : (
                 <i
                   className="workflowAvatar icon-workflow"
-                  style={{ background: (item.fields || []).length ? item.iconColor || '#1677ff' : '#ddd' }}
+                  style={{
+                    background: (item.fields || []).length
+                      ? item.iconColor || 'var(--color-primary)'
+                      : 'var(--color-border-primary)',
+                  }}
                 />
               )}
             </div>
-            <NodeOperate nodeStyle={{ background: item.iconColor || '#1677ff' }} {...this.props} />
+            <NodeOperate nodeStyle={{ background: item.iconColor || 'var(--color-primary)' }} {...this.props} />
             <div className="workflowContent Font13">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? (
+                <span className="pLeft8 pRight8 textSecondary">{_l('加载中...')}</span>
+              ) : (
+                this.renderContent()
+              )}
             </div>
           </div>
           <CreateNode {...this.props} />

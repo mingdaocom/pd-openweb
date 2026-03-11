@@ -2,18 +2,28 @@
   .toBeBtn {
     font-size: 13px;
     padding: 3px 13px;
-    color: #fff;
-    border: 1px solid #1677ff;
+    color: var(--color-white);
+    border: 1px solid var(--color-primary);
     border-radius: 24px;
-    background-color: #1677ff;
+    background-color: var(--color-primary);
   }
   .rejectBtn {
-    color: #f5685e;
-    border-color: #f5685e;
-    background-color: #fff;
+    color: var(--color-error);
+    border-color: var(--color-error);
+    background-color: var(--color-background-primary);
   }
   .applyInfo {
     white-space: pre-wrap;
     word-break: break-word;
+  }
+  .listApplyCon {
+    padding: 20px 10px;
+    .splitLine {
+      margin: 20px 0;
+      border-top: 1px solid var(--color-border-secondary);
+    }
+    .splitLine:last-child {
+      display: none;
+    }
   }
 }

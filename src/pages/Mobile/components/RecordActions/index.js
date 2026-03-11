@@ -10,10 +10,10 @@ const AddRecordWrap = styled.div`
   height: 60px;
   line-height: 50px;
   border-radius: 50%;
-  color: #fff;
+  color: var(--color-white);
   text-align: center;
   z-index: 10;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-lg);
 `;
 
 const BatchOperationWrap = styled.div`
@@ -24,10 +24,10 @@ const BatchOperationWrap = styled.div`
   position: fixed;
   right: 20px;
   bottom: 20px;
-  background-color: #fff;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.16);
+  background-color: var(--color-background-card);
+  box-shadow: var(--shadow-md);
   z-index: 2;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   &.bottom70 {
     bottom: 70px;
   }

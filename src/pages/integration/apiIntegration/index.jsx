@@ -14,11 +14,11 @@ import { getFeatureStatus } from 'src/utils/project';
 import CustomLibrary from './CustomLibrary';
 
 const Wrap = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   min-height: 100%;
   .desCon {
     height: 260px;
-    background: linear-gradient(180deg, #ffffff 0%, #f7f7f7 100%);
+    background: linear-gradient(180deg, var(--color-background-primary) 0%, var(--color-background-secondary) 100%);
     box-sizing: border-box;
     .conBox {
       padding: 80px 0 0 50px;
@@ -39,16 +39,16 @@ const Wrap = styled.div`
         border-bottom: 4px solid rgba(0, 0, 0, 0);
         a {
           height: 44px;
-          color: #151515;
+          color: var(--color-text-title);
           padding: 10px;
           font-weight: 600;
           display: inline-block;
           font-size: 16px;
         }
         &.isCur {
-          border-bottom: 4px solid #1677ff;
+          border-bottom: 4px solid var(--color-primary);
           a {
-            color: #1677ff;
+            color: var(--color-primary);
           }
         }
       }
@@ -83,8 +83,7 @@ function APILibraryCon(props) {
       'allowAPIIntegration',
     ) || hasPermission(myPermissions, [PERMISSION_ENUM.CREATE_API_CONNECT, PERMISSION_ENUM.MANAGE_API_CONNECTS]);
 
-  const hideIntegrationLibrary =
-    (md.global.Config.IsLocal && md.global.SysSettings.hideIntegrationLibrary) || !hasAPIIntegrationAuth;
+  const hideIntegrationLibrary = md.global.SysSettings.hideIntegrationLibrary || !hasAPIIntegrationAuth;
 
   const [tab, setTab] = useState(
     hideIntegrationLibrary
@@ -117,7 +116,7 @@ function APILibraryCon(props) {
       if (window.MDAPILibrary) {
         renderLibCon();
       } else {
-        loadScript(`https://alifile.mingdaocloud.com/open/js/apilibrary_v4.js?${+new Date()}`, err => {
+        loadScript(`https://alifile.mingdaocloud.com/open/js/apilibrary_v5.js?${+new Date()}`, err => {
           if (!err && window.MDAPILibrary) {
             renderLibCon();
           }
@@ -138,7 +137,7 @@ function APILibraryCon(props) {
         <div className="desCon">
           <div className="conBox">
             <h3 className="Bold Font24">{_l('API库')}</h3>
-            <p className="Font15">
+            <p className="Font15 textSecondary">
               {_l('连接第三方 API 并保存鉴权认证，在工作表或工作流中调用')}{' '}
               <Support
                 type={3}

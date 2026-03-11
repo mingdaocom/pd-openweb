@@ -84,7 +84,7 @@ export default ({
 
         {isDelete && _l('已删除')}
       </div>
-      <div className="triggerTime Gray_75">
+      <div className="triggerTime textSecondary">
         {displayedDate.isValid() ? displayedDate.format('YYYY-MM-DD HH:mm:ss') : ''}
       </div>
 
@@ -121,7 +121,7 @@ export default ({
               }}
             >
               <Icon
-                className="Font16 pointer ThemeHoverColor3 Block Gray_75"
+                className="Font16 pointer ThemeHoverColor3 Block textSecondary"
                 icon={isDelete || showRetry ? 'rotate' : 'delete'}
               />
             </span>
@@ -158,7 +158,7 @@ export default ({
               window.open(`${isPlugin ? '/workflowplugin' : '/workflowedit'}/${currentWorkflowId}`);
             }}
           >
-            <Icon className="Font16 ThemeHoverColor3 Block Gray_75" icon="info_outline" />
+            <Icon className="Font16 ThemeHoverColor3 Block textSecondary" icon="info_outline" />
           </span>
         </Tooltip>
       </div>

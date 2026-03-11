@@ -209,8 +209,8 @@ export default function InfoSet(props) {
   return (
     <Wrap>
       <div className="content">
-        <h6 className="Font16 Gray Bold mBottom0">{_l('用户列表信息设置')}</h6>
-        <div className="Font12 Gray_9e mTop8 mBottom8">
+        <h6 className="Font16 textPrimary Bold mBottom0">{_l('用户列表信息设置')}</h6>
+        <div className="Font12 textTertiary mTop8 mBottom8">
           {_l(
             '外部用户列表在系统字段的基础上，还可增加自定义字段的配置；如果自定义字段需要用户注册/登录时填写收集，点击左侧的收集勾选框，需要用户必填可点击右侧的必填勾选框',
           )}
@@ -238,7 +238,7 @@ export default function InfoSet(props) {
             <div className="mTop30 Font16 Bold">
               {_l('作为权限标签的扩展信息字段')} {FEATURE_STATUS_DISABLED && <UpgradeIcon />}
             </div>
-            <div className="mTop15 Gray_9e">
+            <div className="mTop15 textTertiary">
               {_l(
                 '选择用户扩展信息作为用户权限标签字段（仅支持关联记录字段），可启用的字段上限为3个，每个标签字段的有限值上限为1000个，超过时默认取前1000个，当其他工作表记录也关联了此标签字段时，可以在角色权限、或筛选器中过滤出当前用户对应的标签记录。',
               )}

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import update from 'immutability-helper';
@@ -6,7 +6,7 @@ import { isEmpty } from 'lodash';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, RadioGroup, Switch } from 'ming-ui';
+import { Dropdown, RadioGroup, Switch } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import Sort from 'src/pages/widgetConfig/widgetSetting/components/sublist/Sort';
@@ -14,9 +14,9 @@ import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns'
 import { getSortData } from 'src/utils/control';
 import { SUPPORT_RELATE_SEARCH } from '../../config';
 import { WHOLE_SIZE } from '../../config/Drag';
-import { RELATE_SORT_DISPLAY } from '../../config/setting';
+import { COVER_FILL_TYPES, RELATE_SORT_DISPLAY } from '../../config/setting';
 import { useSheetInfo } from '../../hooks';
-import { AnimationWrap, EditInfo, SettingItem } from '../../styled';
+import { AnimationWrap, CoverWrap, EditInfo, SettingItem } from '../../styled';
 import { filterSysControls, formatControlsToDropdown, getFilterRelateControls, isCustomWidget } from '../../util';
 import {
   getAdvanceSetting,
@@ -29,12 +29,8 @@ import { getPathById, isFullLineControl } from '../../util/widgets';
 import DynamicDefaultValue from '../components/DynamicDefaultValue';
 import RelateDetailInfo from '../components/RelateDetailInfo';
 import ConfigRelate from '../components/relateSheet/ConfigRelate';
+import openSelectConfig from '../components/relateSheet/selectConfig';
 import WidgetVerify from '../components/WidgetVerify';
-
-const FILL_TYPES = [
-  { text: _l('填满'), value: '0' },
-  { text: _l('完整显示'), value: '1' },
-];
 
 const DISPLAY_COUNT = [
   { text: _l('单条'), value: 1 },
@@ -48,20 +44,20 @@ const DISPLAY_CHOOSE = [
 
 const RelateSheetWrap = styled.div`
   .filterBtn {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .emptyRelateView {
     width: 100%;
     height: 36px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     border-radius: 3px;
     line-height: 36px;
     padding: 0 12px;
     margin-top: 12px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 `;
 
@@ -70,53 +66,42 @@ const RelateSheetCover = styled.div`
   .sortColumnWrap {
     flex: 1;
     .Dropdown--input {
-      border-right: none;
-      border-radius: 3px 0px 0px 3px;
+      ${props => (props.hideCover ? 'border-radius: 3px;' : 'border-right: none;border-radius: 3px 0px 0px 3px;')};
     }
   }
   .relateCoverSetting {
     width: 36px;
     height: 36px;
     border-radius: 0px 3px 3px 0px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     text-align: center;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
     .coverIcon {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       line-height: 34px;
       &.active {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
 `;
 
-const CoverWrap = styled.div`
-  width: 308px;
-  max-height: 350px;
-  overflow-x: hidden;
-  background: #ffffff;
-  box-shadow: 0px 4px 12px 1px rgba(0, 0, 0, 0.1608);
-  padding: 16px;
-  .coverTitle {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .coverType {
-    display: Inline-block;
-    border-radius: 3px 0px 0px 3px;
-    border: 1px solid #ddd;
-    padding: 6px 18px;
-    color: #757575;
-    &.active {
-      color: #1677ff;
-      border-color: #1677ff;
-    }
-    &:last-child {
-      border-radius: 0px 3px 3px 0px;
+const SettingConfigWrap = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 36px;
+  background: var(--color-background-secondary);
+  border-radius: 3px;
+  margin-top: 20px;
+  cursor: pointer;
+  &:hover {
+    background: var(--color-background-hover);
+    span {
+      color: #2e77fa !important;
     }
   }
 `;
@@ -143,11 +128,11 @@ export default function RelateSheet(props) {
     viewId,
     coverCid,
     advancedSetting = {},
+    enumDefault2 = 1,
   } = data;
   let {
     showtype = '3',
     allowlink,
-    ddset,
     covertype = '0',
     scanlink = '1',
     scancontrol = '1',
@@ -155,6 +140,7 @@ export default function RelateSheet(props) {
     choosecoverid,
     choosecovertype = '0',
     allowdrag = '0',
+    openfastfilters,
   } = getAdvanceSetting(data);
   const strDefault = data.strDefault || '000';
   const sorts = _.isArray(getAdvanceSetting(data, 'sorts')) ? getAdvanceSetting(data, 'sorts') : [];
@@ -183,10 +169,14 @@ export default function RelateSheet(props) {
         views,
         controls,
       };
+
       onChange({
         relationControls: controls,
         sourceEntityName: worksheetInfo.name,
         showControls: getShowControls(controls),
+        ...handleAdvancedSettingChange(data, {
+          openfastfilters: showtype !== '3' && openfastfilters === '0' ? '1' : openfastfilters,
+        }),
       });
     }
     if (!getAdvanceSetting(data, 'showtype')) {
@@ -222,7 +212,6 @@ export default function RelateSheet(props) {
   };
 
   const getShowControls = (controls, showType) => {
-    if (ddset !== '1' && showtype === '3') return [];
     const feControls = getFilterRelateControls({ controls, data });
     if (isEmpty(showControls) && controlId.indexOf('-') > -1) return feControls.slice(0, 4).map(item => item.controlId);
     // 删除掉showControls 中已经被删掉的控件
@@ -232,37 +221,6 @@ export default function RelateSheet(props) {
       if (curItem.type === 47) return isSheetDisplay(showType);
       return true;
     });
-  };
-
-  // 附加信息 + 显示字段
-  const renderExtraInfo = () => {
-    return (
-      <Fragment>
-        <div className="labelWrap mTop20">
-          <Checkbox
-            className="displayCover"
-            size="small"
-            text={_l('在下拉列表中显示附加信息和封面')}
-            checked={ddset === '1'}
-            onClick={checked => {
-              onChange(
-                handleAdvancedSettingChange(data, {
-                  ['ddset']: String(+!checked),
-                }),
-              );
-            }}
-          >
-            <Tooltip
-              className="hoverTip"
-              title={_l('在选择关联的记录时显示附加的字段值和封面，帮助您快速找到需要关联的记录')}
-            >
-              <i className="icon pointer icon-help Gray_9e Font16" />
-            </Tooltip>
-          </Checkbox>
-        </div>
-        {ddset === '1' && renderShowControl(false, true)}
-      </Fragment>
-    );
   };
 
   // 显示字段
@@ -277,7 +235,7 @@ export default function RelateSheet(props) {
             <span className="Bold">{_l('封面')}</span>
             {coverId && (
               <span
-                className="Gray_9e Hover_21 Hand"
+                className="textTertiary hoverColorPrimary Hand"
                 onClick={() => {
                   if (isExtra) {
                     onChange(handleAdvancedSettingChange(data, { choosecoverid: '', choosecovertype: '0' }));
@@ -290,7 +248,7 @@ export default function RelateSheet(props) {
               </span>
             )}
           </div>
-          <div className="Gray_9e mTop10">{_l('选择作为封面图片的附件字段')}</div>
+          <div className="textTertiary mTop10">{_l('选择作为封面图片的附件字段')}</div>
           <RadioGroup
             radioItemClassName="mTop10"
             disabled={!dataSource}
@@ -311,8 +269,8 @@ export default function RelateSheet(props) {
             }}
           />
           <div className="flexCenter mTop20">
-            <span className="Gray_75 mRight20">{_l('填充方式')}</span>
-            {FILL_TYPES.map(item => {
+            <span className="textSecondary mRight20">{_l('填充方式')}</span>
+            {COVER_FILL_TYPES.map(item => {
               return (
                 <span
                   className={cx('coverType Hand', { active: item.value === coverType })}
@@ -334,7 +292,7 @@ export default function RelateSheet(props) {
             <span>{_l('显示字段')}</span>
           </div>
         )}
-        <RelateSheetCover>
+        <RelateSheetCover hideCover={isSheetDisplay()}>
           <SortColumns
             sortAutoChange
             isShowColumns
@@ -369,22 +327,24 @@ export default function RelateSheet(props) {
               );
             }}
           />
-          <Trigger
-            popup={renderCover}
-            action={['click']}
-            popupAlign={{
-              points: ['tr', 'br'],
-              offset: [0, 2],
-              overflow: { adjustX: true, adjustY: true },
-            }}
-            getPopupContainer={() => document.body}
-          >
-            <Tooltip title={_l('设置封面')} placement="bottom">
-              <div className="relateCoverSetting">
-                <span className={cx('icon-picture coverIcon Font22 Hand', { active: !!coverId })}></span>
-              </div>
-            </Tooltip>
-          </Trigger>
+          {!isSheetDisplay() && (
+            <Trigger
+              popup={renderCover}
+              action={['click']}
+              popupAlign={{
+                points: ['tr', 'br'],
+                offset: [0, 2],
+                overflow: { adjustX: true, adjustY: true },
+              }}
+              getPopupContainer={() => document.body}
+            >
+              <Tooltip title={_l('设置封面')} placement="bottom">
+                <div className="relateCoverSetting">
+                  <span className={cx('icon-picture coverIcon Font22 Hand', { active: !!coverId })}></span>
+                </div>
+              </Tooltip>
+            </Trigger>
+          )}
         </RelateSheetCover>
       </SettingItem>
     );
@@ -574,8 +534,21 @@ export default function RelateSheet(props) {
 
       {enumDefault === 2 && showtype === '3' ? null : renderShowControl(showtype === '3')}
 
-      {/** 附加信息+显示字段 */}
-      {showtype === '3' && renderExtraInfo()}
+      {_.includes([0, 1], enumDefault2) && !fromPortal && (
+        <SettingConfigWrap
+          onClick={() => {
+            if (!dataSource) {
+              alert(_l('请先选择工作表'), 3);
+              return;
+            }
+
+            openSelectConfig(props);
+          }}
+        >
+          <span className="icon-settings textTertiary mRight6 Font16" />
+          <span className="textPrimary text Bold">{_l('关联选择设置')}</span>
+        </SettingConfigWrap>
+      )}
 
       {enumDefault === 2 && (
         <SettingItem>
@@ -600,12 +573,12 @@ export default function RelateSheet(props) {
                   </span>
                 }
               >
-                <i className="icon-help Gray_9e Font16 Hand mLeft6"></i>
+                <i className="icon-help textTertiary Font16 Hand mLeft6"></i>
               </Tooltip>
             </span>
             {!isSheetDisplay() && rcsorttype === '1' && (
               <span>
-                <span className="Gray_75 mRight10">{_l('允许拖拽排序')}</span>
+                <span className="textSecondary mRight10">{_l('允许拖拽排序')}</span>
                 <Switch
                   size="small"
                   checked={allowdrag === '1'}
@@ -628,7 +601,7 @@ export default function RelateSheet(props) {
           />
           {rcsorttype === '2' && (
             <EditInfo className="pointer subListSortInput mTop12" onClick={() => setState({ sortVisible: true })}>
-              <div className="overflow_ellipsis Gray">
+              <div className="overflow_ellipsis textPrimary">
                 {sorts.length > 0 ? (
                   sorts.reduce((p, item) => {
                     const sortsRelationControls = relationControls
@@ -641,7 +614,7 @@ export default function RelateSheet(props) {
                     return p ? `${p}；${value}` : value;
                   }, '')
                 ) : (
-                  <span className="Gray_9e">{_l('未设置排序')}</span>
+                  <span className="textTertiary">{_l('未设置排序')}</span>
                 )}
               </div>
               {sorts.length > 0 && (
@@ -655,7 +628,7 @@ export default function RelateSheet(props) {
           )}
           {rcsorttype === '3' && !isRelateView && <div className="emptyRelateView">{_l('未设置关联视图')}</div>}
           {!isSheetDisplay() && allowdrag === '1' && (
-            <div className="Gray_9e mTop8">{_l('拖拽排序仅关联记录数量在50条以内时生效')}</div>
+            <div className="textTertiary mTop8">{_l('拖拽排序仅关联记录数量在50条以内时生效')}</div>
           )}
           {sortVisible && (
             <Sort

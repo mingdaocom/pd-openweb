@@ -409,10 +409,10 @@ function WorksheetRecordLog(props, ref) {
                 headClick={() => {}}
               />
               <span>
-                {item.accountName} <span className="Gray_9e">{_l('更新了 %0 个字段', item.child.length)}</span>
+                {item.accountName} <span className="textTertiary">{_l('更新了 %0 个字段', item.child.length)}</span>
               </span>
             </div>
-            <PreferenceTime value={item.time} className="worksheetRocordLogCardName Gray_9e timeDataTip" />
+            <PreferenceTime value={item.time} className="worksheetRocordLogCardName textTertiary timeDataTip" />
           </div>
           {item.child.map(childData => {
             const message = createLinksForMessage({
@@ -438,7 +438,7 @@ function WorksheetRecordLog(props, ref) {
                 >
                   <span>
                     {childData.accountId === 'user-workflow' ? _l('工作流') : ''}
-                    <span className="Gray mRight5">{userOrFlow}</span>
+                    <span className="textPrimary mRight5">{userOrFlow}</span>
                     {actTxt}
                   </span>
                 </div>
@@ -577,7 +577,7 @@ function WorksheetRecordLog(props, ref) {
     if (filterUniqueSign || (!loadingAll && (selectUsers || selectField || selectDate.range))) {
       return (
         <div
-          className={cx('pBottom10 noneContent', filterUniqueSign ? 'Gray_75 Font13' : 'Gray_c')}
+          className={cx('pBottom10 noneContent', filterUniqueSign ? 'textSecondary Font13' : 'textPlaceholder')}
           style={{ paddingTop: '120px', textAlign: 'center' }}
         >
           {filterUniqueSign ? _l('无数据或无权限查看') : _l('暂无数据')}
@@ -593,7 +593,7 @@ function WorksheetRecordLog(props, ref) {
       <span className="selectTriggerChildAvatar WordBreak">
         {isPublicFileDownload(item) ? (
           <span className="worksheetRocordLogCardTitleAvatar">
-            <Icon icon="worksheet" className="Gray_9e Font14 TxtMiddle" />
+            <Icon icon="worksheet" className="textTertiary Font14 TxtMiddle" />
           </span>
         ) : (
           <UserHead
@@ -624,7 +624,7 @@ function WorksheetRecordLog(props, ref) {
         )}
         {renderTitleAvatar(item, isMobile)}
         <span>
-          <span className="Gray_9e">{renderTitleText(item, { controls: controlsArray })}</span>
+          <span className="textTertiary">{renderTitleText(item, { controls: controlsArray })}</span>
         </span>
       </div>
     );
@@ -659,7 +659,7 @@ function WorksheetRecordLog(props, ref) {
                     {!!ua && (
                       <Tooltip title={_l('复制创建时的UA信息')}>
                         <span
-                          className="icon icon-copy Gray_9e Font18 Hand ThemeHoverColor3"
+                          className="icon icon-copy textTertiary Font18 Hand ThemeHoverColor3"
                           onClick={() => {
                             copy(ua);
                             alert(_l('复制成功'));
@@ -669,7 +669,7 @@ function WorksheetRecordLog(props, ref) {
                     )}
                     <PreferenceTime
                       value={item.time}
-                      className="worksheetRocordLogCardName nowrap Gray_9e mLeft12 timeDataTip"
+                      className="worksheetRocordLogCardName nowrap textTertiary mLeft12 timeDataTip"
                     />
                   </div>
 
@@ -697,7 +697,7 @@ function WorksheetRecordLog(props, ref) {
                                   {!!editTypeText && updateControlCount === 1
                                     ? editTypeText
                                     : _l('更新了 %0个字段', updateControlCount)}
-                                  {control && <span className="Gray mLeft8">{control.controlName}</span>}
+                                  {control && <span className="textPrimary mLeft8">{control.controlName}</span>}
                                   {showTooltips && (
                                     <Tooltip placement="right" title={_l('部分字段无权限不可见')}>
                                       <Icon icon="info_outline" className="Font14 mLeft5" />

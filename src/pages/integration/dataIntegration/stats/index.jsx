@@ -205,8 +205,8 @@ export default function (props) {
         title: v => `${moment(v).format([3, 4].includes(dimension) ? 'MMMDo' : 'MMMDo HH:mm')}`,
         showContent: true,
         domStyles: {
-          'g2-tooltip-list-item': { textAlign: 'left', color: '#151515' },
-          'g2-tooltip-title': { color: '#757575' },
+          'g2-tooltip-list-item': { textAlign: 'left', color: 'var(--color-text-title)' },
+          'g2-tooltip-title': { color: 'var(--color-text-secondary)' },
         },
       },
       slider: {
@@ -255,7 +255,7 @@ export default function (props) {
 
   const renderLoading = () => {
     return (
-      <div className="loadingChart h100 GrayBGFA w100 TxtCenter">
+      <div className="loadingChart h100 bgSecondary w100 TxtCenter">
         <img src={loadingSvg} className="mTop80" />
       </div>
     );
@@ -301,13 +301,13 @@ export default function (props) {
             getDetailInfo(value);
           }}
         />
-        <span className="Gray_9e mLeft20">
+        <span className="textTertiary mLeft20">
           {_l('累计读取')}
-          <span className="Bold Gray mLeft5">{formatNumberThousand(totalReadCount)}</span>
+          <span className="Bold textPrimary mLeft5">{formatNumberThousand(totalReadCount)}</span>
         </span>
-        <span className="Gray_9e mLeft20">
+        <span className="textTertiary mLeft20">
           {_l('累计写入')}
-          <span className="Bold Gray mLeft5">{formatNumberThousand(totalWriteCount)}</span>
+          <span className="Bold textPrimary mLeft5">{formatNumberThousand(totalWriteCount)}</span>
         </span>
       </div>
       <div className="tableCon mTop24 Relative">
@@ -349,7 +349,7 @@ export default function (props) {
         ) : (
           <React.Fragment>
             {list.length <= 0 && (
-              <div className="TxtCenter pTop80 pBottom140 Font17 Gray_9e">
+              <div className="TxtCenter pTop80 pBottom140 Font17 textTertiary">
                 {keyWords ? _l('暂无搜索结果') : _l('暂无相关数据')}
               </div>
             )}
@@ -372,8 +372,8 @@ export default function (props) {
                     {o.creator}
                     {o.createTime && (
                       <React.Fragment>
-                        <span className="mLeft10 Gray_9e">{_l('创建于')}</span>
-                        <span className="mLeft3 Gray_9e">{formatDate(o.createTime)}</span>
+                        <span className="mLeft10 textTertiary">{_l('创建于')}</span>
+                        <span className="mLeft3 textTertiary">{formatDate(o.createTime)}</span>
                       </React.Fragment>
                     )}
                   </div>

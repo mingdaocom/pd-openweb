@@ -526,7 +526,7 @@ export default class TimeBars extends Component {
     const { data } = this.props;
     // 默认淡红色
     const style = {
-      background: '#fbe9e7',
+      background: 'var(--color-error-bg)',
     };
 
     if (data.singleTime === config.SINGLE_TIME.START) {
@@ -546,7 +546,7 @@ export default class TimeBars extends Component {
     // 已完成
     if (data.status === config.TASKSTATUS.COMPLETED) {
       // 淡绿色
-      style.background = '#e8f5e9';
+      style.background = 'var(--color-success-bg)';
     }
 
     return style;
@@ -657,18 +657,18 @@ export default class TimeBars extends Component {
           {data.taskName}
         </div>
         <div>
-          <span style={{ color: '#757575' }}>{_l('开始：')}</span>
+          <span style={{ color: 'var(--color-text-secondary)' }}>{_l('开始：')}</span>
           {data.startTime ? moment(data.startTime).format('YYYY/MM/DD HH:00') : '--'}
         </div>
 
         {data.status === config.TASKSTATUS.COMPLETED ? (
           <div>
-            <span style={{ color: '#757575' }}>{_l('完成：')}</span>
+            <span style={{ color: 'var(--color-text-secondary)' }}>{_l('完成：')}</span>
             {moment(data.completeTime).format('YYYY/MM/DD HH:mm')}
           </div>
         ) : (
           <div>
-            <span style={{ color: '#757575' }}>{_l('截止：')}</span>
+            <span style={{ color: 'var(--color-text-secondary)' }}>{_l('截止：')}</span>
             {data.deadline ? moment(data.deadline).format('YYYY/MM/DD HH:00') : '--'}
           </div>
         )}

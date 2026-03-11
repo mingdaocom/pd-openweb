@@ -479,7 +479,7 @@ export const DEFAULT_DATA = {
     enumDefault: 0,
     advancedSetting: {
       theme: '#1677ff',
-      color: '#151515',
+      color: 'var(--color-text-title)',
     },
   },
   AREA_CITY: {
@@ -651,6 +651,7 @@ export const DEFAULT_DATA = {
   CASCADER: {
     controlName: _l('级联选择%04003'),
     size: 6,
+    enumDefault: 1,
     advancedSetting: {
       searchrange: '1',
     },

@@ -9,7 +9,7 @@ const FooterCon = styled.div`
   align-items: center;
   a {
     font-size: 13px;
-    color: #1677ff;
+    color: var(--color-primary);
     text-decoration: none;
   }
 `;

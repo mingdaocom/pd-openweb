@@ -16,7 +16,7 @@ const ResetContent = styled.div`
 const ResetWrap = styled.div`
   .intro {
     padding-bottom: 8px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   .controls {
     min-height: 240px;
@@ -31,7 +31,7 @@ const ResetWrap = styled.div`
     justify-content: space-between;
     padding: 0 24px 0 10px;
     line-height: 36px;
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     border-radius: 3px;
   }
   .info {
@@ -40,7 +40,7 @@ const ResetWrap = styled.div`
     }
   }
   .reset {
-    color: #1677ff;
+    color: var(--color-primary);
     cursor: pointer;
   }
 `;
@@ -80,7 +80,7 @@ export default function ResetAutoNumber(props) {
               <div className="controlItem" key={controlId}>
                 <div className="content">
                   <div className="info">
-                    <Icon className="Gray_9e" icon={'auto_number'} />
+                    <Icon className="textTertiary" icon={'auto_number'} />
                     <span>{controlName}</span>
                   </div>
                   <Popover
@@ -100,7 +100,7 @@ export default function ResetAutoNumber(props) {
                       <ResetContent>
                         <div className="Font16 Bold">{_l('重置')}</div>
                         <div className="mTop8 mBottom12">
-                          <span className="Gray_75">
+                          <span className="textSecondary">
                             {_l(
                               '设置下一条记录的编号。设置的编号不得小于开始值，未设置时默认使用开始值。若编号为周期重复，则重置操作仅对当前周期有效。',
                             )}
@@ -111,7 +111,7 @@ export default function ResetAutoNumber(props) {
                           <span className="InlineBlock Width120 TxtLeft">{_l('下一条记录的编号')}</span>
                           <Input
                             value={initNum}
-                            className="flex Gray_9e"
+                            className="flex textTertiary"
                             onChange={e => setNum(e.target.value.replace(/[^\d]/g, ''))}
                             onBlur={() => {
                               if (initNum < startNum) {

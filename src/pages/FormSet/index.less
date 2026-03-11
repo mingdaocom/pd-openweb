@@ -21,7 +21,7 @@
     box-sizing: border-box;
     overflow: hidden;
     width: 100%;
-    background-color: #ffffff;
+    background-color: var(--color-background-primary);
 
     .programErrorMinBox {
       width: 100%;
@@ -31,7 +31,7 @@
       width: 300px;
       min-width: 300px;
       max-width: 300px;
-      background: #f5f5f9;
+      background: var(--color-background-secondary);
       height: 100%;
       padding: 10px 0 0;
       .title {
@@ -46,26 +46,26 @@
       flex: 1;
       min-height: 0;
       overflow: hidden;
-      background-color: #ffffff;
+      background-color: var(--color-background-primary);
       position: relative;
 
       .editRuleBox {
         .ruleNameInput {
           width: 100%;
           height: 36px;
-          background: #ffffff;
-          border: 1px solid #e0e0e0;
+          background: var(--color-background-primary);
+          border: 1px solid var(--color-border-secondary);
           border-radius: 4px;
           padding: 0 12px;
           &:focus {
-            border: 1px solid #1677ff;
+            border: 1px solid var(--color-primary);
           }
           &::placeholder {
-            color: #9e9e9e;
+            color: var(--color-text-tertiary);
           }
         }
         .errorBorder {
-          border: 1px solid #f44336;
+          border: 1px solid var(--color-error);
         }
         .conditionContainer {
           margin-top: 32px;
@@ -75,11 +75,11 @@
           .addCondition {
             display: inline-block;
             margin-top: 14px;
-            color: #1677ff;
+            color: var(--color-primary);
             cursor: pointer;
             font-weight: bold;
             &:hover {
-              color: #1565c0 !important;
+              color: var(--color-link-hover) !important;
             }
           }
           .setFieldContainer {
@@ -92,26 +92,26 @@
               .defaultOptionsWrap,
               .CityPicker-input-container > input,
               .tagInputareaIuput {
-                border-color: #f44336 !important;
+                border-color: var(--color-error) !important;
                 box-shadow: unset;
               }
             }
 
             .addField {
               cursor: pointer;
-              color: #757575;
+              color: var(--color-text-secondary);
               width: fit-content;
               margin: 6px 0 6px auto;
               position: relative;
               &:hover {
-                color: #1677ff;
+                color: var(--color-primary);
               }
             }
             &.pRight42 {
               padding-right: 42px;
             }
             .fieldItem {
-              background: #eaeaea;
+              background: var(--color-border-secondary);
               border-radius: 4px;
               padding: 0 12px;
               flex: 1;
@@ -123,7 +123,7 @@
             line-height: 36px;
             display: block;
             .Icon:hover {
-              color: #1565c0 !important;
+              color: var(--color-link-hover) !important;
             }
           }
 
@@ -132,7 +132,7 @@
             display: flex;
             .dynamicSource {
               width: 130px;
-              border-color: #e0e0e0;
+              border-color: var(--color-border-secondary);
               height: 36px;
               border-radius: 4px;
               box-shadow: none !important;
@@ -146,7 +146,7 @@
                 margin-top: -8px !important;
               }
               .ant-select-selector {
-                border-color: #e0e0e0;
+                border-color: var(--color-border-secondary);
                 height: 36px;
                 border-radius: 4px;
                 box-shadow: none !important;
@@ -164,72 +164,72 @@
               margin-left: 12px;
               &.inputTextErrorBorder {
                 .inputText {
-                  border: 1px solid #f44336;
+                  border: 1px solid var(--color-error);
                 }
               }
 
               &.selectizeInputErrorBorder {
                 .selectize-input {
-                  border: 1px solid #f44336;
+                  border: 1px solid var(--color-error);
                 }
               }
               &.numberRangeErrorBorder {
                 .numberRange > input {
-                  border: 1px solid #f44336;
+                  border: 1px solid var(--color-error);
                 }
               }
               &.numberConditionErrorBorder {
                 .worksheetFilterNumberCondition input {
-                  border: 1px solid #f44336;
+                  border: 1px solid var(--color-error);
                 }
               }
               &.numberMinErrorBorder {
                 .numberRange > div:first-child {
                   input {
-                    border: 1px solid #f44336;
+                    border: 1px solid var(--color-error);
                   }
                 }
               }
               &.numberMaxErrorBorder {
                 .numberRange > div:last-child {
                   input {
-                    border: 1px solid #f44336;
+                    border: 1px solid var(--color-error);
                   }
                 }
               }
               &.optionConditionErrorBorder {
                 .filterTagCon {
-                  border: 1px solid #f44336;
+                  border: 1px solid var(--color-error);
                 }
               }
               &.userConditionErrorBorder {
                 .usersCon {
-                  border: 1px solid #f44336;
+                  border: 1px solid var(--color-error);
                 }
               }
               &.dateConditionErrorBorder {
                 .dateInputCon {
-                  border: 1px solid #f44336;
+                  border: 1px solid var(--color-error);
                 }
               }
               &.timeConditionErrorBorder {
                 .dateInputCon {
-                  border: 1px solid #f44336;
+                  border: 1px solid var(--color-error);
                 }
               }
               &.timeRangeConditionErrorBorder {
                 .dateRangeInputCon {
-                  border-color: #f44336;
+                  border-color: var(--color-error);
                 }
               }
               &.recordConditionErrorBorder {
                 .worksheetFilterRelateRecordCondition .recordsCon {
-                  border: 1px solid #f44336;
+                  border: 1px solid var(--color-error);
                 }
               }
               &.cascaderConditionErrorBorder {
                 .worksheetFilterCascaderCondition .recordsCon {
-                  border: 1px solid #f44336;
+                  border: 1px solid var(--color-error);
                 }
               }
             }
@@ -252,7 +252,7 @@
               margin-top: -8px !important;
             }
             .ant-select-selector {
-              border-color: #e0e0e0;
+              border-color: var(--color-border-secondary);
               height: 36px;
               border-radius: 4px;
               box-shadow: none !important;
@@ -273,7 +273,7 @@
               font-size: 16px;
               margin: 0 13px;
               &:hover {
-                color: #f44336 !important;
+                color: var(--color-error) !important;
               }
             }
             .errorInputBox {
@@ -291,7 +291,7 @@
               &:hover {
                 background: rgba(245, 245, 245, 1);
                 .hoverColor {
-                  color: #1677ff !important;
+                  color: var(--color-primary) !important;
                 }
               }
             }
@@ -301,7 +301,7 @@
         h3 {
           font-size: 16px;
           letter-spacing: 0;
-          color: #151515;
+          color: var(--color-text-title);
           padding: 0 20px;
         }
 
@@ -311,7 +311,7 @@
           h5 {
             font-size: 13px;
             letter-spacing: 0;
-            color: #151515;
+            color: var(--color-text-title);
             margin-top: 24px;
           }
 
@@ -322,10 +322,10 @@
             height: 36px;
 
             span {
-              background: #f5f5f5 0% 0% no-repeat padding-box;
+              background: var(--color-background-secondary) 0% 0% no-repeat padding-box;
               border-radius: 4px;
               flex: 1;
-              color: #151515;
+              color: var(--color-text-title);
               display: inline-block;
               width: 100%;
               line-height: 36px;
@@ -335,14 +335,14 @@
 
             .deleteIcon {
               line-height: 36px;
-              color: #9e9e9e;
+              color: var(--color-text-tertiary);
               cursor: pointer;
               font-size: 18px;
               width: 30px;
               text-align: right;
 
               &:hover {
-                color: #f44336;
+                color: var(--color-error);
               }
             }
           }
@@ -351,7 +351,7 @@
             margin-top: 12px;
             font-size: 13px;
             letter-spacing: 0;
-            color: #1677ff;
+            color: var(--color-primary);
             height: 36px;
             line-height: 36px;
             display: inline-block;
@@ -365,29 +365,29 @@
 
             &.noFied {
               width: 100%;
-              background: #f5f5f5;
+              background: var(--color-background-secondary);
               padding-left: 12px;
               border-radius: 4px;
             }
 
             &:hover {
-              color: #1565c0;
+              color: var(--color-link-hover);
             }
           }
         }
 
         .filterBox {
           padding: 20px 0 0 0;
-          border-top: 1px solid #ddd;
+          border-top: 1px solid var(--color-border-primary);
 
           h5 {
             padding: 0 20px;
           }
 
           .addFilterText {
-            color: #bdbdbd;
+            color: var(--color-text-disabled);
             height: 36px;
-            background: #f5f5f5 0% 0% no-repeat padding-box;
+            background: var(--color-background-secondary) 0% 0% no-repeat padding-box;
             border-radius: 3px;
             font-size: 13px;
             padding: 0 12px;
@@ -406,35 +406,35 @@
           height: 36px;
           line-height: 36px;
           display: inline-block;
-          background: #1677ff;
+          background: var(--color-primary);
           border-radius: 32px;
           letter-spacing: 0;
-          color: #ffffff;
+          color: var(--color-white);
           text-align: center;
           font-weight: bold;
           cursor: pointer;
           &:hover {
-            background: #1e88e5;
+            background: var(--color-primary);
           }
         }
         .columnRuleTabs {
           margin-top: 16px;
-          border-bottom: 1px solid #dddddd;
+          border-bottom: 1px solid var(--color-border-primary);
           display: flex;
           .tabItem {
             padding: 0 40px 12px;
             padding-bottom: 7px;
             border-bottom: 3px solid transparent;
-            color: #757575;
+            color: var(--color-text-secondary);
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             &.active {
-              color: #1677ff;
-              border-bottom-color: #1677ff !important;
+              color: var(--color-primary);
+              border-bottom-color: var(--color-primary) !important;
             }
             &:hover {
-              color: #1677ff;
+              color: var(--color-primary);
             }
           }
         }
@@ -458,15 +458,15 @@
           display: inline-block;
           border-radius: 32px;
           letter-spacing: 0;
-          color: #707070;
+          color: var(--color-text-secondary);
           text-align: center;
           font-weight: bold;
           cursor: pointer;
-          border: 1px solid #d0d0d0;
+          border: 1px solid var(--color-border-primary);
           margin-top: 20px;
           &:hover {
-            color: #1677ff;
-            border-color: #1677ff;
+            color: var(--color-primary);
+            border-color: var(--color-primary);
           }
         }
         .emptyIcon {
@@ -475,7 +475,7 @@
           line-height: 130px;
           border-radius: 50%;
           display: inline-block;
-          background: #f5f5f5;
+          background: var(--color-background-secondary);
           text-align: center;
           i {
             font-size: 80px;
@@ -491,16 +491,16 @@
 
         .ruleFooter {
           .closeBtn {
-            color: #9e9e9e !important;
-            background: #f5f5f5 !important;
+            color: var(--color-text-tertiary) !important;
+            background: var(--color-background-secondary) !important;
             &:hover {
-              background: #eaeaea !important;
+              background: var(--color-border-secondary) !important;
             }
           }
           .saveBtn {
-            background: #1677ff;
+            background: var(--color-primary);
             &:hover {
-              background: #1e88e5;
+              background: var(--color-primary);
             }
           }
         }
@@ -513,7 +513,7 @@
         }
         .ant-drawer-footer {
           border-top: none;
-          padding: 24px !important;
+          padding: 0px !important;
         }
         .ant-drawer-header {
           .ant-drawer-header-title {
@@ -568,7 +568,7 @@
     margin-right: 3px;
     margin-top: 18px;
     .icon {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
   }
 }
@@ -580,7 +580,7 @@
   display: flex;
   flex-direction: column;
   margin-top: 26px;
-  box-shadow: inset 0 0 0 1px #eaeaea;
+  box-shadow: inset 0 0 0 1px var(--color-border-secondary);
   border-radius: 5px;
   min-height: 78px;
   padding: 14px 24px;
@@ -588,22 +588,22 @@
   cursor: pointer;
   box-sizing: border-box;
   &:hover {
-    box-shadow: inset 0 0 0 2px #eaeaea;
+    box-shadow: inset 0 0 0 2px var(--color-border-secondary);
     .ruleItemOptions {
       visibility: visible;
     }
   }
   &.active {
-    box-shadow: inset 0 0 0 2px #1677ff;
+    box-shadow: inset 0 0 0 2px var(--color-primary);
     .ruleItemOptions {
       visibility: visible;
     }
   }
   // &.disabled {
-  //   box-shadow: inset 0 0 0 1px #eaeaea;
+  //   box-shadow: inset 0 0 0 1px var(--color-border-secondary);
   // }
-  .gray_9e {
-    color: #9e9e9e;
+  .textTertiary {
+    color: var(--color-text-tertiary);
   }
   .ruleItemOptions {
     position: absolute;
@@ -611,8 +611,8 @@
     padding: 0 16px;
     height: 32px;
     z-index: 2;
-    background: #ffffff;
-    border: 1px solid #eaeaea;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-secondary);
     border-radius: 17px;
     visibility: hidden;
     display: flex;
@@ -621,7 +621,7 @@
     right: 12px;
     .RedHover {
       &:hover {
-        color: #db493f;
+        color: var(--color-error-hover);
       }
     }
     i {
@@ -637,32 +637,32 @@
     height: 20px;
     top: -10px;
     padding: 0 10px;
-    background: #fff;
+    background: var(--color-background-primary);
     box-sizing: border-box;
     display: flex;
     .ruleTypeIcon {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #f44336;
+      background: var(--color-error);
       display: inline-block;
       margin: 5px 6px 0 0;
       &.isWarning {
-        background: #ffa340;
+        background: var(--color-warning);
       }
     }
   }
   .ruleNameInput {
     height: 100%;
     border: none;
-    color: #1677ff;
+    color: var(--color-primary);
     font-weight: bold;
     border-bottom: 1px solid transparent;
     &:hover {
-      border-bottom: 1px dashed #bdbdbd;
+      border-bottom: 1px dashed var(--color-text-disabled);
     }
     &:focus {
-      border-bottom: 1px solid #1677ff !important;
+      border-bottom: 1px solid var(--color-primary) !important;
     }
   }
   .ruleItemTextRow {
@@ -670,13 +670,13 @@
     .leftLabel {
       width: 65px;
       margin-right: 20px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       text-align: right;
     }
     .rightLabel {
       flex: 1;
       min-width: 0;
-      color: #151515;
+      color: var(--color-text-title);
     }
     .detailValue {
       flex: 1;
@@ -687,7 +687,7 @@
         flex-wrap: wrap;
       }
       .title {
-        color: #707070;
+        color: var(--color-text-secondary);
       }
     }
   }
@@ -695,13 +695,13 @@
 
 .DropdownDeleteRuleTrigger {
   width: 320px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   border-radius: 4px;
   box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.24);
   font-size: 14px;
   padding: 20px;
   .title {
-    color: #f51744;
+    color: var(--color-error);
     font-weight: bold;
     font-size: 15px;
     margin-bottom: 32px;
@@ -713,15 +713,15 @@
     .deleteBtn {
       width: 70px;
       height: 28px;
-      background: #f51744;
+      background: var(--color-error);
       border-radius: 2px;
       cursor: pointer;
       text-align: center;
-      color: #fff;
+      color: var(--color-white);
       margin-left: 37px;
       line-height: 28px;
       &:hover {
-        background-color: #f44336;
+        background-color: var(--color-error);
       }
     }
   }
@@ -743,7 +743,7 @@
     .Item-content {
       padding: 0 15px;
       .icon {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         margin-right: 10px;
         font-size: 14px;
         vertical-align: middle;
@@ -756,28 +756,28 @@
 
   .ruleSearchWrap {
     position: relative;
-    background: #fff !important;
+    background: var(--color-background-primary) !important;
     input {
       width: 100%;
       box-sizing: border-box;
       height: 41px;
       padding: 0px 16px 0 35px;
       border: none;
-      border-bottom: 1px solid #f5f5f5;
+      border-bottom: 1px solid var(--color-background-secondary);
       &:focus {
-        border-color: #f5f5f5 !important;
+        border-color: var(--color-background-secondary) !important;
       }
       &::-webkit-input-placeholder {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
       &::-moz-placeholder {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
       &::-moz-placeholder {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
       &::-ms-input-placeholder {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
     }
     .icon {
@@ -789,9 +789,9 @@
     }
     .close {
       right: 15px;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       &:hover {
-        color: #757575;
+        color: var(--color-text-secondary);
       }
     }
   }
@@ -800,13 +800,13 @@
 .ruleListSelectDropdown {
   .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
     font-weight: normal !important;
-    color: #fff !important;
-    background-color: #1677ff !important;
+    color: var(--color-white) !important;
+    background-color: var(--color-primary) !important;
   }
   &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
   &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input)
     .ant-select-selector {
-    border-color: #1677ff !important;
+    border-color: var(--color-primary) !important;
   }
 }
 .addConditionTrigger {
@@ -816,8 +816,8 @@
   width: 160px;
   border-radius: 2px;
   box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.24);
-  background: #fff;
-  color: #151515;
+  background: var(--color-background-primary);
+  color: var(--color-text-title);
   font-weight: normal;
   margin-bottom: 10px;
   div {
@@ -828,7 +828,7 @@
     line-height: 36px;
     padding: 0 15px;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
   &.rc-trigger-popup-hidden {
@@ -837,7 +837,7 @@
 }
 .reserveControlsDropdownMenuSet {
   .ming.MenuItem .Item-content:not(.disabled):hover {
-    background-color: #fff !important;
+    background-color: var(--color-background-primary) !important;
   }
   .ming.Item .Item-content {
     padding: 0;

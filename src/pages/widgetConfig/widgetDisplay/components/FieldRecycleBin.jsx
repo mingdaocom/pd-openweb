@@ -71,7 +71,7 @@ export default class FieldRecycleBin extends Component {
       <Fragment>
         <span>
           <span className="Font17">{_l('回收站（字段）')}</span>
-          <span className="Font13 Gray_9e">
+          <span className="Font13 textTertiary">
             {_l('可恢复%0天内删除的字段', md.global.SysSettings.worksheetRowRecycleDays)}
           </span>
         </span>
@@ -189,7 +189,7 @@ export default class FieldRecycleBin extends Component {
           </Tooltip>
         </div>
         <div className="columnWidth">{widgetName}</div>
-        <div className="columnWidth Gray_75 flexRow">
+        <div className="columnWidth textSecondary flexRow">
           <UserHead
             size={21}
             disabled={true}
@@ -197,13 +197,13 @@ export default class FieldRecycleBin extends Component {
           />
           <div className="mLeft8 ellipsis flex">{_.get(item.deleteAccount, 'fullname')}</div>
         </div>
-        <div className="columnWidth Gray_9e ellipsis">{item.deleteTime}</div>
+        <div className="columnWidth textTertiary ellipsis">{item.deleteTime}</div>
         {isAdmin && (
           <div className="editOption">
             <Tooltip title={_l('恢复')} placement="bottom">
               <Icon
                 icon="reply1"
-                className="mRight20 Gray_9d"
+                className="mRight20 textTertiary"
                 onClick={e => {
                   e.stopPropagation();
                   this.updateStatus(item, 'recover');
@@ -213,7 +213,7 @@ export default class FieldRecycleBin extends Component {
             <Tooltip title={_l('彻底删除')} placement="bottom">
               <Icon
                 icon="hr_delete"
-                className="Gray_9d"
+                className="textTertiary"
                 onClick={e => {
                   e.stopPropagation();
                   this.handleDelete(item, 'delete');

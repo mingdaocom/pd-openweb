@@ -3,7 +3,7 @@
     padding: 0;
     margin: 0;
     font-size: 14px;
-    color: #151515;
+    color: var(--color-text-title);
     font-weight: 600;
   }
 
@@ -12,7 +12,7 @@
     box-sizing: border-box;
     width: 100%;
     height: 36px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 3px;
     margin-bottom: 22px;
   }
@@ -21,7 +21,7 @@
     box-sizing: border-box;
     width: 100%;
     height: 80px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 3px;
     resize: none;
     padding: 8px 12px;
@@ -29,10 +29,10 @@
 
   .createPositionDialogFooter {
     .deleteBtn {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
 
       &:hover {
-        color: red;
+        color: var(--color-error);
       }
     }
 
@@ -48,12 +48,12 @@
       border-radius: 32px;
       cursor: pointer;
       text-align: center;
-      color: #fff;
+      color: var(--color-white);
     }
     .disabledComfrim {
-      background-color: #bdbdbd;
-      border: #bdbdbd;
-      color: #fff;
+      background-color: var(--color-text-disabled);
+      border: var(--color-text-disabled);
+      color: var(--color-white);
       cursor: not-allowed;
     }
   }
@@ -61,7 +61,7 @@
   .require {
     &::after {
       content: '*';
-      color: #F51744;
+      color: var(--color-error);
     }
   }
 }

@@ -95,9 +95,9 @@ var LinkView = function (el, param) {
                 </div>
                 ${
                   data.imgArr.length > 1
-                    ? `<div class='thumbPages'><a class='prevPic Black Visibility' href='javascript:void(0);'> < </a>
+                    ? `<div class='thumbPages'><a class='prevPic textPrimary Visibility' href='javascript:void(0);'> < </a>
                     <span class='thumbCurrentNum'>1</span> of <span class='thumbTotalNum'>${data.imgArr.length}</span>
-                    <a class='nextPic Black'  href='javascript:void(0);'> > </a></div>
+                    <a class='nextPic textPrimary'  href='javascript:void(0);'> > </a></div>
                     `
                     : ''
                 }
@@ -124,7 +124,7 @@ var LinkView = function (el, param) {
             : ''
         }
         <div class='Right mTop10'>
-        <span class='linkBtnEdit Hand Font16 Gray_df icon-edit'></span>
+        <span class='linkBtnEdit Hand Font16 textPlaceholder icon-edit'></span>
         <a class='linkBtnSave Hidden' href='javascript:void(0);' >${_l('保存')}</a>
         <a class='linkBtnCancel Hidden' href='javascript:void(0);'>${_l('取消')}</a>
         </div>

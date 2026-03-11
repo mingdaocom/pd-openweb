@@ -14,8 +14,8 @@ const HeaderWrap = styled.div`
     align-items: center;
     width: 200px;
     height: 36px;
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-secondary);
     border-radius: 18px;
     padding: 0 12px;
     margin-left: 20px;
@@ -28,10 +28,10 @@ const HeaderWrap = styled.div`
     }
   }
   .needUpgrade {
-    background: #eee;
-    color: #151515;
+    background: var(--color-border-secondary);
+    color: var(--color-text-title);
     &:hover {
-      background: #dbdbdb;
+      background: var(--color-border-primary);
     }
   }
 `;
@@ -64,7 +64,7 @@ export default function AppSettingHeader(props) {
         {extraElement && <Fragment>{extraElement}</Fragment>}
         {showSearch && (
           <div className="searchWrap">
-            <i className="icon-search Font18 Gray_9d" />
+            <i className="icon-search Font18 textTertiary" />
             <Input className="flex" placeholder={_l('搜索') || placeholder} onChange={handleSearch} />
           </div>
         )}
@@ -80,7 +80,7 @@ export default function AppSettingHeader(props) {
       </div>
       {description && (
         <div>
-          <span className="Gray_75 TxtMiddle">{description}</span>
+          <span className="textSecondary TxtMiddle">{description}</span>
           {link && <Support text={_l('帮助')} type={3} href={link} />}
         </div>
       )}

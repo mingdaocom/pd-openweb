@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { previewQiniuUrl } from 'src/components/previewAttachments';
+import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
 import VoteOptionMemberList from './voteOptionMemberList';
 
 /**
@@ -35,7 +35,7 @@ class VoteResult extends React.Component {
           <li key={o.optionIndex}>
             <div>{o.name}</div>
             {o.file && o.file !== 'undefined' ? (
-              <div onClick={() => previewQiniuUrl(o.file)}>
+              <div onClick={() => previewAttachments(transformQiniuUrl(o.file))}>
                 <img width={130} height={90} src={o.thumbnailFile} />
               </div>
             ) : undefined}

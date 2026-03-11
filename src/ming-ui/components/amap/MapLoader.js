@@ -7,7 +7,7 @@ export const getMapKey = keyName => {
   let mapInfo;
   const mapData = window.localStorage.getItem('MDMap');
   // 私有实时调接口
-  if (!mapData || md.global.Config.IsLocal) {
+  if (!mapData || window.platformENV.isOverseas || window.platformENV.isLocal) {
     const data = global.getSystemConfiguration({}, { ajaxOptions: { sync: true } });
     safeLocalStorageSetItem('MDMap', JSON.stringify(data));
     mapInfo = _.get(data, [keyName]);

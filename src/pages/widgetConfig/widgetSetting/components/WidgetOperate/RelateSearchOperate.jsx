@@ -75,7 +75,7 @@ export default function RelateSearchOperate(props) {
           >
             <span style={{ marginRight: '4px' }}>{_l('允许导出')}</span>
             <Tooltip placement="bottom" title={_l('勾选后支持在主记录详情中将查询到的可见记录导出为 Excel')}>
-              <i className="icon-help Gray_9e Font16"></i>
+              <i className="icon-help textTertiary Font16"></i>
             </Tooltip>
           </Checkbox>
         </div>

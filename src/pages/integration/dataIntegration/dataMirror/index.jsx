@@ -9,7 +9,7 @@ import CreateDialog from './components/CreateDialog.jsx';
 import MirrorList from './components/MirrorList.jsx';
 
 const Wrap = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   padding: 32px 32px 0;
 
   .filterContent {
@@ -34,15 +34,15 @@ const Wrap = styled.div`
       height: 36px;
       border-radius: 50%;
       margin-left: 24px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       cursor: pointer;
 
       &:hover {
-        color: #1677ff;
-        background: #f5f5f5;
+        color: var(--color-primary);
+        background: var(--color-background-secondary);
       }
       &.isActive {
-        color: #1677ff;
+        color: var(--color-primary);
         background: rgba(33, 150, 243, 0.07);
       }
     }
@@ -51,14 +51,14 @@ const Wrap = styled.div`
     padding: 0 24px;
     line-height: 36px;
     height: 36px;
-    background: #1677ff;
+    background: var(--color-primary);
     border-radius: 18px;
-    color: #fff;
+    color: var(--color-white);
     display: inline-block;
     cursor: pointer;
 
     &:hover {
-      background: #1764c0;
+      background: var(--color-link-hover);
     }
   }
 `;

@@ -59,7 +59,7 @@ export default class InvoiceConfig extends Component {
   getProductList = taxNo => {
     const { projectId, appId } = this.props.worksheetInfo || {};
     merchantInvoiceApi.getSimpleInvoiceProducts({ projectId, appId, taxNo }).then(res => {
-      const list = _.uniqBy(res, 'categoryCode').map(item => ({
+      const list = _.uniqBy(res, 'categoryName').map(item => ({
         text: item.categoryName,
         value: item.productId,
       }));
@@ -163,7 +163,7 @@ export default class InvoiceConfig extends Component {
                         />
                       )}
                     </div>
-                    <div className="Gray_9e flex">
+                    <div className="textTertiary flex">
                       {_l('开启后，用户在工作表记录/公开表单的场景中支付成功，即可申请电子发票。')}
                     </div>
                   </li>
@@ -197,7 +197,7 @@ export default class InvoiceConfig extends Component {
                           <div className="overflow_ellipsis">{item.text}</div>
                           {item.hasPay && (
                             <div
-                              className="Hand ThemeColor ThemeHoverColor2"
+                              className="Hand colorPrimary ThemeHoverColor2"
                               style={{ minWidth: 'fit-content' }}
                               onClick={() => navigateTo(`/admin/invoice/${projectId}/taxNo`)}
                             >
@@ -211,7 +211,7 @@ export default class InvoiceConfig extends Component {
                 )}
 
                 {/* <div className="subTitle required">{_l('开票金额')}</div>
-                <div className="Gray_9e mBottom16">
+                <div className="textTertiary mBottom16">
                   {_l('开票总金额，支持选择数值、金额、汇总、公式，限制小数点 2 位数；支付订单开票为订单金额')}
                 </div>
                 <Dropdown
@@ -225,7 +225,7 @@ export default class InvoiceConfig extends Component {
                 /> */}
 
                 <div className="subTitle">{_l('开票内容')}</div>
-                <div className="Gray_9e mBottom16">
+                <div className="textTertiary mBottom16">
                   {_l('目前仅支持按类目汇总开具发票，税率与编码随类目自动匹配。')}
                 </div>
                 <RadioGroup
@@ -239,7 +239,7 @@ export default class InvoiceConfig extends Component {
                 />
 
                 <div className="subTitle">{_l('选择开票类目')}</div>
-                <div className="Gray_9e mBottom16">
+                <div className="textTertiary mBottom16">
                   {_l('从组织后台的商品管理表选择默认开票类目，管理员审核时会依据编码/名称重新选择并以选择结果为准')}
                 </div>
                 <Dropdown
@@ -264,7 +264,7 @@ export default class InvoiceConfig extends Component {
 
                 <div className="title">{_l('其他')}</div>
                 <div className="subTitle">{_l('说明配置')}</div>
-                <div className="Gray_9e mBottom16">
+                <div className="textTertiary mBottom16">
                   {_l('申请开票后将进入管理员审核流程，您可在此自定义提示说明；用户在查看开票进度时可看到此内容')}
                 </div>
                 <Input
@@ -276,7 +276,7 @@ export default class InvoiceConfig extends Component {
                 />
 
                 <div className="subTitle">{_l('字段映射')}</div>
-                <div className="Gray_9e mBottom16">{_l('将开票明细映射到当前记录')}</div>
+                <div className="textTertiary mBottom16">{_l('将开票明细映射到当前记录')}</div>
                 <MapField
                   type="invoice"
                   controls={controls}

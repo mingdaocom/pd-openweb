@@ -17,10 +17,10 @@ const SelectInfoWrap = styled.div`
     min-height: 36px;
     padding-bottom: 6px;
     line-height: 36px;
-    border: 1px solid #eee;
+    border: 1px solid var(--color-border-primary);
     border-radius: 4px;
     &:hover {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
     .text {
       margin: 6px 0 0 12px;
@@ -33,7 +33,7 @@ const SelectInfoWrap = styled.div`
     height: 22px;
     line-height: 22px;
     margin: 6px 6px 0 6px;
-    background-color: #eee;
+    background-color: var(--color-border-secondary);
     border-radius: 4px;
     padding: 0 8px;
     .countryName {
@@ -43,7 +43,7 @@ const SelectInfoWrap = styled.div`
       pointer-events: all;
       cursor: pointer;
       &:hover {
-        color: #757575;
+        color: var(--color-text-secondary);
       }
     }
   }
@@ -59,7 +59,7 @@ export const SelectCountryDropdown = ({ unique, data, setData, selectableData, s
   return (
     <DropdownContentWrap style={style}>
       <div className="searchWrap" onClick={e => e.stopPropagation()}>
-        <i className="icon-search Font16 Gray_75"></i>
+        <i className="icon-search Font16 textSecondary"></i>
         <input
           autoFocus
           value={value}
@@ -89,7 +89,7 @@ export const SelectCountryDropdown = ({ unique, data, setData, selectableData, s
               >
                 <div className={`iti__flag iti__${item.iso2}`}></div>
                 <span className="countryName overflow_ellipsis">{item.name}</span>
-                <span className="Gray_75">{`(+${item.dialCode})`}</span>
+                <span className="textSecondary">{`(+${item.dialCode})`}</span>
               </div>
             );
           })}
@@ -136,7 +136,7 @@ export default function SelectCountryDialog(props) {
                 </div>
               ))
             ) : (
-              <div className="text Gray_bd">{type === 'allowData' ? _l('全部') : _l('请选择')}</div>
+              <div className="text textDisabled">{type === 'allowData' ? _l('全部') : _l('请选择')}</div>
             )}
           </div>
         </SelectInfoWrap>
@@ -153,7 +153,7 @@ const SelectAreaCountryDropdown = ({ data, setData, selectableData, style }) => 
   return (
     <DropdownContentWrap style={style}>
       <div className="searchWrap" onClick={e => e.stopPropagation()}>
-        <i className="icon-search Font16 Gray_75"></i>
+        <i className="icon-search Font16 textSecondary"></i>
         <input
           autoFocus
           value={value}
@@ -223,7 +223,7 @@ export function SelectAreaCountryDialog(props) {
                 );
               })
             ) : (
-              <div className="text Gray_bd">{_l('请选择')}</div>
+              <div className="text textDisabled">{_l('请选择')}</div>
             )}
           </div>
         </SelectInfoWrap>

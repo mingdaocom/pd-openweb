@@ -192,12 +192,9 @@ const Numeric = props => {
   useEffect(() => {
     setCurrentValue(getEditValue());
 
-    if (suffix) {
-      return;
-    }
-
-    if (inputRef.current) {
-      inputRef.current.value = props.value ? props.value : '';
+    const editValue = getEditValue();
+    if (inputRef.current && (editValue === null || editValue === undefined || editValue === '')) {
+      inputRef.current.value = '';
     }
   }, [isEditing, props.value]);
 
@@ -226,7 +223,7 @@ const Numeric = props => {
           <NumWrap
             isMaskReadonly={isMaskReadonly}
             className={cx('ellipsis', {
-              Gray_bd: !isEffective(),
+              textDisabled: !isEffective(),
             })}
             onClick={handleMaskClick}
           >

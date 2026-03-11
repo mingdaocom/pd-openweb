@@ -1,9 +1,15 @@
 import React from 'react';
 import { isFunction } from 'lodash';
 import PropTypes from 'prop-types';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 
 export default function Abnormal(props) {
   const { resultCode, entityName, empty, renderAbnormal } = props;
+
+  if (resultCode === 300016) {
+    return <RestrictAccessStatus />;
+  }
+
   if (isFunction(renderAbnormal)) {
     return <div className="abnormalCon flexColumn">{renderAbnormal()}</div>;
   }

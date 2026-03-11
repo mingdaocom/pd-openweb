@@ -9,8 +9,8 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon, QiniuUpload, Radio, ScrollView, Switch } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import { dialogSelectColor } from 'ming-ui/functions';
 import { Absolute, CustomButton, H1, H3, Hr } from 'worksheet/components/Basics';
-import AddColorDialog from 'src/pages/AppHomepage/components/SelectIcon/AddColorDialog';
 import { getThemeColors } from 'src/utils/project';
 import { coverurls, LAYOUT_OPTIONS } from '../enum';
 import * as actions from '../PublicWorksheetConfig/redux/actions';
@@ -41,7 +41,7 @@ const Con = styled.div`
       .deleteBtn {
         width: 32px;
         height: 24px;
-        background: #fff;
+        background: var(--color-background-primary);
         border-radius: 3px;
         display: flex;
         align-items: center;
@@ -51,7 +51,7 @@ const Con = styled.div`
         bottom: 12px;
         &:hover {
           .Icon {
-            color: red !important;
+            color: var(--color-error) !important;
           }
         }
       }
@@ -65,7 +65,7 @@ const Con = styled.div`
 `;
 const Close = styled.span`
   font-size: 18px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   cursor: pointer;
 `;
 
@@ -95,7 +95,7 @@ const ThemeColorWrapper = styled.ul`
       }
     }
     & > .icon {
-      color: #fff;
+      color: var(--color-white);
       font-size: 18px;
       line-height: 30px;
     }
@@ -108,11 +108,11 @@ const ThemeColorWrapper = styled.ul`
 `;
 
 const UploadBtn = styled(CustomButton)`
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-secondary);
   width: fit-content;
   &.disabled {
     cursor: not-allowed;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
   }
   .icon {
     display: inline-block;
@@ -125,8 +125,8 @@ const UploadBtn = styled(CustomButton)`
 
 const ClearCover = styled(CustomButton)`
   :hover {
-    background-color: #feecea;
-    color: #f44336;
+    background-color: var(--color-error-bg);
+    color: var(--color-error);
   }
 `;
 
@@ -150,9 +150,7 @@ const LayoutSettingWrap = styled.div`
     margin-bottom: 16px;
     border-radius: 3px;
     &:hover {
-      box-shadow:
-        0 4px 20px #00000021,
-        0 2px 6px #0000001a;
+      box-shadow: var(--shadow-sm);
     }
   }
 `;
@@ -182,7 +180,6 @@ class AppearanceConfig extends React.Component {
         ? []
         : [this.props.theme]
       ).concat((localStorage.getItem('customColors') || '').split(',').filter(_ => _)),
-      addColorDialogVisible: false,
     };
   }
 
@@ -204,17 +201,26 @@ class AppearanceConfig extends React.Component {
   };
 
   renderCustomColor = iconColor => {
-    const { addColorDialogVisible, customColors } = this.state;
+    const { customColors } = this.state;
 
     return (
       <React.Fragment>
-        <div className="Gray_9e">{_l('自定义')}</div>
+        <div className="textTertiary">{_l('自定义')}</div>
         <ThemeColorWrapper className="pTop12">
           <li className="isCurrentColor">
             <Icon
               icon="task-add-member-circle"
-              className="Gray_bd Font30 pointer"
-              onClick={() => this.setState({ addColorDialogVisible: true })}
+              className="textDisabled Font30 pointer"
+              onClick={() => {
+                dialogSelectColor({
+                  onSave: color => {
+                    const colors = [color].concat(customColors).slice(0, 5);
+                    this.setState({ customColors: colors });
+                    localStorage.setItem('customColors', colors);
+                    this.handleChangePageConfig({ themeBgColor: color });
+                  },
+                });
+              }}
             />
           </li>
           {customColors.map((item, index) => (
@@ -232,17 +238,6 @@ class AppearanceConfig extends React.Component {
             </Tooltip>
           ))}
         </ThemeColorWrapper>
-        {addColorDialogVisible && (
-          <AddColorDialog
-            onSave={color => {
-              const colors = [color].concat(customColors).slice(0, 5);
-              this.setState({ customColors: colors });
-              localStorage.setItem('customColors', colors);
-              this.handleChangePageConfig({ themeBgColor: color });
-            }}
-            onCancel={() => this.setState({ addColorDialogVisible: false })}
-          />
-        )}
       </React.Fragment>
     );
   };
@@ -270,7 +265,7 @@ class AppearanceConfig extends React.Component {
                   checked={checked}
                   onClick={() => !checked && this.handleChangePageConfig({ layout: l.value })}
                 />
-                <div className="desc mTop6 Font12 Gray_75">{l.desc}</div>
+                <div className="desc mTop6 Font12 textSecondary">{l.desc}</div>
               </div>
             );
           })}
@@ -316,25 +311,25 @@ class AppearanceConfig extends React.Component {
             className={cx('mTop10', { disabled: isUploading })}
             height="44"
             bg="#fff"
-            color="#151515"
-            hoverBg="#f5f5f5"
+            color="var(--color-text-title)"
+            hoverBg="var(--color-background-secondary)"
             borderRadius="6"
           >
             {isUploading ? (
-              <i className="icon icon-loading_button rotate Gray_9e"></i>
+              <i className="icon icon-loading_button rotate textTertiary"></i>
             ) : (
-              <i className="icon icon-file_upload Gray_9e"></i>
+              <i className="icon icon-file_upload textTertiary"></i>
             )}
             <span className="Bold">{_l('上传自定义封面图片')}</span>
           </UploadBtn>
         </QiniuUpload>
-        <div className="Font12 Gray_9e mBottom24">{_l('建议上传图片大小限制5M以内。')}</div>
+        <div className="Font12 textTertiary mBottom24">{_l('建议上传图片大小限制5M以内。')}</div>
         {isCustomImg && (
           <div className="customImgWrap mTop8">
             <div className="fileImage" style={{ backgroundImage: `url(${cover}&imageView2/1/w/160)` }} />
             <div className="mask">
               <div className="deleteBtn Hand" onClick={() => this.handleChangePageConfig({ cover: '' })}>
-                <Icon icon="trash" className="Gray_9e Font17" />
+                <Icon icon="trash" className="textTertiary Font17" />
               </div>
             </div>
           </div>
@@ -399,7 +394,7 @@ class AppearanceConfig extends React.Component {
                 onClick={() => this.handleChangePageConfig({ showQrcode: !config.showQrcode })}
                 size={'small'}
               />
-              <span className="Font13 Gray mLeft12">{_l('显示公开表单访问二维码')}</span>
+              <span className="Font13 textPrimary mLeft12">{_l('显示公开表单访问二维码')}</span>
             </div>
           </Con>
         </ScrollView>

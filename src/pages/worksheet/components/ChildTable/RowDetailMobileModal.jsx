@@ -53,10 +53,10 @@ export default function RowDetailModal(props) {
       actions: [],
       extra: (
         <div className="flexColumn w100">
-          <div className="bold Gray Font17 pTop10">{_l('确定删除此记录 ?')}</div>
+          <div className="bold textPrimary Font17 pTop10">{_l('确定删除此记录 ?')}</div>
           <div className="valignWrapper flexRow confirm mTop24">
             <Button
-              className="flex mRight6 bold Gray_75 flex ellipsis Font13"
+              className="flex mRight6 bold textSecondary flex ellipsis Font13"
               onClick={() => deleteConformAction.close()}
             >
               {_l('取消')}
@@ -86,7 +86,7 @@ export default function RowDetailModal(props) {
         )}
         <div className="flex"></div>
         <i
-          className="headerBtn icon icon-cancel Gray_9e Font20"
+          className="headerBtn icon icon-cancel textTertiary Font20"
           onClick={() => {
             if (type === 'edit' && !disabled) {
               formContent.current.handleSave(false, false, true);
@@ -96,7 +96,7 @@ export default function RowDetailModal(props) {
         ></i>
       </div>
       <div className="forCon flex leftAlign">
-        <div className="flexRow Font18 Gray bold leftAlign mBottom10">{title}</div>
+        <div className="flexRow Font18 textPrimary bold leftAlign mBottom10">{title}</div>
         <RowDetail
           isMobile
           from={5}
@@ -109,7 +109,10 @@ export default function RowDetailModal(props) {
       {type === 'new' ? (
         <div className="footer btnsWrapper valignWrapper flexRow">
           {!isExceed && (
-            <Button className="flex mRight6 bold Gray_75 Font13" onClick={() => formContent.current.handleSave(true)}>
+            <Button
+              className="flex mRight6 bold textSecondary Font13"
+              onClick={() => formContent.current.handleSave(true)}
+            >
               {_l('继续创建')}
             </Button>
           )}
@@ -124,13 +127,13 @@ export default function RowDetailModal(props) {
       ) : (
         <div className="footer btnsWrapper switchWrapper valignWrapper flexRow">
           <Button
-            className={`flex mRight6 bold Font13 ${switchDisabled.prev ? 'Gray_df' : 'Gray_75'}`}
+            className={`flex mRight6 bold Font13 ${switchDisabled.prev ? 'textPlaceholder' : 'textSecondary'}`}
             onClick={() => handleSwitch('prev')}
           >
             {_l('上一条')}
           </Button>
           <Button
-            className={`flex mLeft6 mRight6 Font13 bold ${switchDisabled.next ? 'Gray_df' : 'Gray_75'}`}
+            className={`flex mLeft6 mRight6 Font13 bold ${switchDisabled.next ? 'textPlaceholder' : 'textSecondary'}`}
             onClick={() => handleSwitch('next')}
           >
             {_l('下一条')}

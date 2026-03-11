@@ -117,7 +117,10 @@ export default class extends Component {
       !_.isEqual(displaySetup.ydisplay, oldDisplaySetup.ydisplay) ||
       !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
       !_.isEqual(style.quadrant, oldStyle.quadrant) ||
-      style.tooltipValueType !== oldStyle.tooltipValueType ||
+      !_.isEqual(
+        _.pick(style, ['tooltipValueType', 'inheritLastYaxis', 'inheritLastYaxisIndex']),
+        _.pick(oldStyle, ['tooltipValueType', 'inheritLastYaxis', 'inheritLastYaxisIndex']),
+      ) ||
       !_.isEqual(
         _.pick(nextProps.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
         _.pick(this.props.customPageConfig, ['chartColor', 'pageStyleType', 'widgetBgColor']),
@@ -244,7 +247,7 @@ export default class extends Component {
   getComponentConfig(props) {
     const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch, isThumbnail } = props;
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
-    const isDark = pageStyleType === 'dark' && isThumbnail;
+    const isDark = window.themeMode === 'dark' || (pageStyleType === 'dark' && isThumbnail);
     const { map, displaySetup, xaxes, yaxisList, split, valueMap = {} } = reportData;
     const { xdisplay, ydisplay, colorRules, showChartType } = displaySetup;
     const styleConfig = reportData.style || {};
@@ -252,7 +255,7 @@ export default class extends Component {
       chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
         ? { ...styleConfig, ...chartColor }
         : styleConfig;
-    const { quadrant = {} } = style;
+    const { quadrant = {}, inheritLastYaxis, inheritLastYaxisIndex = 0 } = style;
     const data = formatChartData(map, split.controlId);
     const { position } = getLegendType(displaySetup.legendType);
     const colors = getChartColors(style, themeColor, projectId);
@@ -270,7 +273,8 @@ export default class extends Component {
     };
     const xField = _.get(yaxisList[0], 'controlId');
     const yField = _.get(yaxisList[1], 'controlId');
-    const sizeField = _.get(yaxisList[2], 'controlId');
+    const sizeFieldIndex = inheritLastYaxis ? inheritLastYaxisIndex : 2;
+    const sizeField = _.get(yaxisList[sizeFieldIndex], 'controlId');
     const base = {
       appendPadding: [20, 20, 5, 0],
       data,
@@ -328,6 +332,7 @@ export default class extends Component {
       meta: {
         originalId: {
           alias: xaxes.rename || xaxes.controlName || _l('维度'),
+          type: 'cat',
           formatter: value => {
             const item = _.find(data, { originalId: value });
             return item ? item.name || _l('空') : value;
@@ -346,7 +351,7 @@ export default class extends Component {
           },
         },
         [sizeField]: {
-          alias: _.get(yaxisList[2], 'rename') || _.get(yaxisList[2], 'controlName'),
+          alias: _.get(yaxisList[sizeFieldIndex], 'rename') || _.get(yaxisList[sizeFieldIndex], 'controlName'),
           formatter: value => {
             return style.tooltipValueType ? formatrChartValue(value, false, yaxisList) : value;
           },
@@ -380,12 +385,7 @@ export default class extends Component {
         showMarkers: false,
         showTitle: true,
         title: formatterTooltipTitle(xaxes, 'originalId') || 'originalId',
-        fields: [
-          _.get(yaxisList[0], 'controlId'),
-          _.get(yaxisList[1], 'controlId'),
-          _.get(yaxisList[2], 'controlId'),
-          split.controlId,
-        ],
+        fields: [xField, yField, sizeField, split.controlId],
         domStyles: isDark
           ? {
               'g2-tooltip': {
@@ -416,7 +416,7 @@ export default class extends Component {
           : null,
         line: {
           style: {
-            stroke: '#aaa',
+            stroke: 'var(--color-text-tertiary)',
           },
         },
       },
@@ -445,7 +445,7 @@ export default class extends Component {
         },
         line: {
           style: {
-            stroke: isDark ? '#ffffff6b' : '#aaa',
+            stroke: isDark ? '#ffffff6b' : 'var(--color-text-tertiary)',
           },
         },
       },
@@ -524,13 +524,13 @@ export default class extends Component {
       <Menu className="chartMenu" style={{ width: 160 }}>
         <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
           <div className="flexRow valignWrapper">
-            <Icon icon="link1" className="mRight8 Gray_9e Font20 autoLinkageIcon" />
+            <Icon icon="link1" className="mRight8 textTertiary Font20 autoLinkageIcon" />
             <span>{_l('联动')}</span>
           </div>
         </Menu.Item>
         <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
           <div className="flexRow valignWrapper">
-            <Icon icon="table" className="mRight8 Gray_9e Font18" />
+            <Icon icon="table" className="mRight8 textTertiary Font18" />
             <span>{_l('查看原始数据')}</span>
           </div>
         </Menu.Item>

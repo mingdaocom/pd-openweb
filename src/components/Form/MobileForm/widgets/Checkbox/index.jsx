@@ -205,7 +205,7 @@ const CheckboxWidget = props => {
             >
               <div className="dropDownContentBox">{renderDropdown(checkIds)}</div>
               {(!disabled || !formDisabled) && (
-                <Icon icon="arrow-right-border" className="Font16 Gray_bd" style={{ marginRight: -5 }} />
+                <Icon icon="arrow-right-border" className="Font16 textDisabled" style={{ marginRight: -5 }} />
               )}
             </CheckboxWrap>
           </MobileCheckbox>

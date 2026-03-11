@@ -11,7 +11,7 @@
     border-radius: 50%;
     background: url('~src/pages/worksheet/assets/worksheet.png') no-repeat;
     background-size: 150px 150px;
-    background-color: #f2f2f2;
+    background-color: var(--color-background-disabled);
     margin: 0 auto;
   }
 
@@ -75,7 +75,7 @@
 
       font-size: 15px;
       font-weight: 400;
-      color: #151515;
+      color: var(--color-text-title);
       line-height: 20px;
       margin: 0;
       margin-top: 12px;
@@ -84,7 +84,7 @@
     .txt {
       font-size: 13px;
       font-weight: 400;
-      color: #757575;
+      color: var(--color-text-secondary);
       line-height: 20px;
       margin-top: 12px;
     }
@@ -100,21 +100,21 @@
       border: 1px solid transparent;
     }
     .toPdf {
-      background: #1677ff;
-      border-color: #1677ff;
-      color: #fff;
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: var(--color-white);
       &:hover {
-        background: #1565c0;
-        border-color: #1565c0;
+        background: var(--color-link-hover);
+        border-color: var(--color-link-hover);
       }
     }
     .downWord {
-      background: #fff;
-      border-color: #1677ff;
-      color: #1677ff;
+      background: var(--color-background-primary);
+      border-color: var(--color-primary);
+      color: var(--color-primary);
       &:hover {
-        color: #1565c0;
-        border-color: #1565c0;
+        color: var(--color-link-hover);
+        border-color: var(--color-link-hover);
       }
     }
   }
@@ -155,7 +155,7 @@
       .dec {
         font-size: 15px;
         font-weight: 400;
-        color: #151515;
+        color: var(--color-text-title);
         line-height: 20px;
         margin-top: 23px;
       }
@@ -170,7 +170,7 @@
 
     .iframeViewer {
       background-color: #525659;
-      color: #151515;
+      color: var(--color-text-title);
     }
 
     .iframeDiv {
@@ -201,6 +201,17 @@
         }
       }
     }
+    &.tableRtoC {
+      // .baseColumnHead {
+      //   width: initial !important;
+      //   .controlName {
+      //     width: initial !important;
+      //   }
+      // }
+      .relationAttachmentPictures {
+        width: 100%;
+      }
+    }
   }
 
   .printMarkdownWrap {
@@ -225,7 +236,7 @@
     padding: 0 !important;
     height: auto !important;
     border: 0px !important;
-    background: #fff;
+    background: var(--color-background-primary);
   }
 
   .printTem .printContent {
@@ -235,8 +246,8 @@
     margin: 0 !important;
     padding: 0 !important;
     height: auto !important;
-    background: #fff;
-    color: #000;
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
   }
 
   .printTem .printInfo {

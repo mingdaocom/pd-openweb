@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import store from 'redux/configureStore';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Avatar, Icon, UserHead } from 'ming-ui';
 import * as actions from 'src/pages/chat/redux/actions';
+import store from 'src/redux/configureStore';
 import { USER_LIST_NAME } from '../enum';
 import { getImgUrl } from '../utils';
 import TextHeightLine from './TextHeightLine';
@@ -17,7 +17,7 @@ const Box = styled.div`
     padding-left: 14px;
   }
   .userListItem:hover {
-    background: #f7f7f7;
+    background: var(--color-background-hover);
   }
   .userListItem:last-child {
     margin-bottom: 13px;
@@ -31,7 +31,7 @@ const Box = styled.div`
     cursor: pointer;
   }
   .userListHr {
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
   }
   .mLeft18 {
     margin-left: 18px;
@@ -43,7 +43,7 @@ const Box = styled.div`
     margin-left: 14px !important;
   }
   .userListShowMore:hover {
-    background: #f7f7f7;
+    background: var(--color-background-secondary);
   }
 `;
 
@@ -101,7 +101,7 @@ export default function UserList(props) {
     <Box style={style} className={className}>
       {needTitle && (
         <div className="title Font14 Bold mBottom10 mTop20">
-          {USER_LIST_NAME[type].label} <span className="Gray_75 Normal mLeft8">{data.allCount}</span>
+          {USER_LIST_NAME[type].label} <span className="textSecondary Normal mLeft8">{data.allCount}</span>
         </div>
       )}
       <ul className="userlist">
@@ -130,7 +130,7 @@ export default function UserList(props) {
                     heightLineText={searchKeyword}
                     text={item[USER_LIST_NAME[type].key] || item.userName || item.groupName}
                   />
-                  {needDesc && <p className="ellipsis mLeft14 mBottom0 Gray_75 Font12 mTop5">{item.userJob}</p>}
+                  {needDesc && <p className="ellipsis mLeft14 mBottom0 textSecondary Font12 mTop5">{item.userJob}</p>}
                 </div>
               </li>
             );
@@ -138,10 +138,10 @@ export default function UserList(props) {
       </ul>
       {count > 20 && (needShowMore || needShowAll) && (showMore || showAll) && (
         <div className={cx('userListShowMore valignWrapper', { userListHr: showHr })}>
-          <Icon icon="more_horiz" className="Gray_9e Font18" />
+          <Icon icon="more_horiz" className="textTertiary Font18" />
           <a
             href={showMore ? '' : `/search?search_key=${searchKeyword}&search_type=${USER_LIST_NAME[type].searchType}`}
-            className="text mLeft18 Gray_9e"
+            className="text mLeft18 textTertiary"
             onClick={clickShowHandle}
           >
             {showMore ? _l('显示更多') : _l('查看全部')}

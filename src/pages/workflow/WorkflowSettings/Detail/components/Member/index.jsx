@@ -210,7 +210,7 @@ export default class Member extends Component {
         {item.extensionId
           ? item.extensionName || roleExtension[item.roleTypeId].delText
           : roleExtension[item.roleTypeId].placeholder}
-        <i className="icon-arrow-down-border mLeft5 Gray" />
+        <i className="icon-arrow-down-border mLeft5 textPrimary" />
       </div>
     );
   }

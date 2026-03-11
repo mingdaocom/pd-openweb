@@ -10,7 +10,7 @@ const ContentWrap = styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-secondary);
     .leftCon {
       flex: 1;
       width: calc(100% - 48px);
@@ -145,8 +145,8 @@ export default function BalanceManage(props) {
         {configs.map(item => (
           <div className="item" key={`balanceManage-item-${item.key}`}>
             <div className="leftCon">
-              <div className="Font15 Bold mBottom8 Black ellipsis">{item.title}</div>
-              <div className="Font13 Gray_75 mRight5">{item.desc}</div>
+              <div className="Font15 Bold mBottom8 textPrimary ellipsis">{item.title}</div>
+              <div className="Font13 textSecondary mRight5">{item.desc}</div>
             </div>
             {item.hasSwitch && (
               <div className="rightCon">

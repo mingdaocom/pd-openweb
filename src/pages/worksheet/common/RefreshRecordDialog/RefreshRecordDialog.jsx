@@ -40,21 +40,21 @@ const Circle = styled(FlexCenter)`
   width: 130px;
   height: 130px;
   border-radius: 130px;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   font-size: 100px;
-  color: #bdbdbd;
+  color: var(--color-text-disabled);
 `;
 
 const Info = styled.div`
-  background: #fefbe7;
+  background: var(--color-yellow-black);
   border-radius: 3px;
-  border: 1px solid #fce596;
+  border: 1px solid var(--color-warning-border);
   padding: 8px;
-  color: #151515;
+  color: var(--color-text-title);
   font-size: 13px;
   margin-top: 8px;
   .icon {
-    color: #f0b041;
+    color: var(--color-warning);
     margin-right: 8px;
     font-size: 18px;
   }
@@ -212,7 +212,7 @@ export default function RefreshRecordDialog(props) {
         key={i}
         text={
           <span>
-            <i className={`icon-${getIconByType(c.type)} Gray_9e Font16 mRight8`}></i>
+            <i className={`icon-${getIconByType(c.type)} textTertiary Font16 mRight8`}></i>
             {c.controlName}
           </span>
         }
@@ -268,7 +268,7 @@ export default function RefreshRecordDialog(props) {
             <Circle>
               <i className="icon-view_quilt"></i>
             </Circle>
-            <span className="Gray_9e Font13 mTop20">{_l('当前工作表没有可以校准的字段。')}</span>
+            <span className="textTertiary Font13 mTop20">{_l('当前工作表没有可以校准的字段。')}</span>
           </Empty>
         )}
         {[
@@ -287,7 +287,7 @@ export default function RefreshRecordDialog(props) {
                   {item.title}
                   {!item.hasChildren && (
                     <span
-                      className="mLeft14 Gray_75 Normal Hand"
+                      className="mLeft14 textSecondary Normal Hand"
                       onClick={() => handleAllChecked(item.controls, notAllChecked)}
                     >
                       {notAllChecked ? _l('全选') : _l('取消全选')}
@@ -301,10 +301,10 @@ export default function RefreshRecordDialog(props) {
                       return (
                         <Fragment key={`relation-${l.controlId}`}>
                           <div className="mBottom14">
-                            <i className={`icon-${getIconByType(l.type)} Gray_9e Font16 mRight8`}></i>
+                            <i className={`icon-${getIconByType(l.type)} textTertiary Font16 mRight8`}></i>
                             {l.controlName}
                             <span
-                              className="mLeft14 Gray_75 Normal Hand"
+                              className="mLeft14 textSecondary Normal Hand"
                               onClick={() => handleAllChecked(l.children, notAllChecked)}
                             >
                               {notAllChecked ? _l('全选') : _l('取消全选')}

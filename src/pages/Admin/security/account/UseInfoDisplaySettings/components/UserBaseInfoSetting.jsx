@@ -115,7 +115,7 @@ export default class UserBaseInfoSetting extends Component {
 
     if (_.isEmpty(selectFields)) {
       return (
-        <div className="addFieldsWrap Gray_9e flexRow alignItemsCenter justifyContentCenter">
+        <div className="addFieldsWrap textTertiary flexRow alignItemsCenter justifyContentCenter">
           {_l('没有可添加字段')}
         </div>
       );
@@ -148,11 +148,11 @@ export default class UserBaseInfoSetting extends Component {
       return (
         <div className={cx('baseSettingItem isCardDepartment', { disabledItem: isDisabled })}>
           <div className="flexRow alignItemsCenter mBottom10 LineHeight32">
-            <span className="icon-drag grabIcon Gray_bd"></span>
+            <span className="icon-drag grabIcon textDisabled"></span>
             <div className="mLeft5">{_l('部门')}</div>
             <div className="flex"></div>
             {editStatus && (isCard || !isDisabled) ? (
-              <span className="deleteIcon Gray_bd Font16" onClick={() => this.handleDeleteItem(item.id, isCard)}>
+              <span className="deleteIcon textDisabled Font16" onClick={() => this.handleDeleteItem(item.id, isCard)}>
                 <i className="icon icon-close Hand" />
               </span>
             ) : null}
@@ -179,14 +179,14 @@ export default class UserBaseInfoSetting extends Component {
 
     return (
       <div className={cx('baseSettingItem flexRow alignItemsCenter', { disabledItem: isDisabled })}>
-        <span className="icon-drag grabIcon Gray_bd"></span>
+        <span className="icon-drag grabIcon textDisabled"></span>
         <span className="flex ellipsis mLeft5">
           {item.text}
           {isCard && _.includes(['mobilePhone', 'email'], item.id) ? (
             editStatus === 0 ? (
               <span
                 className={cx('icon icon-workflow_hide mLeft12', {
-                  Gray_bd: !item.isMask,
+                  textDisabled: !item.isMask,
                   maskColor: item.isMask,
                 })}
               />
@@ -194,7 +194,7 @@ export default class UserBaseInfoSetting extends Component {
               <Tooltip placement="top" title={item.isMask ? _l('取消掩码显示') : _l('设为掩码显示')}>
                 <span
                   className={cx('Hand icon icon-workflow_hide mLeft12', {
-                    Gray_bd: !item.isMask,
+                    textDisabled: !item.isMask,
                     maskColor: item.isMask,
                   })}
                   onClick={() =>
@@ -209,7 +209,7 @@ export default class UserBaseInfoSetting extends Component {
           ) : null}
         </span>
         {editStatus && (isCard || !isDisabled) ? (
-          <span className="deleteIcon Gray_bd Font16" onClick={() => this.handleDeleteItem(item.id, isCard)}>
+          <span className="deleteIcon textDisabled Font16" onClick={() => this.handleDeleteItem(item.id, isCard)}>
             <i className="icon icon-close Hand" />
           </span>
         ) : null}
@@ -241,7 +241,7 @@ export default class UserBaseInfoSetting extends Component {
         }}
         popup={() => this.renderAddFields(isCard)}
       >
-        <div className="addFields ThemeColor mTop12 InlineBlock Hand">
+        <div className="addFields colorPrimary mTop12 InlineBlock Hand">
           <i className="icon icon-plus mRight5" />
           <span>{_l('添加字段')}</span>
         </div>
@@ -257,7 +257,7 @@ export default class UserBaseInfoSetting extends Component {
     return (
       <div className="baseInfoWrap">
         <div className="baseInfoTitle Font15">{_l('个人资料')}</div>
-        <div className="Gray_75 mBottom12">{_l('设置个人资料成员互相可见的字段信息')}</div>
+        <div className="textSecondary mBottom12">{_l('设置个人资料成员互相可见的字段信息')}</div>
         <div className="baseSettings">
           {baseSettingData.filter(v => _.includes([1, 3], v.typeId)).map(item => this.renderSortableItem({ item }))}
           <SortableList
@@ -290,7 +290,7 @@ export default class UserBaseInfoSetting extends Component {
             {item.isMask && !item.hideMask ? maskValue(userInfo[item.id], item.id) : userInfo[item.id]}
             {item.isMask && !item.hideMask && !underName && (
               <span className="maskIcon" onClick={() => this.showMaskInfo(item)}>
-                <i className="icon icon-eye_off Gray_bd" />
+                <i className="icon icon-eye_off textDisabled" />
               </span>
             )}
           </Fragment>
@@ -319,7 +319,7 @@ export default class UserBaseInfoSetting extends Component {
         content = userInfo[item.id];
     }
 
-    return underName ? content : content || <span className="Gray_bd">{_l('未填写')}</span>;
+    return underName ? content : content || <span className="textDisabled">{_l('未填写')}</span>;
   };
 
   // 名片层
@@ -346,7 +346,7 @@ export default class UserBaseInfoSetting extends Component {
     return (
       <div className="baseInfoWrap pTop30 noBorder">
         <div className="baseInfoTitle Font15">{_l('名片层')}</div>
-        <div className="Gray_75 mBottom12">{_l('设置名片层显示的字段信息')}</div>
+        <div className="textSecondary mBottom12">{_l('设置名片层显示的字段信息')}</div>
         <div className="flexRow">
           <div className="settingWrap">
             <div className="flexRow alignItemsCenter mBottom12">
@@ -378,13 +378,13 @@ export default class UserBaseInfoSetting extends Component {
           </div>
 
           <div className="effectPreview">
-            <div className="Gray_9e bold Font14 mBottom16">{_l('效果预览')}</div>
+            <div className="textTertiary bold Font14 mBottom16">{_l('效果预览')}</div>
             <div className="previewCard Relative">
               <div className="cardAccount flexRow alignItemsCenter mBottom16">
                 <img className="avatar" src={account.avatar} />
                 <div className="mLeft8 flex accountBaseInfo">
                   <div className="Font15 fullname bold">{account.fullname}</div>
-                  <div className="Gray_75 ellipsis">
+                  <div className="textSecondary ellipsis">
                     {this.renderPreviewValue(
                       _.find(fields, v => v.typeId === displayFieldForName),
                       true,
@@ -399,7 +399,7 @@ export default class UserBaseInfoSetting extends Component {
                     departmentItem: item.id === 'currentDepartmentFullName',
                   })}
                 >
-                  <span className="Gray_75 mRight8">{item.text}</span>
+                  <span className="textSecondary mRight8">{item.text}</span>
                   <span className="flex ellipsis">{this.renderPreviewValue(item)}</span>
                 </div>
               ))}

@@ -7,12 +7,12 @@ import userController from 'src/api/user';
 const DialogWrap = styled(Dialog)`
   .test-textarea {
     padding: 8px;
-    color: #151515;
+    color: var(--color-text-title);
     box-sizing: border-box;
     width: 100%;
     border-radius: 3px;
     outline: none;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
     line-height: 18px;
     height: auto;
     min-height: 90px;
@@ -73,9 +73,9 @@ class RefuseUserJoinDia extends React.Component {
         onCancel={onCancel}
         onOk={this.refuseUserJoin}
       >
-        <div className="mBottom20 Gray">
+        <div className="mBottom20 textPrimary">
           {_l('您共勾选了')}
-          <span className="ThemeColor"> {accountIds.length} </span>
+          <span className="colorPrimary"> {accountIds.length} </span>
           {_l('个用户')}
         </div>
         <div className="settingItemTitle">{_l('拒绝消息')}</div>

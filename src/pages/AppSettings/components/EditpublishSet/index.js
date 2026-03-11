@@ -28,7 +28,7 @@ const WrapCon = styled.div`
     padding-top: 24px;
   }
   .borTopLine {
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-secondary);
     margin-top: 24px;
   }
   .publishAppCourse {
@@ -36,7 +36,7 @@ const WrapCon = styled.div`
     margin-top: 20px;
 
     span {
-      color: #1677ff;
+      color: var(--color-primary);
       cursor: pointer;
       margin-left: 13px;
       display: inline-block;
@@ -50,7 +50,7 @@ const WrapCon = styled.div`
     padding: 0 12px;
   }
   .editFixed {
-    color: #1677ff;
+    color: var(--color-primary);
     margin-top: 10px;
   }
   .con {
@@ -73,7 +73,7 @@ const WrapCon = styled.div`
 `;
 const TextareaWrapper = styled(Textarea)`
   &::placeholder {
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
 `;
 const MDSwitch = styled(Switch)`
@@ -83,7 +83,7 @@ const MDSwitch = styled(Switch)`
     line-height: 24px;
   }
   &.ant-switch-checked {
-    background-color: #01ca83;
+    background-color: var(--color-task);
     .ant-switch-handle {
       left: calc(100% - 20px - 2px);
     }
@@ -115,7 +115,7 @@ class EditPublishSetDialog extends React.Component {
 
   getWXProjectSettingInfo() {
     const { projectId, appId } = this.props;
-    if (!md.global.Config.IsLocal) {
+    if (!window.platformENV.isOverseas && !window.platformENV.isLocal) {
       workWeiXinAjax.getWXProjectSettingInfo({ projectId, appId }).then(res => {
         if (res && res.status === 1) {
           // 已集成的提交申请弹层
@@ -266,7 +266,9 @@ class EditPublishSetDialog extends React.Component {
         <WrapCon>
           <AppSettingHeader title={_l('发布')} />
           <h6 className="Font15 Bold pTop0">{_l('发布到组织工作台')}</h6>
-          <p className="Gray_75 mTop12">{_l('设置用户在哪些设备环境下可见此应用，管理员和开发者在PC端始终可见')}</p>
+          <p className="textSecondary mTop12">
+            {_l('设置用户在哪些设备环境下可见此应用，管理员和开发者在PC端始终可见')}
+          </p>
           <div className="con">
             <ul>
               {[1, 2, 3].map(o => {
@@ -318,7 +320,7 @@ class EditPublishSetDialog extends React.Component {
               }}
             >
               {_l('企业微信工作台')}
-              <Icon icon="launch" className="mLeft10 Gray_9e" />
+              <Icon icon="launch" className="mLeft10 textTertiary" />
             </span>
           </div>
           <div className="publishAppCourse">
@@ -330,11 +332,11 @@ class EditPublishSetDialog extends React.Component {
               }}
             >
               {_l('钉钉工作台')}
-              <Icon icon="launch" className="mLeft10 Gray_9e" />
+              <Icon icon="launch" className="mLeft10 textTertiary" />
             </span>
           </div>
           <h6 className="Font15 Bold borTopLine">{_l('发布到到其他平台')}</h6>
-          <p className="Gray_75 mTop12 mBottom16">
+          <p className="textSecondary mTop12 mBottom16">
             {_l(
               '将应用链接添加到其他平台，完成SSO开发后可通过其他平台账号免登使用应用。可以通过链接参数隐藏应用内的页面元素。（在私有部署中，可设置账号退出后重新登录的地址）',
             )}
@@ -342,7 +344,7 @@ class EditPublishSetDialog extends React.Component {
           <div className="bold mBottom10">{_l('应用链接')}</div>
           <AppLinkParamsSettings url={`${md.global.Config.WebUrl}app/${appId}`} defaultHide={['ch', 'ac']} />
           <div className="bold mBottom10 mTop30">{_l('SSO登录时，应用首页地址')}</div>
-          <div className="Gray_75 mTop8">
+          <div className="textSecondary mTop8">
             {_l('设置后，从SSO登录的账号在点击应用上的首页按钮时返回到此地址。未设置时，返回到本平台的工作台。')}
           </div>
           <Input
@@ -352,13 +354,13 @@ class EditPublishSetDialog extends React.Component {
             onBlur={() => this.editSSOAddress(this.state.ssoAddress)}
           />
           <h6 className="Font15 Bold borTopLine">{_l('应用维护')}</h6>
-          <p className="Gray_75 mTop12 mBottom20">
+          <p className="textSecondary mTop12 mBottom20">
             {_l('应用开启维护状态后，只有管理员和开发者可以访问应用进行更新维护，其他成员无法使用应用')}
           </p>
           <React.Fragment>
             <div className="flexRow alignItemsCenter" style={{ marginLeft: -4 }}>
               <MDSwitch size="default" checked={fixed} onChange={checked => this.fixedApp(checked)} />
-              {fixed && <span className="Gray_9e"> {_l('正在维护中...')}</span>}
+              {fixed && <span className="textTertiary"> {_l('正在维护中...')}</span>}
             </div>
             {fixed && (
               <React.Fragment>

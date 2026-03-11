@@ -15,9 +15,9 @@ export const Abnormal = props => {
   return (
     <div className="flexColumn h100 valignWrapper justifyContentCenter">
       {onClose && (
-        <Icon icon="cancel" className="Gray_9e Font22 Absolute" style={{ right: 20, top: 20 }} onClick={onClose} />
+        <Icon icon="cancel" className="textTertiary Font22 Absolute" style={{ right: 20, top: 20 }} onClick={onClose} />
       )}
-      <Icon icon="error1" className="Font56 Gray_df" />
+      <Icon icon="error1" className="Font56 textPlaceholder" />
       <div className="mTop10">{errorMsg}</div>
     </div>
   );

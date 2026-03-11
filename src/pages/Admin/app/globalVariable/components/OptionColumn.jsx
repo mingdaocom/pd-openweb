@@ -8,12 +8,12 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   .optionIcon {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     font-size: 16px;
     cursor: pointer;
     display: none;
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
@@ -23,18 +23,18 @@ const OptionMenu = styled.div`
   padding: 6px 0 !important;
   box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.16);
   border-radius: 3px;
-  background: #fff;
+  background: var(--color-background-primary);
 `;
 const MenuItem = styled.div`
   padding: 0 20px;
   line-height: 36px;
   cursor: pointer;
   &:hover {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-hover);
   }
 `;
 const RedMenuItem = styled(MenuItem)`
-  color: #f44336;
+  color: var(--color-error);
 `;
 
 export default function OptionColumn({ isDirOption, onAdd, onEdit, onDelete, onLog }) {

@@ -9,7 +9,7 @@ import AggTableAjax from 'src/pages/integration/api/aggTable.js';
 const Wrap = styled.div`
   .aggCon {
     padding: 2px 5px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     border-radius: 3px;
   }
 `;
@@ -66,7 +66,7 @@ export default function MoveDialog(props) {
       okDisabled={!(selectAppId && selectAppId !== props.appId)}
     >
       <Wrap className="">
-        <div className="Gray_75 flexRow alignItemsCenter">
+        <div className="textSecondary flexRow alignItemsCenter">
           {_l('将')}
           <div className="mLeft10 mRight10 flexRow alignItemsCenter aggCon">
             <div className="iconCon">

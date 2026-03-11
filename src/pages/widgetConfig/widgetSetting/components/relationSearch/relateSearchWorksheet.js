@@ -297,9 +297,9 @@ export function RelateSearchWorksheet(props) {
           <div className="emptyHint">{_l('没有与当前工作表关联的表')}</div>
         ) : (
           <div className="relateListWrap">
-            <div className="flexCenter mBottom10 Gray_9e pLeft8">
+            <div className="flexCenter mBottom10 textTertiary pLeft8">
               <span style={{ flexShrink: 0 }}>{_l('查询关联当前')}</span>
-              <span className="Bold Gray overflow_ellipsis mLeft5 mRight5">{name}</span>
+              <span className="Bold textPrimary overflow_ellipsis mLeft5 mRight5">{name}</span>
               {_l('的')}
             </div>
             <ul>
@@ -322,9 +322,9 @@ export function RelateSearchWorksheet(props) {
                       setFields({ selectedControl: item });
                     }}
                   >
-                    <SvgIcon url={item.iconUrl} fill="#999999" size={18} className="InlineBlock" />
+                    <SvgIcon url={item.iconUrl} fill="var(--color-text-tertiary)" size={18} className="InlineBlock" />
                     <span className="Bold mLeft10">{item.sourceEntityName}</span>
-                    <span className="Gray_9e mLeft4 Font14">
+                    <span className="textTertiary mLeft4 Font14">
                       {` - ${_.get(DEFAULT_CONFIG[enumWidgetType[type]], 'widgetName')}：${controlName}`}
                     </span>
                   </li>

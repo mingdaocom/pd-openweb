@@ -33,7 +33,7 @@ const AppWrap = styled.div`
     -webkit-transform: translateY(-50%);
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
-    background: #1677ff;
+    background: var(--color-primary);
   }
   > div {
     pointer-events: none;
@@ -47,7 +47,7 @@ const ArrowWrap = styled.div`
     transition: 0.2s;
   }
   &:hover {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-hover);
     .icon {
       transform: rotateZ(90deg);
     }
@@ -201,7 +201,7 @@ const Apps = props => {
                 }
               >
                 <ArrowWrap className="flexRow alignItemsCenter justifyContentCenter pointer">
-                  <Icon className="Font18 Gray_75" icon="arrow-up-border1" />
+                  <Icon className="Font18 textSecondary" icon="arrow-up-border1" />
                 </ArrowWrap>
               </Popover>
             )}

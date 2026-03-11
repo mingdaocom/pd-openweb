@@ -13,7 +13,7 @@ import SearchInput from 'worksheet/components/SearchInput';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
-import { FilterDialog } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import FilterDialog from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterDialog';
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util.js';
 import ControlsDataTable from 'src/pages/worksheet/components/ControlsDataTable';
 import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
@@ -21,9 +21,9 @@ import emptyImg from './img/null.png';
 
 const Wrap = styled.div`
   .header {
-    border-bottom: 1px solid #dddddd;
+    border-bottom: 1px solid var(--color-border-primary);
     padding: 16px 10px;
-    background: #fff;
+    background: var(--color-background-primary);
   }
   .pagination {
     margin-top: -3px;
@@ -33,7 +33,7 @@ const Wrap = styled.div`
     }
   }
   .statusIcon {
-    color: #e0e0e0;
+    color: var(--color-border-secondary);
     font-size: 84px;
   }
   .icon-task-later {
@@ -47,8 +47,8 @@ const SelectedFilter = styled(FlexCenter)`
   font-size: 13px;
   line-height: 29px;
   vertical-align: middle;
-  color: #1e88e5;
-  background-color: #e3f2fd;
+  color: var(--color-primary);
+  background-color: var(--color-primary-transparent);
   padding: 0 10px;
   .text {
     max-width: 160px;
@@ -61,7 +61,7 @@ const SelectedFilter = styled(FlexCenter)`
     font-size: 16px;
     margin-left: 6px;
     &:hover {
-      color: #1565c0;
+      color: var(--color-link-hover);
     }
   }
 `;
@@ -284,7 +284,7 @@ export default function PreviewData(props) {
       <DocumentTitle title={`${aggName || _l('未命名聚合表')} - ${_l('聚合表')}`} />
       <div className="header flexRow alignItemsCenter">
         <div className="flex">
-          <div className="Gray Font16 Bold">{aggName || _l('未命名聚合表')}</div>
+          <div className="textPrimary Font16 Bold">{aggName || _l('未命名聚合表')}</div>
         </div>
         {worksheetId && !noRole && (
           <React.Fragment>
@@ -309,7 +309,7 @@ export default function PreviewData(props) {
                       });
                     }}
                   >
-                    <i className="icon icon-filter Gray_9e Hand Font18 ThemeHoverColor3"></i>
+                    <i className="icon icon-filter textTertiary Hand Font18 ThemeHoverColor3"></i>
                   </span>
                 </Tooltip>
               )}
@@ -341,7 +341,7 @@ export default function PreviewData(props) {
             <Tooltip placement="bottom" title={_l('刷新')}>
               <Icon
                 icon="task-later"
-                className="Gray_9e Font18 pointer mLeft10 mRight2 ThemeHoverColor3"
+                className="textTertiary Font18 pointer mLeft10 mRight2 ThemeHoverColor3"
                 onClick={() => {
                   changePageIndex(1);
                   getData();
@@ -380,8 +380,10 @@ export default function PreviewData(props) {
             {!worksheetId || noRole ? (
               <div className="flexColumn flex alignItemsCenter justifyContentCenter">
                 {noRole ? <span className="statusIcon Icon icon icon-error1" /> : <img src={emptyImg} height={130} />}
-                <div className="Gray_9e Font17 mTop24">{noRole ? _l('无权限查看') : _l('暂无数据')}</div>
-                {!noRole && <div className="Gray_9e Font14 mTop16">{_l('未完成数据源、字段的配置或预览结果')}</div>}
+                <div className="textTertiary Font17 mTop24">{noRole ? _l('无权限查看') : _l('暂无数据')}</div>
+                {!noRole && (
+                  <div className="textTertiary Font14 mTop16">{_l('未完成数据源、字段的配置或预览结果')}</div>
+                )}
               </div>
             ) : (
               <div className="overflowHidden flex">
@@ -394,6 +396,7 @@ export default function PreviewData(props) {
                   }}
                   loading={loading}
                   controls={controls}
+                  appId={appId}
                   showIcon
                   key={JSON.stringify(filters)}
                   data={data}

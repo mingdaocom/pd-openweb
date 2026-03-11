@@ -46,8 +46,8 @@ const MultipleLineTip = styled.div`
   left: 2px;
   right: 2px;
   font-size: 12px;
-  color: #bdbdbd;
-  background: #fff;
+  color: var(--color-text-disabled);
+  background: var(--color-background-primary);
 `;
 
 const Input = React.forwardRef((props, ref) => {
@@ -361,16 +361,18 @@ export default class Text extends React.Component {
       }
       e.preventDefault();
       this.handleBlur();
-      setTimeout(
-        () =>
-          emitter.emit('TRIGGER_TABLE_KEYDOWN_' + tableId, {
-            keyCode: 40,
-            action: 'text_enter_to_next',
-            stopPropagation: () => {},
-            preventDefault: () => {},
-          }),
-        100,
-      );
+      if (!window.handFocusCell) {
+        setTimeout(
+          () =>
+            emitter.emit('TRIGGER_TABLE_KEYDOWN_' + tableId, {
+              keyCode: 40,
+              action: 'text_enter_to_next',
+              stopPropagation: () => {},
+              preventDefault: () => {},
+            }),
+          100,
+        );
+      }
     } else if (_.includes(['ArrowUp', 'ArrowDown'], e.key) && _.includes([6, 8], cell.type)) {
       const num = Number(this.state.value);
       if (_.isNumber(num) && !_.isNaN(num)) {
@@ -398,6 +400,7 @@ export default class Text extends React.Component {
   };
   render() {
     const {
+      columnIndex,
       className,
       tableType,
       style,
@@ -411,6 +414,7 @@ export default class Text extends React.Component {
       editable,
       onClick,
       ignoreErrorMessage,
+      appId,
     } = this.props;
     const { rows } = this.context || {};
     let { value, forceShowFullValue } = this.state;
@@ -450,7 +454,7 @@ export default class Text extends React.Component {
       value = '';
     }
     const isMacWxWork = window.isWxWork && /applewebkit/.test(navigator.userAgent.toLowerCase());
-    let text = renderText({ ...cell, value }, { noMask: forceShowFullValue });
+    let text = renderText({ ...cell, value }, { noMask: forceShowFullValue, appId });
     if (text.length > 3000) {
       text = text.slice(0, 3000);
     }
@@ -462,7 +466,9 @@ export default class Text extends React.Component {
       >
         {cell.enumDefault === 0 || cell.enumDefault === 2 ? (
           <div
-            className={cx('textControlInput cellControlEdittingStatus', { cellControlErrorStatus: error })}
+            className={cx('textControlInput cellControlEdittingStatus ', `cellForOperate col-${columnIndex}`, {
+              cellControlErrorStatus: error,
+            })}
             style={{
               display: 'block',
               width: style.width,
@@ -488,7 +494,7 @@ export default class Text extends React.Component {
           </div>
         ) : (
           <Textarea
-            className={cx('Ming textControlTextArea cellControlEdittingStatus stopPropagation', {
+            className={cx('Ming textControlTextArea cellControlEdittingStatus stopPropagation bgPrimary', {
               isMultipleLine: this.isMultipleLine,
               cellControlErrorStatus: error,
               ignoreErrorMessage,
@@ -507,7 +513,7 @@ export default class Text extends React.Component {
         )}
         {error && (
           <CellErrorTips
-            color={ignoreErrorMessage ? '#ff933e' : undefined}
+            color={ignoreErrorMessage ? 'var(--color-warning)' : undefined}
             pos={rowIndex === 0 ? 'bottom' : 'top'}
             error={error}
           />
@@ -617,11 +623,11 @@ export default class Text extends React.Component {
               }
             })()}
           {tableType === 'classic' && !text && !isediting && cell.hint && (
-            <span className="guideText Gray_bd hide">{cell.hint}</span>
+            <span className="guideText textDisabled hide">{cell.hint}</span>
           )}
           {isCard && this.masked && !forceShowFullValue && (
             <i
-              className="icon icon-eye_off Hand maskData Font16 Gray_bd mLeft4 mTop4 hoverShow"
+              className="icon icon-eye_off Hand maskData Font16 textDisabled mLeft4 mTop4 hoverShow"
               style={{ verticalAlign: 'text-top' }}
               onClick={this.handleUnMask}
             ></i>

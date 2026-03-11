@@ -12,8 +12,8 @@ const SelectColorWrap = styled.div`
   box-sizing: border-box;
   max-width: 350px;
   padding: 10px;
-  border: 1px solid #ddd;
-  background-color: #fff;
+  border: 1px solid var(--color-border-primary);
+  background-color: var(--color-background-primary);
   &::before {
     content: '';
     position: absolute;
@@ -22,7 +22,7 @@ const SelectColorWrap = styled.div`
     width: 0;
     height: 0;
     border: 8px solid transparent;
-    border-bottom-color: #fff;
+    border-bottom-color: var(--color-background-primary);
     z-index: 1;
   }
   &::after {
@@ -33,7 +33,7 @@ const SelectColorWrap = styled.div`
     width: 0;
     height: 0;
     border: 9px solid transparent;
-    border-bottom-color: #ddd;
+    border-bottom-color: var(--color-border-primary);
   }
   ul {
     display: flex;

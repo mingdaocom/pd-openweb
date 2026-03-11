@@ -6,14 +6,14 @@ import styled from 'styled-components';
 const Con = styled.div`
   width: 220px;
   padding: 8px 0;
-  background: #ffffff;
-  box-shadow: 0px 3px 9px rgba(0, 0, 0, 0.16);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-lg);
   border-radius: 3px;
 `;
 const Title = styled.div`
   padding: 0 26px;
   margin: 5px 0;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
 `;
 
 const Item = styled.a`
@@ -22,13 +22,13 @@ const Item = styled.a`
   display: flex;
   align-items: center;
   padding: 0 26px;
-  color: #757575 !important;
+  color: var(--color-text-secondary) !important;
   .icon {
     font-size: 20px;
     margin-right: 13px;
   }
   &:hover {
-    background: #efefef;
+    background: var(--color-background-hover);
   }
 `;
 

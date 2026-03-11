@@ -164,7 +164,7 @@ class DialogSettingInviteRules extends React.Component {
               </Tooltip>
             </span>
             <span className="text">
-              <p className="Gray Font13">
+              <p className="textPrimary Font13">
                 {_l('邀请审核')}
                 <Tooltip
                   title={
@@ -176,11 +176,11 @@ class DialogSettingInviteRules extends React.Component {
                   }
                 >
                   <span>
-                    <Icon className="Font14 Hand Gray_bd mLeft5" icon="help" />
+                    <Icon className="Font14 Hand textDisabled mLeft5" icon="help" />
                   </span>
                 </Tooltip>
               </p>
-              <p className="Gray_9e Font13 mTop13">{_l('非管理员通过邮箱或手机号邀请他人加入组织是否需要审核')}</p>
+              <p className="textTertiary Font13 mTop13">{_l('非管理员通过邮箱或手机号邀请他人加入组织是否需要审核')}</p>
             </span>
           </div>
         </div>
@@ -198,10 +198,10 @@ class DialogSettingInviteRules extends React.Component {
               />
             </span>
             <span className="text">
-              <p className="Gray Font13">
+              <p className="textPrimary Font13">
                 {_l('组织门牌号 %0', this.state.regCode)}
                 <span
-                  className="copyBtn Gray_75 Hand mLeft15 regCode"
+                  className="copyBtn textSecondary Hand mLeft15 regCode"
                   onClick={() => {
                     copy(this.state.regCode);
                     alert(_l('已复制到剪切板'));
@@ -210,12 +210,12 @@ class DialogSettingInviteRules extends React.Component {
                   {_l('复制')}
                 </span>
               </p>
-              <p className="Gray_9e Font13 mTop13">{_l('开启后允许通过搜索组织门牌号到组织')}</p>
+              <p className="textTertiary Font13 mTop13">{_l('开启后允许通过搜索组织门牌号到组织')}</p>
             </span>
           </div>
           <div className="listBox borderTopLine">
             <h3>{_l('人员加入组织需要填写的信息')}</h3>
-            <p className="Gray_9e Font13 mTop12">{_l('开启后成员加入组织时则需要填写')}</p>
+            <p className="textTertiary Font13 mTop12">{_l('开启后成员加入组织时则需要填写')}</p>
             <div className="listText">
               <span className="iconBox">
                 <Tooltip title={_l('开启后成员可自主选择')}>
@@ -232,13 +232,13 @@ class DialogSettingInviteRules extends React.Component {
                 </Tooltip>
               </span>
               <span className="text">
-                <p className="Gray Font13">
+                <p className="textPrimary Font13">
                   {_l('部门')}
                   <span className="warnTip dept Hidden">
                     <span className="icon-info Red" />
                     <span className="Red">{_l('尚未配置部门')}</span>
                     <span
-                      className="Gray_9e Hand"
+                      className="textTertiary Hand"
                       onClick={() => {
                         setValue({
                           showDialogSettingInviteRules: false,
@@ -251,7 +251,7 @@ class DialogSettingInviteRules extends React.Component {
                     </span>
                   </span>
                 </p>
-                <p className="Gray_9e Font13 mTop13">{_l('加入组织需要填写部门')}</p>
+                <p className="textTertiary Font13 mTop13">{_l('加入组织需要填写部门')}</p>
               </span>
             </div>
             <div className="listText">
@@ -270,8 +270,8 @@ class DialogSettingInviteRules extends React.Component {
                 </Tooltip>
               </span>
               <span className="text">
-                <p className="Gray Font13">{_l('职位')}</p>
-                <p className="Gray_9e Font13 mTop13">{_l('需要选择职位')}</p>
+                <p className="textPrimary Font13">{_l('职位')}</p>
+                <p className="textTertiary Font13 mTop13">{_l('需要选择职位')}</p>
               </span>
             </div>
             <div className="listText">
@@ -290,13 +290,13 @@ class DialogSettingInviteRules extends React.Component {
                 </Tooltip>
               </span>
               <span className="text">
-                <p className="Gray Font13">
+                <p className="textPrimary Font13">
                   {_l('工作地点')}
                   <span className="warnTip workSite Hidden">
                     <span className="icon-info Red" />
                     <span className="Red"> {_l('尚未配置工作地点')}</span>
                     <span
-                      className="Gray_9e Hand"
+                      className="textTertiary Hand"
                       onClick={() => {
                         setValue({
                           showDialogSettingInviteRules: false,
@@ -309,7 +309,7 @@ class DialogSettingInviteRules extends React.Component {
                     </span>
                   </span>
                 </p>
-                <p className="Gray_9e Font13 mTop13">{_l('需要选择工作地点')}</p>
+                <p className="textTertiary Font13 mTop13">{_l('需要选择工作地点')}</p>
               </span>
             </div>
             <div className="listText">
@@ -328,8 +328,8 @@ class DialogSettingInviteRules extends React.Component {
                 </Tooltip>
               </span>
               <span className="text">
-                <p className="Gray Font13">{_l('工号')}</p>
-                <p className="Gray_9e Font13 mTop13">{_l('需要填写工号')}</p>
+                <p className="textPrimary Font13">{_l('工号')}</p>
+                <p className="textTertiary Font13 mTop13">{_l('需要填写工号')}</p>
               </span>
             </div>
           </div>

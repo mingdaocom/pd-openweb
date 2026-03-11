@@ -88,7 +88,7 @@ export default class EditMemberDialog extends Component {
                       <span>{user.job}</span>
                     </div>
                     <div className="contentOperate" onClick={this.deleteUser.bind(this, user.accountId)}>
-                      <span className="ThemeHoverColor3 icon-trash deleteMember Gray_9 Hand Font18"></span>
+                      <span className="ThemeHoverColor3 icon-trash deleteMember textTertiary Hand Font18"></span>
                     </div>
                   </div>
                 );
@@ -99,7 +99,7 @@ export default class EditMemberDialog extends Component {
               <LoadDiv className="top30" />
             </div>
           ) : _.isEmpty(userList) ? (
-            <div className="Gray_6 mTop20 TxtCenter">{_l('该工作地点还没有成员')}</div>
+            <div className="textSecondary mTop20 TxtCenter">{_l('该工作地点还没有成员')}</div>
           ) : (
             ''
           )}
@@ -109,7 +109,7 @@ export default class EditMemberDialog extends Component {
             <div>
               <span className="TxtCenter icon-search icon"></span>
             </div>
-            <div className="Gray_6 mTop20 TxtCenter">{_l('搜索无结果')}</div>
+            <div className="textSecondary mTop20 TxtCenter">{_l('搜索无结果')}</div>
           </div>
         )}
       </div>
@@ -186,7 +186,7 @@ export default class EditMemberDialog extends Component {
               placeholder={_l('搜索')}
               onChange={this.handleSearch}
             />
-            <span className="btnSearch icon-search Gray_9"></span>
+            <span className="btnSearch icon-search textTertiary"></span>
           </div>
           <div id="memberList" className="mTop10">
             {this.renderUserList()}

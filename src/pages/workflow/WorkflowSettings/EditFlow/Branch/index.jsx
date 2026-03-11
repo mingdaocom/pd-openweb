@@ -27,7 +27,7 @@ export default class Branch extends Component {
       <div className="flexRow alignItemsCenter">
         <Tooltip title={_l('添加分支')}>
           <span
-            className="workflowBranchBtnSmall Gray_75 ThemeHoverColor3"
+            className="workflowBranchBtnSmall textSecondary ThemeHoverColor3"
             onClick={() => {
               this.props.addFlowNode(processId, { prveId: item.id, name: '', typeId: 2 });
               this.handleTipsPosition();
@@ -48,7 +48,7 @@ export default class Branch extends Component {
         </Tooltip>
 
         <Tooltip title={_l('收起')}>
-          <span className="workflowBranchBtnSmall Gray_75 ThemeHoverColor3" onClick={this.changeShrink}>
+          <span className="workflowBranchBtnSmall textSecondary ThemeHoverColor3" onClick={this.changeShrink}>
             <i className={'icon-arrow-up-border'} />
           </span>
         </Tooltip>
@@ -171,7 +171,7 @@ export default class Branch extends Component {
                   checked={o.value === gatewayType}
                   onClick={() => this.setState({ gatewayType: o.value })}
                 />
-                <div className="mTop5 mLeft30 Gray_75">{o.desc}</div>
+                <div className="mTop5 mLeft30 textSecondary">{o.desc}</div>
               </div>
             ))}
           </Dialog>

@@ -49,11 +49,12 @@ const StyleDefault = props => {
   const defaultConfig = isOldConfig ? safeParse(defaultStyle || '{}') : getAdvanceSetting(data, [editKey]) || {};
   const sizeResult = defaultConfig.size || (editKey === 'rowtitlestyle' || data.type === 34 ? '1' : '0');
   const colorResult =
-    defaultConfig.color || (_.includes(['cardtitlestyle'], editKey) && data.type !== 34 ? '#757575' : '#151515');
+    defaultConfig.color ||
+    (_.includes(['cardtitlestyle'], editKey) && data.type !== 34 ? '#757575' : 'var(--color-text-primary)');
   return (
     <Fragment>
       <SectionItem key={editKey}>
-        <div className="label Gray_75">{_l('样式')}</div>
+        <div className="label textSecondary">{_l('样式')}</div>
         <div className="flex flexRow flexCenter">
           <WidgetColor
             fromWidget={true}
@@ -106,7 +107,7 @@ const StyleDefault = props => {
         </div>
       </SectionItem>
       <SectionItem className="mTop10">
-        <div className="label Gray_75">{_l('字号')}</div>
+        <div className="label textSecondary">{_l('字号')}</div>
         <AnimationWrap className="flex">
           {DISPLAY_SIZE_TYPES.map(({ text, value }) => (
             <div
@@ -197,7 +198,8 @@ const OtherDefault = props => {
   return (
     <div className="flexRow flexCenter">
       {DISPLAY_OTHER_COLOR_TYPES.map(({ text, key, isDefault }) => {
-        const color = isDefault && _.isUndefined(defaultConfig[key]) ? '#eaeaea' : defaultConfig[key];
+        const color =
+          isDefault && _.isUndefined(defaultConfig[key]) ? 'var(--color-border-secondary)' : defaultConfig[key];
         return (
           <div className="flexRow flexCenter flex">
             <Checkbox
@@ -210,7 +212,11 @@ const OtherDefault = props => {
                   handleAdvancedSettingChange(data, {
                     [editKey]: JSON.stringify({
                       ...defaultConfig,
-                      [key]: checked ? '' : key === 'background' ? '#f5f5f5' : '#eaeaea',
+                      [key]: checked
+                        ? ''
+                        : key === 'background'
+                          ? 'var(--color-background-secondary)'
+                          : 'var(--color-border-secondary)',
                     }),
                   }),
                 )
@@ -242,7 +248,7 @@ const TextHeightLimit = props => {
     <SettingItem>
       <div className="settingItemTitle">{_l('文本框高度（px）')}</div>
       <SectionItem>
-        <div className="label Gray_75">{_l('最小')}</div>
+        <div className="label textSecondary">{_l('最小')}</div>
         <InputValue
           value={minheight}
           className="w100"
@@ -263,11 +269,11 @@ const TextHeightLimit = props => {
           }}
         />
       </SectionItem>
-      <div className="Gray_75 mTop6" style={{ paddingLeft: '50px' }}>
+      <div className="textSecondary mTop6" style={{ paddingLeft: '50px' }}>
         {_l('最小可设为36px（单行高度）')}
       </div>
       <SectionItem>
-        <div className="label Gray_75">{_l('最大')}</div>
+        <div className="label textSecondary">{_l('最大')}</div>
         <InputValue
           value={maxheight || undefined}
           className="w100"

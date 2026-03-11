@@ -89,7 +89,7 @@ export default function HideItem(props) {
       {isCustomize ? (
         <SvgIcon
           url={_.get(item, 'pluginInfo.iconUrl') || 'https://fp1.mingdaoyun.cn/customIcon/sys_12_4_puzzle.svg'}
-          fill={_.get(item, 'pluginInfo.iconColor') || '#445A65'}
+          fill={_.get(item, 'pluginInfo.iconColor') || 'var(--color-cyan-dark)'}
           size={18}
         />
       ) : (
@@ -131,16 +131,16 @@ export default function HideItem(props) {
           popup={renderSettingMenu()}
           popupAlign={{ points: ['tl', 'bl'], overflow: { adjustX: true, adjustY: true } }}
         >
-          <Icon className="Font20 Gray_9e more" icon="more_horiz" />
+          <Icon className="Font20 textTertiary more" icon="more_horiz" />
         </Trigger>
       )}
       {isSimple && (
         <span className="recycleWrap">
-          <span className="time Gray_9e Font13">{createTimeSpan(item.deleteTime)}</span>
+          <span className="time textTertiary Font13">{createTimeSpan(item.deleteTime)}</span>
           <Tooltip title={_l('还原')}>
             <Icon
               icon="back"
-              className="recycleIcon Font18 Gray_9d Hover_21 mTop3"
+              className="recycleIcon Font18 textTertiary hoverColorPrimary mTop3"
               onClick={() => onRecycle(item.viewId)}
             />
           </Tooltip>

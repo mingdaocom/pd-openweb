@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { compatibleWorksheetRoute } from 'src/pages/Portal/util.js';
+import { emitter, setBodyThemeMode } from 'src/utils/common';
 import { navigateTo } from './navigateTo';
 
 export default () => {
@@ -121,4 +122,29 @@ export default () => {
       }
     }
   });
+};
+
+export const initThemeMode = () => {
+  if (window.self !== window.top && document.referrer.includes(md.global.Config.HDPUrl)) {
+    window.themeModeVisible = false;
+    return;
+  }
+  window.themeModeVisible = true;
+  // 主题颜色变化
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  const onChangeThemeMode = e => {
+    if (!localStorage.getItem('themeMode')) {
+      localStorage.setItem('themeMode', 'light');
+    }
+    if (['dark', 'light'].includes(localStorage.getItem('themeMode'))) {
+      window.themeMode = localStorage.getItem('themeMode');
+      setBodyThemeMode(window.themeMode);
+    } else {
+      window.themeMode = e.matches ? 'dark' : 'light';
+      setBodyThemeMode(window.themeMode);
+      emitter.emit('CHANGE_THEME_MODE', window.themeMode);
+    }
+  };
+  mediaQuery.addEventListener('change', onChangeThemeMode);
+  onChangeThemeMode(mediaQuery);
 };

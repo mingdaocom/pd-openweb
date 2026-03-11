@@ -166,7 +166,7 @@ class RoleUserList extends Component {
                 </span>
               }
             >
-              <Icon icon="info" className="mLeft6 Font14 Gray_9e" />
+              <Icon icon="info" className="mLeft6 Font14 textTertiary" />
             </Tooltip>
           </th>
           <th className={cx('actionCol', { fixedRight: fixedRight })}></th>
@@ -208,7 +208,7 @@ class RoleUserList extends Component {
               />
               <a
                 href={'/user_' + item.accountId}
-                className="Gray overflow_ellipsis mLeft10 LineHeight32 name"
+                className="textPrimary overflow_ellipsis mLeft10 LineHeight32 name"
                 title={item.fullname}
               >
                 {item.fullname}

@@ -10,7 +10,7 @@ const StatusWrap = styled.div`
     //   margin-left: ${props => (props.showTitle ? '3px' : '0px')};
     // }
     &.title {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
@@ -23,7 +23,10 @@ export default function WidgetStatus({ data, showTitle, style }) {
     <StatusWrap showTitle={showTitle} style={style}>
       {data.attribute === 1 && <i className="title icon-ic_title"></i>}
       {[visible, canAdd].some(i => i === '0') && (
-        <i className="icon-visibility_off" style={{ color: visible === '0' ? '#9e9e9e' : '#ffa340' }}></i>
+        <i
+          className="icon-visibility_off"
+          style={{ color: visible === '0' ? 'var(--color-text-tertiary)' : 'var(--color-warning)' }}
+        ></i>
       )}
     </StatusWrap>
   );

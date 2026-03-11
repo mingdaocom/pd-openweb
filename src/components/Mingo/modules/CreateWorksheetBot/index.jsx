@@ -27,6 +27,7 @@ import Send from '../../ChatBot/components/Send';
 import { MINGO_TASK_STATUS, MINGO_TASK_TYPE } from '../../ChatBot/enum';
 import { createWorksheetSuggestionSSE, generateWorksheetWidgetsSSE } from '../../ChatBot/service/aiTask';
 import { buildGenerateWorksheetWidgetsUserMessage } from '../../ChatBot/service/buildGenerateWorksheetWidgetsMessages';
+import { STEP_STATUS } from './config';
 import { getStepStatusText } from './LoadingWithSteps';
 import MingoCreateWorksheet from './MingoCreateWorksheet';
 import MingoEditWorksheetInfo from './MingoEditWorksheetInfo';
@@ -43,7 +44,7 @@ const MingoContentWrap = styled.div`
     font-weight: bold;
     margin: 26px 0 6px;
     font-size: 15px;
-    color: #151515;
+    color: var(--color-text-title);
   }
   .sendCon {
     position: relative;
@@ -105,12 +106,6 @@ function getCurrentAppData({ base = {}, sheetList = {} } = {}) {
     };
   }
 }
-
-export const STEP_STATUS = {
-  GET_WORKSHEET_NAME_AND_ICON: 0,
-  CREATING_WORKSHEET: 1,
-  CREATING_WORKSHEET_WIDGETS: 2,
-};
 
 function MingoContent(props, ref) {
   const {

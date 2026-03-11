@@ -7,7 +7,7 @@ import { findIndex, includes, isEmpty, keys } from 'lodash';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox } from 'ming-ui';
-import { compareWithTime } from 'src/components/Form/core/formUtils';
+import { compareWithTime } from 'src/components/Form/core/formUtils/helper';
 import { isCustomWidget } from 'src/pages/widgetConfig/util';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { DropdownContent, DropdownPlaceholder } from '../../../styled';
@@ -20,7 +20,7 @@ const WeekWrap = styled(DropdownContent)`
     padding: 0 16px;
     cursor: pointer;
     &:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
     }
   }
 `;
@@ -170,7 +170,7 @@ export default function DateVerify({ data, onChange }) {
               <DropdownPlaceholder
                 className={cx({ active: weekVisible })}
                 style={{ marginBottom: '12px' }}
-                color="#151515"
+                color="var(--color-text-title)"
               >
                 {allowweek.length === 7
                   ? _l('每天')
@@ -178,7 +178,7 @@ export default function DateVerify({ data, onChange }) {
                       .split('')
                       .map(key => WEEKDAYS[key])
                       .join('     ')}
-                <i className="icon-arrow-down-border Font16 Gray_9e"></i>
+                <i className="icon-arrow-down-border Font16 textTertiary"></i>
               </DropdownPlaceholder>
             </Dropdown>
           )}

@@ -181,7 +181,7 @@ class AppHome extends React.Component {
           </form>
           {searchValue && (
             <Icon
-              className="Gray_bd mLeft8"
+              className="textDisabled mLeft8"
               icon="workflow_cancel"
               onClick={() => {
                 this.setState({ searchValue: '', searchResult: [] });
@@ -218,9 +218,9 @@ class AppHome extends React.Component {
     const { searchResult = [] } = this.state;
     if (_.isEmpty(searchResult)) {
       return (
-        <div className="flexColumn emptyWrap flex alignItemsCenter justifyContentCenter Gray_9e">
+        <div className="flexColumn emptyWrap flex alignItemsCenter justifyContentCenter textTertiary">
           <Icon icon="h5_search" className="Font50" />
-          <div className="Gray_bd Font17 Bold">{_l('没有搜索结果')}</div>
+          <div className="textDisabled Font17 Bold">{_l('没有搜索结果')}</div>
         </div>
       );
     }
@@ -242,11 +242,11 @@ class AppHome extends React.Component {
         <div className="guideWrapper">
           <div className="guide guide1" />
           <img className="guideImg Absolute" src={arrowLeftImg} />
-          <div className="text Absolute Font18 White bold">
+          <div className="text Absolute Font18 textWhite bold">
             {_l('感谢你尝试安装！我们精心挑选了两个初始应用，供您体验。')}
           </div>
           <div
-            className="ok Absolute Font18 White bold"
+            className="ok Absolute Font18 textWhite bold"
             onClick={() => {
               this.addWebCache();
               this.setState({ guideStep: 2 });
@@ -261,9 +261,9 @@ class AppHome extends React.Component {
         <div className="guideWrapper">
           <div className="guide guide2" />
           <img className="guide2Img Absolute" src={arrowRightImg} />
-          <div className="text2 Absolute Font18 White bold">{_l('您也可从模板库添加一个应用')}</div>
+          <div className="text2 Absolute Font18 textWhite bold">{_l('您也可从模板库添加一个应用')}</div>
           <div
-            className="ok2 Absolute Font18 White bold"
+            className="ok2 Absolute Font18 textWhite bold"
             onClick={() => {
               this.setState({ guideStep: 0 });
             }}
@@ -305,8 +305,8 @@ class AppHome extends React.Component {
               }
             }}
           >
-            <span className="Gray_75 mRight2 Font15 bold500 TxtMiddle">{moreText}</span>
-            <Icon icon={icon} className={`Gray_9e Font18 bold500 ${iconClass}`} />
+            <span className="textSecondary mRight2 Font15 bold500 TxtMiddle">{moreText}</span>
+            <Icon icon={icon} className={`textTertiary Font18 bold500 ${iconClass}`} />
           </div>
         )}
       </div>

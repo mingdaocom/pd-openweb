@@ -32,7 +32,7 @@ class RowBtnList extends React.Component {
                 className="mRight12 svgIconForBtn InlineFlex"
                 addClassName="TxtMiddle"
                 url={iconUrl}
-                fill={!color ? '#1677ff' : color === 'transparent' ? '#151515' : color}
+                fill={!color ? 'var(--color-primary)' : color === 'transparent' ? 'var(--color-text-primary)' : color}
                 size={18}
               />
             ) : (
@@ -41,14 +41,14 @@ class RowBtnList extends React.Component {
                 style={{ color: color }}
                 className={cx(
                   'mRight12 Font18 InlineFlex',
-                  !icon ? 'Gray_bd' : !color ? 'ThemeColor3' : color === 'transparent' ? 'Gray' : '',
+                  !icon ? 'textDisabled' : !color ? 'ThemeColor3' : color === 'transparent' ? 'textPrimary' : '',
                 )}
               />
             )}
           </React.Fragment>
         );
       }
-      return <Icon icon="print" className={cx('mRight12 Font18 Gray_75 InlineFlex')} />;
+      return <Icon icon="print" className={cx('mRight12 Font18 textSecondary InlineFlex')} />;
     };
 
     const getBtns = () => {
@@ -76,14 +76,17 @@ class RowBtnList extends React.Component {
               return (
                 <React.Fragment>
                   {n !== 0 && l > 1 && (
-                    <div className="w100 mTop5 mBottom5" style={{ borderTop: '1px solid #EAEAEA' }} />
+                    <div
+                      className="w100 mTop5 mBottom5"
+                      style={{ borderTop: '1px solid var(--color-border-secondary)' }}
+                    />
                   )}
-                  <li className="Gray_9e">{o.txt}</li>
+                  <li className="textTertiary">{o.txt}</li>
                   {_.map(data, (item, i) => {
                     const { name } = item;
                     return (
                       <Wrap
-                        className="Gray overflow_ellipsis WordBreak btnList flexRow alignItemsCenter"
+                        className="textPrimary overflow_ellipsis WordBreak btnList flexRow alignItemsCenter"
                         key={`${i}-btnList`}
                         onClick={() => {
                           onAdd({
@@ -100,7 +103,7 @@ class RowBtnList extends React.Component {
                 </React.Fragment>
               );
             })}
-            {l <= 0 && <span className="Gray_75 pAll10 LineHeight40">{_l('无可添加按钮')}</span>}
+            {l <= 0 && <span className="textSecondary pAll10 LineHeight40">{_l('无可添加按钮')}</span>}
           </ul>
         </React.Fragment>
       );

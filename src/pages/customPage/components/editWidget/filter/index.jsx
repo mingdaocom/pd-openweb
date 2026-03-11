@@ -18,7 +18,7 @@ const DefaultItem = styled.div`
   align-items: center;
   flex-wrap: wrap;
   justify-content: center;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   margin-top: 15px;
   border-radius: 6px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
@@ -32,7 +32,7 @@ const DefaultItem = styled.div`
 `;
 
 const Wrap = styled.div`
-  background-color: #eee;
+  background-color: var(--color-border-secondary);
   height: 100%;
   display: flex;
   .Menu.List {
@@ -130,7 +130,7 @@ export default function Filter(props) {
     <SideWrap headerText={_l('选择筛选方式')} onClose={onClose}>
       <div className="flexRow valignWrapper mTop20">
         <span className="Font17 mRight10">{_l('筛选器')}</span>
-        <span className="Font14 Gray_9e">{_l('对本页进行搜索')}</span>
+        <span className="Font14 textTertiary">{_l('对本页进行搜索')}</span>
       </div>
       <DefaultItem className="pTop10 pBottom10" onClick={() => {}}>
         {_l('筛选器')}
@@ -158,7 +158,7 @@ export default function Filter(props) {
             </Button>
           </ConfigProvider>
           <Tooltip title={_l('关闭')} placement="bottom">
-            <Icon icon="close" className="Font24 pointer mLeft16 Gray_9e" onClick={onClose} />
+            <Icon icon="close" className="Font24 pointer mLeft16 textTertiary" onClick={onClose} />
           </Tooltip>
         </div>
       </Header>

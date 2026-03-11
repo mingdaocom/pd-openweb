@@ -1,18 +1,13 @@
-@activeColor: #1677ff;
-@refuseColor: #f44336;
-@passColor: #4caf50;
-@returnColor: #ffa340;
-
 .workflowStep {
   &.allowSelect {
     .pointerItem {
-      background-color: #1677ff !important;
+      background-color: var(--color-primary) !important;
     }
     .stepContentWrap {
       cursor: pointer;
-      border-color: #ddd;
+      border-color: var(--color-border-primary);
       &:hover {
-        border-color: #ccc;
+        border-color: var(--color-border-tertiary);
       }
     }
   }
@@ -27,7 +22,7 @@
     height: 17px;
     line-height: 17px;
     font-size: 14px;
-    color: #151515;
+    color: var(--color-text-title);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -41,18 +36,17 @@
 
   .stepContentWrap {
     border-radius: 5px;
-    background-color: #fff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border: 2px solid #fff;
+    background-color: var(--color-background-card);
+    box-shadow: var(--shadow-sm);
     &.active {
-      border-color: #1677ff;
+      border-color: var(--color-background-card);
     }
   }
 
   .stepContent {
     align-items: center;
     margin: 0 14px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
 
     &:last-child {
       border-bottom: 0;
@@ -77,29 +71,29 @@
       }
 
       .action {
-        color: #757575;
+        color: var(--color-text-secondary);
         margin-left: 10px;
         font-size: 14px;
         font-weight: bold;
         &.action-1,
         &.action-19 {
-          color: @activeColor;
+          color: var(--color-primary);
         }
         &.action-5 {
-          color: @refuseColor;
+          color: var(--color-error);
         }
         &.action-4,
         &.action-17 {
-          color: @passColor;
+          color: var(--color-success);
         }
         &.action-13 {
-          color: @returnColor;
+          color: var(--color-warning);
         }
       }
 
       .info {
         margin-top: 4px;
-        color: #757575;
+        color: var(--color-text-secondary);
         word-break: break-all;
         padding-right: 12px;
         font-size: 14px;
@@ -109,7 +103,7 @@
       .infoSignature {
         margin-top: 6px;
         height: 64px;
-        background-color: #fff;
+        background-color: var(--color-background-primary);
         background-repeat: no-repeat;
         background-size: contain;
       }
@@ -119,21 +113,21 @@
       }
 
       .current {
-        color: @activeColor;
+        color: var(--color-primary);
         margin-bottom: 0;
       }
 
       .pass {
-        color: @passColor;
+        color: var(--color-success);
       }
 
       .refuse {
-        color: @refuseColor;
+        color: var(--color-error);
       }
 
       .fileItemImg {
         height: 64px;
-        border: 1px solid #eaeaea;
+        border: 1px solid var(--color-border-secondary);
         margin-right: 6px;
         margin-top: 6px;
         &:hover {
@@ -148,14 +142,14 @@
         display: inline-flex;
         align-items: center;
         height: 28px;
-        background: #f5f5f5;
+        background: var(--color-background-secondary);
         border-radius: 3px;
         max-width: 100%;
         margin-right: 6px;
         margin-top: 6px;
         padding-right: 8px;
         &:hover {
-          background: #f5f5f5;
+          background: var(--color-background-hover);
         }
         .fileIcon {
           margin: 3px;
@@ -173,7 +167,7 @@
       width: 11px;
       height: 11px;
       flex-shrink: 0;
-      background-color: #ddd;
+      background-color: var(--color-border-primary);
       border-radius: 50%;
 
       &.active {
@@ -182,8 +176,8 @@
         height: 20px;
         margin-top: -6px;
         flex: 0 0 20px;
-        background-color: #fff;
-        box-shadow: 0 0 10px 1px #1677ff;
+        background-color: var(--color-white);
+        box-shadow: 0 0 10px 1px var(--color-primary);
 
         &:after {
           content: '';
@@ -193,7 +187,7 @@
           width: 16px;
           height: 16px;
           border-radius: 50%;
-          background: #1677ff;
+          background: var(--color-primary);
         }
       }
     }
@@ -201,7 +195,7 @@
     .pointerLine {
       width: 1px;
       height: 100%;
-      background-color: #eaeaea;
+      background-color: var(--color-border-secondary);
     }
   }
 

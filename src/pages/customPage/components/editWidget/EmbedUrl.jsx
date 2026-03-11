@@ -19,10 +19,10 @@ const ContentWrap = styled(FlexCenter)`
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     font-size: 15px;
     flex: 1;
-    background-color: #eaeaea;
+    background-color: var(--color-border-secondary);
     padding: 24px;
   }
   .configWrap {
@@ -32,7 +32,7 @@ const ContentWrap = styled(FlexCenter)`
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
     overflow: auto;
   }
   .content {
@@ -49,11 +49,11 @@ const ContentWrap = styled(FlexCenter)`
   .previewBtn {
     height: 36px;
     padding: 0 15px;
-    color: #40a9ff;
+    color: var(--color-primary-light);
     border: none;
     border-radius: 24px;
     &:hover {
-      color: #1079cc;
+      color: var(--color-link-hover);
     }
   }
 `;
@@ -92,7 +92,7 @@ function EmbedUrl({ onClose, onEdit, widget = {}, info }) {
               {_l('保存')}
             </Button>
             <Tooltip title={_l('关闭')} placement="bottom">
-              <Icon icon="close" className="Font24 pointer mLeft16 Gray_9e" onClick={onClose} />
+              <Icon icon="close" className="Font24 pointer mLeft16 textTertiary" onClick={onClose} />
             </Tooltip>
           </div>
         </Header>

@@ -82,15 +82,19 @@ class DialogImportExcelCreate extends Component {
   getPreviewData = (params = {}) => {
     const { projectId, appId } = this.props;
     const { filePath, fileType, fileName, token } = params;
-    const worksheetExcelImportDataLimitCount = md.global.Config.IsLocal
-      ? md.global.SysSettings.worksheetExcelImportDataLimitCount
-      : 20000;
+    const worksheetExcelImportDataLimitCount =
+      window.platformENV.isOverseas || window.platformENV.isLocal
+        ? md.global.SysSettings.worksheetExcelImportDataLimitCount
+        : 20000;
 
     const questParams = {
       accountId: md.global.Account.accountId,
       projectId,
       appId,
-      csvName: _.includes(fileType, 'csv') ? fileName : undefined,
+      csvName:
+        _.includes(fileType, 'csv') || (window.isFirefox && fileType === 'application/vnd.ms-excel')
+          ? fileName
+          : undefined, // 兼容windows火狐浏览器获取csv文件类型‘application/vnd.ms-excel’
       filePath,
       token,
     };
@@ -246,9 +250,10 @@ class DialogImportExcelCreate extends Component {
       },
       0,
     );
-    const worksheetExcelImportDataLimitCount = md.global.Config.IsLocal
-      ? md.global.SysSettings.worksheetExcelImportDataLimitCount
-      : 20000; // Sass2w,私有部署取配置
+    const worksheetExcelImportDataLimitCount =
+      window.platformENV.isOverseas || window.platformENV.isLocal
+        ? md.global.SysSettings.worksheetExcelImportDataLimitCount
+        : 20000; // Sass2w,私有部署取配置
 
     if (licenseType === 0 && totalRows + freeRowCount > 50000 && createType !== 'app') {
       alert(_l('超过导入上限(上限 50000 行)，请调整导入数据'), 3);
@@ -387,7 +392,7 @@ class DialogImportExcelCreate extends Component {
     const { projectId } = this.props;
     const hasDataBase =
       getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
-      (!md.global.Config.IsPlatformLocal || !md.global.Config.IsLocal);
+      (!window.platformENV.isPlatform || (!window.platformENV.isOverseas && !window.platformENV.isLocal));
     const hasAppResourceAuth = checkPermission(projectId, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
 
     if (hasDataBase && hasAppResourceAuth) {
@@ -441,6 +446,7 @@ class DialogImportExcelCreate extends Component {
       currentSheetInfo = {},
       selectedImportSheetIds = [],
       appInfo,
+      appId,
     } = this.props;
 
     return (
@@ -452,6 +458,7 @@ class DialogImportExcelCreate extends Component {
         />
         <SetImportExcelCreateWorksheetOrApp
           visible={setDataDialogVisible}
+          appId={appId}
           createType={this.props.createType}
           excelDetailData={excelDetailData}
           currentSheetInfo={currentSheetInfo}

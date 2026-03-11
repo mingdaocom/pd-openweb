@@ -4,7 +4,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, SortableList, SvgIcon } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
-import { PRINT_TEMP } from 'src/pages/Print/config.js';
+import { PRINT_TEMP } from 'src/pages/Print/core/config';
 import { SYS_BTN_LIST } from './config';
 import RowBtnList from './RowBtnList.jsx';
 import './CustomBtn.less';
@@ -27,7 +27,7 @@ const Item = ({ onDelete, DragHandle, item }) => {
               className="mRight12 svgIconForBtn InlineFlex"
               addClassName="TxtMiddle"
               url={iconUrl}
-              fill={!color ? '#1677ff' : color === 'transparent' ? '#151515' : color}
+              fill={!color ? 'var(--color-primary)' : color === 'transparent' ? 'var(--color-text-primary)' : color}
               size={18}
             />
           ) : (
@@ -36,14 +36,14 @@ const Item = ({ onDelete, DragHandle, item }) => {
               style={{ color: color }}
               className={cx(
                 'mRight12 Font18 InlineFlex',
-                !icon ? 'Gray_bd' : !color ? 'ThemeColor3' : color === 'transparent' ? 'Gray' : '',
+                !icon ? 'textDisabled' : !color ? 'ThemeColor3' : color === 'transparent' ? 'textPrimary' : '',
               )}
             />
           )}
         </React.Fragment>
       );
     }
-    return <Icon icon="print" className={cx('mRight12 Font18 Gray_75 InlineFlex')} />;
+    return <Icon icon="print" className={cx('mRight12 Font18 textSecondary InlineFlex')} />;
   };
 
   return (
@@ -52,7 +52,7 @@ const Item = ({ onDelete, DragHandle, item }) => {
         <Icon className="mRight10 Font16 mLeft7 Hand" icon="drag" />
       </DragHandle>
       <span className="Hand con overflow_ellipsis alignItemsCenter">
-        <span className="Font13 WordBreak Gray Bold flexRow alignItemsCenter">
+        <span className="Font13 WordBreak textPrimary Bold flexRow alignItemsCenter">
           {renderIcon(item, SYS_BTN_LIST.map(o => o.key).includes(item.type) ? 'sys' : item.type)}
           <span className={cx('flex overflow_ellipsis')}>{item.name || _l('已删除')}</span>
         </span>

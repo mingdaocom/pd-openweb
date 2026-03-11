@@ -120,7 +120,7 @@ export default class WebhookContent extends Component {
         </div>
         <div className="workflowDetailBox mTop20">
           <div className="Font13 bold">{_l('Webhook URL')}</div>
-          <div className="Gray_75 mTop5">{_l('我们为您生成了一个用来接收请求的URL')}</div>
+          <div className="textSecondary mTop5">{_l('我们为您生成了一个用来接收请求的URL')}</div>
           <div className="mTop10 flexRow">
             <input type="text" className="webhookLink flex" value={data.hookUrl} disabled />
             <div
@@ -137,7 +137,7 @@ export default class WebhookContent extends Component {
           {type === STATUS.NULL && (
             <Fragment>
               <div className="mTop20 bold">{_l('生成参数列表')}</div>
-              <div className="Gray_75 mTop5">{_l('系统将根据生成的参数列表来抓取请求中的数据')}</div>
+              <div className="textSecondary mTop5">{_l('系统将根据生成的参数列表来抓取请求中的数据')}</div>
               <div className="mTop15">
                 <Radio
                   text={_l('从请求范例生成')}
@@ -148,7 +148,7 @@ export default class WebhookContent extends Component {
                   }}
                 />
               </div>
-              <div className="Gray_75 mTop5 mLeft30">{_l('请准备一条GET或POST请求')}</div>
+              <div className="textSecondary mTop5 mLeft30">{_l('请准备一条GET或POST请求')}</div>
               <div className="mTop15">
                 <Radio
                   text={_l('从JSON数据范例生成')}
@@ -174,10 +174,10 @@ export default class WebhookContent extends Component {
           {type === STATUS.POST && (
             <Fragment>
               <div className="mTop20 bold">{_l('从请求范例生成')}</div>
-              <div className="Gray_75 mTop5">{_l('请在3分钟内向URL发送一条GET或POST请求')}</div>
+              <div className="textSecondary mTop5">{_l('请在3分钟内向URL发送一条GET或POST请求')}</div>
               <div
                 className="mTop15 workflowDetailDesc"
-                style={{ padding: '15px 16px', color: overtime ? '#f44336' : '#1677ff' }}
+                style={{ padding: '15px 16px', color: overtime ? 'var(--color-error)' : 'var(--color-primary)' }}
               >
                 {overtime ? _l('当前URL并没有收到任何有效请求，是否重试?') : _l('正在接收请求…')}
               </div>
@@ -205,7 +205,7 @@ export default class WebhookContent extends Component {
                       onClick={checked => updateSource({ hooksBody: !checked }, onSave)}
                     />
                     <Tooltip title={_l('勾选后，将会生成一个记录Body全文的文本格式参数')}>
-                      <i className="Font14 icon-help Gray_9e mLeft5" />
+                      <i className="Font14 icon-help textTertiary mLeft5" />
                     </Tooltip>
                   </Fragment>
                 )}
@@ -216,7 +216,7 @@ export default class WebhookContent extends Component {
           {type === STATUS.CUSTOM && (
             <Fragment>
               <div className="mTop20 bold">{_l('从JSON数据范例生成')}</div>
-              <div className="Gray_75 mTop5">{_l('请提供一个请求数据示例 （JSON格式）')}</div>
+              <div className="textSecondary mTop5">{_l('请提供一个请求数据示例 （JSON格式）')}</div>
               <Textarea
                 className="mTop15"
                 maxHeight={250}
@@ -267,7 +267,7 @@ export default class WebhookContent extends Component {
           {type === STATUS.COMPLETE && (
             <Fragment>
               <div className="mTop20 bold">{_l('参数列表')}</div>
-              <div className="Gray_75 mTop5">
+              <div className="textSecondary mTop5">
                 {_l(
                   '系统将根据以下参数列表来抓取请求中的数据。支持将参数设为必填项，此时如果对方的请求中没有附带该参数时，我们将返回错误消息"msg": "参数缺少必填项"。',
                 )}
@@ -310,7 +310,7 @@ export default class WebhookContent extends Component {
               {!data.hooksAll && (
                 <Fragment>
                   <div className="mTop20 bold">{_l('自定义返回数据')}</div>
-                  <div className="Gray_75 mTop5">
+                  <div className="textSecondary mTop5">
                     {_l('系统默认接受数据后返回')}
                     {'{"status": 1, "data": {"sourceId": "xx", "instanceId": "xx"}, "msg": "成功"}'}
                   </div>

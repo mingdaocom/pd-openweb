@@ -532,7 +532,7 @@ Calendar.Method = {
 
     if (viewName == 'agendaWeek') {
       $('.fc-state-highlight').css({
-        background: '#fff0f0',
+        background: 'var(--color-error-bg)',
         'border-top-width': '1px',
         'border-top-color': '#ff0',
       });
@@ -599,9 +599,8 @@ Calendar.Method = {
     if (viewName == 'month') {
       $('.fcOld td.fc-today').css('border-style', 'solid');
       $('.fc-state-highlight').css({
-        background: '#FCD7D7',
         'border-top-width': '2px',
-        'border-top-color': '#F72F37',
+        'border-top-color': 'var(--color-calendar)',
       });
       $('.fc-row.fc-widget-header').css({
         'border-right-width': 0,

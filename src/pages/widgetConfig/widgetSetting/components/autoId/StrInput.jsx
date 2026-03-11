@@ -10,7 +10,7 @@ export default function StrInput({ rule, deleteRule, updateRule }) {
   const getStyle = () => {
     if (status === 'error') {
       return {
-        borderColor: '#f44336',
+        borderColor: 'var(--color-error)',
         boxShadow: '0 0 4px 1px rgba(244,67,54,.25)',
       };
     }

@@ -4,24 +4,24 @@ import styled from 'styled-components';
 
 const IconWrap = styled.i`
   font-size: 16px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
 
   &.action {
     cursor: pointer;
     &:hover {
-      color: #151515;
+      color: var(--color-text-title);
     }
   }
   &.delete {
     cursor: pointer;
     &:hover {
-      color: #f44336;
+      color: var(--color-error);
     }
   }
   &.link {
     cursor: pointer;
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;

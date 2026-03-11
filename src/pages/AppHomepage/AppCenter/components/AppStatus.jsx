@@ -8,26 +8,26 @@ const AppStatus = styled.div`
   position: absolute;
   left: 50%;
   bottom: 0;
-  border: 2px solid #fff;
-  background-color: #151515;
+  border: 2px solid var(--color-background-primary);
+  background-color: #202124;
   border-radius: 13px;
-  color: #fff;
+  color: var(--color-white);
   line-height: 20px;
   box-sizing: border-box;
   white-space: nowrap;
   padding: 0 10px;
   font-size: 12px;
   &.isOverdue {
-    background: #bdbdbd;
+    background: var(--color-text-disabled);
   }
   &.fixed {
     background: #fd7558;
   }
   &.isUpgrade {
-    background: #4caf50;
+    background: var(--color-success);
   }
   &.isNew {
-    background: #151515;
+    background-color: #202124;
   }
   &.mobilePadding {
     padding: 0 8px;

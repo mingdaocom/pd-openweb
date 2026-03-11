@@ -8,26 +8,26 @@
     border-width: 1px;
     border-style: solid;
     &:hover:not(:focus) {
-      border-color: #bdbdbd !important;
+      border-color: var(--color-text-disabled) !important;
     }
     &:not(:hover):not(:focus) {
-      border-color: #ddd !important;
+      border-color: var(--color-border-primary) !important;
     }
     &::-webkit-input-placeholder {
       font-size: 12px;
-      color: #ccc;
+      color: var(--color-text-placeholder);
     }
     &::-moz-placeholder {
       font-size: 12px;
-      color: #ccc;
+      color: var(--color-text-placeholder);
     }
     &::-moz-placeholder {
       font-size: 12px;
-      color: #ccc;
+      color: var(--color-text-placeholder);
     }
     &::-ms-input-placeholder {
       font-size: 12px;
-      color: #ccc;
+      color: var(--color-text-placeholder);
     }
   }
   .icon {
@@ -39,9 +39,9 @@
   }
   .close {
     right: 8px;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
     &:hover {
-      color: #757575;
+      color: var(--color-text-secondary);
     }
   }
   .hide {

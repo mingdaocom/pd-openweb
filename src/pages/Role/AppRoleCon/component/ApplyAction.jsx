@@ -9,8 +9,8 @@ const Wrap = styled.div`
   .search {
     .conSearch {
       width: auto;
-      background: #fff;
-      border-bottom: 1px solid #ddd;
+      background: var(--color-background-primary);
+      border-bottom: 1px solid var(--color-border-primary);
       border-radius: 0;
     }
   }
@@ -72,7 +72,7 @@ export default class ApplyAction extends PureComponent {
             />
           </div>
           <div className="conListD">
-            {roles.length <= 0 && <p className="Gray_75 mTop20 TxtCenter">{_l('暂无相关数据')}</p>}
+            {roles.length <= 0 && <p className="textSecondary mTop20 TxtCenter">{_l('暂无相关数据')}</p>}
             {_.map(roles, role => {
               return (
                 <MenuItem

@@ -12,10 +12,11 @@ import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import ViewContext from 'worksheet/views/ViewContext';
 import CustomFields from 'src/components/Form';
 import SectionTableNav from 'src/components/Form/components/SectionTableNav';
-import { updateRulesData } from 'src/components/Form/core/formUtils';
-import { controlState, getControlsByTab, isPublicLink } from 'src/components/Form/core/utils';
+import { updateRulesData } from 'src/components/Form/core/formUtils/updateRulesData';
+import { getControlsByTab, isPublicLink } from 'src/components/Form/core/utils';
 import RecordPay from 'src/components/RecordPay';
 import { browserIsMobile } from 'src/utils/common';
+import { controlState } from 'src/utils/control';
 import Abnormal from './Abnormal';
 import FormCover from './FormCover';
 import FormHeader from './FormHeader';
@@ -46,7 +47,7 @@ const FixedCon = styled.div`
   position: absolute;
   bottom: 0px;
   width: 100%;
-  background: #fff;
+  background: var(--color-background-primary);
 `;
 
 const Bottom = styled.div`
@@ -66,16 +67,16 @@ const StickyBar = styled.div`
   transform: translateY(-32px);
   z-index: 3;
   font-size: 12px;
-  color: #515151;
+  color: var(--color-text-title);
   line-height: 32px;
   display: flex;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   cursor: pinter;
   .title {
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   .splitter {
-    color: #757575;
+    color: var(--color-text-secondary);
     margin: 0 6px;
   }
   .content {
@@ -93,7 +94,7 @@ const LockWrap = styled.div`
   .lockContent {
     display: flex;
     align-items: center;
-    border-left: 3px solid #dbdbdb;
+    border-left: 3px solid var(--color-border-primary);
     .lockIcon {
       font-size: 16px;
       color: #56799d;
@@ -149,6 +150,7 @@ function RecordForm(props) {
     loading,
     from,
     isDraft,
+    isMingoCreate = false,
     formFlag,
     abnormal,
     isLock,
@@ -355,7 +357,7 @@ function RecordForm(props) {
         $(sectionTabBarElement).css({
           position: 'sticky',
           top: stickyH,
-          background: '#fff',
+          background: 'var(--color-background-primary)',
           zIndex: 3,
         });
       }
@@ -393,7 +395,7 @@ function RecordForm(props) {
               <Icon icon="lock" />
             </span>
           </Tooltip>
-          {message && <span className="Gray_75">{message}</span>}
+          {message && <span className="textSecondary">{message}</span>}
         </div>
       </LockWrap>
     );
@@ -430,7 +432,7 @@ function RecordForm(props) {
   }
 
   return (
-    <RecordFormContext.Provider value={{ width, recordbase, iseditting }}>
+    <RecordFormContext.Provider value={{ width, recordbase, iseditting, isMingoCreate }}>
       {isFixedLeft && renderFormSection()}
       <div className="recordInfoForm flex flexColumn" ref={recordForm}>
         {(from === RECORD_INFO_FROM.WORKSHEET_ROW_LAND || from === RECORD_INFO_FROM.WORKFLOW) && recordTitle && (
@@ -537,7 +539,7 @@ function RecordForm(props) {
                 {type === 'edit' && isRecordLock && renderRecordLock()}
                 {type === 'edit' && tabHeaderControl && (
                   <div className={cx(_.get(view, 'advancedSetting.showtitle') === '0' ? 'mTop30' : 'mTop46')}>
-                    <div className="recordInfoFormHeader Gray_9 ">
+                    <div className="recordInfoFormHeader textTertiary ">
                       <div className="recordTitleForSection flex">{_.get(tabHeaderControl, 'controlName')}</div>
                     </div>
                   </div>
@@ -621,7 +623,7 @@ function RecordForm(props) {
               {type === 'edit' && !isSplit && <Bottom />}
             </Con>
             <div id="newCustomTabSectionWrap" className={cx('relateRecordBlockCon', { flex: isSplit })}></div>
-            {!isSplit && type === 'edit' && !!tabControls.length && (
+            {!isSplit && type === 'edit' && !!tabControls.length && !isFixedLeft && !isFixedRight && (
               <FixedCon ref={nav}>
                 <ShadowCon>
                   <Shadow />
@@ -644,7 +646,7 @@ function RecordForm(props) {
         )}
         {(abnormal || formdata.length === 0) && (
           <Abnormal
-            resultCode={recordinfo.resultCode}
+            resultCode={recordinfo.errorCode === 300016 ? recordinfo.errorCode : recordinfo.resultCode}
             entityName={recordinfo.entityName}
             empty={!!formdata.length}
             renderAbnormal={renderAbnormal && recordinfo.resultCode === 7 && (() => renderAbnormal(recordinfo))}
@@ -716,7 +718,14 @@ export default function RecordFormCon(props) {
     return (
       <Fragment>
         {isFixedLeft && (
-          <div style={{ padding: 10, width: isUnfold ? 220 : 55, borderRight: '1px solid #d9d9d9', flexShrink: 0 }}>
+          <div
+            style={{
+              padding: 10,
+              width: isUnfold ? 220 : 55,
+              borderRight: '1px solid var(--color-border-primary)',
+              flexShrink: 0,
+            }}
+          >
             {skeleton}
           </div>
         )}

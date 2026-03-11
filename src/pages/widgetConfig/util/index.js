@@ -354,7 +354,7 @@ export const isOtherShowFeild = (control = {}) => {
   return (control.type === 30 || control.originType === 30) && (control.strDefault || '')[0] === '1';
 };
 
-export const formatSearchConfigs = res => {
+export const formatSearchConfigs = (res = {}) => {
   if (!(res.queries || []).length) return [];
   return res.queries.map(item => {
     return { ...item, templates: [{ controls: (res.templates || {})[item.sourceId] || [] }] };
@@ -502,6 +502,7 @@ export const supportSettingCollapse = (props, key) => {
     enumDefault2,
     globalSheetInfo = {},
     sourceControl = {},
+    controlId,
   } = data;
 
   // 回收站只显示基础设置
@@ -510,6 +511,7 @@ export const supportSettingCollapse = (props, key) => {
   }
 
   const isCustom = isCustomWidget(data);
+  const { mode } = window.subListSheetConfig[controlId] || {};
 
   switch (key) {
     case 'base':
@@ -532,7 +534,7 @@ export const supportSettingCollapse = (props, key) => {
         case 30:
           return strDefault.split('')[0] === '0';
         case 34:
-          return !advancedSetting.layercontrolid;
+          return mode === 'relate' ? true : !advancedSetting.layercontrolid;
         case 37:
           const parsedDataSource = parseDataSource(dataSource);
           const { relationControls = [] } = getControlByControlId(allControls, parsedDataSource);

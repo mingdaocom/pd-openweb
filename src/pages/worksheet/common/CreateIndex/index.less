@@ -5,7 +5,7 @@
   right: 0;
   top: 0;
   bottom: 0;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow: -15px 5px 15px rgba(0, 0, 0, 0.15);
   z-index: 12;
   .title {
@@ -15,8 +15,8 @@
     align-items: center;
     justify-content: start;
     font-size: 17px;
-    border-bottom: 1px solid #dddddd;
-    background: #fff;
+    border-bottom: 1px solid var(--color-border-primary);
+    background: var(--color-background-primary);
 
     span {
       flex: 1;
@@ -35,7 +35,7 @@
       font-weight: 500;
     }
     .sunTitle {
-      color: #151515;
+      color: var(--color-text-title);
       margin: 30px 0 18px 0;
     }
     .lineHeight20 {
@@ -61,43 +61,11 @@
     .descriptionInfos {
       margin-top: 30px;
       .desTitle {
-        color: #1677ff;
+        color: var(--color-primary);
       }
       .desContent {
-        color: #757575;
+        color: var(--color-text-secondary);
       }
-    }
-  }
-  .createIndexFooter {
-    height: 66px;
-    padding: 15px 0 15px 25px;
-    font-size: 14px;
-    background-color: #f5f5f5;
-    .confirmBtn {
-      width: 106px;
-      height: 36px;
-      display: inline-block;
-      line-height: 36px;
-      color: #ffffff;
-      background-color: #1677ff;
-      border-radius: 3px;
-      margin-right: 15px;
-      text-align: center;
-    }
-    .disabled {
-      background-color: #9e9e9e;
-      cursor: not-allowed;
-    }
-    .cancelBtn {
-      width: 78px;
-      height: 36px;
-      display: inline-block;
-      line-height: 36px;
-      background: #ffffff;
-      border: 1px solid #1677ff;
-      border-radius: 3px;
-      text-align: center;
-      color: #1677ff;
     }
   }
 }

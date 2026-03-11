@@ -7,10 +7,10 @@ import moment from 'moment';
 import styled from 'styled-components';
 import { Dialog, Icon, LoadDiv, ScrollView } from 'ming-ui';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
-import { getTitleTextFromControls } from 'src/components/Form/core/utils';
 import ApplyInvoiceBtn from 'src/pages/invoice/ApplyInvoiceBtn';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import { browserIsMobile } from 'src/utils/common';
+import { getTitleTextFromControls } from 'src/utils/control';
 import { handlePrePayOrder } from '../Admin/pay/PrePayorder';
 import RecordDetail from './RecordDetail';
 import { canSubmitByLimitFrequency } from './utils';
@@ -19,7 +19,7 @@ const ModalWrapper = styled(Popup)`
   .adm-popup-body {
     display: flex;
     flex-direction: column;
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     color: unset !important;
 
     .recordHeader {
@@ -27,13 +27,13 @@ const ModalWrapper = styled(Popup)`
       align-items: center;
       height: 54px;
       min-height: 54px;
-      background: #fff;
+      background: var(--color-background-primary);
       box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.16);
       border-radius: 3px 3px 0px 0px;
 
       .arrowIcon {
         font-size: 20px;
-        color: #757575;
+        color: var(--color-text-secondary);
         margin-left: 14px;
         cursor: pointer;
       }
@@ -42,7 +42,7 @@ const ModalWrapper = styled(Popup)`
 `;
 
 const DividerLine = styled.div`
-  border-right: 2px solid #bdbdbd;
+  border-right: 2px solid var(--color-text-disabled);
   margin: 0 16px;
   height: 15px;
 `;
@@ -228,16 +228,16 @@ export default function FilledRecord(props) {
 
                 <div className={cx('recordFooter', { isMobile })}>
                   <div title={item.ctime} className="overflow_ellipsis">
-                    <span className="Gray_75">{_l('提交时间')}</span>
+                    <span className="textSecondary">{_l('提交时间')}</span>
                     <span className="mLeft10">{item.ctime}</span>
                   </div>
 
                   {(!_.isUndefined(item.orderStatus) || filledRecord.isPayOrder) && (
                     <div className="statusWrapper">
-                      <span className="Gray_75">{_l('订单状态')}</span>
+                      <span className="textSecondary">{_l('订单状态')}</span>
                       <span
                         className={cx('mLeft10', {
-                          ThemeColor: [0, undefined].includes(item.orderStatus),
+                          colorPrimary: [0, undefined].includes(item.orderStatus),
                           Success: [1, 3].includes(item.orderStatus),
                           Warning: [2, 5].includes(item.orderStatus),
                           Red: item.orderStatus === 4 || (!filledRecord.isPayOrder && item.orderStatus === 0), //订单待支付，但关闭了支付
@@ -352,7 +352,7 @@ export default function FilledRecord(props) {
         >
           <div className="recordHeader">
             <Icon icon="backspace" className="arrowIcon" onClick={() => setListDialogVisible(false)} />
-            <span className="Font15 Gray bold mLeft10">{_l('已填记录')}</span>
+            <span className="Font15 textPrimary bold mLeft10">{_l('已填记录')}</span>
           </div>
           {renderRecordList()}
         </ModalWrapper>

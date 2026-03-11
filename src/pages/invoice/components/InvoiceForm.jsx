@@ -19,11 +19,11 @@ const Wrapper = styled.div`
     flex-direction: column;
     border-radius: 5px;
     padding: 18px 24px 24px;
-    background-color: #f8f8f8;
+    background-color: var(--color-background-secondary);
     margin-bottom: 24px;
     gap: 12px;
     .greenColor {
-      color: #4caf50;
+      color: var(--color-success);
     }
   }
   .formItem {
@@ -33,20 +33,20 @@ const Wrapper = styled.div`
     .label {
       width: 90px;
       padding-right: 10px;
-      color: #757575;
+      color: var(--color-text-secondary);
       position: relative;
     }
     input {
-      border-color: #ddd;
+      border-color: var(--color-border-primary);
       font-size: 13px;
       &::placeholder {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
       &:disabled {
-        background-color: #f7f7f7;
-        border-color: #f7f7f7;
+        background-color: var(--color-background-secondary);
+        border-color: var(--color-background-secondary);
         &:hover {
-          border-color: #f7f7f7;
+          border-color: var(--color-background-secondary);
         }
       }
     }
@@ -73,7 +73,7 @@ const Wrapper = styled.div`
           height: 36px;
           line-height: 36px;
           padding: 0 16px;
-          color: #757575;
+          color: var(--color-text-secondary);
         }
       }
     }
@@ -182,7 +182,7 @@ export default function InvoiceForm(props) {
         const isEnterPrise = formData.invoiceOutputType === 1;
         return (
           <div className={cx('flex titleSearchInput', { isEnterPrise })}>
-            {isEnterPrise && <Icon icon="search" className="Font16 Gray_9e" />}
+            {isEnterPrise && <Icon icon="search" className="Font16 textTertiary" />}
             <Input
               className="w100"
               placeholder={_l('请输入发票抬头')}
@@ -239,12 +239,12 @@ export default function InvoiceForm(props) {
       <div className="contentWrap">
         <div className={cx('topInfoBlock', { pAll25: type === 'test' })}>
           <div className="flexRow alignItemsCenter">
-            <span className="Gray_75">{_l('开票金额：')}</span>
+            <span className="textSecondary">{_l('开票金额：')}</span>
             <span className="greenColor Font32 bold">{'￥' + price}</span>
           </div>
           {type !== 'test' && (
             <div>
-              <span className="Gray_75">{_l('支付内容：')}</span>
+              <span className="textSecondary">{_l('支付内容：')}</span>
               <span>{isConfirmOrTest ? formData.payTitle : description}</span>
             </div>
           )}

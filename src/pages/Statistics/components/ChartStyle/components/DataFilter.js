@@ -59,7 +59,7 @@ export default class DataFilter extends Component {
             className="chartSelect"
             style={{ width: 60 }}
             value={showXAxisType}
-            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
               const newCount = value ? Math.abs(count) : -Math.abs(count);
               this.setState(

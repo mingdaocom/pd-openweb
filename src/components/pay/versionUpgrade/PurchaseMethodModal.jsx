@@ -5,7 +5,7 @@ import FunctionWrap from 'ming-ui/components/FunctionWrap';
 
 const DialogWrap = styled(Dialog)`
   .promptTitle {
-    color: #ff9a2e;
+    color: var(--color-warning);
   }
   .mui-dialog-default-title {
     font-size: 24px !important;
@@ -16,7 +16,7 @@ const DialogWrap = styled(Dialog)`
     .Icon {
       width: 20px !important;
       height: 20px !important;
-      color: #757575 !important;
+      color: var(--color-text-secondary) !important;
     }
   }
   .mui-dialog-header {
@@ -29,7 +29,7 @@ const DialogWrap = styled(Dialog)`
     margin-bottom: 48px;
   }
   .methodItem {
-    border: 1px solid #e8e8e8;
+    border: 1px solid var(--color-border-secondary);
     border-radius: 8px;
     margin-right: 25px;
     padding: 42px 30px 20px 25px;
@@ -53,14 +53,14 @@ const mathods = [
   {
     type: 'payOnline',
     icon: 'icon-wechat_pay',
-    iconColor: '#15BA11',
+    iconColor: 'var(--color-success)',
     title: _l('在线支付'),
     description: _l('适合对HAP产品已经完成试用的中小企业客户'),
   },
   {
     type: 'partner',
     icon: 'icon-thumb_up_alt',
-    iconColor: '#FF9800',
+    iconColor: 'var(--color-warning)',
     title: _l('从专业伙伴购买'),
     description: _l('适合需要行业解决方案和应用搭建支持的企业客户'),
   },
@@ -110,12 +110,12 @@ export default function PurchaseMethodModal(props) {
             <div key={it.type} className="methodItem flex Hand" onClick={() => handleClick(it)}>
               <i className={`ming Icon icon-default icon Font40 ${it.icon}`} style={{ color: it.iconColor }} />
               <div className="title bold">{it.title}</div>
-              <div className="Gray_75 Font16">{it.description}</div>
+              <div className="textSecondary Font16">{it.description}</div>
             </div>
           );
         })}
       </div>
-      <div className="TxtCenter Gray_75 Font16">{_l('*任何购买渠道下，HAP产品授权的价格部分都是一致的')}</div>
+      <div className="TxtCenter textSecondary Font16">{_l('*任何购买渠道下，HAP产品授权的价格部分都是一致的')}</div>
     </DialogWrap>
   );
 }

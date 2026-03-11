@@ -184,7 +184,7 @@ export default class EncryptRules extends Component {
                       {item.name}
                       {!!item.remark && (
                         <Tooltip title={item.remark}>
-                          <Icon icon="info_outline" className="Gray_bd mLeft5" />
+                          <Icon icon="info_outline" className="textDisabled mLeft5" />
                         </Tooltip>
                       )}
                       {item.isDefault && <span className="defaultRule bold">{_l('默认')}</span>}
@@ -242,7 +242,7 @@ export default class EncryptRules extends Component {
                         }
                         popup={() => {
                           return (
-                            <Menu>
+                            <Menu className="Static">
                               <MenuItem
                                 onClick={() => {
                                   this.setState({ showMoreRuleId: null });
@@ -250,10 +250,11 @@ export default class EncryptRules extends Component {
                                     projectId: this.props.projectId,
                                     encryptRuleId: item.encryptRuleId,
                                     ruleDetail: item,
-                                    updateCurrentRow: ({ name, remark }) => {
+                                    updateCurrentRow: ({ name, remark, ...rest }) => {
+                                      console.log(rest, 'rest', name, remark);
                                       const tempData = dataSource.map(it => {
                                         if (it.encryptRuleId === item.encryptRuleId) {
-                                          return { ...it, name, remark };
+                                          return { ...it, name, remark, ...rest };
                                         }
                                         return it;
                                       });
@@ -283,7 +284,9 @@ export default class EncryptRules extends Component {
                                     Confirm({
                                       title: _l('删除 %0 加密规则', item.name),
                                       description: (
-                                        <span className="Gray">{_l('若此规则有被字段使用，则该规则不能删除')}</span>
+                                        <span className="textPrimary">
+                                          {_l('若此规则有被字段使用，则该规则不能删除')}
+                                        </span>
                                       ),
                                       okText: _l('删除'),
                                       buttonType: 'danger',
@@ -305,11 +308,13 @@ export default class EncryptRules extends Component {
                           );
                         }}
                         popupAlign={{
-                          offset: [-180, 0],
+                          offset: [0, 0],
                           points: ['tr', 'br'],
+                          overflow: { adjustX: true, adjustY: true },
                         }}
+                        popupStyle={{ width: 180, height: 120 }}
                       >
-                        <Icon icon="moreop" className="Gray_9e Hand Font18 Hover_21" />
+                        <Icon icon="moreop" className="textTertiary Hand Font18 hoverColorPrimary" />
                       </Trigger>
                     </div>
                   </div>
@@ -329,7 +334,6 @@ export default class EncryptRules extends Component {
           <AddEditRulesDialog
             projectId={projectId}
             visible={showAddEditDialog}
-            encryptList={encryptList}
             ruleList={dataSource}
             onCancel={() => this.setState({ showAddEditDialog: false })}
             getDataList={() => this.setState({ pageIndex: 1 }, this.getDataList)}

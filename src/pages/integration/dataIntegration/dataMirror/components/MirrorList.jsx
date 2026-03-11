@@ -27,15 +27,15 @@ const FilterContent = styled.div`
     height: 36px;
     border-radius: 50%;
     margin-left: 24px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     cursor: pointer;
 
     &:hover {
-      // color: #1677ff;
-      background: #f5f5f5;
+      // color: var(--color-primary);
+      background: var(--color-background-secondary);
     }
     &.isActive {
-      // color: #1677ff;
+      // color: var(--color-primary);
       background: rgba(33, 150, 243, 0.07);
     }
   }
@@ -47,15 +47,15 @@ const ListBox = styled.div`
     min-width: 0;
   }
   &.headTr {
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
     align-items: center;
     margin: 0;
     padding: 8px 0;
     .sortIcon {
-      color: #bfbfbf;
+      color: var(--color-text-disabled);
       height: 8px;
       &.selected {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
@@ -65,16 +65,16 @@ const ListBox = styled.div`
     align-items: center;
     margin: 0;
     padding: 12px 0;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
     .titleText,
     .taskNum {
       font-size: 14px;
       font-weight: 700;
     }
     &:hover {
-      background: rgba(247, 247, 247, 1);
+      background: var(--color-background-card);
       .titleText {
-        color: #1677ff;
+        color: var(--color-primary);
       }
       .optionIcon {
         background: rgba(247, 247, 247, 1);
@@ -118,12 +118,12 @@ const ListBox = styled.div`
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    color: #9e9e9e;
-    background: #fff;
+    color: var(--color-text-tertiary);
+    background: var(--color-background-primary);
 
     &:hover {
-      color: #1677ff;
-      background: #fff !important;
+      color: var(--color-primary);
+      background: var(--color-background-primary) !important;
     }
   }
 
@@ -151,10 +151,10 @@ const NoDataWrapper = styled.div`
     width: 130px;
     height: 130px;
     line-height: 130px;
-    background: #fbfbfb;
+    background: var(--color-background-secondary);
     border-radius: 50%;
     margin: 64px auto 0;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 `;
 
@@ -296,7 +296,7 @@ export default function MirrorList(props) {
       title: _l('已同步(增/改/删)'),
       render: item => {
         return (
-          <div className="Gray_75 overflow_ellipsis">
+          <div className="textSecondary overflow_ellipsis">
             {item.incCount}/{item.updCount}/{item.delCount}
           </div>
         );
@@ -340,7 +340,7 @@ export default function MirrorList(props) {
         return (
           <div className="pRight8">
             <span>{item.creator}</span>
-            <span className="Gray_9e">{` 创建于 ${formatDate(item.createDate)}`}</span>
+            <span className="textTertiary">{` 创建于 ${formatDate(item.createDate)}`}</span>
           </div>
         );
       },
@@ -423,7 +423,7 @@ export default function MirrorList(props) {
                 <span className="iconCon InlineBlock TxtCenter ">
                   <i className="icon-synchronization Font64 TxtMiddle" />
                 </span>
-                <p className="Gray_9e mTop20 mBottom0">{_l('暂无数据')}</p>
+                <p className="textTertiary mTop20 mBottom0">{_l('暂无数据')}</p>
               </NoDataWrapper>
             )}
           </ListBox>

@@ -10,6 +10,7 @@ import './index.less';
 
 export default function ProcessDelegation(props) {
   const { topTab = {}, className } = props;
+  const isWaitingApproval = topTab.id === 'waitingApproval';
   const [cardListVisible, setCardListVisible] = useState(false);
   const [delegationList, setDelegationList] = useState([]);
   const [configVisible, setConfigVisible] = useState(false);
@@ -45,9 +46,14 @@ export default function ProcessDelegation(props) {
   };
 
   return (
-    <div className={cx(`card processDelegation ${className}`, { bottom124: topTab.id === 'waitingApproval' })}>
+    <div
+      className={cx(`processDelegation ${className}`, {
+        bottom124: !window.isMingDaoApp && isWaitingApproval,
+        bottom160: window.isMingDaoApp && isWaitingApproval,
+      })}
+    >
       <div className="flexRow alignItemsCenter justifyContentCenter" onClick={handleClickDelegation}>
-        <Icon className="Font24 Gray_9e" icon="lift" />
+        <Icon className="Font24 textTertiary" icon="lift" />
         {!_.isEmpty(delegationList) && <div className="redDot"></div>}
       </div>
 
@@ -62,7 +68,7 @@ export default function ProcessDelegation(props) {
             <div className="pTop10 pBottom10 pRight16 TxtRight">
               <Icon
                 icon="cancel"
-                className="Font22 Gray_9e"
+                className="Font22 textTertiary"
                 onClick={() => {
                   setCardListVisible(false);
                 }}

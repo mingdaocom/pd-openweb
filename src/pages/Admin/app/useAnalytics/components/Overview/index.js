@@ -19,14 +19,14 @@ import LineChart from '../LineChart';
 import loadingSvg from '../loading.svg';
 
 const Summary = styled.div`
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   padding: 20px 32px 0;
   margin-bottom: 32px;
   .summaryItem {
     height: 133px;
     flex-direction: column;
     display: flex;
-    background: #fafafa;
+    background: var(--color-background-secondary);
     border-radius: 3px;
     justify-content: center;
     align-items: center;
@@ -42,7 +42,7 @@ const Summary = styled.div`
       width: calc(50% - 12px) !important;
     }
     &.linkHover:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
     }
   }
   .summaryWrap {
@@ -52,7 +52,7 @@ const Summary = styled.div`
 `;
 
 const ChartWrap = styled.div`
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   padding: 20px 32px;
   .conditions {
     justify-content: space-between;
@@ -66,7 +66,7 @@ const ChartWrap = styled.div`
         border-radius: 3px;
         .ant-select-selector {
           height: 36px;
-          border: 1px solid #eaeaea;
+          border: 1px solid var(--color-border-secondary);
           border-radius: 3px;
           .ant-select-selection-item {
             line-height: 34px;
@@ -84,7 +84,7 @@ const ChartWrap = styled.div`
       }
     }
     .dateDimension {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-secondary);
       height: 36px;
       border-radius: 3px;
       .dimensionItem {
@@ -96,8 +96,8 @@ const ChartWrap = styled.div`
         cursor: pointer;
         margin: 2px;
         &.currentDimension {
-          color: #1677ff;
-          background-color: #fff;
+          color: var(--color-primary);
+          background-color: var(--color-background-primary);
           border-radius: 3px;
         }
       }
@@ -124,7 +124,7 @@ const ChartWrap = styled.div`
       vertical-align: middle;
     }
     .colorBlue {
-      background: #1677ff;
+      background: var(--color-primary);
     }
     .colorGreen {
       background: #61ddaa;
@@ -197,7 +197,7 @@ export default class Overview extends Component {
       value >= 10000 && !isEnLang ? (
         <span>
           {value >= 100000000 ? _.floor(parseFloat(value / 100000000), 4) : parseFloat(value / 10000)}
-          <span className="Gray_9e Font16 mLeft3">{value >= 100000000 ? _l('亿+') : _l('万')}</span>
+          <span className="textTertiary Font16 mLeft3">{value >= 100000000 ? _l('亿+') : _l('万')}</span>
         </span>
       ) : (
         formatValue(value)
@@ -222,7 +222,7 @@ export default class Overview extends Component {
     return (
       <Fragment>
         {num}
-        <span className="Font16 Gray_9e mLeft3">{suffix}</span>
+        <span className="Font16 textTertiary mLeft3">{suffix}</span>
       </Fragment>
     );
   };
@@ -469,7 +469,7 @@ export default class Overview extends Component {
 
   renderLoading = () => {
     return (
-      <div className="loadingChart h100 GrayBGFA">
+      <div className="loadingChart h100 bgSecondary">
         <img src={loadingSvg} />
       </div>
     );
@@ -514,48 +514,48 @@ export default class Overview extends Component {
     return (
       <Fragment>
         <Summary ref={this.summaryRef}>
-          <div className="Font17 fontWeight600 mBottom20 Black">{_l('汇总概览')}</div>
+          <div className="Font17 fontWeight600 mBottom20 textPrimary">{_l('汇总概览')}</div>
           {this.props.appId ? (
             <div className="flexRow summaryWrap">
               <div className="summaryItem summaryCol3">
-                <div className="Gray_75 fontWeight600">{_l('工作表总数')}</div>
+                <div className="textSecondary fontWeight600">{_l('工作表总数')}</div>
                 <div className="Font30 ">{this.formatStastics(workSheetCount)}</div>
               </div>
               <div className="summaryItem summaryCol3">
-                <div className="Gray_75 fontWeight600">{_l('行记录总数')}</div>
+                <div className="textSecondary fontWeight600">{_l('行记录总数')}</div>
                 <div className="Font30 ">{this.formatStastics(rowCount)}</div>
               </div>
               <div className="summaryItem summaryCol3">
-                <div className="Gray_75 fontWeight600">{_l('工作流总数')}</div>
+                <div className="textSecondary fontWeight600">{_l('工作流总数')}</div>
                 <div className="Font30 ">{this.formatStastics(workFlowCount)}</div>
               </div>
             </div>
           ) : (
             <div className="flexRow summaryWrap">
               <div className="summaryItem Hand linkHover" onClick={() => this.linkHref('app')}>
-                <div className="Gray_75 fontWeight600 ">{_l('应用数')}</div>
+                <div className="textSecondary fontWeight600 ">{_l('应用数')}</div>
                 <div className="Font30 ">{this.formatStastics(effectiveApkCount) || '-'}</div>
               </div>
               <div className="summaryItem">
-                <div className="Gray_75 fontWeight600">{_l('工作表总数')}</div>
+                <div className="textSecondary fontWeight600">{_l('工作表总数')}</div>
                 <div className="Font30 ">{this.formatStastics(effectiveWorksheetCount) || '-'}</div>
               </div>
               <div className="summaryItem">
-                <div className="Gray_75 fontWeight600">{_l('行记录总数')}</div>
+                <div className="textSecondary fontWeight600">{_l('行记录总数')}</div>
                 <div className="Font30 ">{this.formatStastics(effectiveWorksheetRowCount) || '-'}</div>
               </div>
               <div className="summaryItem Hand linkHover" onClick={() => this.linkHref('workflows')}>
-                <div className="Gray_75 fontWeight600 ">{_l('工作流总数')}</div>
+                <div className="textSecondary fontWeight600 ">{_l('工作流总数')}</div>
                 <div className="Font30 ">{this.formatStastics(effectiveWorkflowCount) || '-'}</div>
               </div>
               <div className="summaryItem Hand linkHover">
-                <div className="Gray_75 fontWeight600 ">
+                <div className="textSecondary fontWeight600 ">
                   {_l('附件累计存储量')}
                   <Tooltip title={_l('指应用下字段、讨论等附件，此数据每天统计一次，第二天自动重新计算')}>
-                    <Icon icon="info" className="Gray_9e mLeft4 Hand" />
+                    <Icon icon="info" className="textTertiary mLeft4 Hand" />
                   </Tooltip>
                 </div>
-                <div className={showEffectiveAttachment ? 'Font30' : 'Font14 Gray_9e mTop6'}>
+                <div className={showEffectiveAttachment ? 'Font30' : 'Font14 textTertiary mTop6'}>
                   {showEffectiveAttachment
                     ? this.formatFileSize(effectiveAttachmentTotal)
                     : _l('数据计算中，请稍候...')}
@@ -565,7 +565,7 @@ export default class Overview extends Component {
           )}
         </Summary>
         <ChartWrap>
-          <div className="Font17 fontWeight600 Black">{_l('使用情况')}</div>
+          <div className="Font17 fontWeight600 textPrimary">{_l('使用情况')}</div>
           <div className="conditions flexRow">
             <div className="selectCondition flexRow flex">
               <Select
@@ -594,7 +594,7 @@ export default class Overview extends Component {
                       .indexOf(inputValue.toLowerCase()) > -1
                   }
                   suffixIcon={<Icon icon="arrow-down-border" className="Font18" />}
-                  notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
+                  notFoundContent={<span className="textTertiary">{_l('无搜索结果')}</span>}
                   onSearch={_.debounce(
                     val => this.setState({ keyword: val, appPageIndex: 1 }, () => this.getAppList(projectId)),
                     500,
@@ -655,7 +655,7 @@ export default class Overview extends Component {
             </div>
           </div>
           <div className="charContainer">
-            <div className="Font15 fontWeight600 mBotto8 Black">
+            <div className="Font15 fontWeight600 mBotto8 textPrimary">
               {_l('应用访问量')}
               <Tooltip
                 placement="bottom"
@@ -671,13 +671,13 @@ export default class Overview extends Component {
                   </span>
                 }
               >
-                <Icon icon="info" className="Font16 Gray_9e mLeft12 hover_f3" />
+                <Icon icon="info" className="Font16 textTertiary mLeft12 hover_f3" />
               </Tooltip>
             </div>
             {this.renderChart(appStatisticsResult, true, { type: 'app', total1: totalDegree, total2: appTotal })}
           </div>
           <div className="charContainer">
-            <div className="Font15 fontWeight600 mBotto8 Black">
+            <div className="Font15 fontWeight600 mBotto8 textPrimary">
               {_l('记录创建量')}
               <Tooltip
                 placement="bottom"
@@ -689,7 +689,7 @@ export default class Overview extends Component {
                   </span>
                 }
               >
-                <Icon icon="info" className="Font16 Gray_9e mLeft12 hover_f3" />
+                <Icon icon="info" className="Font16 textTertiary mLeft12 hover_f3" />
               </Tooltip>
             </div>
             {this.renderChart(recordStatisticsResult, true, {
@@ -699,19 +699,19 @@ export default class Overview extends Component {
             })}
           </div>
           <div className="charContainer">
-            <div className="Font15 fontWeight600 mBotto8 Black">
+            <div className="Font15 fontWeight600 mBotto8 textPrimary">
               {_l('工作流执行数')}
               <Tooltip title={_l('筛选条件“按部门”不生效')} placement="bottom">
-                <Icon icon="info" className="Font16 Gray_9e mLeft12 hover_f3" />
+                <Icon icon="info" className="Font16 textTertiary mLeft12 hover_f3" />
               </Tooltip>
             </div>
             {this.renderChart(workflowStatisticsResult, false, { type: 'workflow', total: totalNumberOfexecute })}
           </div>
           <div className="charContainer">
-            <div className="Font15 fontWeight600 mBotto8 Black">
+            <div className="Font15 fontWeight600 mBotto8 textPrimary">
               {_l('附件上传量')}
               <Tooltip title={_l('公开表单仅统计非平台登录用户上传的附件')}>
-                <Icon icon="info" className="Font16 Gray_9e mLeft12 hover_f3" />
+                <Icon icon="info" className="Font16 textTertiary mLeft12 hover_f3" />
               </Tooltip>
             </div>
             {this.renderChart(attachmentStatisticsResult, false, {

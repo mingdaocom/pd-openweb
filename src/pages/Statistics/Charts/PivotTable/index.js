@@ -3,11 +3,19 @@ import { generate } from '@ant-design/colors';
 import { Dropdown, Menu, Table } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icon, Linkify } from 'ming-ui';
+import { Icon, Linkify, UserCard } from 'ming-ui';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import { isFormatNumber, relevanceImageSize } from 'statistics/common';
+import {
+  isDisplayModes,
+  isFormatNumber,
+  isOptionControl,
+  relevanceImageSize,
+  renderFieldStyleValue,
+} from 'statistics/common';
+import DepartmentTooltip from 'src/components/Form/DesktopForm/widgets/DepartmentSelect/DepartmentTooltip';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { isLightColor } from 'src/pages/customPage/util';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { browserIsMobile, getClassNameByExt } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
 import { formatNumberValue, formatrChartValue, getStyleColor } from '../common';
@@ -24,6 +32,7 @@ import {
 
 const isMobile = browserIsMobile();
 const isPrintPivotTable = location.href.includes('printPivotTable');
+const textStyle = { wordWrap: 'break-word', wordBreak: 'break-word' };
 
 export const replaceColor = ({ pivotTableStyle, customPageConfig, themeColor, sourceType }) => {
   const data = _.clone(pivotTableStyle);
@@ -284,7 +293,7 @@ export default class extends Component {
         controlId: controlId,
         values: [param[key]],
         controlName,
-        controlValue: controlType === 29 ? _l('关联表') : controlValue || '--',
+        controlValue: renderFieldStyleValue(controlType, controlValue) || '--',
         type: controlType,
         control,
       });
@@ -299,7 +308,7 @@ export default class extends Component {
         controlId: item.controlId,
         values: [param[item.cid]],
         controlName: item.controlName,
-        controlValue: controlValue || '--',
+        controlValue: renderFieldStyleValue(item.controlType, controlValue),
         type: item.controlType,
         control: item,
       });
@@ -355,7 +364,7 @@ export default class extends Component {
     }
     const index = _.findIndex(res, { fileID: file.fileID });
     const allowDownload = (_.get(control, 'advancedSetting.allowdownload') || '1') === '1';
-    const hideFunctions = ['editFileName', 'saveToKnowlege'].concat(allowDownload ? [] : ['download', 'share']);
+    const hideFunctions = ['editFileName', 'saveToKnowlege', 'share'].concat(allowDownload ? [] : ['download']);
     previewAttachments({
       attachments: res,
       index,
@@ -375,11 +384,12 @@ export default class extends Component {
     const freeze = isMobile ? mobilePivotTableLineFreeze : pivotTableLineFreeze;
     const freezeIndex = isMobile ? mobilePivotTableLineFreezeIndex : pivotTableLineFreezeIndex;
     const fIndex = freezeIndex + 1;
-    const isHideHeaderLastTr = columns.length && !lines.length && yaxisList.length === 1;
+    const yaxisListLength = yaxisList.filter(n => !n.hide).length;
+    const isHideHeaderLastTr = columns.length && !lines.length && yaxisListLength === 1;
 
     columns = _.cloneDeep(columns);
 
-    if (columns.length && lines.length && yaxisList.length === 1) {
+    if (columns.length && lines.length && yaxisListLength === 1) {
       columns.pop();
     }
 
@@ -511,11 +521,13 @@ export default class extends Component {
   }
   getColumnsContent(result) {
     const { reportData, isViewOriginalData } = this.props;
-    const { columns, lines, valueMap, yvalueMap, yaxisList, pivotTable, displaySetup } = reportData;
+    const { columns, lines, valueMap, yvalueMap, pivotTable, displaySetup } = reportData;
+    const yaxisList = reportData.yaxisList.filter(item => !item.hide);
     const { columnSummary = {} } = pivotTable || reportData;
     const dataList = [];
-    const controlMinAndMax = getControlMinAndMax(yaxisList, result);
-    const isHideHeaderLastTr = columns.length && !lines.length && yaxisList.length === 1;
+    const controlMinAndMax = getControlMinAndMax(reportData.yaxisList, reportData.data.data);
+    const yaxisListLength = yaxisList.filter(n => !n.hide).length;
+    const isHideHeaderLastTr = columns.length && !lines.length && yaxisListLength === 1;
 
     const getTitle = (id, data) => {
       if (_.isNull(data)) return;
@@ -572,7 +584,14 @@ export default class extends Component {
               record.lineSubTotal = Number(yvalueMap[item.controlId][subTotal]);
             }
             record.sumCount = columnData.sum;
-            return this.renderBodyTd(value, record, item.controlId, controlMinAndMax);
+            return this.renderBodyTd({
+              value,
+              record,
+              controlId: item.controlId,
+              controlMinAndMax,
+              columnIndex: index,
+              recordIndex,
+            });
           },
         };
       });
@@ -619,16 +638,17 @@ export default class extends Component {
           const colSpan = isObject ? firstItem.length : 1;
           const id = columns[0].cid;
           const children = item.y.length > 1 ? getChildren(1, index, colSpan) : getYaxisList(index);
+          const dragIndex = index + (lines.length || 1);
           const obj = {
             title: () => {
               return (
                 <Fragment>
                   {getTitle(id, firstItem)}
-                  {columns.length === 1 && yaxisList.length === 1 && this.renderDrag(index + lines.length)}
+                  {columns.length === 1 && yaxisList.length === 1 && this.renderDrag(dragIndex)}
                 </Fragment>
               );
             },
-            width: children.length ? undefined : this.getColumnWidth(index + lines.length),
+            width: children.length ? undefined : this.getColumnWidth(dragIndex),
             key: id,
             colSpan,
             children,
@@ -730,7 +750,14 @@ export default class extends Component {
               newRecord.showNumber = record.isSubTotal && newRecord.type === 'columns' ? true : showNumber;
               // newRecord.showPercent = (subTotal || newRecord.key === 'sum' && !record.isSubTotal && newRecord.type === 'columns') && percent.enable && percent.type;
               newRecord.showPercent = false;
-              return this.renderBodyTd(value, newRecord, item.t_id, controlMinAndMax);
+              return this.renderBodyTd({
+                value,
+                record: newRecord,
+                controlId: item.t_id,
+                controlMinAndMax,
+                columnIndex: index - 1,
+                recordIndex,
+              });
             },
           });
         }
@@ -988,10 +1015,61 @@ export default class extends Component {
       </div>
     );
   }
+  renderSheetControl(data, control) {
+    const { isThumbnail, sourceType } = this.props;
+    const { controlType, advancedSetting } = control;
+    if (controlType === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT) {
+      const item = window.safeParse(data);
+      return (
+        <DepartmentTooltip projectId={item.projectId} item={item}>
+          <div className="departmentWrap">{item.departmentName}</div>
+        </DepartmentTooltip>
+      );
+    }
+    if (controlType === WIDGETS_TO_API_TYPE_ENUM.USER_PICKER) {
+      const { projectId } = this.props;
+      const { accountId, fullname, avatar } = window.safeParse(data);
+      if (accountId) {
+        return (
+          <div className="userWrap flexRow alignItemsCenter pointer">
+            <div className="userHead">
+              <UserCard
+                sourceId={accountId}
+                projectId={projectId || localStorage.currentProjectId}
+                newPageChat={!isThumbnail || sourceType === 2}
+              >
+                <img className="circle w100" src={avatar} />
+              </UserCard>
+            </div>
+            <div className="mLeft6 flex ellipsis">{fullname}</div>
+          </div>
+        );
+      } else {
+        return data;
+      }
+    }
+    if (controlType === WIDGETS_TO_API_TYPE_ENUM.SWITCH) {
+      if (_.get(advancedSetting, 'showtype') === '0') {
+        return data === '1' ? '✅' : '';
+      } else {
+        return data;
+      }
+    }
+    if (isOptionControl(controlType)) {
+      const { value, color } = window.safeParse(data);
+      return (
+        <div className="optionWrap" style={{ backgroundColor: color || 'rgba(80, 120, 150, 0.08)' }}>
+          {value || data}
+        </div>
+      );
+    }
+    return data;
+  }
   renderLineTd(data, row, index, control, diffWidth) {
     const { style } = this.props.reportData;
     const { pivotTableUnilineShow } = style ? style : {};
-    const { controlType, fields } = control;
+    const { controlType, fields, displayMode = 'text' } = control;
+    const isFieldStyle = isDisplayModes(controlType) && displayMode === 'fieldStyle';
 
     if (data === null) {
       return {
@@ -1022,6 +1100,11 @@ export default class extends Component {
       } else if (_.isString(data.value) && data.value.includes('subTotal')) {
         return {
           children: data.subTotalName,
+          props,
+        };
+      } else if (isFieldStyle) {
+        return {
+          children: <div style={textStyle}>{data.sum ? data.value : this.renderSheetControl(data.value, control)}</div>,
           props,
         };
       } else {
@@ -1058,8 +1141,6 @@ export default class extends Component {
       return data;
     }
 
-    const textStyle = { wordWrap: 'break-word', wordBreak: 'break-word' };
-
     if (controlType === 2) {
       return (
         <div style={textStyle}>
@@ -1070,9 +1151,13 @@ export default class extends Component {
       );
     }
 
+    if (isFieldStyle) {
+      return <div style={textStyle}>{this.renderSheetControl(data, control)}</div>;
+    }
+
     return <div style={textStyle}>{data}</div>;
   }
-  renderBodyTd(value, record, controlId, controlMinAndMax) {
+  renderBodyTd({ value, record, controlId, controlMinAndMax, columnIndex, recordIndex }) {
     const { yaxisList, displaySetup } = this.props.reportData;
     const { colorRules = [] } = displaySetup;
     const style = {};
@@ -1100,12 +1185,41 @@ export default class extends Component {
         controlMinAndMax,
         controlId,
         record,
+        emptyShowType,
       };
       if (textColorRule.model) {
-        style.color = getStyleColor(Object.assign(data, { rule: textColorRule, emptyShowType }));
+        if (controlId !== textColorRule.controlId) {
+          const colorRuleIndex = _.findIndex(yaxisList, { controlId: textColorRule.controlId });
+          if (record.type === 'line') {
+            const colorRuleData = this.result[columnIndex + colorRuleIndex] || {};
+            data.value = colorRuleData.sum;
+          } else {
+            const colorRuleData = _.get(this.result[columnIndex + colorRuleIndex], 'data') || [];
+            data.value = colorRuleData[recordIndex];
+          }
+        }
+        style.color = getStyleColor(
+          Object.assign(data, {
+            rule: textColorRule,
+          }),
+        );
       }
       if (bgColorRule.model) {
-        style.backgroundColor = getStyleColor(Object.assign(data, { rule: bgColorRule, emptyShowType }));
+        if (controlId !== bgColorRule.controlId) {
+          const colorRuleIndex = _.findIndex(yaxisList, { controlId: bgColorRule.controlId });
+          if (record.type === 'line') {
+            const colorRuleData = this.result[columnIndex + colorRuleIndex] || {};
+            data.value = colorRuleData.sum;
+          } else {
+            const colorRuleData = _.get(this.result[columnIndex + colorRuleIndex], 'data') || [];
+            data.value = colorRuleData[recordIndex];
+          }
+        }
+        style.backgroundColor = getStyleColor(
+          Object.assign(data, {
+            rule: bgColorRule,
+          }),
+        );
       }
       if (dataBarRule && record.key !== 'sum') {
         Object.assign(
@@ -1194,13 +1308,13 @@ export default class extends Component {
       <Menu className="chartMenu" style={{ width: 160 }}>
         <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
           <div className="flexRow valignWrapper">
-            <Icon icon="link1" className="mRight8 Gray_9e Font20 autoLinkageIcon" />
+            <Icon icon="link1" className="mRight8 textTertiary Font20 autoLinkageIcon" />
             <span>{_l('联动')}</span>
           </div>
         </Menu.Item>
         <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
           <div className="flexRow valignWrapper">
-            <Icon icon="table" className="mRight8 Gray_9e Font18" />
+            <Icon icon="table" className="mRight8 textTertiary Font18" />
             <span>{_l('查看原始数据')}</span>
           </div>
         </Menu.Item>
@@ -1253,7 +1367,7 @@ export default class extends Component {
             contentYAuto: _.isUndefined(scrollConfig.y),
             contentAutoHeight: scrollConfig.x && _.isUndefined(scrollConfig.y),
             contentScroll: scrollConfig.y,
-            hideHeaderLastTr: columns.length && yaxisList.length === 1,
+            hideHeaderLastTr: columns.length && yaxisList.filter(n => !n.hide).length === 1,
             hideBody: _.isEmpty(lines) && _.isEmpty(yaxisList),
             hideDrag: widthModel === 3,
             noSelect: dragValue,
@@ -1264,6 +1378,7 @@ export default class extends Component {
           <Table
             bordered
             size="small"
+            className="pivotTable"
             tableLayout={widthConfig ? 'fixed' : undefined}
             rowClassName={record => {
               return record.key === 'sum' || record.isSubTotal ? 'sum-content' : undefined;
@@ -1290,7 +1405,7 @@ export default class extends Component {
             dataSource={dataSource}
             scroll={scrollConfig}
           />
-          {!!dragValue && <div style={{ left: dragValue }} className="dragLine" />}
+          {!!dragValue && <div style={{ left: dragValue }} className="pivotTableDragLine" />}
         </PivotTableContent>
         <Dropdown
           visible={dropdownVisible}

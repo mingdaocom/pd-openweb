@@ -97,7 +97,9 @@ const RelationList = props => {
         <div className="type-icon">
           <i
             className={iconName}
-            style={{ color: item.type === 1 && item.ext1 === '1' ? '#43bd36' : 'var(--color-text-tertiary)' }}
+            style={{
+              color: item.type === 1 && item.ext1 === '1' ? 'var(--color-success)' : 'var(--color-text-tertiary)',
+            }}
           />
         </div>
 

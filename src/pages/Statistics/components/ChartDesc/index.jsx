@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Input } from 'antd';
+import { Button, ConfigProvider, Input } from 'antd';
 import styled from 'styled-components';
 import reportConfig from '../../api/reportConfig';
 
@@ -50,7 +50,7 @@ export default class ChartDesc extends Component {
   render() {
     const { desc } = this.state;
     return (
-      <Con className="WhiteBG z-depth-2 boderRadAll_4" style={{ width: 300, padding: 12 }}>
+      <Con className="bgCard z-depth-2 boderRadAll_4" style={{ width: 300, padding: 12 }}>
         <TextArea
           rows={4}
           autoSize={{ minRows: 4, maxRows: 6 }}
@@ -63,12 +63,14 @@ export default class ChartDesc extends Component {
           }}
         />
         <div className="TxtRight pTop20 pBottom5">
-          <Button type="text" size="small" onClick={this.props.onClose}>
+          <Button type="text" size="small" className="textSecondary hoverTextPrimaryLight" onClick={this.props.onClose}>
             {_l('取消')}
           </Button>
-          <Button type="primary" size="small" className="mLeft10" onClick={this.handleSave}>
-            {_l('保存')}
-          </Button>
+          <ConfigProvider autoInsertSpaceInButton={false}>
+            <Button type="primary" size="small" className="mLeft10 hoverBgPrimaryDark" onClick={this.handleSave}>
+              {_l('保存')}
+            </Button>
+          </ConfigProvider>
         </div>
       </Con>
     );

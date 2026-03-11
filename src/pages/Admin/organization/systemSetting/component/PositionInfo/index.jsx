@@ -155,7 +155,7 @@ class PositionInfo extends Component {
                 />
                 {searchValue ? (
                   <span
-                    className="Font14 icon-cancel Gray_c Hand Absolute"
+                    className="Font14 icon-cancel textPlaceholder Hand Absolute"
                     style={{
                       top: '8px',
                       right: '8px',
@@ -190,7 +190,7 @@ class PositionInfo extends Component {
                     </Menu>
                   }
                 >
-                  <Icon icon="moreop" className="Gray_75 Hand Font20 TxtMiddle iconHover" />
+                  <Icon icon="moreop" className="textSecondary Hand Font20 TxtMiddle iconHover" />
                 </Dropdown>
               </div>
               <div className="positionList">
@@ -214,10 +214,10 @@ class PositionInfo extends Component {
                             }
                           }}
                         >
-                          <Icon className="Font16 Gray_9e mRight10" icon="limit-principal" />
+                          <Icon className="Font16 textTertiary mRight10" icon="limit-principal" />
                           <span className={cx('overflow_ellipsis WordBreak jobName flex')}>{item.jobName}</span>
                           <Icon
-                            className="Font16 Gray_9e Right editIcon"
+                            className="Font16 textTertiary Right editIcon"
                             icon="edit_17"
                             onClick={() => {
                               this.createAndEdit('edit');
@@ -233,11 +233,11 @@ class PositionInfo extends Component {
                       );
                     })
                   ) : (
-                    <div className="Gray_9e pLeft24 mTop16">
+                    <div className="textTertiary pLeft24 mTop16">
                       {_l('暂无职位，可')}
                       <span
                         className="Hand"
-                        style={{ color: '#1677ff' }}
+                        style={{ color: 'var(--color-primary)' }}
                         onClick={() => {
                           this.props.updateIsImportRole(true);
                         }}

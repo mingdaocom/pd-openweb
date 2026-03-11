@@ -8,7 +8,7 @@ import { formatDate } from '../../../../config';
 import { TASK_STATUS_TYPE } from '../../../constant';
 
 const UsageDetailWrapper = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   min-height: 100%;
   padding: 40px 80px;
   .headTr,
@@ -17,7 +17,7 @@ const UsageDetailWrapper = styled.div`
     align-items: center;
     margin: 0;
     padding: 15px 0;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
 
     .titleColumn {
       min-width: 124px;
@@ -25,7 +25,7 @@ const UsageDetailWrapper = styled.div`
     .arrowIcon {
       transform: rotate(-90deg);
       margin-right: 8px;
-      color: #d0d0d0;
+      color: var(--color-border-primary);
       font-size: 20px;
     }
     .ant-switch-checked {
@@ -40,12 +40,12 @@ const UsageDetailWrapper = styled.div`
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    color: #9e9e9e;
-    background-color: #fff;
+    color: var(--color-text-tertiary);
+    background-color: var(--color-background-primary);
 
     &:hover {
-      color: #1677ff;
-      background-color: #f5f5f5;
+      color: var(--color-primary);
+      background-color: var(--color-background-hover);
     }
   }
 
@@ -53,10 +53,10 @@ const UsageDetailWrapper = styled.div`
     flex: 1;
 
     .running {
-      color: #47b14b;
+      color: var(--color-success);
     }
     .error {
-      color: #f44336;
+      color: var(--color-error);
     }
   }
   .taskName {
@@ -79,10 +79,10 @@ const NoDataWrapper = styled.div`
     width: 130px;
     height: 130px;
     line-height: 130px;
-    background: #fbfbfb;
+    background: var(--color-background-secondary);
     border-radius: 50%;
     margin: 64px auto 0;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 `;
 
@@ -96,7 +96,7 @@ const TaskIcon = styled.div`
   border-radius: 50%;
   margin-right: 8px;
   font-size: 22px;
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow:
     rgba(0, 0, 0, 0.16) 0px 0px 1px,
     rgba(0, 0, 0, 0.06) 0px 1px 3px;
@@ -113,10 +113,10 @@ const TaskIcon = styled.div`
     width: 19px;
     height: 19px;
     line-height: 17px;
-    border: 1px solid #fff;
+    border: 1px solid var(--color-white);
     border-radius: 50%;
-    background: #151515;
-    color: #fff;
+    background: var(--color-background-inverse);
+    color: var(--color-white);
     font-size: 12px;
     font-weight: 600;
   }
@@ -175,7 +175,7 @@ export default function UsageDetail({ projectId, sourceId }) {
                 </TaskIcon>
               </Tooltip>
             </div>
-            <span title={item.taskName} className="Font14 Gray overflow_ellipsis">
+            <span title={item.taskName} className="Font14 textPrimary overflow_ellipsis">
               {item.taskName}
             </span>
           </div>
@@ -220,9 +220,9 @@ export default function UsageDetail({ projectId, sourceId }) {
           case TASK_STATUS_TYPE.RUNNING:
             return <span className="running">{_l('运行中')}</span>;
           case TASK_STATUS_TYPE.STOP:
-            return <span className="Gray_9e">{_l('已停止')}</span>;
+            return <span className="textTertiary">{_l('已停止')}</span>;
           case TASK_STATUS_TYPE.UN_PUBLIC:
-            return <span className="Gray_9e">{_l('未发布')}</span>;
+            return <span className="textTertiary">{_l('未发布')}</span>;
           case TASK_STATUS_TYPE.ERROR:
             return <span className="error">{_l('错误')}</span>;
           default:
@@ -246,7 +246,7 @@ export default function UsageDetail({ projectId, sourceId }) {
   return (
     <ScrollView onScrollEnd={onScrollEnd}>
       <UsageDetailWrapper>
-        <p className="Font17 Gray bold mBottom0">{_l('使用详情')}</p>
+        <p className="Font17 textPrimary bold mBottom0">{_l('使用详情')}</p>
 
         <div className="headTr">
           {columns.map((item, index) => {
@@ -279,7 +279,7 @@ export default function UsageDetail({ projectId, sourceId }) {
             <span className="iconCon InlineBlock TxtCenter ">
               <i className="icon-storage Font64 TxtMiddle" />
             </span>
-            <p className="Gray_9e mTop20 mBottom0">{_l('无同步任务使用此数据源')}</p>
+            <p className="textTertiary mTop20 mBottom0">{_l('无同步任务使用此数据源')}</p>
           </NoDataWrapper>
         )}
       </UsageDetailWrapper>

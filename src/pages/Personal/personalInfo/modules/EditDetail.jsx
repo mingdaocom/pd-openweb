@@ -81,7 +81,7 @@ export default class EditDetail extends React.Component {
   render() {
     const { baseInfo, isError, errTxtInfo = [] } = this.state;
     return (
-      <div className="baseInfoEditContent Gray">
+      <div className="baseInfoEditContent textPrimary">
         {/**姓名 */}
         <div className="Bold">
           {_l('姓名')}
@@ -196,7 +196,7 @@ export default class EditDetail extends React.Component {
         <div className="mTop20 flexEnd ">
           <button
             type="button"
-            className="ming Button Button--link Gray_9e mRight30"
+            className="ming Button Button--link textTertiary mRight30"
             onClick={() => this.props.closeDialog()}
           >
             {_l('取消')}

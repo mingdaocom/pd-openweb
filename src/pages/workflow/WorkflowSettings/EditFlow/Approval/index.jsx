@@ -61,7 +61,7 @@ export default class Approval extends Component {
           </div>
         )}
         <div className={cx('pLeft8 pRight8 pBottom5', { pTop5: !hasApprovalMethod })}>
-          <span className="Gray_75">{_l('审批人：')}</span>
+          <span className="textSecondary">{_l('审批人：')}</span>
           {item.accounts.length ? <MembersName {...this.props} accounts={item.accounts} /> : '[]'}
         </div>
       </Fragment>
@@ -88,7 +88,11 @@ export default class Approval extends Component {
             </div>
             <NodeOperate nodeClassName="BGDarkRed" {...this.props} />
             <div className="workflowContent">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? (
+                <span className="pLeft8 pRight8 textSecondary">{_l('加载中...')}</span>
+              ) : (
+                this.renderContent()
+              )}
             </div>
           </div>
           {item.resultTypeId ? <div className="workflowLineBtn" /> : <CreateNode {...this.props} />}

@@ -184,7 +184,7 @@ export default props => {
       <WaterMark
         content={getContent()}
         className="w100 h100"
-        rotate={45}
+        rotate={-45}
         fontSize={18}
         gapX={200}
         gapY={200}

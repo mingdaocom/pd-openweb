@@ -24,15 +24,15 @@ const SelectApp = props => {
     <SidebarWrap className="flexColumn">
       <div className="flexRow alignItemsCenter">
         <div className="flexRow alignItemsCenter flex">
-          <Icon icon="backspace" className="Gray_9e Font20 mRight10" onClick={onClose} />
-          <div className="Gray_9e Font13 flex ellipsis">{_l('应用')}</div>
+          <Icon icon="backspace" className="textTertiary Font20 mRight10" onClick={onClose} />
+          <div className="textTertiary Font13 flex ellipsis">{_l('应用')}</div>
         </div>
-        <Icon icon="close" className="Gray_9e close" onClick={onClose} />
+        <Icon icon="close" className="textTertiary close" onClick={onClose} />
       </div>
       <div className="flex overflowY mTop10">
         {validProject.map(item => (
           <div key={item.projectId} className="mBottom20">
-            <div className="Gray_75">{item.projectName}</div>
+            <div className="textSecondary">{item.projectName}</div>
             {item.projectApps.map(app => (
               <div
                 key={app.id}
@@ -49,7 +49,7 @@ const SelectApp = props => {
                   <SvgIcon url={app.iconUrl} fill="#fff" size={20} />
                 </div>
                 <div className="flex mLeft10 mRight10 ellipsis Font15">{app.name}</div>
-                {selectAppId === app.id && <Icon icon="done" className="ThemeColor Font18" />}
+                {selectAppId === app.id && <Icon icon="done" className="colorPrimary Font18" />}
               </div>
             ))}
           </div>
@@ -65,10 +65,10 @@ const SelectProcessType = props => {
     <SidebarWrap className="flexColumn">
       <div className="flexRow alignItemsCenter">
         <div className="flexRow alignItemsCenter flex">
-          <Icon icon="backspace" className="Gray_9e Font20 mRight10" onClick={onClose} />
-          <div className="Gray_9e Font13 flex ellipsis">{_l('流程类型')}</div>
+          <Icon icon="backspace" className="textTertiary Font20 mRight10" onClick={onClose} />
+          <div className="textTertiary Font13 flex ellipsis">{_l('流程类型')}</div>
         </div>
-        <Icon icon="close" className="Gray_9e close" onClick={onClose} />
+        <Icon icon="close" className="textTertiary close" onClick={onClose} />
       </div>
       <div className="flex overflowY mTop10">
         {TYPES.map(item => (
@@ -80,9 +80,9 @@ const SelectProcessType = props => {
               onClose();
             }}
           >
-            <i className={`icon ${item.icon} Gray_9e Font22 mRight5`} />
+            <i className={`icon ${item.icon} textTertiary Font22 mRight5`} />
             <div className="flex mLeft10 mRight10 ellipsis Font14">{item.text}</div>
-            {processType.value === item.value && <Icon icon="done" className="ThemeColor Font18" />}
+            {processType.value === item.value && <Icon icon="done" className="colorPrimary Font18" />}
           </div>
         ))}
       </div>
@@ -96,10 +96,10 @@ const SelectProcess = props => {
     <SidebarWrap className="flexColumn">
       <div className="flexRow alignItemsCenter">
         <div className="flexRow alignItemsCenter flex">
-          <Icon icon="backspace" className="Gray_9e Font20 mRight10" onClick={onClose} />
-          <div className="Gray_9e Font13 flex ellipsis">{_l('流程')}</div>
+          <Icon icon="backspace" className="textTertiary Font20 mRight10" onClick={onClose} />
+          <div className="textTertiary Font13 flex ellipsis">{_l('流程')}</div>
         </div>
-        <Icon icon="close" className="Gray_9e close" onClick={onClose} />
+        <Icon icon="close" className="textTertiary close" onClick={onClose} />
       </div>
       <div className="flex overflowY mTop10">
         {processList.map(item => (
@@ -116,7 +116,7 @@ const SelectProcess = props => {
             }}
           >
             <div className="flex mLeft10 mRight10 ellipsis Font14">{item.name}</div>
-            {process.id === item.id && <Icon icon="done" className="ThemeColor Font18" />}
+            {process.id === item.id && <Icon icon="done" className="colorPrimary Font18" />}
           </div>
         ))}
         {!processList.length && <div className="centerAlign mTop20">{_l('暂无数据')}</div>}
@@ -189,10 +189,10 @@ export default props => {
       ) : (
         <div>
           <div className="flexRow alignItemsCenter pBottom10" onClick={() => !requestAppId && setAppVisible(true)}>
-            <div className={cx('flex Font14 bold', { Gray_9e: !_.get(selectInfo, 'app.id') })}>{_l('应用')}</div>
+            <div className={cx('flex Font14 bold', { textTertiary: !_.get(selectInfo, 'app.id') })}>{_l('应用')}</div>
             <div className="flexRow alignItemsCenter flex justifyContentRight">
-              <div className="ThemeColor ellipsis">{_.get(selectInfo, 'app.name')}</div>
-              {!requestAppId && <Icon icon="arrow-right-border" className="Font18 Gray_c6" />}
+              <div className="colorPrimary ellipsis">{_.get(selectInfo, 'app.name')}</div>
+              {!requestAppId && <Icon icon="arrow-right-border" className="Font18 textPlaceholder" />}
             </div>
           </div>
           {appVisible && (
@@ -208,12 +208,12 @@ export default props => {
           )}
           {_.get(selectInfo, 'app.id') && (
             <div className="flexRow alignItemsCenter pTop10 pBottom10" onClick={() => setProcessTypeVisible(true)}>
-              <div className={cx('flex Font14 bold', { Gray_9e: !_.get(selectInfo, 'processType.text') })}>
+              <div className={cx('flex Font14 bold', { textTertiary: !_.get(selectInfo, 'processType.text') })}>
                 {_l('流程类型')}
               </div>
               <div className="flexRow alignItemsCenter">
-                <div className="ThemeColor ellipsis">{_.get(selectInfo, 'processType.text')}</div>
-                <Icon icon="arrow-right-border" className="Font18 Gray_c6" />
+                <div className="colorPrimary ellipsis">{_.get(selectInfo, 'processType.text')}</div>
+                <Icon icon="arrow-right-border" className="Font18 textPlaceholder" />
               </div>
             </div>
           )}
@@ -229,10 +229,10 @@ export default props => {
           )}
           {_.isString(processType) && (
             <div className="flexRow alignItemsCenter pTop10 pBottom10" onClick={() => setProcessVisible(true)}>
-              <div className={cx('flex Font14 bold', { Gray_9e: false })}>{_l('流程')}</div>
+              <div className={cx('flex Font14 bold', { textTertiary: false })}>{_l('流程')}</div>
               <div className="flexRow alignItemsCenter flex justifyContentRight">
-                <div className="ThemeColor ellipsis">{_.get(selectInfo, 'process.name')}</div>
-                <Icon icon="arrow-right-border" className="Font18 Gray_c6" />
+                <div className="colorPrimary ellipsis">{_.get(selectInfo, 'process.name')}</div>
+                <Icon icon="arrow-right-border" className="Font18 textPlaceholder" />
               </div>
             </div>
           )}

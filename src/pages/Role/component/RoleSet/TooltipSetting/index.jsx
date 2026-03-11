@@ -12,7 +12,7 @@ import SheetSet from './sheetSet';
 const Wrap = styled.div`
   padding: 24px 40px;
   width: 880px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 12px 24px 1px rgba(0, 0, 0, 0.16);
   right: 0;
   position: fixed;
@@ -26,15 +26,15 @@ const Wrap = styled.div`
     margin-bottom: 12px;
   }
   .tabCon {
-    border-bottom: 1px solid #dddddd;
+    border-bottom: 1px solid var(--color-border-primary);
     li {
       display: inline-block;
       padding: 13px;
       border-bottom: 3px solid transparent;
       font-weight: 600;
       &.cur {
-        color: #1677ff;
-        border-bottom: 3px solid #1677ff;
+        color: var(--color-primary);
+        border-bottom: 3px solid var(--color-primary);
       }
     }
   }
@@ -42,9 +42,9 @@ const Wrap = styled.div`
     overflow: auto;
   }
   .pointer {
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
@@ -98,7 +98,7 @@ export default class Con extends PureComponent {
           <div className="">
             <div className="headerCon flexRow">
               <div className="flex flexRow alignItemsCenter">
-                {iconUrl && <SvgIcon url={sheet.iconUrl} fill={'#757575'} size={24} />}
+                {iconUrl && <SvgIcon url={sheet.iconUrl} fill={'var(--color-text-secondary)'} size={24} />}
                 <span className="overflow_ellipsis TxtLeft mLeft5">{sheetName}</span>{' '}
                 <Icon
                   className="Font16 pointer mLeft8 Hand"
@@ -117,7 +117,11 @@ export default class Con extends PureComponent {
                   }}
                 />
               </div>
-              <Icon icon="close" className="Right LineHeight25 Gray_9 Hand Font22 ThemeHoverColor3" onClick={onClose} />
+              <Icon
+                icon="close"
+                className="Right LineHeight25 textTertiary Hand Font22 ThemeHoverColor3"
+                onClick={onClose}
+              />
             </div>
             <ul className="tabCon TxtLeft">
               {tabList.map((o, i) => {

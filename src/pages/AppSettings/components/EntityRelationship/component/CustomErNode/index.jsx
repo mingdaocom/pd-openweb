@@ -6,11 +6,11 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import sheetAjax from 'src/api/worksheet';
-import { getVisibleControls } from 'src/pages/Print/util';
 import { dialogEditWorksheet } from 'src/pages/widgetConfig';
 import { DEFAULT_CONFIG, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { renderDialog } from 'src/pages/widgetConfig/widgetSetting/components/WorksheetReference/index';
 import { getTranslateInfo } from 'src/utils/app';
+import { controlState } from 'src/utils/control';
 import { iconSvg } from '../../config';
 import { HIDE_FIELDS, LINE_HEIGHT, NODE_WIDTH } from '../../utils';
 import './index.less';
@@ -19,7 +19,7 @@ const TIPS = [_l('焦点'), _l('编辑表单')];
 
 const Menu = styled.ul`
   width: 160px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 4px 20px 1px rgba(0, 0, 0, 0.16);
   border-radius: 2px;
   padding: 6px 0;
@@ -28,8 +28,8 @@ const Menu = styled.ul`
     line-height: 36px;
     padding: 0 20px;
     &:hover {
-      background-color: #1e88e5;
-      color: #fff;
+      background-color: var(--color-primary);
+      color: var(--color-white);
     }
   }
 `;
@@ -62,7 +62,8 @@ export default function CustomErNode(props) {
       worksheetId: item.worksheetId,
     });
     const newAllControls = _.get(newWorksheetInfo, 'template.controls').filter(l => l.controlId.length === 24);
-    const newControls = getVisibleControls(newAllControls)
+    const newControls = newAllControls
+      .filter(c => controlState(c).visible)
       .filter(l => !HIDE_FIELDS.includes(l.type))
       .map(l => _.pick(l, ['controlId', 'controlName', 'dataSource', 'enumDefault', 'sourceControlId', 'type']));
     const lastData = _.get(node, 'store.data.data');
@@ -127,8 +128,8 @@ export default function CustomErNode(props) {
           </Menu>
         )}
       >
-        <span className="Gray_9e Hover_21 Hand">
-          <Icon icon="more_horiz" className="Font14 Hover_21" />
+        <span className="textTertiary hoverColorPrimary Hand">
+          <Icon icon="more_horiz" className="Font14 hoverColorPrimary" />
         </span>
       </Trigger>
     );
@@ -149,12 +150,12 @@ export default function CustomErNode(props) {
         <span className="Font14 Bold overflow_ellipsis">{worksheetName}</span>
         {(!!item.start || !!item.end) && (
           <span
-            className="editIconBox Gray_9e Hover_21 Hand"
+            className="editIconBox textTertiary hoverColorPrimary Hand"
             onClick={() => onFilter({ worksheetId: item.worksheetId, list })}
           >
             <Tooltip title={TIPS[0]}>
               <span>
-                <Icon icon="gps_fixed" className="Font14 editIcon Hover_21" />
+                <Icon icon="gps_fixed" className="Font14 editIcon hoverColorPrimary" />
               </span>
             </Tooltip>
           </span>
@@ -192,7 +193,7 @@ export default function CustomErNode(props) {
         );
       })}
       <div
-        className={cx('count Font12 Gray_9e', { pointer: hasMoreControls })}
+        className={cx('count Font12 textTertiary', { pointer: hasMoreControls })}
         style={{ height: height || 32, lineHeight: `${height || 32}px` }}
         onClick={expandControls}
       >

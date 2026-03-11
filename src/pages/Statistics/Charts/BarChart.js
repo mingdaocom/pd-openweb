@@ -285,7 +285,7 @@ export default class extends Component {
   getComponentConfig(props) {
     const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch, isThumbnail } = props;
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
-    const isDark = pageStyleType === 'dark' && isThumbnail;
+    const isDark = window.themeMode === 'dark' || (pageStyleType === 'dark' && isThumbnail);
     const { map, displaySetup, xaxes, yaxisList, split, reportId, summary } = reportData;
     const styleConfig = reportData.style || {};
     const style =
@@ -508,7 +508,12 @@ export default class extends Component {
               content: labelData => {
                 const { value, controlId, originalId } = labelData;
                 const id = split.controlId ? newYaxisList[0].controlId : controlId;
-                const labelValue = formatrChartValue(value, isPerPile, newYaxisList, value ? undefined : id);
+                const labelValue = formatrChartValue(
+                  value,
+                  isPerPile,
+                  newYaxisList,
+                  controlId === 'record_count' && value ? undefined : id,
+                );
                 if (showPercent && !isPerPile) {
                   if (yaxisList.length > 1) {
                     const result = _.filter(data, { originalId });
@@ -613,11 +618,12 @@ export default class extends Component {
   }
   getxAxis(displaySetup, { particleSizeType, showFormat = '0' }, isDark) {
     const { fontStyle, xdisplay, ydisplay } = displaySetup;
+    const { xaxes } = this.props.reportData;
     return {
       title:
         xdisplay.showTitle && xdisplay.title
           ? {
-              text: xdisplay.title,
+              text: xaxes.rename || xdisplay.title,
               style: {
                 fill: isDark ? '#ffffffb0' : undefined,
               },
@@ -653,13 +659,13 @@ export default class extends Component {
       <Menu className="chartMenu" style={{ width: 160 }}>
         <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
           <div className="flexRow valignWrapper">
-            <Icon icon="link1" className="mRight8 Gray_9e Font20 autoLinkageIcon" />
+            <Icon icon="link1" className="mRight8 textTertiary Font20 autoLinkageIcon" />
             <span>{_l('联动')}</span>
           </div>
         </Menu.Item>
         <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
           <div className="flexRow valignWrapper">
-            <Icon icon="table" className="mRight8 Gray_9e Font18" />
+            <Icon icon="table" className="mRight8 textTertiary Font18" />
             <span>{_l('查看原始数据')}</span>
           </div>
         </Menu.Item>

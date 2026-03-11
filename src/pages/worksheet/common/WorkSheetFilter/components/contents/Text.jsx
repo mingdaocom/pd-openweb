@@ -4,12 +4,11 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import filterXSS from 'xss';
 import { Icon } from 'ming-ui';
 
 const Tag = styled.div`
   font-size: 12px;
-  background-color: #e0e0e0;
+  background-color: var(--color-background-secondary);
   padding: 6px 10px;
   border-radius: 12px;
   max-width: 360px;
@@ -70,7 +69,7 @@ export default class Text extends Component {
     return (
       <Tag>
         <span className="ellipsis">{tag.value}</span>
-        <Icon icon="clear" className="remove Gray_9e Hand" onClick={() => this.onRemove(tag)} />
+        <Icon icon="clear" className="remove textTertiary Hand" onClick={() => this.onRemove(tag)} />
       </Tag>
     );
   };
@@ -81,7 +80,7 @@ export default class Text extends Component {
     if (!searchValue) return null;
 
     return (
-      <DropdownWrap className="ThemeColor Font13 Hand">
+      <DropdownWrap className="colorPrimary Font13 Hand">
         {_l('使用')}“{searchValue}”
       </DropdownWrap>
     );

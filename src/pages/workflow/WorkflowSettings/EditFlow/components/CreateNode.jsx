@@ -37,16 +37,16 @@ export default class CreateNode extends Component {
     }
 
     if (isAddState && isCopy) {
-      return <div className="workflowAddActionBox Gray_75 Font14">{_l('复制到此处')}</div>;
+      return <div className="workflowAddActionBox textSecondary Font14">{_l('复制到此处')}</div>;
     }
 
     if (isAddState) {
       return isApproval || data[startEventId].nextId === '99' ? (
-        <div className="workflowAddActionBox Gray_75 Font14" style={{ width: 261 }}>
+        <div className="workflowAddActionBox textSecondary Font14" style={{ width: 261 }}>
           {_l('选择要执行的动作')}
         </div>
       ) : (
-        <div className="workflowAddActionBox Gray_75 Font14">
+        <div className="workflowAddActionBox textSecondary Font14">
           {_l('选择要执行的动作，或')}
           <span className="ThemeColor3 pointer workflowCopyBtn" onClick={() => selectCopy(processId)}>
             {_l('复制已有节点')}
@@ -98,10 +98,12 @@ export default class CreateNode extends Component {
       <Menu className="mTop10" onClickAway={() => this.setState({ showOptions: false })}>
         {LIST.map((o, i) => (
           <Fragment key={i}>
-            {o.type === -1 && <div className="mTop5 mBottom5" style={{ background: '#eaeaea', height: 1 }} />}
+            {o.type === -1 && (
+              <div className="mTop5 mBottom5" style={{ background: 'var(--color-border-secondary)', height: 1 }} />
+            )}
             <MenuItem className="flexRow" key={i} onClick={() => this.moreOptionsAction(o)}>
               <i className={`Font16 ${o.iconName}`} style={{ color: o.iconColor }} />
-              <span className="Font14 mLeft10 Gray">{o.name}</span>
+              <span className="Font14 mLeft10 textPrimary">{o.name}</span>
             </MenuItem>
           </Fragment>
         ))}

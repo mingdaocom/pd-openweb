@@ -695,11 +695,11 @@ export function getActionError(value = {}) {
 }
 
 // 对比是否有变更
-export function hasRuleChanged(data = [], selectRule = {}) {
+export function hasRuleChanged(data = [], selectRule = {}, passAlert) {
   const originData = _.find(data, i => i.ruleId === selectRule.ruleId);
   const { ruleId = '' } = selectRule;
   if (ruleId && (ruleId.indexOf('-') >= 0 || !_.isEqual(originData, selectRule))) {
-    alert(_l('请先保存编辑结果'), 3);
+    !passAlert && alert(_l('请先保存编辑结果'), 3);
     return true;
   }
   return false;

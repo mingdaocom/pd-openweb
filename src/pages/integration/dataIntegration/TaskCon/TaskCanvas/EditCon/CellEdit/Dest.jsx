@@ -9,8 +9,8 @@ import { mdUniquePkData } from 'src/pages/integration/dataIntegration/TaskCon/Ta
 import { hsMorePkControl } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
 
 const Wrap = styled.div`
-  background: #f7f7f7;
-  border: 1px solid #eaeaea;
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-border-secondary);
   padding: 10px;
   margin: 10px 0;
 `;
@@ -103,7 +103,7 @@ export default function DestEdit(props) {
   return (
     <React.Fragment>
       {/* MongoDB为目的地的时候，请求返回数据为空 */}
-      {showTip && <Wrap className="Gray">{_l('MongoDB 无数据的时候，会显示映射关系失效。')}</Wrap>}
+      {showTip && <Wrap className="textPrimary">{_l('MongoDB 无数据的时候，会显示映射关系失效。')}</Wrap>}
       {_.get(node, ['nodeConfig', 'config', 'createTable']) && (
         <React.Fragment>
           <div className="name Bold pBottom12">{_l('新建表名称')}</div>

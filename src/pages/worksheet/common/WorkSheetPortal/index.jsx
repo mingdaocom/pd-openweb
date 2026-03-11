@@ -95,7 +95,11 @@ const WorkSheetPortal = props => {
       return (
         [2, 3, 4].includes(item.status) && (
           <Tooltip placement="bottom" title={_l('仅系统角色可见（包含管理员、开发者）')}>
-            <Icon className="Font16 mLeft10 pointer visibilityIcon" icon={icon} style={{ color: '#ee6f09' }} />
+            <Icon
+              className="Font16 mLeft10 pointer visibilityIcon"
+              icon={icon}
+              style={{ color: 'var(--color-warning)' }}
+            />
           </Tooltip>
         )
       );
@@ -109,7 +113,7 @@ const WorkSheetPortal = props => {
               editWrap: isEdit,
             })}
           >
-            {isCharge && !item.notMore && <Icon icon="drag" className="Gray_9e pointer Font16 dragIcon" />}
+            {isCharge && !item.notMore && <Icon icon="drag" className="textTertiary pointer Font16 dragIcon" />}
             {isEdit ? (
               <input
                 autoFocus
@@ -132,7 +136,7 @@ const WorkSheetPortal = props => {
                     url={
                       item.iconUrl ? item.iconUrl : `${md.global.FileStoreConfig.pubHost}/customIcon/${item.icon}.svg`
                     }
-                    fill={'#151515'}
+                    fill={'var(--color-text-title)'}
                     className="mRight5"
                   />
                 )}
@@ -143,7 +147,7 @@ const WorkSheetPortal = props => {
                 {isCharge && !item.notMore && (
                   <MoreOperation isGroup appItem={appItem} onChangeEdit={setEditId} {...props}>
                     <div className="moreIcon mLeft10">
-                      <Icon icon="more_horiz" className="Font18 pointer Gray_9e" />
+                      <Icon icon="more_horiz" className="Font18 pointer textTertiary" />
                     </div>
                   </MoreOperation>
                 )}

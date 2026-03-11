@@ -3,7 +3,7 @@ import { find, get, isFunction, pick } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { v4 } from 'uuid';
-import { getTitleTextFromControls } from 'src/components/Form/core/utils';
+import { getTitleTextFromControls } from 'src/utils/control';
 import { MessageHandler } from 'src/utils/iframeCommunicate';
 import { getRowsRelation } from './functions';
 
@@ -17,7 +17,7 @@ const Con = styled.div`
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
   iframe {
     width: 100%;
@@ -58,7 +58,7 @@ export default function FreeFieldRunner({
   onError = () => {},
 }) {
   const [iframeId] = useState(v4());
-  const { currentControlId, value, env, recordId, worksheetId, refreshRecord, setControlHeight } = widgetParams;
+  const { currentControlId, value, env, recordId, worksheetId, refreshRecord, setControlHeight, appId } = widgetParams;
   const iframeRef = useRef();
   const cache = useRef({});
   cache.current.formData = widgetParams.formData;
@@ -139,7 +139,13 @@ export default function FreeFieldRunner({
     });
     messageHandler.register('getRowsForRelation', (params = {}) =>
       getRowsRelation(
-        { control: currentControl, recordId, formData: cache.current.formData, parentWorksheetId: worksheetId },
+        {
+          control: currentControl,
+          recordId,
+          formData: cache.current.formData,
+          parentWorksheetId: worksheetId,
+          parentAppId: appId,
+        },
         params,
       ),
     );

@@ -25,12 +25,12 @@ const AssignValueContent = styled.div`
       transition: background-color 0.25s;
       &.valueList {
         li {
-          border-right: 1px solid #eaeaea;
+          border-right: 1px solid var(--color-border-primary);
         }
       }
       &.disabled {
         li {
-          background-color: #f5f5f5;
+          background-color: var(--color-background-secondary);
           cursor: not-allowed;
         }
       }
@@ -41,11 +41,11 @@ const AssignValueContent = styled.div`
       line-height: 36px;
       height: 36px;
       padding-left: 12px;
-      border-bottom: 1px solid #eaeaea;
-      border-left: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-primary);
+      border-left: 1px solid var(--color-border-primary);
 
       &.title {
-        border-top: 1px solid #eaeaea;
+        border-top: 1px solid var(--color-border-primary);
       }
 
       .colorWrap {
@@ -96,7 +96,7 @@ export default function AssignValue(props) {
       title={<span className="Bold">{_l('赋分值')}</span>}
     >
       <AssignValueContent>
-        <div className="hint Gray_9e">
+        <div className="hint textTertiary">
           {_l(
             '启用后，可以为每个选项赋分值。赋值后的选项字段可以公式运算或作为数值字段默认值使用。字段值取所有选择项的分值求和，支持输入正负值。',
           )}

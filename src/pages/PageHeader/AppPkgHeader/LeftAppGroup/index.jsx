@@ -143,7 +143,7 @@ const AppSectionItem = props => {
           <span className="text">{_l('重命名')}</span>
         </MenuItem>
         <hr className="splitter" />
-        <div class="Gray_9e pLeft12 pTop7 pBottom3">{_l('新建')}</div>
+        <div class="textTertiary pLeft12 pTop7 pBottom3">{_l('新建')}</div>
         <MenuItem
           data-event="emptyCreate"
           onClick={() => {
@@ -409,7 +409,14 @@ const AppSectionItem = props => {
 };
 
 const LeftAppGroup = props => {
-  const { appSectionDetail, appPkg, showRoleDebug = () => {}, roleSelectValue = [], roleDebugVisible } = props;
+  const {
+    appSectionDetail,
+    appPkg,
+    showRoleDebug = () => {},
+    roleSelectValue = [],
+    roleDebugVisible,
+    appStatus,
+  } = props;
   const { updateALLSheetList, clearSheetList, getAllAppSectionDetail } = props;
   const [loading, setLoading] = useState(true);
   const [unfoldAppSectionId, setUnfoldAppSectionId] = useState(null);
@@ -524,7 +531,7 @@ const LeftAppGroup = props => {
   return (
     <React.Fragment>
       <div className="LeftAppGroupWrap flex w100 flexColumn Relative minHeight0">
-        {loading || _.isEmpty(appPkg.id) ? (
+        {loading || _.isEmpty(appPkg.id) || appStatus === 300016 ? (
           <Skeleton className="w100 h100" active={true} />
         ) : (
           <Fragment>
@@ -609,6 +616,7 @@ export const getAppSectionData = appSectionId => {
 export default connect(
   state => ({
     appSectionDetail: state.sheetList.appSectionDetail,
+    appStatus: state.appPkg.appStatus,
   }),
   dispatch =>
     bindActionCreators(

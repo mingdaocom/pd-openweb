@@ -6,7 +6,7 @@ import projectSettingController from 'src/api/projectSetting';
 
 const DialogWrap = styled(Dialog)`
   .des {
-    color: #a7a7a7;
+    color: var(--color-text-tertiary);
     margin-bottom: 30px;
   }
 `;
@@ -48,7 +48,7 @@ function LimitFeatureDialog(props) {
       {limitData
         .filter(
           item =>
-            !(item.value === 'onlyManagerCreateApp' && md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal) &&
+            !(item.value === 'onlyManagerCreateApp' && !window.platformENV.isPlatform) &&
             !(item.value === 'pluginsOnlyManager' && md.global.SysSettings.hidePlugin) &&
             !(item.value === 'apiIntgOnlyManager' && md.global.SysSettings.hideIntegration),
         )

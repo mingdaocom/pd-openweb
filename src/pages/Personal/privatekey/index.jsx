@@ -79,7 +79,7 @@ export default class PersonalEntrypoint extends Component {
           }}
         >
           <div className="flex flexRow valignWrapper">
-            <Icon icon={visible ? 'expand_more' : 'navigate_next'} className="Gray_9e Font18 pointer" />
+            <Icon icon={visible ? 'expand_more' : 'navigate_next'} className="textTertiary Font18 pointer" />
             <span className="mLeft5 serverId">{serverId}</span>
           </div>
           <div className="flex flexRow valignWrapper">{LicenseVersions[licenseVersion]}</div>
@@ -89,7 +89,7 @@ export default class PersonalEntrypoint extends Component {
         {visible && (
           <div className="flexRow valignWrapper companyPrivateKeyItem">
             <div className="flex flexRow w100">
-              <div className="Gray_75 mBottom5 mRight5">{_l('产品密钥')}</div>
+              <div className="textSecondary mBottom5 mRight5">{_l('产品密钥')}</div>
               <div className="flex Relative">
                 <Textarea minHeight={90} readOnly defaultValue={licenseCode} />
                 <Tooltip title={_l('复制')} placement="bottom">
@@ -101,7 +101,7 @@ export default class PersonalEntrypoint extends Component {
                         alert(_l('复制成功'));
                       }}
                     >
-                      <Icon icon="content-copy" className="pointer Gray_75 Font16" />
+                      <Icon icon="content-copy" className="pointer textSecondary Font16" />
                     </ClipboardButton>
                   </div>
                 </Tooltip>
@@ -147,7 +147,7 @@ export default class PersonalEntrypoint extends Component {
               <div className="iconWrapper flexRow valignWrapper">
                 <Icon className="Font40" icon="Empty_nokey" />
               </div>
-              <div className="Gray_75">{_l('暂无密钥')}</div>
+              <div className="textSecondary">{_l('暂无密钥')}</div>
             </div>
           )}
         </div>

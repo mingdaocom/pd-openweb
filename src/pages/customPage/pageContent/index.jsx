@@ -5,10 +5,11 @@ import DocumentTitle from 'react-document-title';
 import { useFullscreen, useToggle } from 'react-use';
 import cx from 'classnames';
 import { pick } from 'lodash';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import customApi from 'statistics/api/custom.js';
-import { getEmbedValue } from 'src/components/Form/core/formUtils';
+import { getEmbedValue } from 'src/components/Form/core/formUtils/helper';
 import CustomPage from 'src/pages/customPage';
 import { defaultConfig } from 'src/pages/customPage/components/ConfigSideWrap';
 import {
@@ -24,10 +25,10 @@ import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/D
 import { copyCustomPage } from 'src/pages/worksheet/redux/actions/sheetList';
 import { deleteSheet, updateSheetList, updateSheetListAppItem } from 'src/pages/worksheet/redux/actions/sheetList';
 import { getTranslateInfo } from 'src/utils/app';
-import { browserIsMobile } from 'src/utils/common';
+import { browserIsMobile, emitter } from 'src/utils/common';
 import { addBehaviorLog } from 'src/utils/project';
 import { findSheet } from 'src/utils/worksheet';
-import { insertPortal } from '../util';
+import { insertPortal, syncThemeConfig } from '../util';
 import CustomPageHeader from './CustomPageHeader';
 import 'rc-trigger/assets/index.css';
 
@@ -43,8 +44,8 @@ const CustomPageContentWrap = styled.div`
     height: 44px;
     padding: 0 24px 0 10px;
     border-radius: 3px 3px 0 0;
-    background-color: #fff;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+    background-color: var(--color-background-card);
+    box-shadow: var(--shadow-md);
     z-index: 1;
     .customPageDesc {
       padding: 0 4px;
@@ -89,7 +90,7 @@ const CustomPageContentWrap = styled.div`
       border-radius: 3px;
     }
     .hoverGray:hover {
-      // background: #f5f5f5;
+      // background: var(--color-background-secondary);
     }
     .createSource {
       & > div,
@@ -134,6 +135,7 @@ function CustomPageContent(props) {
   const pageId = id;
   const appName = getTranslateInfo(appPkg.id, null, appPkg.id).name || props.appName || apk.appName || '';
   const ref = useRef(document.body);
+  const configRef = useRef(config);
   const [show, toggle] = useToggle(false);
 
   const showFullscreen = () => {
@@ -151,6 +153,23 @@ function CustomPageContent(props) {
   const currentSheet = findSheet(id, sheetList) || props.currentSheet || {};
   const pageName = getTranslateInfo(appPkg.id, null, pageId).name || props.pageName || currentSheet.workSheetName || '';
   const { urlTemplate } = currentSheet;
+
+  useEffect(() => {
+    configRef.current = config;
+  }, [config]);
+
+  useEffect(() => {
+    const handler = value => {
+      if (value === _.get(configRef.current, 'pageStyleType') || !configRef.current) return;
+      updatePageInfo({
+        config: syncThemeConfig(configRef.current, value),
+      });
+    };
+    emitter.addListener('CHANGE_THEME_MODE', handler);
+    return () => {
+      emitter.removeListener('CHANGE_THEME_MODE', handler);
+    };
+  }, []);
 
   useEffect(() => {
     if (id && isFullscreen) {
@@ -192,7 +211,9 @@ function CustomPageContent(props) {
           urlParams,
           pageId,
           apk: apk || {},
-          config: config ? { ...config, webNewCols: 48, orightWebCols: config.webNewCols } : defaultConfig,
+          config: syncThemeConfig(
+            config ? { ...config, webNewCols: 48, orightWebCols: config.webNewCols } : defaultConfig,
+          ),
           pageName: name,
           filterComponents: componentsData.filter(item => item.value && item.type === enumWidgetType.filter),
           version,

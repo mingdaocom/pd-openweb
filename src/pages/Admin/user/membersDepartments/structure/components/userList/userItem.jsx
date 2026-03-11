@@ -97,7 +97,7 @@ class UserItem extends Component {
         );
       } else {
         mobileTpl = (
-          <div className="Gray_9e ellipsis forRemind w100 overflow_ellipsis WordBreak">
+          <div className="textTertiary ellipsis forRemind w100 overflow_ellipsis WordBreak">
             <span onClick={this.sendNotice(1)} className="Remind w100 overflow_ellipsis WordBreak">
               {_l('提醒填写')}
             </span>
@@ -292,7 +292,7 @@ class UserItem extends Component {
         onOk={this.handleSavePassWord}
         visible={this.state.resetPasswordShowDialog}
       >
-        <div className="Font15 Gray mTop20 mBottom10">{_l('请输入新密码')}</div>
+        <div className="Font15 textPrimary mTop20 mBottom10">{_l('请输入新密码')}</div>
         <Input
           className="w100"
           type="password"
@@ -378,7 +378,7 @@ class UserItem extends Component {
           </Fragment>
         )}
 
-        {md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal && (
+        {!window.platformENV.isPlatform && (
           <MenuItem onClick={this.handleResetPasswordClick}> {_l('重置密码')}</MenuItem>
         )}
         {departmentId && !user.isDepartmentChargeUser && (
@@ -441,6 +441,7 @@ class UserItem extends Component {
       columnsInfo = [],
       editCurrentUser = {},
       departmentId,
+      isLastTopUp,
     } = this.props;
     const { isMinSc, optListVisible, showWorkHandover, showDelegate, isTopUp, fullDepartmentInfo = {} } = this.state;
     let { jobs, departments, departmentInfos, jobInfos, isDepartmentChargeUser } = user;
@@ -463,6 +464,7 @@ class UserItem extends Component {
             isChecked: isChecked,
             bgColor: editCurrentUser.accountId === user.accountId,
             topUp: isTopUp,
+            lastTopUp: isLastTopUp,
           })}
           onClick={this.props.clickRow}
         >
@@ -603,7 +605,7 @@ class UserItem extends Component {
             <Fragment>
               {isHideCurrentColumn('applyDate') && (
                 <td className="dateTh overflow_ellipsis WordBreak">
-                  {createTimeSpan(dateConvertToUserZone(user.updateTime))}
+                  {createTimeSpan(dateConvertToUserZone(user.createTime))}
                 </td>
               )}
               {isHideCurrentColumn('operator') && (
@@ -627,7 +629,7 @@ class UserItem extends Component {
               popup={this.renderAction}
             >
               <span className="Hand" onClick={e => e.stopPropagation()}>
-                <span className="icon-moreop TxtMiddle Font18 Gray_9e" />
+                <span className="icon-moreop TxtMiddle Font18 textTertiary" />
               </span>
             </Trigger>
           </td>

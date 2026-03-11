@@ -37,7 +37,7 @@ const Wrapper = styled.div`
     margin: 4px 0;
     cursor: pointer;
     &:hover {
-      background: #f8f8f8;
+      background: var(--color-background-hover);
       .markStarIcon {
         display: block;
       }
@@ -66,11 +66,11 @@ const AppItem = styled.div`
     min-width: 0;
     .titleName {
       font-size: 14px;
-      color: #151515;
+      color: var(--color-text-primary);
     }
     .appName {
       font-size: 12px;
-      color: #999;
+      color: var(--color-text-tertiary);
     }
   }
   .markStarIcon {
@@ -83,16 +83,16 @@ const AppItem = styled.div`
     margin-right: -4px;
     border-radius: 8px;
     &:hover {
-      background: #fff;
+      background: var(--color-background-hover);
     }
 
     .icon-task-star {
-      color: #f9ce1d;
+      color: var(--color-yellow-dark);
     }
     .icon-star-hollow {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       &:hover {
-        color: #1e88e5;
+        color: var(--color-primary);
       }
     }
   }
@@ -109,13 +109,13 @@ const ListItemSkeleton = styled.div`
     height: 32px;
     min-width: 32px;
     border-radius: 50%;
-    background: #f6f6f6;
+    background: var(--color-background-secondary);
   }
   .textSkeleton {
     width: 60px;
     height: 20px;
     border-radius: 11px;
-    background: #f6f6f6;
+    background: var(--color-background-secondary);
     margin-left: 6px;
   }
 `;

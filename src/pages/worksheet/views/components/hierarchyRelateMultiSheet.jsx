@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import { Dropdown, Menu } from 'antd';
 import _ from 'lodash';
@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import VerifyDel from './VerifyDel';
 
 const ControlsWrap = styled.div`
@@ -14,7 +15,7 @@ const ControlsWrap = styled.div`
   }
   .controlName {
     margin: 0 12px;
-    color: #151515;
+    color: var(--color-text-title);
   }
   .relateItem {
     display: flex;
@@ -32,7 +33,7 @@ const ControlsWrap = styled.div`
       width: 320px;
       padding-left: 12px;
       position: relative;
-      background-color: #f8f8f8;
+      background-color: var(--color-background-secondary);
       border-radius: 3px;
       .controlName {
         max-width: 90px;
@@ -47,10 +48,10 @@ const ControlsWrap = styled.div`
       top: 0;
       right: -24px;
       i {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         cursor: pointer;
         &:hover {
-          color: #f44336;
+          color: var(--color-error);
         }
       }
     }
@@ -58,7 +59,7 @@ const ControlsWrap = styled.div`
   .addRelate {
     margin-top: 6px;
     width: 280px;
-    color: #1677ff;
+    color: var(--color-primary);
     font-weight: bold;
     line-height: 36px;
     cursor: pointer;
@@ -66,11 +67,11 @@ const ControlsWrap = styled.div`
 `;
 const EmptyHint = styled.div`
   padding: 12px;
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 3px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
   width: 280px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   font-size: 13px;
   font-weight: 500;
 `;
@@ -80,7 +81,7 @@ const InputWrap = styled.div`
   align-items: center;
   width: 100%;
   padding: 0 12px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid --color-background-disabled;
   input {
     line-height: 32px;
     border: none;
@@ -118,6 +119,19 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
 
   const [delIndex, setIndex] = useState(-1);
   const [searchValue, setValue] = useState('');
+  const addRelateRef = useRef(null);
+
+  const getPlacement = () => {
+    if (addRelateRef.current) {
+      const rect = addRelateRef.current.getBoundingClientRect();
+      const distanceToBottom = window.innerHeight - rect.bottom;
+      if (distanceToBottom < 300) {
+        return 'topLeft';
+      } else {
+        return 'bottomLeft';
+      }
+    }
+  };
 
   const getAvailableControls = () => {
     const { worksheetId } = _.last(viewControls);
@@ -132,6 +146,9 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
         relationWorksheetId: prevViewControl ? prevViewControl.worksheetId : worksheetInfo.worksheetId,
       })
       .then(data => {
+        if (_.get(data, 'template.controls')) {
+          data.template.controls = replaceControlsTranslateInfo(data.appId, worksheetId, data.template.controls);
+        }
         setControls({
           availableControls: getSelectableControls(data),
         });
@@ -178,7 +195,7 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
     return (
       <Menu style={{ maxHeight: 300, overflowY: 'auto' }}>
         <InputWrap>
-          <i className="icon-search Gray_75 Font16"></i>
+          <i className="icon-search textSecondary Font16"></i>
           <input
             autoFocus
             value={searchValue}
@@ -199,7 +216,7 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
                     addViewControl(item);
                   }}
                 >
-                  <i className="icon-link2 Gray_9e Font15"></i>
+                  <i className="icon-link2 textTertiary Font15"></i>
                   <span style={{ marginLeft: '6px' }} className="controlName Bold">
                     {controlName}
                   </span>
@@ -219,18 +236,18 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
         {viewControls.map(({ controlName, worksheetId, worksheetName }, index) => {
           return worksheetId === worksheetInfo.worksheetId ? (
             <li className="relateItem">
-              <span className="grade Gray_9e">{_l('第1级')}</span>
-              <i className="icon-1_worksheet Gray_9e Font18 mLeft4"></i>
+              <span className="grade textTertiary">{_l('第1级')}</span>
+              <i className="icon-1_worksheet textTertiary Font18 mLeft4"></i>
               <span className="controlName">{worksheetInfo.name}</span>
-              <span className="Gray_9e">{_l('( 本表 )')}</span>
+              <span className="textTertiary">{_l('( 本表 )')}</span>
             </li>
           ) : (
             <li className="relateItem">
-              <span className="gradeName Gray_9e">{_l('第%0级', index + 1)}</span>
+              <span className="gradeName textTertiary">{_l('第%0级', index + 1)}</span>
               <div className="controlInfo">
-                <i className="icon-link2 Gray_9e Font18"></i>
+                <i className="icon-link2 textTertiary Font18"></i>
                 <div className="controlName overflow_ellipsis">{controlName}</div>
-                <div className="sheetName overflow_ellipsis Gray_9e">{_l('( 工作表: %0 )', worksheetName)}</div>
+                <div className="sheetName overflow_ellipsis textTertiary">{_l('( 工作表: %0 )', worksheetName)}</div>
 
                 <VerifyDel
                   visible={delIndex === index}
@@ -272,9 +289,9 @@ export default function HierarchyRelateMultiSheet({ worksheetInfo, viewControls,
         overlayClassName="addHierarchyRelate"
         trigger={['click']}
         overlay={renderRelate()}
-        placement="bottomLeft"
+        placement={getPlacement()}
       >
-        <div className={'addRelate'} onClick={getAvailableControls}>
+        <div className={'addRelate'} ref={addRelateRef} onClick={getAvailableControls}>
           <i className="icon-add"></i>
           <span>{_l('下一级关联')}</span>
         </div>

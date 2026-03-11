@@ -7,12 +7,12 @@ import RangeDialog from './RangeDialog';
 
 const Wrap = styled.div`
   margin-top: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border-tertiary);
   border-radius: 4px;
   padding: 5px 10px;
   line-height: 24px;
   &:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
 `;
 export default function DateTimeRange(props) {
@@ -27,7 +27,7 @@ export default function DateTimeRange(props) {
       <Wrap className="flexRow Hand mTop10" onClick={() => setState({ show: true })}>
         <div className="flex">
           {daterange.length <= 0 ? (
-            <span className="Gray_75">{_l('请选择')}</span>
+            <span className="textSecondary">{_l('请选择')}</span>
           ) : (
             daterange
               .map(o => {
@@ -37,7 +37,7 @@ export default function DateTimeRange(props) {
           )}
         </div>
         <div className="editIcon">
-          <i className="icon-hr_edit Gray_75 Hand Font16 ThemeHoverColor3"></i>
+          <i className="icon-hr_edit textSecondary Hand Font16 ThemeHoverColor3"></i>
         </div>
       </Wrap>
       {show && <RangeDialog {...props} daterange={daterange} onClose={() => setState({ show: false })} />}

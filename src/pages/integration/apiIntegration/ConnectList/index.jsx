@@ -29,14 +29,14 @@ const Wrap = styled.div`
   .mLeft18 {
     margin-left: 18px;
   }
-  background: #fff;
+  background: var(--color-background-primary);
   min-height: 100%;
   .tips {
     padding: 0 32px 0 32px;
   }
   .desCon {
     height: 260px;
-    background: linear-gradient(180deg, #ffffff 0%, #f7f7f7 100%);
+    background: linear-gradient(180deg, var(--color-background-primary) 0%, var(--color-background-secondary) 100%);
     box-sizing: border-box;
     .conBox {
       padding: 80px 0 0 50px;
@@ -56,16 +56,16 @@ const Wrap = styled.div`
         border-bottom: 4px solid rgba(0, 0, 0, 0);
         a {
           height: 44px;
-          color: #151515;
+          color: var(--color-text-title);
           padding: 10px;
           font-weight: 600;
           display: inline-block;
           font-size: 16px;
         }
         &.isCur {
-          border-bottom: 4px solid #1677ff;
+          border-bottom: 4px solid var(--color-primary);
           a {
-            color: #1677ff;
+            color: var(--color-primary);
           }
         }
       }
@@ -79,12 +79,12 @@ const WrapListHeader = styled.div`
   padding: 32px 32px 0 32px;
   .addConnect {
     padding: 8px 24px;
-    background: #1677ff;
+    background: var(--color-primary);
     border-radius: 21px;
-    color: #fff;
+    color: var(--color-white);
     display: inline-block;
     &:hover {
-      background: #1764c0;
+      background: var(--color-link-hover);
     }
   }
   .searchCon {
@@ -191,18 +191,19 @@ function Con(props) {
   };
   // 刷新当前数据
   const onFresh = () => {
-    setState({
+    setState(prevState => ({
+      ...prevState,
       loading: false,
       pageIndex: 1,
       noMore: false,
       keywords: '',
       showConnect: false,
       connectData: null,
-      hasChange: hasChange + 1,
+      hasChange: (prevState.hasChange || 0) + 1,
       countSort: 0,
       timeSort: 0,
       searchType: 0,
-    });
+    }));
   };
 
   const handleSearch = _.debounce(v => {
@@ -400,7 +401,7 @@ function Con(props) {
         <div className="desCon">
           <div className="conBox">
             <h3 className="Bold Font24">{_l('我的连接')}</h3>
-            <p className="Font15">
+            <p className="Font15 textSecondary">
               {_l('连接第三方 API 并保存鉴权认证，在工作表或工作流中调用')}
               <Support
                 type={3}

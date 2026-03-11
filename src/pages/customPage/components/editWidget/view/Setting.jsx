@@ -17,17 +17,17 @@ const Wrap = styled.div`
   padding: 24px;
   display: flex;
   flex-direction: column;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
   overflow: auto;
 
   .Dropdown--input {
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
   .ant-checkbox-input {
     position: absolute;
   }
   .ming.Input::placeholder {
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
 `;
 
@@ -131,7 +131,7 @@ function Setting(props) {
               });
               setTimeout(() => setLoading(false));
             }}
-            style={{ width: '100%', background: '#fff' }}
+            style={{ width: '100%', background: 'var(--color-background-primary)' }}
             menuStyle={{ width: '100%' }}
             placeholder={_l('选择视图')}
             border

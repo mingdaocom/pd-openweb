@@ -21,7 +21,7 @@ const Con = styled.div`
   display: flex;
   height: 100%;
   flex-direction: column;
-  color: #151515;
+  color: var(--color-text-title);
 `;
 const Header = styled.div`
   height: 50px;
@@ -39,7 +39,7 @@ const Main = styled.div`
 `;
 const SelectFnControlCon = styled.div`
   width: 320px;
-  background: #fafafa;
+  background: var(--color-background-secondary);
 `;
 const Dev = styled.div`
   display: flex;
@@ -54,7 +54,7 @@ const CodeEditCon = styled.div`
 `;
 const TipCon = styled.div`
   height: 200px;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid --color-background-disabled;
 `;
 
 const ActiveJsSwitchCon = styled.div`

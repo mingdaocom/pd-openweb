@@ -244,12 +244,13 @@ export const APPROVAL_USER_FAILURE = 'APPROVAL_USER_FAILURE';
 /** fetch approval_user
  * relies on middleware `api`
  */
-const fetchApprovalUser = (projectId, pageIndex, userStatus) => {
+const fetchApprovalUser = (projectId, pageIndex, userStatus, applyDateOrderBy) => {
   const params = {
     pageIndex,
     projectId,
     userStatus,
     pageSize: PAGE_SIZE,
+    orderBy: applyDateOrderBy,
   };
   return {
     projectId,
@@ -266,7 +267,8 @@ const fetchApprovalUser = (projectId, pageIndex, userStatus) => {
  */
 export const loadApprovalUsers = (projectId, pageIndex) => (dispatch, getState) => {
   const { userStatus } = getState().current;
-  return dispatch(fetchApprovalUser(projectId, pageIndex || 1, userStatus));
+  const { applyDateOrderBy } = getState().entities;
+  return dispatch(fetchApprovalUser(projectId, pageIndex || 1, userStatus, applyDateOrderBy));
 };
 
 export const INACTIVE_USER_REQUEST = 'INACTIVE_USER_REQUEST';
@@ -366,3 +368,8 @@ export const handleShowDisabledDepartment = flag => dispatch => {
   dispatch(expandedKeysUpdate([]));
   dispatch(loadDepartments('', 1));
 };
+
+export const updateApplyDateOrderBy = applyDateOrderBy => ({
+  type: 'UPDATE_APPLY_DATE_ORDER_BY',
+  applyDateOrderBy,
+});

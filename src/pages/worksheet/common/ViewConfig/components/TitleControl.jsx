@@ -19,7 +19,7 @@ const Wrap = styled.div`
     min-height: 36px;
     .CodeMirror-placeholder {
       line-height: 28px !important;
-      color: #bdbdbd !important;
+      color: var(--color-text-disabled) !important;
       padding-left: 10px !important;
     }
   }
@@ -82,7 +82,7 @@ export default function (props) {
   return (
     <Wrap className={className}>
       <div className="title Font13 bold"> {title || _l('标题')}</div>
-      {!isCard && <div className="Gray_75 mTop8 Font13">{_l('指定显示在时间块上的内容')}</div>}
+      {!isCard && <div className="textSecondary mTop8 Font13">{_l('指定显示在时间块上的内容')}</div>}
       <div className="settingContent mTop8">
         {isCard ? (
           <TitleDrop {...props} controls={controls} />

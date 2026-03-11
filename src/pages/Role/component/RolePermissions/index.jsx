@@ -8,7 +8,7 @@ import RoleInfoCon from './RoleInfoCon';
 const Wrap = styled.div`
   height: 100%;
   .roleSearch {
-    background: #fff;
+    background: var(--color-background-primary);
     border-radius: 0;
     width: 100%;
     padding-left: 0px;
@@ -18,7 +18,7 @@ const Wrap = styled.div`
       font-size: 100px;
     }
     .icon {
-      color: #e0e0e0;
+      color: var(--color-border-secondary);
     }
   }
   .Font120 {

@@ -38,7 +38,7 @@ export default class Api extends Component {
     return (
       <div className="pLeft8 pRight8 flexRow alignItemsCenter">
         <div className="ellipsis">
-          <span className="Gray_75">{_l('调用API')}：</span>
+          <span className="textSecondary">{_l('调用API')}：</span>
           {item.appName}
         </div>
         <i className="mLeft5 icon-task-new-detail Font12 ThemeColor3 ThemeHoverColor2" onMouseDown={this.openApi} />
@@ -74,7 +74,11 @@ export default class Api extends Component {
             </div>
             <NodeOperate nodeClassName="BGBlueAsh" {...this.props} />
             <div className="workflowContent Font13">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? (
+                <span className="pLeft8 pRight8 textSecondary">{_l('加载中...')}</span>
+              ) : (
+                this.renderContent()
+              )}
             </div>
           </div>
           <CreateNode {...this.props} />

@@ -60,6 +60,11 @@ export const fetch = index => {
     getGalleryRequest.then(res => {
       getGalleryRequest = null;
       preWorksheetIds = (preWorksheetIds || []).filter(o => o !== `${base.worksheetId}-${base.viewId}`);
+      res.data.forEach(item => {
+        if (_.get(groupControl, 'options.length')) {
+          item.name = _.get(_.find(groupControl.options, { key: item.key }), 'value') || item.name;
+        }
+      });
       const list = index > 1 ? gallery.concat(res.data) : res.data;
       dispatch({
         type: 'CHANGE_GALLERY_VIEW_DATA',

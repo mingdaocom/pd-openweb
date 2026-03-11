@@ -13,9 +13,8 @@ import CustomDatePicker from './CustomDatePicker';
 import PersonalStatus from './PersonalStatus';
 
 const DialogWrap = styled(Dialog)`
-  .Gray_15 {
-    color: #151515;
-  }
+  background-color: var(--color-background-card) !important;
+  box-shadow: var(--shadow-lg) !important;
   .listWrap {
     overflow: hidden;
   }
@@ -44,7 +43,7 @@ const DialogWrap = styled(Dialog)`
         width: 18px;
         height: 18px;
         border-radius: 50%;
-        background: #fff;
+        background: var(--color-background-primary);
         text-align: center;
         line-height: 18px;
         right: 2px;
@@ -54,20 +53,20 @@ const DialogWrap = styled(Dialog)`
     }
 
     &:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
       .icon-delete1 {
         display: inline;
       }
     }
     &.active {
       background: rgba(25, 150, 239, 0.03);
-      border: 1px solid #1996ef;
+      border: 1px solid var(--color-primary-focus);
       .editIcon {
         display: block !important;
       }
       &:hover {
         background: rgba(25, 150, 239, 0.03);
-        border: 1px solid #1996ef;
+        border: 1px solid var(--color-primary-focus);
         .transparentBg {
           background: transparent;
         }
@@ -80,12 +79,12 @@ const DialogWrap = styled(Dialog)`
     min-height: 20px;
   }
   .formWrap {
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-primary);
   }
 
   .formItemInput {
     .Input.error {
-      border-color: #ff0000;
+      border-color: var(--color-error);
     }
   }
 `;
@@ -268,8 +267,8 @@ export default function MyStatus() {
         />
       ) : (
         <div className="accountStatus flexRow alignItemsCenter" onClick={() => setVisible(true)}>
-          <Icon icon="add_reaction" className="Font16 Gray_9e" />
-          <div className="Font14 Gray_75 mLeft10">{_l('添加您的个人状态')}</div>
+          <Icon icon="add_reaction" className="Font16 textTertiary" />
+          <div className="Font14 textSecondary mLeft10">{_l('添加您的个人状态')}</div>
         </div>
       )}
       <DialogWrap
@@ -284,9 +283,9 @@ export default function MyStatus() {
         footer={
           <div className="flexRow alignItemsCenter">
             {_.every(statusList, v => v.statusId !== 'new_id') && (
-              <div className="flexRow alignItemsCenter Gray_9e Font14 Hand" onClick={addStatus}>
+              <div className="flexRow alignItemsCenter textTertiary Font14 Hand" onClick={addStatus}>
                 <Icon icon="plus" className="mRight5" />
-                <div className="Font14 Gray_75">{_l('添加状态')}</div>
+                <div className="Font14 textSecondary">{_l('添加状态')}</div>
               </div>
             )}
             <div className="flex"></div>
@@ -324,13 +323,13 @@ export default function MyStatus() {
                     ></span>
                     {!isDefaultStatus && (
                       <div className="Absolute editIcon">
-                        <Icon icon="edit" className="Gray_bd Font14" />
+                        <Icon icon="edit" className="textDisabled Font14" />
                       </div>
                     )}
                   </div>
                   <div className="flex minWidth0">
-                    <div className="statusItemName Font14 Gray_15 mBottom3">{item.remark}</div>
-                    <div className="statusItemDate Gray_75">
+                    <div className="statusItemName Font14 textPrimary mBottom3">{item.remark}</div>
+                    <div className="statusItemDate textSecondary">
                       {item.durationOption == 1000
                         ? ''
                         : (_.find(dateOptions, v => v.value == item.durationOption) || {}).label}

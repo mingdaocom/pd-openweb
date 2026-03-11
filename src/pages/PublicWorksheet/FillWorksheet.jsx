@@ -10,10 +10,11 @@ import { Button, RichText } from 'ming-ui';
 import { captcha } from 'ming-ui/functions';
 import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 import CustomFields from 'src/components/Form';
-import { updateRulesData } from 'src/components/Form/core/formUtils';
-import { checkMobileVerify, controlState, getControlsByTab } from 'src/components/Form/core/utils';
+import { updateRulesData } from 'src/components/Form/core/formUtils/updateRulesData';
+import { checkMobileVerify, getControlsByTab } from 'src/components/Form/core/utils';
 import FormSection from 'src/pages/worksheet/common/recordInfo/RecordForm/FormSection';
 import { browserIsMobile, getRequest } from 'src/utils/common';
+import { controlState } from 'src/utils/control';
 import { TIME_TYPE } from '../FormExtend/enum';
 import CountDown from '../FormExtend/PublicWorksheetConfig/CountDown';
 import { getLimitWriteTimeDisplayText } from '../FormExtend/utils';
@@ -38,7 +39,7 @@ const ImgCon = styled.div`
     top: -8px;
     right: -8px;
     font-size: 18px;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
 `;
 
@@ -331,7 +332,7 @@ export default class FillWorksheet extends React.Component {
                       <React.Fragment>
                         {linkSwitchTime.isShowCountDown ? (
                           <CountDown
-                            className="Gray"
+                            className="textPrimary"
                             endTime={linkSwitchTime.endTime}
                             beforeText={_l('链接将于')}
                             afterText={_l('后截止')}
@@ -340,7 +341,7 @@ export default class FillWorksheet extends React.Component {
                         ) : (
                           <React.Fragment>
                             <span>{_l('链接将于')}</span>
-                            <span className="bold Gray mLeft5 mRight5">
+                            <span className="bold textPrimary mLeft5 mRight5">
                               {moment(linkSwitchTime.endTime).format('YYYY-MM-DD HH:mm')}
                             </span>
                             <span>{_l('截止')};</span>
@@ -352,11 +353,11 @@ export default class FillWorksheet extends React.Component {
                   {limitWriteCount.isEnable && (
                     <div className="itemInfo">
                       <span>{_l('已收集')}</span>
-                      <span className="Gray mLeft5 mRight5">
+                      <span className="textPrimary mLeft5 mRight5">
                         {_l(`${completeNumber || 0}/${limitWriteCount.limitWriteCount}`)}
                       </span>
                       <span>{_l('份, 还剩')}</span>
-                      <span className="Gray mLeft5 mRight5">
+                      <span className="textPrimary mLeft5 mRight5">
                         {limitWriteCount.limitWriteCount - (completeNumber || 0)}
                       </span>
                       <span>{_l('份结束收集')};</span>
@@ -364,13 +365,17 @@ export default class FillWorksheet extends React.Component {
                   )}
                   {limitWriteTime.isEnable && (
                     <div className="itemInfo">
-                      <span className="Gray">{getLimitWriteTimeDisplayText(TIME_TYPE.MONTH, limitWriteTime)}</span>
+                      <span className="textPrimary">
+                        {getLimitWriteTimeDisplayText(TIME_TYPE.MONTH, limitWriteTime)}
+                      </span>
                       <span className="mLeft5 mRight5">{_l('的')}</span>
-                      <span className="Gray">{getLimitWriteTimeDisplayText(TIME_TYPE.DAY, limitWriteTime)}</span>
+                      <span className="textPrimary">{getLimitWriteTimeDisplayText(TIME_TYPE.DAY, limitWriteTime)}</span>
                       {!!getLimitWriteTimeDisplayText(TIME_TYPE.HOUR, limitWriteTime) && (
                         <span className="mLeft5 mRight5">{_l('的')}</span>
                       )}
-                      <span className="Gray">{getLimitWriteTimeDisplayText(TIME_TYPE.HOUR, limitWriteTime)}</span>
+                      <span className="textPrimary">
+                        {getLimitWriteTimeDisplayText(TIME_TYPE.HOUR, limitWriteTime)}
+                      </span>
                       <span className="mLeft5">{_l('可填写')}</span>
                     </div>
                   )}
@@ -472,24 +477,28 @@ export default class FillWorksheet extends React.Component {
             </Button>
           </div>
         )}
-        {!md.global.Config.IsLocal && worksheetId && footer !== 'no' && window.top === window.self && (
-          <div className="mingdaoCon">
-            {_l('由 %0 创建的表单', projectName || '')}
-            {/* a7f10198e9d84702b68ba35f73c94cac 是写死的举报表单的shareId  */}
-            {shareId && shareId !== 'a7f10198e9d84702b68ba35f73c94cac' && (
-              <a
-                className="mLeft3"
-                target="_blank"
-                href={`/form/a7f10198e9d84702b68ba35f73c94cac?from=${encodeURIComponent(location.href)}`}
-              >
-                {_l('举报')}
-              </a>
-            )}
-            <div className="Right">
-              <CreateByMingDaoYun mode={1} />
+        {!window.platformENV.isOverseas &&
+          !window.platformENV.isLocal &&
+          worksheetId &&
+          footer !== 'no' &&
+          window.top === window.self && (
+            <div className="mingdaoCon">
+              {_l('由 %0 创建的表单', projectName || '')}
+              {/* a7f10198e9d84702b68ba35f73c94cac 是写死的举报表单的shareId  */}
+              {shareId && shareId !== 'a7f10198e9d84702b68ba35f73c94cac' && (
+                <a
+                  className="mLeft3"
+                  target="_blank"
+                  href={`/form/a7f10198e9d84702b68ba35f73c94cac?from=${encodeURIComponent(location.href)}`}
+                >
+                  {_l('举报')}
+                </a>
+              )}
+              <div className="Right">
+                <CreateByMingDaoYun mode={1} />
+              </div>
             </div>
-          </div>
-        )}
+          )}
       </React.Fragment>
     );
   }

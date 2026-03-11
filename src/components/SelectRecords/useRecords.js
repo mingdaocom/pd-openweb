@@ -4,6 +4,7 @@ import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { getTranslateInfo } from 'src/utils/app';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
 
 export const ERROR_STATUS = {
   NO_PERMISSION: -1,
@@ -27,9 +28,6 @@ function getSearchConfig(control) {
     let searchControl;
     if (searchcontrol) {
       searchControl = _.find(control.relationControls, { controlId: searchcontrol });
-    }
-    if (!searchControl) {
-      searchControl = _.find(control.relationControls, { attribute: 1 });
     }
     return {
       searchControl,
@@ -80,6 +78,7 @@ export default function useRecords(props) {
       return getFilter({
         control: { ...control, recordId, relationControls: get(worksheetInfo, 'template.controls', []) },
         formData,
+        appId,
       });
     }
     return;
@@ -117,6 +116,7 @@ export default function useRecords(props) {
           'spliceType',
           'filterType',
           'dateRange',
+          'dateRangeType',
           'value',
           'values',
           'minValue',
@@ -126,7 +126,7 @@ export default function useRecords(props) {
     };
     let getFilterRowsPromise;
     if (!window.isPublicWorksheet) {
-      getFilterRowsPromise = sheetAjax.getFilterRows;
+      getFilterRowsPromise = sheetAjax.chooseRelationRows;
     } else {
       getFilterRowsPromise = publicWorksheetAjax.getRelationRows;
       args.shareId = window.publicWorksheetShareId;
@@ -152,41 +152,45 @@ export default function useRecords(props) {
     }
     const request = getFilterRowsPromise(args);
     cache.current.request = request;
-    request.then(res => {
-      if (res.resultCode === 1) {
-        let filteredRecords = uniqBy(res.data, 'rowid');
-        const needSort =
-          keyWords &&
-          pageIndex === 1 &&
-          get(control, 'advancedSetting.searchcontrol') &&
-          searchControl &&
-          find(filteredRecords, c => c[searchControl.controlId] === keyWords);
-        if (
-          needSort &&
-          get(control, 'advancedSetting.searchtype') !== '1' &&
-          find(filteredRecords, c => c[searchControl.controlId] === keyWords)
-        ) {
-          filteredRecords = filteredRecords.sort((a, b) => {
-            if (a[searchControl.controlId] === keyWords) {
-              return -1;
-            }
-            if (b[searchControl.controlId] === keyWords) {
-              return 1;
-            }
-            return 0;
-          });
+    request
+      .then(res => {
+        if (res.resultCode === 1) {
+          let filteredRecords = uniqBy(res.data, 'rowid');
+          const needSort =
+            keyWords &&
+            pageIndex === 1 &&
+            get(control, 'advancedSetting.searchcontrol') &&
+            searchControl &&
+            find(filteredRecords, c => c[searchControl.controlId] === keyWords);
+          if (
+            needSort &&
+            get(control, 'advancedSetting.searchtype') !== '1' &&
+            find(filteredRecords, c => c[searchControl.controlId] === keyWords)
+          ) {
+            filteredRecords = filteredRecords.sort((a, b) => {
+              if (a[searchControl.controlId] === keyWords) {
+                return -1;
+              }
+              if (b[searchControl.controlId] === keyWords) {
+                return 1;
+              }
+              return 0;
+            });
+          }
+          if (filteredRecords.length === 0 && pageIndex * pageSize < res.count) {
+            setPageIndex(pageIndex + 1);
+          }
+          setRecords(filteredRecords);
+          setTotal(res.count);
+          setRecordsLoading(false);
+        } else {
+          setRecordsLoading(false);
+          setError(res.resultCode === ERROR_STATUS.OVER_LENGTH ? ERROR_STATUS.OVER_LENGTH : ERROR_STATUS.NO_PERMISSION);
         }
-        if (filteredRecords.length === 0 && pageIndex * pageSize < res.count) {
-          setPageIndex(pageIndex + 1);
-        }
-        setRecords(filteredRecords);
-        setTotal(res.count);
-        setRecordsLoading(false);
-      } else {
-        setRecordsLoading(false);
-        setError(res.resultCode === ERROR_STATUS.OVER_LENGTH ? ERROR_STATUS.OVER_LENGTH : ERROR_STATUS.NO_PERMISSION);
-      }
-    });
+      })
+      .catch(err => {
+        setError(err.errorCode);
+      });
   }, [pageIndex, pageSize, keyWords, filterControls, ignoreAllFilters, sortControl, quickFilters, clickSearch]);
   useEffect(() => {
     load();
@@ -247,8 +251,12 @@ export function getWorksheetInfo(worksheetId, parentWorksheetId) {
           window.worksheetControlsCache[c.dataSource] = c.relationControls;
         }
       });
-      const translateInfo = getTranslateInfo(data.appId, null, data.worksheetId);
+      const appId = _.get(window, 'appInfo.id');
+      const translateInfo = getTranslateInfo(appId, null, data.worksheetId);
       data.entityName = translateInfo.recordName || data.entityName;
+      if (get(data, 'template.controls')) {
+        data.template.controls = replaceControlsTranslateInfo(appId, data.worksheetId, data.template.controls);
+      }
       return data;
     });
 }

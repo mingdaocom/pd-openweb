@@ -42,7 +42,7 @@ export default class IndexSide extends Component {
             }
           >
             <div className="flexRow alignItemsCenter justifyContentCenter pointer moreWrap">
-              <Icon className="Gray_9e Font20" icon="more_horiz" />
+              <Icon className="textTertiary Font20" icon="more_horiz" />
             </div>
           </Dropdown>
         </div>

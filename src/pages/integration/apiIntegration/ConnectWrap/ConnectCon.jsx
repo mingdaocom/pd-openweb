@@ -3,8 +3,7 @@ import DocumentTitle from 'react-document-title';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
-import { Dialog, Icon, LoadDiv, Menu, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import processAjax from 'src/pages/workflow/api/process';
@@ -12,11 +11,9 @@ import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import ConnectAvator from '../../components/ConnectAvator';
 import ConnectDesDia from '../../components/connectDesDialog';
-import PublishDialog from '../../components/PublishDialog';
-import { ActWrap, MenuItemWrap, RedMenuItemWrap } from '../style';
+import ConnectOptionMenu from '../../components/ConnectOptionMenu';
+import { ActWrap } from '../style';
 import Info from './content';
-import ExportDialog from './content/Export';
-import Upgrade from './content/Upgrade';
 import { ConnetWrap, UpgradeContentWrap } from './style';
 import { getNodeList } from './util';
 
@@ -34,14 +31,11 @@ function ConnectCon(props) {
       connectData,
       nodeInfo,
       loading,
-      showMenu,
       showEdit,
       tab,
       isFix,
-      show,
       apiCount,
       apiList,
-      isChange,
       isConnectOwner,
       introduce,
       controls,
@@ -50,8 +44,6 @@ function ConnectCon(props) {
       hasGetIntroduce,
       hasManageAuth,
       currentProjectId,
-      showUpgrade,
-      showExport,
       isUpgrade,
     },
     setState,
@@ -60,12 +52,10 @@ function ConnectCon(props) {
     showEdit: false,
     tab: 0,
     isFix: false,
-    show: false,
     nodeInfo: {},
     apiCount: 0,
     apiList: [],
     loading: true,
-    showMenu: false,
     isChange: false,
     isConnectOwner: false,
     introduce: '',
@@ -75,8 +65,6 @@ function ConnectCon(props) {
     hasGetIntroduce: false,
     hasManageAuth: props.hasManageAuth,
     currentProjectId: props.currentProjectId || localStorage.getItem('currentProjectId'),
-    showUpgrade: false,
-    showExport: false,
     isUpgrade: false,
   });
 
@@ -260,36 +248,6 @@ function ConnectCon(props) {
         });
       });
   };
-  const upperConnect = info => {
-    packageVersionAjax
-      .upper({ id: connectData.id, ...info, companyId: currentProjectId || info.companyId }, { isIntegration: true })
-      .then(res => {
-        if (res) {
-          setState({ show: false });
-          getDetailInfo(connectData.id); //上架成功，重新获取一次详情
-          alert(_l('已申请上架，请等待审核'));
-        } else {
-          alert(_l('申请失败，请稍后再试'), 2);
-        }
-      });
-  };
-
-  const openNewPage = () => {
-    window.open(`/integrationConnect/${connectData.id}`);
-  };
-
-  const onDel = () => {
-    packageVersionAjax.delete({ id: connectData.id }, { isIntegration: true }).then(res => {
-      if (res) {
-        alert(_l('删除成功'));
-        setTimeout(() => {
-          location.href = '/integration/connectList';
-        }, 1000);
-      } else {
-        alert(_l('有API被引用，请删除引用后重试'), 3);
-      }
-    });
-  };
 
   if (loading) {
     return <LoadDiv />;
@@ -315,13 +273,7 @@ function ConnectCon(props) {
             <div className="flexRow leftCon">
               <ActWrap
                 className="act InlineBlock TxtMiddle TxtCenter mLeft0 mRight32 Hand LineHeight36"
-                onClick={() => {
-                  if (location.href.indexOf('integrationConnect') < 0) {
-                    props.onClose(isChange);
-                  } else {
-                    location.href = '/integration/connectList';
-                  }
-                }}
+                onClick={() => (location.href = '/integration/connectList')}
               >
                 <Icon icon="backspace" className="Font16" />
               </ActWrap>
@@ -351,14 +303,14 @@ function ConnectCon(props) {
                       isConnectOwner && (
                         <Icon
                           icon="edit"
-                          className="Gray_9d mLeft8"
+                          className="textTertiary mLeft8"
                           onClick={() => {
                             setState({ showEdit: true });
                           }}
                         />
                       )}
                   </p>
-                  <p className="des Gray_9e pRight8">{connectData.explain || _l('添加连接说明')}</p>
+                  <p className="des textTertiary pRight8">{connectData.explain || _l('添加连接说明')}</p>
                 </div>
               </div>
               {showEdit && (
@@ -377,135 +329,77 @@ function ConnectCon(props) {
                 </div>
               )}
               {(connectData.ownerAccount || (connectData.info || {}).createdBy) && !isUpgrade && (
-                <div className="Gray_75 node TxtMiddle mLeft10 flexRow infoDes alignItemsCenter">
+                <div className="textSecondary node TxtMiddle mLeft10 flexRow infoDes alignItemsCenter">
                   {connectData.type === 2 ? (
                     <React.Fragment>
                       <span
-                        className="Gray mRight8 maxWidth100 overflow_ellipsis"
+                        className="textPrimary mRight8 maxWidth100 overflow_ellipsis flexRow alignItemsCenter"
                         title={_.get(connectData, 'ownerAccount.fullName')}
                       >
+                        <UserHead
+                          user={{
+                            userHead: connectData?.ownerAccount?.avatar,
+                            accountId: connectData?.ownerAccount?.accountId,
+                          }}
+                          size={24}
+                          className="mRight8"
+                        />
                         {_.get(connectData, 'ownerAccount.fullName')}
                       </span>
-                      <span className="" style={{ color: '#999' }}>
+                      <span className="" style={{ color: 'var(--color-text-tertiary)' }}>
                         {_l('安装于')}
                         {connectData.createdDate}
                       </span>
                     </React.Fragment>
                   ) : (
                     <React.Fragment>
-                      <span
-                        className="Gray_75 mRight8 maxWidth100 overflow_ellipsis"
-                        title={_.get(connectData, 'ownerAccount.fullName')}
-                      >
-                        {_.get(connectData, 'ownerAccount.fullName')}
-                      </span>
-                      <span className="" style={{ color: '#999' }}>
+                      <div className="flexRow alignItemsCenter">
+                        <UserHead
+                          user={{
+                            userHead: connectData?.ownerAccount?.avatar,
+                            accountId: connectData?.ownerAccount?.accountId,
+                          }}
+                          size={24}
+                          className="mRight8"
+                          newPageChat={true}
+                        />
+                        <span
+                          className="textSecondary mRight8 maxWidth100 overflow_ellipsis"
+                          title={_.get(connectData, 'ownerAccount.fullName')}
+                        >
+                          {_.get(connectData, 'ownerAccount.fullName')}
+                        </span>
+                      </div>
+                      <span className="" style={{ color: 'var(--color-text-tertiary)' }}>
                         {!connectData.lastModifiedDate ? _l('创建于') : _l('更新于')}
                         {connectData.lastModifiedDate ? connectData.lastModifiedDate : connectData.createdDate}
                       </span>
                     </React.Fragment>
                   )}
-                  {(isConnectOwner || location.href.indexOf('integrationConnect') < 0) && (
-                    <Trigger
-                      action={['click']}
-                      popupVisible={showMenu}
-                      onPopupVisibleChange={visible => {
-                        setState({
-                          showMenu: visible,
-                        });
+                  {isConnectOwner && (
+                    <ConnectOptionMenu
+                      connectData={connectData}
+                      currentProjectId={currentProjectId}
+                      hasManageAuth={hasManageAuth}
+                      onUpgradeSuccess={() => setState({ isUpgrade: true })}
+                      onDeleteSuccess={() => {
+                        setTimeout(() => {
+                          location.href = '/integration/connectList';
+                        }, 1000);
                       }}
-                      popup={
-                        <Menu>
-                          {location.href.indexOf('integrationConnect') < 0 && (
-                            <MenuItemWrap
-                              icon={<Icon icon="launch" className="Font17 mLeft5" />}
-                              onClick={() => {
-                                openNewPage();
-                              }}
-                            >
-                              <span>{_l('新页面打开')}</span>
-                            </MenuItemWrap>
-                          )}
-                          {isConnectOwner && (
-                            <React.Fragment>
-                              {/* 自定义连接如果还未上架，则有「申请上架」菜单可选；如果已经上架，则弹出「申请上架新版本」菜单； */}
-                              {!md.global.Config.IsLocal && //私有部署没有上架
-                                connectData.type !== 2 && ( //安装的连接 不能上架
-                                  <MenuItemWrap
-                                    icon={<Icon icon="publish" className="Font17 mLeft5" />}
-                                    onClick={() => {
-                                      setState({ show: true, showMenu: false });
-                                    }}
-                                  >
-                                    {/* 状态 0已删除 1正常 2审核中 3已发布 */}
-                                    <span>
-                                      {connectData.status === 3 || connectData.info
-                                        ? _l('申请上架新版本')
-                                        : _l('申请上架到API库')}
-                                    </span>
-                                  </MenuItemWrap>
-                                )}
-                              <React.Fragment>
-                                <MenuItemWrap
-                                  icon={<Icon icon="upload_file" className="Font17 mLeft5" />}
-                                  onClick={() => setState({ showUpgrade: true, showMenu: false })}
-                                >
-                                  <span>{_l('导入升级')}</span>
-                                </MenuItemWrap>
-                                {connectData.type !== 2 && (
-                                  <MenuItemWrap
-                                    icon={<Icon icon="cloud_download" className="Font17 mLeft5" />}
-                                    onClick={() => setState({ showExport: true, showMenu: false })}
-                                  >
-                                    <span>{_l('导出')}</span>
-                                  </MenuItemWrap>
-                                )}
-                              </React.Fragment>
-                              {/* 可以「删除」已添加的自定义连接；删除前需要后端判断是否有API被引用，被引用则不能删除； */}
-                              <RedMenuItemWrap
-                                icon={<Icon icon="trash" className="Font17 mLeft5" />}
-                                onClick={() => {
-                                  const isAuth = !isConnectOwner && connectData.hasAuth;
-                                  setState({ showMenu: false });
-                                  Dialog.confirm({
-                                    title: <span className="Red">{isAuth ? _l('确认删除') : _l('删除')}</span>,
-                                    buttonType: 'danger',
-                                    width: 500,
-                                    description: isAuth
-                                      ? _l('删除连接后，连接下授权的账户信息也会被删除。')
-                                      : _l('删除后将不可恢复，确认删除吗？'),
-                                    onOk: () => {
-                                      onDel();
-                                    },
-                                  });
-                                }}
-                              >
-                                <span>{_l('删除')}</span>
-                              </RedMenuItemWrap>
-                            </React.Fragment>
-                          )}
-                        </Menu>
-                      }
-                      popupClassName={cx('dropdownTrigger')}
                       popupAlign={{
                         points: ['tl', 'bl'],
-                        overflow: {
-                          adjustX: true,
-                          adjustY: true,
-                        },
+                        overflow: { adjustX: true, adjustY: true },
                       }}
-                    >
-                      <ActWrap
-                        className="act InlineBlock TxtMiddle TxtCenter"
-                        onClick={() => {
-                          setState({
-                            showMenu: true,
-                          });
-                        }}
-                      >
-                        <i className={'icon-moreop Font22 TxtMiddle'} />
-                      </ActWrap>
-                    </Trigger>
+                      onCopySuccess={() => {
+                        location.href = '/integration/connectList';
+                      }}
+                      trigger={
+                        <ActWrap className="act InlineBlock TxtMiddle TxtCenter">
+                          <i className="icon-moreop Font22 TxtMiddle" />
+                        </ActWrap>
+                      }
+                    />
                   )}
                 </div>
               )}
@@ -545,7 +439,7 @@ function ConnectCon(props) {
             <UpgradeContentWrap>
               <div className="unusualContent">
                 <div className="imgWrap mBottom14">
-                  <i className="icon-unarchive Font56" style={{ color: '#4caf50' }} />
+                  <i className="icon-unarchive Font56" style={{ color: 'var(--color-success)' }} />
                 </div>
                 <div className="Font17 bold">{_l('连接正在升级中...')}</div>
               </div>
@@ -577,35 +471,6 @@ function ConnectCon(props) {
           )}
         </ConnetWrap>
       </ScrollView>
-      {show && (
-        <PublishDialog
-          currentProjectId={currentProjectId}
-          onOk={data => {
-            upperConnect(data);
-          }}
-          onCancel={() => {
-            setState({ show: false });
-          }}
-          hasManageAuth={hasManageAuth}
-          connectInfo={connectData}
-          info={connectData.info}
-          status={connectData.status}
-          list={apiList.filter(o => o.enabled)} ///默认选择全部已启用的API，未启用的API不显示在列表中
-        />
-      )}
-      {showUpgrade && (
-        <Upgrade
-          projectId={currentProjectId}
-          info={connectData}
-          onClose={() => setState({ showUpgrade: false })}
-          onUpgrade={() => {
-            setState({ showUpgrade: false, isUpgrade: true });
-          }}
-        />
-      )}
-      {showExport && (
-        <ExportDialog info={connectData} projectId={currentProjectId} onClose={() => setState({ showExport: false })} />
-      )}
     </React.Fragment>
   );
 }

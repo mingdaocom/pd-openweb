@@ -11,10 +11,10 @@ import 'src/pages/worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
 const ClickAwayable = createDecoratedComponent(withClickAway); //
 
 const Popup = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   width: 300px;
   border-radius: 4px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.16);
   .addFilterCondition {
     padding: 5px 20px 20px;

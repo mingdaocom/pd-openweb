@@ -36,7 +36,7 @@ const ConfigWrap = styled.div`
       cursor: pointer;
       transition: color 0.25s;
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
@@ -105,7 +105,7 @@ export function ShowFormatDialog(props) {
     >
       <ConfigWrap>
         <div className="formatList">
-          <div className="title Gray_75">
+          <div className="title textSecondary">
             {_l('选择下方日期格式或自定义输入')}
             <Support href="https://help.mingdao.com/worksheet/date-format/" type={3} text={_l('帮助')} />
           </div>
@@ -146,7 +146,7 @@ export function ShowFormat(props) {
       <div className="settingItemTitle">{_l('日期格式')}</div>
       {isCustom ? (
         <EditInfo className="pointer" onClick={() => setVisible(true)}>
-          <div className="overflow_ellipsis Gray">
+          <div className="overflow_ellipsis textPrimary">
             {_l('自定义')}（{getDateToEn(showformat)}）
           </div>
           <div className="flexCenter">
@@ -269,7 +269,7 @@ function StartEndTime(props) {
                 placement="bottom"
                 title={_l('勾选后，打开时间选择器优先显示起始日期所在日期；未勾选时优先显示当前日期。')}
               >
-                <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
+                <i className="icon-help tipsIcon textTertiary Font16 pointer"></i>
               </Tooltip>
             </Checkbox>
           </div>
@@ -328,7 +328,7 @@ export default function DateConfig(props) {
               placement="bottom"
               title={_l('用于控制时间选择器上的分钟按多少间隔显示，但依然可手动输入任意分钟数')}
             >
-              <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
+              <i className="icon-help tipsIcon textTertiary Font16 pointer"></i>
             </Tooltip>
           </Checkbox>
         </div>
@@ -354,9 +354,9 @@ export default function DateConfig(props) {
               </IntervalWrap>
             }
           >
-            <DropdownPlaceholder className={cx({ active: timeIntervalVisible })} color="#151515">
+            <DropdownPlaceholder className={cx({ active: timeIntervalVisible })} color="var(--color-text-primary)">
               {_l('%0分钟', timeinterval)}
-              <i className="icon-arrow-down-border Font16 Gray_9e"></i>
+              <i className="icon-arrow-down-border Font16 textTertiary"></i>
             </DropdownPlaceholder>
           </Dropdown>
         )}

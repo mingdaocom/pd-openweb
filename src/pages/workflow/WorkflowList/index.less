@@ -23,13 +23,13 @@
 .workflowList {
   height: 100%;
   &.workflowListShadow {
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     overflow: hidden;
   }
   .workflowHeader {
     width: 240px;
     padding: 16px 0;
-    border-right: 1px solid #ddd;
+    border-right: 1px solid var(--color-border-primary);
     li {
       font-size: 14px;
       cursor: pointer;
@@ -40,23 +40,23 @@
       position: relative;
       border-radius: 4px;
       &:not(.active) {
-        color: #151515;
+        color: var(--color-text-primary);
       }
       &.active {
-        background: #edf7fe;
+        background: var(--color-primary-transparent);
         font-weight: bold;
         &::before {
           position: absolute;
           content: '';
           height: 16px;
           width: 3px;
-          background: #1677ff;
+          background: var(--color-primary);
           top: 12px;
           left: 0;
         }
       }
       &:hover:not(.active) {
-        background: #f8f8f8;
+        background: var(--color-background-hover);
       }
     }
   }
@@ -70,7 +70,7 @@
   }
   .manageListBox {
     border-radius: 0 0 4px 4px;
-    background: #fff;
+    background: var(--color-background-primary);
     position: relative;
     .manageListBoxContent {
       position: absolute;
@@ -97,28 +97,28 @@
       padding: 14px 24px 14px 34px;
       align-items: center;
       a {
-        color: #151515;
+        color: var(--color-text-title);
         text-decoration: none;
       }
     }
     .manageList {
       margin: 0 24px;
       align-items: center;
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-secondary);
       box-sizing: border-box;
       &:hover {
-        background: #f8f8f8;
+        background: var(--color-background-hover);
         .listBtn {
           visibility: visible;
         }
       }
       &.manageListHeader {
-        border-color: #ddd;
+        border-color: var(--color-border-primary);
         padding: 12px 0;
         margin-right: 24px;
-        color: #757575;
+        color: var(--color-text-secondary);
         &:hover {
-          background: #fff;
+          background: var(--color-background-primary);
         }
         .Dropdown--input {
           padding: 0;
@@ -130,10 +130,10 @@
         }
       }
       &.active {
-        background: #f8f8f8;
+        background: var(--color-background-hover);
         .listBtn {
           visibility: visible;
-          color: #1677ff !important;
+          color: var(--color-primary) !important;
         }
       }
       .flexRow {
@@ -162,7 +162,7 @@
       }
       .iconWrap {
         &.unable {
-          background-color: #bdbdbd !important;
+          background-color: var(--color-text-disabled) !important;
         }
         width: 36px;
         height: 36px;
@@ -172,7 +172,7 @@
         justify-content: center;
         .icon {
           font-size: 24px;
-          color: #fff;
+          color: var(--color-white);
         }
       }
       .name {
@@ -189,10 +189,10 @@
           justify-content: center;
           text-decoration: none;
           &.unable:not(:hover) {
-            color: #757575 !important;
+            color: var(--color-text-secondary) !important;
           }
           &:not(:hover):not(.unable) {
-            color: #151515 !important;
+            color: var(--color-text-primary) !important;
           }
         }
       }
@@ -218,14 +218,14 @@
   .flowEmptyWrap {
     display: flex;
     height: 100%;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     border-radius: 4px;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     .flowEmptyPic {
       background: url('./images/empty.png') no-repeat;
-      background-size: 1430px 130px;
+      background-size: 1560px 130px;
       width: 130px;
       height: 130px;
       margin-top: -40px;
@@ -262,6 +262,9 @@
       &-chatbot {
         background-position: -1300px 0;
       }
+      &-ai {
+        background-position: -1430px 0;
+      }
     }
     .flowEmptyPicBig {
       background: url('./images/null.png') no-repeat;
@@ -272,16 +275,16 @@
     .flowEmptyWrapDesc {
       width: 640px;
       margin-top: 40px;
-      border: 1px solid #ddd;
+      border: 1px solid var(--color-border-primary);
       border-radius: 6px;
       padding: 20px;
-      color: #757575;
+      color: var(--color-text-secondary);
     }
   }
   .workflowListMenu {
     a {
       display: block;
-      color: #151515 !important;
+      color: var(--color-text-title) !important;
     }
     .ming.MenuItem {
       .Item-content {
@@ -289,8 +292,8 @@
         padding-left: 0 !important;
         padding-right: 0 !important;
         &:hover {
-          background: #f8f8f8 !important;
-          color: #151515 !important;
+          background: var(--color-background-hover) !important;
+          color: var(--color-text-title) !important;
         }
         > span {
           display: block;
@@ -307,9 +310,9 @@
     line-height: 32px;
     text-align: center;
     border-radius: 50%;
-    color: #999;
+    color: var(--color-text-tertiary);
     &:hover {
-      background-color: #f7f7f7;
+      background-color: var(--color-background-hover);
     }
   }
 
@@ -324,7 +327,7 @@
     padding: 0 24px;
     align-items: center;
     height: 57px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
   }
   .adminWorkflowCount {
     margin: 16px 24px 0;
@@ -343,24 +346,24 @@
   .manageList {
     margin: 0 24px;
     align-items: center;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     &:hover {
-      background: #f8f8f8;
+      background: var(--color-background-hover);
       .listBtn {
         visibility: visible;
       }
     }
     &.manageListHeader {
-      border-color: #ddd;
+      border-color: var(--color-border-primary);
       padding: 12px 0;
       margin-right: 24px;
-      color: #757575;
+      color: var(--color-text-secondary);
       &:hover {
-        background: #fff;
+        background: var(--color-background-primary);
       }
     }
     &:last-child {
-      border-color: #fff;
+      border-color: var(--color-background-primary);
     }
     .flexRow {
       align-items: center;
@@ -376,7 +379,7 @@
     }
     .iconWrap {
       &.unable {
-        background-color: #bdbdbd !important;
+        background-color: var(--color-text-disabled) !important;
       }
       width: 36px;
       height: 36px;
@@ -386,7 +389,7 @@
       justify-content: center;
       .icon {
         font-size: 24px;
-        color: #fff;
+        color: var(--color-white);
       }
     }
     .name {
@@ -402,10 +405,10 @@
         justify-content: center;
         text-decoration: none;
         &.unable:not(:hover) {
-          color: #757575 !important;
+          color: var(--color-text-secondary) !important;
         }
         &:not(:hover):not(.unable) {
-          color: #151515 !important;
+          color: var(--color-text-title) !important;
         }
       }
     }
@@ -417,7 +420,7 @@
   }
   .manageListOrder {
     transform: scale(0.8);
-    color: #bfbfbf;
+    color: var(--color-text-disabled);
     margin-left: -10px;
     .icon-arrow-down {
       margin-top: -4px;
@@ -432,16 +435,16 @@
       line-height: 130px;
       text-align: center;
       border-radius: 50%;
-      background-color: #f5f5f5;
+      background-color: var(--color-background-secondary);
     }
     .icon {
       vertical-align: middle;
       font-size: 66px;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
     .emptyExplain {
       margin-top: 20px;
-      color: #757575;
+      color: var(--color-text-secondary);
       font-size: 17px;
       text-align: center;
     }

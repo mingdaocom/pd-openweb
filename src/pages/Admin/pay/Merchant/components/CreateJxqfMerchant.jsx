@@ -15,7 +15,7 @@ import './createMerchant.less';
 
 const DivideLine = styled.div`
   width: 1px;
-  border-right: 1px solid #f0f0f0;
+  border-right: 1px solid var(--color-background-disabled);
   margin: -24px 34px 0 30px;
 `;
 
@@ -23,7 +23,7 @@ const Prompt = styled.div`
   width: 409px;
   line-height: 1;
   padding: 17px 0;
-  background: #f8f8f8;
+  background: var(--color-background-secondary);
   border-radius: 6px;
   padding-left: 16px;
   margin-left: 30px;
@@ -36,19 +36,19 @@ const IconWrap = styled.div`
   align-items: center;
   justify-content: center;
   border-radius: 6px;
-  color: #fff;
+  color: var(--color-white);
   margin-right: 10px;
   &.wechatBgColor {
-    background: #48b338;
+    background: var(--color-success);
   }
   &.aliBgColor {
-    background: #02a9f1;
+    background: var(--color-primary);
   }
 `;
 
 const Erweima = styled.div`
   width: 200px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-secondary);
   border-radius: 10px;
   box-sizing: border-box;
   overflow: hidden;
@@ -63,9 +63,9 @@ const Description = styled.div`
   background: rgba(33, 150, 243, 0.05);
   border-radius: 5px;
   padding: 8px 10px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   margin-bottom: 20px;
-  color: #151515;
+  color: var(--color-text-title);
 `;
 
 // 聚合支付
@@ -396,13 +396,13 @@ export default class CreateJxqfMerchant extends Component {
                   </IconWrap>
                   <span className="Font15">{_l('微信')}</span>
                   <Tooltip title={_l('微信服务号主体必须与创建商户的主体一致')}>
-                    <Icon icon="info" className="Gray_9e mLeft6 Font16" />
+                    <Icon icon="info" className="textTertiary mLeft6 Font16" />
                   </Tooltip>
                 </div>
                 {!_.isUndefined(bindWeixin) && !bindWeixin && (
-                  <Prompt className="Gray_9e">
+                  <Prompt className="textTertiary">
                     {_l('暂未绑定认证的服务号，')}
-                    <a href={`/admin/weixin/${projectId}`} className="ThemeColor">
+                    <a href={`/admin/weixin/${projectId}`} className="colorPrimary">
                       {_l('请前往组织后台')}
                     </a>
                     {_l('添加微信服务号')}
@@ -433,10 +433,10 @@ export default class CreateJxqfMerchant extends Component {
                 {merchantStatus === 2 ? (
                   <Fragment>
                     <div className="Font17 bold mBottom10 flex">
-                      <i className="icon icon-wait mRight8 Gray_9e Font20" />
+                      <i className="icon icon-wait mRight8 textTertiary Font20" />
                       {_l('支付渠道配置中，等耐心等待1-2 个工作日')}
                     </div>
-                    <div className="Font12 Gray_9e pLeft30">
+                    <div className="Font12 textTertiary pLeft30">
                       {_l('如有疑问请联系您的专属顾问或客服电话：400-665-6655')}
                     </div>
                   </Fragment>
@@ -455,7 +455,7 @@ export default class CreateJxqfMerchant extends Component {
                           }
                         >
                           <span className="Hand whiteWrap">
-                            <i className="icon icon-phone mLeft10 Font20 Gray_9d" />
+                            <i className="icon icon-phone mLeft10 Font20 textTertiary" />
                           </span>
                         </Tooltip>
                       )}

@@ -1,48 +1,50 @@
 import React, { Fragment, useEffect, useRef } from 'react';
 import cx from 'classnames';
-import _ from 'lodash';
+import _, { includes } from 'lodash';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { FixedTable } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import autoSize from 'ming-ui/decorators/autoSize';
 import SelectControls from 'worksheet/common/WorkSheetFilter/components/SelectControls';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { getIndex } from '../WorksheetTable/components/Cell';
 
 const StyledFixedTable = styled(FixedTable)`
   border-radius: 4px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-secondary);
   overflow: hidden;
   .cell {
     line-height: 20px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     border: 1px solid rgba(0, 0, 0, 0.09) !important;
     border-left: none !important;
     border-top: none !important;
     padding: 7px 8px;
     overflow: hidden;
-    background-color: #f9fcfd;
+    background-color: var(--color-cyan-blue);
     &.oddRow {
-      background-color: #fff;
+      background-color: var(--color-background-primary);
     }
   }
   .controlHead {
     display: flex;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     align-items: center;
     .controlIcon {
       margin-right: 4px;
       font-size: 15px;
-      color: #9d9d9d;
+      color: var(--color-text-tertiary);
     }
     .dropdownIcon {
       margin-left: 4px;
       font-size: 13px;
-      color: #9d9d9d;
+      color: var(--color-text-tertiary);
     }
     .controlName {
-      color: #151515;
+      color: var(--color-text-title);
       font-size: 13px;
       font-weight: 500;
     }
@@ -63,7 +65,7 @@ const NoImportItem = styled.div`
   cursor: pointer;
   height: 48px;
   padding: 0 15px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-secondary);
   display: flex;
   align-items: center;
   .icon {
@@ -104,6 +106,25 @@ function checkCellFullVisible(element) {
     newTop,
   };
 }
+
+function ControlTooltip(props) {
+  const { control } = props;
+  if (!includes([WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT, WIDGETS_TO_API_TYPE_ENUM.USER_PICKER], control.type)) {
+    return null;
+  }
+  const tipText = {
+    [WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT]: _l('支持导入名称、部门系统ID'),
+    [WIDGETS_TO_API_TYPE_ENUM.USER_PICKER]: _l(
+      '支持导入姓名、手机号、邮箱、工号、人员ID。手机号前缀需要附带国家代码以及+号, 例如美国号码：+1**********',
+    ),
+  }[control.type];
+  return (
+    <Tooltip title={tipText}>
+      <i className="icon icon-info_outline Font16 textTertiary mLeft8"></i>
+    </Tooltip>
+  );
+}
+
 function renderNormalHead(props) {
   const { controls, key, style, columnIndex } = props;
   const control = controls[columnIndex];
@@ -112,9 +133,8 @@ function renderNormalHead(props) {
       {!!control && (
         <Fragment>
           <i className={`controlIcon icon-${getIconByType(control.type)}`}></i>
-          <div className="flex controlName">
-            <div className="ellipsis">{control.controlName}</div>
-          </div>
+          <div className="flex controlName ellipsis">{control.controlName}</div>
+          <ControlTooltip control={control} />
         </Fragment>
       )}
     </div>
@@ -235,7 +255,7 @@ function PreviewTable(props) {
                         onUpdateMapConfig(columnIndex - 1, undefined);
                       }}
                     >
-                      <i className="icon icon-file_upload_off Font15 Gray_bd"></i>
+                      <i className="icon icon-file_upload_off Font15 textDisabled"></i>
                       {_l('不导入此列')}
                     </NoImportItem>
                   }
@@ -255,15 +275,18 @@ function PreviewTable(props) {
             >
               <div key={key} style={style} className="cell controlHead Hand">
                 <i
-                  className={`controlIcon icon-${control ? getIconByType(control.type) : 'file_upload_off Gray_bd'}`}
+                  className={`controlIcon icon-${control ? getIconByType(control.type) : 'file_upload_off textDisabled'}`}
                 ></i>
-                <div className="flex controlName">
+                <div className="flex controlName overflowHidden">
                   {control ? (
-                    <div className="ellipsis">{control.controlName}</div>
+                    <div className="ellipsis overflowHidden" title={control.controlName}>
+                      {control.controlName}
+                    </div>
                   ) : (
-                    <div className="ellipsis Gray_c6">{_l('不导入此列')}</div>
+                    <div className="ellipsis textPlaceholder">{_l('不导入此列')}</div>
                   )}
                 </div>
+                {!!control && <ControlTooltip control={control} />}
                 <i className="dropdownIcon icon icon-arrow-down"></i>
               </div>
             </Trigger>
@@ -275,7 +298,7 @@ function PreviewTable(props) {
             style={Object.assign(
               {},
               style,
-              index === activeIndex ? { boxShadow: 'inset 0px 0px 0px 1px #1677ff' } : {},
+              index === activeIndex ? { boxShadow: 'inset 0px 0px 0px 1px var(--color-primary)' } : {},
             )}
             className={cx('cell', {
               active: index === activeIndex,

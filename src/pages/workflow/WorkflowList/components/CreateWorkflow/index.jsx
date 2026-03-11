@@ -4,6 +4,7 @@ import { FullScreenCurtain, Icon, Support } from 'ming-ui';
 import api from '../../../api/process';
 import appManagement from 'src/api/appManagement';
 import { navigateTo } from 'src/router/navigateTo';
+import { RELATION_TYPE } from '../../../WorkflowSettings/enum';
 import { START_APP_TYPE } from '../../utils';
 import BgIcon from './BgIcon';
 import './index.less';
@@ -98,7 +99,7 @@ export default class CreateFlow extends Component {
       .addProcess({
         companyId: '',
         relationId: appId,
-        relationType: 2,
+        relationType: RELATION_TYPE.APP,
         startEventAppType,
         name: flowName || this.props.flowName,
         explain: '',
@@ -124,7 +125,7 @@ export default class CreateFlow extends Component {
         <header className="createWorkflowHeader flexRow">
           <div className="backEdit flexRow">
             <div className="backToWorkflowIndex mRight12" onClick={this.props.onBack}>
-              <Icon icon="backspace" className="Font24 Gray_75 ThemeHoverColor3 pointer" />
+              <Icon icon="backspace" className="Font24 textSecondary ThemeHoverColor3 pointer" />
             </div>
             <input
               ref={this.inputRef}
@@ -146,7 +147,7 @@ export default class CreateFlow extends Component {
           {WORKFLOW_TRIGGER_MODE.map(({ text, subClass }, index) => {
             return (
               <div key={index} className="triggerWorkflowMode">
-                <div className="modeName bold Gray_75">{text}</div>
+                <div className="modeName bold textSecondary">{text}</div>
                 {subClass.map(item => {
                   return (
                     <div
@@ -162,7 +163,7 @@ export default class CreateFlow extends Component {
                       />
                       <div className="detailExplain flexColumn">
                         <div className="Font15 mTop4">{item.title}</div>
-                        <div className="Gray_75 mTop10" style={{ maxWidth: 520 }}>
+                        <div className="textSecondary mTop10" style={{ maxWidth: 520 }}>
                           {item.explain}
                         </div>
                       </div>

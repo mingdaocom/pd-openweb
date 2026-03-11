@@ -29,7 +29,7 @@ function AddNode(props) {
         <Icon icon="worksheet_API" className="Font17" />
         <span className="mLeft3">{_l('插入代码')}</span>
         <Tooltip placement="bottom" title={_l('可对前面节点输出的数据做处理，以供后面节点使用，如加密、解密等')}>
-          <Icon icon="info_outline" className="Gray_bd Font16 mLeft5" />
+          <Icon icon="info_outline" className="textDisabled Font16 mLeft5" />
         </Tooltip>
       </WrapBtn>
     </React.Fragment>

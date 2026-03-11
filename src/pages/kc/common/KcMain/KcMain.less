@@ -47,9 +47,8 @@ html.AppKc {
   padding: 0 18px;
   user-select: none;
   height: 45px;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--color-background-primary);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
-
   z-index: 8;
 }
 .kcRightHead .kcRightHeadPosition,
@@ -57,11 +56,11 @@ html.AppKc {
   font-size: 16px;
   height: 45px;
   line-height: 45px;
-  color: #000;
+  color: var(--color-text-primary);
   padding-right: 240px;
 }
 .kcRightHead .kcRightHeadPosition .kcPosition:not(:hover) {
-  color: #000;
+  color: var(--color-text-primary);
 }
 .kcRightHead .kcRightHeadPosition .kcPosition {
   margin-left: 5px;
@@ -119,7 +118,7 @@ html.AppKc {
   display: inline-block;
 }
 .kcRightHead .kcRightHeadOperate i:not(:hover) {
-  color: rgba(0, 0, 0, 0.5);
+  color: var(--color-text-secondary);
 }
 .kcRightHead .kcRightHeadOperate .kcRightAdd,
 .kcRightHead .kcRightHeadOperate .kcRightDel {
@@ -127,7 +126,7 @@ html.AppKc {
   display: inline-block;
   height: 32px;
   line-height: 32px;
-  color: #fff;
+  color: var(--color-white);
   padding: 0 31px;
   margin: 6px 9px 0 0;
 }
@@ -141,10 +140,10 @@ html.AppKc {
   display: inline-block;
   vertical-align: top;
   margin-top: 9px;
-  color: #fff;
+  color: var(--color-white);
 }
 .kcAddNodeBtnMenu .createOffice {
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--color-border-tertiary);
   padding-top: 5px;
   margin-top: 2px;
   .icon-arrow-right-tip {
@@ -161,11 +160,11 @@ html.AppKc {
 .kcToolbar {
   height: 44px;
   line-height: 44px;
-  color: #666;
+  color: var(--color-text-secondary);
   user-select: none;
   padding-left: 13px;
-  border-bottom: 1px solid #ddd;
-  background: #fff;
+  border-bottom: 1px solid var(--color-border-primary);
+  background: var(--color-background-primary);
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
   position: absolute;
@@ -181,7 +180,7 @@ html.AppKc {
 .kcToolbar .selectAll {
   width: 16px;
   height: 16px;
-  border: 1px solid #a0a0a0;
+  border: 1px solid var(--color-text-tertiary);
   display: inline-block;
   cursor: pointer;
   margin-right: 13px;
@@ -193,7 +192,7 @@ html.AppKc {
   vertical-align: top;
   font-size: 15px;
   margin-top: 1px;
-  color: #1585f9;
+  color: var(--color-primary);
 }
 .kcToolbar .kcToolbarLabel {
   margin-left: 37px;
@@ -210,7 +209,7 @@ html.AppKc {
   vertical-align: middle;
 }
 .kcToolbarMultiple i:not(:hover) {
-  color: #999 !important;
+  color: var(--color-text-tertiary) !important;
 }
 .kcToolbar .kcToolbarMultiple .icon-task-replace {
   font-size: 14px;
@@ -270,8 +269,8 @@ html.AppKc {
   height: 36px;
   line-height: 36px;
   width: 100%;
-  border-bottom: 1px solid #ddd;
-  background: #fff;
+  border-bottom: 1px solid var(--color-border-primary);
+  background: var(--color-background-primary);
 }
 .kclist li.flexRow.last-child {
   border-bottom-left-radius: 5px;
@@ -279,13 +278,13 @@ html.AppKc {
   border-bottom: 0;
 }
 .kclist li.flexRow:hover {
-  background: #f4f5f7;
+  background: var(--color-background-secondary);
 }
 .kclist li.addNewFolder:hover {
-  background: #fff;
+  background: var(--color-background-primary);
 }
 .kclist li.active {
-  background: #cfe8fc !important;
+  background: var(--color-primary-transparent) !important;
   z-index: 1;
 }
 .kclist li.active .selectBox,
@@ -301,7 +300,7 @@ html.AppKc {
   width: 16px;
   height: 16px;
   display: inline-block;
-  border: 1px solid #a0a0a0;
+  border: 1px solid var(--color-text-tertiary);
   vertical-align: top;
 }
 .kclist li.active .noSelectPoint,
@@ -314,13 +313,13 @@ html.AppKc {
   margin-right: 19px;
   margin-top: 16px;
   margin-left: 19px;
-  background: #c8c8c8;
+  background: var(--color-text-placeholder);
 }
 .kclist li .select i {
   display: inline-block;
   vertical-align: top;
   font-size: 15px;
-  color: #1585f9;
+  color: var(--color-primary);
 }
 .kclist li .type,
 .kclist li .listViewImg {
@@ -366,14 +365,14 @@ html.AppKc {
   height: 34px;
   line-height: 34px;
   display: none;
-  background: #fff;
+  background: var(--color-background-primary);
 }
 
 .kclist li.active .listNameEdit {
-  background: #cfe8fc !important;
+  background: var(--color-primary-transparent) !important;
 }
 .kclist li:hover .listNameEdit {
-  background: #f4f5f7;
+  background: var(--color-background-secondary);
 }
 
 .kclist .preview {
@@ -388,7 +387,7 @@ html.AppKc {
 .kclist .preview:not(:hover),
 .kclist .download:not(:hover),
 .kclist .icon-rotate:not(:hover) {
-  color: #999 !important;
+  color: var(--color-text-tertiary) !important;
 }
 .kclist .download,
 .kclist .icon-rotate {
@@ -402,7 +401,7 @@ html.AppKc {
 .kclist .actions {
   font-size: 21px;
   display: inline-block;
-  color: #999;
+  color: var(--color-text-tertiary);
   width: 36px;
   height: 35px;
   line-height: 35px;
@@ -416,7 +415,7 @@ html.AppKc {
 .kclist .Menu .Icon,
 #kclistContainer.thumbnail .Menu .Icon,
 .rightMenu.Menu .Icon {
-  color: #aaa !important;
+  color: var(--color-text-tertiary) !important;
 }
 .Menu .ming.Item .newVersionFile {
   position: absolute;
@@ -436,7 +435,7 @@ html.AppKc {
   margin-left: 16px;
 }
 .kclist .createTime .grey {
-  color: #999;
+  color: var(--color-text-tertiary);
 }
 .kclist .size {
   width: 50px;
@@ -451,7 +450,7 @@ html.AppKc {
   padding-top: 20px;
 }
 #kclistContainer.thumbnail ul {
-  background: #fff;
+  background: var(--color-background-primary);
 }
 #kclistContainer.thumbnail li.thumbnailItem:hover {
   z-index: 3;
@@ -459,7 +458,7 @@ html.AppKc {
 }
 #kclistContainer.thumbnail li.thumbnailItem.active {
   z-index: 4;
-  border-color: #2979ff;
+  border-color: var(--color-primary);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 #kclistContainer.thumbnail li.thumbnailItem:hover .thumbnailImg img {
@@ -467,8 +466,8 @@ html.AppKc {
 }
 #kclistContainer.thumbnail li.thumbnailItem:hover .select {
   display: block !important;
-  border-color: #fff;
-  background: #fff;
+  border-color: var(--color-background-primary);
+  background: var(--color-background-primary);
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.25);
 }
 #kclistContainer.thumbnail li.thumbnailItem:hover .icon-ok {
@@ -476,8 +475,8 @@ html.AppKc {
 }
 #kclistContainer.thumbnail li.thumbnailItem.active .select {
   display: block !important;
-  border-color: #2979ff;
-  background: #2979ff;
+  border-color: var(--color-primary);
+  background: var(--color-primary);
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.25);
 }
 
@@ -494,9 +493,9 @@ html.AppKc {
   margin-left: 12px;
   margin-bottom: 13px;
   cursor: pointer;
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 3px;
-  border: 2px solid #fff;
+  border: 2px solid var(--color-border-primary);
   box-sizing: initial;
 }
 #kclistContainer.thumbnail .thumbnailImg {
@@ -506,10 +505,10 @@ html.AppKc {
   display: flex;
   align-items: center;
   position: relative;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
 }
 #kclistContainer.thumbnail .thumbnailImg .thumViewImg {
-  background-color: #acacac;
+  background-color: var(--color-text-tertiary);
   width: 160px;
   height: 100px;
   display: flex;
@@ -530,7 +529,7 @@ html.AppKc {
   width: 140px;
   margin: 11px 0 0 10px;
   border: 0;
-  background: #fff;
+  background: var(--color-background-primary);
   height: 18px;
   line-height: 18px;
   display: none;
@@ -555,7 +554,7 @@ html.AppKc {
   line-height: 30px;
   width: 34px;
   text-align: center;
-  background: #fff;
+  background: var(--color-background-primary);
 }
 #kclistContainer.thumbnail .thumbnailItem > .nodeActionIcons .Menu {
   z-index: 2;
@@ -564,7 +563,7 @@ html.AppKc {
 #kclistContainer.thumbnail .actions {
   font-size: 21px;
   display: inline-block;
-  color: #999;
+  color: var(--color-text-tertiary);
 }
 #kclistContainer.thumbnail .thumbnailItem .ming.Item .Item-content .Icon.icon-kc-hover-download {
   font-size: 14px;
@@ -572,24 +571,24 @@ html.AppKc {
 #kclistContainer.thumbnail li .select {
   width: 22px;
   height: 22px;
-  border: 2px solid #8bb7ff;
+  border: 2px solid var(--color-primary-light);
   display: inline-block;
   cursor: pointer;
   position: absolute;
   left: -6px;
   top: -5px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--color-background-primary);
   box-sizing: initial;
 }
 #kclistContainer.thumbnail li .select i {
   display: inline-block;
   font-size: 16px;
   margin: 3px;
-  color: #c7c7c7;
+  color: var(--color-text-placeholder);
 }
 #kclistContainer.thumbnail li.active .select i {
-  color: #fff !important;
+  color: var(--color-white) !important;
 }
 .kclist .rightMenu.ming.Menu,
 #kclistContainer.thumbnail .rightMenu.ming.Menu {
@@ -600,7 +599,7 @@ html.AppKc {
 }
 .kclist li.addNewFolder,
 .kclist li .addFolderName {
-  background: #fff;
+  background: var(--color-background-primary);
 }
 .kclist li .addFolderName {
   border-top-right-radius: 5px;
@@ -620,7 +619,7 @@ html.AppKc {
 }
 
 #kclistContainer .thumbnailItem.addNewFolder {
-  background: #fff !important;
+  background: var(--color-background-primary) !important;
 }
 .kclist .clearStyle,
 #kclistContainer.thumbnail .clearStyle {
@@ -688,7 +687,7 @@ html.AppKc {
   border-radius: 50%;
 }
 .noListMessage .noFile:not(.noUpload):not(.noSearchFile):not(.isReadOnly):hover {
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   -webkit-box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
   cursor: pointer;
@@ -736,13 +735,13 @@ html.AppKc {
   width: 38px;
 }
 .draggingItems .draggingItemsCount {
-  color: white;
+  color: var(--color-white);
   font-size: 12px;
   display: block;
   width: 24px;
   height: 24px;
   text-align: center;
-  background-color: red;
+  background-color: var(--color-error);
   border-radius: 50%;
   position: absolute;
   bottom: 4px;
@@ -751,7 +750,7 @@ html.AppKc {
 
 .draggingItems .draggingItemsTip {
   display: inline-block;
-  background: #efeff2;
+  background: var(--color-background-disabled);
   padding: 10px 12px;
   font-size: 12px;
   border-radius: 3px;
@@ -770,7 +769,7 @@ html.AppKc {
   bottom: 0;
   background: rgba(0, 0, 0, 0.3);
   text-align: center;
-  color: #fff;
+  color: var(--color-white);
   font-size: 14px;
 }
 
@@ -795,7 +794,7 @@ html.AppKc {
 .kcRightContent .menuLine {
   height: 1px !important;
   line-height: 1px !important;
-  background-color: #e8e8e8;
+  background-color: var(--color-border-secondary);
   margin: 2px 0;
 }
 

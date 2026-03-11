@@ -33,7 +33,7 @@ export default class GraphBg extends Component {
                         type === 'day' &&
                         (moment(`${item.pub}.${sub}`).days() === 6 || moment(`${item.pub}.${sub}`).days() === 0) &&
                         moment(`${item.pub}.${sub}`).format('YYYY-MM-DD') !== moment().format('YYYY-MM-DD')
-                          ? '#F8F8F8'
+                          ? 'var(--color-background-secondary)'
                           : '#fff',
                     }}
                     className="subBg"

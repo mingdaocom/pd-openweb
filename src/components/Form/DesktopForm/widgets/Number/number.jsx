@@ -206,7 +206,7 @@ const NumberComp = props => {
             isMaskReadonly={isMaskReadonly}
             className={cx('ellipsis', {
               maskHoverTheme: isMaskReadonly,
-              Gray_bd: !displayValue,
+              textDisabled: !displayValue,
             })}
             onClick={handleMaskClick}
           >
@@ -234,7 +234,7 @@ const NumberComp = props => {
       <input
         type="text"
         {...inputAttribute}
-        className="customFormControlBox Gray flex"
+        className="customFormControlBox textPrimary flex"
         style={{ paddingRight: suffix ? 32 : 12, paddingTop: 2 }}
         ref={numberRef}
         autoFocus
@@ -260,7 +260,7 @@ const NumberComp = props => {
       />
       {suffix && (
         <div
-          className="ellipsis Gray_9e Font13"
+          className="ellipsis textTertiary Font13"
           style={{
             maxWidth: 80,
             position: 'absolute',

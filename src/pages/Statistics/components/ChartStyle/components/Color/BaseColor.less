@@ -5,7 +5,7 @@
     margin-top: 20px;
     padding: 6px 0;
     border-radius: 4px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
   }
   .customSwatches {
     .colorItem .item {
@@ -36,7 +36,7 @@
     }
     &.active,
     &:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
     }
     &:hover {
       .icon-done.Visibility {
@@ -45,12 +45,12 @@
       .deleteIcon {
         display: block;
         &:hover {
-          color: #f44336 !important;
+          color: var(--color-error) !important;
         }
       }
     }
     .icon-done {
-      color: #1677ff;
+      color: var(--color-primary);
     }
     .deleteIcon {
       display: none;
@@ -58,10 +58,10 @@
   }
   .hoverText:hover {
     .icon-add {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
     .addWrap {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
   }
   .ant-radio-wrapper {

@@ -15,7 +15,7 @@
     padding-right: 5px !important;
     .icon-arrow-down-border {
       font-size: 13px !important;
-      color: #9e9e9e !important;
+      color: var(--color-text-tertiary) !important;
     }
   }
 }
@@ -23,34 +23,34 @@
 .merchantList {
   .ming.MenuItem .Item-content:not(.disabled):hover {
     .option {
-      color: #fff;
+      color: var(--color-white);
     }
   }
 
   &.valueDisable .Dropdown--input .value {
-    color: #999;
+    color: var(--color-text-tertiary);
   }
 
   &.ant-select-open .ant-select-selector {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
     box-shadow: none;
   }
   .ant-select-item-option-disabled {
-    color: #bdbdbd !important;
+    color: var(--color-text-disabled) !important;
   }
   .disabledTag {
-    background: #f5f5f5;
-    color: #bdbdbd;
+    background: var(--color-background-secondary);
+    color: var(--color-text-disabled);
   }
 }
 
 .merchantDropDown.ant-select-dropdown {
   .ant-select-item-option-selected:not(.ant-select-item-option-disabled),
   .ant-select-item-option-disabled.ant-select-item-option-selected {
-    background-color: #fff !important;
+    background-color: var(--color-background-primary) !important;
   }
   .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
-    background-color: #e6f7ff !important;
+    background-color: var(--color-cyan-blue) !important;
   }
   .ant-select-item-option-state {
     margin-left: 10px;

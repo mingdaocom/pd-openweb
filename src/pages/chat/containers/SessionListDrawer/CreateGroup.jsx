@@ -16,7 +16,7 @@ const CreateWrap = styled.div`
   position: absolute;
   bottom: 24px;
   right: 8px;
-  background: #1677ff;
+  background: var(--color-primary);
   box-shadow: 0px 3px 12px 1px rgba(0, 0, 0, 0.24);
   .icon {
     transition: 0.3s;
@@ -57,13 +57,13 @@ const CreateGroup = props => {
           <Menu style={{ width: 180, padding: '8px 0' }}>
             <Menu.Item key="addSession" style={{ padding: '7px 12px' }} onClick={handleAddSession}>
               <div className="flexRow alignItemsCenter">
-                <Icon icon="task-reply-msg" className="Gray_75 Font18 mRight10" />
+                <Icon icon="task-reply-msg" className="textSecondary Font18 mRight10" />
                 <div>{`${_l('发起聊天')} (Q)`}</div>
               </div>
             </Menu.Item>
             <Menu.Item key="createGroup" style={{ padding: '7px 12px' }} onClick={() => createGroup({})}>
               <div className="flexRow alignItemsCenter">
-                <Icon icon="group" className="Gray_75 Font20 mRight10" />
+                <Icon icon="group" className="textSecondary Font20 mRight10" />
                 <div>{_l('创建群组')}</div>
               </div>
             </Menu.Item>
@@ -71,7 +71,7 @@ const CreateGroup = props => {
         }
       >
         <CreateWrap className="flexRow alignItemsCenter justifyContentCenter pointer">
-          <Icon icon="add" className="Font30 White" />
+          <Icon icon="add" className="Font30 textWhite" />
         </CreateWrap>
       </Dropdown>
     </Fragment>

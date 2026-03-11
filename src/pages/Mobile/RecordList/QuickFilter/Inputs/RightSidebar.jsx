@@ -10,13 +10,13 @@ const Con = styled.div`
   position: absolute;
   top: 0;
   left: 0;
-  background: #fff;
+  background: var(--color-background-primary);
   z-index: 1;
   // transform: ${props => `translateX(${-props.width}px)`};
   .rightSidebar-content {
     overflow-y: auto;
     z-index: 1;
-    background: #fff;
+    background: var(--color-background-primary);
     padding-bottom: 30px;
   }
 `;
@@ -27,9 +27,9 @@ export default function RightSidebar(props) {
   return (
     <Con className="flexColumn" width={width}>
       <div className="pLeft15 pRight15 flexRow valignWrapper mBottom10">
-        <Icon className="Gray_9e Font22" icon="backspace" onClick={onHideSidebar} />
-        <div className="flex Gray_9e Font13 mLeft20 ellipsis">{props.name}</div>
-        <Icon className="Gray_9e close" icon="close" onClick={onHideSidebar} />
+        <Icon className="textTertiary Font22" icon="backspace" onClick={onHideSidebar} />
+        <div className="flex textTertiary Font13 mLeft20 ellipsis">{props.name}</div>
+        <Icon className="textTertiary close" icon="close" onClick={onHideSidebar} />
       </div>
       <div className="rightSidebar-content flex">{children}</div>
     </Con>

@@ -86,7 +86,7 @@ export default function customNotice() {
       antNotification[action]({
         key: id,
         className: 'customNotification',
-        closeIcon: <Icon icon="close" className="Font20 Gray_9d ThemeHoverColor3" />,
+        closeIcon: <Icon icon="close" className="Font20 textTertiary ThemeHoverColor3" />,
         duration: 5,
         message: title,
         description: <div dangerouslySetInnerHTML={{ __html: msg }} />,

@@ -1,9 +1,8 @@
-import { generate } from '@ant-design/colors';
 import { TinyColor } from '@ctrl/tinycolor';
 import dayjs from 'dayjs';
 import EventEmitter from 'events';
 import JSEncrypt from 'jsencrypt';
-import _, { get } from 'lodash';
+import _, { get, isEmpty } from 'lodash';
 import moment from 'moment';
 import qs from 'query-string';
 import appManagementAjax from 'src/api/appManagement';
@@ -1316,6 +1315,38 @@ export function setAppThemeColor(color) {
   const style = document.createElement('style');
   style.innerHTML = `:root { --app-primary-color: ${color}; --app-primary-hover-color: ${new TinyColor(color)
     .darken(5)
-    .toString()};  --app-highlight-color: ${generate(color)[0].toString()}}`;
+    .toString()};  --app-highlight-color: ${new TinyColor(color).setAlpha(0.2).toRgbString()}}`;
   document.head.appendChild(style);
 }
+
+export const setBodyThemeMode = value => {
+  const isMobile = browserIsMobile();
+
+  const theme =
+    value === 'light' || value === 'dark'
+      ? value
+      : window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light';
+
+  if (theme === 'dark') {
+    document.body.setAttribute('data-theme', 'dark');
+  } else {
+    document.body.removeAttribute('data-theme');
+  }
+
+  // 设置 ant mobile 主题
+  if (isMobile) {
+    document.documentElement.setAttribute('data-prefers-color-scheme', theme);
+  }
+};
+
+export const getLatestCreateTimestampOfWithSaveShortcut = () => {
+  const timestamps = [...document.querySelectorAll('.withSaveShortcut')].map(el =>
+    Number(el.className.match(/createTimestamp-(\d+)/)?.[1] || 0),
+  );
+  if (isEmpty(timestamps)) {
+    return 0;
+  }
+  return Math.max(...timestamps);
+};

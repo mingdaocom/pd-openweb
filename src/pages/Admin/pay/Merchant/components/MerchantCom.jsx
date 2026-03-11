@@ -28,7 +28,7 @@ const TableWrap = styled(PageTableCon)`
     display: inline-block;
     width: 8px;
     height: 8px;
-    background: #f78900;
+    background: var(--color-warning);
     border-radius: 50%;
     margin-right: 3px;
   }
@@ -44,12 +44,12 @@ const SuccessWrap = styled.div`
   justify-content: center;
   flex-direction: column;
   .finishIcon {
-    color: #4caf50;
+    color: var(--color-success);
   }
 `;
 
 const ExplainWrap = styled.div`
-  background: #f2fafe;
+  background: var(--color-primary-transparent);
   border-radius: 3px;
   font-size: 13px;
   padding: 12px;
@@ -65,12 +65,12 @@ function SuccessDialog(props) {
         {!loading ? (
           <Fragment>
             <Icon icon="check_circle" className="Font48 finishIcon" />
-            <div className="Font24 Bold Gray mTop28 TxtCenter">{_l('试用开通成功')}</div>
+            <div className="Font24 Bold textPrimary mTop28 TxtCenter">{_l('试用开通成功')}</div>
           </Fragment>
         ) : (
           <Fragment>
             <LoadDiv size="big" />
-            <div className="Font24 Bold Gray mTop28 TxtCenter">{_l('开通中')}</div>
+            <div className="Font24 Bold textPrimary mTop28 TxtCenter">{_l('开通中')}</div>
           </Fragment>
         )}
       </SuccessWrap>
@@ -135,7 +135,7 @@ export default class MerchantCom extends Component {
       width: 560,
       title: _l('您确定开通试用？'),
       description: (
-        <span className="Gray Bold">{_l('开通后此商户号有 7 天免费试用期，试用期间单笔订单交易最高1元')}</span>
+        <span className="textPrimary Bold">{_l('开通后此商户号有 7 天免费试用期，试用期间单笔订单交易最高1元')}</span>
       ),
       okText: _l('下一步'),
       onOk: () => {
@@ -228,7 +228,7 @@ export default class MerchantCom extends Component {
   renderExplain = () => {
     return (
       <ExplainWrap>
-        {md.global.Config.IsLocal ? (
+        {window.platformENV.isOverseas || window.platformENV.isLocal ? (
           <Fragment>
             <div>{_l('1.功能服务费：按商户号收取，年费999元/商户。')}</div>
             <div>{_l('2.支付渠道：支持微信支付、支付宝支付，费率以签约渠道为准。')}</div>
@@ -284,7 +284,10 @@ export default class MerchantCom extends Component {
         render: (text, record) => {
           return (
             <Fragment>
-              <span className="dot" style={{ background: record.status === 3 ? '#4CAF50' : '#F78900' }}></span>
+              <span
+                className="dot"
+                style={{ background: record.status === 3 ? 'var(--color-success)' : 'var(--color-warning)' }}
+              ></span>
               {STATUS[record.status]}
             </Fragment>
           );
@@ -295,7 +298,7 @@ export default class MerchantCom extends Component {
         dataIndex: 'subscribeMerchant',
         render: (value, record) => {
           return (
-            <span style={{ color: value ? '#4CAF50' : '#1677ff' }}>
+            <span style={{ color: value ? 'var(--color-success)' : 'var(--color-primary)' }}>
               {value ? _l('已付费') : record.planType === 0 ? _l('试用中') : _l('待付费')}
             </span>
           );
@@ -362,13 +365,13 @@ export default class MerchantCom extends Component {
           const { status, merchantPaymentChannel } = record;
 
           // 0-注册中 1-待开通 2-开通中 3-已开通 4-已禁用
-          if (md.global.Config.IsLocal) {
+          if (window.platformENV.isOverseas || window.platformENV.isLocal) {
             return (
               hasManageMerchantAuth && (
                 <Fragment>
                   {_.includes([0, 3], status) && (
                     <span
-                      className="Hand ThemeColor mRight24 Hover_51"
+                      className="Hand colorPrimary mRight24 Hover_51"
                       onClick={() => this.openCreateMerchant(status == 0 ? 1 : status, record)}
                     >
                       {_l('商户详情')}
@@ -391,7 +394,7 @@ export default class MerchantCom extends Component {
                 hasManageMerchantAuth && (
                   <Fragment>
                     <span
-                      className="Hand ThemeColor mRight24 Hover_51"
+                      className="Hand colorPrimary mRight24 Hover_51"
                       onClick={() => this.openCreateMerchant(1, record)}
                     >
                       {_l('商户详情')}
@@ -408,7 +411,7 @@ export default class MerchantCom extends Component {
                 hasManageMerchantAuth && (
                   <Fragment>
                     <span
-                      className="Hand ThemeColor mRight52 Hover_51"
+                      className="Hand colorPrimary mRight52 Hover_51"
                       onClick={() => this.openCreateMerchant(2, record)}
                     >
                       {status === 2 ? _l('签约') : _l('开通')}
@@ -424,7 +427,7 @@ export default class MerchantCom extends Component {
                 <Fragment>
                   {hasManageMerchantAuth && (
                     <span
-                      className="Hand ThemeColor mRight24 Hover_51"
+                      className="Hand colorPrimary mRight24 Hover_51"
                       onClick={() => this.openCreateMerchant(3, record)}
                     >
                       {_l('商户详情')}
@@ -432,7 +435,7 @@ export default class MerchantCom extends Component {
                   )}
                   {hasWithdrawAuth && !_.includes([1, 2], merchantPaymentChannel) && (
                     <span
-                      className="Hand ThemeColor Hover_51 mRight24"
+                      className="Hand colorPrimary Hover_51 mRight24"
                       onClick={() => {
                         this.props.changeShowHeader(false);
                         this.setState({ showWithdraw: true, currentMerchantInfo: record });
@@ -444,13 +447,13 @@ export default class MerchantCom extends Component {
                   {hasManageMerchantAuth && (
                     <Fragment>
                       {!record.isTrialed && !record.subscribeMerchant && (
-                        <span className="Hand ThemeColor Hover_51 mRight24" onClick={() => this.onClickTrial(record)}>
+                        <span className="Hand colorPrimary Hover_51 mRight24" onClick={() => this.onClickTrial(record)}>
                           {_l('开通试用')}
                         </span>
                       )}
                       {record.planType !== 1 && (
                         <PurchaseExpandPack
-                          className="Hand ThemeColor Hover_51"
+                          className="Hand colorPrimary Hover_51"
                           text={record.subscribeMerchant ? _l('续费') : _l('付费开通')}
                           type="merchant"
                           extraParam={record.id}
@@ -527,7 +530,9 @@ export default class MerchantCom extends Component {
           <TableWrap
             loading={loading}
             columns={columns.filter(v =>
-              md.global.Config.IsLocal ? !_.includes(['subscribeMerchant', 'paymentMethod'], v.dataIndex) : true,
+              window.platformENV.isOverseas || window.platformENV.isLocal
+                ? !_.includes(['subscribeMerchant', 'paymentMethod'], v.dataIndex)
+                : true,
             )}
             dataSource={merchantList}
             count={count}

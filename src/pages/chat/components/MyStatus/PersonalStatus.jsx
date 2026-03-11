@@ -19,8 +19,8 @@ const StatusWrap = styled.div`
   padding: 10px 12px;
   font-weight: 400;
   font-size: 13px;
-  background-color: #fff;
-  border: 1px solid #ddd;
+  background-color: var(--color-background-primary);
+  border: 1px solid var(--color-border-primary);
   .statusNotStarted {
     max-width: 100%;
     display: flex;
@@ -39,7 +39,7 @@ const StatusWrap = styled.div`
     display: none;
   }
   &.hover:hover {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-hover);
     .icon-closeelement-bg-circle {
       display: inline-block;
     }
@@ -48,10 +48,10 @@ const StatusWrap = styled.div`
     border: none;
   }
   &.statusIsEnabled {
-    background-color: #f5f9ff !important;
-    border: 1px solid #0077fa;
+    background-color: var(--color-primary-transparent) !important;
+    border: 1px solid var(--color-primary);
     &:hover {
-      background-color: #f5f9ff !important;
+      background-color: var(--color-primary-transparent) !important;
     }
   }
   .time {
@@ -123,9 +123,9 @@ export default function PersonalStatus(props) {
         <span className="mLeft5 mRight10 ellipsis remark" title={remark}>
           {remark}
         </span>
-        <span className="time Gray_9e">{`${time} ${!started ? _l('开始') : _l('结束')}`}</span>
+        <span className="time textTertiary">{`${time} ${!started ? _l('开始') : _l('结束')}`}</span>
         {isSetting && !started && (
-          <i className="icon icon-access_time Gray_9e mLeft5 Font16" style={{ verticalAlign: 'text-bottom' }} />
+          <i className="icon icon-access_time textTertiary mLeft5 Font16" style={{ verticalAlign: 'text-bottom' }} />
         )}
       </Fragment>
     );
@@ -153,10 +153,10 @@ export default function PersonalStatus(props) {
       {!isMobile && isSetting && !started ? '' : <div className="flex"></div>}
       {showCancel ? (
         isMobile ? (
-          <Icon icon="close" className="Gray_9e Font16" onClick={handleConfirmCancel} />
+          <Icon icon="close" className="textTertiary Font16" onClick={handleConfirmCancel} />
         ) : (
           <Tooltip title={_l('取消状态')}>
-            <Icon icon="closeelement-bg-circle" className="Gray_9e Font16 mLeft10" onClick={onCancel} />
+            <Icon icon="closeelement-bg-circle" className="textTertiary Font16 mLeft10" onClick={onCancel} />
           </Tooltip>
         )
       ) : null}
@@ -167,9 +167,9 @@ export default function PersonalStatus(props) {
           visible={showCancelConfirm}
           onClose={() => setShowCancelConfirm(false)}
         >
-          <div className="Black Font17 bold mTop24 mBottom24 mLeft16">{_l('确认取消当前个人状态？')}</div>
+          <div className="textPrimary Font17 bold mTop24 mBottom24 mLeft16">{_l('确认取消当前个人状态？')}</div>
           <div className="flexRow pLeft16 pRight16 pBottom12">
-            <Button className="flex mRight6 bold Gray_75 Font14" onClick={() => setShowCancelConfirm(false)}>
+            <Button className="flex mRight6 bold textSecondary Font14" onClick={() => setShowCancelConfirm(false)}>
               {_l('取消')}
             </Button>
             <Button className="flex mLeft6 bold Font14" color="primary" onClick={onCancel}>

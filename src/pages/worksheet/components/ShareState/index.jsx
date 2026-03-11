@@ -22,15 +22,15 @@ const VerificationPassWrap = styled.div`
   .ant-btn-primary[disabled]:hover,
   .ant-btn-primary[disabled]:focus,
   .ant-btn-primary[disabled]:active {
-    background-color: #e0e0e0;
+    background-color: var(--color-background-secondary);
     border: none;
   }
   .ant-input-status-error:not(.ant-input-disabled):not(.ant-input-borderless).ant-input,
   .ant-input-status-error:not(.ant-input-disabled):not(.ant-input-borderless).ant-input:hover {
-    border-color: #f44336;
+    border-color: var(--color-error);
   }
   .ant-form-item-explain-error {
-    color: #f44336;
+    color: var(--color-error);
     font-size: 12px;
   }
 `;
@@ -48,9 +48,9 @@ export const SHARE_STATE = {
 export const ShareState = props => {
   const { code } = props;
   return (
-    <div className="w100 h100 flexColumn alignItemsCenter justifyContentCenter WhiteBG">
-      <Icon className="mBottom20" icon="error1" style={{ color: '#ddd', fontSize: 70 }} />
-      <div className="Font17 Gray_9e">{SHARE_STATE[code]}</div>
+    <div className="w100 h100 flexColumn alignItemsCenter justifyContentCenter bgPrimary">
+      <Icon className="mBottom20" icon="error1" style={{ color: 'var(--color-border-primary)', fontSize: 70 }} />
+      <div className="Font17 textTertiary">{SHARE_STATE[code]}</div>
     </div>
   );
 };
@@ -65,7 +65,7 @@ export const VerificationPass = props => {
 
   return (
     <ConfigProvider autoInsertSpaceInButton={false}>
-      <VerificationPassWrap className="w100 h100 flexColumn justifyContentCenter WhiteBG">
+      <VerificationPassWrap className="w100 h100 flexColumn justifyContentCenter bgPrimary">
         <div className="flexColumn alignItemsCenter" style={{ marginTop: -120 }}>
           <div className="flexRow alignItemsCenter mBottom18">
             <div className="Font13 mRight5">{_l('请输入密码访问')}</div>

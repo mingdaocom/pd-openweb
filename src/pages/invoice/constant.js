@@ -41,17 +41,37 @@ export const INVOICE_STATUS_OPTIONS = [
 export const STATUS_INFO_APPLY = {
   [INVOICE_STATUS.UN_INVOICED]: { title: _l('发票申请中...'), okText: _l('修改信息'), icon: 'wait', color: '#bdbdbd' },
   [INVOICE_STATUS.PROCESSING]: { title: _l('发票开具中...'), icon: 'wait', color: '#bdbdbd' },
-  [INVOICE_STATUS.INVOICED]: { title: _l('发票开具成功'), okText: _l('查看发票'), icon: 'Finish', color: '#4caf50' },
-  [INVOICE_STATUS.FAILED]: { title: _l('发票开具失败'), okText: _l('重新申请'), icon: 'cancel', color: '#f44336' },
-  [INVOICE_STATUS.CANCELLED]: { title: _l('发票已取消申请'), okText: _l('重新申请'), icon: 'cancel', color: '#f78900' },
-  error: { title: _l('订单异常不支持开票'), icon: 'cancel', color: '#f44336' },
+  [INVOICE_STATUS.INVOICED]: {
+    title: _l('发票开具成功'),
+    okText: _l('查看发票'),
+    icon: 'Finish',
+    color: 'var(--color-success)',
+  },
+  [INVOICE_STATUS.FAILED]: {
+    title: _l('发票开具失败'),
+    okText: _l('重新申请'),
+    icon: 'cancel',
+    color: 'var(--color-error)',
+  },
+  [INVOICE_STATUS.CANCELLED]: {
+    title: _l('发票已取消申请'),
+    okText: _l('重新申请'),
+    icon: 'cancel',
+    color: 'var(--color-warning)',
+  },
+  error: { title: _l('订单异常不支持开票'), icon: 'cancel', color: 'var(--color-error)' },
 };
 
 export const STATUS_INFO_CONFIRM = {
   [INVOICE_STATUS.PROCESSING]: { title: _l('正在开票中...'), okText: _l('刷新'), icon: 'wait', color: '#bdbdbd' },
-  [INVOICE_STATUS.INVOICED]: { title: _l('开票成功'), okText: _l('查看发票'), icon: 'Finish', color: '#4caf50' },
-  [INVOICE_STATUS.FAILED]: { title: _l('开票失败'), icon: 'cancel', color: '#f44336' },
-  [INVOICE_STATUS.CANCELLED]: { title: _l('已取消申请开票'), icon: 'cancel', color: '#f78900' },
-  error: { title: _l('开票单号异常不支持开票'), icon: 'cancel', color: '#f44336' },
-  noAuth: { title: _l('无审核开票权限'), icon: 'info1', color: '#f78900' },
+  [INVOICE_STATUS.INVOICED]: {
+    title: _l('开票成功'),
+    okText: _l('查看发票'),
+    icon: 'Finish',
+    color: 'var(--color-success)',
+  },
+  [INVOICE_STATUS.FAILED]: { title: _l('开票失败'), icon: 'cancel', color: 'var(--color-error)' },
+  [INVOICE_STATUS.CANCELLED]: { title: _l('已取消申请开票'), icon: 'cancel', color: 'var(--color-warning)' },
+  error: { title: _l('开票单号异常不支持开票'), icon: 'cancel', color: 'var(--color-error)' },
+  noAuth: { title: _l('无审核开票权限'), icon: 'info1', color: 'var(--color-warning)' },
 };

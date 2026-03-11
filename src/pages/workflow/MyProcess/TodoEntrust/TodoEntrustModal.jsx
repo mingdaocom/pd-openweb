@@ -15,14 +15,14 @@ import { getCurrentProject } from 'src/utils/project';
 
 const FormItem = styled.div`
   margin-top: 25px;
-  color: #151515;
+  color: var(--color-text-title);
   font-size: 14px;
   .userItemWrapper {
     display: flex;
     align-items: center;
     margin-right: 10px;
     border-radius: 24px;
-    background-color: #f7f7f7;
+    background-color: var(--color-background-secondary);
     max-width: calc(100% - 36px);
   }
   .entrustDateWrapper {
@@ -37,19 +37,19 @@ const FormItem = styled.div`
     width: 26px;
     height: 26px;
     line-height: 26px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 50%;
     justify-content: center;
     align-items: center;
     cursor: pointer;
 
     .addOrTransferIcon {
-      color: #757575;
+      color: var(--color-text-secondary);
     }
     &:hover {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
       .addOrTransferIcon {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
@@ -74,14 +74,14 @@ const FormItem = styled.div`
 const AppListContainer = styled.div`
   width: 100%;
   border-radius: 3px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   margin-top: 16px;
   padding-top: 8px;
 
   .noDataContent {
     height: 100px;
     line-height: 100px;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
     text-align: center;
   }
 
@@ -110,10 +110,10 @@ const AppListContainer = styled.div`
         }
       }
       .removeItem {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
         cursor: pointer;
         &:hover {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }
@@ -317,7 +317,7 @@ export default function TodoEntrustModal(props) {
                 projectId={formData.companyId}
               />
               <UserName
-                className="Gray Font13 pLeft5 pRight10 pTop2 overflow_ellipsis userName"
+                className="textPrimary Font13 pLeft5 pRight10 pTop2 overflow_ellipsis userName"
                 user={{
                   userName: formData[userType].fullName || formData[userType].fullname,
                   accountId: formData[userType].accountId,
@@ -353,7 +353,9 @@ export default function TodoEntrustModal(props) {
       title={
         <React.Fragment>
           <div className="bold">{_l('待办委托')}</div>
-          <div className="Font13 Gray_75">{_l('创建后，委托人在委托范围中负责的审批、填写事项将转交给受托人')}</div>
+          <div className="Font13 textSecondary">
+            {_l('创建后，委托人在委托范围中负责的审批、填写事项将转交给受托人')}
+          </div>
         </React.Fragment>
       }
     >
@@ -439,7 +441,7 @@ export default function TodoEntrustModal(props) {
           })}
           <div className="flex" />
           {formData.scope === 2 && (
-            <div className="ThemeColor Hand" onClick={onSelectApp}>
+            <div className="colorPrimary Hand" onClick={onSelectApp}>
               <Icon icon="add" />
               <span className="bold mLeft4">{_l('添加应用')}</span>
             </div>

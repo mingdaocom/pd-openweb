@@ -104,7 +104,7 @@ export default function () {
     }
     //私有部署关闭注册入口，跳转到/login
     if (
-      _.get(md, 'global.Config.IsLocal') &&
+      (window.platformENV.isOverseas || window.platformENV.isLocal) &&
       _.get(md, 'global.SysSettings.hideRegister') &&
       (location.href.indexOf('/register') >= 0 ||
         (location.href.indexOf('/linkInvite') >= 0 && request.projectId) || //主动注册
@@ -289,7 +289,12 @@ export default function () {
         <div className="loginContainer">
           <Header
             lineLoading={state.lineLoading}
-            logo={state.logo}
+            logo={
+              state.logo ||
+              (state.step === 'create' && !window.platformENV.isOverseas && !window.platformENV.isLocal
+                ? `${_.get(md, 'global.FileStoreConfig.pictureHost')}/ProjectLogo/default_hap.png`
+                : '')
+            }
             hasGetLogo={state.hasGetLogo}
             isDefaultLogo={state.isDefaultLogo}
             loading={state.loading}

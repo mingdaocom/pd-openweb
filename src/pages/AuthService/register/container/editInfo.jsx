@@ -126,6 +126,8 @@ export default function (props) {
             if (data.actionResult == ActionResult.success) {
               setState({ loading: false });
               registerSuc(props);
+            } else if (data.actionResult == ActionResult.accountResign) {
+              alert(_l('账号处于离职状态，请联系组织管理员恢复'), 3);
             } else if (data.actionResult == ActionResult.userAccountExists) {
               alert(_l('该手机号已注册，您可以使用已有账号登录'), 3);
             } else if (data.actionResult == ActionResult.inviteLinkExpirate) {
@@ -142,8 +144,7 @@ export default function (props) {
             } else if (data.actionResult == ActionResult.accountFrequentLoginError) {
               alert(_l('账号已被锁定，请稍后再试'), 3);
             } else if (
-              data.actionResult == ActionResult.firstLoginResetPassword ||
-              data.actionResult == ActionResult.passwordOverdue
+              [ActionResult.firstLoginResetPassword, ActionResult.passwordOverdue].includes(data.actionResult)
             ) {
               alert(_l('密码已过期，请重置后重新操作'), 3);
             } else {
@@ -369,7 +370,7 @@ export default function (props) {
     <React.Fragment>
       {loading && <div className="loadingLine"></div>}
       <div className="title mTop24 Font20">{companyName || _l('填写名片')}</div>
-      <p className="mTop15 Gray_9e Font15">{_l('完善名片信息')}</p>
+      <p className="mTop15 textTertiary Font15">{_l('完善名片信息')}</p>
       {renderCon()}
       <span
         className="btnForRegister Hand"

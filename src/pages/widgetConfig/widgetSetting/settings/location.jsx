@@ -17,7 +17,7 @@ const LOCATION_RANGE_TYPE = [
     text: _l('获取当前位置经纬度'),
     children: (
       <Tooltip placement="bottom" title={_l('通过手机gps获取经纬度获取定位，使用WGS84坐标系')}>
-        <i className="icon-help Gray_9e Font16 pointer mLeft8"></i>
+        <i className="icon-help textTertiary Font16 pointer mLeft8"></i>
       </Tooltip>
     ),
   },
@@ -55,9 +55,9 @@ export default function Location({ data, onChange }) {
       <SettingItem>
         <div className="settingItemTitle">
           {_l('输入方式')}
-          {md.global.Config.IsLocal && (
+          {(window.platformENV.isOverseas || window.platformENV.isLocal) && (
             <Tooltip placement="bottom" title={_l('由于高德定位组件限制，必须使用https协议以获得准确的定位信息')}>
-              <i className="icon-help Gray_9e Font16 pointer mLeft6"></i>
+              <i className="icon-help textTertiary Font16 pointer mLeft6"></i>
             </Tooltip>
           )}
         </div>
@@ -83,7 +83,7 @@ export default function Location({ data, onChange }) {
             <div className="settingItemTitle">{_l('限制选择范围')}</div>
             <Dropdown
               border
-              style={{ width: '100%', backgroundColor: '#fff' }}
+              style={{ width: '100%', backgroundColor: 'var(--color-background-primary)' }}
               menuStyle={{ width: '100%' }}
               value={enumDefault2}
               data={LOCATION_RANGE}
@@ -99,7 +99,7 @@ export default function Location({ data, onChange }) {
           {enumDefault2 === 1 && (
             <Dropdown
               border
-              style={{ width: '100%', backgroundColor: '#fff', marginTop: '10px' }}
+              style={{ width: '100%', backgroundColor: 'var(--color-background-primary)', marginTop: '10px' }}
               menuStyle={{ width: '100%' }}
               value={+distance || undefined}
               data={DISTANCE_CONFIG}

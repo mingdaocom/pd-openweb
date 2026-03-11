@@ -9,13 +9,13 @@ import { checkIsAppAdmin } from 'ming-ui/functions';
 import appManagementAjax from 'src/api/appManagement';
 import downloadAjax from 'src/api/download';
 import CustomSelectDate from 'src/pages/Admin/components/CustomSelectDate';
+import CustomTableCom from 'src/pages/Admin/components/CustomTableCom';
 import Search from 'src/pages/workflow/components/Search';
 import { formatFileSize } from 'src/utils/common';
 import { formatter, selectDateList } from '../../util';
-import TableCom from '../TableCom';
 
 const ByAppWrap = styled.div`
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -27,7 +27,7 @@ const ByAppWrap = styled.div`
       height: 36px;
       line-height: 36px;
       margin-left: 24px;
-      background-color: #f5f5f5;
+      background-color: var(--color-background-secondary);
       border-radius: 3px;
       .tabItem {
         padding: 0 20px;
@@ -39,8 +39,8 @@ const ByAppWrap = styled.div`
         border-radius: 3px;
       }
       .currentTab {
-        color: #1677ff;
-        background-color: #fff;
+        color: var(--color-primary);
+        background-color: var(--color-background-primary);
       }
     }
     .searchWrap {
@@ -76,24 +76,24 @@ const ByAppWrap = styled.div`
       padding-top: 3px;
     }
     .isOpen {
-      color: #47b14b !important;
+      color: var(--color-success) !important;
     }
     .chartIcon {
       display: none;
     }
     .row {
       &:hover {
-        background: #f5f5f5;
+        background: var(--color-background-hover);
         .nameBox {
-          color: #1677ff;
+          color: var(--color-primary);
         }
         .chartIcon {
           display: inline-block;
-          color: #9e9e9e;
+          color: var(--color-text-tertiary);
           cursor: pointer;
         }
         .chartIcon:hover {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }
@@ -146,8 +146,8 @@ export default class ByApp extends Component {
           } else {
             return (
               <div className="flexRow overflowHidden alignItemsCenter">
-                <div className="iconWrap" style={{ backgroundColor: '#ddd' }}></div>
-                <div className="Gray_bd">{_l('应用已删除')}</div>
+                <div className="iconWrap" style={{ backgroundColor: 'var(--color-border-primary)' }}></div>
+                <div className="textDisabled">{_l('应用已删除')}</div>
               </div>
             );
           }
@@ -160,7 +160,7 @@ export default class ByApp extends Component {
         sorter: true,
         render: item => {
           let isOpen = item.status === 1;
-          return <span className={cx('Gray_9e', { isOpen: isOpen })}>{isOpen ? _l('开启') : _l('关闭')}</span>;
+          return <span className={cx('textTertiary', { isOpen: isOpen })}>{isOpen ? _l('开启') : _l('关闭')}</span>;
         },
       },
       {
@@ -240,8 +240,8 @@ export default class ByApp extends Component {
           } else {
             return (
               <div className="flexRow overflowHidden alignItemsCenter">
-                <div className="iconWrap" style={{ backgroundColor: '#ddd' }}></div>
-                <div className="Gray_bd">{_l('应用已删除')}</div>
+                <div className="iconWrap" style={{ backgroundColor: 'var(--color-border-primary)' }}></div>
+                <div className="textDisabled">{_l('应用已删除')}</div>
               </div>
             );
           }
@@ -599,7 +599,7 @@ export default class ByApp extends Component {
         </div>
         {currentTab === 1 && (
           <div className="summary flex flexColumn overflowHidden">
-            <TableCom
+            <CustomTableCom
               dataSource={list}
               columns={this.columns}
               loading={loading}
@@ -612,7 +612,7 @@ export default class ByApp extends Component {
         )}
         {currentTab === 2 && (
           <div className="useage flex flexColumn">
-            <TableCom
+            <CustomTableCom
               dataSource={useageList}
               columns={this.useageColumns}
               loading={useageLoading && useagePageIndex === 1}

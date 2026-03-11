@@ -73,6 +73,10 @@ export const VersionProductType = {
   quota: 47, // 额度管理
   worldMap: 48, // 统计图，世界地图
   workflowAgent: 49, // 工作流智能体
+  appAccessPolicy: 50, // 应用访问策略
+  attachmentDownPolicy: 51, // 附件下载策略
+  customEncrypt: 52, // 自定义加密算法
+  entra: 53, // Microsoft Entra
 };
 
 export const VersionProductHelpLink = {

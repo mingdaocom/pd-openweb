@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import store from 'redux/configureStore';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -12,6 +11,7 @@ import { conditionAdapter } from 'worksheet/common/Sheet/QuickFilter/Conditions'
 import Filters from 'worksheet/common/Sheet/QuickFilter/Filters';
 import { formatFilterValues, formatFilterValuesToServer, validate } from 'worksheet/common/Sheet/QuickFilter/utils';
 import { updateFiltersGroup, updatePageInfo } from 'src/pages/customPage/redux/action.js';
+import store from 'src/redux/configureStore';
 import { getTranslateInfo } from 'src/utils/app';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import { formatFilters } from './util';
@@ -31,7 +31,7 @@ const Wrap = styled.div`
         pointer-events: none;
       }
       .content > div {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-secondary);
       }
     }
   }
@@ -125,7 +125,7 @@ function FiltersGroupPreview(props) {
   }, [widget.filter]);
 
   return (
-    <Wrap className={cx(className, `filter-${widget.id || widget.uuid}`)}>
+    <Wrap className={cx(className, `w100 filter-${widget.id || widget.uuid}`)}>
       {loading ? (
         <LoadDiv />
       ) : (

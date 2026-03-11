@@ -16,7 +16,7 @@ const Wrap = styled.div`
     &:-moz-placeholder,
     &::-moz-placeholder,
     &:-ms-input-placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
   }
 `;
@@ -31,7 +31,7 @@ export default function ChartSetting(props) {
   return (
     <Wrap>
       <div className="bold mBottom24">{_l('聊天工具栏配置')}</div>
-      <div className="Gray_9e LineHeight28">
+      <div className="textTertiary LineHeight28">
         <div>
           {_l(
             '功能使用场景：在 CRM 业务场景中，通过企业微信与客户沟通时右侧聊天工具栏的视图页面可以展示当前客户的详情信息，便于维护客户关系。',

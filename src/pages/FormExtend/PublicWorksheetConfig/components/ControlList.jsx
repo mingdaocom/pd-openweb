@@ -9,11 +9,11 @@ const Wrapper = styled.div`
     position: absolute;
     top: 0px;
     right: 0;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     font-size: 18px;
     cursor: pointer;
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .sectionLiCon::before {
@@ -21,8 +21,8 @@ const Wrapper = styled.div`
     width: 9px;
     height: 100%;
     border: none;
-    border-left: 1px solid #eaeaea;
-    border-bottom: 1px solid #eaeaea;
+    border-left: 1px solid var(--color-border-secondary);
+    border-bottom: 1px solid var(--color-border-secondary);
     position: absolute;
     display: inline-block;
     left: 7px;
@@ -50,7 +50,7 @@ export default function ({ controls, hidedControlIds, disabledControlIds, onAdd 
                 isCheck = sectionList.some(item => !hidedControlIds.includes(item.controlId));
                 if (isCheck && hidedControlIds.includes(c.controlId)) {
                   //标签页内字段全选中，将标签页显示
-                  onAdd(c);
+                  onAdd([c]);
                 }
               }
             }
@@ -66,8 +66,9 @@ export default function ({ controls, hidedControlIds, disabledControlIds, onAdd 
                     } else {
                       if (c.type === 52) {
                         const updateControls = sectionList.concat([c]);
-                        updateControls.forEach(item => onAdd(item));
+                        onAdd(updateControls);
                       } else {
+                        const updateControls = [c];
                         if (c.sectionId) {
                           const tabControl = controls.filter(item => item.controlId === c.sectionId)[0] || {};
                           const showTabSectionList = controls.filter(
@@ -76,10 +77,10 @@ export default function ({ controls, hidedControlIds, disabledControlIds, onAdd 
                           );
                           if (!showTabSectionList.length) {
                             //勾选标签页内第一个字段，则勾选标签页
-                            onAdd(tabControl);
+                            updateControls.push(tabControl);
                           }
                         }
-                        onAdd(c);
+                        onAdd(updateControls);
                       }
                     }
                   }}

@@ -44,11 +44,11 @@
 
     .downloadLogo {
       cursor: pointer;
-      color: #1677ff;
+      color: var(--color-primary);
       text-decoration: none;
 
       &:hover {
-        color: #2366bf;
+        color: var(--color-link-hover);
       }
     }
 
@@ -60,14 +60,14 @@
         width: 108px;
         line-height: 36px;
         font-size: 14px;
-        color: #151515;
+        color: var(--color-text-title);
       }
 
       .inputBox {
-        background: #f7f7f7;
+        background: var(--color-background-secondary);
         flex: 1;
         border: 0;
-        color: #757575;
+        color: var(--color-text-secondary);
         height: 36px;
         line-height: 36px;
         border-radius: 3px;
@@ -77,11 +77,11 @@
       .copyBtn {
         cursor: pointer;
         line-height: 36px;
-        color: #1677ff;
+        color: var(--color-primary);
         margin-left: 16px;
 
         &:hover {
-          color: #2366bf;
+          color: var(--color-link-hover);
         }
       }
     }
@@ -90,9 +90,9 @@
     .inputForWXAgentId,
     .inputForSecret {
       width: 250px;
-      background: #fff;
-      border: 1px solid #ddd;
-      color: #757575;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-primary);
+      color: var(--color-text-secondary);
       height: 36px;
       line-height: 36px;
       border-radius: 3px;
@@ -102,11 +102,11 @@
     .inputForAgentId::placeholder,
     .inputForWXAgentId::placeholder,
     .inputForSecret::placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
 
     .submitBtn {
-      color: #1677ff;
+      color: var(--color-primary);
     }
 
     .flexBox {
@@ -116,7 +116,7 @@
         width: 108px;
         line-height: 36px;
         font-size: 14px;
-        color: #151515;
+        color: var(--color-text-title);
       }
 
       .inputForWXAgentId,
@@ -130,8 +130,8 @@
         width: 92px;
         height: 36px;
         line-height: 36px;
-        background-color: #1677ff;
-        color: #fff;
+        background-color: var(--color-primary);
+        color: var(--color-white);
         border-radius: 3px;
         text-align: center;
         font-size: 14px;
@@ -139,7 +139,7 @@
       }
 
       .nBtn {
-        background: #bdbdbd;
+        background: var(--color-text-disabled);
         cursor: auto;
       }
     }
@@ -150,7 +150,7 @@
     border-radius: 30px;
     width: 200px;
     height: 200px;
-    color: #fff;
+    color: var(--color-white);
   }
 
   .appIconForDown.isWXIcon {
@@ -182,33 +182,33 @@
     width: 80px;
   }
   .readonly {
-    border-color: #f7f7f7 !important;
-    background-color: #f7f7f7;
+    border-color: var(--color-background-secondary) !important;
+    background-color: var(--color-background-secondary);
   }
   .ming.Input {
-    border-color: #e0e0e0;
+    border-color: var(--color-border-secondary);
     &:hover {
-      border-color: #e0e0e0;
+      border-color: var(--color-border-secondary);
     }
     &:focus {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
     &::placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
   }
   .Button--primary {
-    background-color: #1677ff;
+    background-color: var(--color-primary);
     &:hover {
-      background-color: #0c7bd3;
+      background-color: var(--color-link-hover);
     }
   }
   .Button--danger {
-    color: #757575;
-    background-color: #f7f7f7;
+    color: var(--color-text-secondary);
+    background-color: var(--color-background-secondary);
     &:hover {
-      color: #1677ff;
-      background-color: #f7f7f7;
+      color: var(--color-primary);
+      background-color: var(--color-background-hover);
     }
   }
 }

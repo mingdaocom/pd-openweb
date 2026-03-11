@@ -6,15 +6,15 @@ import worksheetAjax from 'src/api/worksheet';
 import { RecordInfoModal } from 'mobile/Record';
 import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
 import { SYSTEM_ENUM } from 'src/components/Form/core/config';
-import { controlState, getTitleTextFromControls } from 'src/components/Form/core/utils';
 import CellControl from 'src/pages/worksheet/components/CellControls';
+import { controlState, getTitleTextFromControls } from 'src/utils/control';
 
 const Wrap = styled.div`
   &.recordCardContent {
     padding: 5px 12px;
     margin: 0 10px 10px;
-    background-color: #fff;
-    border: 1px solid #fff;
+    background-color: var(--color-background-primary);
+    border: 1px solid var(--color-white);
     border-radius: 3px;
     box-shadow: 0px 1px 3px rgb(0 0 0 / 16%);
     position: relative;
@@ -27,7 +27,7 @@ const Wrap = styled.div`
     }
     .deleteRecord {
       position: absolute;
-      color: #f44338;
+      color: var(--color-error);
       font-size: 22px;
       right: 10px;
       bottom: 10px;
@@ -37,7 +37,7 @@ const Wrap = styled.div`
       display: inline-block;
       width: 12px;
       height: 3px;
-      background-color: #ededed;
+      background-color: var(--color-border-secondary);
     }
   }
 `;
@@ -95,12 +95,12 @@ export default function DraftList(props) {
     return (
       <Wrap key={data.rowid} className="recordCardContent" onClick={() => setCurrentRowId(data.rowid)}>
         <div className="flexRow valignWrapper mBottom5">
-          <div className="Gray Blod Font14 ellipsis">{titleText}</div>
+          <div className="textPrimary Blod Font14 ellipsis">{titleText}</div>
         </div>
         {showControls.map(control => {
           return (
             <div className="controlWrapper" key={`${data.rowid}-${control.controlId}`}>
-              <div className="controlName ellipsis Gray_9e mRight10">{control.controlName}</div>
+              <div className="controlName ellipsis textTertiary mRight10">{control.controlName}</div>
               <div className="controlContent ellipsis">
                 {data[control.controlId] ? (
                   <CellControl

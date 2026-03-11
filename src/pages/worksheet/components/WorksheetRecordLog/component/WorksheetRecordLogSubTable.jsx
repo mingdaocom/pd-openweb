@@ -3,8 +3,8 @@ import { ConfigProvider, Empty, Table } from 'antd';
 import _ from 'lodash';
 import { ScrollView } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
-import { controlState } from 'src/components/Form/core/utils';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import { controlState } from 'src/utils/control';
 import { renderText } from 'src/utils/control';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import { TEXT_FIELD_SHOWTEXT_TYPE, UPDATA_ITEM_CLASSNAME_BY_TYPE } from '../enum';
@@ -13,12 +13,12 @@ import WorksheetRecordLogThumbnail from './WorksheetRecordLogThumbnail';
 import '../WorksheetRecordLogValue.less';
 
 function MaskCell(props) {
-  const { cell } = props;
+  const { cell, appId } = props;
   const [forceShowFullValue, setForceShowFullValue] = useState(false);
   const canMask =
     (cell.type === 2 && cell.enumDefault === 2) ||
     (_.includes([6, 8, 3, 5, 7], cell.type) && cell.value && _.get(cell, 'advancedSetting.isdecrypt') === '1');
-  let content = renderText(cell, { noMask: forceShowFullValue });
+  let content = renderText(cell, { noMask: forceShowFullValue, appId });
   return canMask ? (
     <span className="canMask" onClick={() => setForceShowFullValue(true)}>
       {content}
@@ -146,10 +146,10 @@ function WorksheetRecordLogSubTable(props) {
                     value2: value,
                   };
 
-                  let content = cell.type === 27 ? null : renderText(cell);
+                  let content = cell.type === 27 ? null : renderText(cell, { appId: recordInfo.appId });
 
                   if (content) {
-                    return <MaskCell cell={cell} />;
+                    return <MaskCell cell={cell} appId={recordInfo.appId} />;
                   } else {
                     return renderSpecial(cell, record.type);
                   }
@@ -231,7 +231,7 @@ function WorksheetRecordLogSubTable(props) {
               }`}
             >
               {cell.dataSource === info.worksheetId
-                ? renderText({ ...cell.sourceControl, value: item.name }) || _value
+                ? renderText({ ...cell.sourceControl, value: item.name }, { appId: recordInfo.appId }) || _value
                 : _value}
             </span>
           );
@@ -245,10 +245,13 @@ function WorksheetRecordLogSubTable(props) {
         case 35:
           const titleControl = cell.relationControls.find(l => l.controlId === cell.sourceTitleControlId);
           _value = titleControl
-            ? renderText({
-                ...titleControl,
-                value: [11].includes(titleControl.type) ? JSON.stringify([value]) : value,
-              }) || value
+            ? renderText(
+                {
+                  ...titleControl,
+                  value: [11].includes(titleControl.type) ? JSON.stringify([value]) : value,
+                },
+                { appId: recordInfo.appId },
+              ) || value
             : value;
           break;
         case 27:
@@ -280,13 +283,13 @@ function WorksheetRecordLogSubTable(props) {
         value: typeof item !== 'string' ? JSON.stringify([item]) : item,
         value2: [42, 11, 10, 9].includes(control.type) ? item : [item],
       };
-      let content = cell.type === 27 ? null : renderText(cell);
+      let content = cell.type === 27 ? null : renderText(cell, { appId: recordInfo.appId });
 
       if (content) {
         return (
           <React.Fragment key={`worksheetRecordLogSubTableUpdataItem-${type}-${control.controlId}-${index}`}>
             <span className={`rectTag ${UPDATA_ITEM_CLASSNAME_BY_TYPE[type]}`}>
-              <MaskCell cell={cell} />
+              <MaskCell cell={cell} appId={recordInfo.appId} />
             </span>
           </React.Fragment>
         );

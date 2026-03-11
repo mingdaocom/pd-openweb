@@ -18,7 +18,7 @@ const Wrap = styled.div`
     background: rgba(255, 255, 255, 0.04);
     border-radius: 3px 3px 3px 3px;
     opacity: 1;
-    border: 1px solid #1677ff;
+    border: 1px solid var(--color-primary);
     padding: 0 12px;
   }
   .cover {
@@ -37,7 +37,7 @@ const WrapS = styled.div`
     max-height: 300px;
     padding: 5px 0;
     border-radius: 3px;
-    background: white;
+    background: var(--color-background-primary);
     z-index: 11;
     box-shadow:
       0 4px 20px rgba(0, 0, 0, 0.13),
@@ -51,10 +51,10 @@ const WrapS = styled.div`
       width: 100%;
       padding: 0 12px;
       &:hover {
-        background: #f5f5f5;
+        background: var(--color-background-hover);
       }
       &.isCur {
-        background: #e3f3ff;
+        background: var(--color-primary-transparent);
       }
     }
   }
@@ -164,11 +164,11 @@ export default function (props) {
               }}
             >
               {!list.length && keyWords && !loading && (
-                <TxtCenter style={{ color: '#9e9e9e' }}>{_l('无匹配结果')}</TxtCenter>
+                <TxtCenter style={{ color: 'var(--color-text-tertiary)' }}>{_l('无匹配结果')}</TxtCenter>
               )}
               {!list.length && !keyWords && !loading && (
-                <TxtCenter style={{ color: '#9e9e9e' }}>
-                  <i className="icon Icon icon-ic-line Font56 Gray_bd mTop20"></i>
+                <TxtCenter style={{ color: 'var(--color-text-tertiary)' }}>
+                  <i className="icon Icon icon-ic-line Font56 textDisabled mTop20"></i>
                   <div className="mTop10">{_l('暂无数据')}</div>
                 </TxtCenter>
               )}

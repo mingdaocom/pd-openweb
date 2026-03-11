@@ -9,8 +9,8 @@ import SortColumns from 'src/pages/worksheet/components/SortColumns';
 const ShowControlIdWrapper = styled.div`
   border-radius: 4px;
   padding: 5px 9px;
-  border: 1px solid #dedede;
-  background-color: #efefef;
+  border: 1px solid var(--color-border-primary);
+  background-color: var(--color-border-secondary);
 `;
 
 export default class Accumulate extends Component {
@@ -136,7 +136,7 @@ export default class Accumulate extends Component {
               <ShowControlIdWrapper className="flexRow valignWrapper mTop10">
                 <div className="flex">{_l('显示%0项字段', displaySetup.showOptionIds.length)}</div>
                 <Icon
-                  className="Gray_9e pointer"
+                  className="textTertiary pointer"
                   icon="edit"
                   onClick={() => {
                     this.setState({ showControlVisible: true });
@@ -153,7 +153,7 @@ export default class Accumulate extends Component {
           visible={showControlVisible}
           centered={true}
           destroyOnClose={true}
-          closeIcon={<Icon icon="close" className="Font20 pointer Gray_9e" />}
+          closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
           footer={this.renderFooter()}
           onCancel={() => {
             this.setState({
@@ -161,7 +161,7 @@ export default class Accumulate extends Component {
             });
           }}
         >
-          <div className="Font15 Gray_75">{_l('设置漏斗图中显示的项，未显示项仅在图形中隐藏，仍会向上累计')}</div>
+          <div className="Font15 textSecondary">{_l('设置漏斗图中显示的项，未显示项仅在图形中隐藏，仍会向上累计')}</div>
           <SortColumns
             layout={2}
             noShowCount={true}

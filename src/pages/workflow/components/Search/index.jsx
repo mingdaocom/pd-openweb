@@ -41,7 +41,7 @@ export default class Search extends Component {
           placeholder={placeholder}
           onChange={e => this.handleChange(e.target.value)}
         />
-        <Icon icon="search" className="search Gray_75 Font16" />
+        <Icon icon="search" className="search textSecondary Font16" />
         <Icon
           icon="close"
           onClick={() => this.handleChange('')}

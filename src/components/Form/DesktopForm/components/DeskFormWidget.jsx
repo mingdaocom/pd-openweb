@@ -3,20 +3,13 @@ import cx from 'classnames';
 import _, { isFunction } from 'lodash';
 import { Icon } from 'ming-ui';
 import { isCustomWidget } from 'src/pages/widgetConfig/util';
-import { isRelateRecordTableControl } from 'src/utils/control';
+import { controlState, getValueStyle, isRelateRecordTableControl } from 'src/utils/control';
 import { addBehaviorLog } from 'src/utils/project.js';
 import FreeField from '../../components/FreeField';
 import WidgetsDesc from '../../components/WidgetsDesc';
 import { FROM } from '../../core/config';
 import { ADD_EVENT_ENUM } from '../../core/enum';
-import {
-  controlState,
-  convertControl,
-  getControlDisabled,
-  getValueStyle,
-  isUnTextWidget,
-  showRefreshBtn,
-} from '../../core/utils';
+import { convertControl, getControlDisabled, isUnTextWidget, showRefreshBtn } from '../../core/utils';
 import { CustomFormItemControlWrap } from '../style';
 import widgets from '../widgets';
 import RefreshBtn from './RefreshBtn';
@@ -147,7 +140,7 @@ export default function DeskFormWidget(props) {
       return (
         <Icon
           icon={showMaskValue ? 'eye_off' : 'eye'}
-          className={cx('Gray_bd', controlDisabled ? 'mLeft7' : 'maskIcon')}
+          className={cx('textDisabled', controlDisabled ? 'mLeft7' : 'maskIcon')}
         />
       );
     }
@@ -204,7 +197,7 @@ export default function DeskFormWidget(props) {
     if (item.notSupport) {
       return (
         <CustomFormItemControlWrap className="customFormItemControl">
-          <div className="center Gray_9e GrayBGFA pTop20 pBottom20">
+          <div className="center textTertiary bgSecondary pTop20 pBottom20">
             {item.notSupportTip || _l('%0暂不支持', item.controlName)}
           </div>
         </CustomFormItemControlWrap>
@@ -267,6 +260,7 @@ export default function DeskFormWidget(props) {
       handleMaskClick,
       renderMaskContent,
       createEventHandler,
+      dataFormat,
       onChange: (value, cid = controlId, searchByChange) => {
         // 使用 ref 获取最新的 item，自动避开闭包问题
         const currentItem = itemRef.current;
@@ -332,6 +326,7 @@ export default function DeskFormWidget(props) {
           customFormItemTabFocus: tabFocusActive,
         })}
         {...getValueStyle(item)}
+        isCreated={isCreated}
         disabled={disabled}
         isShowRefreshBtn={isShowRefreshBtn}
       >

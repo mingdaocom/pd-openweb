@@ -96,7 +96,7 @@ export default function RoleConfig(props) {
       <div className="settingItemTitle">
         {_l('选择范围')}
         {/* <Tooltip placement="bottom" title={_l('设置为成员字段时，取成员所在的所有部门')}>
-            <i className="icon-help Gray_9e Font16 Hand mLeft4"></i>
+            <i className="icon-help textTertiary Font16 Hand mLeft4"></i>
           </Tooltip> */}
       </div>
 
@@ -140,7 +140,7 @@ export default function RoleConfig(props) {
                 })}
               </Fragment>
             ) : (
-              <span className="Gray_75 mTop4">{_l('请选择')}</span>
+              <span className="textSecondary mTop4">{_l('请选择')}</span>
             )}
           </div>
         </div>

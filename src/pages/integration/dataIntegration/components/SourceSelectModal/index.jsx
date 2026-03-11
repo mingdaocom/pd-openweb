@@ -45,14 +45,14 @@ const TabList = styled.div`
       box-sizing: border-box;
       border-bottom: 4px solid rgba(0, 0, 0, 0);
       a {
-        color: #151515;
+        color: var(--color-text-title);
         display: inline-block;
         font-size: 15px;
       }
       &.isCur {
-        border-bottom: 4px solid #1677ff;
+        border-bottom: 4px solid var(--color-primary);
         a {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }
@@ -63,7 +63,7 @@ const DataSourceCard = styled.div`
   display: inline-block;
   width: 144px;
   height: 150px;
-  background: #fff;
+  background: var(--color-background-primary);
   margin: 0 12px;
   border-radius: 12px;
   box-sizing: border-box;
@@ -82,7 +82,7 @@ const DataSourceCard = styled.div`
   }
 
   &:hover {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-hover);
   }
 `;
 
@@ -149,7 +149,7 @@ export default function SourceSelectModal({ projectId, isCreateConnector, onChan
     <Modal visible type="fixed" width={900} bodyStyle={{ padding: '32px' }} onCancel={onClose}>
       <Wrapper>
         <div className="headerWrapper">
-          <h5 className="Font17 Gray bold mBottom20">{_l('选择数据源类型')}</h5>
+          <h5 className="Font17 textPrimary bold mBottom20">{_l('选择数据源类型')}</h5>
           <div className="headerContent">
             <TabList>
               <ul>
@@ -191,7 +191,7 @@ export default function SourceSelectModal({ projectId, isCreateConnector, onChan
                   <React.Fragment key={i}>
                     <p
                       id={item.key}
-                      className={cx('Font14 Gray_9e pTop40 pLeft12 pRight12', {
+                      className={cx('Font14 textTertiary pTop40 pLeft12 pRight12', {
                         isCommon: item.key === SOURCE_FROM_TYPE.COMMON,
                       })}
                     >
@@ -216,7 +216,7 @@ export default function SourceSelectModal({ projectId, isCreateConnector, onChan
           </ScrollView>
         ) : dataSourceList.length ? (
           <NoDataWrapper>
-            <div className="Gray_9e Font15">{_l('无搜索结果')}</div>
+            <div className="textTertiary Font15">{_l('无搜索结果')}</div>
           </NoDataWrapper>
         ) : (
           <LoadDiv />

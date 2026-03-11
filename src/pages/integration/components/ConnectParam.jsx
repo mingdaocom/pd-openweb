@@ -17,12 +17,12 @@ const Wrap = styled.div`
     font-weight: 400;
   }
   .Green_right {
-    color: #4caf50;
+    color: var(--color-success);
   }
   .iconCon {
     width: 44px;
     height: 44px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
     border-radius: 6px;
     position: relative;
     text-align: center;
@@ -30,11 +30,11 @@ const Wrap = styled.div`
   }
   width: 880px;
   margin: 24px auto 0;
-  background: #ffffff;
-  // border: 1px solid #dddddd;
+  background: var(--color-background-primary);
+  // border: 1px solid var(--color-border-primary);
   border-radius: 10px;
   .paramCon {
-    border-top: 1px solid #dddddd;
+    border-top: 1px solid var(--color-border-primary);
     padding: 16px;
     .conTr {
       min-height: 34px;
@@ -64,7 +64,7 @@ const Wrap = styled.div`
       }
       &.name,
       &.des {
-        color: #7e7e7e;
+        color: var(--color-text-secondary);
       }
     }
     .option {
@@ -74,7 +74,7 @@ const Wrap = styled.div`
       }
       .del {
         &:hover {
-          color: red !important;
+          color: var(--color-error) !important;
         }
       }
     }
@@ -84,15 +84,15 @@ const Wrap = styled.div`
       .conTr {
         margin-bottom: 10px;
         &:hover {
-          background: #fff;
+          background: var(--color-background-primary);
         }
         .param,
         .name,
         .des {
           height: 36px;
           line-height: 36px;
-          background: #ffffff;
-          border: 1px solid #dddddd;
+          background: var(--color-background-primary);
+          border: 1px solid var(--color-border-primary);
           border-radius: 3px;
           overflow: hidden;
           input {
@@ -102,15 +102,15 @@ const Wrap = styled.div`
             &:-ms-input-placeholder,
             &::-ms-input-placeholder,
             &::placeholder {
-              color: #9e9e9e !important;
+              color: var(--color-text-tertiary) !important;
             }
             background: transparent;
           }
           &.disable {
-            background: #f5f5f5;
-            color: #757575;
+            background: var(--color-background-secondary);
+            color: var(--color-text-secondary);
             input {
-              color: #757575;
+              color: var(--color-text-secondary);
             }
           }
         }
@@ -119,20 +119,20 @@ const Wrap = styled.div`
         margin: 24px auto 0px;
         padding: 11px 50px;
         background: rgb(33, 150, 243);
-        color: rgb(255, 255, 255);
+        color: var(--color-white);
         line-height: 1em;
         border-radius: 30px;
         &:hover {
-          background: #1764c0;
+          background: var(--color-link-hover);
         }
       }
     }
   }
   .btn {
     &.disable {
-      background: #f5f5f5;
-      color: #bdbdbd;
-      border: 1px solid #bdbdbd;
+      background: var(--color-background-secondary);
+      color: var(--color-text-disabled);
+      border: 1px solid var(--color-text-disabled);
     }
   }
 `;
@@ -214,7 +214,7 @@ function ConnectParam(props) {
       return (
         <input
           type="text"
-          className={cx('Gray')}
+          className={cx('textPrimary')}
           placeholder={_l('请输入')}
           defaultValue={o[key]}
           key={JSON.stringify(o)}
@@ -260,7 +260,7 @@ function ConnectParam(props) {
         </div>
         <div className="flex pLeft16">
           <p className="Font17 Bold">{_l('连接参数')}</p>
-          <p className="Font13 Gray_75 mTop4">
+          <p className="Font13 textSecondary mTop4">
             <span className="TxtMiddle">{_l('用于配置鉴权时使用，设置为隐藏后，查看时该参数值将以掩码代替')}</span>
             <Support
               href="https://help.mingdao.com/integration/api#connection-parameters"
@@ -304,11 +304,11 @@ function ConnectParam(props) {
         <div className={cx('paramCon', { isEdit })}>
           {isEdit && (
             <div className="par headTr flexRow">
-              <div className="name Gray_75">{_l('参数名称')}</div>
-              <div className="param Gray_75">{_l('参数值')}</div>
-              <div className="des Gray_75">{_l('说明')}</div>
-              <div className="option required Gray_75">{_l('必填')}</div>
-              <div className="option Gray_75">
+              <div className="name textSecondary">{_l('参数名称')}</div>
+              <div className="param textSecondary">{_l('参数值')}</div>
+              <div className="des textSecondary">{_l('说明')}</div>
+              <div className="option required textSecondary">{_l('必填')}</div>
+              <div className="option textSecondary">
                 {_l('隐藏')}
                 <Tooltip
                   placement="topLeft"
@@ -351,7 +351,7 @@ function ConnectParam(props) {
                       }}
                     />
                   ) : o.required ? (
-                    <span className="Gray_75">{_l('必填')}</span>
+                    <span className="textSecondary">{_l('必填')}</span>
                   ) : (
                     ''
                   )}
@@ -377,7 +377,7 @@ function ConnectParam(props) {
                     />
                     {props.connectType !== 2 && (
                       <Icon
-                        className="flex Font18 Hand LineHeight36 InlineBlock Gray_9e del"
+                        className="flex Font18 Hand LineHeight36 InlineBlock textTertiary del"
                         icon="trash"
                         onClick={() => {
                           setState({

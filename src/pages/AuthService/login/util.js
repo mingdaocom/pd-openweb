@@ -1,15 +1,17 @@
 import moment from 'moment';
 import loginController from 'src/api/login';
+import projectApi from 'src/api/project';
 import workWeiXinController from 'src/api/workWeiXin';
 import { loginSuccessRedirect } from 'src/pages/AuthService/util.js';
 import { navigateTo } from 'src/router/navigateTo';
 import { browserIsMobile, getRequest } from 'src/utils/common';
 import { compatibleMDJS } from 'src/utils/project';
 import { setPssId } from 'src/utils/pssId';
-import { LoginResult } from './config.js';
+import { IntegrationAccountType, LoginResult } from './config.js';
 
 //登录相关的回调处理
 export const loginCallback = ({ data, onChange }) => {
+  // data = { accountResult: 16, state: 7, projectId: '167046ff-fe94-4d7d-8a5e-b9148be9c13f' };
   const request = getRequest();
   const { projectId, modeType, isNetwork, emailOrTel, fullName, isCheck, step } = data;
 
@@ -26,7 +28,11 @@ export const loginCallback = ({ data, onChange }) => {
     JSON.stringify({ state: data.state, createStateTime: moment().format('YYYY-MM-DD HH:mm:ss') }),
   );
 
-  if ([LoginResult.accountSuccess, LoginResult.needTwofactorVerifyCode].includes(data.accountResult)) {
+  if (
+    [LoginResult.accountSuccess, LoginResult.needTwofactorVerifyCode, LoginResult.integrationEnabled].includes(
+      data.accountResult,
+    )
+  ) {
     //登录来源 登出后的跳转地址
     if (isNetwork) {
       safeLocalStorageSetItem('loginFrom', '2');
@@ -74,6 +80,25 @@ export const loginCallback = ({ data, onChange }) => {
       },
     );
   } else {
+    // 需要企业单点登录（IntegrationEnabled状态，值为16）流程上是优先于两步验证
+    if (data.accountResult === LoginResult.integrationEnabled) {
+      // 当返回IntegrationEnabled状态时，设置ProjectId为启用的组织ID，State为集成账号类型
+      const info = {
+        loading: false,
+        step: 'integrationLogin',
+        companyName: data.companyName || '',
+        projectId: data?.projectId,
+        integrationAccountType: data.projectIntergrationType || IntegrationAccountType.microsoftEntra,
+      };
+      if (info?.companyName) {
+        onChange(info);
+      } else {
+        projectApi.getProjectSubDomainInfo({ host: location.host, projectId: data?.projectId || '' }).then(res => {
+          onChange({ ...info, companyName: res.companyName || '' }); //企业单点登录页面只呈现组织名称，其他组织不用呈现
+        });
+      }
+      return;
+    }
     //开启了两步验证
     if (data.accountResult === LoginResult.needTwofactorVerifyCode) {
       onChange({ warnList: [], state: data.state });

@@ -7,23 +7,23 @@ function getIcon(type = 'success', isMobile = false) {
   const config = {
     success: {
       name: 'Finish',
-      color: '#4caf50',
+      color: 'var(--color-success)',
     },
     error: {
       name: 'cancel',
-      color: '#f44336',
+      color: 'var(--color-error)',
     },
     warning: {
       name: 'error1',
-      color: '#fb0',
+      color: 'var(--color-warning)',
     },
     info: {
       name: 'info',
-      color: '#1c97f3',
+      color: 'var(--color-info)',
     },
     loading: {
       name: 'loading_button',
-      color: '#1c97f3',
+      color: 'var(--color-info)',
     },
   };
   const icon = config[type];

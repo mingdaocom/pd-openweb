@@ -22,13 +22,13 @@ const WrapFocusCon = styled.div`
   width: 340px;
   padding: 5px 0;
   border-radius: 3px;
-  background: white;
+  background: var(--color-background-primary);
   z-index: 11;
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.13),
     0 2px 6px rgba(0, 0, 0, 0.1);
   .focusUserCon {
-    border-top: 1px solid #f5f5f5;
+    border-top: 1px solid var(--color-background-secondary);
     margin-top: 3px;
   }
 `;
@@ -172,7 +172,7 @@ export default class WorkSheetCommentList extends Component {
               <MenuItem
                 className={cx('Relative', { selected: containAttachment })}
                 onClick={() => this.setState({ containAttachment: !containAttachment, hasFilter: true })}
-                style={{ lineHeight: '40px', height: 40, borderTop: '1px solid #eaeaea' }}
+                style={{ lineHeight: '40px', height: 40, borderTop: '1px solid var(--color-border-secondary)' }}
               >
                 {_l('包含附件的讨论')}
                 {containAttachment && <Icon icon="done" className="Font14 ThemeColor3 isCheckedIcon" />}
@@ -185,7 +185,7 @@ export default class WorkSheetCommentList extends Component {
           <Tooltip title={_l('筛选')}>
             <Icon
               icon="filter_list"
-              className={cx('Font20 Gray_75 Hover_21 Hand', {
+              className={cx('Font20 textSecondary hoverColorPrimary Hand', {
                 ThemeColor3: focusType !== 0 || containAttachment,
               })}
             />
@@ -229,7 +229,7 @@ export default class WorkSheetCommentList extends Component {
           <div className="valignWrapper w100" onClick={() => this.setState({ inputActive: true })}>
             <span className="flexRow alignItemsCenter">
               <Tooltip title={_l('搜索')}>
-                <Icon icon="search" className="Font20 Gray_75 Hand" />
+                <Icon icon="search" className="Font20 textSecondary Hand" />
               </Tooltip>
             </span>
             {searchActive && (
@@ -248,7 +248,7 @@ export default class WorkSheetCommentList extends Component {
                 {!!search && (
                   <Icon
                     icon="cancel"
-                    className="Gray_75 Hover_21 Hand Font20"
+                    className="textSecondary hoverColorPrimary Hand Font20"
                     onClick={e => {
                       e.stopPropagation();
                       this.setState({ search: undefined, searchActive: false });
@@ -274,9 +274,12 @@ export default class WorkSheetCommentList extends Component {
       return (
         <Tooltip title={focusUsers.length <= 0 ? _l('关注讨论') : ''}>
           <span
-            className={cx('mLeft8 Font20 Gray_75 Hover_21 Hand flexRow alignItemsCenter icon_Hover_21 pLeft5 pRight5', {
-              ThemeColor3: isFocus,
-            })}
+            className={cx(
+              'mLeft8 Font20 textSecondary hoverColorPrimary Hand flexRow alignItemsCenter icon_Hover_21 pLeft5 pRight5',
+              {
+                ThemeColor3: isFocus,
+              },
+            )}
             onClick={e => {
               e.stopPropagation();
               this.setFollow(!isFocus);
@@ -313,18 +316,18 @@ export default class WorkSheetCommentList extends Component {
                   {
                     <Icon
                       icon={'notification_turn_on'}
-                      className={cx('Font20 Gray_9e Hover_21 Hand', { ThemeColor3: isFocus })}
+                      className={cx('Font20 textTertiary hoverColorPrimary Hand', { ThemeColor3: isFocus })}
                     />
                   }
                   <div className="flex flexColumn mLeft10">
-                    <div className={cx('Bold Gray ThemeColor3')}>{_l('关注中')}</div>
-                    <div className={cx('Gray_9e')}>{_l('通知所有讨论；取消关注仅@你或回复时通知。')}</div>
+                    <div className={cx('Bold textPrimary ThemeColor3')}>{_l('关注中')}</div>
+                    <div className={cx('textTertiary')}>{_l('通知所有讨论；取消关注仅@你或回复时通知。')}</div>
                   </div>
                 </div>
               )}
               {focusUsers.length > 0 && (
                 <div className={cx('pLeft10 pRight10 pBottom10', { focusUserCon: isFocus })}>
-                  <div className="Gray_9e mTop10">{_l('已关注 %0', focusUsers.length)}</div>
+                  <div className="textTertiary mTop10">{_l('已关注 %0', focusUsers.length)}</div>
                   {focusUsers.map((o, index) => {
                     return (
                       <div key={o.accountId || index} className="flexRow alignItemsCenter mTop12">
@@ -338,7 +341,7 @@ export default class WorkSheetCommentList extends Component {
                           appId={appId}
                           projectId={projectId}
                         />
-                        <span className="mLeft10 Gray flex WordBreak">{o.fullname}</span>
+                        <span className="mLeft10 textPrimary flex WordBreak">{o.fullname}</span>
                       </div>
                     );
                   })}

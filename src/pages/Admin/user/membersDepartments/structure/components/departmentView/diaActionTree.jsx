@@ -164,7 +164,7 @@ class DiaActionTree extends React.Component {
         >
           {item.disabled ? _l('恢复使用') : _l('停用')}
         </MenuItem>
-        <MenuItem onClick={() => this.deleteCurrentDepartment(item)} style={{ color: '#f51744' }}>
+        <MenuItem onClick={() => this.deleteCurrentDepartment(item)} style={{ color: 'var(--color-error)' }}>
           {_l('删除')}
         </MenuItem>
       </Menu>

@@ -44,8 +44,9 @@ const EntryWrap = styled.div`
   border-radius: 20px 20px 20px 20px;
   padding: 0 10px;
   cursor: pointer;
+  color: var(--color-text-secondary);
   &:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--dashboard-search-hover-bg);
   }
 `;
 
@@ -123,8 +124,8 @@ export default class CommonUserHandle extends Component {
             {type === 'dashboard' && hasProjectAdminAuth && (
               <MdLink to={`/admin/home/${currentProject.projectId}`}>
                 <EntryWrap>
-                  <i className="icon icon-business Font20 Gray_75 TxtMiddle"></i>
-                  <span className="Gray_75 mLeft5 TxtMiddle">{_l('组织管理')}</span>
+                  <i className="icon icon-business Font20 TxtMiddle"></i>
+                  <span className="mLeft5 TxtMiddle">{_l('组织管理')}</span>
                 </EntryWrap>
               </MdLink>
             )}
@@ -193,7 +194,7 @@ export class LeftCommonUserHandle extends Component {
     // 获取url参数
     const { tr } = getAppFeaturesVisible();
 
-    if (window.isPublicApp || !tr) {
+    if (window.isPublicApp || !tr || appStatus === 300016) {
       return null;
     }
 

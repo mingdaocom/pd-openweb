@@ -12,6 +12,7 @@ import DialogBase from 'ming-ui/components/Dialog/DialogBase';
 import flowNode from '../../api/flowNode';
 import process from '../../api/process';
 import sheetAjax from 'src/api/worksheet';
+import AiActionChatBot from 'src/components/Mingo/modules/AiActionChatBot';
 import WorkflowChatBot from 'src/components/Mingo/modules/WorkflowChatBot';
 import { selectRecords } from 'src/components/SelectRecords';
 import { getAppFeaturesPath } from 'src/utils/app';
@@ -36,7 +37,7 @@ const MenuBox = styled.div`
   min-width: 180px;
   padding: 5px 0;
   border-radius: 3px;
-  background: white;
+  background: var(--color-background-primary);
   box-shadow: 0 3px 6px 1px rgba(0, 0, 0, 0.1608);
   .Item-content {
     padding-left: 36px !important;
@@ -48,7 +49,7 @@ const Description = styled.div`
     padding-left: 18px;
     margin-bottom: 10px;
     position: relative;
-    color: #151515;
+    color: var(--color-text-title);
     &::before {
       position: absolute;
       top: 7px;
@@ -56,7 +57,7 @@ const Description = styled.div`
       content: '';
       width: 5px;
       height: 5px;
-      background: #151515;
+      background: var(--color-background-inverse);
       border-radius: 50%;
     }
   }
@@ -68,7 +69,7 @@ const TestHeader = styled.div`
   height: 55px;
   padding: 0 20px;
   align-items: center;
-  color: #fff;
+  color: var(--color-white);
   .icon-delete {
     width: 18px;
     display: inline-block;
@@ -79,7 +80,7 @@ const TestHeader = styled.div`
     }
   }
   &.BGYellow {
-    background: #ffa340;
+    background: var(--color-warning);
   }
   &.BGDarkRed {
     background: #a00416;
@@ -88,19 +89,19 @@ const TestHeader = styled.div`
     background: #4c7d9e;
   }
   &.BGBlue {
-    background: #1677ff;
+    background: var(--color-primary);
   }
   &.BGSkyBlue {
-    background: #00bcd4;
+    background: var(--color-cyan);
   }
   &.BGGreen {
-    background: #01ca83;
+    background: var(--color-task);
   }
   &.BGDarkBlue {
     background: #4158db;
   }
   &.BGRed {
-    background: #f15b75;
+    background: var(--color-calendar);
   }
 `;
 
@@ -114,19 +115,18 @@ const Footer = styled.div`
     cursor: pointer;
     font-size: 14px;
     box-sizing: border-box;
-    color: #fff;
+    color: var(--color-white);
   }
 `;
 
 const BotBox = styled.div`
-  width: 400px;
   height: calc(100vh - 87px);
   position: absolute;
   right: 16px;
   top: 71px;
   border-radius: 6px;
   overflow: hidden;
-  background: #fff;
+  background: var(--color-background-primary);
 `;
 
 class Header extends Component {
@@ -149,6 +149,8 @@ class Header extends Component {
       showTestFlow: false,
       startNodeDetail: {},
       showChatbotDialog: false,
+      worksheetInfo: {},
+      recordInfo: {},
     };
   }
 
@@ -297,16 +299,24 @@ class Header extends Component {
    * 渲染测试按钮
    */
   renderTestBtn() {
-    const { flowInfo, isPlugin, tabIndex } = this.props;
+    const { flowInfo, isPlugin, tabIndex, isAIActions } = this.props;
     const { testVisible, showChatbotDialog } = this.state;
 
-    if (flowInfo.startAppType === APP_TYPE.CHATBOT) {
+    if (flowInfo.startAppType === APP_TYPE.CHATBOT || isAIActions) {
       if (showChatbotDialog || tabIndex !== 1) return null;
 
       return (
         <span
           className="workflowAction ThemeHoverColor3 ThemeHoverBorderColor3"
-          onClick={() => this.setState({ showChatbotDialog: true })}
+          onClick={() => {
+            if (isAIActions) {
+              this.selectRecord((records, worksheetInfo) => {
+                this.setState({ showChatbotDialog: true, worksheetInfo, recordInfo: records[0] });
+              });
+            } else {
+              this.setState({ showChatbotDialog: true });
+            }
+          }}
         >
           {_l('测试')}
         </span>
@@ -315,8 +325,8 @@ class Header extends Component {
 
     // 未发布和非立即执行的只有测试
     if (
-      !flowInfo.lastPublishDate ||
       isPlugin ||
+      !flowInfo.lastPublishDate ||
       !_.includes(
         [
           APP_TYPE.SHEET,
@@ -426,7 +436,7 @@ class Header extends Component {
             <Fragment>
               <TestHeader
                 className={isPlugin ? '' : flowInfo.child ? 'BGBlueAsh' : getStartNodeColor(appType, triggerId)}
-                style={isPlugin ? { background: flowInfo.iconColor || '#1677ff' } : {}}
+                style={isPlugin ? { background: flowInfo.iconColor || 'var(--color-primary)' } : {}}
               >
                 {isPlugin && flowInfo.iconName ? (
                   <SvgIcon url={flowInfo.iconName} fill="#fff" size={24} />
@@ -448,7 +458,7 @@ class Header extends Component {
               <ScrollView className="flex">
                 <div className="workflowDetailBox pBottom0">
                   {isPlugin && flowInfo.explain && (
-                    <div className="Font14 Gray_75 workflowDetailDesc mBottom30">{flowInfo.explain}</div>
+                    <div className="Font14 textSecondary workflowDetailDesc mBottom30">{flowInfo.explain}</div>
                   )}
 
                   <div style={{ marginTop: -15 }}>
@@ -494,21 +504,10 @@ class Header extends Component {
         flowInfo.startAppType,
       )
     ) {
-      selectRecords({
-        canSelectAll: false,
-        pageSize: 25,
-        multiple: false,
-        singleConfirm: true,
-        worksheetId: flowInfo.startAppId,
-        onText: _l('开始测试'),
-        allowNewRecord: true,
-        allowAdd: true,
-        showMoreControls: true,
-        onOk: selectedRecords => {
-          isTest
-            ? this.sendTestFlow({ sourceId: selectedRecords[0].rowid })
-            : this.sendRealityFlow({ sourceId: selectedRecords[0].rowid });
-        },
+      this.selectRecord(selectedRecords => {
+        isTest
+          ? this.sendTestFlow({ sourceId: selectedRecords[0].rowid })
+          : this.sendRealityFlow({ sourceId: selectedRecords[0].rowid });
       });
     } else if (flowInfo.startAppType === APP_TYPE.LOOP) {
       Confirm({
@@ -524,6 +523,26 @@ class Header extends Component {
       this.setState({ showTestFlow: true, startNodeDetail: {} });
       this.getNodeDetail();
     }
+  };
+
+  /**
+   * 选择记录
+   */
+  selectRecord = (callback = () => {}) => {
+    const { flowInfo } = this.props;
+
+    selectRecords({
+      canSelectAll: false,
+      pageSize: 25,
+      multiple: false,
+      singleConfirm: true,
+      worksheetId: flowInfo.startAppId,
+      onText: _l('开始测试'),
+      allowNewRecord: true,
+      allowAdd: true,
+      showMoreControls: true,
+      onOk: callback,
+    });
   };
 
   /**
@@ -611,7 +630,7 @@ class Header extends Component {
         title: _l('待办、通知发送方式'),
         description: (
           <div>
-            <p className="Gray">
+            <p className="textPrimary">
               {_l('点击【发给我自己测试】时，实际执行人不收到消息，由我作为节点的执行人进行测试。')}
             </p>
             <p>
@@ -661,9 +680,9 @@ class Header extends Component {
           {!data.apps.length ? (
             <Fragment>
               <div className="Font20 mTop35">{_l('太棒了！流程已自动化运行')}</div>
-              <div className="Font14 mTop25 Gray_75">{_l('你再一次为大家节省时间提升了工作效率！')}</div>
+              <div className="Font14 mTop25 textSecondary">{_l('你再一次为大家节省时间提升了工作效率！')}</div>
               <div
-                className="Font14 mTop15 Gray_75"
+                className="Font14 mTop15 textSecondary"
                 dangerouslySetInnerHTML={{
                   __html: _l(
                     '一段时间后，你就可以在%0中看到进入流程的数据和详细的运行状态了',
@@ -798,7 +817,34 @@ class Header extends Component {
    * 渲染对话机器人对话框
    */
   renderChatbotDialog() {
-    const { flowInfo, workflowDetail } = this.props;
+    const { flowInfo, workflowDetail, isAIActions } = this.props;
+    const { worksheetInfo, recordInfo } = this.state;
+
+    if (isAIActions) {
+      return (
+        <BotBox>
+          <AiActionChatBot
+            worksheetId={flowInfo.startAppId}
+            recordId={recordInfo.rowid}
+            processId={flowInfo.id}
+            buttonName={workflowDetail.flowNodeMap[flowInfo.startNodeId].triggerName}
+            conversationId={'test-' + _.get(md, 'global.Account.accountId')}
+            isTest
+            showOperateHeader
+            worksheetInfo={worksheetInfo}
+            recordData={recordInfo}
+            onClose={() => this.setState({ showChatbotDialog: false })}
+            onOpenMessageLog={({ instanceId }) => {
+              logDialog({
+                processId: flowInfo.id,
+                nodeId: workflowDetail.flowNodeMap[flowInfo.startNodeId].nextId,
+                instanceId,
+              });
+            }}
+          />
+        </BotBox>
+      );
+    }
 
     return (
       <BotBox>
@@ -807,6 +853,8 @@ class Header extends Component {
           conversationId={'test-' + get(md, 'global.Account.accountId')}
           isTest
           showOperateHeader
+          worksheetInfo={worksheetInfo}
+          recordInfo={recordInfo}
           onClose={() => this.setState({ showChatbotDialog: false })}
           onOpenMessageLog={({ instanceId }) => {
             logDialog({
@@ -821,12 +869,14 @@ class Header extends Component {
   }
 
   render() {
-    const { tabIndex, switchTabs, flowInfo, isIntegration, isPlugin, openFlowInfo } = this.props;
+    const { tabIndex, switchTabs, flowInfo, isIntegration, isPlugin, openFlowInfo, isAIActions } = this.props;
     const { publishErrorVisible, errorInfo, isProgressing, showTestFlow, showChatbotDialog } = this.state;
     const tabs = TABS_OPTS.filter(
       item => (flowInfo.startAppType !== APP_TYPE.APPROVAL_START && !isPlugin) || item.tabIndex !== 3,
     );
     const formatString = _l('YYYY年M月D日 HH:mm');
+    const processInfo =
+      START_APP_TYPE[flowInfo.child ? 'subprocess' : isAIActions ? 'ai_actions' : flowInfo.startAppType] || {};
 
     return (
       <div className={cx('workflowSettingsHeader flexRow relative', { workflowReleaseHeader: flowInfo.parentId })}>
@@ -836,14 +886,9 @@ class Header extends Component {
           </div>
         </Tooltip>
 
-        <Tooltip title={flowInfo.child ? _l('子流程') : START_APP_TYPE[flowInfo.startAppType]?.text}>
-          <div
-            className="iconWrap mRight10"
-            style={{
-              backgroundColor: (START_APP_TYPE[flowInfo.child ? 'subprocess' : flowInfo.startAppType] || {}).iconColor,
-            }}
-          >
-            <Icon icon={(START_APP_TYPE[flowInfo.child ? 'subprocess' : flowInfo.startAppType] || {}).iconName} />
+        <Tooltip title={processInfo.text}>
+          <div className="iconWrap mRight10" style={{ backgroundColor: processInfo.iconColor }}>
+            <Icon icon={processInfo.iconName} />
           </div>
         </Tooltip>
 
@@ -853,7 +898,7 @@ class Header extends Component {
               {flowInfo.name}
               {flowInfo.explain && (
                 <Tooltip placement="bottomLeft" align={{ offset: [-12, 0] }} type="white" title={flowInfo.explain}>
-                  <Icon icon="info" className="Gray_9e Font18 mLeft5" />
+                  <Icon icon="info" className="textTertiary Font18 mLeft5" />
                 </Tooltip>
               )}
               {flowInfo.publishStatus === 1 && flowInfo.enabled && (
@@ -863,7 +908,7 @@ class Header extends Component {
             {flowInfo.lastPublishDate &&
               (flowInfo.parentId ? (
                 <div className="Font12 ellipsis">
-                  <span className="Gray_75 mRight5">
+                  <span className="textSecondary mRight5">
                     {_l('版本：%0', moment(flowInfo.lastPublishDate).format('YYYY-MM-DD HH:mm'))}
                   </span>
                   <Tooltip title={_l('恢复到此版本')}>
@@ -886,7 +931,7 @@ class Header extends Component {
                 </div>
               ) : (
                 <div className="Font12 ellipsis">
-                  <span className="Gray_75 mRight5">
+                  <span className="textSecondary mRight5">
                     {_l('上次发布：%0', moment(flowInfo.lastPublishDate).format('YYYY-MM-DD HH:mm'))}
                   </span>
                   <HistoryVersion {...this.props} />
@@ -921,7 +966,10 @@ class Header extends Component {
           ) : (
             <Fragment>
               {!_.includes([APP_TYPE.WEBHOOK, APP_TYPE.USER, APP_TYPE.EXTERNAL_USER], flowInfo.startAppType) &&
-                (flowInfo.publishStatus !== 2 || isPlugin || flowInfo.startAppType === APP_TYPE.CHATBOT) &&
+                (isPlugin ||
+                  flowInfo.publishStatus !== 2 ||
+                  flowInfo.startAppType === APP_TYPE.CHATBOT ||
+                  isAIActions) &&
                 this.renderTestBtn()}
 
               {flowInfo.publishStatus === 2 &&
@@ -936,7 +984,8 @@ class Header extends Component {
                     APP_TYPE.EVENT_PUSH,
                   ],
                   flowInfo.startAppType,
-                ) && (
+                ) &&
+                flowInfo.moduleType !== 1 && (
                   <span
                     className="workflowAction ThemeHoverColor3 ThemeHoverBorderColor3"
                     onClick={() => this.onExecuteFlow(false)}

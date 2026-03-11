@@ -265,6 +265,7 @@ export default {
    * @param {string} args.name
    * @param {string} args.host
    * @param {integer} args.port
+   * @param {array} args.hosts
    * @param {string} args.account
    * @param {string} args.password
    * @param {string} args.dbName
@@ -289,6 +290,7 @@ export default {
    * @param {string} args.name
    * @param {string} args.host
    * @param {integer} args.port
+   * @param {array} args.hosts
    * @param {string} args.account
    * @param {string} args.password
    * @param {string} args.dbName
@@ -313,6 +315,7 @@ export default {
    * @param {string} args.name
    * @param {string} args.host
    * @param {integer} args.port
+   * @param {array} args.hosts
    * @param {string} args.account
    * @param {string} args.password
    * @param {string} args.dbName

@@ -13,7 +13,7 @@ const ViewMoreLink = styled.div`
 const ViewMore = ({ onClick, disabled }) => {
   return (
     <ViewMoreLink
-      className={cx('w100 Gray_75 TxtCenter Bold Font13 ', { 'ThemeHoverColor3 Hand': !disabled })}
+      className={cx('w100 textSecondary TxtCenter Bold Font13 ', { 'ThemeHoverColor3 Hand': !disabled })}
       onClick={onClick}
     >
       {_l('查看更多')}

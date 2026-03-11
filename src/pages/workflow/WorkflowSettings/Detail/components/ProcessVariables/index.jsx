@@ -136,7 +136,7 @@ export default props => {
 
             <Icon
               icon="trash"
-              className="Font16 mLeft10 Gray_75 processConfigDel"
+              className="Font16 mLeft10 textSecondary processConfigDel"
               onClick={() => {
                 let objArrayIds = [];
 
@@ -159,7 +159,7 @@ export default props => {
 
             <Icon
               icon="add"
-              className="Font20 mLeft10 Gray_75 ThemeHoverColor3 mTop8 pointer"
+              className="Font20 mLeft10 textSecondary ThemeHoverColor3 mTop8 pointer"
               onClick={() => addParameters(item)}
             />
           </div>

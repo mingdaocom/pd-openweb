@@ -13,7 +13,7 @@ function VoteAction(props) {
   } else if ((!voteItem.isPostVote && !voteItem.isDeadline) || (voteItem.isPostVote && !props.isShowResult)) {
     // 没有投过票且没过期 或者 已经投过票并修改投票
     actions = (
-      <span className="Gray_9">
+      <span className="textTertiary">
         {voteItem.Anonymous ? <span className="mRight10">{_l('匿名投票')}</span> : undefined}
         <span className="mRight10">{_l('最多可以选择%0项', voteItem.AvailableNumber)}</span>
         {
@@ -28,13 +28,13 @@ function VoteAction(props) {
     // 如果没有投票但投票已过期
     actions = (
       <span>
-        <span className="Gray_9 mRight10">{_l('投票已到期')}</span>
+        <span className="textTertiary mRight10">{_l('投票已到期')}</span>
         <a onClick={props.handleReloadVote}>{_l('刷新结果') /* 刷新结果*/}</a>
       </span>
     );
   } else if (voteItem.isPostVote && props.isShowResult) {
     actions = (
-      <span className="Gray_9">
+      <span className="textTertiary">
         {voteItem.isDeadline ? (
           /* 投票已过期*/ _l('投票已到期')
         ) : (

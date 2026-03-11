@@ -31,7 +31,7 @@ export default class Card extends Component {
     if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL, TABS.WAITING_EXAMINE].includes(stateTab)) {
       RenderState = (
         <div className="state bold valignWrapper">
-          <div className="Font13 Gray_75">{flowNode.name}</div>
+          <div className="Font13 textSecondary">{flowNode.name}</div>
         </div>
       );
       RenderRightHander = (
@@ -64,14 +64,14 @@ export default class Card extends Component {
       const currentWorkFlowNode = currentWorkFlowNodes[currentWorkFlowNodes.length - 1];
       RenderState = (
         <div className="state bold valignWrapper">
-          <div className="Font13 Gray_75">
+          <div className="Font13 textSecondary">
             {currentWorkFlowNodes.length > 1
               ? _l('%0个节点', currentWorkFlowNodes.length)
               : currentWorkFlowNode
                 ? currentWorkFlowNode.name
                 : flowNode.name}
           </div>
-          <div className="info mLeft5 Gray_75 Font13">{_l('处理中…')}</div>
+          <div className="info mLeft5 textSecondary Font13">{_l('处理中…')}</div>
         </div>
       );
       RenderRightHander = this.renderTime();
@@ -93,7 +93,7 @@ export default class Card extends Component {
             </div>
             {instanceLog && instanceLog.cause && instanceStatus !== 5 && (
               <div
-                className="Font13 mLeft10 Gray_75 ellipsis"
+                className="Font13 mLeft10 textSecondary ellipsis"
                 style={{ maxWidth: 200 }}
                 title={FLOW_FAIL_REASON[instanceLog.cause] || instanceLog.causeMsg}
               >
@@ -116,7 +116,9 @@ export default class Card extends Component {
       }
       if (type === 0) {
         RenderRightHander = (
-          <div className="Gray_9e mRight10 mLeft10">{createTimeSpan(type === 0 ? completeDate : operationTime)}</div>
+          <div className="textTertiary mRight10 mLeft10">
+            {createTimeSpan(type === 0 ? completeDate : operationTime)}
+          </div>
         );
       } else {
         const timeConsuming = this.renderTimeConsuming();
@@ -125,10 +127,15 @@ export default class Card extends Component {
             {timeConsuming && (
               <Fragment>
                 {timeConsuming}
-                <div style={{ height: 15, width: 1, backgroundColor: '#9e9e9e' }} className="mLeft10" />
+                <div
+                  style={{ height: 15, width: 1, backgroundColor: 'var(--color-text-tertiary)' }}
+                  className="mLeft10"
+                />
               </Fragment>
             )}
-            <div className="Gray_9e mRight10 mLeft10">{createTimeSpan(type === 0 ? completeDate : operationTime)}</div>
+            <div className="textTertiary mRight10 mLeft10">
+              {createTimeSpan(type === 0 ? completeDate : operationTime)}
+            </div>
             {RenderState}
           </div>
         );
@@ -144,14 +151,14 @@ export default class Card extends Component {
       if (status === 1) {
         RenderResultState = (
           <div className="state bold valignWrapper">
-            <div className="Font13 Gray_75">
+            <div className="Font13 textSecondary">
               {currentWorkFlowNodes && currentWorkFlowNodes.length > 1
                 ? _l('%0个节点', currentWorkFlowNodes.length)
                 : currentWorkFlowNode
                   ? currentWorkFlowNode.name
                   : flowNode.name}
             </div>
-            <div className="info mLeft5 Gray_75 Font13">{_l('处理中…')}</div>
+            <div className="info mLeft5 textSecondary Font13">{_l('处理中…')}</div>
           </div>
         );
       } else {
@@ -203,7 +210,7 @@ export default class Card extends Component {
           <span className="flex">{item.title || _l('未命名')}</span>
         </div>
         {stateTab === TABS.WAITING_EXAMINE ? (
-          <span className="Gray_75 Font13 mTop8 overflow_ellipsis">{item.workItem.opinion}</span>
+          <span className="textSecondary Font13 mTop8 overflow_ellipsis">{item.workItem.opinion}</span>
         ) : null}
       </div>
     );
@@ -242,7 +249,7 @@ export default class Card extends Component {
 
     if (!maxEndTimeConsuming) {
       const time = covertTime(maxTimeConsuming);
-      return time ? <span className="Gray_75 mLeft10">{_l('耗时：%0', time)}</span> : null;
+      return time ? <span className="textSecondary mLeft10">{_l('耗时：%0', time)}</span> : null;
     }
 
     return (
@@ -258,7 +265,7 @@ export default class Card extends Component {
         <span
           className="stepTimeConsuming flexRow"
           style={{
-            color: maxEndTimeConsuming > 0 ? '#F44336' : '#4CAF50',
+            color: maxEndTimeConsuming > 0 ? 'var(--color-error)' : 'var(--color-success)',
           }}
         >
           <Icon icon={maxEndTimeConsuming > 0 ? 'access_time' : 'task'} className="Font14 mRight2" />
@@ -285,7 +292,8 @@ export default class Card extends Component {
       <span
         className="stepTimeConsuming flexRow"
         style={{
-          color: time > 0 ? '#F44336' : currentAccountNotified ? '#FF9800' : '#1677ff',
+          color:
+            time > 0 ? 'var(--color-error)' : currentAccountNotified ? 'var(--color-warning)' : 'var(--color-primary)',
         }}
       >
         <Icon icon={time > 0 ? 'error1' : 'hourglass'} className="Font14 mRight2" />
@@ -301,7 +309,7 @@ export default class Card extends Component {
         <div className="appIcon" style={{ backgroundColor: app.iconColor }}>
           <SvgIcon url={app.iconUrl} fill="#fff" size={18} addClassName="mTop2" />
         </div>
-        <span className="Gray_75 bold ellipsis" style={{ maxWidth: 460 }}>
+        <span className="textSecondary bold ellipsis" style={{ maxWidth: 460 }}>
           {app.name}
           <span className="dot" />
           {process.name}
@@ -313,7 +321,7 @@ export default class Card extends Component {
     const { item, stateTab, type } = this.props;
     const { createDate, workItem } = item;
     return (
-      <div className="Gray_75">
+      <div className="textSecondary">
         <div className="pLeft16 flexRow">
           {stateTab === TABS.MY_SPONSOR || (type === 0 && stateTab === TABS.COMPLETE) ? (
             <span>{createTimeSpan(dateConvertToUserZone(createDate))}</span>
@@ -355,7 +363,7 @@ export default class Card extends Component {
     const { controls } = this.props.item;
     return (
       <div key={item.controlId} className={cx('controlWrapper flexColumn mTop10', { flex: controls.length <= 1 })}>
-        <div className="Gray_75 ellipsis">{item.controlName}</div>
+        <div className="textSecondary ellipsis">{item.controlName}</div>
         <div className="controlValue">{item.value || '--'}</div>
       </div>
     );

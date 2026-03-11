@@ -62,7 +62,7 @@ const BaseBtnCon = styled(FlexCenter)`
   border-radius: 32px;
   z-index: 2;
   &:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
 `;
 
@@ -141,7 +141,9 @@ export default function Groups(props) {
         safeLocalStorageSetItem('homeGroupsIsFolded', !isFolded ? '1' : '');
       }}
     >
-      <i className={`expandIcon Right Hand Font20 Gray_75 icon ${!isFolded ? 'icon-menu_left' : 'icon-menu'}`}></i>
+      <i
+        className={`expandIcon Right Hand Font20 textSecondary icon ${!isFolded ? 'icon-menu_left' : 'icon-menu'}`}
+      ></i>
     </BaseBtnCon>
   );
 
@@ -252,7 +254,7 @@ export default function Groups(props) {
             <VerticalMiddle className="header mTop20">
               <span className="Font15">{_l('分组')}</span>
               <BaseBtnCon className="mRight5" onClick={() => setAddGroupVisible(true)}>
-                <i className="Font24 Gray_9d Hand icon icon-add"></i>
+                <i className="Font24 textTertiary Hand icon icon-add"></i>
               </BaseBtnCon>
             </VerticalMiddle>
           </PaddingCon>
@@ -263,7 +265,7 @@ export default function Groups(props) {
                   .filter(listItem => listItem.groups && listItem.groups.length)
                   .map((listItem, i) => (
                     <div key={i} className="mTop20">
-                      <div className="title Gray_9e Font12 mBottom6">{listItem.name}</div>
+                      <div className="title textTertiary Font12 mBottom6">{listItem.name}</div>
                       {listItem.groups && !!listItem.groups.length && (
                         <SortableList
                           items={listItem.groups}

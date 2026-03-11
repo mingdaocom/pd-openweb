@@ -19,10 +19,10 @@ const ExistSourceWrapper = styled.div`
     min-height: 50px;
     width: 100%;
     box-sizing: border-box;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
 
     .searchInput {
-      background: #fff;
+      background: var(--color-background-primary);
       width: 94%;
       height: 36px;
       margin-top: 7px;
@@ -39,7 +39,7 @@ const LeftListWrapper = styled.div`
   padding: 16px;
   width: 260px;
   box-sizing: border-box;
-  border-right: 1px solid #e0e0e0;
+  border-right: 1px solid var(--color-border-secondary);
 
   ul {
     margin-bottom: 40px !important;
@@ -63,11 +63,11 @@ const LeftListWrapper = styled.div`
       }
 
       &:hover {
-        background: #f7f7f7;
+        background: var(--color-background-hover);
       }
 
       &.isCur {
-        background: #f0f7ff;
+        background: var(--color-primary-transparent);
         span {
           font-weight: 600;
         }
@@ -76,7 +76,7 @@ const LeftListWrapper = styled.div`
     .categoryText {
       padding: 12px 0;
       margin-bottom: 0;
-      color: #757575;
+      color: var(--color-text-secondary);
       font-size: 12px;
     }
   }
@@ -91,7 +91,7 @@ const LeftListWrapper = styled.div`
     &:hover {
       span,
       i {
-        color: #1677ff !important ;
+        color: var(--color-primary) !important ;
       }
     }
   }
@@ -127,17 +127,17 @@ const RightListWrapper = styled.div`
         text-overflow: ellipsis;
         margin-bottom: 6px;
         font-size: 14px;
-        color: #151515;
+        color: var(--color-text-title);
         font-weight: 600;
       }
       span {
         margin-right: 8px;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
     }
 
     &:hover {
-      background: #f7f7f7;
+      background: var(--color-background-hover);
     }
   }
 `;
@@ -149,9 +149,9 @@ const NoDataWrapper = styled.div`
     width: 130px;
     height: 130px;
     line-height: 130px;
-    background: #fbfbfb;
+    background: var(--color-background-secondary);
     border-radius: 50%;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 `;
 
@@ -348,8 +348,8 @@ export default function ExistSourceModal(props) {
                 </ul>
 
                 <a className="leftFooter" href="/integration/source" target="_blank">
-                  <span className="bold Gray">{_l('去集成中心添加')}</span>
-                  <Icon icon="launch" className="Gray_9e mLeft5 mTop2" />
+                  <span className="bold textPrimary">{_l('去集成中心添加')}</span>
+                  <Icon icon="launch" className="textTertiary mLeft5 mTop2" />
                 </a>
               </div>
             </LeftListWrapper>
@@ -380,7 +380,7 @@ export default function ExistSourceModal(props) {
                     <span className="iconCon InlineBlock TxtCenter ">
                       <i className="icon-storage Font64 TxtMiddle" />
                     </span>
-                    <p className="Gray_9e mTop28 mBottom0">{_l('暂无可选择数据')}</p>
+                    <p className="textTertiary mTop28 mBottom0">{_l('暂无可选择数据')}</p>
                   </NoDataWrapper>
                 )}
               </ScrollView>

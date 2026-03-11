@@ -6,7 +6,7 @@ import { MIGRATE_CODE } from '../config';
 
 const Content = styled.div`
   .warningInfo {
-    color: #f51744 !important;
+    color: var(--color-error) !important;
     line-height: 24px;
     font-size: 13px;
     margin-bottom: 20px;
@@ -47,7 +47,7 @@ function ConfirmMoveDialog(props) {
       onCancel={onClose}
     >
       <Content>
-        <div className="Font13 Gray mBottom20">
+        <div className="Font13 textPrimary mBottom20">
           {type === 'move'
             ? _l('点击确认后开始迁移应用 "%0" 的所有数据', appInfo.appName)
             : _l('点击确认后开始迁移应用 "%0" 的所有数据到默认数据库', appInfo.appName)}
@@ -57,7 +57,7 @@ function ConfirmMoveDialog(props) {
           <div>{_l('迁移过程中，正在写入的数据可能会丢失，请保证在空闲时间进行操作')}</div>
           <div>{_l('应用迁移不允许频繁操作，每天只能移动一次')}</div>
         </div>
-        <div className="Font13 mBottom8 Gray_75">{_l('请输入应用名称，表示您确认迁移此应用')}</div>
+        <div className="Font13 mBottom8 textSecondary">{_l('请输入应用名称，表示您确认迁移此应用')}</div>
         <Input autoFocus className="w100" value={name} onChange={value => setName(value)} />
       </Content>
     </Dialog>

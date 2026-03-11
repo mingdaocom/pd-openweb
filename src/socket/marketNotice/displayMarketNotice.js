@@ -3,7 +3,7 @@ import { Modal, notification } from 'antd';
 
 export default function displayNotice({ noticeId, displayType, desc }) {
   const handleClose = () => {
-    if (md.global.Config.IsLocal) return;
+    if (window.platformENV.isOverseas || window.platformENV.isLocal) return;
     window.mdyAPI(
       '',
       '',

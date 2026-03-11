@@ -106,7 +106,7 @@ export default function LoginSet(props) {
   return (
     <Wrap>
       <div className="content">
-        <h6 className="Font16 Gray Bold mBottom0">{_l('登录页名称')}</h6>
+        <h6 className="Font16 textPrimary Bold mBottom0">{_l('登录页名称')}</h6>
         <input
           type="text"
           className="pageTitle mTop6"
@@ -125,7 +125,7 @@ export default function LoginSet(props) {
             setPortalSetModel({ ...portalSetModel, pageTitle: e.target.value });
           }}
         />
-        <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('登录页Logo')}</h6>
+        <h6 className="Font16 textPrimary Bold mBottom0 mTop24">{_l('登录页Logo')}</h6>
         <div className="uploadLogo TxtCenter TxtMiddle mTop16">
           {portalSetModel.logoImageUrl && (
             <Icon
@@ -144,7 +144,7 @@ export default function LoginSet(props) {
           )}
           {renderLogoCon()}
         </div>
-        <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('登录页面结构')}</h6>
+        <h6 className="Font16 textPrimary Bold mBottom0 mTop24">{_l('登录页面结构')}</h6>
         <ul className="pageMode mTop16">
           {[0, 1].map(o => {
             return (
@@ -187,7 +187,7 @@ export default function LoginSet(props) {
         </ul>
         {portalSetModel.pageMode !== 6 ? (
           <React.Fragment>
-            <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('背景设置')}</h6>
+            <h6 className="Font16 textPrimary Bold mBottom0 mTop24">{_l('背景设置')}</h6>
             <ul className="bgTypeUl mTop16">
               {BGTYPE.map((o, i) => {
                 return (
@@ -227,7 +227,7 @@ export default function LoginSet(props) {
                         }}
                       >
                         {portalSetModel.backColor === item && (
-                          <Icon icon="ok" className={cx('check', { Gray_75: i < COLORS.length / 2 })} />
+                          <Icon icon="ok" className={cx('check', { textSecondary: i < COLORS.length / 2 })} />
                         )}
                       </li>
                     );
@@ -259,7 +259,7 @@ export default function LoginSet(props) {
           <WrapCon className={cx({ isCenterCon: portalSetModel.pageMode === 3, isR: portalSetModel.pageMode !== 3 })}>
             {portalSetModel.logoImageUrl ? <img src={portalSetModel.logoImageUrl} height={32} /> : ''}
             {portalSetModel.pageTitle && (
-              <p className="Font24 Gray mAll0 mTop20 Bold pageTitleDeme ellipsis">{portalSetModel.pageTitle}</p>
+              <p className="Font24 textPrimary mAll0 mTop20 Bold pageTitleDeme ellipsis">{portalSetModel.pageTitle}</p>
             )}
             <div className="btnCon">
               <div className="txtMobilePhone mTop28"></div>

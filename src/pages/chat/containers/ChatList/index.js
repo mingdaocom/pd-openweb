@@ -86,7 +86,7 @@ class Chat extends Component {
   render() {
     const { toolbarConfig } = this.props;
     const { isOpenMessageList, isOpenCommonApp, sessionListVisible, hideOpenCommonApp } = toolbarConfig;
-    const isLocal = md.global.Config.IsLocal && !location.hostname.includes('nocoly.com'); //除nocoly外的私有部署环境
+    const isLocal = window.platformENV.isLocal;
     const isInApp = _.get(location.pathname.match(/\/app\/([A-Za-z0-9-]{36})(?=\/|$)/), [1]); //应用
     //除nocoly外的私有部署环境或应用内展示mingo 同时受开关影响（sysconfig.hideAIBasicFun）
     const showMingo = !md.global.SysSettings.hideAIBasicFun && (!isLocal || isInApp);

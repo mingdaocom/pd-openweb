@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { VariableSizeGrid } from 'react-window';
-import { includes } from 'lodash';
+import { includes, isFunction } from 'lodash';
 
 function sum(array = []) {
   return array.reduce((a, b) => a + b, 0);
@@ -14,6 +14,7 @@ function cx(obj) {
 
 export default function Grid(props) {
   const {
+    isGroupTableView,
     id,
     leftFixed,
     topFixed,
@@ -33,11 +34,12 @@ export default function Grid(props) {
     Cell,
     tableData,
     setRef,
+    renderCustomComp,
   } = props;
   let leftFixedCount = props.leftFixedCount;
   let leftFixedWidth = leftFixedCount ? sum([...new Array(leftFixedCount)].map((n, i) => getColumnWidth(i))) : 0;
   if (leftFixedWidth > width && leftFixedCount > 2) {
-    leftFixedCount = 1;
+    leftFixedCount = isGroupTableView ? 2 : 1;
     leftFixedWidth = leftFixedCount ? sum([...new Array(leftFixedCount)].map((n, i) => getColumnWidth(i))) : 0;
   }
   const rightFixedWidth = rightFixedCount
@@ -69,46 +71,52 @@ export default function Grid(props) {
     return;
   }
   return (
-    <VariableSizeGrid
-      ref={setRef}
-      className={id + ' ' + cx({ leftFixed, rightFixed, topFixed, bottomFixed }) + '' + id}
-      key={`${id}-${config.width}`}
-      style={{
-        position: 'absolute',
-        left: config.left,
-        top: config.top,
-        overflow: 'hidden',
-      }}
-      width={config.width}
-      height={config.height}
-      columnCount={config.columnCount}
-      columnWidth={i => {
-        let index = i;
-        if (id.endsWith('center')) {
-          index = i + leftFixedCount;
-        } else if (id.endsWith('right')) {
-          index = i + columnCount - rightFixedCount;
-        }
-        return getColumnWidth(index);
-      }}
-      rowHeight={getRowHeight || (() => rowHeight)}
-      rowCount={config.rowCount}
-      itemData={{
-        ...tableData,
-        grid: {
-          id,
-          tableColumnCount: columnCount,
-          leftFixed,
-          rightFixed,
-          topFixed,
-          bottomFixed,
-          rightFixedCount,
-          leftFixedCount,
-          ...config,
-        },
-      }}
-    >
-      {Cell}
-    </VariableSizeGrid>
+    <Fragment>
+      <VariableSizeGrid
+        ref={setRef}
+        className={id + ' ' + cx({ leftFixed, rightFixed, topFixed, bottomFixed }) + '' + id}
+        key={`${id}-${config.width}`}
+        style={{
+          position: 'absolute',
+          left: config.left,
+          top: config.top,
+          overflow: 'hidden',
+          backgroundColor: 'var(--color-background-primary)',
+        }}
+        width={config.width}
+        height={config.height}
+        columnCount={config.columnCount}
+        columnWidth={i => {
+          let index = i;
+          if (id.endsWith('center')) {
+            index = i + leftFixedCount;
+          } else if (id.endsWith('right')) {
+            index = i + columnCount - rightFixedCount;
+          }
+          return getColumnWidth(index);
+        }}
+        rowHeight={getRowHeight || (() => rowHeight)}
+        rowCount={config.rowCount}
+        itemData={{
+          ...tableData,
+          grid: {
+            id,
+            tableColumnCount: columnCount,
+            leftFixed,
+            rightFixed,
+            topFixed,
+            bottomFixed,
+            rightFixedCount,
+            leftFixedCount,
+            ...config,
+          },
+        }}
+      >
+        {Cell}
+      </VariableSizeGrid>
+      {isFunction(renderCustomComp) && (
+        <div style={{ left: 0, top: 0, display: 'inline-block' }}>{renderCustomComp()}</div>
+      )}
+    </Fragment>
   );
 }

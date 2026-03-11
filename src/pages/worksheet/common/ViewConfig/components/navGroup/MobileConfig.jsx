@@ -15,7 +15,7 @@ const MobileConfigWrap = styled.div`
   .line {
     width: 100%;
     height: 1px;
-    border-top: 1px solid #ddd;
+    border-top: 1px solid var(--color-border-primary);
     margin: 30px 0;
   }
   img {
@@ -25,24 +25,22 @@ const MobileConfigWrap = styled.div`
     background-size: cover !important;
     transition: box-shadow 0.3s;
     &:hover {
-      box-shadow:
-        0 4px 20px #00000021,
-        0 2px 6px #0000001a;
+      box-shadow: var(--shadow-sm);
     }
   }
   .iconWrap {
     margin-right: 48px;
   }
   .activeIcon {
-    color: #fff;
+    color: var(--color-white);
     position: absolute;
     right: -8px;
     top: -8px;
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    border: 2px solid #ffffff;
-    background-color: #1677ff;
+    border: 2px solid var(--color-white);
+    background-color: var(--color-primary);
   }
   .ming.Radio .Radio-box {
     margin-right: 6px !important;
@@ -140,7 +138,7 @@ export default function MobileConfig(props) {
                 onChange({ appnavwidth: width < 60 ? 60 : width > 180 ? 180 : width });
               }}
             />
-            <span className="unit Gray_9e">px</span>
+            <span className="unit textTertiary">px</span>
           </div>
         </Fragment>
       )}

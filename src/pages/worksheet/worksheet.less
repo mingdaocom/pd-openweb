@@ -10,10 +10,10 @@ html.AppWorkSheet form {
   .worksheetError {
     margin: 16px 20px;
     border-radius: 4px;
-    background: #fff;
+    background: var(--color-background-primary);
     .msg {
       font-size: 14px;
-      color: #666;
+      color: var(--color-text-secondary);
       text-align: center;
       top: 50%;
       position: relative;
@@ -30,7 +30,7 @@ html.AppWorkSheet form {
       height: 30px;
       line-height: 31px;
       font-size: 13px;
-      color: #888;
+      color: var(--color-text-secondary);
       margin-right: 14px;
       position: relative;
     }
@@ -40,11 +40,11 @@ html.AppWorkSheet form {
     }
   }
 }
-.worksheetDeleteDialog{
-  .Button--primary{
-    background: #f44336!important;
-    &:hover{
-      background: #e53935!important;
+.worksheetDeleteDialog {
+  .Button--primary {
+    background: var(--color-error) !important;
+    &:hover {
+      background: var(--color-error) !important;
     }
   }
 }

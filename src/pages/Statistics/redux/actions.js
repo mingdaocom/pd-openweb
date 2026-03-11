@@ -170,10 +170,12 @@ export const getReportData = ({ reload = false } = {}) => {
         type: 'CHANGE_STATISTICS_REPORT_DATA',
         data: { status: errorCode >= 500 ? -3 : 0 },
       });
-      dispatch({
-        type: 'CHANGE_STATISTICS_LOADING',
-        data: false,
-      });
+      if (errorCode !== 1) {
+        dispatch({
+          type: 'CHANGE_STATISTICS_LOADING',
+          data: false,
+        });
+      }
     };
     dispatch({
       type: 'CHANGE_STATISTICS_LOADING',
@@ -290,7 +292,7 @@ export const getTableData = () => {
         }
         dispatch({
           type: 'CHANGE_STATISTICS_TABLE_DATA',
-          data: formatYaxisList(result),
+          data: fillValueMap(formatYaxisList(result), data.pageId),
         });
       });
     } else {
@@ -343,7 +345,7 @@ export const getTableData = () => {
         }
         dispatch({
           type: 'CHANGE_STATISTICS_TABLE_DATA',
-          data: formatYaxisList(result),
+          data: fillValueMap(formatYaxisList(result), params.pageId),
         });
       });
     }
@@ -460,63 +462,89 @@ export const getWorksheetInfo = worksheetId => {
     if (worksheetFilterByIdRequest) {
       worksheetFilterByIdRequest.abort();
     }
+
     worksheetInfoRequest = worksheetAjax.getWorksheetInfo({
       worksheetId,
       getTemplate: true,
       getViews: true,
       getSwitchPermit: true,
     });
-    worksheetFilterByIdRequest = filterId ? worksheetAjax.getWorksheetFilterById({ filterId }) : null;
 
-    Promise.all([worksheetInfoRequest, worksheetFilterByIdRequest]).then(result => {
-      const [worksheetResult, filterResult] = result;
-      if (_.get(worksheetResult, ['template', 'controls'])) {
-        worksheetResult.template.controls = replaceControlsTranslateInfo(
-          worksheetResult.appId,
-          worksheetId,
-          _.get(worksheetResult, ['template', 'controls']),
-        );
-      }
-      dispatch({
-        type: 'CHANGE_STATISTICS_WORKSHEET_INFO',
-        data: {
-          worksheetId,
-          appId: worksheetResult.appId,
-          projectId: worksheetResult.projectId,
-          name: getTranslateInfo(worksheetResult.appId, null, worksheetId).name || worksheetResult.name,
-          views: (worksheetResult.views || []).map(item => {
-            return {
-              ...item,
-              name: getTranslateInfo(worksheetResult.appId, null, item.viewId).name || item.name,
-            };
-          }),
-          switches: worksheetResult.switches,
-          columns: (_.get(worksheetResult, ['template', 'controls']) || []).map(item => redefineComplexControl(item)),
-        },
-      });
-      if (filterResult) {
-        const newCurrentReport = {
-          ...currentReport,
-          filter: {
-            ...filter,
-            filterControls: formatValuesOfOriginConditions(filterResult.items),
-          },
+    worksheetInfoRequest
+      .then(worksheetResult => {
+        const setSheetRun = () => {
+          if (_.get(worksheetResult, ['template', 'controls'])) {
+            worksheetResult.template.controls = replaceControlsTranslateInfo(
+              worksheetResult.appId,
+              worksheetId,
+              _.get(worksheetResult, ['template', 'controls']),
+            );
+          }
+          dispatch({
+            type: 'CHANGE_STATISTICS_WORKSHEET_INFO',
+            data: {
+              worksheetId,
+              ..._.pick(worksheetResult, ['appId', 'projectId', 'resultCode', 'switches']),
+              name: getTranslateInfo(worksheetResult.appId, null, worksheetId).name || worksheetResult.name,
+              views: (worksheetResult.views || []).map(item => {
+                return {
+                  ...item,
+                  name: getTranslateInfo(worksheetResult.appId, null, item.viewId).name || item.name,
+                };
+              }),
+              columns: (_.get(worksheetResult, ['template', 'controls']) || []).map(item =>
+                redefineComplexControl(item),
+              ),
+            },
+          });
+          dispatch(getReportData());
+          dispatch({
+            type: 'CHANGE_STATISTICS_DETAIL_LOADING',
+            data: false,
+          });
         };
+        if (filterId) {
+          worksheetAjax.getWorksheetFilterById({ filterId }).then(filterResult => {
+            if (filterResult) {
+              const newCurrentReport = {
+                ...currentReport,
+                filter: {
+                  ...filter,
+                  filterControls: formatValuesOfOriginConditions(filterResult.items),
+                },
+              };
+              dispatch({
+                type: 'CHANGE_STATISTICS_CURRENT_REPORT',
+                data: newCurrentReport,
+              });
+              dispatch({
+                type: 'CHANGE_STATISTICS_FILTER_ITEM',
+                data: filterResult.items,
+              });
+              setSheetRun();
+            }
+          });
+        } else {
+          setSheetRun();
+        }
+      })
+      .catch(error => {
         dispatch({
-          type: 'CHANGE_STATISTICS_CURRENT_REPORT',
-          data: newCurrentReport,
+          type: 'CHANGE_STATISTICS_WORKSHEET_INFO',
+          data: {
+            worksheetId,
+            views: [],
+            columns: [],
+            resultCode: error.errorCode,
+            errorMessage: error.errorMessage,
+          },
         });
+        dispatch(getReportData());
         dispatch({
-          type: 'CHANGE_STATISTICS_FILTER_ITEM',
-          data: filterResult.items,
+          type: 'CHANGE_STATISTICS_DETAIL_LOADING',
+          data: false,
         });
-      }
-      dispatch(getReportData());
-      dispatch({
-        type: 'CHANGE_STATISTICS_DETAIL_LOADING',
-        data: false,
       });
-    });
   };
 };
 
@@ -876,6 +904,7 @@ export const removeXaxes = () => {
         emptyType: 0,
         particleSizeType: 0,
         xaxisEmpty: false,
+        displayMode: 'text',
       },
       sorts: sorts.filter(item => _.findKey(item) !== id),
     };
@@ -1069,6 +1098,7 @@ export const addYaxisList = (data, isRequest = true) => {
       ydot: firstYAxis ? firstYAxis.ydot : isPercent ? 0 : 2,
       fixType: firstYAxis ? firstYAxis.fixType : 0,
       showNumber: true,
+      hide: false,
       percent: {
         enable: false,
         type: 2,

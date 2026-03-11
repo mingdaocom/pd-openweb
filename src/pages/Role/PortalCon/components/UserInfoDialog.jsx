@@ -16,7 +16,7 @@ const UserInfoDialogWrap = styled.div`
   }
 `;
 export default function UserInfoDialog(props) {
-  const { setShow, show, title, classNames, currentData = [] } = props;
+  const { setShow, show, title, classNames, currentData = [], appId } = props;
   const customwidget = useRef(null);
   const [ids, setIds] = useState([]);
 
@@ -50,6 +50,7 @@ export default function UserInfoDialog(props) {
       <UserInfoDialogWrap>
         <CustomFields
           disableRules
+          appId={appId}
           ref={customwidget}
           data={currentData
             .map(o => {

@@ -37,8 +37,11 @@ export default function DisplayTab(props) {
   return (
     <DisplayTabWrap>
       <div className="tabHeaderContent">
-        <span className="Gray_9e Font14 Bold">{_l('标签页')}</span>
-        <AnimationWrap className="switchStyleWrap" style={{ background: '#ededed', fontSize: 12 }}>
+        <span className="textTertiary Font14 Bold">{_l('标签页')}</span>
+        <AnimationWrap
+          className="switchStyleWrap"
+          style={{ background: 'var(--color-border-secondary)', fontSize: 12 }}
+        >
           {TAB_DISPLAY_TYPE.map(item => (
             <div
               className={cx('animaItem', { active: selectTab === item.value })}

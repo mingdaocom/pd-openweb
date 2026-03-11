@@ -17,9 +17,9 @@ const Wrap = styled.div`
     position: sticky;
     top: 0;
     padding: 13px;
-    background: #fff;
+    background: var(--color-background-primary);
     z-index: 1;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
   }
   .filedName {
     width: 260px;
@@ -29,11 +29,11 @@ const Wrap = styled.div`
     }
   }
   .fieldItem {
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     padding: 13px;
     .isDecrypt {
       padding: 3px 5px;
-      background: #ffe49b;
+      background: var(--color-warning-border);
       border-radius: 3px 3px 3px 3px;
     }
     &.isChild {
@@ -135,7 +135,7 @@ export default class extends React.PureComponent {
               )}
             ></i>
           )}
-          {<i className={cx('icon Gray_9e mRight6 Font16', 'icon-' + getIconByType(type))}></i>}
+          {<i className={cx('icon textTertiary mRight6 Font16', 'icon-' + getIconByType(type))}></i>}
           <span className="flex">
             {fieldName || (type === 22 ? _l('分段') : _l('备注'))}
             {isDecryptField && <span className="isDecrypt mLeft3">{_l('脱敏')}</span>}
@@ -203,7 +203,7 @@ export default class extends React.PureComponent {
           <img src={lookPng} height={26} className="mRight5 TxtMiddle" />
           {_l('可新增、查看、编辑哪些字段？')}
         </div>
-        <div className={'fieldsHeader Gray flexRow alignItemsCenter mTop20'}>
+        <div className={'fieldsHeader textPrimary flexRow alignItemsCenter mTop20'}>
           <div className={'filedName bold'}>{_l('名称')}</div>
           <div className={'filedSetting flex Bold flexRow alignItemsCenter'}>
             <Checkbox
@@ -215,7 +215,7 @@ export default class extends React.PureComponent {
               {_l('新增')}
             </Checkbox>
             <Tooltip title={_l('指“新增记录”时，可查看的字段')}>
-              <i className="icon-info_outline Font16 Gray_9e mLeft3 TxtMiddle" />
+              <i className="icon-info_outline Font16 textTertiary mLeft3 TxtMiddle" />
             </Tooltip>
           </div>
           <div className={'filedSetting flex Bold'}>

@@ -9,8 +9,7 @@ import homeAppAjax from 'src/api/homeApp';
 import { RecordInfoModal } from 'mobile/Record';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { getBarCodeValue } from 'src/components/Form/core/utils';
-import { previewQiniuUrl } from 'src/components/previewAttachments';
-import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import { browserIsMobile } from 'src/utils/common';
 import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
@@ -24,19 +23,16 @@ const CarouselComponent = styled(Carousel)`
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      border: 1px solid #fff;
+      border: 1px solid var(--color-white);
       background-color: transparent;
       opacity: 1;
       &:hover {
         opacity: 1;
-        background-color: #fff;
+        background-color: var(--color-background-primary);
       }
     }
     &.slick-active {
       width: 10px;
-      button {
-        background-color: #fff !important;
-      }
     }
   }
   .slick-dots {
@@ -92,7 +88,7 @@ const CarouselComponent = styled(Carousel)`
     .subTitle {
       cursor: initial;
       max-width: 720px;
-      text-shadow: 0px 1px 4px rgba(0, 0, 0, 0.3);
+      text-shadow: var(--shadow-sm);
     }
   }
   .hideMore {
@@ -136,7 +132,7 @@ const CarouselComponent = styled(Carousel)`
   &.slick-slider .slick-prev:hover {
     left: 0;
     z-index: 2;
-    color: white;
+    color: var(--color-white);
     border-radius: 0px 6px 6px 0px;
   }
 
@@ -144,7 +140,7 @@ const CarouselComponent = styled(Carousel)`
   &.slick-slider .slick-next:hover {
     right: 0;
     z-index: 2;
-    color: white;
+    color: var(--color-white);
     border-radius: 6px 0px 0px 6px;
   }
 `;
@@ -161,7 +157,7 @@ function Explain(props) {
   const [showMore, setShowMore] = useState(false);
   return (
     <div
-      className="explain White"
+      className="explain textWhite"
       onClick={e => {
         const { target } = e;
         if (target.classList.contains('explain') || target.classList.contains('content')) {
@@ -344,7 +340,9 @@ export default function CarouselPreview(props) {
       }
       if (imageControl.type === 47) {
         const img = contentRef.current.querySelector('.slick-list .slick-active img');
-        previewQiniuUrl(img.src, { disableDownload: true, ext: 'png', name: 'code.png', theme: 'light' });
+        previewAttachments(
+          transformQiniuUrl(img.src, { disableDownload: true, ext: 'png', name: 'code.png', theme: 'light' }),
+        );
       }
     }
   }
@@ -353,17 +351,17 @@ export default function CarouselPreview(props) {
     if (code === 0) {
       return (
         <div className="flexColumn valignWrapper w100 h100" style={{ justifyContent: 'center' }}>
-          <Icon icon="picture" className="Font64 Gray_c mBottom10" />
-          <div className="Gray_9e Font13">{_l('暂无轮播图片')}</div>
+          <Icon icon="picture" className="Font64 textPlaceholder mBottom10" />
+          <div className="textTertiary Font13">{_l('暂无轮播图片')}</div>
         </div>
       );
     }
     if (code === 1) {
       return (
         <div className="flexColumn valignWrapper w100 h100" style={{ justifyContent: 'center' }}>
-          <Icon icon="workflow_failure" className="Font64 Gray_c mBottom10" />
-          <div className="Gray_9e Font20 mBottom2">{_l('无法形成轮播图')}</div>
-          <div className="Gray_9e Font16">{_l('构成要素不存在或已删除')}</div>
+          <Icon icon="workflow_failure" className="Font64 textPlaceholder mBottom10" />
+          <div className="textTertiary Font20 mBottom2">{_l('无法形成轮播图')}</div>
+          <div className="textTertiary Font16">{_l('构成要素不存在或已删除')}</div>
         </div>
       );
     }

@@ -100,7 +100,7 @@ const IDWidget = props => {
       <div
         className={cx(
           'customFormControlBox customFormTextareaBox',
-          { Gray_bd: !value },
+          { textDisabled: !value },
           { controlDisabled: disabled },
           { Visibility: isEditing },
         )}

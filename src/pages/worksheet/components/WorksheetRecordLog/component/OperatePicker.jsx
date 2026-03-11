@@ -32,9 +32,9 @@ const OperateWrap = styled.div``;
 const OptionWrap = styled.div`
   width: 220px;
   padding: 16px 0;
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 4px;
-  box-shadow: 0px 3px 6px 1px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
   .optionItem {
     padding: 0 20px;
@@ -43,7 +43,7 @@ const OptionWrap = styled.div`
     display: flex;
     align-items: center;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
 `;

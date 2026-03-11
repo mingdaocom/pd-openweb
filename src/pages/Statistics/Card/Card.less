@@ -3,7 +3,7 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background-color: #fff;
+  background-color: var(--color-background-card);
   border-radius: 3px;
   box-sizing: border-box;
   margin-bottom: 30px;
@@ -12,7 +12,7 @@
   overflow: hidden;
 
   .header {
-    color: #151515;
+    color: var(--color-text-title);
     font-size: 15px;
     display: flex;
     align-items: center;
@@ -37,14 +37,14 @@
       font-size: 18px;
       cursor: pointer;
       &:hover {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
       &:last-child {
         margin: 0;
       }
     }
     .filterCriteriaIcon .icon:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
     .headerBottomLine {
       position: absolute;
@@ -52,6 +52,18 @@
       height: 2px;
       bottom: 0;
     }
+  }
+
+  .masking {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-background-overlay);
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.2;
   }
 
   &.disableChart {
@@ -72,8 +84,8 @@
     .header .icon {
       padding: 2px;
       border-radius: 2px;
-      background-color: #fff;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      background-color: var(--color-background-card);
+      box-shadow: var(--shadow-sm);
     }
   }
   &.hideNumberChartName {
@@ -138,7 +150,7 @@
     top: 40px;
     width: 100%;
     height: calc(~'100% - 40px');
-    background: #fff;
+    background: var(--color-background-primary);
     z-index: 3;
   }
   .g2-html-annotation {

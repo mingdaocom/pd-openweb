@@ -16,15 +16,15 @@ const Con = styled.div`
     justify-content: center;
     align-items: center;
     font-size: 14px;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
     border-radius: 3px;
     cursor: pointer;
     &:hover:not(.disabled) {
-      color: #757575;
-      background: #f5f5f5;
+      color: var(--color-text-secondary);
+      background: var(--color-background-hover);
     }
     &.disabled {
-      color: #bfbfbf;
+      color: var(--color-text-disabled);
       cursor: not-allowed;
     }
   }
@@ -36,7 +36,7 @@ const Con = styled.div`
     text-align: center;
     font-size: 13px !important;
     &:focus {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
   }
   .pageNumber {

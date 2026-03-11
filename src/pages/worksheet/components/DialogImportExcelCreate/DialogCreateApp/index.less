@@ -3,8 +3,8 @@
     height: 640px !important;
   }
   .stepLast {
-    color: #1677ff;
-    border: 1px solid #1677ff;
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
   }
   .Button {
     &.bold {
@@ -31,7 +31,7 @@
       position: absolute;
       right: 0px;
       top: 0px;
-      background-color: #fff;
+      background-color: var(--color-background-primary);
       border-radius: 50%;
       .editApp {
         font-size: 16px;
@@ -78,7 +78,7 @@
     margin: 0 auto 30px;
     border: none;
     &.bgColor {
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
     }
     .occupation {
       display: inline-block;
@@ -97,7 +97,7 @@
       border: 0;
       margin: 0;
       &.bgColor {
-        background: #f5f5f5;
+        background: var(--color-background-secondary);
       }
       &.lineH46 {
         line-height: 46px;
@@ -105,7 +105,7 @@
     }
   }
   .overLimit {
-    color: #f44336;
+    color: var(--color-error);
     margin: 0 auto;
   }
   .sheetInfo {
@@ -113,7 +113,7 @@
     height: 185px;
     padding: 10px;
     overflow: auto;
-    background-color: #fafafa;
+    background-color: var(--color-background-secondary);
     margin: 0 auto;
     .sheetInfoItem {
       padding-left: 22px;
@@ -133,10 +133,10 @@
         height: 23px;
         margin: 4px 0;
         border-radius: 4px;
-        border: 1px solid #e0e0e0;
+        border: 1px solid var(--color-border-secondary);
       }
       &:hover {
-        background-color: #f2f2f2;
+        background-color: var(--color-background-disabled);
         .sheetName {
           max-width: calc(~'100% - 18px');
         }

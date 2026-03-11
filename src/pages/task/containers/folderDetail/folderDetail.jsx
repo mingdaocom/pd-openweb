@@ -529,9 +529,9 @@ class FolderDetail extends Component {
     Dialog.confirm({
       dialogClasses: 'updateFolderCharge',
       closable: false,
-      title: <div style={{ color: '#f44336' }}>{_l('将项目负责人移交给“%0”', fullname)}</div>,
+      title: <div style={{ color: 'var(--color-error)' }}>{_l('将项目负责人移交给“%0”', fullname)}</div>,
       children: (
-        <div className="Font14" style={{ color: '#9e9e9e' }}>
+        <div className="Font14" style={{ color: 'var(--color-text-tertiary)' }}>
           {_l('如果您移交后，将无法把自己重新设为该项目的负责人')}
         </div>
       ),
@@ -967,7 +967,7 @@ class FolderDetail extends Component {
             <div className="descTitle flexRow pLeft20">
               <span className="projectDetail"> {_l('项目描述')}</span>
               {isAddedApk && (
-                <div className="ellipsis mLeft8 Gray_75">
+                <div className="ellipsis mLeft8 textSecondary">
                   <Icon icon="info" className="Font17" />
                   <span className="mLeft3">{_l('此项目已被"%0"应用关联', apkName)}</span>
                 </div>

@@ -1,16 +1,18 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, RadioGroup, UserHead } from 'ming-ui';
+import { Dropdown, Icon, RadioGroup, Textarea, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectDept, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
 import dataLimitAjax from 'src/api/dataLimit';
 import MoreActionDia from '../account/contactsHidden/modules/moreActionDia';
+import { LIMIT_FILE_DOWNLOAD_USE_TYPE_ENUM } from './enum';
 
 const Wrap = styled.div`
   box-sizing: border-box;
   margin: 16px 0 0;
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--color-border-primary);
   padding: 24px 8px;
   position: relative;
 
@@ -44,11 +46,11 @@ const Wrap = styled.div`
       border-radius: 50%;
       display: inline-block;
       vertical-align: middle;
-      background: #eaeaea;
+      background: var(--color-border-secondary);
     }
 
     .name {
-      color: #151515;
+      color: var(--color-text-title);
       font-size: 13px;
       margin-left: 10px;
       display: inline-block;
@@ -62,14 +64,14 @@ const Wrap = styled.div`
       border-radius: 50%;
       display: inline-block;
       vertical-align: middle;
-      background: #eaeaea;
-      color: #1677ff;
+      background: var(--color-border-secondary);
+      color: var(--color-primary);
       font-size: 12px;
       line-height: 24px;
       text-align: center;
       &.orgRoleIcon {
-        background-color: #ffad00;
-        color: #fff;
+        background-color: var(--color-warning);
+        color: var(--color-white);
       }
     }
   }
@@ -92,7 +94,7 @@ const Wrap = styled.div`
       padding: 0 24px;
 
       &:hover {
-        background: #eaeaea;
+        background: var(--color-border-secondary);
       }
     }
   }
@@ -101,12 +103,36 @@ const Wrap = styled.div`
 const Content = styled.div`
   flex: 1;
   overflow-y: auto;
+  .conditionDropdown {
+    width: 112px;
+    .ming.Menu {
+      width: 100% !important;
+    }
+  }
+  .ipTextarea {
+    width: 60% !important;
+    min-width: 500px;
+  }
+  .deviceDropdown {
+    width: 336px;
+    .ming.Menu {
+      width: 100% !important;
+    }
+  }
+  .accessTypeRadioGroup {
+    .Radio-box {
+      margin-right: 8px !important ;
+    }
+    .Radio {
+      margin-right: 26px !important;
+    }
+  }
 `;
 
 const Footer = styled.div`
   height: 66px;
   padding: 15px 0;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   .saveBtn,
   .delBtn {
     height: 36px;
@@ -123,30 +149,30 @@ const Footer = styled.div`
 
   .saveBtn {
     margin-right: 20px;
-    background: #1e88e5;
-    color: #fff;
+    background: var(--color-primary);
+    color: var(--color-white);
     &:hover {
-      background: #1565c0;
+      background: var(--color-link-hover);
     }
     &.disabled {
-      color: #fff;
-      background: #b2dbff;
+      color: var(--color-white);
+      background: var(--color-primary-transparent);
       cursor: not-allowed;
       &:hover {
-        background: #b2dbff;
+        background: var(--color-primary-transparent);
       }
     }
   }
   .delBtn {
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     &:hover {
-      border: 1px solid #ccc;
+      border: 1px solid var(--color-border-tertiary);
     }
     &.disabled {
-      color: #eaeaea;
+      color: var(--color-border-secondary);
       cursor: not-allowed;
       &:hover {
-        border: 1px solid #eaeaea;
+        border: 1px solid var(--color-border-secondary);
       }
     }
   }
@@ -156,11 +182,10 @@ export default class LimitFileDownloadSetting extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      limitType: props.limitType,
-      whiteList: props.whiteList || [],
-      initialLimitType: props.limitType,
-      initialWhiteList: props.whiteList || [],
       showMoreActionSelf: false,
+      attachmentSettingInfo: props.attachmentSettingInfo || {},
+      initialAttachmentSettingInfo: props.attachmentSettingInfo || {},
+      ipContent: _.get(props, 'attachmentSettingInfo.ipList', []).join(','),
     };
   }
 
@@ -206,7 +231,8 @@ export default class LimitFileDownloadSetting extends Component {
   };
 
   addDataFn = (data, type) => {
-    const { whiteList } = this.state;
+    const { attachmentSettingInfo } = this.state;
+    const { whiteList = [] } = attachmentSettingInfo;
     const selectedIds = whiteList.filter(item => item.sourceType === type).map(v => v.id);
     const addData = data
       .filter(
@@ -220,37 +246,61 @@ export default class LimitFileDownloadSetting extends Component {
         avatar: type === 1 ? v.avatar : undefined,
       }));
 
-    this.setState({ whiteList: whiteList.concat(addData) });
+    this.setState({ attachmentSettingInfo: { ...attachmentSettingInfo, whiteList: whiteList.concat(addData) } });
   };
 
   handleSave = () => {
     const { projectId } = this.props;
-    const { whiteList, initialWhiteList, limitType, initialLimitType } = this.state;
+    const { attachmentSettingInfo, initialAttachmentSettingInfo, ipContent } = this.state;
+    const { whiteList = [], limitType, useType, modelType, ipList } = attachmentSettingInfo;
 
-    if (_.isEqual(limitType, initialLimitType) && _.isEqual(whiteList, initialWhiteList)) return;
+    if (_.isEqual(attachmentSettingInfo, initialAttachmentSettingInfo)) return;
+
+    if (modelType === 1 && !_.trim(ipContent)) {
+      alert(_l('请输入IP地址'), 2);
+      return;
+    }
+
+    if (
+      modelType === 1 &&
+      _.find(
+        ipList,
+        item =>
+          !/^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)(\/([0-9]|[12]\d|3[0-2]))?$/.test(item),
+      )
+    ) {
+      alert(_l('IP地址格式不正确'), 2);
+      return;
+    }
 
     const requestArr =
-      !_.isEqual(limitType, initialLimitType) && !_.isEqual(whiteList, initialWhiteList)
+      (!_.isEqual(limitType, initialAttachmentSettingInfo.limitType) ||
+        !_.isEqual(useType, initialAttachmentSettingInfo.useType) ||
+        !_.isEqual(modelType, initialAttachmentSettingInfo.modelType) ||
+        !_.isEqual(ipList, initialAttachmentSettingInfo.ipList)) &&
+      !_.isEqual(whiteList, initialAttachmentSettingInfo.whiteList)
         ? [
             dataLimitAjax.editAttachmentWhiteList({ projectId, whiteList }),
-            dataLimitAjax.editAttachmentSetting({ projectId, status: 1, limitType }),
+            dataLimitAjax.editAttachmentSetting({ projectId, status: 1, limitType, useType, modelType, ipList }),
           ]
-        : !_.isEqual(whiteList, initialWhiteList)
+        : !_.isEqual(whiteList, initialAttachmentSettingInfo.whiteList)
           ? [dataLimitAjax.editAttachmentWhiteList({ projectId, whiteList })]
-          : [dataLimitAjax.editAttachmentSetting({ projectId, status: 1, limitType })];
+          : [dataLimitAjax.editAttachmentSetting({ projectId, status: 1, limitType, useType, modelType, ipList })];
 
     Promise.all(requestArr).then(resArr => {
       if (resArr.every(v => v === true)) {
         alert(_l('保存成功'));
-        this.setState({ initialLimitType: limitType, initialWhiteList: whiteList });
-        this.props.updateSettingData(limitType, whiteList);
+        this.setState({ initialAttachmentSettingInfo: { ...attachmentSettingInfo, ipList } });
+        this.props.updateSettingData({ ...attachmentSettingInfo, ipList });
       }
     });
   };
 
   renderContent = () => {
     const { projectId } = this.props;
-    const { showMoreActionSelf, whiteList = [] } = this.state;
+    const { attachmentSettingInfo, showMoreActionSelf } = this.state;
+    const { whiteList = [] } = attachmentSettingInfo;
+
     return (
       <Wrap className="listCon">
         <div className={cx({ mBottom15: whiteList.length })}>
@@ -263,7 +313,10 @@ export default class LimitFileDownloadSetting extends Component {
                   icon="cancel"
                   onClick={() =>
                     this.setState({
-                      whiteList: whiteList.filter(v => item.id !== v.id),
+                      attachmentSettingInfo: {
+                        ...attachmentSettingInfo,
+                        whiteList: whiteList.filter(v => item.id !== v.id),
+                      },
                     })
                   }
                 />
@@ -286,7 +339,7 @@ export default class LimitFileDownloadSetting extends Component {
           })}
         </div>
         <span
-          className="ThemeColor Font13 Hand mLeft15 Relative"
+          className="colorPrimary Font13 Hand mLeft15 Relative"
           onClick={() => this.setState({ showMoreActionSelf: true })}
         >
           <Icon className="Font16 mRight5" icon="add" />
@@ -305,8 +358,9 @@ export default class LimitFileDownloadSetting extends Component {
 
   render() {
     const { onClose = () => {} } = this.props;
-    const { limitType, initialLimitType, whiteList, initialWhiteList } = this.state;
-    const disabled = _.isEqual(limitType, initialLimitType) && _.isEqual(whiteList, initialWhiteList);
+    const { attachmentSettingInfo, initialAttachmentSettingInfo, ipContent } = this.state;
+    const { limitType, modelType, useType } = attachmentSettingInfo;
+    const disabled = _.isEqual(attachmentSettingInfo, initialAttachmentSettingInfo);
 
     return (
       <div className="orgManagementWrap">
@@ -318,24 +372,92 @@ export default class LimitFileDownloadSetting extends Component {
         </div>
         <div className="orgManagementContent flexColumn">
           <Content>
-            <div className="Font15 bold mBottom20">{_l('限制方式')}</div>
+            <div className="Font15 bold mBottom12">{_l('限制下载的访问条件')}</div>
+            <div className="textSecondary mBottom20">{_l('符合条件的访问将无法下载附件')}</div>
             <RadioGroup
               size="middle"
-              checkedValue={limitType}
+              className="accessTypeRadioGroup"
+              checkedValue={modelType}
               data={[
-                {
-                  text: _l('禁止所有设备下载'),
-                  value: 0,
-                },
-                {
-                  text: _l('禁止所有Web移动端下载'),
-                  value: 1,
-                },
+                { text: 'IP', value: 1 },
+                { text: _l('设备类型'), value: 0 },
               ]}
-              onChange={value => this.setState({ limitType: value })}
-            />
-            <div className="Font15 bold mTop40">{_l('白名单')}</div>
-            <div className="Gray_9e Font12 mBottom20">{_l('允许以下成员下载，不受「限制方式」的管控')}</div>
+              onChange={value =>
+                this.setState({
+                  attachmentSettingInfo: {
+                    ipContent: '',
+                    ipList: [],
+                    limitType: 0,
+                    ...attachmentSettingInfo,
+                    modelType: value,
+                  },
+                })
+              }
+            ></RadioGroup>
+            <div>
+              <Dropdown
+                className="conditionDropdown mTop16 mBottom16"
+                data={LIMIT_FILE_DOWNLOAD_USE_TYPE_ENUM}
+                border
+                value={useType}
+                onChange={value =>
+                  this.setState({ attachmentSettingInfo: { ...attachmentSettingInfo, useType: value } })
+                }
+              />
+            </div>
+
+            {modelType === 1 ? (
+              <Fragment>
+                <div className="mBottom12">
+                  <span className="textSecondary TxtMiddle">{_l('仅支持IPv4，可输入IP地址或CIDR格式的IP地址段')}</span>
+                  <Tooltip
+                    title={
+                      <Fragment>
+                        <div>{_l('单个 IP： 如 192.168.1.1')}</div>
+                        <div>{_l('CIDR 网段： 如 10.0.0.0/24')}</div>
+                        <div>{_l('注： 输入多个地址时，请使用英文逗号“,”分隔，最多添加50个地址。')}</div>
+                      </Fragment>
+                    }
+                  >
+                    <Icon icon="info_outline" className=" mLeft5 pointer Font16 textTertiary TxtMiddle" />
+                  </Tooltip>
+                </div>
+                <Textarea
+                  className="ipTextarea mBottom24"
+                  placeholder={_l('输入多个地址时，请使用英文逗号“,”分割')}
+                  value={ipContent}
+                  minHeight={80}
+                  maxHeight={200}
+                  onChange={value => {
+                    const temp = value.trim().split(',');
+                    if (temp.length > 50) {
+                      alert(_l('最多添加50个地址'), 3);
+                      return;
+                    }
+                    this.setState({
+                      ipContent: value,
+                      attachmentSettingInfo: { ...attachmentSettingInfo, ipList: temp },
+                    });
+                  }}
+                />
+              </Fragment>
+            ) : (
+              <Dropdown
+                className="deviceDropdown mBottom30"
+                data={[
+                  { text: _l('所有设备'), value: 0 },
+                  { text: _l('PC端'), value: 2 },
+                  { text: _l('移动端'), value: 1 },
+                ]}
+                border
+                value={limitType}
+                onChange={value =>
+                  this.setState({ attachmentSettingInfo: { ...attachmentSettingInfo, limitType: value } })
+                }
+              />
+            )}
+            <div className="Font15 bold">{_l('白名单')}</div>
+            <div className="textTertiary Font12 mBottom20">{_l('允许以下成员下载，不受「限制方式」的管控')}</div>
             {this.renderContent()}
           </Content>
           <Footer className="flexRow">
@@ -344,7 +466,7 @@ export default class LimitFileDownloadSetting extends Component {
             </div>
             <div
               className={cx('delBtn', { disabled })}
-              onClick={() => this.setState({ limitType: initialLimitType, whiteList: initialWhiteList })}
+              onClick={() => this.setState({ attachmentSettingInfo: initialAttachmentSettingInfo })}
             >
               {_l('取消')}
             </div>

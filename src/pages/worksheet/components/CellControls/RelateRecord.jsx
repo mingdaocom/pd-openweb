@@ -8,16 +8,14 @@ import SheetContext from 'worksheet/common/Sheet/SheetContext';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
+import { formatControlToServer } from 'src/components/Form/core/utils';
+import ViewHoverRelateRecordCard from 'src/pages/worksheet/views/components/ViewHoverRelateRecordCard.jsx';
+import { browserIsMobile, emitter, isKeyBoardInputChar } from 'src/utils/common';
 import {
-  formatControlToServer,
   getTitleTextFromControls,
   getTitleTextFromRelateControl,
-} from 'src/components/Form/core/utils';
-import ViewHoverRelateRecordCard from 'src/pages/worksheet/views/components/ViewHoverRelateRecordCard.jsx';
-import { browserIsMobile } from 'src/utils/common';
-import { emitter } from 'src/utils/common';
-import { isKeyBoardInputChar } from 'src/utils/common';
-import { renderText as renderCellText } from 'src/utils/control';
+  renderText as renderCellText,
+} from 'src/utils/control';
 import { formatRecordToRelateRecord } from 'src/utils/record';
 import { openChildTable } from '../ChildTableDialog';
 import EditableCellCon from '../EditableCellCon';
@@ -154,7 +152,7 @@ export default class RelateRecord extends React.Component {
     return length;
   }
   renderSelected() {
-    const { isMobileTable, cell = {} } = this.props;
+    const { isMobileTable, cell = {}, appId } = this.props;
     const { relationControls = [] } = cell;
     let titleControl = _.find(relationControls, c => c.attribute === 1);
     const matchedTitleControl = find(relationControls, { controlId: cell.advancedSetting.showtitleid });
@@ -197,7 +195,7 @@ export default class RelateRecord extends React.Component {
             {...this.props}
           >
             <RecordCardCellRelateRecord key={index}>
-              {renderCellText({ ...titleControl, value: controlValue }) ||
+              {renderCellText({ ...titleControl, value: controlValue }, { appId }) ||
                 (typeof controlValue === 'undefined' ? _l('未命名') : '')}
             </RecordCardCellRelateRecord>
           </ViewHoverRelateRecordCard>
@@ -270,6 +268,7 @@ export default class RelateRecord extends React.Component {
     const {
       projectId,
       appId,
+      isCharge,
       viewId,
       tableId,
       isTrash,
@@ -345,6 +344,7 @@ export default class RelateRecord extends React.Component {
                     sheetSwitchPermit,
                     masterData: {
                       worksheetId,
+                      appId,
                       formData: (_.isFunction(rowFormData) ? rowFormData() : rowFormData)
                         .map(c =>
                           _.pick(c, ['controlId', 'type', 'value', 'options', 'sourceControl', 'sourceControlType']),
@@ -361,6 +361,7 @@ export default class RelateRecord extends React.Component {
                     viewId,
                     worksheetId,
                     recordId,
+                    isCharge,
                     control: { ...cell, isDraft: from === 21 || isDraft },
                     allowEdit: editable,
                     formdata: _.isFunction(rowFormData) ? rowFormData() : rowFormData,

@@ -605,31 +605,21 @@ export default class CreateNodeDialog extends Component {
               iconName: 'icon-global_variable',
               describe: _l('在流程中修改应用下或组织下的全局变量值'),
             },
-            {
-              type: 15,
-              featureId: VersionProductType.PAY,
-              name: _l('获取支付链接'),
-              appType: 13,
-              actionId: '416',
-              iconColor: '#4C7D9E',
-              iconName: 'icon-Collection',
-              describe: _l('获取流程单条记录对象的对外支付链接'),
-            },
           ],
         },
         {
           id: 'developer',
           name: _l('开发者%03041'),
           items: [
-            {
-              type: 24,
-              featureId: VersionProductType.apiIntergrationNode,
-              name: _l('API 连接与认证%03042'),
-              appType: 41,
-              iconColor: '#4C7D9E',
-              iconName: 'icon-connect',
-              describe: _l('在流程中使用集成中心完成鉴权的 API 连接参数'),
-            },
+            // {
+            //   type: 24,
+            //   featureId: VersionProductType.apiIntergrationNode,
+            //   name: _l('API 连接与认证%03042'),
+            //   appType: 41,
+            //   iconColor: '#4C7D9E',
+            //   iconName: 'icon-connect',
+            //   describe: _l('在流程中使用集成中心完成鉴权的 API 连接参数'),
+            // },
             {
               type: 8,
               name: _l('发送 API 请求%03043'),
@@ -878,6 +868,42 @@ export default class CreateNodeDialog extends Component {
           ],
         },
         {
+          id: 'transaction',
+          name: _l('支付/开票'),
+          items: [
+            {
+              type: 15,
+              featureId: VersionProductType.PAY,
+              name: _l('获取支付链接'),
+              appType: 13,
+              actionId: '416',
+              iconColor: '#4C7D9E',
+              iconName: 'icon-Collection',
+              describe: _l('获取流程单条记录对象的对外支付链接'),
+            },
+            {
+              type: 6,
+              featureId: VersionProductType.PAY,
+              name: _l('支付订单退款'),
+              appType: 51,
+              actionId: '7',
+              iconColor: '#4C7D9E',
+              iconName: 'icon-refund',
+              describe: _l('为记录关联的支付订单自动进行退款'),
+            },
+            {
+              type: 6,
+              name: _l('电子开票'),
+              appType: 50,
+              appId: props.flowInfo.id,
+              actionId: '1',
+              iconColor: '#4C7D9E',
+              iconName: 'icon-Invoice',
+              describe: _l('为记录自动开具电子发票'),
+            },
+          ],
+        },
+        {
           id: 'collaborate',
           name: _l('协作'),
           items: [
@@ -1045,7 +1071,7 @@ export default class CreateNodeDialog extends Component {
       });
     }
 
-    // 移除任务、日程
+    // 移除任务、日程、服务号消息、短信
     this.state.list.forEach(o => {
       _.remove(
         o.items,
@@ -1068,6 +1094,13 @@ export default class CreateNodeDialog extends Component {
     // 关闭的ai功能，则移除整个 AIGC 分类
     if (md.global.SysSettings.hideAIBasicFun) {
       _.remove(this.state.list, o => o.id === 'ai');
+    }
+
+    // 隐藏集成功能时，移除 API 连接与认证和调用已集成 API
+    if (md.global.SysSettings.hideIntegration) {
+      this.state.list.forEach(o => {
+        _.remove(o.items, item => _.includes([NODE_TYPE.API_PACKAGE, NODE_TYPE.API], item.type));
+      });
     }
 
     // 埋点授权过滤： API集成工作流节点、代码块节点、获取打印文件节点、获取页面快照、界面推送、全局变量、循环、支付、智能体
@@ -1335,7 +1368,11 @@ export default class CreateNodeDialog extends Component {
   onCreateNode(item) {
     const { flowInfo } = this.props;
     item.type === NODE_TYPE.LINK
-      ? checkCertification({ projectId: flowInfo.companyId, checkSuccess: () => this.createNodeClick(item) })
+      ? checkCertification({
+          projectId: flowInfo.companyId,
+          authType: 2,
+          checkSuccess: () => this.createNodeClick(item),
+        })
       : this.createNodeClick(item);
   }
 
@@ -1406,7 +1443,7 @@ export default class CreateNodeDialog extends Component {
             <div className="pTop20 pBottom15 pLeft20 pRight20">
               {selectItem.typeText && <div className="bold pLeft12 Font14">{selectItem.typeText}</div>}
               {selectItem.type === NODE_TYPE.CODE && !md.global.SysSettings.hideHelpTip && (
-                <div className="Gray_75 mTop6 pLeft12 InlineFlex">
+                <div className="textSecondary mTop6 pLeft12 InlineFlex">
                   {_l('查看当前代码脚本的')}
                   <Support
                     type={3}
@@ -1421,7 +1458,7 @@ export default class CreateNodeDialog extends Component {
                 (selectItem.secondList || []).map((item, i) => (
                   <Fragment key={i}>
                     <div className="bold pLeft12 Font14">{item.typeText}</div>
-                    {item.describe && <div className="Gray_75 pLeft12 mTop5">{item.describe}</div>}
+                    {item.describe && <div className="textSecondary pLeft12 mTop5">{item.describe}</div>}
                     <ul className="secondNodeList mBottom25">
                       {(item.source || []).map((o, j) => {
                         return (
@@ -1440,7 +1477,7 @@ export default class CreateNodeDialog extends Component {
                             }}
                           >
                             <Radio className="Font15" text={o.name} disabled />
-                            {o.describe && <div className="Gray_75 mLeft30 mTop5">{o.describe}</div>}
+                            {o.describe && <div className="textSecondary mLeft30 mTop5">{o.describe}</div>}
                           </li>
                         );
                       })}
@@ -1453,7 +1490,7 @@ export default class CreateNodeDialog extends Component {
                     return (
                       <li key={i} onClick={() => this.onCreateNode(item)}>
                         <Radio className="Font15" text={item.name} disabled />
-                        <div className="Gray_75 mLeft30 mTop5">{item.describe}</div>
+                        <div className="textSecondary mLeft30 mTop5">{item.describe}</div>
                       </li>
                     );
                   })}
@@ -1631,11 +1668,11 @@ export default class CreateNodeDialog extends Component {
                 value={keywords}
                 onChange={e => this.setState({ keywords: e.target.value })}
               />
-              <Icon icon="search" className="Font18 Gray_9e" />
+              <Icon icon="search" className="Font18 textTertiary" />
               {keywords.trim() && (
                 <Icon
                   icon="cancel"
-                  className="Font24 Gray_9e ThemeHoverColor3"
+                  className="Font24 textTertiary ThemeHoverColor3"
                   onClick={() => this.setState({ keywords: '' })}
                 />
               )}
@@ -1645,7 +1682,7 @@ export default class CreateNodeDialog extends Component {
               {MODE.map(o => (
                 <li
                   key={o.value}
-                  className={cx('flex Font16', mode === o.value ? 'active ThemeColor' : 'Gray_75')}
+                  className={cx('flex Font16', mode === o.value ? 'active colorPrimary' : 'textSecondary')}
                   onClick={() => {
                     localStorage.setItem('workflowCrateNodeListMode', o.value);
                     this.setState({ mode: o.value });
@@ -1658,7 +1695,10 @@ export default class CreateNodeDialog extends Component {
 
             <div className="createNodeSearchLine mLeft20 mRight20" />
 
-            <i className="icon-delete Font18 Gray_9e ThemeHoverColor3 pointer" onClick={() => selectAddNodeId('')} />
+            <i
+              className="icon-delete Font18 textTertiary ThemeHoverColor3 pointer"
+              onClick={() => selectAddNodeId('')}
+            />
           </div>
           <ScrollView
             className="flex mTop20"
@@ -1698,10 +1738,10 @@ export default class CreateNodeDialog extends Component {
                                 </Tooltip>
                               )}
                             </div>
-                            {mode === 1 && <div className="Font12 Gray_9e breakAll mTop4">{item.describe}</div>}
+                            {mode === 1 && <div className="Font12 textTertiary breakAll mTop4">{item.describe}</div>}
                           </div>
 
-                          {item.secondList && <i className="icon-arrow-right-border Font16 Gray_bd mLeft12" />}
+                          {item.secondList && <i className="icon-arrow-right-border Font16 textDisabled mLeft12" />}
                         </li>
                       );
                     })}

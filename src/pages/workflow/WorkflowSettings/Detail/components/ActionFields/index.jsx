@@ -3,6 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { APP_TYPE, NODE_TYPE } from 'src/pages/workflow/WorkflowSettings/enum';
@@ -41,6 +42,7 @@ export default class ActionFields extends Component {
             text: PropTypes.string,
             cAlias: PropTypes.any,
             sourceType: PropTypes.any,
+            desc: PropTypes.string,
           }).isRequired,
         ).isRequired,
       }).isRequired,
@@ -115,17 +117,17 @@ export default class ActionFields extends Component {
               style={{
                 padding: '0 16px 0 14px',
                 height: 36,
-                borderBottom: '1px solid #e0e0e0',
+                borderBottom: '1px solid var(--color-border-tertiary)',
               }}
             >
-              <i className="icon-search Gray_75 Font14" />
+              <i className="icon-search textSecondary Font14" />
               <input
                 type="text"
                 ref={search => {
                   this.search = search;
                 }}
                 autoFocus
-                className="mLeft5 flex Border0 placeholderColor Gray"
+                className="mLeft5 flex Border0 placeholderColor textPrimary"
                 placeholder={_l('搜索流程节点对象下的字段')}
                 onChange={evt => this.setState({ keywords: evt.target.value.trim() })}
               />
@@ -134,10 +136,10 @@ export default class ActionFields extends Component {
           <div className={cx('conditionWrap', { 'pTop6 pBottom6': condition.length || noData || keywords })}>
             <div className="conditionScrollWrap">
               {!condition.length && keywords && (
-                <div className="conditionDetail flexRow Gray_75">{_l('无搜索结果')}</div>
+                <div className="conditionDetail flexRow textSecondary">{_l('无搜索结果')}</div>
               )}
               {!condition.length && noData && !keywords && (
-                <div className="conditionDetail flexRow Gray_75">{noData}</div>
+                <div className="conditionDetail flexRow textSecondary">{noData}</div>
               )}
               {condition.map((item, index) => (
                 <div key={index} className="conditionBox">
@@ -153,7 +155,7 @@ export default class ActionFields extends Component {
                           ? 'workflow_field'
                           : getIcons(item.nodeTypeId, item.appType, item.actionId).replace('icon-', '')
                       }
-                      className="Gray_75"
+                      className="textSecondary"
                     />
                     <div className="flex mLeft10 ellipsis">{item.isSourceApp ? _l('选择映射字段') : item.text}</div>
                     {_.includes(
@@ -161,19 +163,19 @@ export default class ActionFields extends Component {
                       item.appType,
                     ) && (
                       <div
-                        className="mLeft15 mRight10 Gray_75 ellipsis"
+                        className="mLeft15 mRight10 textSecondary ellipsis"
                         style={{ maxWidth: 150 }}
                       >{`${item.appTypeName}“${item.appName}”`}</div>
                     )}
                     <Icon
                       icon={index === activeIndex || keywords ? 'arrow-up-border' : 'arrow-down-border'}
-                      className="mLeft10 Gray_75"
+                      className="mLeft10 textSecondary"
                     />
                   </div>
                   {
                     <ul className={cx('conditionFieldBox', { show: index === activeIndex || keywords })}>
                       {!item.items.length && (
-                        <li className="flexRow conditionFieldNull Gray_75">
+                        <li className="flexRow conditionFieldNull textSecondary">
                           <div className="ellipsis">{noItemTips}</div>
                         </li>
                       )}
@@ -201,7 +203,14 @@ export default class ActionFields extends Component {
                         >
                           <div className="ellipsis">
                             <span className="field">{`[${obj.field}]`}</span>
-                            <span title={obj.text}>{obj.text}</span>
+                            <Tooltip title={obj.text}>
+                              <span>{obj.text}</span>
+                            </Tooltip>
+                            {obj.desc && (
+                              <Tooltip title={obj.desc}>
+                                <span className="field mLeft5 mRight0">{obj.desc}</span>
+                              </Tooltip>
+                            )}
                           </div>
                         </li>
                       ))}

@@ -33,6 +33,8 @@ export default function MdModal(props) {
     okDisabled,
     onCancel,
     headerComp = null,
+    needRenderRight,
+    renderModalRightComp,
   } = props;
   const locateRef = useRef();
   let { width } = props;
@@ -67,7 +69,7 @@ export default function MdModal(props) {
         { display: 'inline-block', width: closeSize, height: closeSize, lineHeight: closeSize + 'px' },
         props.closeStyle,
       )}
-      className="ming Icon icon-default icon icon-close Gray_9e Font22"
+      className="ming Icon icon-default icon icon-close textTertiary Font22"
     />
   );
   modalProps.className = `mdModal ${props.className || ''}`;
@@ -180,7 +182,16 @@ export default function MdModal(props) {
           />
         )}
       </ModalButtonCon>
-      <ErrorWrapper>{props.children}</ErrorWrapper>
+      {needRenderRight ? (
+        <ErrorWrapper>
+          <div className="flexRow h100">
+            {props.children}
+            {renderModalRightComp ? renderModalRightComp() : null}
+          </div>
+        </ErrorWrapper>
+      ) : (
+        <ErrorWrapper>{props.children}</ErrorWrapper>
+      )}
     </Modal>
   );
 }

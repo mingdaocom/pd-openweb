@@ -562,10 +562,10 @@ export default class SelectUser extends Component {
         {selectedUsers.map(item => (
           <span className="selectedItem" key={item[id]}>
             <span className="ellipsis curSelected">{item[name]}</span>
-            {selectDepartmentType === 'all' && <Icon icon="workflow" className="Gray_9e mLeft5" />}
+            {selectDepartmentType === 'all' && <Icon icon="workflow" className="textTertiary mLeft5" />}
             <Icon
               icon="close"
-              className="Gray_9e Font15"
+              className="textTertiary Font15"
               onClick={() => {
                 const { selectedUsers } = this.state;
                 this.setState({
@@ -757,7 +757,7 @@ export default class SelectUser extends Component {
                   item.isDep ? this.renderSelectUserWithDepartmentItem(item) : this.renderSelectUserItem(item),
                 )}
                 {_.isEmpty(departmentUsers) ? (
-                  <div className="pTop30 pBottom30 TxtCenter Gray_9e Font15">{_l('暂无人员')}</div>
+                  <div className="pTop30 pBottom30 TxtCenter textTertiary Font15">{_l('暂无人员')}</div>
                 ) : null}
               </ScrollView>
             )
@@ -791,8 +791,8 @@ export default class SelectUser extends Component {
             {projectId && projectId !== 'external' && (
               <List.Item
                 key="departmentSelect"
-                prefix={<Icon icon="department" className="selectIconBox TxtMiddle Font18 White" />}
-                arrowIcon={<Icon icon="arrow-right-border" className="Font18 Gray_75" />}
+                prefix={<Icon icon="department" className="selectIconBox TxtMiddle Font18 textWhite" />}
+                arrowIcon={<Icon icon="arrow-right-border" className="Font18 textSecondary" />}
                 onClick={() => {
                   this.requestContactProjectDepartments();
                   this.setState({ departmentVisible: true });
@@ -804,8 +804,8 @@ export default class SelectUser extends Component {
             {userType === 3 && (
               <List.Item
                 key="portalSelect"
-                prefix={<Icon icon="supervisor_account" className="portalIconBox TxtMiddle Font18 White" />}
-                arrowIcon={<Icon icon="arrow-right-border" className="Font20 Gray_75" />}
+                prefix={<Icon icon="supervisor_account" className="portalIconBox TxtMiddle Font18 textWhite" />}
+                arrowIcon={<Icon icon="arrow-right-border" className="Font20 textSecondary" />}
                 onClick={() => {
                   this.setState(
                     { portalUserVisible: true, pageIndex: 1, users: [], isMore: true },
@@ -866,7 +866,7 @@ export default class SelectUser extends Component {
               }}
             >
               <span>{_l('参与者')}</span>
-              <Icon icon="arrow-down-border" className={`Font18 Gray_75 ${isPartnerShow ? 'rotatable' : ''}`} />
+              <Icon icon="arrow-down-border" className={`Font18 textSecondary ${isPartnerShow ? 'rotatable' : ''}`} />
             </div>
             {isPartnerShow && <div>{recordPartner.map(item => this.renderSelectUserItem(item, 'partner'))}</div>}
           </Fragment>
@@ -881,7 +881,10 @@ export default class SelectUser extends Component {
               }}
             >
               <span>{_l('最常协作')}</span>
-              <Icon icon="arrow-down-border" className={`Font18 Gray_75 ${isOftenUsersShow ? 'rotatable' : ''}`} />
+              <Icon
+                icon="arrow-down-border"
+                className={`Font18 textSecondary ${isOftenUsersShow ? 'rotatable' : ''}`}
+              />
             </div>
             {isOftenUsersShow && <div>{oftenUsers.map(item => this.renderSelectUserItem(item, 'often'))}</div>}
           </Fragment>
@@ -901,7 +904,7 @@ export default class SelectUser extends Component {
                 </div>
               ) : null}
               {_.isEmpty(users) ? (
-                <div className="pTop30 pBottom30 TxtCenter Gray_9e Font15">{_l('暂无人员')}</div>
+                <div className="pTop30 pBottom30 TxtCenter textTertiary Font15">{_l('暂无人员')}</div>
               ) : null}
             </Fragment>
           )}
@@ -951,7 +954,7 @@ export default class SelectUser extends Component {
                   </div>
                 ) : null}
                 {_.isEmpty(users) ? (
-                  <div className="pTop30 pBottom30 TxtCenter Gray_9e Font15">{_l('暂无人员')}</div>
+                  <div className="pTop30 pBottom30 TxtCenter textTertiary Font15">{_l('暂无人员')}</div>
                 ) : null}
               </Fragment>
             )}

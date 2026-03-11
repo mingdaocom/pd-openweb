@@ -17,6 +17,7 @@ const SHARE_SOURCE_TYPE = {
   customPage: 21,
   report: 31,
   chatbot: 71,
+  aiAction: 72,
 };
 
 export async function getUrl(args) {
@@ -82,6 +83,7 @@ export async function getPublicShare(args) {
     case 'customPage':
     case 'report':
     case 'chatbot':
+    case 'aiAction':
       res = await appManagementAjax.getEntityShare({
         appId: args.appId,
         sourceId: args.sourceId,
@@ -137,6 +139,7 @@ export async function updatePublicShareStatus(args) {
     case 'customPage':
     case 'report':
     case 'chatbot':
+    case 'aiAction':
       res = await appManagementAjax.editEntityShareStatus({
         appId: args.appId,
         sourceId: args.sourceId,

@@ -81,7 +81,7 @@ export default function FormulaFunc(props) {
           {isFunc ? (
             <Fragment>
               <div className={`text ${_.get(funcObj, 'status') === -1 ? 'error' : ''}`}>
-                <i className="icon-formula Font16 mRight10 Gray_75" />
+                <i className="icon-formula Font16 mRight10 textSecondary" />
                 <span className="Bold flex overflow_ellipsis">{_l('函数计算')}</span>
               </div>
               <div className="options">
@@ -102,7 +102,7 @@ export default function FormulaFunc(props) {
               </div>
             </Fragment>
           ) : (
-            <span className="Gray_9e">{_l('点击输入函数')}</span>
+            <span className="textTertiary">{_l('点击输入函数')}</span>
           )}
         </DynamicInputStyle>
       </SettingItem>

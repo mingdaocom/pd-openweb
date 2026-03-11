@@ -122,13 +122,13 @@ const ShareCardSet = forwardRef((props, ref) => {
             className={isUploading ? 'disabled' : ''}
             height="44"
             bg="#fff"
-            color="#151515"
-            hoverBg="#f5f5f5"
+            color="var(--color-text-title)"
+            hoverBg="var(--color-background-secondary)"
             borderRadius="6"
           >
             <Icon
               icon={isUploading ? 'loading_button' : 'file_upload'}
-              className={cx('Gray_9e', { rotate: isUploading })}
+              className={cx('textTertiary', { rotate: isUploading })}
             />
             <span className="Bold">{_l('上传自定义图标')}</span>
           </UploadBtn>
@@ -138,7 +138,7 @@ const ShareCardSet = forwardRef((props, ref) => {
             <img className="fileImage" src={iconUrl} />
             <div className="mask">
               <div className="deleteBtn Hand" onClick={() => handleUpdateData({ icon: '', iconUrl: '' })}>
-                <Icon icon="trash" className="Gray_9e Font17" />
+                <Icon icon="trash" className="textTertiary Font17" />
               </div>
             </div>
           </div>
@@ -164,7 +164,7 @@ const ShareCardSet = forwardRef((props, ref) => {
   return (
     <Con>
       <>
-        <div className="Font13 Gray mBottom10 LineHeight1em Bold">{props.titleTxt || _l('分享标题')}</div>
+        <div className="Font13 textPrimary mBottom10 LineHeight1em Bold">{props.titleTxt || _l('分享标题')}</div>
         <Input
           worksheetInfo={worksheetInfo}
           canUseControl={canUseControl}
@@ -177,11 +177,11 @@ const ShareCardSet = forwardRef((props, ref) => {
             shareData.current.title = value;
           }}
         />
-        <div className="Font13 Gray mBottom10 LineHeight1em valignWrapper mTop24">
+        <div className="Font13 textPrimary mBottom10 LineHeight1em valignWrapper mTop24">
           <span className="Bold">{props.desTxt || _l('分享描述')}</span>
           {showTips && (
             <Tooltip title={_l('分享描述的内容只在聊天分享中展示')}>
-              <Icon icon="help" className="Font16 Gray_9e mLeft10" />
+              <Icon icon="help" className="Font16 textTertiary mLeft10" />
             </Tooltip>
           )}
         </div>
@@ -197,7 +197,7 @@ const ShareCardSet = forwardRef((props, ref) => {
             shareData.current.desc = value;
           }}
         />
-        <div className="Font13 Gray mBottom10 LineHeight1em Bold mTop24">{_l('自定义图标')}</div>
+        <div className="Font13 textPrimary mBottom10 LineHeight1em Bold mTop24">{_l('自定义图标')}</div>
         {showBaseImg && (
           <ul className="wxPublicWrap mBottom10">
             {WX_ICON_LIST.map(l => {
@@ -215,15 +215,15 @@ const ShareCardSet = forwardRef((props, ref) => {
           </ul>
         )}
         {renderUpload()}
-        <div className="Font12 Gray_9e mTop10 mBottom24">{_l('建议上传图标尺寸100×100px，大小限制1M以内。')}</div>
-        <div className="Font13 Gray mBottom10 LineHeight1em Bold">{_l('预览')}</div>
+        <div className="Font12 textTertiary mTop10 mBottom24">{_l('建议上传图标尺寸100×100px，大小限制1M以内。')}</div>
+        <div className="Font13 textPrimary mBottom10 LineHeight1em Bold">{_l('预览')}</div>
         <div className="shareCard">
           <div className="card">
             <div className="title Font15 bold mBottom8">
               {renderTxt(shareConfigValue?.title) || defaultValue?.title}
             </div>
             <div className="content">
-              <div className="desc flex WordBreak Font13 Gray_9e">
+              <div className="desc flex WordBreak Font13 textTertiary">
                 {renderTxt(shareConfigValue?.desc) || defaultValue?.desc || ''}
               </div>
               <div className="iconWrap flexRow alignItemsCenter justifyContentCenter">

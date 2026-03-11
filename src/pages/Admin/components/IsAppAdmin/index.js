@@ -38,7 +38,9 @@ export default function IsAppAdmin(props) {
         {iconUrl ? <SvgIcon url={iconUrl} fill="#fff" size={16} /> : <Icon icon={defaultIcon} />}
       </div>
       <div
-        className={cx('flex nameBox ellipsis Font14', { 'Hand Hover_21': appName && appName !== _l('已删除') })}
+        className={cx('flex nameBox ellipsis Font14', {
+          'Hand hoverColorPrimary': appName && appName !== _l('已删除'),
+        })}
         onClick={() => {
           if (!appName || appName === _l('已删除')) return;
           if (createType === 1) {
@@ -62,7 +64,7 @@ export default function IsAppAdmin(props) {
         <div className="w100 ellipsis" title={appName}>
           {appName}
         </div>
-        {desc && <div className="desc ellipsis Font12 Gray_bd">{desc}</div>}
+        {desc && <div className="desc ellipsis Font12 textDisabled">{desc}</div>}
       </div>
     </Wrap>
   );

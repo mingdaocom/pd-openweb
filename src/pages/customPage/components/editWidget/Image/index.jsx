@@ -104,7 +104,7 @@ export default props => {
             />
           )
         ) : (
-          <div className="h100 flexColumn alignItemsCenter justifyContentCenter Gray_9e">
+          <div className="h100 flexColumn alignItemsCenter justifyContentCenter textTertiary">
             <Icon className="Font40" icon="insert_photo_21" />
             <div className="mTop10">{editable ? _l('添加图片') : _l('暂无图片')}</div>
           </div>

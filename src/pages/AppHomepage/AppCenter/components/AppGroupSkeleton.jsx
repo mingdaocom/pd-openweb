@@ -46,7 +46,7 @@ const SkeletonWrap = styled.div`
   }
 
   .skeletonItem {
-    background-color: #f7f7f7;
+    background-color: var(--color-background-secondary);
   }
 `;
 

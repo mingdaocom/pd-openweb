@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import doT from 'dot';
 import _ from 'lodash';
 import moment from 'moment';
-import { DatePicker, Dialog, Dropdown, UserCard } from 'ming-ui';
+import { Checkbox, DatePicker, Dialog, Dropdown, UserCard } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { quickSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/calendar';
@@ -49,6 +49,9 @@ var CreateCalendar = function (opts) {
     },
     callback: null,
     createShare: true,
+    allDay: false,
+    telRemind: false,
+    calendarPrivate: false,
   };
 
   _this.settings = $.extend(defaults, opts);
@@ -142,17 +145,24 @@ $.extend(CreateCalendar.prototype, {
       $(this).hide();
     });
 
-    $('#allDay').click(function () {
-      const checked = $(this).prop('checked');
-      if (checked) {
-        $('.timezone').hide();
-        $('.timezoneWrap').hide();
-      } else {
-        $('.timezone').show();
-      }
+    const allDayRoot = createRoot(document.getElementById('allDay'));
+    allDayRoot.render(
+      <Checkbox
+        className="InlineBlock"
+        text={_l('全天日程')}
+        onClick={checked => {
+          if (checked) {
+            $('.timezone').hide();
+            $('.timezoneWrap').hide();
+          } else {
+            $('.timezone').show();
+          }
 
-      _this.initDateEvent();
-    });
+          _this.settings.allDay = checked;
+          _this.initDateEvent();
+        }}
+      />,
+    );
 
     // 初始化成员事件
     _this.initMemberEvent();
@@ -288,7 +298,7 @@ $.extend(CreateCalendar.prototype, {
       },
       allowClear: false,
       selectedValue: [moment(settings.Start), moment(settings.End)],
-      timePicker: !$('#allDay').prop('checked'),
+      timePicker: !settings.allDay,
       onOk: selectValue => {
         settings.Start = selectValue[0].format('YYYY-MM-DD HH:mm');
         settings.End = selectValue[1].format('YYYY-MM-DD HH:mm');
@@ -326,7 +336,8 @@ $.extend(CreateCalendar.prototype, {
 
   // 初始化提醒事件
   initRemindEvent: function () {
-    var allDay = this.settings.AllDay;
+    var _this = this;
+    var allDay = this.settings.allDay;
 
     $('#remindSelectCreate').val(allDay ? '2' : '1');
 
@@ -343,7 +354,7 @@ $.extend(CreateCalendar.prototype, {
         onChange={value => {
           var $remindText = $('#remindTextCreate');
           var $remindBox = $('#remindTextLableCreate');
-          var $telRemid = $('.telRemindLabel');
+          var $telRemid = $('#telRemindLabel');
 
           if (value == 0) {
             $remindBox.hide();
@@ -365,11 +376,17 @@ $.extend(CreateCalendar.prototype, {
       />,
     );
 
-    $('.telRemindLabel')
-      .find('label')
-      .on('click', function () {
-        $(this).find('.chekboxIcon').toggleClass('checked');
-      });
+    const telRemindLabelRoot = createRoot(document.getElementById('telRemindLabel'));
+    telRemindLabelRoot.render(
+      <Checkbox
+        className="InlineBlock"
+        text={_l('电话提醒')}
+        size="small"
+        onClick={checked => {
+          _this.settings.telRemind = checked;
+        }}
+      />,
+    );
 
     // 增加字体hover色
     $('.calendarRemind').on('mouseover', '.customSelect', function () {
@@ -393,12 +410,22 @@ $.extend(CreateCalendar.prototype, {
 
   // 私密日程
   initIsPrivate: function () {
+    var _this = this;
+
     if (!md.global.Account.projects.length) {
       $('#calendarPrivate').hide();
     }
-    $('.isPrivateLabel').on('click', function () {
-      $(this).find('.chekboxIcon').toggleClass('checked');
-    });
+
+    const calendarPrivateRoot = createRoot(document.getElementById('calendarPrivate'));
+    calendarPrivateRoot.render(
+      <Checkbox
+        className="InlineBlock"
+        text={_l('私密日程')}
+        onClick={checked => {
+          _this.settings.calendarPrivate = checked;
+        }}
+      />,
+    );
   },
 
   // 初始化重复事件
@@ -1012,11 +1039,11 @@ CreateCalendar.methods = {
 
           for (var i = 0; i < categorys.length; i++) {
             listHtml +=
-              '<li class="ThemeBGColor3" data-catid="' +
+              '<li data-catid="' +
               categorys[i].catID +
               '"><i class="' +
               CreateCalendar.settings.ColorClass[categorys[i].color] +
-              '"></i><span class="ThemeColor3">' +
+              '"></i><span>' +
               htmlEncodeReg(categorys[i].catName) +
               '</span></li>';
           }
@@ -1082,7 +1109,7 @@ CreateCalendar.methods = {
                   <div className="memberBusyCalendarsWrap">
                     <div
                       style={{
-                        color: '#de2c00',
+                        color: 'var(--color-error)',
                       }}
                       className="mBottom5"
                     >
@@ -1106,7 +1133,7 @@ CreateCalendar.methods = {
 
                         return (
                           <div className="memberCalendarItem">
-                            <div className="memberCalendarTime Gray_9e">{calendarTime}</div>
+                            <div className="memberCalendarTime textTertiary">{calendarTime}</div>
                             <div className="memberCalendarName overflow_ellipsis">
                               <a
                                 className="overflow_ellipsis"
@@ -1150,8 +1177,8 @@ CreateCalendar.methods = {
     var endDate = settings.End;
 
     return {
-      start: $('#allDay').prop('checked') ? moment(startDate).format('YYYY-MM-DD') + ' 00:00' : startDate,
-      end: $('#allDay').prop('checked') ? moment(endDate).format('YYYY-MM-DD') + ' 23:59' : endDate,
+      start: settings.allDay ? moment(startDate).format('YYYY-MM-DD') + ' 00:00' : startDate,
+      end: settings.allDay ? moment(endDate).format('YYYY-MM-DD') + ' 23:59' : endDate,
     };
   },
 
@@ -1203,13 +1230,13 @@ CreateCalendar.methods = {
     var desc = $('#txtDesc').val().trim();
     var startDate = settings.Start;
     var endDate = settings.End;
-    var isAll = $('#allDay').prop('checked');
+    var isAll = settings.allDay;
     var isRecur = $('#repeatContent .chekboxIcon').hasClass('checked');
     var categoryID = $('#createCategoryID').attr('data-catid');
     var remindType = $('#remindSelectCreate').val();
     var remindTime = remindType == 0 ? 0 : $('#remindTextCreate').val();
-    var voiceRemind = $('.telRemindLabel').is(':visible') && $('.telRemindLabel .chekboxIcon').hasClass('checked');
-    var isPrivate = $('.isPrivateLabel .chekboxIcon').hasClass('checked');
+    var voiceRemind = $('#telRemindLabel').is(':visible') && settings.telRemind;
+    var isPrivate = settings.calendarPrivate;
     var frequency = 0;
     var interval = '';
     var recurCount = 0;

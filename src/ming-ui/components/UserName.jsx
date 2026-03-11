@@ -51,7 +51,7 @@ class UserName extends React.Component {
         appId={appId}
       >
         <a
-          className={cx({ Gray_6: !user.accountId }, className)}
+          className={cx({ textSecondary: !user.accountId }, className)}
           href={disabled || isSecretary ? 'javascript:void(0);' : '/user_' + user.accountId}
           target="_blank"
           onClick={e => (disabled || isSecretary) && e.preventDefault()}

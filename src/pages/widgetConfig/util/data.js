@@ -60,9 +60,6 @@ export const getMsgByCode = ({ code, data, controls }) => {
     case 8:
       errorText = _l('请求超时');
       break;
-    case 10:
-      errorText = _l('数据异常，请勿多窗口编辑或者多人同时编辑，请刷新浏览器重试！');
-      break;
     case 16:
       const currentItem = _.find(controls, c => c.alias === data);
       errorText = _l('%0别名重复', _.get(currentItem, 'controlName'));
@@ -909,7 +906,7 @@ export const scrollToVisibleRange = (data, widgetProps) => {
 };
 
 // 清除所有原有控件，全部换成新的
-export const clearAndSetWidgets = (data, para = {}, widgetProps, callback) => {
+export const clearAndSetWidgets = (data, para, widgetProps, callback) => {
   const { setWidgets, globalSheetInfo = {} } = widgetProps;
 
   // 检查是否超出控件数量限制

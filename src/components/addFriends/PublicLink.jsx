@@ -103,7 +103,7 @@ export default class PublicLink extends Component {
       <div className="addFriendsContent">
         <div className="resultContent flex">
           <div className="Bold Font14 mBottom8">{_l('通过链接')}</div>
-          <div className="Gray_9e">{_l('用户可通过点击链接申请加入')}</div>
+          <div className="textTertiary">{_l('用户可通过点击链接申请加入')}</div>
           {url ? (
             <ShareUrl
               theme="light"
@@ -121,7 +121,7 @@ export default class PublicLink extends Component {
           <div className="flexRow flexCenter mTop13">
             {url && (
               <Fragment>
-                <span className="Gray_9e Font12">{_l('链接有效期：')}</span>
+                <span className="textTertiary Font12">{_l('链接有效期：')}</span>
                 <Dropdown
                   className="inviteDrop mRight16"
                   border
@@ -144,7 +144,7 @@ export default class PublicLink extends Component {
           {isProject && (
             <Fragment>
               <div className="Bold Font14 mBottom8 mTop36">{_l('通过组织门牌号邀请')}</div>
-              <div className="Gray_9e">
+              <div className="textTertiary">
                 {_l('成员可通过搜索组织门牌号申请加入')}
                 {/* <Support type={3} text={_l('帮助')} herf={''} /> */}
               </div>

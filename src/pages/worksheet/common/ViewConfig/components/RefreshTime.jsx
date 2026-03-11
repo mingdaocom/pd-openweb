@@ -26,7 +26,7 @@ export default function RefreshTime(props) {
   return (
     <React.Fragment>
       <div className="commonConfigItem Font13 bold mTop32">{_l('自动刷新')}</div>
-      <div className="Gray_75 mTop8 flex">{_l('每隔一段时间后自动刷新当前视图')}</div>
+      <div className="textSecondary mTop8 flex">{_l('每隔一段时间后自动刷新当前视图')}</div>
       <div className="commonConfigItem mTop12 mBottom32">
         <Dropdown
           className="w100"

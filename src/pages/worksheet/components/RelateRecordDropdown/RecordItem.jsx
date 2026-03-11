@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _, { get } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { getTitleTextFromRelateControl } from 'src/components/Form/core/utils';
+import { getTitleTextFromRelateControl } from 'src/utils/control';
 import { renderText as renderCellText } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 
@@ -96,10 +96,10 @@ export default class RecordItem extends React.PureComponent {
   }
 
   renderControls() {
-    const { data } = this.props;
+    const { data, appId } = this.props;
     const { cardControls = [] } = this;
     const texts = cardControls
-      .map(control => renderCellText({ ...control, value: data[control.controlId] }))
+      .map(control => renderCellText({ ...control, value: data[control.controlId] }, { appId }))
       .filter(text => !!text);
     return (
       <div
@@ -170,7 +170,7 @@ export default class RecordItem extends React.PureComponent {
             className={cx('title', { Bold: titleIsBold })}
             title={titleText}
             style={{
-              color: '#151515',
+              color: 'var(--color-text-title)',
               fontWeight: size === SIZE.BIG ? 'bold' : 'normal',
               lineHeight: showCoverAndControls && !!showControls.length ? '1.5' : '24px',
               marginBottom: showCoverAndControls && !!showControls.length ? 4 : 0,

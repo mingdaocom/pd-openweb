@@ -50,7 +50,7 @@ export default class CalendarEntrypoint extends Component {
     return (
       <Fragment>
         <div id="calendarMenu" className="calendarMenu ThemeBGColor9 flexColumn">
-          <ul className="calendarMenuTop liThemeHover0 ThemeBorderColor7">
+          <ul className="calendarMenuTop liThemeHover0">
             <li className="boxSizing relative ThemeHoverBGColor7" id="calInvite">
               <i className="icon-calendar-confirmed ThemeColor9" />
               <span className="ThemeColor10">{_l('待确认日程')}</span>
@@ -64,7 +64,7 @@ export default class CalendarEntrypoint extends Component {
           <div className="calendarType flex" id="calendarType">
             <div className="calendarTypeTitle boxSizing relative">
               <span className="ThemeColor9">{_l('分类日程')}</span>
-              <i className="icon-edit pointer ThemeColor9 ThemeHoverColor10 addCalendarType" id="addCalendarType" />
+              <i className="icon-edit pointer ThemeColor9 addCalendarType" id="addCalendarType" />
             </div>
             <div className="calendarTypeList" id="calendarTypeList" />
             <div id="hideOneself" className="ThemeBorderColor7 ThemeColor9">
@@ -76,7 +76,7 @@ export default class CalendarEntrypoint extends Component {
             </div>
             <div id="tb_OtherUserCalendar" className="ThemeColor9" />
           </div>
-          <div className="selectOther ThemeBorderColor8" id="others" title={_l('查看同事日程')}>
+          <div className="selectOther" id="others" title={_l('查看同事日程')}>
             <i className="icon-charger iconSelectOther ThemeColor8" />
             <span className="ThemeColor9">{_l('查看同事日程')}</span>
           </div>

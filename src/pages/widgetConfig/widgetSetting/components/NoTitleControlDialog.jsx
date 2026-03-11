@@ -21,7 +21,7 @@ const NoTitleControlWrap = styled.div`
       position: absolute;
       top: 8px;
       right: 125px;
-      color: #3e6483;
+      color: var(--color-link-hover);
     }
   }
 `;
@@ -36,7 +36,7 @@ export default function NoTitleControlDialog({ onClose }) {
     >
       <NoTitleControlWrap>
         <Fragment>
-          <span style={{ color: '#757575' }}>
+          <span style={{ color: 'var(--color-text-secondary)' }}>
             {_l(
               '标题字段可以快速识别一条记录。用于记录详情、关联记录、和消息通知等功能场景中。在字段上点击下方图标进行设置。',
             )}

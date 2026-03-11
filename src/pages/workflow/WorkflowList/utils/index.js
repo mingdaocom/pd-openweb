@@ -19,6 +19,7 @@ export const FLOW_TYPE = {
   EVENT_PUSH: '12',
   LOOP: '13',
   CHATBOT: '14',
+  AI_ACTIONS: '15',
 };
 
 export const FLOW_TYPE_NULL = {
@@ -78,6 +79,10 @@ export const FLOW_TYPE_NULL = {
     icon: 'chatbot',
     text: _l('当用户与机器人对话时运行流程'),
   },
+  15: {
+    icon: 'ai',
+    text: _l('当用户点击 AI 动作时运行流程'),
+  },
 };
 
 export const START_APP_TYPE = {
@@ -105,6 +110,11 @@ export const START_APP_TYPE = {
     iconName: 'custom_actions',
     iconColor: '#4C7D9E',
     text: _l('自定义动作'),
+  },
+  ai_actions: {
+    iconName: 'auto_awesome',
+    iconColor: '#2196f3',
+    text: _l('AI 动作'),
   },
   9: {
     iconName: 'approval',
@@ -165,6 +175,7 @@ export const TYPES = [
   { text: _l('人员事件%03005'), value: FLOW_TYPE.USER, icon: 'icon-hr_structure' },
   { text: _l('Webhook'), value: FLOW_TYPE.WEBHOOK, icon: 'icon-workflow_webhook' },
   { text: _l('自定义动作'), value: FLOW_TYPE.CUSTOM_ACTION, icon: 'icon-custom_actions' },
+  { text: _l('AI 动作'), value: FLOW_TYPE.AI_ACTIONS, icon: 'icon-auto_awesome' },
   { text: _l('对话'), value: FLOW_TYPE.CHATBOT, icon: 'icon-chat-full' },
   { text: _l('循环'), value: FLOW_TYPE.LOOP, icon: 'icon-arrow_loop' },
   { text: _l('子流程%03006'), value: FLOW_TYPE.SUB_PROCESS, icon: 'icon-subprocess' },
@@ -295,7 +306,7 @@ export const getActionTypeContent = (type, item, disable) => {
     return disable ? (
       item.triggerName
     ) : (
-      <MdLink to={`/workflowedit/${item.triggerId}`} className="Gray ThemeHoverColor3">
+      <MdLink to={`/workflowedit/${item.triggerId}`} className="textPrimary ThemeHoverColor3">
         {item.triggerName}
       </MdLink>
     );
@@ -313,6 +324,11 @@ export const getActionTypeContent = (type, item, disable) => {
   // 对话机器人
   if (type === FLOW_TYPE.CHATBOT) {
     return _l('对话触发');
+  }
+
+  // AI 动作
+  if (type === FLOW_TYPE.AI_ACTIONS) {
+    return _l('AI 动作触发');
   }
 
   // 所有流程

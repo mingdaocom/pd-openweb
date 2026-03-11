@@ -107,7 +107,7 @@ export default class Date extends React.Component {
           popupVisible={isediting && !!error}
           popup={
             <CellErrorTips
-              color={ignoreErrorMessage ? '#ff933e' : undefined}
+              color={ignoreErrorMessage ? 'var(--color-warning)' : undefined}
               error={error}
               pos={rowIndex === 0 ? 'bottom' : 'top'}
             />

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import _ from 'lodash';
@@ -121,7 +121,7 @@ export default function OtherField(props) {
         return { fieldName: getFieldName(filterControls, cid) };
       }
       const record = _.find(controls, item => item.controlId === rcid);
-      const reFilterControls = getControls({ data, controls: _.get(record, 'relationControls'), from });
+      const reFilterControls = getControls({ data, controls: _.get(record, 'relationControls') || [], from });
       return {
         recordName: _.get(record, 'controlName'),
         fieldName: getFieldName(reFilterControls, cid),

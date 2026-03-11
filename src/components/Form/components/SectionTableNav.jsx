@@ -23,7 +23,7 @@ const Tab = styled.div`
   line-height: 55px;
   padding: 0 19px;
   font-size: 15px;
-  color: #151515;
+  color: var(--color-text-title);
   text-align: center;
   cursor: pointer;
   font-weight: bold;
@@ -54,13 +54,13 @@ const Tab = styled.div`
     left: 0px;
     right: 0px;
     height: 3px;
-    background-color: #1677ff;
+    background-color: var(--color-primary);
     bottom: 0px;
   }
 `;
 const Num = styled.div`
   display: inline-block;
-  color: #757575;
+  color: var(--color-text-secondary);
   white-space: pre;
 `;
 
@@ -102,7 +102,7 @@ export function renderTabs(props) {
         const defaultIcon = control.type === 51 ? 'Worksheet_query' : 'subheader';
         return (
           <IconCon isFixedRight={isFixedRight}>
-            <Icon icon={defaultIcon} className="Font20" style={{ color: '#6e6e6e' }} />
+            <Icon icon={defaultIcon} className="Font20" style={{ color: 'var(--color-text-secondary)' }} />
           </IconCon>
         );
       }
@@ -112,7 +112,11 @@ export function renderTabs(props) {
     return (
       iconUrl && (
         <IconCon isFixedRight={isFixedRight}>
-          <SvgIcon url={iconUrl} fill={isFixedActive ? '#1677ff' : '#6e6e6e'} size={20} />
+          <SvgIcon
+            url={iconUrl}
+            fill={isFixedActive ? 'var(--color-primary)' : 'var(--color-text-secondary)'}
+            size={20}
+          />
         </IconCon>
       )
     );
@@ -201,12 +205,12 @@ export default function SectionTableNav(props) {
       {scrollBtnVisible && (
         <ScrollBtn>
           <i
-            className={`icon icon-arrow-left-tip ${scrollLeft === 0 ? 'Gray_bd' : 'Gray_75 Hand'} Font13`}
+            className={`icon icon-arrow-left-tip ${scrollLeft === 0 ? 'textDisabled' : 'textSecondary Hand'} Font13`}
             onClick={() => scroll('prev')}
           ></i>
           <i
             className={`icon icon-arrow-right-tip ${
-              scrollLeft === scrollWidth - clientWidth ? 'Gray_bd' : 'Gray_75 Hand'
+              scrollLeft === scrollWidth - clientWidth ? 'textDisabled' : 'textSecondary Hand'
             } Font13`}
             onClick={() => scroll('next')}
           ></i>
@@ -219,7 +223,7 @@ export default function SectionTableNav(props) {
               <i
                 className={`icon icon-${
                   isSplit ? 'call_to_action_off' : 'call_to_action_on'
-                } Font20 Gray_9e Hand ThemeHoverColor3`}
+                } Font20 textTertiary Hand ThemeHoverColor3`}
                 onClick={() => setSplit(!isSplit)}
               />
             </span>

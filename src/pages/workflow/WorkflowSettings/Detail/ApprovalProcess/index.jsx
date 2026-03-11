@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import { Dialog, LoadDiv, ScrollView } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
-import { OPERATION_TYPE } from '../../enum';
+import { OPERATION_TYPE, RELATION_TYPE } from '../../enum';
 import { clearFlowNodeMapParameter } from '../../utils';
 import {
   ApprovalProcessSettings,
@@ -178,7 +178,7 @@ export default class ApprovalProcess extends Component {
             {(data.accounts || []).length ? (
               <Member
                 companyId={this.props.companyId}
-                appId={this.props.relationType === 2 ? this.props.relationId : ''}
+                appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
                 accounts={data.accounts}
                 updateSource={this.updateSource}
               />
@@ -190,7 +190,7 @@ export default class ApprovalProcess extends Component {
                 <i className="Font28 icon-task-add-member-circle mRight10" />
                 {_l('指定发起人')}
                 <SelectUserDropDown
-                  appId={this.props.relationType === 2 ? this.props.relationId : ''}
+                  appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
                   visible={showSelectUserDialog}
                   companyId={this.props.companyId}
                   processId={this.props.processId}
@@ -227,7 +227,7 @@ export default class ApprovalProcess extends Component {
 
     if (data.selectNodeId) {
       Dialog.confirm({
-        title: <span style={{ color: '#f44336' }}>{_l('注意！你将要更改审批流程的数据对象')}</span>,
+        title: <span style={{ color: 'var(--color-error)' }}>{_l('注意！你将要更改审批流程的数据对象')}</span>,
         description: _l(
           '更换为新的工作表后，所有相关节点配置的字段都将被重置，你需要重新配置这些节点。请确认你需要执行此操作',
         ),

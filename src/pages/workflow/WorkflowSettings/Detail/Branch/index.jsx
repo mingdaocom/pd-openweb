@@ -50,10 +50,10 @@ export default class Branch extends Component {
    */
   triggerConditionHeader() {
     return (
-      <div className="Font13 Gray_75 flexRow alignItemsCenter">
+      <div className="Font13 textSecondary flexRow alignItemsCenter">
         {_l('设置筛选条件后，满足条件的数据才能进入该分支')}
         <Tooltip title={_l('请谨慎选择“他表字段”作为条件字段，可能因为数据同步更新延迟而导致结果非预期')}>
-          <i className="icon-info Font16 mLeft5 Gray_9e" />
+          <i className="icon-info Font16 mLeft5 textTertiary" />
         </Tooltip>
       </div>
     );

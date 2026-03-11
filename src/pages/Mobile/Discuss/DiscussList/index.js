@@ -110,16 +110,16 @@ class DiscussList extends Component {
         prefix={<img src={item.createAccount.avatar} onClick={() => this.openPersonalInfoPopup(item.createAccount)} />}
       >
         <div className="flexRow alignItemsCenter">
-          <div className="flex Font14 Gray bold breakAll">
+          <div className="flex Font14 textPrimary bold breakAll">
             <span>{item.createAccount.fullname}</span>
             {!!item.replyId && (
               <Fragment>
-                <span className="Gray_75 mLeft5 mRight5">{_l('回复')}</span>
+                <span className="textSecondary mLeft5 mRight5">{_l('回复')}</span>
                 <span>{item.replyAccount.fullname}</span>
               </Fragment>
             )}
           </div>
-          <div className="valignWrapper Font14 Gray_9e">
+          <div className="valignWrapper Font14 textTertiary">
             {item.createAccount.accountId === md.global.Account.accountId && (
               <Icon
                 className="mLeft5 Font22"
@@ -129,18 +129,18 @@ class DiscussList extends Component {
             )}
           </div>
         </div>
-        <div className="content Font14 Gray mTop6 mBottom6">
+        <div className="content Font14 textPrimary mTop6 mBottom6">
           <Message item={item} openPersonalInfoPopup={this.openPersonalInfoPopup} />
         </div>
         {!!item.attachments.length && <AttachmentFiles attachments={item.attachments} width="49%" />}
-        <div className="Gray_9e Font12">{createTimeSpan(dateConvertToUserZone(item.createTime))}</div>
+        <div className="textTertiary Font12">{createTimeSpan(dateConvertToUserZone(item.createTime))}</div>
         <div
           className="Absolute replyBtn pRight15 pTop20 TxtRight"
           onClick={() => {
             this.props.onReply(item.discussionId, item.createAccount.fullname);
           }}
         >
-          <i className="icon icon-chat Font20 Gray_bd" />
+          <i className="icon icon-chat Font20 textDisabled" />
         </div>
       </List.Item>
     );

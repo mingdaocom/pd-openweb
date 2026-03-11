@@ -18,7 +18,7 @@ export default class FixedContent extends Component {
           {isNoPublish ? (
             <React.Fragment>
               <div className="imgWrap mBottom18">
-                <Icon className="Font64 Gray_75" icon="install_mobile-_terminal" />
+                <Icon className="Font64 textSecondary" icon="install_mobile-_terminal" />
               </div>
               <div className="Font18 mBottom18 centerAlign">
                 <div>{_l('应用未在此平台发布')}</div>
@@ -33,13 +33,13 @@ export default class FixedContent extends Component {
               <div className="Font20 mBottom10">{_l('应用维护中...')}</div>
               {!hideFixAccount && (
                 <div
-                  className="Font14 Gray_9e mBottom20"
+                  className="Font14 textTertiary mBottom20"
                   dangerouslySetInnerHTML={{
                     __html: _l(
                       '该应用已被 %0 设为维护状态，暂停访问',
                       `<a href="/user_${
                         fixAccount.accountId
-                      }" target="_blank" class="fixAccount Gray pointer">${filterXSS((fixAccount || {}).fullName)}</a>`,
+                      }" target="_blank" class="fixAccount textPrimary pointer">${filterXSS((fixAccount || {}).fullName)}</a>`,
                     ),
                   }}
                 ></div>

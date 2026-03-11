@@ -142,7 +142,7 @@ function addWaterMarker(file, watermark, { dynamicControls, advancedSetting, cur
         ctx.fillStyle = '#fff';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'bottom';
-        ctx.backgroundColor = '#ccc';
+        ctx.backgroundColor = 'var(--color-border-tertiary)';
 
         textLayouts.forEach((text, index) => {
           const i = textLayouts.length - index;
@@ -557,8 +557,8 @@ export default class AttachmentList extends Component {
             isRound={false}
             strokeWidth={3}
             diameter={diameter || 47}
-            foregroundColor="#BDBDBD"
-            backgroundColor="#fff"
+            foregroundColor="var(--color-text-disabled)"
+            backgroundColor="var(--color-background-primary)"
             format={() => ''}
             percent={parseInt(progress)}
           />

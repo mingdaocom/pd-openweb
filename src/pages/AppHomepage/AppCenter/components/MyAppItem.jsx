@@ -6,9 +6,9 @@ import Trigger from 'rc-trigger';
 import { Icon, MdLink, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import withClickAway from 'ming-ui/decorators/withClickAway';
+import { dialogSelectIcon } from 'ming-ui/functions';
 import CopyApp from 'src/pages/AppHomepage/components/CopyApp';
 import LineClampTextBox from 'src/pages/AppHomepage/components/LineClampTextBox';
-import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 import VerifyDel from 'src/pages/AppHomepage/components/VerifyDel';
 import { compareProps } from 'src/pages/PageHeader/util';
 import ManageUserDialog from 'src/pages/Role/AppRoleCon/ManageUserDialog.jsx';
@@ -93,17 +93,10 @@ export default class MyAppItem extends Component {
   }
 
   componentDidUpdate() {
-    const { newAppItemId, id, canDrag, onChangeCanDrag = () => {} } = this.props;
-    const isShowSelectIcon = this.state.selectIconVisible || newAppItemId === id;
-
     const newLeft = _.get(this, '$myAppItem.current.offsetLeft') < 414 && 0;
 
     if (this.state.selectIconLeft !== newLeft) {
       this.setState({ selectIconLeft: newLeft });
-    }
-
-    if (canDrag !== !isShowSelectIcon) {
-      onChangeCanDrag(!isShowSelectIcon);
     }
   }
 
@@ -137,9 +130,16 @@ export default class MyAppItem extends Component {
   };
 
   handleMoreClick = type => {
+    const { projectId } = this.props;
+
     switch (type) {
       case 'edit':
-        this.switchVisible({ selectIconVisible: true, editAppVisible: false });
+        dialogSelectIcon({
+          projectId,
+          ..._.pick(this.props, ['icon', 'name', 'iconColor', 'navColor', 'lightColor']),
+          onModify: this.handleModify,
+          onChange: this.handleAppChange,
+        });
         break;
       case 'del':
         this.switchVisible({ delAppConfirmVisible: true });
@@ -164,15 +164,7 @@ export default class MyAppItem extends Component {
   };
 
   render() {
-    const {
-      editAppVisible,
-      selectIconVisible,
-      delAppConfirmVisible,
-      copyAppVisible,
-      externalLinkVisible,
-      showRoleDialog,
-      selectIconLeft,
-    } = this.state;
+    const { editAppVisible, delAppConfirmVisible, copyAppVisible, externalLinkVisible, showRoleDialog } = this.state;
     const {
       groupId,
       groupType,
@@ -190,8 +182,6 @@ export default class MyAppItem extends Component {
       projectId,
       projectName,
       groups,
-      newAppItemId,
-      clearNewAppItemId,
       onCopy,
       onUpdateAppBelongGroups,
       pcNaviStyle,
@@ -207,9 +197,9 @@ export default class MyAppItem extends Component {
       myPermissions = [],
       sourceType,
       isGoodsStatus,
+      exported,
     } = this.props;
-    const isShowSelectIcon = selectIconVisible || newAppItemId === id;
-    const iconColor = this.props.iconColor || '#1677ff';
+    const iconColor = this.props.iconColor || 'var(--color-primary)';
     const navColor = this.props.navColor || iconColor;
     const black = '#1b2025' === navColor;
     const light = [lightColor, '#ffffff', '#f5f6f7'].includes(navColor);
@@ -217,10 +207,7 @@ export default class MyAppItem extends Component {
     const hideTrigger = sourceType === 60 && !isGoodsStatus && isDashboard;
 
     return (
-      <div
-        ref={this.$myAppItem}
-        className={cx('sortableMyAppItemWrap', { active: editAppVisible, isSelectingIcon: isShowSelectIcon })}
-      >
+      <div ref={this.$myAppItem} className={cx('sortableMyAppItemWrap', { active: editAppVisible })}>
         <div className={cx('myAppItemWrap')}>
           <MdLink
             className="myAppItem stopPropagation"
@@ -290,6 +277,7 @@ export default class MyAppItem extends Component {
                     sourceType={sourceType}
                     isGoodsStatus={isGoodsStatus}
                     isExternalApp={isExternalApp}
+                    exported={exported}
                   />
                 }
                 popupAlign={{
@@ -324,21 +312,6 @@ export default class MyAppItem extends Component {
               onCancel={() => this.switchVisible({ copyAppVisible: false })}
               myPermissions={myPermissions}
             />
-          )}
-          {isShowSelectIcon && (
-            <div style={{ height: 400 }}>
-              <SelectIcon
-                projectId={projectId}
-                className="myAppItemSelectIconWrap"
-                style={{ left: selectIconLeft }}
-                {..._.pick(this.props, ['icon', 'name', 'iconColor', 'navColor', 'lightColor'])}
-                onModify={this.handleModify}
-                onChange={this.handleAppChange}
-                onClose={() => this.switchVisible({ selectIconVisible: false })}
-                onClickAway={() => this.switchVisible({ selectIconVisible: false }, clearNewAppItemId)}
-                onClickAwayExceptions={['.mui-dialog-container']}
-              />
-            </div>
           )}
           {externalLinkVisible && (
             <ExternalLinkDialog

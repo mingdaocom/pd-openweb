@@ -36,7 +36,7 @@ const Con = styled.div`
 const ViewCon = styled.div`
   flex: 1;
   min-height: 0;
-  border: 1px solid #e0e0e0 !important;
+  border: 1px solid var(--color-border-secondary) !important;
   .toolBarWrap {
     z-index: 100 !important;
   }
@@ -45,7 +45,7 @@ const ViewCon = styled.div`
     height: 42px;
     line-height: 42px;
     padding: 0 15px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     border-radius: 0 0 8px 8px;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
   }
@@ -54,7 +54,7 @@ const ViewCon = styled.div`
 const Header = styled.div`
   height: 44px;
   padding: 0px 24px;
-  background-color: rgb(255, 255, 255);
+  background-color: var(--color-background-primary);
 `;
 
 const AddBtn = styled.div`

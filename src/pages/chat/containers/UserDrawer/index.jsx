@@ -16,6 +16,7 @@ import { navigateToLogin } from 'src/router/navigateTo';
 import { getAppFeaturesVisible } from 'src/utils/app';
 import { removePssId } from 'src/utils/pssId';
 import { PopoverWrap, Wrap } from '../ChatList/Avatar/styled';
+import ThemeMode from './ThemeMode';
 
 const renderLanguagePopover = () => {
   return (
@@ -62,7 +63,7 @@ const renderProjectsPopover = props => {
             }}
           >
             <div className="flex ellipsis">{project.companyName}</div>
-            <div className={cx('Font12 mLeft10 Gray_9e Normal', { trial: isTrial, free: isFree })}>
+            <div className={cx('Font12 mLeft10 textTertiary Normal', { trial: isTrial, free: isFree })}>
               {isFree ? _l('免费版') : isTrial ? _l('试用') : _.get(project, 'version.name')}
             </div>
           </div>
@@ -90,11 +91,12 @@ export default props => {
   const projectLength = Account.projects.length;
   const { ss } = getAppFeaturesVisible();
 
+  const canCreateProject = md.global.Account.superAdmin || md.global.SysSettings.enableCreateProject;
   return (
     <Wrap className="flexColumn h100">
       <div className="header flexColumn pBottom20">
         <div className="flexRow alignItemsCenter justifyContentRight horizontalPadding mTop20">
-          <Icon icon="close" className="Font20 pointer Gray_75" onClick={() => onClose()} />
+          <Icon icon="close" className="Font20 pointer textSecondary" onClick={() => onClose()} />
         </div>
         <div className="flexColumn alignItemsCenter">
           <Avatar
@@ -108,7 +110,7 @@ export default props => {
           <div className="Font18 bold mTop12">{Account.fullname}</div>
           <div className="Font14 mTop8">{Account.mobilePhone || Account.email}</div>
           <div
-            className="ThemeColor Font14 mTop10 pointer bold myAccount"
+            className="colorPrimary Font14 mTop10 pointer bold myAccount"
             onClick={() => {
               if (md.global.Account.isSSO || window.isDingTalk) {
                 location.href = '/personal?type=information';
@@ -135,7 +137,7 @@ export default props => {
                 onClose();
               }}
             >
-              <Icon className="Gray_9e Font22" icon="business" />
+              <Icon className="textTertiary Font22" icon="business" />
               <div className="flex mLeft15">{_l('组织管理')}</div>
             </div>
           ) : (
@@ -148,9 +150,9 @@ export default props => {
               getPopupContainer={() => document.querySelector('.userDrawerWrap')}
             >
               <div className="flexRow alignItemsCenter pointer itemWrap mTop10">
-                <Icon className="Gray_9e Font22" icon="business" />
+                <Icon className="textTertiary Font22" icon="business" />
                 <div className="flex mLeft15">{_l('组织管理')}</div>
-                <Icon className="Gray_9e Font12" icon="arrow-right" />
+                <Icon className="textTertiary Font12" icon="arrow-right" />
               </div>
             </Popover>
           )
@@ -162,8 +164,8 @@ export default props => {
               onClose();
             }}
           >
-            <Icon className="Gray_9e Font22" icon="organization_add" />
-            <div className="flex mLeft15">{_l('创建组织')}</div>
+            <Icon className="textTertiary Font22" icon="organization_add" />
+            <div className="flex mLeft15">{canCreateProject ? _l('创建组织') : _l('组织管理')}</div>
           </div>
         )}
         <Popover
@@ -174,21 +176,21 @@ export default props => {
           content={renderLanguagePopover()}
         >
           <div className="flexRow alignItemsCenter pointer itemWrap">
-            <Icon className="Gray_9e Font22" icon="language" />
+            <Icon className="textTertiary Font22" icon="language" />
             <div className="flex mLeft15">{_l('语言')}</div>
-            <Icon className="Gray_9e Font12" icon="arrow-right" />
+            <Icon className="textTertiary Font12" icon="arrow-right" />
           </div>
         </Popover>
-        <div
-          className="flexRow alignItemsCenter pointer itemWrap"
-          onClick={() => {
-            onChangeSettingDrawerVisible(true, 'base');
-            onClose();
-          }}
-        >
-          <Icon className="Gray_9e Font22" icon="settings" />
-          <div className="flex mLeft15">{_l('使用设置')}</div>
-        </div>
+        {window.themeModeVisible && (
+          <div className="flexRow alignItemsCenter pointer itemWrap notHover Relative">
+            <Icon className="textTertiary Font22" icon="dark-mode" />
+            <div className="flex mLeft15">
+              {_l('主题')}
+              <Icon icon="beta1" className="mLeft5" style={{ color: 'var(--color-success)' }} />
+            </div>
+            <ThemeMode />
+          </div>
+        )}
         <div
           className="flexRow alignItemsCenter pointer itemWrap"
           onClick={() => {
@@ -196,35 +198,33 @@ export default props => {
             onClose();
           }}
         >
-          <Icon className="Gray_9e Font22" icon="sidebar" />
-          <div className="flex mLeft15">{_l('右侧栏设置')}</div>
+          <Icon className="textTertiary Font22" icon="sidebar" />
+          <div className="flex mLeft15">{_l('右侧栏')}</div>
         </div>
-        {md.global.Config.HDPUrl && md.global.Config.EnableHDP && (
-          <div
-            className="flexRow alignItemsCenter pointer itemWrap"
-            onClick={() => {
-              window.open(md.global.Config.HDPUrl);
-              onClose();
-            }}
-          >
-            <Icon className="Gray_9e Font22" icon="hdp" />
-            <div className="flex mLeft15">{_l('HDP 超级数据平台')}</div>
-          </div>
-        )}
+        <div
+          className="flexRow alignItemsCenter pointer itemWrap"
+          onClick={() => {
+            onChangeSettingDrawerVisible(true, 'base');
+            onClose();
+          }}
+        >
+          <Icon className="textTertiary Font22" icon="settings" />
+          <div className="flex mLeft15">{_l('更多')}</div>
+        </div>
         <div className="divider mTop10 mBottom10" />
         {ss && !md.global.SysSettings.hideHelpTip && (
           <Support href="https://help.mingdao.com">
             <div className="flexRow alignItemsCenter pointer itemWrap">
-              <Icon className="Gray_9e Font22" icon="help" />
+              <Icon className="textTertiary Font22" icon="help" />
               <div className="flex mLeft15">{_l('帮助')}</div>
             </div>
           </Support>
         )}
         <div className="flexRow alignItemsCenter pointer itemWrap" onClick={() => dialogKeyboardShortcuts()}>
-          <Icon className="Gray_9e Font22" icon="keyboard" />
-          <div className="flex mLeft15">{_l('键盘快捷键')}</div>
+          <Icon className="textTertiary Font22" icon="keyboard" />
+          <div className="flex mLeft15">{_l('快捷键')}</div>
           <Tooltip title={_l('快捷键')} placement="bottom">
-            <div className="Gray_75 shortcutKey">K</div>
+            <div className="textSecondary shortcutKey">K</div>
           </Tooltip>
         </div>
         {!md.global.SysSettings.hideDownloadApp && (
@@ -234,29 +234,41 @@ export default props => {
               location.href = '/appInstallSetting';
             }}
           >
-            <Icon className="Gray_9e Font18" icon="phonelink" />
+            <Icon className="textTertiary Font18" icon="phonelink" />
             <div className="flex mLeft15">{_l('下载客户端')}</div>
           </div>
         )}
+        {((md.global.Config.HDPUrl && md.global.Config.EnableHDP) || md.global.Account.superAdmin) && (
+          <div className="divider mTop10 mBottom10" />
+        )}
+        {md.global.Config.HDPUrl && md.global.Config.EnableHDP && (
+          <div
+            className="flexRow alignItemsCenter pointer itemWrap"
+            onClick={() => {
+              window.open(md.global.Config.HDPUrl);
+              onClose();
+            }}
+          >
+            <Icon className="textTertiary Font22" icon="hdp" />
+            <div className="flex mLeft15">{_l('HDP 超级数据平台')}</div>
+          </div>
+        )}
         {md.global.Account.superAdmin && (
-          <Fragment>
-            <div className="divider mTop10 mBottom10" />
-            <div
-              className="flexRow alignItemsCenter pointer itemWrap"
-              onClick={() => {
-                const { PlatformUrl, WebUrl } = md?.global?.Config || {};
-                const url = PlatformUrl || WebUrl; //没有PlatformUrl就还是WebUrl
-                window.open(url + 'sysconfig');
-              }}
-            >
-              <Icon className="Gray_9e Font22" icon="settings1" />
-              <div className="flex mLeft15">{_l('平台管理')}</div>
-            </div>
-          </Fragment>
+          <div
+            className="flexRow alignItemsCenter pointer itemWrap"
+            onClick={() => {
+              const { PlatformUrl, WebUrl } = md?.global?.Config || {};
+              const url = PlatformUrl || WebUrl; //没有PlatformUrl就还是WebUrl
+              window.open(url + 'sysconfig');
+            }}
+          >
+            <Icon className="textTertiary Font22" icon="platform_admin" />
+            <div className="flex mLeft15">{_l('平台管理')}</div>
+          </div>
         )}
       </div>
       <div className="footer flexRow alignItemsCenter justifyContentCenter">
-        <div className="flexRow alignItemsCenter pointer Gray_75 logout" onClick={logout}>
+        <div className="flexRow alignItemsCenter pointer textSecondary logout" onClick={logout}>
           <Icon icon="logout" className="Font18" />
           <div className="mLeft2">{_l('安全退出')}</div>
         </div>

@@ -90,7 +90,7 @@ class Members extends Component {
       okText: _l('加入项目'),
       closable: false,
       children: (
-        <div style="color: #999;">
+        <div style="color: var(--color-text-tertiary);">
           {_l('您添加的%0不是项目成员也不在项目当前公开范围内，是否要将他们加入项目？', message)}
         </div>
       ),

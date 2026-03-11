@@ -69,8 +69,7 @@ function Relation(props) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {' '}
-                  {relation.name}{' '}
+                  {relation.name}
                 </a>
               ) : (
                 <span className="relationName">{`${RELATION_TYPE_NAME[relation.type]}` + _l('已删除')}</span>

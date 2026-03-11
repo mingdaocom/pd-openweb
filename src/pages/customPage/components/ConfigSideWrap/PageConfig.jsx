@@ -40,19 +40,19 @@ export default props => {
   const { currentPcNaviStyle } = appPkg;
   return (
     <Fragment>
-      <div className="Gray Font14 bold mTop20 mBottom10">{_l('通用')}</div>
+      <div className="textPrimary Font14 bold mTop20 mBottom10">{_l('通用')}</div>
       <div className="flexRow alignItemsCenter">
-        <div className="Gray_75 Font13 label">{_l('页面布局')}</div>
+        <div className="textSecondary Font13 label">{_l('页面布局')}</div>
         <div className="flex">
           <div className="typeSelect flexRow valignWrapper">
             <div
-              className={cx('centerAlign pointer Gray_75', { active: !adjustScreen })}
+              className={cx('centerAlign pointer textSecondary', { active: !adjustScreen })}
               onClick={() => updatePageInfo({ adjustScreen: false })}
             >
               {_l('滚动')}
             </div>
             <div
-              className={cx('centerAlign pointer Gray_75', { active: adjustScreen })}
+              className={cx('centerAlign pointer textSecondary', { active: adjustScreen })}
               onClick={() => updatePageInfo({ adjustScreen: true })}
             >
               {_l('适应屏幕高度')}
@@ -61,12 +61,12 @@ export default props => {
         </div>
       </div>
       <div className="flexRow alignItemsCenter mTop15">
-        <div className="Gray_75 Font13 label">{_l('自动刷新')}</div>
+        <div className="textSecondary Font13 label">{_l('自动刷新')}</div>
         <div className="flex">
           <Select
             className="pageSelect w100"
             value={config.refresh}
-            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
               handleChangeConfig({
                 refresh: value,
@@ -83,7 +83,7 @@ export default props => {
       </div>
       {currentPcNaviStyle !== 2 && (
         <div className="flexRow mTop15">
-          <div className="Gray_75 Font13 label">{_l('标题区')}</div>
+          <div className="textSecondary Font13 label">{_l('标题区')}</div>
           <div className="flex">
             <div className="mBottom15">
               <label className="flexRow alignItemsCenter pointer">
@@ -142,7 +142,7 @@ export default props => {
         </div>
       )}
       <div className="flexRow mTop15 mBottom20">
-        <div className="Gray_75 Font13 label">{_l('图表操作')}</div>
+        <div className="textSecondary Font13 label">{_l('图表操作')}</div>
         <div className="flex">
           <Checkbox
             className="flexRow alignItemsCenter"
@@ -169,7 +169,7 @@ export default props => {
         </div>
       </div>
       <div className="flexRow mTop15 mBottom20">
-        <div className="Gray_75 Font13 label">{_l('联动筛选')}</div>
+        <div className="textSecondary Font13 label">{_l('联动筛选')}</div>
         <div className="flex">
           <label className="flexRow alignItemsCenter pointer">
             <Switch

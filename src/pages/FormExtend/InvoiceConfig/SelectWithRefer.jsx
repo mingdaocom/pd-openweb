@@ -10,9 +10,9 @@ const Wrapper = styled.div`
   .inputCon {
     height: 36px;
     border-radius: 3px 0px 0px 3px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     &:hover {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
 
     .Dropdown--input {
@@ -27,8 +27,8 @@ const Wrapper = styled.div`
         line-height: 22px;
         border-radius: 24px;
         background: #d8eeff;
-        color: #174c76;
-        border: 1px solid #bbd6ea;
+        color: var(--color-link-hover);
+        border: 1px solid var(--color-primary-transparent);
         padding: 0px 12px;
         font-size: 12px;
         box-sizing: border-box;
@@ -42,12 +42,12 @@ const Wrapper = styled.div`
     width: 36px;
     height: 36px;
     border-radius: 0px 3px 3px 0px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
     border-left: none;
     cursor: pointer;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
@@ -62,7 +62,11 @@ export default function SelectWithRefer(props) {
         {data.isControl && !!data.value ? (
           <div className="valignWrapper tagWrap">
             <span className="tag">{data.controlName}</span>
-            <Icon icon="delete" className="Hover_21 Hand Font16 Gray_75" onClick={() => onChange({ value: null })} />
+            <Icon
+              icon="delete"
+              className="hoverColorPrimary Hand Font16 textSecondary"
+              onClick={() => onChange({ value: null })}
+            />
           </div>
         ) : (
           <Dropdown

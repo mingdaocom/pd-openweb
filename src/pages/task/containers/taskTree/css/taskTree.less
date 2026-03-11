@@ -10,8 +10,8 @@
     cursor: pointer;
   }
   .singleFolderTask > li {
-    border-bottom: 1px #ccc solid;
-    background-color: #fff;
+    border-bottom: 1px var(--color-border-tertiary) solid;
+    background-color: var(--color-background-primary);
   }
   .singleFolderTask li .markTaskHover,
   .singleFolderTask li .markTask {
@@ -71,7 +71,7 @@
     visibility: hidden;
     margin: 13px 13px 0 0;
     vertical-align: top;
-    color: #99a1ab;
+    color: var(--color-text-tertiary);
   }
   .singleTreeTask:hover .taskStar.icon-star-hollow {
     visibility: visible;
@@ -86,14 +86,14 @@
     top: 30px;
     left: 20px;
     height: 17px;
-    border-left: 1px #cfcfcf solid;
+    border-left: 1px var(--color-text-placeholder) solid;
   }
   .singleTreeTask .joinLineSub {
     left: 20px;
   }
   .singleSubFolderTask.tLine {
     border: 0;
-    border-left: 1px #cfcfcf solid;
+    border-left: 1px var(--color-text-placeholder) solid;
   }
   .singleTreeTask .subJoinLine {
     display: inline-block;
@@ -101,27 +101,27 @@
     height: 12px;
     margin-top: 23px;
     vertical-align: top;
-    border-top: 1px #cfcfcf solid;
+    border-top: 1px var(--color-text-placeholder) solid;
   }
   .singleTreeTask .subNoneNode {
     width: 5px;
     margin-top: 23px;
-    border-top: 1px #cfcfcf solid;
+    border-top: 1px var(--color-text-placeholder) solid;
   }
   .singleTreeTask .nodeCircleSmall {
     display: block;
     width: 6px;
     height: 6px;
     margin-top: 19px;
-    border: 1px solid #cfcfcf;
-    background-color: #f8f8f8;
+    border: 1px solid var(--color-text-placeholder);
+    background-color: var(--color-background-secondary);
   }
   .singleTreeTask .joinPrevLine {
     position: absolute;
     top: -1px;
     left: 16px;
     height: 24px;
-    border-left: 1px #cfcfcf solid;
+    border-left: 1px var(--color-text-placeholder) solid;
   }
   .singleSubFolderTask .nodeSwitch {
     margin-left: 0;
@@ -135,7 +135,7 @@
     top: 0;
     bottom: 22px;
     left: 16px;
-    border-left: 1px #ccc solid;
+    border-left: 1px var(--color-border-tertiary) solid;
   }
   .tVLine.tVTop {
     top: 28px;
@@ -146,7 +146,7 @@
     top: 0;
     bottom: 0;
     left: 16px;
-    border-left: 1px #ccc solid;
+    border-left: 1px var(--color-border-tertiary) solid;
   }
   .treeLoadingSingleTask {
     margin-top: -38px;

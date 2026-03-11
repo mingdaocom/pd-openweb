@@ -14,7 +14,7 @@ const Con = styled.div`
     width: 24px;
     height: 24px;
     border-radius: 3px;
-    background: #fff;
+    background: var(--color-background-primary);
     justify-content: center;
     align-items: center;
   }
@@ -61,7 +61,7 @@ function EditableCellCon(props) {
         {children}
         {!isediting && (
           <span
-            className={cx('editIcon Gray_9e ThemeHoverColor3', { canClear: !!onClear })}
+            className={cx('editIcon textTertiary ThemeHoverColor3', { canClear: !!onClear })}
             onClick={e => {
               e.stopPropagation();
               if (onClear) {

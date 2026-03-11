@@ -21,19 +21,19 @@ const BuildAppBox = styled.div`
       justify-content: space-between;
       .icon1 {
         width: 58px;
-        background: #1677ff;
+        background: var(--color-primary);
         border-radius: 50%;
         text-align: center;
         .icon {
           font-size: 36px;
           line-height: 58px;
-          color: #fff;
+          color: var(--color-white);
         }
       }
       .icon2 {
         .icon {
           font-size: 27px;
-          color: #bdbdbd;
+          color: var(--color-text-disabled);
           line-height: 58px;
         }
       }
@@ -70,29 +70,29 @@ const BuildAppBox = styled.div`
   }
   .subTitle {
     font-size: 13px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .confirmBtn {
     width: 132px;
     height: 36px;
     line-height: 36px;
-    background: #1677ff;
+    background: var(--color-primary);
     opacity: 1;
     border-radius: 18px;
-    color: #fff;
+    color: var(--color-white);
     font-size: 14px;
     font-weight: 600;
     margin-top: 36px;
   }
   .line {
     width: 100%;
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-secondary);
     height: 0;
     margin-bottom: 40px;
   }
 
   .dataSynInfo {
-    color: #757575;
+    color: var(--color-text-secondary);
     font-size: 13px;
     margin-right: 8px;
   }
@@ -105,11 +105,11 @@ const BuildAppBox = styled.div`
   }
   .linkTxt {
     font-size: 13px;
-    color: #1677ff;
+    color: var(--color-primary);
     cursor: pointer;
   }
   .BoldText {
-    color: #151515;
+    color: var(--color-text-title);
     font-weight: 600;
   }
 `;
@@ -127,7 +127,7 @@ const StepTwo = styled.div`
     margin-bottom: 15px;
   }
   .gray9e {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 `;
 

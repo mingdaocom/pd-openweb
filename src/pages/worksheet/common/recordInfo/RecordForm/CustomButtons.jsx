@@ -34,17 +34,17 @@ const MenuItemWrap = styled(MenuItem)`
       filter: grayscale(1);
     }
     .Item-content .icon {
-      color: #ddd !important;
+      color: var(--color-border-primary) !important;
     }
     .Item-content .btnName {
-      color: #bdbdbd !important;
+      color: var(--color-text-disabled) !important;
     }
   }
   &.ming.MenuItem:not(.disabled) .Item-content:not(.disabled):hover {
     .btnName {
-      color: #151515 !important;
+      color: var(--color-text-title) !important;
     }
-    background-color: #f2f2f2 !important;
+    background-color: var(--color-background-disabled) !important;
   }
 `;
 
@@ -94,7 +94,7 @@ const HoverButton = styled(Button)`
       border: none !important;
       background: transparent !important;
       &:hover {
-        background: rgba(0, 0, 0, 0.03) !important;
+        background: var(--color-background-hover) !important;
       }
     }
     &.operates-text {
@@ -112,7 +112,7 @@ const HoverButton = styled(Button)`
       .icon {
         margin: 0 !important;
         width: 28px !important;
-        color: #757575 !important;
+        color: var(--color-text-secondary) !important;
       }
       .buttonText {
         display: none !important;
@@ -848,7 +848,7 @@ export default class CustomButtons extends React.Component {
         const buttonColor = getButtonColor(button.color, button.showAsPrimary);
         let fillColor =
           !button.color || button.color === 'transparent' || btnDisable[button.btnId] || button.disabled
-            ? '#bdbdbd'
+            ? 'var(--color-text-disabled)'
             : buttonColor.color;
         if (isOperates && !button.showAsPrimary) {
           fillColor = button.color;
@@ -895,7 +895,7 @@ export default class CustomButtons extends React.Component {
                   }),
               }}
               isOperates={isOperates}
-              primaryColor={button.color !== 'transparent' && (button.color || '#1677ff')}
+              primaryColor={button.color !== 'transparent' && (button.color || 'var(--color-primary)')}
               onClick={evt => {
                 if (this.handleButtonClick(button)) {
                   return;
@@ -921,12 +921,12 @@ export default class CustomButtons extends React.Component {
                     button.icon && (
                       <i
                         className={cx(`icon icon-${button.icon || 'custom_actions'}`, {
-                          Gray_bd:
+                          textDisabled:
                             !button.showAsPrimary && !button.icon && (!button.color || button.color === 'transparent'),
                         })}
                         style={
                           isOperates && !button.showAsPrimary && !(btnDisable[button.btnId] || button.disabled)
-                            ? { color: button.color || '#1677ff' }
+                            ? { color: button.color || 'var(--color-primary)' }
                             : {}
                         }
                       />
@@ -963,7 +963,13 @@ export default class CustomButtons extends React.Component {
               disabled={btnDisable[button.btnId] || button.disabled}
               icon={button.icon || 'custom_actions'}
               iconUrl={button.iconUrl}
-              iconColor={!button.icon ? '#bdbdbd' : button.color === 'transparent' ? '#151515' : button.color}
+              iconColor={
+                !button.icon
+                  ? 'var(--color-text-disabled)'
+                  : button.color === 'transparent'
+                    ? 'var(--color-text-primary)'
+                    : button.color
+              }
               text={button.name}
               onClick={evt => {
                 if (this.handleButtonClick(button)) {
@@ -988,18 +994,18 @@ export default class CustomButtons extends React.Component {
                   className="InlineBlock TxtTop mLeft5 Icon"
                   addClassName="TxtMiddle"
                   url={button.iconUrl}
-                  fill={!button.color || button.color === 'transparent' ? '#bdbdbd' : button.color}
+                  fill={!button.color || button.color === 'transparent' ? 'var(--color-text-disabled)' : button.color}
                   size={16}
                 />
               ) : (
                 <Icon
-                  style={{ color: button.color === 'transparent' ? '#151515' : button.color }}
+                  style={{ color: button.color === 'transparent' ? 'var(--color-text-primary)' : button.color }}
                   icon={button.icon || 'custom_actions'}
                   className="Font17 mLeft5"
                 />
               )
             ) : (
-              <Icon icon="custom_actions" className="Font17 mLeft5 Gray_bd" />
+              <Icon icon="custom_actions" className="Font17 mLeft5 textDisabled" />
             )
           }
           className={cx({ disabled: btnDisable[button.btnId] || button.disabled })}

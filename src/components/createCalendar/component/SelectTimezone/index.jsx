@@ -22,7 +22,7 @@ export default class SelectTimezone extends PureComponent {
     let { value, text } = this.getDefaultTimezone();
     return (
       <div className="timezoneWrap">
-        <div className="timezoneLabel Gray_9e">{_l('时区')}</div>
+        <div className="timezoneLabel textTertiary">{_l('时区')}</div>
         <Dropdown
           className="timezoneDropdown"
           isAppendBody

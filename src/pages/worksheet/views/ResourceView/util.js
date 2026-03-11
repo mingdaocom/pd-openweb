@@ -1,9 +1,8 @@
 import dayjs from 'dayjs';
 import _ from 'lodash';
 import moment from 'moment';
-import { isTimeStyle } from 'src/pages/worksheet/views/CalendarView/util';
 import { renderTitleByViewtitle } from 'src/pages/worksheet/views/util.js';
-import { renderText as renderCellText } from 'src/utils/control';
+import { isTimeStyle, renderText as renderCellText } from 'src/utils/control';
 import { dateConvertToUserZone } from 'src/utils/project';
 import { lineBottomHeight, lineHeight, minHeightObj, timeWidth, timeWidthHalf, types } from './config';
 
@@ -538,4 +537,28 @@ export const getRuleTimes = view => {
   const merged = mergeTimeRanges(ranges);
   const resultStr = formatMergedRanges(merged);
   return resultStr;
+};
+
+//获鼠标悬停样式处理
+export const getResourceRowHoverHandlers = (viewId, index) => {
+  const resourceRowId = `resourceRow_${viewId}_${index}`;
+  const resourceGroupId = `resourceGroup_${viewId}_${index}`;
+
+  const setBackground = isEnter => {
+    const bg = isEnter ? 'rgba(0,0,0,0.04)' : 'transparent';
+    const resourceRow = document.getElementById(resourceRowId);
+    const resourceGroup = document.getElementById(resourceGroupId);
+    if (resourceRow) resourceRow.style.background = bg;
+    if (resourceGroup) {
+      resourceGroup.style.background = bg;
+      resourceGroup.querySelectorAll('.totalNum, .addCoin').forEach(el => {
+        el.style.background = 'transparent';
+      });
+    }
+  };
+
+  return {
+    onMouseEnter: () => setBackground(true),
+    onMouseLeave: () => setBackground(false),
+  };
 };

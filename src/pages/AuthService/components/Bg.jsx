@@ -17,7 +17,8 @@ export const WrapBg = styled.div(
 );
 function Bg(props) {
   const { homeImage } = props;
-  const isNetwork = location.href.indexOf('network') >= 0 || md.global.Config.IsLocal;
+  const isNetwork =
+    location.href.indexOf('network') >= 0 || window.platformENV.isOverseas || window.platformENV.isLocal;
 
   return isNetwork && homeImage ? <WrapBg bgImg={isNetwork && homeImage ? homeImage : ''} /> : null;
 }

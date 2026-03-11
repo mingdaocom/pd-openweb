@@ -105,7 +105,7 @@ export default function AppOfflineSubmit(props) {
             );
           })}
           {!!keyword && !searchData.length && (
-            <div className="TxtCenter gray_9e pTop10 pBottom10">{_l('没有搜索结果')}</div>
+            <div className="TxtCenter textTertiary pTop10 pBottom10">{_l('没有搜索结果')}</div>
           )}
         </Menu>
       </div>
@@ -157,11 +157,11 @@ export default function AppOfflineSubmit(props) {
           radiusSize={130}
           iconClassName="Font50"
           emptyTxt={_l('暂无离线提交')}
-          emptyTxtClassName="Gray_9e Font17 mTop20"
+          emptyTxtClassName="textTertiary Font17 mTop20"
         />
       ) : (
         <div className="listWrapper">
-          <div className="header Gray_75 flexRow alignItemsCenter">
+          <div className="header textSecondary flexRow alignItemsCenter">
             <div className="name flex">{_l('工作表')}</div>
             <div className="operator">{_l('操作人')}</div>
             <div className="status">{_l('状态')}</div>

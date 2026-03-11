@@ -28,7 +28,7 @@ const DropDownSetChoose = styled.div`
       }
       &.isDelete {
         .ant-select-selector {
-          border-color: red !important;
+          border-color: var(--color-error) !important;
         }
         .ant-select-selection-item {
           opacity: 0;
@@ -42,7 +42,7 @@ const DropDownSetChoose = styled.div`
       }
       &:hover {
         .itemText {
-          color: #fff;
+          color: var(--color-white);
         }
       }
     }
@@ -81,7 +81,7 @@ export default class DropDownSet extends React.Component {
       <div className={className}>
         <div className="title Font13 bold">{title}</div>
         <div className="settingContent">
-          <p className="mTop6 mBottom8 Gray_75 viewSetText">{txt}</p>
+          <p className="mTop6 mBottom8 textSecondary viewSetText">{txt}</p>
           <DropDownSetChoose>
             <Select
               className={cx('dropDropDownSet', { isDelete })}
@@ -108,7 +108,7 @@ export default class DropDownSet extends React.Component {
               {controlList.map((item, i) => {
                 const labelNode = (
                   <div className="">
-                    <i className={cx('icon Gray_9e mRight5 Font13', 'icon-' + getIconByType(item.type))}></i>
+                    <i className={cx('icon textTertiary mRight5 Font13', 'icon-' + getIconByType(item.type))}></i>
                     {item.controlName}
                   </div>
                 );

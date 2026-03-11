@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+﻿import React, { Component } from 'react';
 import { Checkbox } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -6,17 +6,16 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
-import { controlState, getTitleTextFromControls } from 'src/components/Form/core/utils';
 import BarCode from 'src/components/Form/MobileForm/widgets/BarCode/index.jsx';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { isDocument } from 'src/components/UploadFiles/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { isIframeControl } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
 import { WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
 import CellControl from 'src/pages/worksheet/components/CellControls';
+import { controlState, getTitleTextFromControls } from 'src/utils/control';
 import { checkCellIsEmpty, getControlStyles } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 import { compatibleMDJS } from 'src/utils/project';
@@ -218,7 +217,7 @@ export default class RecordCard extends Component {
           <iframe className="overflowHidden Border0" width="100%" height="100%" src={data[coverCid]} />
         ) : (
           <div className={cx('coverWrap', 'emptyCoverWrap mobileOverWrap')}>
-            <img src={emptyCover} />
+            <Icon className="icon-file-post Font30 TextTertiary" />
           </div>
         )}
       </div>
@@ -257,12 +256,7 @@ export default class RecordCard extends Component {
           />
         ) : url && !coverError ? (
           coverType ? (
-            <img
-              onClick={this.handleCoverClick}
-              className={cx('img', { w100: coverType === 0 && coverFillType === 1, mLeft6: coverPosition === '1' })}
-              src={url}
-              role="presentation"
-            />
+            <img onClick={this.handleCoverClick} className={cx('img')} src={url} role="presentation" />
           ) : (
             <div
               onClick={this.handleCoverClick}
@@ -272,18 +266,18 @@ export default class RecordCard extends Component {
           )
         ) : (
           <div className="withoutImg img flexRow valignWrapper">
-            <img src={emptyCover}></img>
+            <Icon className="icon-file-post Font30" />
           </div>
         )}
       </div>
     );
   }
   renderControl(id, nameVisible = false) {
-    const { data, view, projectId, controls, sheetSwitchPermit } = this.props;
+    const { data, view, projectId, controls, sheetSwitchPermit, appId } = this.props;
     const { cardControls } = this;
     const visibleControl = _.find(cardControls, { controlId: id }) || {};
     const cell = Object.assign({}, visibleControl, { value: data[visibleControl.controlId] });
-    const maxLine = _.get(view, 'advancedSetting.maxlinenum');
+    const maxLine = _.get(view, 'advancedSetting.maxlinenum') || 3;
 
     return (
       <div className="controlWrapper" key={id}>
@@ -310,7 +304,7 @@ export default class RecordCard extends Component {
                 align={{ offset: [-12, 0] }}
               >
                 <i
-                  className="icon-info_outline descBoxInfo pointer Font16 Gray_9e mRight5"
+                  className="icon-info_outline descBoxInfo pointer Font16 textTertiary mRight5"
                   onClick={e => e.stopPropagation()}
                 />
               </Tooltip>
@@ -332,6 +326,7 @@ export default class RecordCard extends Component {
               cell={cell}
               from={4}
               sheetSwitchPermit={sheetSwitchPermit}
+              appId={appId}
             />
           ) : (
             <div className="emptyTag"></div>
@@ -406,12 +401,12 @@ export default class RecordCard extends Component {
               }}
             />
           )}
-          <div className={cx('titleText Gray bold', view.viewType === 3 ? 'ellipsis' : 'titleTextEllipsis')}>
+          <div className={cx('titleText textPrimary bold', view.viewType === 3 ? 'ellipsis' : 'titleTextEllipsis')}>
             {titleText}
           </div>
         </div>
         {advancedSetting.abstract && (
-          <div className="Gray_9e mBottom8 abstract">{this.renderControl(advancedSetting.abstract)}</div>
+          <div className="textTertiary mBottom8 abstract">{this.renderControl(advancedSetting.abstract)}</div>
         )}
         <div className={cx(`cardContent${appshowtype}`)}>
           {(fieldShowCount ? displayControls.slice(0, fieldShowCount) : displayControls).map(id =>

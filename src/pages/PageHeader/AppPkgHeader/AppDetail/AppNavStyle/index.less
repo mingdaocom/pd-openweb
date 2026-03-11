@@ -1,5 +1,6 @@
 .AppNavStyleWrap {
   line-height: normal;
+
   .navImg {
     margin-bottom: 10px;
     background-size: cover !important;
@@ -14,24 +15,22 @@
       height: 70px;
     }
     &:hover {
-      box-shadow:
-        0 4px 20px #00000021,
-        0 2px 6px #0000001a;
+      box-shadow: var(--shadow-sm);
     }
   }
   .iconWrap {
     margin-right: 48px;
   }
   .activeIcon {
-    color: #fff;
+    color: var(--color-white);
     position: absolute;
     right: -8px;
     top: -6px;
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    border: 2px solid #ffffff;
-    background-color: #1677ff;
+    border: 2px solid var(--color-white);
+    background-color: var(--color-primary);
   }
   .classic {
     background: url('./pcImg/classic.png') center center no-repeat;

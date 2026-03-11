@@ -20,19 +20,19 @@ const ChartListWrapper = styled.div`
     position: relative;
     width: calc(50% - 10px);
     height: 300px;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     border-radius: 8px;
     padding: 10px 20px 20px 20px;
-    background: #fff;
+    background: var(--color-background-card);
     .dragWrap {
       display: none;
       position: absolute;
       left: 8px;
       top: 22px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       cursor: pointer;
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     &:hover {

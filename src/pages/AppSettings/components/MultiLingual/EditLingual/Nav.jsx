@@ -9,7 +9,7 @@ import { getTranslateInfo } from 'src/utils/app';
 const Wrap = styled.div`
   width: 260px;
   padding: 10px;
-  border-right: 1px solid #dddddd;
+  border-right: 1px solid var(--color-border-primary);
 
   .normalLineHeight {
     line-height: normal;
@@ -20,11 +20,11 @@ const Wrap = styled.div`
     padding: 8px 6px;
     &.active {
       svg {
-        fill: #1677ff !important;
+        fill: var(--color-primary) !important;
       }
       font-weight: bold;
-      color: #1677ff;
-      background-color: #ecf7fe;
+      color: var(--color-primary);
+      background-color: var(--color-primary-transparent);
     }
   }
 
@@ -45,23 +45,23 @@ const Wrap = styled.div`
     .anticon-minus-square {
       svg path {
         &:first-child {
-          fill: #151515;
+          fill: var(--color-text-title);
         }
         &:last-child {
-          fill: #bdbdbd;
+          fill: var(--color-text-disabled);
         }
       }
     }
     .ant-tree-node-content-wrapper.ant-tree-node-selected {
       .icon {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
       svg {
-        fill: #1677ff !important;
+        fill: var(--color-primary) !important;
       }
       font-weight: bold;
-      color: #1677ff;
-      background-color: #ecf7fe;
+      color: var(--color-primary);
+      background-color: var(--color-primary-transparent);
     }
     .ant-tree-title {
       width: inherit;
@@ -173,7 +173,14 @@ const getTreeData = (appId, { sections, collections, workflows, searchValue }) =
               appItem.type === 1 && appItem.externalLinkId
                 ? { urlTemplate: appItem.urlTemplate, desc: appItem.configuration.desc }
                 : undefined,
-            icon: <SvgIcon className="normalLineHeight" url={subAppItem.iconUrl} fill="#9e9e9e" size={17} />,
+            icon: (
+              <SvgIcon
+                className="normalLineHeight"
+                url={subAppItem.iconUrl}
+                fill="var(--color-text-tertiary)"
+                size={17}
+              />
+            ),
             children: getChildren(subAppItem),
           };
         })
@@ -190,7 +197,7 @@ const getTreeData = (appId, { sections, collections, workflows, searchValue }) =
         originalTitle: gourup.name,
         key: gourup.appSectionId,
         type: 2,
-        icon: <Icon className="Font17 Gray_9e" icon="gourup_default" />,
+        icon: <Icon className="Font17 textTertiary" icon="gourup_default" />,
         children: gourup.workSheetInfo
           .map(appItem => {
             return {
@@ -203,7 +210,14 @@ const getTreeData = (appId, { sections, collections, workflows, searchValue }) =
                   ? { urlTemplate: appItem.urlTemplate, desc: appItem.configuration.desc }
                   : undefined,
               parentId: gourup.appSectionId,
-              icon: <SvgIcon className="normalLineHeight" url={appItem.iconUrl} fill="#9e9e9e" size={17} />,
+              icon: (
+                <SvgIcon
+                  className="normalLineHeight"
+                  url={appItem.iconUrl}
+                  fill="var(--color-text-tertiary)"
+                  size={17}
+                />
+              ),
               children: getChildren(appItem, gourup.childSections),
             };
           })
@@ -292,7 +306,7 @@ export default function Nav(props) {
   return (
     <Wrap className="flexColumn" style={style}>
       <div className="searchWrap flexRow alignItemsCenter pLeft5 mBottom10">
-        <Icon className="Gray_9e Font20 mRight5" icon="search" />
+        <Icon className="textTertiary Font20 mRight5" icon="search" />
         <input
           placeholder={_l('搜索')}
           className="flex"
@@ -301,7 +315,9 @@ export default function Nav(props) {
             setSearchValue(e.target.value);
           }}
         />
-        {searchValue && <Icon className="Gray_9e pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />}
+        {searchValue && (
+          <Icon className="textTertiary pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />
+        )}
       </div>
       <div className="treeWrap flexColumn flex overflowHidden">
         <div
@@ -310,7 +326,7 @@ export default function Nav(props) {
             onSelectedKeys(['app'], { node: { ...app, type: 'app' } });
           }}
         >
-          <SvgIcon url={iconUrl} fill="#9e9e9e" size={18} />
+          <SvgIcon url={iconUrl} fill="var(--color-text-tertiary)" size={18} />
           <span className="Font13 mLeft5 ellipsis">{getTranslateInfo(app.id, null, app.id).name || name}</span>
         </div>
         <ScrollView className="flex mTop10 navScroll">

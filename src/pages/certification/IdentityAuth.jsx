@@ -14,7 +14,7 @@ const Wrapper = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: var(--color-background-primary);
   .tips {
     width: 100%;
     padding: 16px 24px;
@@ -24,13 +24,13 @@ const Wrapper = styled.div`
     padding: 0 24px;
   }
   .labelText {
-    color: #757575;
+    color: var(--color-text-secondary);
     font-weight: 600;
     margin-bottom: 10px;
     margin-top: 24px;
   }
   .icon-check_circle {
-    color: #1eaf08;
+    color: var(--color-success);
   }
   .icon-info {
     color: #fb0;
@@ -42,7 +42,7 @@ const Wrapper = styled.div`
     font-size: 15px;
 
     &.Button--disabled {
-      background: #6dc5fd !important;
+      background: var(--color-primary-light) !important;
     }
   }
 `;

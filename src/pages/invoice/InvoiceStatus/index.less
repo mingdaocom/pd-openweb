@@ -1,13 +1,13 @@
 .invoiceStatusLandPage {
   width: 100%;
   height: 100%;
-  background-color: #f8f8f8;
+  background-color: var(--color-background-secondary);
   display: flex;
   justify-content: center;
   align-items: center;
   .cardWrap {
     width: 480px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     border-radius: 3px;
     padding: 50px;
     display: flex;
@@ -19,7 +19,7 @@
     padding: 40px 0 0;
   }
   @media (max-width: 600px) {
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
 }
 
@@ -28,12 +28,12 @@
   align-items: center;
   gap: 8px;
   .cancelBtn {
-    background: #fff !important;
-    border: 1px solid #e0e0e0;
-    color: #757575;
+    background: var(--color-background-primary) !important;
+    border: 1px solid var(--color-border-secondary);
+    color: var(--color-text-secondary);
     &:hover {
-      color: #1677ff;
-      border-color: #1677ff;
+      color: var(--color-primary);
+      border-color: var(--color-primary);
     }
   }
 }
@@ -44,7 +44,7 @@
   }
   .mui-dialog-desc {
     padding-top: 8px !important;
-    color: #9e9e9e !important;
+    color: var(--color-text-tertiary) !important;
   }
   .mui-dialog-body {
     padding: 0 24px 16px !important;
@@ -58,8 +58,8 @@
 .mobileModal .invoiceStatusFooterBtns {
   padding: 24px 15px;
   .cancelBtn {
-    border-color: #e0e0e0 !important;
-    color: #757575 !important;
+    border-color: var(--color-border-secondary) !important;
+    color: var(--color-text-secondary) !important;
   }
   button {
     flex: 1;

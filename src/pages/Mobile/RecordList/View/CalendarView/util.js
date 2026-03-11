@@ -61,12 +61,3 @@ export const getFormateView = (view, formatDataItem) => {
     displayControls: [...new Set(controls)],
   };
 };
-
-// from pc calendar
-export const isTimeStyle = (data = {}) => {
-  let type = data.type;
-  if (type === 30) {
-    type = data.sourceControlType;
-  }
-  return type === 16 || (type === 38 && data.enumDefault === 2 && data.unit !== '3');
-};

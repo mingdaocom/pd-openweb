@@ -39,7 +39,7 @@ const PortraitDrag = styled.div`
   width: 6px;
   cursor: pointer;
   position: absolute;
-  background: #fff;
+  background: var(--color-white);
   top: -4px;
   display: inline-block;
   width: 14px;
@@ -60,7 +60,7 @@ const Bar = styled.div`
   height: 6px;
   padding: 0 4px;
   border-radius: 3px;
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--color-border-secondary);
 `;
 const PortraitBar = styled.div`
   position: relative;
@@ -68,7 +68,7 @@ const PortraitBar = styled.div`
   height: 100%;
   border-radius: 3px;
   margin-right: 20px;
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--color-border-secondary);
 `;
 
 const Content = styled.div`
@@ -83,7 +83,7 @@ const PortraitContent = styled.div`
 const Drag = styled.span`
   cursor: pointer;
   position: absolute;
-  background: #fff;
+  background: var(--color-white);
   top: -4px;
   display: inline-block;
   width: 14px;
@@ -98,7 +98,7 @@ const Drag = styled.span`
 `;
 
 const ScalePoint = styled.span`
-  background: #fff;
+  background: var(--color-white);
   display: inline-block;
   width: 8px;
   height: 8px;
@@ -106,7 +106,7 @@ const ScalePoint = styled.span`
   border: 2px solid ${({ color }) => color};
 `;
 const PortraitScalePoint = styled.span`
-  background: #fff;
+  background: var(--color-white);
   display: inline-block;
   width: 8px;
   height: 8px;
@@ -165,7 +165,7 @@ const ScaleBox = styled.div`
         margin: 10px 0 0 1px;
         white-space: pre-wrap;
         word-wrap: break-word;
-        word-break: break-all;
+        word-break: break-word;
         overflow: visible;
       }
     }
@@ -267,7 +267,10 @@ export default function Steps(props) {
     setWidth(currentValue >= 0 ? (currentValue / (filterOptions.length - 1)) * 100 : 0);
   }, [currentValue]);
 
-  const currentColor = enumDefault2 === 1 ? _.get(filterOptions[currentValue], 'color') || '#f1f1f1' : '#1677ff';
+  const currentColor =
+    enumDefault2 === 1
+      ? _.get(filterOptions[currentValue], 'color') || 'var(--color-background-disabled)'
+      : 'var(--color-primary)';
 
   if (isMobile && direction === '1') {
     return (
@@ -318,7 +321,7 @@ export default function Steps(props) {
               }}
               onMouseLeave={() => {
                 if (disabled) return;
-                barRef.current && (barRef.current.style.background = 'rgba(0, 0, 0, 0.06)');
+                barRef.current && (barRef.current.style.background = 'var(--color-border-secondary)');
               }}
             >
               {filterOptions.map((option, index) => {
@@ -331,7 +334,7 @@ export default function Steps(props) {
                     >
                       <PortraitScalePoint
                         key={option.key}
-                        color={index <= currentValue ? currentColor : 'rgba(0, 0, 0, 0.06)'}
+                        color={index <= currentValue ? currentColor : 'var(--color-border-secondary)'}
                         onClick={
                           disabled
                             ? _.noop
@@ -353,7 +356,9 @@ export default function Steps(props) {
                   return (
                     <span className="portraitContentItem">
                       <span
-                        style={{ color: index <= currentValue ? '#151515' : '#9e9e9e' }}
+                        style={{
+                          color: index <= currentValue ? 'var(--color-text-title)' : 'var(--color-text-tertiary)',
+                        }}
                         className="portraitScaleText"
                       >
                         {option.value}
@@ -437,7 +442,7 @@ export default function Steps(props) {
             }}
             onMouseLeave={() => {
               if (disabled) return;
-              barRef.current && (barRef.current.style.background = 'rgba(0, 0, 0, 0.06)');
+              barRef.current && (barRef.current.style.background = 'var(--color-border-secondary)');
             }}
           >
             {filterOptions.map((option, index) => {
@@ -462,7 +467,7 @@ export default function Steps(props) {
                     >
                       <ScalePoint
                         key={option.key}
-                        color={index <= currentValue ? currentColor : 'rgba(0, 0, 0, 0.06)'}
+                        color={index <= currentValue ? currentColor : 'var(--color-border-secondary)'}
                       />
                     </div>
                   </Tooltip>
@@ -475,7 +480,12 @@ export default function Steps(props) {
               {filterOptions.map((option, index) => {
                 return (
                   <span className="contentItem">
-                    <span style={{ color: index <= currentValue ? '#151515' : '#9e9e9e' }} className="scaleText">
+                    <span
+                      style={{
+                        color: index <= currentValue ? 'var(--color-text-title)' : 'var(--color-text-tertiary)',
+                      }}
+                      className="scaleText"
+                    >
                       {option.value}
                     </span>
                   </span>

@@ -174,11 +174,11 @@ class AddDiscuss extends Component {
       <div className="addDiscuss flexColumn h100">
         <div className="discussHeader valignWrapper pLeft10 pRight10">
           {replyName ? (
-            <div className="flex ThemeColor ellipsis">{_l('回复%0 :', replyName)}</div>
+            <div className="flex colorPrimary ellipsis">{_l('回复%0 :', replyName)}</div>
           ) : (
-            <div className="flex Gray_75">{_l('发表讨论')}</div>
+            <div className="flex textSecondary">{_l('发表讨论')}</div>
           )}
-          <Icon icon="cancel" className="close Font22 Gray_9e" onClick={this.props.onClose} />
+          <Icon icon="cancel" className="close Font22 textTertiary" onClick={this.props.onClose} />
         </div>
         <Textarea
           manualRef={ele => (this.textarea = ele)}
@@ -214,12 +214,15 @@ class AddDiscuss extends Component {
               <Icon icon="attachment" className="mRight20" />
             </UploadFileWrapper>
             {!md.global.Account.isPortal && (
-              <div className="Gray_9e bold mRight20 Font15" onClick={() => this.handlePushValue(_l('@记录全体成员'))}>
+              <div
+                className="textTertiary bold mRight20 Font15"
+                onClick={() => this.handlePushValue(_l('@记录全体成员'))}
+              >
                 <span className="TxtMiddle">{_l('@全体')}</span>
               </div>
             )}
             {!md.global.Account.isPortal && (
-              <div className="Gray_9e bold Font15" onClick={() => this.setState({ showSelectUser: true })}>
+              <div className="textTertiary bold Font15" onClick={() => this.setState({ showSelectUser: true })}>
                 <span className="TxtMiddle">{_l('@成员')}</span>
               </div>
             )}

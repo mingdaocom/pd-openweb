@@ -16,15 +16,15 @@ import MaskSettingDialog from './MaskSettingDialog';
 const ViewWrap = styled.div`
   display: flex;
   border-radius: 3px;
-  border: 1px solid #dddddd;
+  border: 1px solid var(--color-border-primary);
   margin-top: 8px;
   .viewCon {
     padding: 0 16px;
-    background: #fafafa;
+    background: var(--color-background-secondary);
     line-height: 34px;
     text-align: center;
-    color: #757575;
-    border-right: 1px solid #ddd;
+    color: var(--color-text-secondary);
+    border-right: 1px solid var(--color-border-primary);
   }
 `;
 
@@ -69,14 +69,14 @@ export default function ControlMask(props) {
               '将字段值显示为掩码，应用管理员和有解码权限的用户可以点击后解码查看（解码权限需要在用户-角色-字段权限中配置）。',
             )}
           >
-            <Icon icon="help" className="Font16 Gray_9e" />
+            <Icon icon="help" className="Font16 textTertiary" />
           </Tooltip>
         </Checkbox>
       </div>
 
       {datamask === '1' && (
         <EditInfo style={{ margin: '8px 0' }} onClick={() => setVisible(true)}>
-          <div className="text overflow_ellipsis Gray">
+          <div className="text overflow_ellipsis textPrimary">
             <span className="Bold">{_l('掩码方式：')}</span>
             {_.get(
               DISPLAY_MASK.concat(CUSTOM_DISPLAY).find(item => item.value === masktype),
@@ -120,7 +120,7 @@ export default function ControlMask(props) {
                 </span>
               }
             >
-              <Icon icon="help" className="Font16 Gray_9e" />
+              <Icon icon="help" className="Font16 textTertiary" />
             </Tooltip>
           </Checkbox>
         </div>
@@ -139,7 +139,7 @@ export default function ControlMask(props) {
             }}
             className="flex Border0"
           >
-            <div className={cx('text overflow_ellipsis', isDeleteRule ? 'Red' : 'Gray')}>
+            <div className={cx('text overflow_ellipsis', isDeleteRule ? 'Red' : 'textPrimary')}>
               {isDeleteRule ? _l('规则已删除') : ruleName}
             </div>
             <div className="edit">

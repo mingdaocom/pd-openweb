@@ -29,14 +29,14 @@ const DISPLAY_OPTIONS = [
 const MarkdownTipsWrap = styled.div`
   width: 350px;
   .text {
-    color: #fff;
+    color: var(--color-text-primary);
     font-weight: bold;
   }
   .imgContainer {
     margin: 10px 0;
     height: 164px;
     padding: 14px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     border-radius: 3px;
   }
 `;

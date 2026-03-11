@@ -33,10 +33,10 @@ export default class UpdateFields extends Component {
       return (
         <div className="flexRow">
           <div>
-            <span className="Gray_75 mRight5">[{getControlTypeName(item)}]</span>
+            <span className="textSecondary mRight5">[{getControlTypeName(item)}]</span>
             <span>{item.controlName}</span>
           </div>
-          <span className="flex ellipsis mLeft10 Gray_75" style={{ textAlign: 'right' }}>
+          <span className="flex ellipsis mLeft10 textSecondary" style={{ textAlign: 'right' }}>
             {_l('工作表＂%0＂', item.sourceEntityName)}
           </span>
         </div>
@@ -45,7 +45,7 @@ export default class UpdateFields extends Component {
 
     return (
       <Fragment>
-        <span className="Gray_75 mRight5">[{getControlTypeName(item)}]</span>
+        <span className="textSecondary mRight5">[{getControlTypeName(item)}]</span>
         <span>{item.controlName}</span>
       </Fragment>
     );
@@ -131,7 +131,7 @@ export default class UpdateFields extends Component {
     }
 
     return (
-      <div className="Gray_75" style={{ lineHeight: '20px' }}>
+      <div className="textSecondary" style={{ lineHeight: '22px' }}>
         {_l('设为')}
       </div>
     );
@@ -189,10 +189,12 @@ export default class UpdateFields extends Component {
     return (
       <Fragment>
         {fields.map((item, i) => {
+          const singleControl = _.find(controls, obj => obj.controlId === item.fieldId);
+
           return (
             <Fragment key={item.fieldId || i}>
               <div className="relative actionItem mTop15">
-                <div className="Gray_75">{type === 1 ? _l('将字段') : _l('将参数')}</div>
+                <div className="textSecondary">{type === 1 ? _l('将字段') : _l('将参数')}</div>
                 <Dropdown
                   className="flowDropdown mTop5 flowDropdownMinWidth"
                   data={list}
@@ -202,9 +204,7 @@ export default class UpdateFields extends Component {
                   isAppendToBody
                   noData={isSubProcessNode ? _l('子流程暂无参数') : _l('本流程暂无参数')}
                   placeholder={type === 1 ? _l('请选择字段') : _l('请选择参数')}
-                  renderTitle={() =>
-                    item.fieldId && this.renderFieldsTitle(_.find(controls, obj => obj.controlId === item.fieldId))
-                  }
+                  renderTitle={() => item.fieldId && this.renderFieldsTitle(singleControl)}
                   onChange={fields => this.switchFields(fields, i)}
                 />
 
@@ -218,9 +218,11 @@ export default class UpdateFields extends Component {
                       updateSource={updateSource}
                     />
                   )}
-                  {item.type === 36 && <span className="Gray_75">{_l('是-(1,true), 否-(0,false), 其余值忽略')}</span>}
+                  {item.type === 36 && (
+                    <span className="textSecondary">{_l('是-(1,true), 否-(0,false), 其余值忽略')}</span>
+                  )}
                   {item.type === 40 && (
-                    <span className="Gray_75">{`{"x": "121.473667", "y": "31.230525", "title": "Shanghai", "address": ""}`}</span>
+                    <span className="textSecondary">{`{"x": "121.473667", "y": "31.230525", "title": "Shanghai", "address": ""}`}</span>
                   )}
                 </div>
 
@@ -244,7 +246,9 @@ export default class UpdateFields extends Component {
                 />
                 <i className="icon-trash Font16 ThemeColor3 actionItemDel" onClick={() => this.delFields(i)} />
               </div>
-              {!!item.desc && <div className="Gray_75 mTop5">{item.desc}</div>}
+              {(item.desc || singleControl?.desc) && (
+                <div className="Font13 textSecondary mTop5">{item.desc || singleControl?.desc}</div>
+              )}
               {i !== fields.length - 1 && <div className="actionFieldsSplit" />}
             </Fragment>
           );

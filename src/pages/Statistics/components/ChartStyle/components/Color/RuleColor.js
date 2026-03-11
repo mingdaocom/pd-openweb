@@ -23,7 +23,7 @@ const MemoColorPicker = props => {
     >
       <div className="palette valignWrapper pointer">
         <div className="colorBox" style={{ backgroundColor: color }}></div>
-        <Icon icon="expand_more" className="Gray_9e Font20" />
+        <Icon icon="expand_more" className="textTertiary Font20" />
       </div>
     </ColorPicker>
   );
@@ -37,14 +37,14 @@ const renderSortableItem = ({ DragHandle, index, item, otherProps }) => {
     <div className="flexRow valignWrapper scopeRule" key={ruleIndex}>
       <div className="flexRow valignWrapper flex">
         <DragHandle>
-          <Icon icon="drag" className="Font18 Gray_9e pointer" />
+          <Icon icon="drag" className="Font18 textTertiary pointer" />
         </DragHandle>
         <div className="mRight10">{_l('如果值')}</div>
         <Select
           style={{ width: 80 }}
           className="chartSelect mRight10"
           value={type}
-          suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+          suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           onChange={type => {
             otherProps.onSetRule({ type }, ruleIndex);
           }}
@@ -105,7 +105,7 @@ const renderSortableItem = ({ DragHandle, index, item, otherProps }) => {
               style={{ width: 80 }}
               className="chartSelect mRight10"
               value={and}
-              suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+              suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
               onChange={and => {
                 otherProps.onSetRule({ and }, ruleIndex);
               }}
@@ -142,7 +142,7 @@ const renderSortableItem = ({ DragHandle, index, item, otherProps }) => {
         }}
       />
       <Icon
-        className={cx('pointer Font20 mLeft5', rulesLength === 1 ? 'Gray_d' : 'Gray_bd')}
+        className={cx('pointer Font20 mLeft5', rulesLength === 1 ? 'textPlaceholder' : 'textDisabled')}
         icon="close"
         onClick={() => {
           if (rulesLength === 1) return;
@@ -235,7 +235,7 @@ class ColorLevel extends Component {
           >
             <div className="palette valignWrapper pointer">
               <div className="colorBox" style={{ backgroundColor: color }}></div>
-              <Icon icon="expand_more" className="Gray_9e Font20" />
+              <Icon icon="expand_more" className="textTertiary Font20" />
             </div>
           </ColorPicker>
           <Input
@@ -280,9 +280,10 @@ class ColorLevel extends Component {
             <div className="mBottom8">{_l('选择依据的字段')}</div>
             <Select
               style={{ width: 130 }}
+              placeholder={_l('请选择')}
               className={cx('chartSelect mRight10', { Red: controlId && !_.find(filterYaxisList, { controlId }) })}
               value={controlId ? (_.find(filterYaxisList, { controlId }) ? controlId : _l('已删除')) : undefined}
-              suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+              suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
               onChange={controlId => {
                 this.setState({ controlId });
               }}
@@ -297,7 +298,7 @@ class ColorLevel extends Component {
                 style={{ width: 130 }}
                 className="chartSelect mRight10"
                 value={applyValue}
-                suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                 onChange={applyValue => {
                   this.setState({ applyValue });
                 }}
@@ -348,7 +349,7 @@ class ColorLevel extends Component {
 class ColorScope extends Component {
   constructor(props) {
     super(props);
-    const { scopeRules } = props.colorRule;
+    const { controlId, scopeRules } = props.colorRule;
     const defaultScopeRules = [
       {
         type: 2,
@@ -361,6 +362,7 @@ class ColorScope extends Component {
       },
     ];
     this.state = {
+      controlId: controlId || props.currentControlId,
       scopeRules: scopeRules
         ? scopeRules.map((n, index) => {
             return {
@@ -387,6 +389,7 @@ class ColorScope extends Component {
   };
   getSaveData = () => {
     return {
+      controlId: this.state.controlId,
       scopeRules: this.state.scopeRules,
     };
   };
@@ -417,19 +420,44 @@ class ColorScope extends Component {
     });
   };
   render() {
-    const { isPercent } = this.props;
-    const { scopeRules } = this.state;
+    const { isPercent, yaxisList } = this.props;
+    const { scopeRules, controlId } = this.state;
     const otherProps = {
       isPercent,
       rulesLength: scopeRules.length,
       onSetRule: this.handleSetRule,
       onDeleteRule: this.handleDeleteRule,
     };
+    const filterYaxisList = _.uniqBy(yaxisList, 'controlId').filter(data => data.normType !== 7);
+    const renderOption = data => {
+      const norm = _.find(textNormTypes, { value: data.normType });
+      return (
+        <Select.Option className="selectOptionWrapper" key={data.controlId} value={data.controlId}>
+          {data.controlName}
+          {!isNumberControl(data.controlType) && norm && ` (${norm.text})`}
+        </Select.Option>
+      );
+    };
     return (
       <Fragment>
+        <div className="mTop16 mBottom8">
+          <div className="mBottom8">{_l('选择依据的字段')}</div>
+          <Select
+            style={{ width: 130 }}
+            placeholder={_l('请选择')}
+            className={cx('chartSelect mRight10', { Red: controlId && !_.find(filterYaxisList, { controlId }) })}
+            value={controlId ? (_.find(filterYaxisList, { controlId }) ? controlId : _l('已删除')) : undefined}
+            suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
+            onChange={controlId => {
+              this.setState({ controlId });
+            }}
+          >
+            {filterYaxisList.map(renderOption)}
+          </Select>
+        </div>
         <div className="flexRow valignWrapper mTop16 mBottom8">
           <div className="flex">{_l('规则')}</div>
-          <div className="flexRow valignWrapper ThemeColor pointer addRuleColor" onClick={this.handleAddRule}>
+          <div className="flexRow valignWrapper colorPrimary pointer addRuleColor" onClick={this.handleAddRule}>
             <Icon icon="add" />
             {_l('添加规则')}
           </div>
@@ -497,7 +525,15 @@ export default class RuleColor extends Component {
     );
   }
   render() {
-    const { visible, onCancel, isPercent = false, yaxisList = [], colorRule, reportType } = this.props;
+    const {
+      visible,
+      onCancel,
+      isPercent = false,
+      yaxisList = [],
+      colorRule,
+      reportType,
+      currentControlId,
+    } = this.props;
     const { model } = this.state;
     return (
       <Modal
@@ -507,7 +543,7 @@ export default class RuleColor extends Component {
         visible={visible}
         centered={true}
         destroyOnClose={true}
-        closeIcon={<Icon icon="close" className="Font20 pointer Gray_9e" />}
+        closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
         footer={this.renderRuleColorFooter()}
         onCancel={onCancel}
       >
@@ -529,7 +565,9 @@ export default class RuleColor extends Component {
         {model === 2 && (
           <ColorScope
             isPercent={isPercent}
+            yaxisList={yaxisList}
             colorRule={colorRule}
+            currentControlId={currentControlId}
             ref={el => {
               this.colorLevelEl = el;
             }}

@@ -2,7 +2,7 @@
   width: 100%;
   padding: 0 25px;
   box-sizing: border-box;
-  border: 1px solid #eaeaea;
+  border: 1px solid var(--color-border-secondary);
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
@@ -24,9 +24,9 @@
     position: absolute;
     left: 6px;
     top: 48px;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
     &:hover {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
   }
 
@@ -34,20 +34,20 @@
     width: 75px;
     height: 24px;
     line-height: 22px;
-    border: 1px solid #1677ff;
+    border: 1px solid var(--color-primary);
     border-radius: 12px;
-    color: #1677ff;
+    color: var(--color-primary);
     display: inline-block;
     text-align: center;
     cursor: pointer;
     &:hover {
-      border-color: #49adfc !important;
-      color: #49adfc !important;
+      border-color: var(--color-primary-light) !important;
+      color: var(--color-primary-light) !important;
     }
   }
   .trialText {
     font-weight: bold;
-    color: #de9000;
+    color: var(--color-warning);
   }
   .cardItemHeader {
     padding: 24px 0;
@@ -59,11 +59,11 @@
       display: flex;
       align-items: center;
     }
-    .Gray_70 {
-      color: #707070;
+    .textSecondary {
+      color: var(--color-text-secondary);
     }
     .color_gr {
-      color: #47b14b;
+      color: var(--color-success);
     }
     .cardItemLeft {
       .itemTag {
@@ -71,32 +71,32 @@
         font-weight: bold;
         border-radius: 12px;
         &.active {
-          color: #1677ff;
-          background-color: rgba(33, 150, 243, 0.08);
+          color: var(--color-primary);
+          background-color: var(--color-primary-transparent);
         }
         &.grayActive {
-          color: #47b14b;
+          color: var(--color-success);
           background-color: rgba(71, 177, 75, 0.08);
         }
         &.closeActive {
-          color: #9e9e9e;
-          background: #f5f5f5;
+          color: var(--color-text-tertiary);
+          background: var(--color-background-secondary);
         }
       }
       .itemDivice {
         width: 1px;
         height: 8px;
-        background-color: #eaeaea;
+        background-color: var(--color-border-secondary);
       }
     }
     .cardItemRight {
       display: flex;
       align-items: center;
       .cancelApplication {
-        color: #ff0000;
+        color: var(--color-error);
       }
       .cancelApplication:hover {
-        color: #fb575f !important;
+        color: var(--color-error-hover) !important;
       }
     }
   }
@@ -104,7 +104,7 @@
   .infoContent {
     transition: height 0.5s;
     .extendItemBox {
-      border-top: 1px solid #eaeaea;
+      border-top: 1px solid var(--color-border-secondary);
       padding: 24px 0;
       box-sizing: border-box;
       display: flex;
@@ -116,7 +116,7 @@
         flex: 1;
         min-width: 0;
         .extendRightLabel {
-          color: #757575;
+          color: var(--color-text-secondary);
           width: 76px;
           text-align: left;
         }
@@ -146,7 +146,7 @@
   box-sizing: border-box;
   line-height: 38px;
   height: 38px;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
   border-radius: 3px;
   padding-left: 10px;
   border: 0px;
@@ -166,7 +166,7 @@
   }
   .userTag {
     .user {
-      background-color: #ddd;
+      background-color: var(--color-border-primary);
       border-radius: 15px;
       display: inline-block;
       padding: 5px 20px 5px 5px;
@@ -204,7 +204,7 @@
   .enterpriseCardItem {
     .dragIcon {
       display: block;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
   }
 }

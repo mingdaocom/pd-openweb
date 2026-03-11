@@ -10,7 +10,7 @@ const TYPE_OPTIONS = [
     text: (
       <span>
         {_l('成员')}
-        <span className="subText Gray_9e">（{_l('可查看记录')}）</span>
+        <span className="subText textTertiary">（{_l('可查看记录')}）</span>
       </span>
     ),
     value: 1,
@@ -19,7 +19,7 @@ const TYPE_OPTIONS = [
     text: (
       <span>
         {_l('拥有者')}
-        <span className="subText Gray_9e">（{_l('可编辑、删除记录')}）</span>
+        <span className="subText textTertiary">（{_l('可编辑、删除记录')}）</span>
       </span>
     ),
     value: 2,
@@ -28,7 +28,7 @@ const TYPE_OPTIONS = [
     text: (
       <span>
         {_l('无')}
-        <span className="subText Gray_9e">（{_l('仅存储数据')}）</span>
+        <span className="subText textTertiary">（{_l('仅存储数据')}）</span>
       </span>
     ),
     value: 0,
@@ -66,7 +66,7 @@ export default function WidgetUserPermission({ data, onChange }) {
             placement="bottom"
             title="若工作表数据过多，当范围设置[当前部门及所有下级部门成员]或[当前部门及所有上级部门负责人]时，用户打开表单或视图时可能会显示异常。"
           >
-            <i className="icon-help Gray_9e Font16 Hand mLeft4"></i>
+            <i className="icon-help textTertiary Font16 Hand mLeft4"></i>
           </Tooltip>
         )}
       </div>

@@ -16,7 +16,7 @@ import { browserIsMobile } from 'src/utils/common';
 
 const Con = styled.div`
   height: 100%;
-  background: #fff;
+  background: var(--color-background-primary);
   .SingleViewHeader {
     padding-right: 10px;
     .svgWrap {

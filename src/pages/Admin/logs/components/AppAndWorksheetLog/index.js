@@ -38,7 +38,7 @@ const FlexWrap = styled.div`
   overflow: hidden;
   .disabledDetail {
     cursor: not-allowed;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
 `;
 const TabWrap = styled.div`
@@ -47,7 +47,7 @@ const TabWrap = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid var(--color-border-secondary);
   font-size: 17px;
   font-weight: 600;
   .tabBox {
@@ -66,11 +66,11 @@ const TabWrap = styled.div`
     padding: 0 16px;
     cursor: pointer;
     &:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
     }
     &.active {
-      color: #1677ff;
-      border-bottom-color: #1677ff;
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
     }
   }
 `;
@@ -90,7 +90,7 @@ const NoAuthorWrap = styled.div`
     line-height: 130px;
     border-radius: 50%;
     text-align: center;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
     img {
       width: 100%;
     }
@@ -98,29 +98,30 @@ const NoAuthorWrap = styled.div`
   .explainText {
     margin: 30px 0 50px 0;
     font-size: 17px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
 `;
 const Box = styled.div`
   width: 100%;
   height: 36px;
-  background: #fefbe7;
+  background: var(--color-yellow-black);
   border-radius: 3px;
-  border: 1px solid #fce596;
+  border: 1px solid var(--color-warning-border);
   padding: 0 12px;
 `;
 const AvatarWrap = styled.div`
   width: 24px;
   height: 24px;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
 `;
 const PAGE_SIZE = 50;
 export default class AppAndWorksheetLog extends Component {
   constructor(props) {
     super(props);
-    const columns = md.global.Config.IsLocal
-      ? APP_WORKSHEET_LOG_COLUMNS.concat(PRIVATE_APP_WORKSHEET_LOG_COLUMNS)
-      : APP_WORKSHEET_LOG_COLUMNS;
+    const columns =
+      window.platformENV.isOverseas || window.platformENV.isLocal
+        ? APP_WORKSHEET_LOG_COLUMNS.concat(PRIVATE_APP_WORKSHEET_LOG_COLUMNS)
+        : APP_WORKSHEET_LOG_COLUMNS;
     const { oldsheetlog } = getRequest(location.search);
     this.state = {
       appList: [],
@@ -176,7 +177,7 @@ export default class AppAndWorksheetLog extends Component {
                   <div className="flexRow">
                     {isPublicFileDownload ? (
                       <AvatarWrap className="pointer circle mRight8 valignWrapper justifyContentCenter">
-                        <Icon icon="worksheet" className="Gray_9e Font16 TxtMiddle" />
+                        <Icon icon="worksheet" className="textTertiary Font16 TxtMiddle" />
                       </AvatarWrap>
                     ) : (
                       <UserHead
@@ -194,7 +195,7 @@ export default class AppAndWorksheetLog extends Component {
 
                     {isNormalUser ? (
                       <UserName
-                        className="Gray Font13 pRight10 pTop3 flex ellipsis"
+                        className="textPrimary Font13 pRight10 pTop3 flex ellipsis"
                         projectId={projectId}
                         user={{
                           userName: fullname,
@@ -210,7 +211,7 @@ export default class AppAndWorksheetLog extends Component {
                 return <span>{companyName}</span>;
               case 'appId':
                 return status === 2 ? (
-                  <span className="Gray_9e">{_l('已删除')}</span>
+                  <span className="textTertiary">{_l('已删除')}</span>
                 ) : appName ? (
                   <IsAppAdmin
                     appId={appId}
@@ -226,7 +227,7 @@ export default class AppAndWorksheetLog extends Component {
                 );
               case 'worksheetId':
                 return name ? (
-                  <span className="Hand Hover_21" onClick={() => navigateTo(`/worksheet/${id}`)}>
+                  <span className="Hand hoverColorPrimary" onClick={() => navigateTo(`/worksheet/${id}`)}>
                     {name}
                   </span>
                 ) : (
@@ -350,7 +351,6 @@ export default class AppAndWorksheetLog extends Component {
       dateTimeRange = {},
       archiveDate,
     } = searchValues;
-    const { startDate, endDate } = dateTimeRange;
     const galFeatureType = getFeatureStatus(projectId, VersionProductType.globalBehaviorLog);
     let operationTypesData = OPERATE_LIST.filter(it =>
       logType === 1
@@ -397,7 +397,7 @@ export default class AppAndWorksheetLog extends Component {
               this.setState({ activeDateRange: val });
             },
             disabledDate: current => {
-              if (md.global.Config.IsLocal) {
+              if (window.platformENV.isOverseas || window.platformENV.isLocal) {
                 if (!activeDateRange) {
                   return false;
                 }
@@ -424,7 +424,7 @@ export default class AppAndWorksheetLog extends Component {
         allowClear: true,
         options: appList,
         value: appIds,
-        notFoundContent: <span className="Gray_9e">{_l('无搜索结果')}</span>,
+        notFoundContent: <span className="textTertiary">{_l('无搜索结果')}</span>,
         mode: 'multiple',
         maxTagCount: 'responsive',
         onSearch: _.debounce(val => this.setState({ keyword: val, appPageIndex: 1 }, this.getAppList), 500),
@@ -468,7 +468,7 @@ export default class AppAndWorksheetLog extends Component {
               .indexOf(inputValue.toLowerCase()) > -1
           );
         },
-        notFoundContent: <span className="Gray_9e">{_l('无搜索结果')}</span>,
+        notFoundContent: <span className="textTertiary">{_l('无搜索结果')}</span>,
         maxTagCount: 'responsive',
       },
       {
@@ -740,11 +740,15 @@ export default class AppAndWorksheetLog extends Component {
           </div>
 
           <div>
-            {md.global.Config.IsLocal ? '' : <span className="tipInfo">{_l('保留最近6个月的日志')}</span>}
+            {window.platformENV.isOverseas || window.platformENV.isLocal ? (
+              ''
+            ) : (
+              <span className="tipInfo">{_l('保留最近6个月的日志')}</span>
+            )}
             {appId && (
               <Tooltip title={_l('查看旧版工作表日志')}>
                 <i
-                  className="icon icon-draft-box Gray_9 Hand mLeft26 Font17 Hover_21"
+                  className="icon icon-draft-box textTertiary Hand mLeft26 Font17 hoverColorPrimary"
                   onClick={() => this.setState({ showWorksheetLog: true })}
                 />
               </Tooltip>
@@ -754,7 +758,7 @@ export default class AppAndWorksheetLog extends Component {
               showSelectItem={false}
               archivedItem={archivedItem}
               params={{ projectId, appId }}
-              iconClassName="mLeft26 Gray_9"
+              iconClassName="mLeft26 textTertiary"
               onChange={archivedItem => {
                 this.setState(
                   {
@@ -770,7 +774,7 @@ export default class AppAndWorksheetLog extends Component {
               }}
             />
             <i
-              className="icon-task-later Gray_9 hoverText mRight26 Font17 mLeft26"
+              className="icon-task-later textTertiary hoverText mRight26 Font17 mLeft26"
               onClick={() => this.setState({ searchValues: {}, pageIndex: 1 }, this.getLogList)}
             />
             <Tooltip placement="bottom" title={_l('导出上限10万条，超出限制可以先筛选，再分次导出。')}>
@@ -807,7 +811,7 @@ export default class AppAndWorksheetLog extends Component {
                 </div>
                 <Icon
                   icon="cancel"
-                  className="Font20 mLeft10 Gray_9e ThemeHoverColor3 pointer"
+                  className="Font20 mLeft10 textTertiary ThemeHoverColor3 pointer"
                   onClick={() => this.setState({ archivedItem: {}, searchValues: {} }, this.getLogList)}
                 />
               </Box>
@@ -822,7 +826,7 @@ export default class AppAndWorksheetLog extends Component {
                   const { startDate, endDate } = searchParams.dateTimeRange || {};
 
                   if (
-                    md.global.Config.IsLocal &&
+                    (window.platformENV.isOverseas || window.platformENV.isLocal) &&
                     moment(endDate).subtract(6, 'months').format('YYYYMMDDHHmmss') >
                       moment(startDate).format('YYYYMMDDHHmmss')
                   ) {
@@ -885,7 +889,7 @@ export default class AppAndWorksheetLog extends Component {
                   record.module === 8 &&
                   _.includes([1, 3], record.operationType) ? (
                     <span
-                      className={cx('ThemeColor Hand', {
+                      className={cx('colorPrimary Hand', {
                         disabledDetail: loadingControlDetails && currentRowInfo.id === record.id,
                       })}
                       onClick={() => this.getControls(record)}

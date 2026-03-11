@@ -58,7 +58,7 @@ const VoteUpdater = {
           <div class="Left ThemeColor3 Hand" id="{{= it.idPrefix + "VotePicUpload" + it.curindex }}">{{= _l("上传图片") }}...</div>\
           {{? it.canClose}}\
           <div class="Left mLeft10">\
-            <span class="Hand Bold Gray_a removeVoteItem" title="{{= _l("关闭") }}">×</span>\
+            <span class="Hand Bold textTertiary removeVoteItem" title="{{= _l("关闭") }}">×</span>\
           </div>\
           {{?}}\
           <div class="Clear"></div>\
@@ -316,7 +316,7 @@ const VoteUpdater = {
     return $el.each(function (i, el) {
       var $el = $(el);
       if ($el.find('.voteOptions input').length > 0) {
-        $el.find('.voteOptions input[type = "text"]').addClass('Gray_c').val(_l('请输入投票项'));
+        $el.find('.voteOptions input[type = "text"]').addClass('textPlaceholder').val(_l('请输入投票项'));
         $el.find('.UploadSuccess').html('');
         $el.find('div[pluploadid]').show();
         $el.find('.voteOptions li:gt(1)').remove();

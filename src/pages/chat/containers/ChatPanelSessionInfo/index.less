@@ -17,7 +17,7 @@
     padding: 14px 0;
   }
   &-hander {
-    color: #000;
+    color: var(--color-text-primary);
     font-weight: bolder;
     font-size: 14px;
     padding: 0 16px;
@@ -29,7 +29,7 @@
       cursor: pointer;
     }
     &-entry:not(:hover) {
-      color: #9e9e9e !important;
+      color: var(--color-text-tertiary) !important;
     }
   }
   .nodata {
@@ -44,7 +44,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     &.hidden {
       right: -100%;
     }

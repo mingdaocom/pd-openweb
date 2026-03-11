@@ -5,7 +5,7 @@ import _, { find } from 'lodash';
 import { arrayOf, func, shape } from 'prop-types';
 import styled from 'styled-components';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown/RelateRecordDropdownCopy';
-import { getTitleTextFromRelateControl } from 'src/components/Form/core/utils';
+import { getTitleTextFromRelateControl } from 'src/utils/control';
 import RelateRecordOptions from './RelateRecordOptions';
 
 const Con = styled.div`
@@ -18,12 +18,12 @@ const Con = styled.div`
     max-height: 102px;
     overflow-y: auto;
     &.active {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
   }
   &:hover {
     .RelateRecordDropdown-selected:not(.active) {
-      border-color: #ccc;
+      border-color: var(--color-border-tertiary);
     }
   }
   &.isMultiple:not(.active) {
@@ -67,7 +67,7 @@ const SelectedTags = styled.div`
     line-height: 24px;
     padding: 0 24px 0 10px;
     background-color: rgba(0, 100, 240, 0.08);
-    color: #151515;
+    color: var(--color-text-title);
     border-radius: 3px;
     .name {
       max-width: 100%;
@@ -77,10 +77,10 @@ const SelectedTags = styled.div`
       position: absolute;
       right: 4px;
       top: 4px;
-      color: #9d9d9d;
+      color: var(--color-text-tertiary);
       font-size: 16px;
       &:hover {
-        color: #757575;
+        color: var(--color-text-secondary);
       }
     }
     &.active.allowRemove {
@@ -90,7 +90,7 @@ const SelectedTags = styled.div`
 `;
 
 export default function RelateRecord(props) {
-  const { isDark, worksheetId, values = [], filtersData, advancedSetting, onChange = () => {} } = props;
+  const { isDark, worksheetId, values = [], filtersData, advancedSetting, onChange = () => {}, appId } = props;
   const controlAdvancedSetting = _.get(props, 'control.advancedSetting') || {};
   const control = _.assign({}, props.control, {
     advancedSetting: {
@@ -138,7 +138,7 @@ export default function RelateRecord(props) {
   }
   if (!values.length) {
     renderSelected = () => (
-      <span className="normalSelectedItem" style={{ fontSize: 13, color: '#bdbdbd' }}>
+      <span className="normalSelectedItem" style={{ fontSize: 13, color: 'var(--color-text-disabled)' }}>
         {_l('请选择')}
       </span>
     );
@@ -189,6 +189,7 @@ export default function RelateRecord(props) {
         formData={filtersData}
         control={control}
         parentWorksheetId={worksheetId}
+        parentAppId={appId}
         prefixRecords={prefixRecords}
         staticRecords={
           staticRecords

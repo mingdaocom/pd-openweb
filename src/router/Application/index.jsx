@@ -58,15 +58,19 @@ export default class Application extends Component {
     ajaxRequest
       .checkApp({ appId }, { silent: true })
       .then(status => {
+        localStorage.removeItem('accessPolicyStatus');
         if ([4].includes(status) && ['/role', '/workflow'].some(path => this.props.location.pathname.includes(path))) {
           navigateTo(`/app/${appId}`);
         }
         this.setState({ status });
         this.props.setAppStatus(status);
       })
-      .catch(() => {
-        this.setState({ status: 3 });
-        this.props.setAppStatus({ status: 3 });
+      .catch(err => {
+        this.setState({ status: err.errorCode === 300016 ? err.errorCode : 3 });
+        this.props.setAppStatus({ status: err.errorCode === 300016 ? err.errorCode : 3 });
+        if (err.errorCode === 300016) {
+          localStorage.setItem('accessPolicyStatus', err.errorCode);
+        }
       });
   }
 

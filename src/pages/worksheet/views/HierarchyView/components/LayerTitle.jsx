@@ -8,7 +8,7 @@ import { Input } from 'ming-ui';
 import SheetContext from 'worksheet/common/Sheet/SheetContext';
 
 const ItemTitle = styled.ul`
-  background-color: #f5f5f8;
+  background-color: var(--color-background-secondary);
   display: flex;
   margin-bottom: 4px;
   transform-origin: left;
@@ -22,7 +22,7 @@ const ItemTitle = styled.ul`
       border: none;
       padding-left: 0;
       height: 28px;
-      border-bottom: 2px solid #1677ff;
+      border-bottom: 2px solid var(--color-primary);
       background-color: transparent;
       font-size: 14px;
       border-radius: 0;
@@ -81,7 +81,7 @@ export default function LayerTitle({
               />
             ) : (
               <span
-                className={cx('overflow_ellipsis', value ? 'Gray_75 Bold' : 'Gray_bd Bold')}
+                className={cx('overflow_ellipsis', value ? 'textSecondary Bold' : 'textDisabled Bold')}
                 onClick={() => {
                   if (
                     _.get(context, 'config.fromEmbed') ||

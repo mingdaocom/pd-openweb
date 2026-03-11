@@ -5,9 +5,10 @@ import _ from 'lodash';
 import { Checkbox, Dropdown } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from 'src/pages/widgetConfig/util/setting';
+import FilterDialog from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterDialog';
+import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import { SYSTEM_CONTROL } from '../../../../config/widget';
 import { formatViewToDropdown } from '../../../../util';
-import { FilterDialog, FilterItemTexts } from '../../../components/FilterData';
 
 export default function RelateConfig(props) {
   const { data, onChange, globalSheetControls, allControls } = props;
@@ -43,7 +44,7 @@ export default function RelateConfig(props) {
           onClick={checked => {
             setState({ isRelateView: !checked });
             if (checked) {
-              onChange({ viewId: '' });
+              onChange({ ...handleAdvancedSettingChange(data, { batchbtn: '', batchprint: '' }), viewId: '' });
             }
           }}
         >
@@ -58,7 +59,7 @@ export default function RelateConfig(props) {
               </span>
             }
           >
-            <i className="icon-help Gray_bd Font16 pointer"></i>
+            <i className="icon-help textDisabled Font16 pointer"></i>
           </Tooltip>
         </Checkbox>
       </div>
@@ -122,7 +123,7 @@ export default function RelateConfig(props) {
                 >
                   <span style={{ marginRight: '6px' }}>{_l('按条件过滤')}</span>
                   <Tooltip placement="bottom" title={_l('设置筛选条件，只显示满足条件的关联记录')}>
-                    <i className="icon-help Gray_bd Font16 pointer"></i>
+                    <i className="icon-help textDisabled Font16 pointer"></i>
                   </Tooltip>
                 </Checkbox>
               </div>
@@ -189,7 +190,7 @@ export default function RelateConfig(props) {
                       </span>
                     }
                   >
-                    <i className="icon icon-help Gray_bd Font15 mLeft5 pointer" />
+                    <i className="icon icon-help textDisabled Font15 mLeft5 pointer" />
                   </Tooltip>
                 </Checkbox>
               </div>
@@ -211,7 +212,7 @@ export default function RelateConfig(props) {
                 }
               >
                 <Tooltip placement="bottom" title={_l('在表单中显示关联记录的数量')}>
-                  <i className="icon icon-help Gray_bd Font15 mLeft5 pointer" />
+                  <i className="icon icon-help textDisabled Font15 mLeft5 pointer" />
                 </Tooltip>
               </Checkbox>
             </div>

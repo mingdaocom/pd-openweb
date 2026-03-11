@@ -359,11 +359,11 @@ const Entrance = React.forwardRef((props, ref) => {
                     <Icon
                       className="Font16 mRight10"
                       icon={item.ignoreErrorMessage ? 'error_outline' : 'error1'}
-                      style={{ color: item.ignoreErrorMessage ? '#F8932C' : '#FF0000' }}
+                      style={{ color: item.ignoreErrorMessage ? 'var(--color-warning)' : 'var(--color-error)' }}
                     />
                   </div>
 
-                  <div className="flex WordBreak Font14 Gray">{item.errorMessage}</div>
+                  <div className="flex WordBreak Font14 textPrimary">{item.errorMessage}</div>
                 </div>
               );
             })}
@@ -389,11 +389,11 @@ const Entrance = React.forwardRef((props, ref) => {
                     <Icon
                       className="Font16 pointer"
                       icon={item.ignoreErrorMessage ? 'error_outline' : 'error1'}
-                      style={{ color: item.ignoreErrorMessage ? '#F8932C' : '#FF0000' }}
+                      style={{ color: item.ignoreErrorMessage ? 'var(--color-warning)' : 'var(--color-error)' }}
                     />
                   </Tooltip>
 
-                  <div className="flex WordBreak Font14 Gray">{item.errorMessage}</div>
+                  <div className="flex WordBreak Font14 textPrimary">{item.errorMessage}</div>
                 </div>
               );
             })}
@@ -528,7 +528,7 @@ const Entrance = React.forwardRef((props, ref) => {
 
   return (
     <EntranceContext.Provider value={{ state, dispatch }}>
-      <div className="h100 w100" ref={containerRef}>
+      <div className="h100 w100 formContainer" ref={containerRef}>
         <Component
           {...props}
           {...state}

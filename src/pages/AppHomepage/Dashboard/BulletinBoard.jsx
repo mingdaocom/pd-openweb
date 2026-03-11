@@ -19,25 +19,25 @@ const CarouselWrapper = styled(Carousel)`
         width: 100%;
         height: 100%;
         border-radius: 50%;
-        border: 1px solid #fff;
+        border: 1px solid var(--color-white);
         background-color: transparent;
         box-shadow: 0 2px 6px 0px rgb(0 0 0 / 15%);
         opacity: 1;
         &:hover {
           opacity: 1;
-          background-color: #fff;
+          background-color: var(--color-white);
         }
       }
       &.slick-active {
         width: 10px;
         button {
-          background-color: #fff !important;
+          background-color: var(--color-white) !important;
         }
       }
     }
   }
   .image {
-    background-color: #454545;
+    background-color: var(--color-background-inverse);
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
@@ -54,10 +54,10 @@ const CarouselWrapper = styled(Carousel)`
     padding: ${({ isMobile }) => (isMobile ? '10px 70px 10px 16px' : '24px 160px 16px 16px')};
     background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(9, 5, 5, 0.03) 16%, rgba(0, 0, 0, 0.28) 100%);
     .titleText {
-      color: #fff;
+      color: var(--color-white);
       font-size: ${({ isMobile }) => (isMobile ? '15px' : '17px')};
       font-weight: bold;
-      text-shadow: 0px 1px 4px rgba(0, 0, 0, 0.3);
+      text-shadow: var(--shadow-sm);
     }
   }
 `;
@@ -68,7 +68,7 @@ const BulletinSkeleton = styled.div`
   .skeletonBlock {
     width: 100%;
     height: 100%;
-    background-color: #f6f6f6;
+    background-color: var(--color-background-secondary);
     border-radius: 11px;
   }
 `;

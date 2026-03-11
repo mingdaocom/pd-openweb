@@ -13,7 +13,7 @@
   .sheetTabWrap {
     height: 36px;
     padding: 0 20px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
   }
   .workSheetViewsWrapper {
     width: 100%;
@@ -57,7 +57,7 @@
   .tableWrap {
     border-radius: 3px;
     margin: 0 20px;
-    background: #fff;
+    background: var(--color-background-primary);
     border: 1px solid rgba(0, 0, 0, 0.06);
     overflow-x: auto;
     td {
@@ -84,7 +84,7 @@
     //   border-right: 0;
     // }
     tr:nth-of-type(even) {
-      background: #fafcfd;
+      background: var(--color-cyan-blue);
     }
     tr:hover {
       background: rgba(0, 0, 0, 0.04);
@@ -102,8 +102,8 @@
     justify-content: space-between;
     align-items: center;
     .cancelBtn {
-      color: #a3a3a3;
-      background-color: #f5f5f5;
+      color: var(--color-text-tertiary);
+      background-color: var(--color-background-secondary);
     }
     .Button {
       &.bold {
@@ -133,7 +133,7 @@
 
 .editSheetNameInput {
   height: 25px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-secondary);
 }
 
 .selectImportSheetWrap {
@@ -141,7 +141,7 @@
   height: 245px;
   overflow: auto;
   padding: 10px 16px 16px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   z-index: 1000;
   border-radius: 3px;
   box-shadow: 0 4px 16px 1px rgba(0, 0, 0, 0.24);
@@ -149,7 +149,7 @@
     margin-top: -2px;
   }
   .Colorff9 {
-    color: #ff9300;
+    color: var(--color-warning);
   }
 }
 
@@ -157,7 +157,7 @@
   width: 240px;
   max-height: 275px;
   padding: 16px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   border-radius: 3px;
   box-shadow: 0 4px 16px 1px rgba(0, 0, 0, 0.24);
   overflow: auto;
@@ -168,7 +168,7 @@
   }
   .spaceLine {
     height: 1px;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--color-border-secondary);
     margin: 10px 0;
   }
 }

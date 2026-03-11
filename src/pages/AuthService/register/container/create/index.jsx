@@ -367,11 +367,11 @@ export default function (props) {
       <div className="titleHeader">
         {!location.href.match(/enterpriseRegister(\.htm)?\?type=create/i) && (
           <span className="mTop40 Font15 InlineBlock Hand backspaceT" onClick={() => onChange({ step: 'createOrAdd' })}>
-            <span className="Font16 backspace Gray_9e"></span> {_l('返回')}
+            <span className="Font16 backspace textTertiary"></span> {_l('返回')}
           </span>
         )}
         <div className="title mTop24">{_l('创建组织')}</div>
-        <p className="mTop15 Gray_9e Font15">{_l('您当前账号默认成为组织的管理员')}</p>
+        <p className="mTop15 textTertiary Font15">{_l('您当前账号默认成为组织的管理员')}</p>
       </div>
       {renderCon()}
       <span

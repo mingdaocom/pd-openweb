@@ -3,13 +3,13 @@ import { number, string } from 'prop-types';
 import styled from 'styled-components';
 
 const CreatedBy = styled.div`
-  color: #757575;
+  color: var(--color-text-secondary);
   a {
-    color: #151515;
+    color: var(--color-text-title);
     font-weight: bold;
     font-style: italic;
     &:hover {
-      color: #40a9ff;
+      color: var(--color-primary-light);
     }
   }
 `;

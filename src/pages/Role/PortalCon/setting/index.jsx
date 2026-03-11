@@ -25,16 +25,7 @@ const Wrap = styled.div`
   display: flex;
   flex-flow: column nowrap;
   width: 640px;
-  background: #fff;
-  .cover {
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    right: 640px;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: -1;
-  }
+  background: var(--color-background-primary);
   .header {
     padding: 24px 24px 16px;
     display: flex;
@@ -45,7 +36,7 @@ const Wrap = styled.div`
     }
   }
   .conTab {
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     padding-left: 8px;
     li {
       display: inline-block;
@@ -54,17 +45,17 @@ const Wrap = styled.div`
       padding-bottom: 13px;
       font-size: 14px;
       font-weight: 500;
-      color: #757575;
+      color: var(--color-text-secondary);
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
       &.current {
-        color: #1677ff;
+        color: var(--color-primary);
         &::before {
           content: ' ';
           width: 100%;
           height: 3px;
-          background: #1677ff;
+          background: var(--color-primary);
           border-radius: 2px;
           display: inline-block;
           position: absolute;
@@ -76,7 +67,7 @@ const Wrap = styled.div`
   }
 `;
 const WrapCon = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   position: absolute;
   bottom: 0;
   padding: 16px 24px;
@@ -92,10 +83,10 @@ const WrapCon = styled.div`
     box-sizing: border-box;
     line-height: 36px;
     cursor: pointer;
-    background: #1677ff;
-    color: #fff;
+    background: var(--color-primary);
+    color: var(--color-white);
     &:hover {
-      background-color: #1565c0;
+      background-color: var(--color-link-hover);
     }
     &.disable {
       opacity: 0.5;
@@ -108,18 +99,18 @@ const WrapCon = styled.div`
     box-sizing: border-box;
     line-height: 36px;
     cursor: pointer;
-    background: #fff;
-    border: 1px solid #1677ff;
-    color: #1677ff;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
     margin-left: 16px;
     padding: 0 32px;
     width: auto;
   }
   .closePortal {
     line-height: 36px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     &:hover {
-      color: #f44336;
+      color: var(--color-error);
     }
   }
 `;
@@ -333,7 +324,7 @@ class PortalSetting extends React.Component {
               <span className="">{_l('门户设置')}</span>
               <Icon
                 icon="close"
-                className="Right LineHeight25 Gray_9 Hand Font22 ThemeHoverColor3"
+                className="Right LineHeight25 textTertiary Hand Font22 ThemeHoverColor3"
                 onClick={() => {
                   this.closeSetFn(() => {
                     closeSet();

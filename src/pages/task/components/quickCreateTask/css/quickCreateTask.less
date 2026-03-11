@@ -57,7 +57,7 @@
     margin-right: 15px;
     cursor: pointer;
     vertical-align: top;
-    color: #99a1ab;
+    color: var(--color-text-tertiary);
   }
   .createNewSingle .icon-task-star.taskStar {
     color: #fbc02d;
@@ -69,7 +69,7 @@
     margin-top: 2px;
     margin-right: 21px;
     cursor: pointer;
-    color: #99a1ab;
+    color: var(--color-text-tertiary);
   }
   .createNewSingle .createSingleDate.selDate {
     font-size: 12px;
@@ -86,11 +86,11 @@
     display: inline-block;
     margin-right: 18px;
     cursor: pointer;
-    color: #99a1ab;
+    color: var(--color-text-tertiary);
   }
   .stageBox .showStage:hover,
   .calendarBox .icon-bellSchedule:hover {
-    color: #0091ea;
+    color: var(--color-primary);
   }
   .stageBox .stageDrop {
     position: absolute;
@@ -101,7 +101,7 @@
     width: 180px;
     max-height: 257px;
     padding: 5px 0;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
   .stageBox .stageDrop li {
     line-height: 32px;
@@ -113,12 +113,12 @@
   }
   .stageBox .stageDrop li:hover {
     cursor: pointer;
-    color: #fff;
-    background-color: #0091ea;
+    color: var(--color-white);
+    background-color: var(--color-primary);
   }
   .stageBox .stageDrop li.selected {
-    color: #0091ea;
-    background-color: #fff;
+    color: var(--color-primary);
+    background-color: var(--color-background-primary);
   }
   .createNewSingle .calendarBox {
     height: 40px;
@@ -131,6 +131,6 @@
     display: inline-block;
   }
   .quickCreateBtn:not(:hover) {
-    color: #151515 !important;
+    color: var(--color-text-title) !important;
   }
 }

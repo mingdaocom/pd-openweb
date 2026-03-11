@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
-import { antNotification, Checkbox, Dialog, LoadDiv } from 'ming-ui';
+import { antNotification, Checkbox, Dialog } from 'ming-ui';
 import RoleController from 'src/api/role';
 import userAjax from 'src/api/user';
 import addFriends from 'src/components/addFriends';
@@ -27,7 +27,7 @@ class StructureContent extends Component {
 
   componentDidMount() {
     this.loadData();
-    md.global.Config.IsLocal && this.getPermission();
+    (window.platformENV.isOverseas || window.platformENV.isLocal) && this.getPermission();
   }
   componentWillUnmount() {
     localStorage.removeItem('columnsInfoData');
@@ -107,9 +107,9 @@ class StructureContent extends Component {
       title: _l('批量离职'),
       buttonType: 'danger',
       description: (
-        <div className="Gray">
+        <div className="textPrimary">
           {_l('您共勾选了')}
-          <span className="ThemeColor"> {selectedAccountIds.length} </span>
+          <span className="colorPrimary"> {selectedAccountIds.length} </span>
           {_l('个成员，是否确认将勾选成员离职？')}
         </div>
       ),
@@ -154,8 +154,8 @@ class StructureContent extends Component {
     Dialog.confirm({
       title: _l('重新邀请'),
       description: (
-        <div className="Gray">
-          {_l('您共勾选了')} <span className="ThemeColor"> {selectedAccountIds.length} </span> {_l('个用户')}
+        <div className="textPrimary">
+          {_l('您共勾选了')} <span className="colorPrimary"> {selectedAccountIds.length} </span> {_l('个用户')}
         </div>
       ),
       okText: _l('邀请'),
@@ -173,8 +173,8 @@ class StructureContent extends Component {
       title: _l('取消邀请并移除'),
       buttonType: 'danger',
       description: (
-        <div className="Gray">
-          {_l('您共勾选了')} <span className="ThemeColor"> {selectedAccountIds.length} </span>
+        <div className="textPrimary">
+          {_l('您共勾选了')} <span className="colorPrimary"> {selectedAccountIds.length} </span>
           {_l('个成员，是否确认取消邀请勾选用户?')}
         </div>
       ),
@@ -207,7 +207,6 @@ class StructureContent extends Component {
       selectedAccountIds = [],
       departmentName,
       pageSize,
-      isLoading,
       noDepartmentUsers,
       removeUserFromSet = () => {},
       authority = [],
@@ -226,7 +225,7 @@ class StructureContent extends Component {
             {this.renderUserCount()}
             {(typeCursor === 0 || typeCursor === 1) && !departmentId && (
               <Checkbox
-                className="InlineBlock Gray_9e Font12 TxtMiddle LineHeight24 noDepartment"
+                className="InlineBlock textTertiary Font12 TxtMiddle LineHeight24 noDepartment"
                 defaultChecked={typeCursor === 1}
                 checked={noDepartmentUsers}
                 onClick={checked => {
@@ -302,11 +301,7 @@ class StructureContent extends Component {
           </div>
         )}
         <div className="listInfo">
-          {isLoading && typeCursor !== 3 ? (
-            <div className="laodingContainer">
-              <LoadDiv />
-            </div>
-          ) : typeCursor === 3 ? (
+          {typeCursor === 3 ? (
             <ApprovalContent projectId={projectId} {...this.props} />
           ) : (
             <UserTable projectId={projectId} authority={authority} />
@@ -383,7 +378,6 @@ export default connect(
       allCount: userList && userList.allCount,
       pageIndex: userList && userList.pageIndex,
       pageSize: userList && userList.pageSize,
-      isLoading: userList && userList.isLoading,
       departmentName: departmentInfos ? departmentInfos.departmentName : '',
       selectCount: selectedAccountIds.length,
       isSelectAll,
@@ -415,6 +409,7 @@ export default connect(
           'updateSelectedAccountIds',
           'updateUserStatus',
           'updateNoDepartmentUsers',
+          'updateApplyDateOrderBy',
         ]),
       },
       dispatch,

@@ -86,7 +86,7 @@ export default class SearchBar extends React.Component {
     return (
       <div className="contacts-search">
         <div className="contacts-search-wrapper">
-          <Icon icon="search" className="Font18 Gray_a mTop1" />
+          <Icon icon="search" className="Font18 textTertiary mTop1" />
           <input
             type="text"
             className="contacts-search-input"
@@ -100,7 +100,7 @@ export default class SearchBar extends React.Component {
             <Icon
               icon={isGroup ? 'group_add' : 'invite'}
               className={cx(
-                'contacts-search-addbtn pLeft12 pRight20 Gray_9e Hand ThemeHoverColor3',
+                'contacts-search-addbtn pLeft12 pRight20 textTertiary Hand ThemeHoverColor3',
                 isGroup ? 'Font22' : 'Font18 mLeft5',
               )}
               onClick={this.addHandler}

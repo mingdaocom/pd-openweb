@@ -8,7 +8,7 @@ import autoSize from 'ming-ui/decorators/autoSize';
 import worksheetAjax from 'src/api/worksheet';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import * as actions from 'worksheet/redux/actions/galleryview';
-import { getEmbedValue } from 'src/components/Form/core/formUtils';
+import { getEmbedValue } from 'src/components/Form/core/formUtils/helper';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
 import GroupByControl, { getDefaultValue } from 'src/pages/worksheet/components/GroupByControl.jsx';
@@ -374,13 +374,13 @@ export default class RecordGallery extends Component {
         control,
       }) && allowAddNewRecord;
     if (!allowAdd) {
-      return <div className="Gray_75 Font16 pTop20 pBottom20 TxtCenter">{_l('该分组下无记录')}</div>;
+      return <div className="textSecondary Font16 pTop20 pBottom20 TxtCenter">{_l('该分组下无记录')}</div>;
     }
 
     return (
       <div className="galleryItem addNewGallery" style={{ width: getWidth(this.props) }}>
         <span
-          className="addRow overflow_ellipsis WordBreak flexRow alignItemsCenter TxtCenter Gray_75 hoverText"
+          className="addRow overflow_ellipsis WordBreak flexRow alignItemsCenter TxtCenter textSecondary hoverText"
           onClick={() => addRecordInfo()}
         >
           <span className="Icon icon icon-plus Font13 mRight5" />

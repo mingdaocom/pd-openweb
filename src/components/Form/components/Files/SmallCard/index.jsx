@@ -84,7 +84,7 @@ const SmallCard = props => {
           {_l('在线编辑')}
         </MenuItem>
       )}
-      {allowDownload && (
+      {allowDownload && !showDownloadOfDeleteBtn && (
         <MenuItem
           key="download"
           icon={<Icon icon="download" className="Font17 pRight5" />}
@@ -101,7 +101,7 @@ const SmallCard = props => {
           {_l('下载')}
         </MenuItem>
       )}
-      {isDeleteFile && (
+      {isDeleteFile && !showDownloadOfDeleteBtn && (
         <MenuItem
           key="delete"
           icon={<Icon icon="trash" className="Font17 pRight5" />}
@@ -190,7 +190,7 @@ const SmallCard = props => {
           {data.originalFilename}
           {data.ext}
         </div>
-        <div className={cx('fileSize Gray_75', { hide: !fileSizeVisible })}>{fileSize}</div>
+        <div className={cx('fileSize textSecondary', { hide: !fileSizeVisible })}>{fileSize}</div>
       </div>
       {!isMobile ? (
         <div className="operateBtns flexRow alignItemsCenter" style={{ marginRight: Math.abs(diffWidth) }}>
@@ -220,14 +220,14 @@ const SmallCard = props => {
                           });
                         }}
                       >
-                        <Icon className="Gray_9e Font17" icon="download" />
+                        <Icon className="textTertiary Font17" icon="download" />
                       </div>
                     </Tooltip>
                   )}
                   {isDeleteFile && (
                     <Tooltip title={_l('删除')} placement="bottom">
                       <div className="btnWrap pointer delete" onClick={() => setDeleteConfirmVisible(true)}>
-                        <Icon className="Gray_9e Font17" icon="trash" />
+                        <Icon className="textTertiary Font17" icon="trash" />
                       </div>
                     </Tooltip>
                   )}
@@ -250,7 +250,7 @@ const SmallCard = props => {
                 >
                   <Tooltip title={_l('更多')} placement="bottom">
                     <div className="btnWrap pointer">
-                      <Icon className="Gray_9e Font17" icon="more_horiz" />
+                      <Icon className="textTertiary Font17" icon="more_horiz" />
                     </div>
                   </Tooltip>
                 </Trigger>
@@ -270,7 +270,7 @@ const SmallCard = props => {
         </div>
       ) : (
         isDeleteFile && (
-          <Icon onClick={() => onDeleteMDFile(data)} className="deleteIcon Gray_9e Font19" icon="cancel" />
+          <Icon onClick={() => onDeleteMDFile(data)} className="deleteIcon textTertiary Font19" icon="cancel" />
         )
       )}
     </div>
@@ -315,7 +315,7 @@ const NotSaveSmallCard = props => {
           {data.originalFileName}
           {data.fileExt}
         </div>
-        <div className="fileSize Gray_75">{fileSize}</div>
+        <div className="fileSize textSecondary">{fileSize}</div>
       </div>
       {!isMobile && (
         <div className="operateBtns flexRow alignItemsCenter">
@@ -330,7 +330,7 @@ const NotSaveSmallCard = props => {
             >
               <Tooltip title={_l('重命名')} placement="bottom">
                 <div className="btnWrap pointer" onClick={() => setIsEdit(true)}>
-                  <Icon className="Gray_9e Font17" icon="rename_input" />
+                  <Icon className="textTertiary Font17" icon="rename_input" />
                 </div>
               </Tooltip>
             </ResetNamePopup>
@@ -342,7 +342,7 @@ const NotSaveSmallCard = props => {
                 isKc ? onDeleteKCFile(data) : onDeleteFile(data);
               }}
             >
-              <Icon className="Gray_9e Font17" icon="trash" />
+              <Icon className="textTertiary Font17" icon="trash" />
             </div>
           </Tooltip>
         </div>
@@ -352,7 +352,7 @@ const NotSaveSmallCard = props => {
           onClick={() => {
             isKc ? onDeleteKCFile(data) : onDeleteFile(data);
           }}
-          className="deleteIcon Gray_9e Font19"
+          className="deleteIcon textTertiary Font19"
           icon="cancel"
         />
       )}
@@ -375,8 +375,8 @@ export default props => {
             isRound={false}
             strokeWidth={3}
             diameter={47}
-            foregroundColor="#BDBDBD"
-            backgroundColor="#fff"
+            foregroundColor="var(--color-text-disabled)"
+            backgroundColor="var(--color-background-primary)"
             format={() => ''}
             percent={parseInt(progress)}
           />
@@ -387,7 +387,7 @@ export default props => {
             {base.fileExt}
           </div>
         </div>
-        <Icon onClick={() => removeUploadingFile(data)} className="deleteIcon Gray_9e Font19" icon="cancel" />
+        <Icon onClick={() => removeUploadingFile(data)} className="deleteIcon textTertiary Font19" icon="cancel" />
       </div>
     );
   }

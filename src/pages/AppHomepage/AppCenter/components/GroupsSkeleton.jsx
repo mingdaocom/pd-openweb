@@ -12,7 +12,7 @@ const Cell = styled.div`
   ${({ width }) => (width ? `width: ${width}px;` : 'width: 100%;')}
   height: 17px;
   border-radius: 17px;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
 `;
 
 export default function GroupsSkeleton(props) {

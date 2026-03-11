@@ -73,13 +73,15 @@ export default ({
                     selectedIds={data.assignFieldIds}
                     updateSource={ids => updateSource({ assignFieldIds: ids })}
                   />
-                  <div className="Gray_75 mTop5 Font13">
+                  <div className="textSecondary mTop5 Font13">
                     {_l('当以上指定的其中一个字段更新时将触发流程，如未指定则表示任何字段更新时都会触发')}
                   </div>
                 </div>
               </Fragment>
             )}
-            {item.desc && data.triggerId === item.value && <div className="mTop10 mLeft30 Gray_75">{item.desc}</div>}
+            {item.desc && data.triggerId === item.value && (
+              <div className="mTop10 mLeft30 textSecondary">{item.desc}</div>
+            )}
           </div>
         ))}
 

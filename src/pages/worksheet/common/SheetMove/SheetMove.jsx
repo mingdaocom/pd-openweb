@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import store from 'redux/configureStore';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Button, Dialog, Dropdown, Icon, ScrollView, SvgIcon } from 'ming-ui';
 import homeApp from 'src/api/homeApp';
 import { canEditApp } from 'worksheet/redux/actions/util';
+import store from 'src/redux/configureStore';
 import './SheetMove.less';
 
 const formatApps = function (validProject, projectId) {
@@ -123,7 +123,7 @@ export default class SheetMove extends Component {
         {!isParent && appItem.type !== 2 && (
           <Icon
             icon={subVisible === false ? 'arrow-right-tip' : 'arrow-down'}
-            className="Gray_9e"
+            className="textTertiary"
             onClick={e => {
               e.stopPropagation();
               this.setState({
@@ -139,9 +139,9 @@ export default class SheetMove extends Component {
         )}
         <div className="flex mLeft5">
           <span className="ellipsis">{name || _l('未命名分组')}</span>
-          {subName && <span className="Gray_9e mLeft5">{subName}</span>}
+          {subName && <span className="textTertiary mLeft5">{subName}</span>}
         </div>
-        {groupingValue === id && <Icon icon="done" className="Font18 ThemeColor" />}
+        {groupingValue === id && <Icon icon="done" className="Font18 colorPrimary" />}
       </div>
     );
   }
@@ -159,10 +159,10 @@ export default class SheetMove extends Component {
         onCancel={this.handleCancel.bind(this)}
         footer={this.renderFooter()}
       >
-        <div className="flexRow alignItemsCenter Gray_75">
+        <div className="flexRow alignItemsCenter textSecondary">
           {_l('将')}
           <div className="target flexRow alignItemsCenter">
-            <SvgIcon url={iconUrl} fill="#757575" size={22} />
+            <SvgIcon url={iconUrl} fill="var(--color-text-secondary)" size={22} />
             <span className="ellipsis mLeft5" title={workSheetName}>
               {workSheetName}
             </span>
@@ -189,7 +189,7 @@ export default class SheetMove extends Component {
           <span className="mBottom8">{_l('选择分组')}</span>
           <div className="groupingWrap flexColumn">
             <div className="searchWrap flexRow alignItemsCenter mBottom8 pBottom10">
-              <Icon icon="search" className="Font18 Gray_9e mRight3" />
+              <Icon icon="search" className="Font18 textTertiary mRight3" />
               <input
                 className="w100"
                 placeholder="搜索"

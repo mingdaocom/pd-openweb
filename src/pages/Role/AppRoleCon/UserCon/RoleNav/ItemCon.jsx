@@ -93,7 +93,7 @@ export default class ItemCon extends React.Component {
                   return null;
                 }
                 return (
-                  <div className="Gray_75 Font12" style={{ padding: '6px 16px' }}>
+                  <div className="textSecondary Font12" style={{ padding: '6px 16px' }}>
                     {_l('我所在的角色')}
                   </div>
                 );
@@ -122,7 +122,7 @@ export default class ItemCon extends React.Component {
         )}
         {!!data.description && (
           <Tooltip title={data.description}>
-            <i className="icon-info_outline Font16 Gray_9e mLeft7" />
+            <i className="icon-info_outline Font16 textTertiary mLeft7" />
           </Tooltip>
         )}
       </li>

@@ -14,7 +14,7 @@ const AudioBox = styled.span`
   display: inline-flex;
   padding: 0 18px;
   border-radius: 3px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border-tertiary);
   cursor: pointer;
   position: relative;
   align-items: center;
@@ -23,14 +23,14 @@ const AudioBox = styled.span`
   height: 36px;
   z-index: 1;
   &.active {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
     &::after {
       position: absolute;
       content: '';
       right: -8px;
       top: -8px;
       border-width: 8px;
-      border-color: #1677ff transparent transparent transparent;
+      border-color: var(--color-primary) transparent transparent transparent;
       border-style: solid;
       transform: rotate(-135deg);
     }
@@ -39,7 +39,7 @@ const AudioBox = styled.span`
 
 const DelBtn = styled.i`
   &:hover {
-    color: #f44336 !important;
+    color: var(--color-error) !important;
   }
 `;
 
@@ -57,19 +57,19 @@ const SpeechSetting = [
   {
     title: _l('音调'),
     data: [
-      { text: '低音', value: '0' },
-      { text: '默认', value: '1' },
-      { text: '高音', value: '2' },
+      { text: _l('低音'), value: '0' },
+      { text: _l('默认'), value: '1' },
+      { text: _l('高音'), value: '2' },
     ],
     key: 'pitch',
   },
   {
     title: _l('语速'),
     data: [
-      { text: '慢', value: '0' },
-      { text: '默认', value: '1' },
-      { text: '快', value: '3' },
-      { text: '超快', value: '5' },
+      { text: _l('慢'), value: '0' },
+      { text: _l('默认'), value: '1' },
+      { text: _l('快'), value: '3' },
+      { text: _l('超快'), value: '5' },
     ],
     key: 'speed',
   },
@@ -197,7 +197,7 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
           </div>
 
           <div className="Font13 bold mTop20">{_l('自定义')}</div>
-          <div className="Font13 Gray_75 mTop5">{_l('仅支持MP3 和 WAV音频格式，大小在10MB以内')}</div>
+          <div className="Font13 textSecondary mTop5">{_l('仅支持MP3 和 WAV音频格式，大小在10MB以内')}</div>
 
           <div className="flexRow alignItemsCenter mTop10">
             {promptSound.file && renderCustomAudio()}
@@ -241,7 +241,7 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
               {promptSound.file ? (
                 <Tooltip title={_l('重新上传')}>
                   <span className="pointer">
-                    <i className="Font20 icon-file_upload Gray_75 ThemeHoverColor3" />
+                    <i className="Font20 icon-file_upload textSecondary ThemeHoverColor3" />
                   </span>
                 </Tooltip>
               ) : (
@@ -256,7 +256,7 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
               <Tooltip title={_l('删除')}>
                 <span className="mLeft25 pointer">
                   <DelBtn
-                    className="Font20 icon-hr_delete Gray_75"
+                    className="Font20 icon-hr_delete textSecondary"
                     onClick={() =>
                       updateSource({
                         promptSound: {
@@ -306,7 +306,7 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
 
           <div className="mTop10">
             <AudioBox
-              className={cx('ThemeBorderColor3 ThemeBGColor3 White', { Alpha5: !promptSound.content.trim() })}
+              className={cx('ThemeBorderColor3 ThemeBGColor3 textWhite', { Alpha5: !promptSound.content.trim() })}
               onClick={() => trialListening(promptSound, formulaMap)}
             >
               <i className="Font16 mRight5 icon-volume_up" />

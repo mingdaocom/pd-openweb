@@ -10,7 +10,7 @@ import Signature from './Signature';
 const Con = styled.div`
   width: 100%;
   height: 100%;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   display: flex;
   flex-direction: column;
   &.center {
@@ -18,17 +18,17 @@ const Con = styled.div`
     justify-content: center;
   }
   .errorIcon {
-    color: #d2d2d2;
+    color: var(--color-border-primary);
     font-size: 130px;
   }
   .successIcon {
-    color: #4caf50;
+    color: var(--color-success);
     font-size: 100px;
     margin-bottom: 10px;
   }
   .error {
     font-size: 14px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 `;
 
@@ -37,19 +37,19 @@ const StatusBar = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #e8f5e9;
-  color: #333;
+  background-color: var(--color-success-bg);
+  color: var(--color-text-primary);
   flex-shrink: 0;
   .icon {
     font-size: 16px;
-    color: #4caf50;
+    color: var(--color-success);
     margin-right: 6px;
   }
   &.offline {
-    color: #fff;
-    background-color: #bdbdbd;
+    color: var(--color-white);
+    background-color: var(--color-text-disabled);
     .icon {
-      color: #fff;
+      color: var(--color-white);
     }
   }
 `;

@@ -7,16 +7,16 @@ import Files from './index';
 
 const Footer = styled.div`
   .ant-btn-link {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     &:hover {
-      color: #1890ff;
+      color: var(--color-link-hover);
     }
   }
   .ant-btn-primary {
     padding: 0 16px;
     &:hover {
-      border-color: #007ff5;
-      background-color: #007ff5;
+      border-color: var(--color-link-hover);
+      background-color: var(--color-link-hover);
     }
   }
 `;
@@ -67,7 +67,7 @@ export default props => {
       visible={visible}
       centered={true}
       destroyOnClose={true}
-      closeIcon={<Icon icon="close" className="Font20 pointer Gray_9e" />}
+      closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
       footer={isShare || !filesProps.attachmentData.length ? null : renderFooter()}
       onCancel={onCancel}
     >

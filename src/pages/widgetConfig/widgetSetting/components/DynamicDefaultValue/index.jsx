@@ -60,7 +60,7 @@ export default function DynamicDefaultValue(props) {
           {_l('默认值')}
           {type === 'department' && from !== DYNAMIC_FROM_MODE.FAST_FILTER && (
             <Tooltip title={_l('单选选择方式时，使用成员字段设置默认值，将取成员所在主部门')}>
-              <span className="Gray_9e pointer Font15">
+              <span className="textTertiary pointer Font15">
                 <i className="icon-help"></i>
               </span>
             </Tooltip>

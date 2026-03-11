@@ -21,7 +21,7 @@ export default function ColorSelectWrap({ color: activeColor, handleChange }) {
           <li className={cx({ addActive: addColor })}>
             <div className="colorItem">
               <ColorPicker
-                value={addColor || '#151515ff'}
+                value={addColor || 'var(--color-text-primary)'}
                 onChange={value => {
                   setAddColor(value);
                 }}
@@ -38,7 +38,7 @@ export default function ColorSelectWrap({ color: activeColor, handleChange }) {
                 {addColor ? (
                   <div className="colorItemAdd" style={{ backgroundColor: addColor }} />
                 ) : (
-                  <Icon icon="task-add-member-circle" className="Font24 Gray_bd" />
+                  <Icon icon="task-add-member-circle" className="Font24 textDisabled" />
                 )}
               </ColorPicker>
             </div>
@@ -62,7 +62,7 @@ export default function ColorSelectWrap({ color: activeColor, handleChange }) {
   return (
     <SelectColorWrap inputCoverStyle={false}>
       {getColorList()}
-      <div className="Gray_9e mTop10">{_l('自定义')}</div>
+      <div className="textTertiary mTop10">{_l('自定义')}</div>
       {getColorList(true)}
     </SelectColorWrap>
   );

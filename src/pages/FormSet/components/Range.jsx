@@ -9,7 +9,7 @@ const RangeBox = styled.div`
   z-index: 100;
   width: 320px;
   border-radius: 3px;
-  background: #ffffff 0% 0% no-repeat padding-box;
+  background: var(--color-background-primary) 0% 0% no-repeat padding-box;
   box-shadow: 0px 12px 24px #0000003d;
   box-sizing: border-box;
   line-height: 1;
@@ -49,12 +49,12 @@ const RangeBox = styled.div`
     }
     .Radio-text {
       font-weight: initial;
-      color: #151515;
+      color: var(--color-text-title);
     }
   }
   .conLine {
     margin: 0 24px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
   }
   .inputTxt {
     font-weight: normal;
@@ -62,12 +62,12 @@ const RangeBox = styled.div`
 `;
 const HeaderRange = styled.div`
   padding: 16px 24px;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid var(--color-border-secondary);
   .ming.icon-close {
     float: right;
   }
   .ming.icon-close:hover {
-    color: #1677ff !important;
+    color: var(--color-primary) !important;
   }
 `;
 
@@ -126,11 +126,11 @@ class Range extends React.Component {
           this.el = el;
         }}
       >
-        <HeaderRange className="headerRange Font14 Gray">
+        <HeaderRange className="headerRange Font14 textPrimary">
           {_l('使用范围')}
           <Icon
             icon="close"
-            className="Font18 Gray_9e Hand"
+            className="Font18 textTertiary Hand"
             onClick={() => {
               this.props.closeFn();
             }}
@@ -152,7 +152,7 @@ class Range extends React.Component {
               <span className="TxtMiddle">
                 {_l('仅系统角色')}
                 <Tooltip placement="bottom" title={_l('包含管理员、运营者、开发者')}>
-                  <Icon icon="info_outline" className="Gray_9e Font16 TxtTop mLeft5" />
+                  <Icon icon="info_outline" className="textTertiary Font16 TxtTop mLeft5" />
                 </Tooltip>
               </span>
             }

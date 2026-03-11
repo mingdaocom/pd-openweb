@@ -29,8 +29,8 @@ const Wrap = styled.div`
   }
   .listHeader {
     padding-bottom: 10px;
-    border-bottom: 1px solid #eaeaea;
-    color: #9999;
+    border-bottom: 1px solid var(--color-border-secondary);
+    color: var(--color-text-tertiary);
     font-weight: 500;
     div {
       padding-left: 10px;
@@ -42,7 +42,7 @@ const Wrap = styled.div`
     .listItem {
       height: 48px;
       line-height: 48px;
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-secondary);
       .controlName,
       .appName,
       .worksheetName {
@@ -203,7 +203,7 @@ export default class EncryptFieldList extends Component {
               this.setState({ keyword: val, appPageIndex: 1 }, this.getAppList);
             }, 500)}
             suffixIcon={<Icon icon="arrow-down-border" className="Font18" />}
-            notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
+            notFoundContent={<span className="textTertiary">{_l('无搜索结果')}</span>}
             filterOption={(inputValue, option) => {
               return (
                 appList
@@ -254,7 +254,7 @@ export default class EncryptFieldList extends Component {
                 .indexOf(inputValue.toLowerCase()) > -1
             }
             suffixIcon={<Icon icon="arrow-down-border" className="Font18" />}
-            notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
+            notFoundContent={<span className="textTertiary">{_l('无搜索结果')}</span>}
             onChange={value => this.changeConditions('worksheetId', value)}
           />
 
@@ -281,7 +281,7 @@ export default class EncryptFieldList extends Component {
               return (
                 <div className="listItem flexRow" key={index}>
                   <div className="controlName w50 ellipsis">
-                    <i className={`Gray_bd mRight5 Font16 TxtMiddle icon-${getIconByType(type)}`}></i>
+                    <i className={`textDisabled mRight5 Font16 TxtMiddle icon-${getIconByType(type)}`}></i>
                     {controlName}
                   </div>
                   <div className="appName w20 flexRow alignItemsCenter">
@@ -298,7 +298,7 @@ export default class EncryptFieldList extends Component {
                   </div>
                   <div className="worksheetName w30 flexRow alignItemsCenter">
                     <div className="iconWrap">
-                      <SvgIcon url={iconUrl} fill="#757575" size={16} />
+                      <SvgIcon url={iconUrl} fill="var(--color-text-secondary)" size={16} />
                     </div>
                     <div className="flex ellipsis">{worksheetName}</div>
                   </div>

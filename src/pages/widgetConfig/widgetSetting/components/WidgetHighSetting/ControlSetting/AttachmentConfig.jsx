@@ -34,15 +34,15 @@ const WaterMarkSettingWrap = styled.div`
       height: 36px;
       display: flex;
       align-items: center;
-      background: #ffffff;
-      border: 1px solid #ddd;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-primary);
       border-radius: 3px;
       padding: 4px;
       .colorCon {
         flex: 1;
         min-width: 0;
         height: 28px;
-        border: 1px solid #cccccc;
+        border: 1px solid var(--color-text-placeholder);
         border-radius: 3px;
       }
       i {
@@ -50,8 +50,8 @@ const WaterMarkSettingWrap = styled.div`
       }
     }
     .positionBox {
-      border-right: 1px solid #f5f5f5;
-      border-bottom: 1px solid #f5f5f5;
+      border-right: 1px solid var(--color-background-secondary);
+      border-bottom: 1px solid var(--color-background-secondary);
       border-radius: 3px;
       tr {
         display: flex;
@@ -63,13 +63,13 @@ const WaterMarkSettingWrap = styled.div`
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 1px solid #f5f5f5;
+        border: 1px solid var(--color-background-secondary);
         border-right: none;
         border-bottom: none;
         cursor: pointer;
         &.active,
         &:hover {
-          color: #1677ff;
+          color: var(--color-primary);
         }
         &.active {
           font-weight: bold;
@@ -87,7 +87,7 @@ const WaterMarkSettingWrap = styled.div`
       width: 100%;
       height: 210px;
       border-radius: 3px;
-      border: 1px solid #dddddd;
+      border: 1px solid var(--color-border-primary);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -123,8 +123,8 @@ const WaterMarkSettingWrap = styled.div`
       .itemExample {
         width: 120px;
         height: 92px;
-        background: #ffffff;
-        border: 1px solid #ededed;
+        background: var(--color-background-primary);
+        border: 1px solid var(--color-border-primary);
         border-radius: 3px;
         margin-bottom: 6px;
         cursor: pointer;
@@ -137,7 +137,7 @@ const WaterMarkSettingWrap = styled.div`
       }
     }
     .ant-pro-layout-watermark {
-      background: #fff;
+      background: var(--color-background-primary);
       border-radius: 3px;
     }
   }
@@ -150,10 +150,10 @@ const WaterMarkSettingWrap = styled.div`
     justify-content: center;
     margin-right: 20px;
     cursor: pointer;
-    border: 1px solid #d8d8d8;
+    border: 1px solid var(--color-border-primary);
     box-sizing: border-box;
     &.active {
-      border: 1px solid #1677ff;
+      border: 1px solid var(--color-primary);
     }
   }
 `;
@@ -317,7 +317,7 @@ function WaterMarkDialog(props) {
             <div className="settingItemTitle">
               {_l('文字')}
               <Tooltip placement="bottom" title={_l('限制显示字数为100个字')}>
-                <i className="icon-help Gray_9e Font16 Hand mLeft4"></i>
+                <i className="icon-help textTertiary Font16 Hand mLeft4"></i>
               </Tooltip>
             </div>
             <DynamicDefaultValue
@@ -396,7 +396,7 @@ function WaterMarkDialog(props) {
             >
               <div className="colorWrap mLeft10">
                 <div className="colorCon" style={{ backgroundColor: info.valuecolor }}></div>
-                <Icon type="expand_more" className="Gray_9d Font18" />
+                <Icon type="expand_more" className="textTertiary Font18" />
               </div>
             </ColorPicker>
           </SectionItem>
@@ -524,14 +524,14 @@ export default function AttachmentVerify(props) {
                 '在文件预览和下载时叠加水印。只支持文件大小10M以内图片水印。目前支持的图片的格式为：jpeg、png、tiff、bmp、heif',
               )}
             >
-              <i className="icon-help Gray_9e Font16 Hand"></i>
+              <i className="icon-help textTertiary Font16 Hand"></i>
             </Tooltip>
             {featureType === '2' && <UpgradeIcon />}
           </Checkbox>
           {showwatermark === '1' && (
             <Tooltip placement="bottom" title={_l('水印设置')}>
               <i
-                className="icon-settings Gray_9e Font16 Hand Right ThemeHoverColor3"
+                className="icon-settings textTertiary Font16 Hand Right ThemeHoverColor3"
                 onClick={() => {
                   if (featureType === '2') {
                     buriedUpgradeVersionDialog(globalSheetInfo.projectId, VersionProductType.waterMark);
@@ -570,7 +570,7 @@ export default function AttachmentVerify(props) {
                   '基于WPS在线编辑能力，支持Office、WPS、PDF等主流文档格式编辑，最多10人在线协作编辑，最大文档尺寸100MB，具体可参考帮助文档说明。',
                 )}
               >
-                <i className="icon-help Gray_9e Font16 Hand"></i>
+                <i className="icon-help textTertiary Font16 Hand"></i>
               </Tooltip>
 
               {editFeatureType === '2' && (
@@ -606,7 +606,7 @@ export default function AttachmentVerify(props) {
                   '基于WPS在线编辑能力，支持Office、WPS、PDF等主流文档格式编辑，最多10人在线协作编辑，最大文档尺寸100MB，具体可参考帮助文档说明。',
                 )}
               >
-                <i className="icon-help Gray_9e Font16 Hand"></i>
+                <i className="icon-help textTertiary Font16 Hand"></i>
               </Tooltip>
 
               {editFeatureType === '2' && (

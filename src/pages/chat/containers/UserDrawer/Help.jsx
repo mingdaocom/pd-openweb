@@ -53,9 +53,12 @@ const renderProjectsPopover = () => {
         const { type, text, items = [] } = item;
         return (
           <div key={type}>
-            <div className="horizontalPadding Gray_9e bold">{text}</div>
+            <div className="horizontalPadding textTertiary bold">{text}</div>
             {items.map(v => {
-              if (md.global.Config.IsLocal && _.includes(['video', 'communityQuestions', 'helpDoc', ''], v.id)) {
+              if (
+                (window.platformENV.isOverseas || window.platformENV.isLocal) &&
+                _.includes(['video', 'communityQuestions', 'helpDoc', ''], v.id)
+              ) {
                 return null;
               }
               if (_.includes(['partnerSupport'], v.id)) {
@@ -71,12 +74,12 @@ const renderProjectsPopover = () => {
                   >
                     <Icon
                       icon={v.icon}
-                      className={cx('Gray_9e TxtMiddle', {
+                      className={cx('textTertiary TxtMiddle', {
                         Font16: v.id === 'lastUpdated',
                         Font20: v.id !== 'lastUpdated',
                       })}
                     />
-                    <div className="mLeft10 flex ellipsis Gray">{v.text}</div>
+                    <div className="mLeft10 flex ellipsis textPrimary">{v.text}</div>
                   </div>
                 );
               }
@@ -85,12 +88,12 @@ const renderProjectsPopover = () => {
                 <a className="itemWrap flexRow alignItemsCenter pointer" key={v.id} href={v.href || ''} target="_blank">
                   <Icon
                     icon={v.icon}
-                    className={cx('Gray_9e TxtMiddle', {
+                    className={cx('textTertiary TxtMiddle', {
                       Font16: v.id === 'lastUpdated',
                       Font20: v.id !== 'lastUpdated',
                     })}
                   />
-                  <div className="mLeft10 flex ellipsis Gray">{v.text}</div>
+                  <div className="mLeft10 flex ellipsis textPrimary">{v.text}</div>
                 </a>
               );
             })}

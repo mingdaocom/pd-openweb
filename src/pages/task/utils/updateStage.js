@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import Store from 'redux/configureStore';
 import { Score } from 'ming-ui';
+import Store from 'src/redux/configureStore';
 import { htmlEncodeReg } from 'src/utils/common';
 import { returnCustonValue } from './utils';
 
@@ -59,12 +59,12 @@ export default (taskId, controls) => {
     if (!$li.find('.Score-wrapper').length) {
       const type = $li.find('.listStageCustomItemStar').data('enum');
       const score = $li.find('.listStageCustomItemStar').data('score');
-      let foregroundColor = '#f44336';
+      let foregroundColor = 'var(--color-error)';
 
       if (score === 6 || type === 1) {
         foregroundColor = '#fed156';
       } else if (score > 6) {
-        foregroundColor = '#4caf50';
+        foregroundColor = 'var(--color-success)';
       }
 
       const root = createRoot($li.find('.listStageCustomItemStar')[0]);
@@ -74,7 +74,7 @@ export default (taskId, controls) => {
           type={type === 1 ? 'star' : 'line'}
           score={score}
           foregroundColor={foregroundColor}
-          backgroundColor={type === 1 ? '#9e9e9e' : '#e0e0e0'}
+          backgroundColor={type === 1 ? 'var(--color-text-tertiary)' : 'var(--color-border-secondary)'}
           disabled
           count={type === 1 ? 5 : 10}
         />,

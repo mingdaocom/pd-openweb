@@ -63,7 +63,7 @@ const CustomTagTextarea = styled(TagTextarea)`
           min-height: auto !important;
         }
         .CodeMirror-placeholder {
-          color: #bdbdbd !important;
+          color: var(--color-text-disabled) !important;
           margin-left: 8px !important;
           line-height: 27px !important;
         }
@@ -84,17 +84,17 @@ const LinkIcon = styled.div`
   align-items: center;
   width: 36px;
   height: 36px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border-tertiary);
   border-left: none;
   border-radius: 0 3px 3px 0;
   cursor: pointer;
   i {
     font-size: 22px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   &:hover {
     i {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
@@ -102,13 +102,13 @@ const LinkIcon = styled.div`
 const PopupWrapper = styled.div`
   width: 320px;
   padding: 6px 0;
-  background: #fff;
+  background: var(--color-background-primary);
   overflow: auto;
   border-radius: 3px;
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.13),
     0 2px 6px rgba(0, 0, 0, 0.1);
-  border: 1px solid #eee;
+  border: 1px solid var(--color-border-secondary);
   font-size: 14px;
   div {
     line-height: 36px;
@@ -120,12 +120,12 @@ const PopupWrapper = styled.div`
   .itemText {
     cursor: pointer;
     &:hover {
-      color: #fff;
-      background: #1677ff;
+      color: var(--color-white);
+      background: var(--color-primary);
     }
   }
   .divider {
-    border-top: 1px solid #ddd;
+    border-top: 1px solid var(--color-border-primary);
     margin: 6px 0;
   }
 `;
@@ -135,8 +135,8 @@ const TagWrapper = styled.div`
   align-items: center;
   border-radius: 16px;
   background: #d8eeff;
-  color: #174c76;
-  border: 1px solid #bbd6ea;
+  color: var(--color-link-hover);
+  border: 1px solid var(--color-primary-transparent);
   padding: 0 12px;
   font-size: 12px;
   box-sizing: border-box;
@@ -289,7 +289,7 @@ export default function ExternalLinkDialog(props) {
                 />
               ))}
             </div>
-            <div className="Gray_9e  mTop8">{_l('设置用户在哪些设备环境下可见此应用，管理员在PC端始终可见')}</div>
+            <div className="textTertiary  mTop8">{_l('设置用户在哪些设备环境下可见此应用，管理员在PC端始终可见')}</div>
           </div>
         </div>
       </Wrapper>

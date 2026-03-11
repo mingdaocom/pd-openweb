@@ -19,8 +19,9 @@ const Wrap = styled.div`
     height: 390px;
     position: relative;
     overflow-y: scroll;
-    border-top: ${({ activeBorder }) => (activeBorder ? '1px solid rgba(253 ,180,50 ,0.3)' : '1px solid #eaeaea')};
-    border-bottom: ${({ activeBorder }) => (activeBorder ? '1px solid rgba(253 ,180,50 ,0.3)' : 'none')};
+    border-top: ${({ activeBorder }) =>
+      activeBorder ? 'var(--color-border-tertiary)' : '1px solid var(--color-border-tertiary)'};
+    border-bottom: ${({ activeBorder }) => (activeBorder ? 'var(--color-border-tertiary)' : 'none')};
     .empty {
       position: absolute;
       top: 50%;
@@ -49,7 +50,7 @@ const Wrap = styled.div`
         &:hover {
           .userItemBox,
           .removeBtn {
-            background: #f5f5f5;
+            background: var(--color-background-hover);
           }
         }
       }
@@ -141,7 +142,7 @@ function ManageOftenUserDialog(props) {
   const renderUserItem = options => {
     return (
       <li className="valignWrapper">
-        <Icon icon="drag" className="Font14 Hand Gray_9e Hover_21 dragIcon" />
+        <Icon icon="drag" className="Font14 Hand textTertiary hoverColorPrimary dragIcon" />
         <div className="flex userItemBox overflow_ellipsis">
           <User
             {...userOptions}
@@ -151,7 +152,10 @@ function ManageOftenUserDialog(props) {
             key={'manageOftenUser' + options.item.accountId}
           />
         </div>
-        <span className="Gray_9e removeBtn Hand Hover_21" onClick={() => onRemove(options.item.accountId)}>
+        <span
+          className="textTertiary removeBtn Hand hoverColorPrimary"
+          onClick={() => onRemove(options.item.accountId)}
+        >
           {_l('移除')}
         </span>
       </li>
@@ -167,7 +171,7 @@ function ManageOftenUserDialog(props) {
       );
     }
 
-    if (clearFlag && !list.length) return <div className="empty Gray_9e Font14">{_l('暂无最常协作人员')}</div>;
+    if (clearFlag && !list.length) return <div className="empty textTertiary Font14">{_l('暂无最常协作人员')}</div>;
 
     return (
       <ul className="GSelect-box">
@@ -202,7 +206,7 @@ function ManageOftenUserDialog(props) {
           onChange={value => setType(value)}
         />
 
-        <div className="Gray_75 mBottom20 Font14">
+        <div className="textSecondary mBottom20 Font14">
           {type === 0
             ? _l('最近一段时间与您互动频率较高的用户自动显示在最常协作中')
             : _l('自定义最常协作人员，在组织下查看最常协作时，只显示当前组织下的人员')}
@@ -211,11 +215,11 @@ function ManageOftenUserDialog(props) {
         {type === 1 && (
           <Fragment>
             <div className="Font14 valignWrapper actionWrap">
-              <span className="ThemeColor flex Hand" onClick={onAdd}>
+              <span className="colorPrimary hoverBgPrimaryDark flex Hand" onClick={onAdd}>
                 <Icon icon="add" className="mRight6" />
                 {_l('添加人员')}
               </span>
-              <span className="Gray_9e Hand mRight25 Hover_21" onClick={onClear}>
+              <span className="textTertiary Hand mRight25 hoverColorPrimary" onClick={onClear}>
                 {_l('清空')}
               </span>
             </div>

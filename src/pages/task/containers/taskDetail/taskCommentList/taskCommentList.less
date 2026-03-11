@@ -3,12 +3,12 @@
     margin-top: 20px;
     padding-bottom: 7px;
     .isOnlyLook {
-      color: #aaa;
+      color: var(--color-text-tertiary);
       cursor: pointer;
       .operationCheckbox {
         font-size: 12px;
         border-radius: 2px;
-        color: #fff;
+        color: var(--color-white);
         margin-right: 8px;
         border-width: 1px;
         border-style: solid;
@@ -18,8 +18,8 @@
       }
       &:not(.checked) {
         .operationCheckbox {
-          border-color: #ccc !important;
-          background: #fff !important;
+          border-color: var(--color-border-tertiary) !important;
+          background: var(--color-background-primary) !important;
         }
       }
     }

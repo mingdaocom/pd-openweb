@@ -61,8 +61,8 @@ export default function VersionCard(props) {
   return (
     <div className="infoCard row1">
       <div>
-        <div className="Font16 bold Gray mBottom6">{_l('版本')}</div>
-        <div className="Font28 bold Gray mBottom8 valignWrapper">
+        <div className="Font16 bold textPrimary mBottom6">{_l('版本')}</div>
+        <div className="Font28 bold textPrimary mBottom8 valignWrapper">
           {getValue(version.name)}
           {isTrial && <span className="trialTag Font14 Bold">{_l('试用中')}</span>}
         </div>
@@ -75,7 +75,7 @@ export default function VersionCard(props) {
                   <span className="Bold">{_l('已续费')}</span>
                 </span>
                 {_.get(nextLicense, 'version.versionIdV2') !== _.get(version, 'versionIdV2') && (
-                  <span className="Gray">{nextVersion.name}</span>
+                  <span className="textPrimary">{nextVersion.name}</span>
                 )}
               </div>
             )}
@@ -83,7 +83,7 @@ export default function VersionCard(props) {
               <div className="Font14 bold">
                 <span className="mRight8 Yellow_de9">{_l('免费试用剩余 %0 天', surplus)}</span>
                 {!hasNextLicense && !isLocal && (
-                  <span className="ThemeColor Hand" onClick={() => setVisible(true)}>
+                  <span className="colorPrimary Hand" onClick={() => setVisible(true)}>
                     {_l('延长试用')}
                   </span>
                 )}
@@ -93,14 +93,14 @@ export default function VersionCard(props) {
               <Fragment>
                 <div className="Font14">
                   {hasNextLicense ? (
-                    <span className="Gray_75 mRight5">{_l('当前授权')}</span>
+                    <span className="textSecondary mRight5">{_l('当前授权')}</span>
                   ) : surplus < 31 ? (
                     <span className="Red_f00 bold mRight5">{_l('剩余 %0 天', surplus)}</span>
                   ) : null}
-                  <span className="Gray_75">{_l('%0到期', getValue(createTimeSpan(endDate, 4)))}</span>
+                  <span className="textSecondary">{_l('%0到期', getValue(createTimeSpan(endDate, 4)))}</span>
                 </div>
                 {hasNextLicense && (
-                  <div className="Font14 Gray_75">
+                  <div className="Font14 textSecondary">
                     <span className="mRight5">{_l('下个授权')}</span>
                     {_l('%0到期', getValue(createTimeSpan(nextLicense.endDate, 4)))}
                     <Tooltip
@@ -114,7 +114,7 @@ export default function VersionCard(props) {
                         </span>
                       }
                     >
-                      <Icon icon="info" className="Gray_9e mLeft4 Hand" />
+                      <Icon icon="info" className="textTertiary mLeft4 Hand" />
                     </Tooltip>
                   </div>
                 )}
@@ -172,7 +172,7 @@ export default function VersionCard(props) {
                     <i className="icon-ok" />
                   </div>
                 </div>
-                <span className="Font12 Gray_75">{_l('邀请%0位用户', inviteCount)}</span>
+                <span className="Font12 textSecondary">{_l('邀请%0位用户', inviteCount)}</span>
               </li>
             ))}
           </ul>

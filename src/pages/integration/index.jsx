@@ -57,12 +57,12 @@ const getRoutes = param => {
           key={i}
           path={path}
           component={() => {
-            return md.global.Config.IsLocal &&
+            return (window.platformENV.isOverseas || window.platformENV.isLocal) &&
               !md.global.Config.EnableDataPipeline &&
               ENABLE_DATAPIPELINE_KEYS.includes(key) ? (
               <div className="flexColumn alignItemsCenter justifyContentCenter h100">
                 {upgradeVersionDialog({
-                  hint: md.global.Config.IsPlatformLocal ? (
+                  hint: window.platformENV.isPlatform ? (
                     _l('数据集成服务未部署，暂不可用')
                   ) : (
                     <span>

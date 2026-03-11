@@ -9,7 +9,7 @@
 .feedNoData {
   padding: 85px;
   font-size: 14px;
-  color: rgba(0, 0, 0, 0.6);
+  color: var(--color-text-tertiary);
   text-align: center;
 }
 .feedNoData .statusIcon {

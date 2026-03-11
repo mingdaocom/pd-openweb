@@ -65,13 +65,13 @@ export default function SortableColumn(props) {
           onClearSearch(item.controlId);
         }}
       >
-        <i className={cx('icon focusColor Gray_9e mRight6 Font16', 'icon-' + getIconByType(item.type))}></i>
+        <i className={cx('icon focusColor textTertiary mRight6 Font16', 'icon-' + getIconByType(item.type))}></i>
         <span className="flex overflow_ellipsis focusColor">
           {item.controlName || (item.type === 22 ? _l('分段') : _l('备注'))}
         </span>
         <Tooltip placement="bottom" title={canDrag ? null : _l('前往')}>
           <i
-            className={cx('icon Gray_9e Font16 Right ThemeHoverColor3 dragHandle', {
+            className={cx('icon textTertiary Font16 Right ThemeHoverColor3 dragHandle', {
               'icon-drag': canDrag,
               'icon-backspace searchIcon': search && !canDrag,
             })}
@@ -91,7 +91,7 @@ export default function SortableColumn(props) {
       return (
         (!search || !!filteredColumnsLength) && (
           <React.Fragment>
-            <div className="Gray_75 Font13 bold mBottom14 mTop12 pLeft9 columnCheckListTitle showColumnCheckListTitle">{`${item.controlName} ${filteredColumnsLength}`}</div>
+            <div className="textSecondary Font13 bold mBottom14 mTop12 pLeft9 columnCheckListTitle showColumnCheckListTitle">{`${item.controlName} ${filteredColumnsLength}`}</div>
             {!filteredColumnsLength && canDrag && (
               <div className="pLeft9 dragListEmptyTip showDrafListEmptyCon">{_l('关闭或拖拽到这里')}</div>
             )}
@@ -116,7 +116,7 @@ export default function SortableColumn(props) {
           {tabColumns && tabColumns.length !== 0 && !search && (
             <Icon
               onClick={() => setRetractTabControlIds(item.controlId, isRetract)}
-              className="Font22 Gray_9e expendIcon"
+              className="Font22 textTertiary expendIcon"
               icon={isRetract ? 'expand_more' : 'expand_less'}
             />
           )}
@@ -130,10 +130,10 @@ export default function SortableColumn(props) {
 
   return (
     <div className="columnCheckList" style={{ overflow: 'auto', maxHeight }} ref={listRef}>
-      {!items.length && <div className="emptyTip TxtCenter">{_l('没有搜索结果')}</div>}
+      {search && !items.length && <div className="emptyTip TxtCenter">{_l('没有搜索结果')}</div>}
       {sortAutoChange && isShowColumns && (!search || !!filteredShowColumns.length) && (
         <React.Fragment>
-          <div className="Gray_75 Font13 bold mBottom14 mTop12 pLeft9 columnCheckListTitle showColumnCheckListTitle">{`${_l(
+          <div className="textSecondary Font13 bold mBottom14 mTop12 pLeft9 columnCheckListTitle showColumnCheckListTitle">{`${_l(
             '显示',
           )} ${filteredShowColumns.length}`}</div>
           {!filteredShowColumns.length && canDrag && (

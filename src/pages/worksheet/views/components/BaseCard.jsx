@@ -12,20 +12,21 @@ import Switch from 'worksheet/components/CellControls/Switch';
 import OperateButtons from 'worksheet/components/OperateButtons';
 import RecordOperate from 'worksheet/components/RecordOperate';
 import { FlexCenter, Text } from 'worksheet/styled';
-import { controlState } from 'src/components/Form/core/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { updateRecordLockStatus } from 'src/pages/worksheet/common/recordInfo/crtl.js';
 import { getCanDisplayControls } from 'src/pages/worksheet/common/ViewConfig/util.js';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
 import { browserIsMobile } from 'src/utils/common';
-import { getAdvanceSetting } from 'src/utils/control';
-import { renderText as renderCellText } from 'src/utils/control';
-import { getControlStyles } from 'src/utils/control';
-import { checkCellIsEmpty } from 'src/utils/control';
+import {
+  checkCellIsEmpty,
+  controlState,
+  getAdvanceSetting,
+  getControlStyles,
+  renderText as renderCellText,
+} from 'src/utils/control';
 import { addBehaviorLog } from 'src/utils/project';
-import { handleRowData } from 'src/utils/record';
-import { getRecordColor } from 'src/utils/record';
+import { getRecordColor, handleRowData } from 'src/utils/record';
 import { getCardDisplayPara, getMultiRelateViewConfig } from '../util';
 import CardCoverImage from './CardCoverImage';
 
@@ -58,9 +59,9 @@ const RecordItemWrap = styled.div`
     &.maskHoverTheme {
       cursor: pointer;
       &:hover {
-        color: #1d5786;
+        color: var(--color-link-hover);
         .i.icon-eye_off {
-          color: #9e9e9e !important;
+          color: var(--color-text-tertiary) !important;
         }
       }
     }
@@ -69,7 +70,7 @@ const RecordItemWrap = styled.div`
     margin: 10px 14px 3px;
     max-height: 59px;
     overflow: hidden;
-    color: #757575;
+    color: var(--color-text-secondary);
     text-overflow: ellipsis;
     white-space: break-spaces;
     word-break: break-all;
@@ -157,9 +158,9 @@ const RecordItemWrap = styled.div`
     font-size: 18px;
     &:hover {
       box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
-      background-color: #fff;
+      background-color: var(--color-background-primary);
       i {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
@@ -212,7 +213,7 @@ const RecordFieldsWrap = styled(FlexCenter)`
 const ControlName = styled(Text)`
   flex-shrink: 0;
   margin: 0 8px 0 0;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -319,7 +320,7 @@ const BaseCard = props => {
 
   const showControlStyle =
     _.get(para, 'advancedSetting.controlstyle') === '1' || _.get(para, 'advancedSetting.controlstyleapp') === '1';
-  const abstractValue = abstract ? renderCellText(abstractControl, { noMask: absShowFullValue }) : '';
+  const abstractValue = abstract ? renderCellText(abstractControl, { noMask: absShowFullValue, appId }) : '';
   const otherFields = update(fields, { $splice: [[titleIndex, 1]] });
   const titleMasked = key => {
     const controlField = key === 'title' ? titleField : abstractControl;
@@ -353,7 +354,7 @@ const BaseCard = props => {
   };
 
   const renderTitleControl = () => {
-    const titleValue = renderCellText(titleField, { noMask: forceShowFullValue });
+    const titleValue = renderCellText(titleField, { noMask: forceShowFullValue, appId });
     const content = titleValue || _l('未命名');
     if (props.renderTitle) return props.renderTitle({ content, titleField });
 
@@ -396,7 +397,7 @@ const BaseCard = props => {
         {content}
         {titleMasked('title') && titleValue && (
           <i
-            className="icon icon-eye_off Hand maskData Font16 Gray_bd mLeft4 mTop4 hoverShow"
+            className="icon icon-eye_off Hand maskData Font16 textDisabled mLeft4 mTop4 hoverShow"
             style={{ verticalAlign: 'middle' }}
           />
         )}
@@ -473,7 +474,7 @@ const BaseCard = props => {
         {abstractValue || <div className="emptyHolder"></div>}
         {titleMasked() && abstractValue && (
           <i
-            className="icon icon-eye_off Hand maskData Font16 Gray_bd mLeft4 mTop4 hoverShow"
+            className="icon icon-eye_off Hand maskData Font16 textDisabled mLeft4 mTop4 hoverShow"
             style={{ verticalAlign: 'middle' }}
           />
         )}
@@ -689,7 +690,7 @@ const BaseCard = props => {
                   }
                 }}
               >
-                <Icon icon="more_horiz Font18" className="Gray_9e ThemeHoverColor3" />
+                <Icon icon="more_horiz Font18" className="textTertiary ThemeHoverColor3" />
               </div>
             </RecordOperate>
           </div>

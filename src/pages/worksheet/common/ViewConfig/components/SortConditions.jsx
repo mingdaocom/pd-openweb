@@ -22,16 +22,16 @@ const ConditionsWrap = styled.div`
   .operateBtn {
     cursor: pointer;
     font-size: 20px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     margin: 0 4px;
     line-height: 36px;
 
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
 
     &.disabled {
-      color: #ddd !important;
+      color: var(--color-border-primary) !important;
     }
   }
   .tipsIcon {
@@ -74,7 +74,7 @@ const Item = props => {
               </span>
             }
           >
-            <i className="icon-info tipsIcon Font16 Absolute Gray_9e" />
+            <i className="icon-info tipsIcon Font16 Absolute textTertiary" />
           </Tooltip>
         )}
         <Dropdown

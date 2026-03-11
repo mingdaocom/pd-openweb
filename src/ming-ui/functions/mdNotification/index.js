@@ -7,13 +7,13 @@ const Btn = styled.div`
   display: inline-block;
   border-radius: 5px;
   font-size: 14px;
-  color: #1677ff;
+  color: var(--color-primary);
   padding: 0 11px;
   line-height: 31px;
   margin-left: 10px;
   max-width: 200px;
   &:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
   cursor: pointer;
 `;

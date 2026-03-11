@@ -2,7 +2,7 @@
   border-radius: 6px;
   width: 22px;
   height: 6px;
-  background-color: #eaeaea;
+  background-color: var(--color-border-secondary);
   margin: 15px 0;
 }
 .childTableCon {
@@ -25,23 +25,23 @@
     top: -36px;
     line-height: 36px;
     font-weight: 500;
-    color: #151515;
-    background-color: #fff;
+    color: var(--color-text-title);
+    background-color: var(--color-background-primary);
     font-size: 16px;
     width: 100%;
     z-index: 2;
   }
   .errorTip {
     width: 100%;
-    color: #f32121;
+    color: var(--color-error);
     font-size: 13px;
     position: absolute;
     top: -26px;
-    background: #fff;
+    background: var(--color-background-primary);
     z-index: 1;
   }
   .childTableColumnHead {
-    color: #9e9e9e !important;
+    color: var(--color-text-tertiary) !important;
     font-size: 13px;
     line-height: 34px;
   }
@@ -57,11 +57,11 @@
       &.control-32, /* CONCATENATE  文本组合 */
       &.control-10010, /* REMARK  备注 */
       &.control-25 /* MONEY_CN 大写金额 */ {
-        background-color: #f5f5f5 !important;
+        background-color: var(--color-background-secondary) !important;
       }
     }
     .cell.readonly:not(.highlight):not(.highlightFromProps) {
-      background-color: #f5f5f5 !important;
+      background-color: var(--color-background-secondary) !important;
     }
   }
   .operate {
@@ -75,16 +75,16 @@
       font-weight: bold;
       border-radius: 4px;
       margin-right: 8px;
-      color: #151515;
+      color: var(--color-text-title);
       cursor: pointer;
       padding: 0 16px;
       font-size: 13px;
       height: 36px;
       display: inline-flex;
       align-items: center;
-      border: 1px solid #dddddd;
+      border: 1px solid var(--color-border-primary);
       .icon {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
       &.disabled {
         opacity: 0.6;
@@ -100,7 +100,7 @@
     .splitter {
       width: 0;
       height: 18px;
-      border-right: 1px solid #ddd;
+      border-right: 1px solid var(--color-border-primary);
       margin: 0 17px 0 9px;
     }
     .importFromFile {
@@ -118,7 +118,7 @@
       }
       .content:hover,
       .dropdownButtonIcon:hover {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-hover);
       }
       &.disabled {
         border-color: rgba(221, 221, 221, 0.6);
@@ -129,11 +129,29 @@
     }
     .addRowByLine:not(.disabled):hover,
     .exitBatch:not(.disabled):hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
     }
     .addRowByDialog {
       &:not(.disabled):hover {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-hover);
+      }
+    }
+  }
+  .addRowBtnOfVertical {
+    padding: 0 6px;
+    display: flex;
+    align-items: center;
+    .IconCon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      color: var(--color-text-tertiary);
+      &:hover {
+        background: var(--color-background-hover);
+        color: var(--color-text-secondary);
       }
     }
   }
@@ -164,7 +182,7 @@
     .headerBtn {
       margin: 4px 0 0 8px;
       &.delete:hover {
-        color: #f44336 !important;
+        color: var(--color-error) !important;
       }
       &:last-child {
         margin-right: -6px;
@@ -178,7 +196,7 @@
     }
   }
   .title {
-    color: #151515;
+    color: var(--color-text-title);
     font-size: 20px;
     line-height: 1em;
     margin-bottom: 10px;
@@ -191,13 +209,13 @@
   .footer {
     height: 36px;
     .saveAndContinueBtn {
-      color: #757575;
-      background: #fff;
-      border: 1px solid #bdbdbd;
+      color: var(--color-text-secondary);
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-text-disabled);
       line-height: 34px;
       &:hover {
-        color: #1677ff;
-        border-color: #1677ff;
+        color: var(--color-primary);
+        border-color: var(--color-primary);
       }
     }
   }
@@ -213,8 +231,8 @@
   }
   .btnsWrapper {
     height: 50px;
-    border-top: 1px solid #f5f5f5;
-    background-color: #fff;
+    border-top: 1px solid var(--color-background-secondary);
+    background-color: var(--color-background-primary);
     padding: 0 10px;
     box-sizing: border-box;
 

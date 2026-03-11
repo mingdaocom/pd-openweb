@@ -64,7 +64,7 @@ export default function PromptMessage(props) {
             {_l('消息内容')}
             <span className="Red">*</span>
           </div>
-          <div className="Gray_9e mBottom8">{_l('最多显示50个字符')}</div>
+          <div className="textTertiary mBottom8">{_l('最多显示50个字符')}</div>
           <DynamicDefaultValue
             {...props}
             data={{

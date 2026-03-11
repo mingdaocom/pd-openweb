@@ -8,7 +8,7 @@ import Preview from './Preview';
 import Setting from './Setting';
 
 const Wrap = styled.div`
-  background-color: #eee;
+  background-color: var(--color-border-secondary);
   height: 100%;
   display: flex;
 
@@ -16,7 +16,7 @@ const Wrap = styled.div`
     display: flex;
     border-radius: 3px;
     padding: 3px;
-    background-color: #e6e6e6;
+    background-color: var(--color-border-secondary);
     .item {
       display: flex;
       align-items: center;
@@ -25,17 +25,17 @@ const Wrap = styled.div`
       height: 30px;
       line-height: 30px;
       padding: 0 10px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       font-size: 20px;
       cursor: pointer;
       &:last-child {
         border: none;
       }
       &.active {
-        color: #1677ff;
+        color: var(--color-primary);
         font-weight: bold;
         border-radius: 3px;
-        background-color: #fff;
+        background-color: var(--color-background-primary);
       }
     }
   }
@@ -90,7 +90,7 @@ export default function Carousel(props) {
             </Button>
           </ConfigProvider>
           <Tooltip title={_l('关闭')} placement="bottom">
-            <Icon icon="close" className="Font24 pointer mLeft16 Gray_9e" onClick={onClose} />
+            <Icon icon="close" className="Font24 pointer mLeft16 textTertiary" onClick={onClose} />
           </Tooltip>
         </div>
       </Header>

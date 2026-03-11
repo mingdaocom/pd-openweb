@@ -22,7 +22,7 @@ const LeftListWrapper = styled.div(
   transition: width 0.2s;
   position: relative;
   z-index: 3;
-  border-right: 1px solid #ddd;
+  border-right: 1px solid var(--color-border-primary);
   width: ${width}px;
   box-sizing: content-box;
 
@@ -33,17 +33,17 @@ const LeftListWrapper = styled.div(
     .icon {
       line-height: 51px;
       font-size: 20px;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       &.icon-close {
         cursor: pointer;
       }
       &.icon-search{
         &:hover{
-          color:#bdbdbd;
+          color:var(--color-text-disabled);
         }
       }
       &:hover{
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     input {
@@ -68,9 +68,9 @@ const Drag = styled.div(
   width: 10px;
   height: 100%;
   cursor: ew-resize;
-  border-left: 1px solid #e0e0e0;
+  border-left: 1px solid var(--color-border-secondary);
   &:hover{
-    border-left: 1px solid #1677ff;
+    border-left: 1px solid var(--color-primary);
   }
 `,
 );
@@ -207,7 +207,7 @@ function DetailView(props) {
     if (!isOpenGroup) {
       return (
         <span
-          className="pLeft8 InlineBlock w100 pRight8 WordBreak Gray_9e TxtCenter Bold h100 Hand"
+          className="pLeft8 InlineBlock w100 pRight8 WordBreak textTertiary TxtCenter Bold h100 Hand"
           onClick={() => changeGroupStatus(!isOpenGroup)}
         ></span>
       );
@@ -217,7 +217,7 @@ function DetailView(props) {
       <LoadDiv className="mTop10" />
     ) : !detailViewRows.length ? (
       getEmptyStatus() !== 'empty' ? (
-        <div className="mTop36 Gray_9e TxtCenter">
+        <div className="mTop36 textTertiary TxtCenter">
           {getEmptyStatus() === 'search' ? _l('没有搜索结果') : _l('没有符合条件的记录')}
         </div>
       ) : (
@@ -332,6 +332,7 @@ function DetailView(props) {
             <RecordInfoWrapper
               enablePayment={worksheetInfo.enablePayment}
               notDialog
+              allowAiAction={false}
               flag={flag}
               controls={controls}
               handleSwitchRecord={newRecord => setCurrentRecord(newRecord)}

@@ -17,14 +17,14 @@ const NumberControlWrap = styled.div`
     flex-direction: column;
     .iconWrap {
       padding: 0 6px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border-primary);
       border-left: none;
       height: 17px;
       &:first-child {
         border-bottom: none;
       }
       i {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
     }
   }

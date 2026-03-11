@@ -3,32 +3,32 @@ import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 
 const PauseTimeListCon = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow: 0 3px 9px rgba(0, 0, 0, 0.16);
   width: 240px;
   padding: 6px 0;
   .runDateItem {
     line-height: 32px;
-    color: #151515;
+    color: var(--color-text-title);
     padding: 0 24px;
     .pause {
-      color: #f44336;
+      color: var(--color-error);
     }
     .recover {
-      color: #4caf50;
+      color: var(--color-success);
     }
     &:hover {
       .pause {
-        color: #fff;
+        color: var(--color-white);
       }
       .recover {
-        color: #fff;
+        color: var(--color-white);
       }
     }
   }
   .runDateItem:hover {
-    background-color: #1677ff;
-    color: #fff;
+    background-color: var(--color-primary);
+    color: var(--color-white);
   }
 `;
 

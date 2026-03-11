@@ -53,7 +53,7 @@ export default function InputValue({ type, value, className, onChange, onBlur, p
     />
   ) : (
     <Input
-      style={{ borderColor: '#ddd' }}
+      style={{ borderColor: 'var(--color-border-primary)' }}
       className={className}
       value={displayValue(value)}
       onFocus={() => setEditing(true)}

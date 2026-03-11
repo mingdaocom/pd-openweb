@@ -97,14 +97,15 @@ export default function (props) {
             <span className={cx('download InlineBlock Hand mLeft10')} onClick={() => down()}>
               {_l('导出')}
             </span>
-            {md.global.Config.IsLocal && !!list.find(o => safeParse(o.portal_status, 'array')[0] === '5') && (
-              <span
-                className={cx('download InlineBlock Hand mLeft10')}
-                onClick={() => updateActivationStatus(selectedIds)}
-              >
-                {_l('激活')}
-              </span>
-            )}
+            {(window.platformENV.isOverseas || window.platformENV.isLocal) &&
+              !!list.find(o => safeParse(o.portal_status, 'array')[0] === '5') && (
+                <span
+                  className={cx('download InlineBlock Hand mLeft10')}
+                  onClick={() => updateActivationStatus(selectedIds)}
+                >
+                  {_l('激活')}
+                </span>
+              )}
             <span
               className={cx('download InlineBlock Hand mLeft10')}
               onClick={() => {

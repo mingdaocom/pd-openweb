@@ -10,10 +10,10 @@ const Abnormal = styled.div`
   width: 100%;
   height: 450px;
   font-size: 15px;
-  color: #555;
+  color: var(--color-text-title);
   > i {
     font-size: 66px;
-    color: #f78c00;
+    color: var(--color-warning);
   }
 `;
 export default function createPermissionCheckWrapper(Comp) {

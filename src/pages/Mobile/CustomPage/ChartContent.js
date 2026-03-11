@@ -19,7 +19,7 @@ import ChartSort from '../components/Chart/Sort';
 import * as actions from './redux/actions';
 
 const ModalContent = styled.div`
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   .itemWrapper {
     flex-wrap: wrap;
     justify-content: flex-start;
@@ -30,7 +30,7 @@ const ModalContent = styled.div`
       padding: 6px 0;
       text-align: center;
       border-radius: 14px;
-      background-color: #f5f5f5;
+      background-color: var(--color-background-secondary);
     }
     .active {
       color: rgba(33, 150, 243, 1) !important;
@@ -53,7 +53,7 @@ const HorizontalChartContent = styled.div`
   width: ${props => `${props.width}px`};
   left: ${props => `${props.height}px`};
   .count {
-    color: #151515;
+    color: var(--color-text-title);
     font-weight: 500;
     font-size: 20px;
     font-family:
@@ -70,7 +70,7 @@ const HorizontalChartContent = styled.div`
   }
   .allow {
     border-radius: 50%;
-    background: #f8f8f9;
+    background: var(--color-background-secondary);
   }
 `;
 
@@ -203,7 +203,7 @@ function ChartComponent(props) {
     return (
       <Fragment>
         <div className="titleWrapper flexRow valignWrapper pAll15">
-          <div className="Font13 Gray_9e flex Bold">{_l('筛选与排序')}</div>
+          <div className="Font13 textTertiary flex Bold">{_l('筛选与排序')}</div>
           <Icon className="Font20" icon="cancel" onClick={handleOpenFilterModal} />
         </div>
         <div className="flex scrollView">
@@ -385,7 +385,7 @@ function ChartContent(props) {
   if (isClickSearch && !filtersGroup.length) {
     return (
       <div className="flexRow justifyContentCenter alignItemsCenter w100 h100">
-        <span className="Font15 bold Gray_9e">{_l('执行查询后显示结果')}</span>
+        <span className="Font15 bold textTertiary">{_l('执行查询后显示结果')}</span>
       </div>
     );
   }

@@ -234,7 +234,7 @@ class Attachment extends Component {
           <br />
           {_l('当前项目及其任务下的所有文件都将汇聚在这里')}
         </div>
-        <div className="ThemeBG taskGroundGlass" />
+        <div className="bgTertiary taskGroundGlass" />
       </div>
     );
   }

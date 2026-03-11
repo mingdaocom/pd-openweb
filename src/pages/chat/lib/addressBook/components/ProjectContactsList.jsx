@@ -6,7 +6,7 @@ import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import departmentController from 'src/api/department';
 
 const DepartmentTreeWrapper = styled.div`
-  border-right: 1px solid #f3f3f3;
+  border-right: 1px solid var(--color-background-disabled);
   height: 100%;
   .subs {
     margin-left: 10px;
@@ -17,13 +17,13 @@ const Department = styled.div`
   width: 100%;
   padding: 4px;
   &:hover {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-hover);
   }
   &.active {
-    background-color: #d6ecfe;
+    background-color: var(--color-primary-transparent);
     .icon,
     div {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
   .iconArrow {
@@ -31,7 +31,7 @@ const Department = styled.div`
     padding: 7px 0px 5px 2px;
     border-radius: 4px;
     &:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
     }
   }
 `;
@@ -105,7 +105,7 @@ export default class ProjectContactList extends React.Component {
         >
           <Icon
             icon={subVisible ? 'arrow-down' : 'arrow-right-tip'}
-            className={cx('Gray_75 iconArrow', { Visibility: !item.haveSubDepartment })}
+            className={cx('textSecondary iconArrow', { Visibility: !item.haveSubDepartment })}
             onClick={event => {
               event.stopPropagation();
               this.expandNext(item.departmentId);
@@ -121,7 +121,7 @@ export default class ProjectContactList extends React.Component {
               }
             }}
           />
-          <Icon className="Gray_9e Font16 mLeft2 mRight5" icon="folder" />
+          <Icon className="textTertiary Font16 mLeft2 mRight5" icon="folder" />
           <div className="ellipsis Font13">{item.departmentName}</div>
         </Department>
         {subVisible && <div className="subs">{item.subs.map(item => this.renderDepartment(item))}</div>}

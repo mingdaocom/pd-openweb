@@ -10,6 +10,7 @@ import EnableScanLogin from '../components/EnableScanLogin';
 import IntegrationSetPassword from '../components/IntegrationSetPassword';
 import IntegrationSync from '../components/IntegrationSync';
 import SettingLinkOpen from '../components/SettingLinkOpen';
+import SyncRootDepartment from '../components/SyncRootDepartment';
 import { checkClearIntergrationData, integrationFailed } from '../utils';
 import './style.less';
 
@@ -90,6 +91,7 @@ export default class Ding extends React.Component {
             'isEnableRobot',
             'robotCode',
             'isProxy',
+            'syncRootDepartment',
           ]),
         });
       }
@@ -177,7 +179,7 @@ export default class Ding extends React.Component {
               />
               <Icon
                 icon={!this.state[`isShow${strId}`] ? 'visibility_off' : 'visibility'}
-                className="Gray_9e Font18 isShowIcon"
+                className="textTertiary Font18 isShowIcon"
                 onClick={() => {
                   this.setState({
                     [`isShow${strId}`]: !this.state[`isShow${strId}`],
@@ -198,7 +200,7 @@ export default class Ding extends React.Component {
     return (
       <div className="pBottom100">
         <div className="stepItem Relative">
-          <h3 className="stepTitle Font16 Gray">{_l('1.获取对接信息')}</h3>
+          <h3 className="stepTitle Font16 textPrimary">{_l('1.获取对接信息')}</h3>
           {!this.state.show1 ? (
             <div
               className="showDiv flexRow valignWrapper"
@@ -208,11 +210,13 @@ export default class Ding extends React.Component {
                 });
               }}
             >
-              <Icon icon="arrow-right-border" className="Font13 Gray_75 Right Hand" />
+              <Icon icon="arrow-right-border" className="Font13 textSecondary Right Hand" />
             </div>
           ) : (
             <React.Fragment>
-              <p className="mTop16 Font14 Gray_75">{_l('从钉钉开放平台获取对接信息，即可开始集成以及同步通讯录')}</p>
+              <p className="mTop16 Font14 textSecondary">
+                {_l('从钉钉开放平台获取对接信息，即可开始集成以及同步通讯录')}
+              </p>
               <MdLink to={`/dingSyncCourse/${this.props.projectId}`} target="_blank" className="mTop16 Font14 howApply">
                 {_l('如何获取对接信息？')}
               </MdLink>
@@ -220,7 +224,7 @@ export default class Ding extends React.Component {
           )}
         </div>
         <div className="stepItem Relative">
-          <h3 className="stepTitle Font16 Gray">{_l('2.对接信息录入')}</h3>
+          <h3 className="stepTitle Font16 textPrimary">{_l('2.对接信息录入')}</h3>
           {!this.state.show2 && (
             <div
               className="showDiv flexRow valignWrapper"
@@ -230,11 +234,11 @@ export default class Ding extends React.Component {
                 });
               }}
             >
-              <Icon icon="arrow-right-border" className="Font13 Gray_75 Right Hand" />
+              <Icon icon="arrow-right-border" className="Font13 textSecondary Right Hand" />
             </div>
           )}
           {this.state.isHasInfo && this.state.show2 && (
-            <span className="Font13 Gray_75 Right closeDing">
+            <span className="Font13 textSecondary Right closeDing">
               <Tooltip title={_l('关闭钉钉集成后，无法再从钉钉处进入应用')} placement="bottomLeft">
                 <span className="mLeft10 switchBtn">
                   <Switch
@@ -247,7 +251,7 @@ export default class Ding extends React.Component {
           )}
           {!this.state.isCloseDing && this.state.show2 && (
             <React.Fragment>
-              <p className="mTop16 Font14 Gray_75">
+              <p className="mTop16 Font14 textSecondary">
                 {_l('完成步骤 1 后，填入CorpId、AgentId、ClientId、ClientScret后可对接应用与同步通讯录')}
               </p>
               <div className="mTop25 infoList">
@@ -433,9 +437,9 @@ export default class Ding extends React.Component {
 
     return (
       <div className="stepItem">
-        <h3 className="stepTitle Font16 Gray mBottom24">{_l('机器人发送消息')}</h3>
+        <h3 className="stepTitle Font16 textPrimary mBottom24">{_l('机器人发送消息')}</h3>
         <Switch className="mBottom20" disabled={isCloseDing} checked={isEnableRobot} onClick={this.handleRobotSwitch} />
-        <div className="Font13 Gray mBottom16">
+        <div className="Font13 textPrimary mBottom16">
           <span className="mRight12">RobotCode：</span>
           <Input
             className="Width400"
@@ -444,7 +448,7 @@ export default class Ding extends React.Component {
             onBlur={this.handleRobotCode}
           />
         </div>
-        <div className="Font13 Gray valignWrapper">
+        <div className="Font13 textPrimary valignWrapper">
           {_l('开启后，平台应用消息会通过钉钉机器人发送给已同步到平台的钉钉用户。')}
           <Support
             className="supportLink"
@@ -469,6 +473,7 @@ export default class Ding extends React.Component {
       isCloseDing,
       customNameIcon,
       isProxy,
+      syncRootDepartment,
     } = this.state;
 
     if (this.state.pageLoading) {
@@ -523,7 +528,7 @@ export default class Ding extends React.Component {
                   updateCustomNameIcon={customNameIcon => this.setState({ customNameIcon })}
                 />
               </div>
-              {md.global.Config.IsLocal && (
+              {(window.platformENV.isOverseas || window.platformENV.isLocal) && (
                 <IntegrationSetPassword
                   password={this.state.password}
                   isSetPassword={this.state.isSetPassword}
@@ -531,7 +536,7 @@ export default class Ding extends React.Component {
                 />
               )}
               <div className="stepItem">
-                <h3 className="stepTitle Font16 Gray pBottom5">{_l('应用在钉钉PC端打开方式')}</h3>
+                <h3 className="stepTitle Font16 textPrimary pBottom5">{_l('应用在钉钉PC端打开方式')}</h3>
                 {optionTypes.map(item => {
                   return (
                     <Radio
@@ -552,7 +557,7 @@ export default class Ding extends React.Component {
               />
               <div className="stepItem flexRow valignWrapper">
                 <div className="flexColumn flex">
-                  <h3 className="stepTitle Font16 Gray mBottom24">{_l('流程待办同步至钉钉待办任务')}</h3>
+                  <h3 className="stepTitle Font16 textPrimary mBottom24">{_l('流程待办同步至钉钉待办任务')}</h3>
                   <Switch
                     disabled={this.state.isCloseDing}
                     checked={this.state.intergrationTodoMessageEnabled}
@@ -562,7 +567,7 @@ export default class Ding extends React.Component {
                     <span>
                       {_l('开启后，我的流程中的待办（待审批、待填写）同时会进入钉钉待办任务，处理状态会同步更新')}
                     </span>
-                    <span className="Block Gray">
+                    <span className="Block textPrimary">
                       <span className="Bold">{_l('注意：')}</span>
                       <span>此功能需要在钉钉中开启添加待办任务接口权限。</span>
                       <Support
@@ -575,6 +580,11 @@ export default class Ding extends React.Component {
                 </div>
               </div>
               {this.renderRobotSendMsg()}
+              <SyncRootDepartment
+                projectId={projectId}
+                syncRootDepartment={syncRootDepartment}
+                updateSyncRootDepartment={syncRootDepartment => this.setState({ syncRootDepartment })}
+              />
             </Fragment>
           )}
         </div>

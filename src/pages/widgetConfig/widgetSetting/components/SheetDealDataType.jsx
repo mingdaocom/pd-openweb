@@ -32,7 +32,7 @@ export default function SheetDealDataType({ data, onChange }) {
         >
           <span style={{ marginRight: '4px' }}>{_l('在显示表单前先获取输入')}</span>
           <Tooltip placement="bottom" title={tip[0]}>
-            <i className="icon-help Gray_9e Font16"></i>
+            <i className="icon-help textTertiary Font16"></i>
           </Tooltip>
         </Checkbox>
       </div>
@@ -44,7 +44,7 @@ export default function SheetDealDataType({ data, onChange }) {
         >
           <span style={{ marginRight: '4px' }}>{_l('获取后直接提交表单')}</span>
           <Tooltip placement="bottom" title={tip[1]}>
-            <i className="icon-help Gray_9e Font16"></i>
+            <i className="icon-help textTertiary Font16"></i>
           </Tooltip>
         </Checkbox>
       </div>

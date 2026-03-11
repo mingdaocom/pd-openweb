@@ -36,7 +36,7 @@ const PreviewContentWrapper = styled.div`
   .iconWrap {
     text-align: right;
     padding: 8px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     .icon-task-later {
       transform: rotate(0deg);
       transform-origin: center;
@@ -46,7 +46,7 @@ const PreviewContentWrapper = styled.div`
       }
     }
     .actionIcon:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
   .displayNone {
@@ -137,14 +137,14 @@ export function PreviewWraper(props) {
           browserIsMobile() ? (
             <Icon
               icon="task-later"
-              className={cx('Gray_bd InlineBlock Font20 Hand actionIcon', { turn: now })}
+              className={cx('textDisabled InlineBlock Font20 Hand actionIcon', { turn: now })}
               onClick={handleReLoad}
             />
           ) : (
             <Tooltip title={_l('刷新')} placement="bottom">
               <Icon
                 icon="task-later"
-                className={cx('Gray_bd InlineBlock Font20 Hand actionIcon', { turn: now })}
+                className={cx('textDisabled InlineBlock Font20 Hand actionIcon', { turn: now })}
                 onClick={handleReLoad}
               />
             </Tooltip>
@@ -154,10 +154,10 @@ export function PreviewWraper(props) {
         )}
         {newTab ? (
           browserIsMobile() ? (
-            <Icon icon="launch" className="Gray_bd mLeft10 Font20 Hand actionIcon" onClick={handleOpen} />
+            <Icon icon="launch" className="textDisabled mLeft10 Font20 Hand actionIcon" onClick={handleOpen} />
           ) : (
             <Tooltip title={_l('打开')} placement="bottom">
-              <Icon icon="launch" className="Gray_bd mLeft10 Font20 Hand actionIcon" onClick={handleOpen} />
+              <Icon icon="launch" className="textDisabled mLeft10 Font20 Hand actionIcon" onClick={handleOpen} />
             </Tooltip>
           )
         ) : (

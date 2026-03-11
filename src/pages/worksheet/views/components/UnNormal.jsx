@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Button } from 'ming-ui';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import abnormal from 'src/pages/worksheet/assets/abnormal.png';
 import alreadyDelete from 'src/pages/worksheet/assets/alreadyDelete.png';
 import withoutPermission from 'src/pages/worksheet/assets/withoutPermission.png';
@@ -9,13 +10,13 @@ const UnNormalWrap = styled.div`
   display: flex;
   width: 100%;
   height: 100%;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   overflow: hidden;
   .unNormalContent {
     flex: 1;
     margin: 15px;
     border-radius: 4px;
-    background: #fff;
+    background: var(--color-background-primary);
     justify-content: center;
     align-items: center;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
@@ -23,7 +24,7 @@ const UnNormalWrap = styled.div`
   .unNormalText {
     margin: 15px 0 20px;
     font-size: 17px;
-    color: #151515;
+    color: var(--color-text-title);
     white-space: pre-wrap;
     text-align: center;
   }
@@ -81,6 +82,11 @@ const UnNormal = props => {
   if (errorText) {
     text = errorText;
   }
+
+  if (resultCode === 300016) {
+    return <RestrictAccessStatus />;
+  }
+
   return (
     <UnNormalWrap>
       <div className="unNormalContent flexColumn">

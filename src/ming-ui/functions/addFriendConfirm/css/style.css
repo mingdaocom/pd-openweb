@@ -16,11 +16,11 @@
 }
 
 .recBox .inputControl:not(:focus) {
-  border-color: #ccc !important;
+  border-color: var(--color-border-tertiary) !important;
 }
 
 .recBox .tip {
   font-size: 13px;
-  color: #999;
+  color: var(--color-text-tertiary);
   margin-bottom: 16px;
 }

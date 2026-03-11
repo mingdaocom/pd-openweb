@@ -2,7 +2,7 @@
   flex: 1;
   min-height: 0;
   box-sizing: border-box;
-  background-color: #ffffff;
+  background-color: var(--color-background-primary);
   padding-top: 24px;
   padding-bottom: 10px;
   border-radius: 4px;
@@ -10,7 +10,7 @@
   flex-direction: column;
   .hover_blue {
     &:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
   .enterpriseHeader {
@@ -28,15 +28,15 @@
     .itemCreat {
       height: 32px;
       border-radius: 16px;
-      background: #ffffff;
-      border: 1px solid #1677ff;
-      color: #1677ff;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-primary);
+      color: var(--color-primary);
       text-align: center;
       line-height: 30px;
       padding: 0 32px;
       &:hover {
-        color: #49adfc;
-        border-color: #49adfc;
+        color: var(--color-primary-light);
+        border-color: var(--color-primary-light);
       }
     }
   }
@@ -51,7 +51,7 @@
       font-size: 14px;
       font-weight: 600;
       margin: 20px 0 12px;
-      color: #333;
+      color: var(--color-text-primary);
     }
   }
 }
@@ -61,10 +61,10 @@
   display: inline-block;
   min-width: 19px;
   height: 19px;
-  background: #ffd2d2;
+  background: var(--color-error-bg);
   line-height: 19px;
   text-align: center;
-  color: #ff0000;
+  color: var(--color-error);
   border-radius: 19px;
   margin-left: 8px;
   padding: 0 6px;
@@ -75,7 +75,7 @@
   min-height: 0;
   margin: 16px;
   box-sizing: border-box;
-  background-color: #ffffff;
+  background-color: var(--color-background-primary);
   overflow-x: hidden;
   border-radius: 4px;
   padding: 22px 40px;
@@ -89,29 +89,29 @@
       width: 124px;
       height: 32px;
       border-radius: 16px;
-      background: #ffffff;
-      border: 1px solid #1677ff;
-      color: #1677ff;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-primary);
+      color: var(--color-primary);
       text-align: center;
       line-height: 30px;
       &:hover {
-        color: #49adfc;
-        border-color: #49adfc;
+        color: var(--color-primary-light);
+        border-color: var(--color-primary-light);
       }
     }
     .addBtn {
       display: inline-block;
       width: 124px;
       height: 32px;
-      background: #219dff;
+      background: var(--color-link-hover);
       border-radius: 16px;
       text-align: center;
       line-height: 32px;
-      color: #fff;
+      color: var(--color-white);
       font-size: 14px;
       font-weight: 600;
       &:hover {
-        background-color: #1e88e5;
+        background-color: var(--color-primary);
       }
     }
   }
@@ -119,8 +119,8 @@
   .withoutEnterpriseTopBox {
     flex: 1;
     min-height: 0;
-    color: #9e9e9e;
-    border: 1px solid #eaeaea;
+    color: var(--color-text-tertiary);
+    border: 1px solid var(--color-border-secondary);
     font-size: 15px;
     font-weight: 600;
     margin-top: 22px;
@@ -129,16 +129,16 @@
     padding-top: 200px;
     align-items: center;
     .highLight {
-      color: #1677ff;
+      color: var(--color-primary);
       &:hover {
-        color: #1e88e5;
+        color: var(--color-primary);
       }
     }
   }
 
   .withoutEnterpriseHeader .MyInvitation {
     font-size: 14px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
 
   .withoutEnterpriseHeader .MyInvitation:hover {
@@ -150,7 +150,7 @@
     height: 32px;
     line-height: 32px;
     background-color: rgba(255, 255, 255, 0.85);
-    color: #151515;
+    color: var(--color-text-title);
     border-radius: 3px;
     margin: 0px 10px;
     padding: 0px 18px;
@@ -162,15 +162,15 @@
 
   .withoutEnterprise .addEnterpriseBtn {
     background-color: transparent !important;
-    color: white !important;
-    border: 1px solid #f1f1f1;
+    color: var(--color-white) !important;
+    border: 1px solid var(--color-background-disabled);
   }
 
   .noEnterpriseIcon {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    border: 2px solid #fff;
+    border: 2px solid var(--color-white);
     display: inline-block;
     margin-top: -40px;
     line-height: 76px;
@@ -195,7 +195,7 @@
   }
 
   .enterpriseNote .btnExperience:hover {
-    background: #1e88e5;
+    background: var(--color-primary);
   }
 
   .withoutEnterprise ul {
@@ -209,7 +209,7 @@
     width: 25%;
     text-align: center;
     margin-bottom: 45px;
-    color: #151515;
+    color: var(--color-text-title);
     font-size: 16px;
   }
 

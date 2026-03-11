@@ -6,10 +6,10 @@ import sheetAjax from 'src/api/worksheet';
 import { RecordInfoModal } from 'mobile/Record';
 import { openAddRecord } from 'mobile/Record/addRecord';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { controlState } from 'src/utils/control';
 import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import { RECORD_INFO_FROM, RELATION_SEARCH_SHOW_TYPE } from '../../../core/enum';
-import { controlState } from '../../../core/formUtils';
 import SearchInput from '../../components/ChildTable/SearchInput';
 import Cards from './Cards';
 import Texts from './Text';
@@ -87,6 +87,7 @@ export default function RelationSearch(props) {
       control: { ...control, relationControls, recordId },
       formData: control.formData,
       filterKey: 'resultfilters',
+      appId: control.appId,
     });
     cache.current.filter = filterControls;
     if (filterControls === false) {
@@ -183,6 +184,7 @@ export default function RelationSearch(props) {
       control: { ...control, relationControls: controls, recordId },
       formData: control.formData,
       filterKey: 'resultfilters',
+      appId: control.appId,
     });
     if (!_.isUndefined(cache.current.filter) && newFilter && !_.isEqual(cache.current.filter, newFilter)) {
       cache.current.filter = newFilter;

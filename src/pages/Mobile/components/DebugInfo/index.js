@@ -15,8 +15,8 @@ const Wrap = styled.div`
   font-weight: 600;
   display: flex;
   align-items: center;
-  color: #fff;
-  background-color: #585858;
+  color: var(--color-white);
+  background-color: var(--color-background-inverse);
 `;
 
 export default function DebugInfo({ appId, debugRoles = [] }) {

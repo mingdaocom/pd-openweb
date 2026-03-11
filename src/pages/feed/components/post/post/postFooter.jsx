@@ -28,7 +28,7 @@ function PostFooter(props) {
         href={`${props.detailUrl}&${getAppFeaturesPath()}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="Gray_a"
+        className="textTertiary"
       >
         {!props.updateTime || props.createTime === props.updateTime ? (
           <span title={_l('点击查看详情')}>{createTimeSpan(props.createTime)}</span>
@@ -40,8 +40,8 @@ function PostFooter(props) {
       </a>
       {from && (
         <span>
-          <span className="Gray_a mLeft5" dangerouslySetInnerHTML={{ __html: from }} />
-          {source.detailType && <span className="Gray_a"> {source.detailType} </span>}
+          <span className="textTertiary mLeft5" dangerouslySetInnerHTML={{ __html: from }} />
+          {source.detailType && <span className="textTertiary"> {source.detailType} </span>}
         </span>
       )}
       {location && (

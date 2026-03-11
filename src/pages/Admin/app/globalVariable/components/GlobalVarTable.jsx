@@ -23,8 +23,8 @@ const Wrapper = styled.div`
     align-items: center;
     margin: 0;
     padding: 14px 10px;
-    border-bottom: 1px solid #e0e0e0;
-    color: #757575;
+    border-bottom: 1px solid var(--color-border-secondary);
+    color: var(--color-text-secondary);
     &.emptyNoBorder {
       border-bottom: none;
     }
@@ -52,18 +52,18 @@ const Wrapper = styled.div`
     height: 40px;
     line-height: 40px;
     padding: 0 10px;
-    border-bottom: 1px solid #f5f5f5;
+    border-bottom: 1px solid var(--color-background-secondary);
     font-size: 14px;
     .doneIcon {
       display: none;
       position: absolute;
       top: 12px;
       right: 20px;
-      color: #1677ff;
+      color: var(--color-primary);
     }
 
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
       .optionIcon {
         display: block;
       }
@@ -72,14 +72,14 @@ const Wrapper = styled.div`
       cursor: pointer;
       position: relative;
       &.isActive {
-        background: #dbeefd;
+        background: var(--color-primary-transparent);
         .doneIcon {
           display: block;
         }
       }
     }
     &.isEditing {
-      background: #ecf7fe;
+      background: var(--color-primary-transparent);
     }
 
     .name {
@@ -88,13 +88,13 @@ const Wrapper = styled.div`
         &:hover {
           .icon-arrow-right-tip,
           .icon-arrow-down {
-            color: #1677ff;
+            color: var(--color-primary);
           }
         }
       }
       i {
         font-size: 16px;
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
         cursor: pointer;
       }
     }
@@ -105,16 +105,16 @@ const Wrapper = styled.div`
         line-height: 16px;
         padding: 0 8px;
         border-radius: 27px;
-        color: #f51744;
+        color: var(--color-error);
         background: rgba(245, 23, 68, 0.08);
         font-size: 11px;
       }
       .maskIcon {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
         margin-left: 8px;
         cursor: pointer;
         &:hover {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }
@@ -131,9 +131,9 @@ const NoDataWrapper = styled.div`
     width: 130px;
     height: 130px;
     text-align: center;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     border-radius: 50%;
-    color: #c2c3c3;
+    color: var(--color-text-placeholder);
     i {
       line-height: 130px;
     }
@@ -193,7 +193,7 @@ export default function GlobalVarTable(props) {
                   icon={_.includes(dirFolded, item.key) ? 'arrow-right-tip' : 'arrow-down'}
                 />
                 <Icon icon="custom_folder_2" />
-                <span className="mLeft6 Gray overflow_ellipsis">{item.name}</span>
+                <span className="mLeft6 textPrimary overflow_ellipsis">{item.name}</span>
               </div>
             ) : (
               <div className="Hand overflow_ellipsis" onClick={!readOnly ? () => onEditVar(item.id) : () => {}}>
@@ -202,11 +202,11 @@ export default function GlobalVarTable(props) {
                 </Tooltip>
                 {item.name.indexOf('.') > -1 ? (
                   <React.Fragment>
-                    <span className="mLeft6 Gray_9e">{item.name.slice(0, item.name.lastIndexOf('.'))}</span>
-                    <span className="Gray">{item.name.slice(item.name.lastIndexOf('.'), item.name.length)}</span>
+                    <span className="mLeft6 textTertiary">{item.name.slice(0, item.name.lastIndexOf('.'))}</span>
+                    <span className="textPrimary">{item.name.slice(item.name.lastIndexOf('.'), item.name.length)}</span>
                   </React.Fragment>
                 ) : (
-                  <span className="mLeft6 Gray">{item.name}</span>
+                  <span className="mLeft6 textPrimary">{item.name}</span>
                 )}
               </div>
             )}
@@ -224,7 +224,7 @@ export default function GlobalVarTable(props) {
           </div>
         ) : (
           <div className="flexRow alignItemsCenter">
-            <span className="Gray_9e overflow_ellipsis">
+            <span className="textTertiary overflow_ellipsis">
               {!item.hasChild
                 ? item.maskType === 0 || _.includes(showMaskValueArr, item.id)
                   ? item.value
@@ -253,7 +253,7 @@ export default function GlobalVarTable(props) {
       dataIndex: 'description',
       title: _l('描述'),
       render: item => {
-        return <div className="Gray_9e overflow_ellipsis">{item.description}</div>;
+        return <div className="textTertiary overflow_ellipsis">{item.description}</div>;
       },
     },
     {
@@ -353,7 +353,7 @@ export default function GlobalVarTable(props) {
           <div className="iconCon">
             <Icon icon="global_variable" className="Font64" />
           </div>
-          <div className="mTop24 Font16 Gray_9e">{emptyText}</div>
+          <div className="mTop24 Font16 textTertiary">{emptyText}</div>
         </NoDataWrapper>
       ) : (
         <ScrollView>

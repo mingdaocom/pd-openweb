@@ -6,6 +6,7 @@ import { includes } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import Tooltip from 'ming-ui/antd-components/Tooltip';
+import { getLatestCreateTimestampOfWithSaveShortcut } from 'src/utils/common';
 
 const ConBox = styled.div`
   position: absolute;
@@ -19,7 +20,7 @@ const ConBox = styled.div`
 const Con = styled.div`
   height: 48px;
   border-radius: 48px;
-  color: #fff;
+  color: var(--color-white);
   line-height: 48px;
   padding: 0 10px 0 24px;
   z-index: 9;
@@ -56,12 +57,12 @@ const OkButton = styled(Button)`
     background-color: rgba(255, 255, 255, 0.9);
   }
   &.disabled {
-    color: #ddd;
+    color: var(--color-border-primary);
     cursor: not-allowed;
   }
 `;
 const CancelButton = styled(Button)`
-  color: #fff;
+  color: var(--color-white);
   font-weight: bold;
   &:hover {
     background-color: rgba(255, 255, 255, 0.16);
@@ -79,6 +80,7 @@ export default function EditingBar(props) {
     visibleTop,
     title,
     okDisabled,
+    didMountTimestamp,
     updateText = _l('保存'),
     cancelText = _l('取消'),
     onUpdate = () => {},
@@ -87,22 +89,24 @@ export default function EditingBar(props) {
   } = props;
   const cache = useRef({ saveShortCut, okDisabled });
   const handleSave = e => {
-    if (window.disableShortcutsSaveRecord) {
+    if (!cache.current.saveShortCut || !(window.isMacOs ? e.metaKey : e.ctrlKey)) return;
+    if (window.richTextDialogIsActive) {
+      e.stopPropagation();
+      e.preventDefault();
       return;
     }
-    if (!cache.current.saveShortCut || !(window.isMacOs ? e.metaKey : e.ctrlKey)) return;
+    const latestCreateTimestamp = getLatestCreateTimestampOfWithSaveShortcut();
     e.stopPropagation();
     e.preventDefault();
+    if (latestCreateTimestamp !== didMountTimestamp) {
+      return;
+    }
     if (cache.current.okDisabled) return;
-    let delayTime = 0;
     if (includes(['input', 'textarea'], document.activeElement.tagName.toLowerCase())) {
       document.activeElement.blur();
       document.querySelector('.recordInfoForm').dispatchEvent(new MouseEvent('mousedown'));
-      delayTime = 100;
     }
-    setTimeout(() => {
-      onUpdate();
-    }, delayTime);
+    onUpdate();
   };
   useKey('s', handleSave);
   useKey('S', handleSave);
@@ -132,7 +136,7 @@ export default function EditingBar(props) {
           onClick={e => e.stopPropagation()}
           className="editingBar"
         >
-          <Con style={{ background: isBlack ? '#151515' : '#1677ff' }}>
+          <Con style={{ background: isBlack ? 'var(--color-text-title)' : 'var(--color-primary)' }}>
             <span className="flex bold">{title}</span>
             {loading && <Loading className="icon icon-loading_button" />}
             {!loading && cancelText && (
@@ -146,7 +150,7 @@ export default function EditingBar(props) {
                 shortcut={saveShortCut && !okDisabled ? (window.isMacOs ? '⌘S' : 'Ctrl+S') : ''}
               >
                 <OkButton
-                  className={cx({ disabled: okDisabled }, isBlack ? 'Gray' : 'ThemeColor3')}
+                  className={cx({ disabled: okDisabled }, isBlack ? 'textPrimary' : 'ThemeColor3')}
                   onMouseDown={onOkMouseDown}
                   onClick={okDisabled ? () => {} : onUpdate}
                 >

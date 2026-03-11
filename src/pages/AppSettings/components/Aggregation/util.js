@@ -892,7 +892,7 @@ export const getSourceIndex = (flowData, o) => {
 
 //根据版本返回数据源数量上限
 export const getSourceMaxCountByVersion = projectId => {
-  if (md.global.Config.IsLocal) return 10; //私有部署10个
+  if (window.platformENV.isOverseas || window.platformENV.isLocal) return 10; //私有部署10个
   const { version = { versionIdV2: '-1' } } = getSyncLicenseInfo(projectId);
   const { versionIdV2 } = version;
   switch (versionIdV2) {
@@ -909,7 +909,11 @@ export const getSourceMaxCountByVersion = projectId => {
 //数据源达到上限提示
 export const sourceIsMax = projectId => {
   const project = getSyncLicenseInfo(projectId);
-  if (!['2', '3'].includes(_.get(project, 'version.versionIdV2')) && !md.global.Config.IsLocal) {
+  if (
+    !['2', '3'].includes(_.get(project, 'version.versionIdV2')) &&
+    !window.platformENV.isOverseas &&
+    !window.platformENV.isLocal
+  ) {
     buriedUpgradeVersionDialog(projectId, VersionProductType.aggregation);
   } else {
     return alert(_l('数据源已达上限'), 3);

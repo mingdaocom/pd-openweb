@@ -245,7 +245,7 @@ export default class InitBindAccountDialog extends Component {
             {errorMsg.newPwd ? (
               <span className="warnMsg">{errorMsg.newPwd}</span>
             ) : (
-              <span className="Gray_9e">{this.state.passwordRegexTip || _l('8-20位，需包含字母和数字')}</span>
+              <span className="textTertiary">{this.state.passwordRegexTip || _l('8-20位，需包含字母和数字')}</span>
             )}
           </div>
           <div className="clearfix">

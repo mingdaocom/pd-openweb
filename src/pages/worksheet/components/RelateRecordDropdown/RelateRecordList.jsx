@@ -6,8 +6,9 @@ import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet';
 import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
 import { TextAbsoluteCenter } from 'worksheet/components/StyledComps';
-import { selectRecords } from 'src/components/SelectRecords';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import { getTranslateInfo } from 'src/utils/app';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import ChildTableContext from '../ChildTable/ChildTableContext';
 import ReacordItem from './RecordItem';
 
@@ -67,6 +68,9 @@ export default class RelateRecordList extends React.PureComponent {
             },
             this.loadRecord,
           );
+        })
+        .catch(err => {
+          this.setState({ loading: false, error: err.errorCode === 300016 ? err.errorCode : err.errorMessage });
         });
     } else {
       this.loadRecord();
@@ -149,6 +153,7 @@ export default class RelateRecordList extends React.PureComponent {
       parentWorksheetId,
       recordId,
       controlId,
+      appId,
       searchControl,
       staticRecords,
       getFilterRowsGetType,
@@ -169,7 +174,7 @@ export default class RelateRecordList extends React.PureComponent {
       control.relationControls = worksheetInfo.template.controls;
     }
     if (control && control.advancedSetting.filters) {
-      filterControls = getFilter({ control, formData });
+      filterControls = getFilter({ control, formData, appId });
     }
     // 存在不符合条件值的条件
     if (filterControls === false && !isQuickFilter && !ignoreAllFilters) {
@@ -228,60 +233,68 @@ export default class RelateRecordList extends React.PureComponent {
       this.searchAjax.abort();
     }
     if (!window.isPublicWorksheet) {
-      getFilterRowsPromise = sheetAjax.getFilterRows;
+      getFilterRowsPromise = sheetAjax.chooseRelationRows;
     } else {
       args.shareId = window.publicWorksheetShareId;
       getFilterRowsPromise = publicWorksheetAjax.getRelationRows;
     }
     this.searchAjax = getFilterRowsPromise(args);
-    this.searchAjax.then(res => {
-      if (res.resultCode === 1) {
-        let ignoreRowIdsForChildTable = [];
-        if (control.unique || control.uniqueInRecord) {
-          ignoreRowIdsForChildTable = (_.get(_this, 'context.rows') || [])
-            .map(r => _.get(safeParse(r[control.controlId], 'array'), '0.sid'))
-            .filter(_.identity);
-        }
-        let newRecords = records.concat(
-          res.data.filter(row => row.rowid !== recordId && !_.includes(ignoreRowIdsForChildTable, row.rowid)),
-        );
-        const needSort =
-          keyWords && pageIndex === 1 && _.get(control, 'advancedSetting.searchcontrol') && searchControl;
-        if (
-          needSort &&
-          _.get(control, 'advancedSetting.searchtype') !== '1' &&
-          find(newRecords, record => record[searchControl.controlId] === keyWords)
-        ) {
-          // pick match record to top
-          newRecords = newRecords.sort((a, b) => {
-            if (a[searchControl.controlId] === keyWords) {
-              return -1;
-            }
-            if (b[searchControl.controlId] === keyWords) {
-              return 1;
-            }
-            return 0;
+    this.searchAjax
+      .then(res => {
+        if (res.resultCode === 1) {
+          let ignoreRowIdsForChildTable = [];
+          if (_.get(res, 'template.controls')) {
+            const appId = _.get(window, 'appInfo.id');
+            res.template.controls = replaceControlsTranslateInfo(appId, res.worksheetId, res.template.controls);
+          }
+          if (control.unique || control.uniqueInRecord) {
+            ignoreRowIdsForChildTable = (_.get(_this, 'context.rows') || [])
+              .map(r => _.get(safeParse(r[control.controlId], 'array'), '0.sid'))
+              .filter(_.identity);
+          }
+          let newRecords = records.concat(
+            res.data.filter(row => row.rowid !== recordId && !_.includes(ignoreRowIdsForChildTable, row.rowid)),
+          );
+          const needSort =
+            keyWords && pageIndex === 1 && _.get(control, 'advancedSetting.searchcontrol') && searchControl;
+          if (
+            needSort &&
+            _.get(control, 'advancedSetting.searchtype') !== '1' &&
+            find(newRecords, record => record[searchControl.controlId] === keyWords)
+          ) {
+            // pick match record to top
+            newRecords = newRecords.sort((a, b) => {
+              if (a[searchControl.controlId] === keyWords) {
+                return -1;
+              }
+              if (b[searchControl.controlId] === keyWords) {
+                return 1;
+              }
+              return 0;
+            });
+          }
+          this.setState({
+            error: undefined,
+            records: newRecords,
+            loading: false,
+            loadouted: res.data.length < 20,
+            controls: res.template ? res.template.controls : [],
+            worksheet: res.worksheet || {},
+            activeId:
+              needSort && newRecords[0] && newRecords[0][searchControl.controlId] === keyWords
+                ? newRecords[0].rowid
+                : undefined,
+          });
+        } else {
+          this.setState({
+            loading: false,
+            error: true,
           });
         }
-        this.setState({
-          error: undefined,
-          records: newRecords,
-          loading: false,
-          loadouted: res.data.length < 20,
-          controls: res.template ? res.template.controls : [],
-          worksheet: res.worksheet || {},
-          activeId:
-            needSort && newRecords[0] && newRecords[0][searchControl.controlId] === keyWords
-              ? newRecords[0].rowid
-              : undefined,
-        });
-      } else {
-        this.setState({
-          loading: false,
-          error: true,
-        });
-      }
-    });
+      })
+      .catch(err => {
+        this.setState({ loading: false, error: err.errorCode === 300016 ? err.errorCode : err.errorMessage });
+      });
   }
 
   handleSearch = value => {
@@ -316,10 +329,6 @@ export default class RelateRecordList extends React.PureComponent {
     const {
       appId,
       style,
-      isDraft,
-      parentWorksheetId,
-      viewId,
-      formData,
       entityName,
       maxHeight,
       isCharge,
@@ -334,11 +343,9 @@ export default class RelateRecordList extends React.PureComponent {
       showCoverAndControls,
       staticRecords,
       prefixRecords = [],
-      ignoreRowIds = [],
       onItemClick,
       allowNewRecord,
       onNewRecord,
-      onChange,
       focusInput = () => {},
     } = this.props;
     const showDialogSelect = get(control, 'advancedSetting.openfastfilters') === '1';
@@ -362,8 +369,7 @@ export default class RelateRecordList extends React.PureComponent {
     if (maxHeight) {
       recordListHeight = maxHeight - 48 - 10;
     }
-    const hasFilter =
-      _.get(control, 'advancedSetting.searchfilters') || _.get(control, 'advancedSetting.fastfiltersview');
+
     return (
       <div
         className="RelateRecordList flexColumn"
@@ -395,34 +401,45 @@ export default class RelateRecordList extends React.PureComponent {
               }}
             >
               {!records.length && keyWords && !loading && (
-                <TextAbsoluteCenter style={{ color: '#9e9e9e' }}>{_l('无匹配结果')}</TextAbsoluteCenter>
-              )}
-              {!records.length && !keyWords && !loading && (
-                <TextAbsoluteCenter style={{ color: '#9e9e9e' }}>
-                  <i className="icon Icon icon-ic-line Font56 Gray_bd"></i>
-                  <div className="mTop10">
-                    {error
-                      ? error === 'notCorrectCondition'
-                        ? _l(
-                            '不存在符合条件的%0',
-                            entityName || worksheet.entityName || (control && control.sourceEntityName) || '',
-                          )
-                        : _l('没有权限')
-                      : _l('暂无记录')}
-                    {error === 'notCorrectCondition' && allowShowIgnoreAllFilters && (
-                      <div
-                        className="mTop10 ThemeColor3 TxtCenter Hand"
-                        onClick={() => {
-                          this.setState({ ignoreAllFilters: true }, this.loadRecord);
-                          focusInput();
-                        }}
-                      >
-                        {_l('查看全部记录')}
-                      </div>
-                    )}
-                  </div>
+                <TextAbsoluteCenter style={{ color: 'var(--color-text-tertiary)' }}>
+                  {_l('无匹配结果')}
                 </TextAbsoluteCenter>
               )}
+              {error === 300016 ? (
+                <TextAbsoluteCenter>
+                  <RestrictAccessStatus />
+                </TextAbsoluteCenter>
+              ) : (
+                !records.length &&
+                !keyWords &&
+                !loading && (
+                  <TextAbsoluteCenter style={{ color: 'var(--color-text-tertiary)' }}>
+                    <i className="icon Icon icon-ic-line Font56 textDisabled"></i>
+                    <div className="mTop10">
+                      {error
+                        ? error === 'notCorrectCondition'
+                          ? _l(
+                              '不存在符合条件的%0',
+                              entityName || worksheet.entityName || (control && control.sourceEntityName) || '',
+                            )
+                          : _l('没有权限')
+                        : _l('暂无记录')}
+                      {error === 'notCorrectCondition' && allowShowIgnoreAllFilters && (
+                        <div
+                          className="mTop10 ThemeColor3 TxtCenter Hand"
+                          onClick={() => {
+                            this.setState({ ignoreAllFilters: true }, this.loadRecord);
+                            focusInput();
+                          }}
+                        >
+                          {_l('查看全部记录')}
+                        </div>
+                      )}
+                    </div>
+                  </TextAbsoluteCenter>
+                )
+              )}
+
               {!!records.length &&
                 records.map((record, index) => (
                   <ReacordItem
@@ -452,7 +469,7 @@ export default class RelateRecordList extends React.PureComponent {
             </ScrollView>
           </div>
         </div>
-        <div style={{ borderTop: '1px solid #ddd' }} />
+        <div style={{ borderTop: '1px solid var(--color-border-primary)' }} />
         {(!error || error === 'notCorrectCondition') && (showCreateRecord || showDialogSelect) && (
           <div className={'RelateRecordList-create ' + (activeId === 'newRecord' ? 'active' : '')}>
             {showCreateRecord && (
@@ -470,39 +487,6 @@ export default class RelateRecordList extends React.PureComponent {
                   worksheet.entityName ||
                   (control && control.sourceEntityName)}
               </div>
-            )}
-
-            {showDialogSelect && (
-              <i
-                className={`icon icon-${hasFilter ? 'worksheet_filter' : 'worksheet_enlarge'} Font20 Gray_9e Hand ThemeHoverColor3`}
-                onClick={() => {
-                  selectRecords({
-                    projectId: worksheet?.projectId,
-                    control,
-                    controlId: control.controlId,
-                    recordId,
-                    isCharge,
-                    multiple,
-                    allowNewRecord:
-                      allowNewRecord &&
-                      allowAdd &&
-                      !(_.get(window, 'shareState.isPublicFormPreview') || _.get(window, 'shareState.isPublicForm')),
-                    coverCid,
-                    appId,
-                    viewId,
-                    formData,
-                    relateSheetId: control.dataSource,
-                    parentWorksheetId: parentWorksheetId,
-                    showControls: showControls,
-                    filterRowIds: selectedIds,
-                    ignoreRowIds,
-                    onOk: records => {
-                      onChange(records);
-                    },
-                    isDraft,
-                  });
-                }}
-              ></i>
             )}
           </div>
         )}

@@ -16,7 +16,7 @@ import OnlySyncStep from '../OnlySyncStep';
 const SyncTaskWrapper = styled.div`
   display: flex;
   height: 100%;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   overflow: auto;
   .selectCreateType {
     margin: 0 auto;
@@ -33,13 +33,13 @@ const SyncTaskWrapper = styled.div`
     .ant-select-selector {
       min-height: 36px;
       padding: 2px 11px !important;
-      border: 1px solid #ccc !important;
+      border: 1px solid var(--color-border-tertiary) !important;
       border-radius: 3px !important;
       box-shadow: none !important;
     }
     &.ant-select-focused {
       .ant-select-selector {
-        border-color: #1e88e5 !important;
+        border-color: var(--color-primary) !important;
       }
     }
     &.disabled {
@@ -51,7 +51,7 @@ const SyncTaskWrapper = styled.div`
   .tabNav {
     height: 32px;
     width: fit-content;
-    border: 2px solid #f2f2f2;
+    border: 2px solid var(--color-background-disabled);
     border-radius: 12px;
     padding: 0 16px;
     cursor: pointer;
@@ -60,7 +60,7 @@ const SyncTaskWrapper = styled.div`
       line-height: 28px;
     }
     &:hover {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
   }
   .titleItem {
@@ -75,7 +75,7 @@ const SyncTaskWrapper = styled.div`
       height: 24px;
       margin-right: 8px;
       border-radius: 6px;
-      background: #ecf4f9;
+      background: var(--color-primary-transparent);
       .svg-icon {
         width: 16px;
         height: 16px;
@@ -96,8 +96,8 @@ const CardWrapper = styled.div`
   justify-content: space-between;
   width: 800px;
   height: 200px;
-  background: #fff;
-  border: 2px solid #f2f2f2;
+  background: var(--color-background-primary);
+  border: 2px solid var(--color-background-disabled);
   border-radius: 12px;
   padding: 32px;
   margin-top: 16px;
@@ -108,7 +108,7 @@ const CardWrapper = styled.div`
     font-weight: 500;
   }
   &:hover {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
   }
 `;
 
@@ -169,7 +169,7 @@ export default function CreateSyncTask(props) {
           <CardWrapper onClick={() => setSyncType(SYNC_TYPE.ONLY_SYNC)}>
             <div>
               <Radio text={_l('仅同步数据')} checked={syncType === 'onlySync'} />
-              <div className="Gray_9e mTop8 mLeft30">
+              <div className="textTertiary mTop8 mLeft30">
                 {_l('批量创建同步任务，(后续可在任务列表中添加数据处理步骤）')}
               </div>
             </div>
@@ -187,7 +187,7 @@ export default function CreateSyncTask(props) {
             >
               <div>
                 <Radio text={_l('同步时需要对数据进行处理')} checked={syncType === SYNC_TYPE.SYNC_WITH_DEAL} />
-                <div className="Gray_9e mTop8 mLeft30">{_l('创建单个同步任务，并立即对其添加数据处理步骤')}</div>
+                <div className="textTertiary mTop8 mLeft30">{_l('创建单个同步任务，并立即对其添加数据处理步骤')}</div>
               </div>
               <img src={syncWithDealBg} width={330} />
             </CardWrapper>

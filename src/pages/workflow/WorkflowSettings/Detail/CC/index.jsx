@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Checkbox, Dropdown, LoadDiv, ScrollView, Support } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import worksheet from 'src/api/worksheet';
-import { OPERATION_TYPE } from '../../enum';
+import { OPERATION_TYPE, RELATION_TYPE } from '../../enum';
 import { clearFlowNodeMapParameter } from '../../utils';
 import {
   CustomTextarea,
@@ -35,7 +35,7 @@ const TABS_ITEM = styled.div`
       right: 0;
       content: '';
       height: 0;
-      border-bottom: 3px solid #1677ff;
+      border-bottom: 3px solid var(--color-primary);
     }
   }
 `;
@@ -207,11 +207,11 @@ export default class CC extends Component {
               className="workflowDetailDesc pTop15 pBottom15 mTop20"
               style={{ background: 'rgba(255, 163, 64, 0.12)' }}
             >
-              <div className="Gray_75 mBottom5">
+              <div className="textSecondary mBottom5">
                 {_l(
                   '新版发送记录可以选择一个视图，按照所选视图配置的显示字段发送。如果通知人分发了此视图，可以直接按权限编辑记录、执行自定义动作。',
                 )}
-                <span style={{ color: '#ffa340' }}>
+                <span style={{ color: 'var(--color-warning)' }}>
                   {_l('注意：切换为新方式并保存配置后，将无法恢复到旧的配置方式')}
                 </span>
               </div>
@@ -243,7 +243,7 @@ export default class CC extends Component {
         {data.selectNodeId && isNewCC && (
           <Fragment>
             <div className="Font13 bold mTop20">{_l('视图')}</div>
-            <div className="Font13 Gray_75 mTop5">
+            <div className="Font13 textSecondary mTop5">
               {_l('按照所选视图配置的显示字段发送，如果通知人被分发了此视图，可以直接按权限编辑记录、执行自定义动作')}
             </div>
             <Dropdown
@@ -256,7 +256,7 @@ export default class CC extends Component {
               value={data.viewId}
               renderTitle={
                 !data.viewId || !views.length
-                  ? () => <span className="Gray_75">{_l('请选择')}</span>
+                  ? () => <span className="textSecondary">{_l('请选择')}</span>
                   : data.viewId && !selectView
                     ? () => <span className="errorColor">{_l('视图无效或已删除')}</span>
                     : () => <span>{selectView.text}</span>
@@ -272,7 +272,7 @@ export default class CC extends Component {
             <div className="Font13 bold mTop20">{_l('抄送人')}</div>
             <Member
               companyId={this.props.companyId}
-              appId={this.props.relationType === 2 ? this.props.relationId : ''}
+              appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
               accounts={data.accounts}
               updateSource={this.updateSource}
             />
@@ -283,7 +283,7 @@ export default class CC extends Component {
               <i className="Font28 icon-task-add-member-circle mRight10" />
               {_l('添加抄送人')}
               <SelectUserDropDown
-                appId={this.props.relationType === 2 ? this.props.relationId : ''}
+                appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
                 visible={showSelectUserDialog}
                 companyId={this.props.companyId}
                 processId={this.props.processId}
@@ -305,7 +305,7 @@ export default class CC extends Component {
             {tabIndex === 1 && (
               <Fragment>
                 <div className="Font13 bold mTop20">{_l('通知内容')}</div>
-                <div className="Font13 Gray_75 mTop5">
+                <div className="Font13 textSecondary mTop5">
                   {_l('可不设，默认显示记录标题。设置后，显示设置的通知内容和记录标题（可选）')}
                 </div>
                 <CustomTextarea
@@ -349,7 +349,7 @@ export default class CC extends Component {
 
             {tabIndex === 2 && (
               <Fragment>
-                <div className="Gray_75 mTop20">
+                <div className="textSecondary mTop20">
                   {_l('设为摘要的字段可以在待办列表和邮件通知中直接查看。')}
                   <Support
                     type={3}
@@ -358,7 +358,7 @@ export default class CC extends Component {
                     href="https://help.mingdao.com/workflow/node-cc-send-internal-notification"
                   />
                 </div>
-                {data.selectNodeId ? (
+                {data.selectNodeId && (
                   <div className="Font13 mTop15">
                     <WriteFields
                       selectNodeType={this.props.selectNodeType}
@@ -368,11 +368,6 @@ export default class CC extends Component {
                       showCard={true}
                       hideTypes={[1, 2, 3]}
                     />
-                  </div>
-                ) : (
-                  <div className="Gray_75 Font13 flexRow flowDetailTips mTop15">
-                    <i className="icon-error1 Font16 Gray_9e" />
-                    <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置字段权限')}</div>
                   </div>
                 )}
               </Fragment>
@@ -405,7 +400,7 @@ export default class CC extends Component {
     ];
 
     return (
-      <div className="mTop25" style={{ borderBottom: '1px solid #ddd' }}>
+      <div className="mTop25" style={{ borderBottom: '1px solid var(--color-border-primary)' }}>
         {TABS.map(item => {
           return (
             <TABS_ITEM

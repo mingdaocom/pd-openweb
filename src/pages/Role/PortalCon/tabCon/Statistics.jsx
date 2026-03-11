@@ -14,8 +14,8 @@ const Wrap = styled.div`
   .timeTypeDrop {
     width: 180px;
     height: 36px;
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-secondary);
     border-radius: 3px;
     .ming.Menu.List {
       top: 36px !important;
@@ -36,15 +36,15 @@ const Wrap = styled.div`
   }
   .loginConsole {
     height: 32px;
-    background: #1677ff;
+    background: var(--color-primary);
     border-radius: 3px;
     line-height: 32px;
-    color: #fff;
+    color: var(--color-white);
     font-size: 13px;
     float: right;
     padding: 0 15px;
     &:hover {
-      background: #1e88e5;
+      background: var(--color-primary);
     }
   }
   .registerLine,
@@ -100,8 +100,8 @@ function Statistics(props) {
       title: v => `${moment().format('MM月DD日')}   ${v}`,
       showContent: true,
       domStyles: {
-        'g2-tooltip-list-item': { textAlign: 'left', color: '#151515' },
-        'g2-tooltip-title': { color: '#757575' },
+        'g2-tooltip-list-item': { textAlign: 'left', color: 'var(--color-text-title)' },
+        'g2-tooltip-title': { color: 'var(--color-text-secondary)' },
       },
     },
     interactions: [{ type: 'marker-active' }],
@@ -182,7 +182,7 @@ function Statistics(props) {
   return (
     <Wrap>
       <div>
-        <span className="Gray_75 LineHeight36">{_l('周期')}</span>
+        <span className="textSecondary LineHeight36">{_l('周期')}</span>
         <Dropdown
           data={TIME}
           value={timeType}

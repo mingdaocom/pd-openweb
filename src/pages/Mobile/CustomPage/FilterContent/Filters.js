@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import _ from 'lodash';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import FilterInput, { NumberTypes } from 'mobile/RecordList/QuickFilter/Inputs';
 import { conditionAdapter, formatQuickFilter, turnControl, validate } from 'mobile/RecordList/QuickFilter/utils';
+import { DATE_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/config';
 import { formatFilterValuesToServer } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 
@@ -16,7 +18,7 @@ const Con = styled.div`
     font-weight: bold;
     padding: 5px;
     border-radius: 50%;
-    background-color: #e6e6e6;
+    background-color: var(--color-border-secondary);
   }
   .body {
     padding: 0 15px;
@@ -25,26 +27,66 @@ const Con = styled.div`
       margin-bottom: 20px;
     }
     .selected {
-      color: #1677ff;
+      color: var(--color-primary);
       max-width: 100px;
       padding-left: 10px;
       font-weight: 500;
     }
   }
   .footer {
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-secondary);
     .flex {
       padding: 10px;
     }
     .query {
-      color: #fff;
-      background-color: #1677ff;
+      color: var(--color-white);
+      background-color: var(--color-primary);
     }
   }
 `;
 
+const formatFilterValuesToText = (control, item) => {
+  const controlType = control.type;
+  const { values } = item;
+  switch (controlType) {
+    case WIDGETS_TO_API_TYPE_ENUM.USER_PICKER: // 人员
+      return values.map(v => v.fullname);
+    case WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE: // 角色
+      return values.map(v => v.organizeName);
+    case WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT: // 部门
+      return values.map(v => v.departmentName);
+    case WIDGETS_TO_API_TYPE_ENUM.AREA_PROVINCE: // 地区
+    case WIDGETS_TO_API_TYPE_ENUM.AREA_CITY: // 地区
+    case WIDGETS_TO_API_TYPE_ENUM.AREA_COUNTY: // 地区
+      return values.map(v => v.name);
+    case WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET: // 关联
+    case WIDGETS_TO_API_TYPE_ENUM.CASCADER: // 级联
+      return values.map(v => v.name || _l('未命名'));
+    case WIDGETS_TO_API_TYPE_ENUM.NUMBER: // 数值
+    case WIDGETS_TO_API_TYPE_ENUM.MONEY: // 金额
+    case WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER: // 公式
+    case WIDGETS_TO_API_TYPE_ENUM.TIME: // 时间
+    case WIDGETS_TO_API_TYPE_ENUM.DATE: // 日期
+    case WIDGETS_TO_API_TYPE_ENUM.DATE_TIME: // 日期时间
+      if (item.value || item.minValue || item.maxValue) {
+        return [item.value ? item.value : `${item.minValue}~${item.maxValue}`];
+      } else {
+        const list = _.flatten(DATE_TYPE);
+        return [_.get(_.find(list, { value: item.dateRange }), 'text')];
+      }
+    case WIDGETS_TO_API_TYPE_ENUM.SWITCH: // 检查项
+      return item.filterType ? [item.filterType === 2 ? _l('选中') : _l('未选中')] : [];
+    case WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU: // 单选
+    case WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT: // 多选
+    case WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN: // 下拉
+      return values.map(id => _.get(_.find(control.options, { key: id }), 'value') || '');
+    default:
+      return values.filter(_.isString);
+  }
+};
+
 function QuickFilter(props) {
-  const { enableBtn, filters, updateQuickFilter, onCloseDrawer } = props;
+  const { enableBtn, filters, getFiltersText, updateQuickFilter, onCloseDrawer } = props;
   const store = useRef({});
   const [values, setValues] = useState({});
   const debounceUpdateQuickFilter = useRef(_.debounce(updateQuickFilter, 500));
@@ -68,12 +110,19 @@ function QuickFilter(props) {
     const quickFilter = items
       .map((filter, i) => ({
         ...filter,
-        filterType: filter.filterType || (filter.dataType === 29 ? 24 : 2),
+        filterType: filter.dataType === 36 ? filter.filterType : filter.filterType || (filter.dataType === 29 ? 24 : 2),
         spliceType: filter.spliceType || 1,
         ...valuesToUpdate[i],
       }))
       .filter(validate)
       .map(conditionAdapter);
+    if (getFiltersText) {
+      const texts = quickFilter.map(item => {
+        const control = _.get(_.find(items, { controlId: item.controlId }), 'control') || {};
+        return formatFilterValuesToText(control, item).join('、');
+      });
+      getFiltersText(texts);
+    }
     if (quickFilter.length) {
       const formattedFilter = quickFilter.map(c => {
         if (values[0] === 'isEmpty') {
@@ -130,7 +179,7 @@ function QuickFilter(props) {
   return (
     <Con className="flexColumn h100 overflowHidden">
       <div className="header flexRow valignWrapper">
-        <Icon className="Gray_9e close" icon="close" onClick={onCloseDrawer} />
+        <Icon className="textTertiary close" icon="close" onClick={onCloseDrawer} />
       </div>
       <div className="flex body">
         {items.map((item, i) => (

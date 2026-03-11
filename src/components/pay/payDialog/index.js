@@ -16,10 +16,10 @@ const PayDialogWrap = styled(Dialog)`
     margin-bottom: 0;
     text-align: center;
     vertical-align: middle;
-    color: #fff;
-    background-color: #1e88e5;
+    color: var(--color-white);
+    background-color: var(--color-primary);
     &:hover {
-      background-color: #1565c0;
+      background-color: var(--color-link-hover);
     }
   }
 `;
@@ -28,8 +28,8 @@ function PayDialog(props) {
   const { url, onCancel = () => {} } = props;
   return (
     <PayDialogWrap title="" visible onCancel={onCancel} showFooter={false}>
-      <div className="BorderBottom BorderGrayColor LineHeight40 TxtCenter Font16">{_l('付款是否成功？')}</div>
-      <div className="mTop20 Font16 Gray_3 mBottom10">{_l('付款是否成功？')}</div>
+      <div className="BorderBottom borderTertiary LineHeight40 TxtCenter Font16">{_l('付款是否成功？')}</div>
+      <div className="mTop20 Font16 textPrimary mBottom10">{_l('付款是否成功？')}</div>
       <div className="LineHeight30">{_l('我们将在收到款项后的15分钟内为您完成操作')}</div>
       <div>{_l('如您已完成付款而未完成操作，请联系我们')}</div>
       <a className="mTop20 confirmBtn" href={url} onClick={onCancel}>

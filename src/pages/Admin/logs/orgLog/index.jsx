@@ -28,9 +28,10 @@ const FlexWrap = styled.div`
 export default class orgLog extends React.Component {
   constructor(props) {
     super(props);
-    const columns = md.global.Config.IsLocal
-      ? ORG_MANAGE_LOG_COLUMNS.concat(PRIVATE_APP_WORKSHEET_LOG_COLUMNS)
-      : ORG_MANAGE_LOG_COLUMNS;
+    const columns =
+      window.platformENV.isOverseas || window.platformENV.isLocal
+        ? ORG_MANAGE_LOG_COLUMNS.concat(PRIVATE_APP_WORKSHEET_LOG_COLUMNS)
+        : ORG_MANAGE_LOG_COLUMNS;
     this.state = {
       isLoading: false,
       list: [],
@@ -73,7 +74,7 @@ export default class orgLog extends React.Component {
                   />
                   {isNormalUser ? (
                     <UserName
-                      className="Gray Font13 pRight10 pTop3 flex ellipsis"
+                      className="textPrimary Font13 pRight10 pTop3 flex ellipsis"
                       projectId={projectId}
                       user={{
                         userName: fullname,
@@ -260,7 +261,7 @@ export default class orgLog extends React.Component {
         <div className="orgManagementHeader Font17">
           <div className="flex">{_l('组织管理')}</div>
           <div>
-            {md.global.Config.IsLocal ? (
+            {window.platformENV.isOverseas || window.platformENV.isLocal ? (
               ''
             ) : (
               <span className="Font13 Normal mRight26">{_l('保留最近6个月的日志')}</span>
@@ -268,7 +269,7 @@ export default class orgLog extends React.Component {
             {historyLogInfo.allCount ? (
               <Tooltip title={_l('历史日志')}>
                 <i
-                  className="icon icon-draft-box Gray_9 hoverText mRight26"
+                  className="icon icon-draft-box textTertiary hoverText mRight26"
                   onClick={() => this.setState({ showHistoryLogs: true })}
                 />
               </Tooltip>
@@ -276,7 +277,7 @@ export default class orgLog extends React.Component {
               ''
             )}
             <i
-              className="icon-task-later Gray_9 hoverText mRight26 Font17"
+              className="icon-task-later textTertiary hoverText mRight26 Font17"
               onClick={() => this.setState({ searchValues: {}, pageIndex: 1 }, this.fetchLogs)}
             />
             <Tooltip placement="bottom" title={_l('导出上限10万条，超出限制可以先筛选，再分次导出。')}>
@@ -330,7 +331,7 @@ export default class orgLog extends React.Component {
                 label: _l('操作时间'),
                 placeholder: _l('最近30天'),
                 dateFormat: 'YYYY-MM-DD HH:mm:ss',
-                limitSixMonths: md.global.Config.IsLocal,
+                limitSixMonths: window.platformENV.isOverseas || window.platformENV.isLocal,
                 suffixIcon: <Icon icon="person" className="Font16" />,
               },
             ]}

@@ -41,26 +41,26 @@ const HandleOption = styled.div`
   }
 
   .hoverText {
-    color: #757575;
+    color: var(--color-text-secondary);
     cursor: pointer;
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 
   .addOptions {
     display: flex;
     align-items: center;
-    color: #1677ff;
+    color: var(--color-primary);
     cursor: pointer;
     &:hover {
-      color: #2b65c4;
+      color: var(--color-link-hover);
     }
   }
 
   .otherAdd {
     &.disabled {
-      color: #bdbdbd !important;
+      color: var(--color-text-disabled) !important;
       cursor: not-allowed;
     }
   }
@@ -68,11 +68,11 @@ const HandleOption = styled.div`
 const DragItem = styled.div`
   display: flex;
   align-items: center;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   i {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     &:hover {
-      color: #757575;
+      color: var(--color-text-secondary);
     }
   }
 
@@ -87,7 +87,7 @@ const DragItem = styled.div`
       width: 0;
       height: 0;
       border: 4px solid transparent;
-      border-top-color: #fff;
+      border-top-color: var(--color-background-primary);
       &.isLight {
         border-top-color: rgba(0, 0, 0, 0.7);
       }
@@ -102,8 +102,8 @@ const DragItem = styled.div`
     align-items: center;
     flex: 1;
     align-items: center;
-    border-bottom: 1px solid #f0f0f0;
-    border-color: ${props => (props.isFocus ? '#1677ff' : '#f0f0f0')};
+    border-bottom: 1px solid --color-background-disabled;
+    border-color: ${props => (props.isFocus ? 'var(--color-primary)' : 'var(--color-background-disabled)')};
   }
 
   .checkWrap {
@@ -117,7 +117,7 @@ const DragItem = styled.div`
     padding: 0 8px;
     &.repeatError {
       input {
-        color: #f44336;
+        color: var(--color-error);
       }
     }
   }
@@ -131,11 +131,11 @@ const DragItem = styled.div`
     outline: none;
     line-height: 37px;
     &:hover {
-      ${props => (props.isFocus ? '' : 'background: #f5f5f5;cursor: pointer;')};
+      ${props => (props.isFocus ? '' : 'background: var(--color-background-secondary);cursor: pointer;')};
     }
   }
   .deleteWrap {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 `;
 

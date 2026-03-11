@@ -17,7 +17,14 @@ import { updateSheetListAppItem } from 'src/pages/worksheet/redux/actions/sheetL
 import ConfigHeader from './ConfigHeader';
 import MobileLayout from './mobileLayout';
 import * as actions from './redux/action';
-import { enumWidgetType, fillObjectId, formatNavfilters, reorderComponents, updateLayout } from './util';
+import {
+  enumWidgetType,
+  fillObjectId,
+  formatNavfilters,
+  reorderComponents,
+  syncThemeConfig,
+  updateLayout,
+} from './util';
 import WebLayout from './webLayout';
 import './index.less';
 
@@ -33,7 +40,7 @@ const CustomPageWrap = styled.div`
   right: 0;
   bottom: 0;
   z-index: 99;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   .customPageContentWrap {
     box-sizing: border-box;
     display: flex;
@@ -83,14 +90,16 @@ export default class CustomPage extends Component {
           pageId,
           version,
           adjustScreen,
-          config: config ? { ...config, webNewCols: 48, orightWebCols: config.webNewCols } : defaultConfig,
+          config: syncThemeConfig(
+            config ? { ...config, webNewCols: 48, orightWebCols: config.webNewCols } : defaultConfig,
+          ),
           apk: apk || {},
           visible: true,
           filterComponents: components.filter(item => item.value && item.type === enumWidgetType.filter),
         });
         this.$originComponents = components;
         this.$originAdjustScreen = adjustScreen;
-        this.$originConfig = config;
+        this.$originConfig = syncThemeConfig(config);
       })
       .finally(() => updateLoading(false));
   };
@@ -586,7 +595,7 @@ export default class CustomPage extends Component {
     updatePageInfo({
       components: this.$originComponents,
       adjustScreen: this.$originAdjustScreen,
-      config: this.$originConfig,
+      config: syncThemeConfig(this.$originConfig),
       activeContainerInfo: {},
     });
     this.handleBack();

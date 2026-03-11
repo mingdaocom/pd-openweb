@@ -23,10 +23,10 @@ const TransactionDetailsWrap = styled.div`
     padding-top: 0 !important;
   }
   .color_47 {
-    color: #47b14b;
+    color: var(--color-success);
   }
   .color_f4 {
-    color: #f44336;
+    color: var(--color-error);
   }
 `;
 
@@ -131,7 +131,7 @@ export default class RefundOrder extends Component {
                 <div className="pLeft5">{fullname}</div>
               ) : (
                 <UserName
-                  className="Gray Font13 pLeft5 pRight10 pTop3 flex ellipsis"
+                  className="textPrimary Font13 pLeft5 pRight10 pTop3 flex ellipsis"
                   projectId={props.projectId}
                   user={{
                     userName: fullname,
@@ -164,7 +164,7 @@ export default class RefundOrder extends Component {
         },
       },
       {
-        title: _l('所属表单'),
+        title: _l('所属表单/所属工作流'),
         dataIndex: 'worksheet',
         width: 160,
         render: (text, record) => {
@@ -178,8 +178,12 @@ export default class RefundOrder extends Component {
           return (
             <span
               title={workSheetName}
-              className="Hand Hover_21"
-              onClick={() => navigateTo(`/worksheet/${worksheetId}`)}
+              className="Hand hoverColorPrimary"
+              onClick={() =>
+                record.processId
+                  ? window.open(`/workflowedit/${record.processId}`)
+                  : navigateTo(`/worksheet/${worksheetId}`)
+              }
             >
               {workSheetName}
             </span>
@@ -211,7 +215,7 @@ export default class RefundOrder extends Component {
                 <div className="pLeft5">{fullname}</div>
               ) : (
                 <UserName
-                  className="Gray Font13 pLeft5 pRight10 pTop3 flex ellipsis"
+                  className="textPrimary Font13 pLeft5 pRight10 pTop3 flex ellipsis"
                   projectId={props.projectId}
                   user={{
                     userName: fullname,
@@ -232,7 +236,7 @@ export default class RefundOrder extends Component {
           if (record.status !== 3) return null;
           return (
             <Fragment>
-              <span className="ThemeColor Hand mRight24 Hover_51" onClick={() => this.handleRefund(record, 6)}>
+              <span className="colorPrimary Hand mRight24 Hover_51" onClick={() => this.handleRefund(record, 6)}>
                 {_l('同意')}
               </span>
               <span className="color_f4 Hand" onClick={() => this.handleRefund(record, 4)}>
@@ -258,6 +262,7 @@ export default class RefundOrder extends Component {
       orderId,
       status,
       appIds,
+      worksheetIds,
       merchantNo,
       applyTimeInfo = {},
       refundTimeInfo = {},
@@ -275,7 +280,7 @@ export default class RefundOrder extends Component {
         projectId, // 组织Id
         refundOrderId: _.trim(refundOrderId), // 退款单号
         status,
-        sourceInfo: { appId: appIds }, //支付附加信息
+        sourceInfo: { appId: appIds, worksheetId: worksheetIds }, //支付附加信息
         startCreateTime: applyTimeInfo.startDate, // 申请时间起始
         endCreateTime: applyTimeInfo.endDate, // 申请时间结束
         startRefundTime: refundTimeInfo.startDate, // 退款时间结束
@@ -313,6 +318,7 @@ export default class RefundOrder extends Component {
       orderId,
       status,
       appIds,
+      worksheetIds,
       merchantNo,
       applyTimeInfo = {},
       refundTimeInfo = {},
@@ -335,7 +341,7 @@ export default class RefundOrder extends Component {
         projectId, // 组织Id
         refundOrderId: _.trim(refundOrderId), // 退款单号
         status,
-        sourceInfo: { appId: appIds }, //支付附加信息
+        sourceInfo: { appId: appIds, worksheetId: worksheetIds }, //支付附加信息
         startCreateTime: applyTimeInfo.startDate, // 申请时间起始
         endCreateTime: applyTimeInfo.endDate, // 申请时间结束
         startRefundTime: refundTimeInfo.endDate, // 退款时间结束
@@ -399,6 +405,17 @@ export default class RefundOrder extends Component {
       });
   };
 
+  getWorksheetList = appIds => {
+    appManagementAjax
+      .getWorksheetsUnderTheApp({ projectId: this.props.projectId, appIds: [appIds], isFilterCustomPage: true })
+      .then(res => {
+        const worksheetList = appIds
+          ? (res[appIds] || []).map(it => ({ label: it.worksheetName, value: it.worksheetId }))
+          : [];
+        this.setState({ worksheetList });
+      });
+  };
+
   getMerchantList = () => {
     const { projectId } = this.props;
     this.setState({ merchantListLoading: true });
@@ -424,15 +441,17 @@ export default class RefundOrder extends Component {
   };
 
   getConditions = () => {
+    const { appId } = this.props;
     const {
       appList = [],
+      worksheetList = [],
       searchValues = {},
       isMoreApp,
       loadingApp,
       merchantListLoading,
       merchantList = [],
     } = this.state;
-    const { status, appIds = [], merchantNo, merchantPaymentChannel } = searchValues;
+    const { status, appIds = [], worksheetIds = [], merchantNo, merchantPaymentChannel } = searchValues;
 
     let conditions = [
       {
@@ -452,39 +471,15 @@ export default class RefundOrder extends Component {
         options: REFUND_STATUS,
       },
       {
-        key: 'appIds',
+        key: 'merchantPaymentChannel',
         type: 'select',
-        label: _l('应用'),
-        placeholder: _l('全部'),
-        showSearch: true,
+        label: _l('支付通道'),
+        placeholder: _l('请选择'),
         allowClear: true,
-        options: appList,
-        value: appIds,
-        notFoundContent: loadingApp ? <LoadDiv /> : <span className="Gray_9e">{_l('无搜索结果')}</span>,
-        maxTagCount: 'responsive',
-        onFocus: () => !appList.length && this.getAppList(),
-        onSearch: _.debounce(val => this.setState({ keyword: val, appPageIndex: 1 }, this.getAppList), 500),
-        filterOption: (inputValue, option) => {
-          return (
-            appList
-              .find(item => item.value === option.value)
-              .label.toLowerCase()
-              .indexOf(inputValue.toLowerCase()) > -1
-          );
-        },
-        onClear: () => {
-          this.setState({ appPageIndex: 1, keyword: '' }, this.getAppList);
-        },
-        onPopupScroll: e => {
-          e.persist();
-          const { scrollTop, offsetHeight, scrollHeight } = e.target;
-          if (scrollTop + offsetHeight === scrollHeight) {
-            if (isMoreApp) {
-              this.getAppList();
-            }
-          }
-        },
+        value: merchantPaymentChannel,
+        options: Object.keys(PAY_CHANNEL_TXT).map(v => ({ value: v, label: PAY_CHANNEL_TXT[v] })),
       },
+
       {
         key: 'applyTimeInfo',
         type: 'selectTime',
@@ -518,6 +513,8 @@ export default class RefundOrder extends Component {
         key: 'operatorInfo',
         label: _l('操作人'),
         suffixIcon: <Icon icon="person" className="Font16" />,
+        containWorkflow: true,
+        unique: true,
       },
       {
         key: 'merchantNo',
@@ -529,16 +526,62 @@ export default class RefundOrder extends Component {
         maxTagCount: 'responsive',
         options: merchantList,
         onFocus: () => !merchantList.length && this.getMerchantList(),
-        notFoundContent: merchantListLoading ? <LoadDiv /> : <span className="Gray_9e">{_l('无搜索结果')}</span>,
+        notFoundContent: merchantListLoading ? <LoadDiv /> : <span className="textTertiary">{_l('无搜索结果')}</span>,
       },
       {
-        key: 'merchantPaymentChannel',
+        key: 'appIds',
         type: 'select',
-        label: _l('支付通道'),
-        placeholder: _l('请选择'),
+        label: _l('应用'),
+        placeholder: _l('全部'),
+        showSearch: true,
         allowClear: true,
-        value: merchantPaymentChannel,
-        options: Object.keys(PAY_CHANNEL_TXT).map(v => ({ value: v, label: PAY_CHANNEL_TXT[v] })),
+        options: appList,
+        value: appIds,
+        notFoundContent: loadingApp ? <LoadDiv /> : <span className="textTertiary">{_l('无搜索结果')}</span>,
+        maxTagCount: 'responsive',
+        onFocus: () => !appList.length && this.getAppList(),
+        onSearch: _.debounce(val => this.setState({ keyword: val, appPageIndex: 1 }, this.getAppList), 500),
+        filterOption: (inputValue, option) => {
+          return (
+            appList
+              .find(item => item.value === option.value)
+              .label.toLowerCase()
+              .indexOf(inputValue.toLowerCase()) > -1
+          );
+        },
+        onClear: () => {
+          this.setState({ appPageIndex: 1, keyword: '' }, this.getAppList);
+        },
+        onPopupScroll: e => {
+          e.persist();
+          const { scrollTop, offsetHeight, scrollHeight } = e.target;
+          if (scrollTop + offsetHeight === scrollHeight) {
+            if (isMoreApp) {
+              this.getAppList();
+            }
+          }
+        },
+      },
+      {
+        key: 'worksheetIds',
+        type: 'select',
+        label: _l('表单'),
+        placeholder: _l('请选择'),
+        showSearch: true,
+        allowClear: true,
+        options: worksheetList,
+        value: worksheetIds,
+        disabled: !appId && _.isEmpty(appIds),
+        filterOption: (inputValue, option) => {
+          return (
+            worksheetList
+              .find(item => item.value === option.value)
+              .label.toLowerCase()
+              .indexOf(inputValue.toLowerCase()) > -1
+          );
+        },
+        notFoundContent: <span className="textTertiary">{_l('无搜索结果')}</span>,
+        maxTagCount: 'responsive',
       },
     ];
 
@@ -547,14 +590,32 @@ export default class RefundOrder extends Component {
 
   changeSearchParams = (searchParams, isSearch) => {
     const { searchValues } = this.state;
+    const { appIds } = searchValues || {};
+
+    if (searchParams.appIds && !_.isEqual(searchParams.appIds, appIds)) {
+      this.getWorksheetList(searchParams.appIds);
+    }
+
     if (_.isEmpty(searchParams)) {
       this.setState({ searchValues: searchParams, pageIndex: 1 }, this.getDataList);
-    } else {
-      this.setState({ searchValues: { ...searchValues, ...searchParams }, pageIndex: 1 }, () => {
+      return;
+    }
+
+    this.setState(
+      {
+        searchValues: {
+          ...searchValues,
+          ...searchParams,
+          worksheetIds:
+            !searchParams.appIds || !_.isEqual(searchParams.appIds, appIds) ? undefined : searchParams.worksheetIds,
+        },
+        pageIndex: 1,
+      },
+      () => {
         if (_.isEqual(searchValues, this.state.searchValues) && !isSearch) return;
         this.getDataList();
-      });
-    }
+      },
+    );
   };
 
   // 操作退款订单（同意/拒绝）
@@ -598,7 +659,7 @@ export default class RefundOrder extends Component {
       return (
         <Empty
           className="flex"
-          descClassName="Gray_bd"
+          descClassName="textDisabled"
           detail={{
             desc: _l('您的账户目前暂无退款订单'),
             customIcon: <img className="customIcon" src={transactionEmptyImg} />,

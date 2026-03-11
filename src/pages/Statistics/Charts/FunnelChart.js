@@ -310,7 +310,7 @@ export default class extends Component {
     const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch, isThumbnail } = props;
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light', widgetBgColor } = customPageConfig;
     const { map, contrastMap, displaySetup, yaxisList, xaxes } = reportData;
-    const isDark = pageStyleType === 'dark' && isThumbnail;
+    const isDark = window.themeMode === 'dark' || (pageStyleType === 'dark' && isThumbnail);
     const styleConfig = reportData.style || {};
     const style =
       chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
@@ -410,16 +410,23 @@ export default class extends Component {
         : false,
       conversionTag: displaySetup.showNumber
         ? {
-            formatter: data => {
-              const { CONVERSATION_FIELD, PERCENT_FIELD } = this.FunnelComponent;
+            formatter: (data, list) => {
+              const { CONVERSATION_FIELD } = this.FunnelComponent;
               let percentage = 0;
               if (displaySetup.isAccumulate) {
-                percentage = data[PERCENT_FIELD] * 100;
+                const currentValue = data.value;
+                const lastValue = list[0].value;
+                percentage = (currentValue / lastValue) * 100;
+                // percentage = data[PERCENT_FIELD] * 100;
               } else {
                 if (data[CONVERSATION_FIELD][0] === 0) {
                   percentage = 0;
                 } else {
-                  percentage = (data[CONVERSATION_FIELD][1] / data[CONVERSATION_FIELD][0]) * 100;
+                  const currentValue = data.value;
+                  const currentIndex = _.findIndex(list, { id: data.id });
+                  const lastValue = _.get(list[currentIndex - 1], 'value') || 0;
+                  percentage = (currentValue / lastValue) * 100;
+                  // percentage = (data[CONVERSATION_FIELD][1] / data[CONVERSATION_FIELD][0]) * 100;
                 }
               }
               const conversionText = style.funnelConversionText || _l('转化率');
@@ -470,13 +477,13 @@ export default class extends Component {
       <Menu className="chartMenu" style={{ width: 160 }}>
         <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
           <div className="flexRow valignWrapper">
-            <Icon icon="link1" className="mRight8 Gray_9e Font20 autoLinkageIcon" />
+            <Icon icon="link1" className="mRight8 textTertiary Font20 autoLinkageIcon" />
             <span>{_l('联动')}</span>
           </div>
         </Menu.Item>
         <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
           <div className="flexRow valignWrapper">
-            <Icon icon="table" className="mRight8 Gray_9e Font18" />
+            <Icon icon="table" className="mRight8 textTertiary Font18" />
             <span>{_l('查看原始数据')}</span>
           </div>
         </Menu.Item>

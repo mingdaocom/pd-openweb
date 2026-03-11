@@ -3,6 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { lineBottomHeight, minHeightObj, pageSize } from 'src/pages/worksheet/views/ResourceView/config.js';
+import { getResourceRowHoverHandlers } from 'src/pages/worksheet/views/ResourceView/util';
 import { browserIsMobile } from 'src/utils/common';
 import RecordBlock from './RecordBlock';
 
@@ -64,33 +65,9 @@ export default function RecordWrap(props) {
     return (
       <React.Fragment>
         {data.map((o, i) => {
+          const hoverHandlers = getResourceRowHoverHandlers(viewId, i);
           return (
-            <div
-              className="thByGroup"
-              id={`resourceRow_${viewId}_${i}`}
-              onMouseEnter={() => {
-                $(`#resourceRow_${viewId}_${i}`).css({
-                  background: 'rgba(0,0,0,0.04)',
-                });
-                $(`#resourceGroup_${viewId}_${i}`).css({
-                  background: 'rgba(0,0,0,0.04)',
-                });
-                $(`#resourceGroup_${viewId}_${i}`).find('.totalNum,.addCoin').css({
-                  background: '#F4F4F4',
-                });
-              }}
-              onMouseLeave={() => {
-                $(`#resourceRow_${viewId}_${i}`).css({
-                  background: 'transparent',
-                });
-                $(`#resourceGroup_${viewId}_${i}`).css({
-                  background: 'transparent',
-                });
-                $(`#resourceGroup_${viewId}_${i}`).find('.totalNum,.addCoin').css({
-                  background: '#fff',
-                });
-              }}
-            >
+            <div className="thByGroup" id={`resourceRow_${viewId}_${i}`} {...hoverHandlers}>
               <div className="lineTimeHr Relative" style={{ height: o.height }}>
                 {o.rows.map(it => {
                   return (
@@ -108,7 +85,7 @@ export default function RecordWrap(props) {
               <div className="pLeft10" style={{ height: lineBottomHeight }}>
                 {o.totalNum > o.rows.length && o.totalNum > 20 && hasStartAndEnd && (
                   <div
-                    className="Hand Gray_9e ThemeHoverColor3 Font13 LineHeight20 lineBottomHeightMore Left0 Relative"
+                    className="Hand textTertiary ThemeHoverColor3 Font13 LineHeight20 lineBottomHeightMore Left0 Relative"
                     onClick={() => {
                       fetchRowsByGroupId(o.key, Math.ceil(o.rows.length / pageSize) + 1);
                     }}

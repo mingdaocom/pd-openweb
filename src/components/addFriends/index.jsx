@@ -22,7 +22,7 @@ class AddFriends extends Component {
       visible: true,
       selectTab: TABS[0].value,
       isPayUsers: true,
-      authType: 0, // 0未认证 1: 个人认证 2: 组织认证
+      authType: 0, // 0未认证 1: 个人认证 2: 企业认证
       detailMode: 0, //
       url: '',
       code: '',
@@ -33,14 +33,15 @@ class AddFriends extends Component {
 
   componentDidMount() {
     const { projectId } = this.props;
-    const { Config: { IsLocal } = {}, Account: { projects = [] } = {} } = md.global;
+    const { Account: { projects = [] } = {} } = md.global;
     const myPermissions = projectId ? getMyPermissions(projectId) : [];
     const hasMemberManageAuth = hasPermission(myPermissions, PERMISSION_ENUM.MEMBER_MANAGE);
     const licenseType = getCurrentProject(projectId).licenseType;
 
     this.setState(
       {
-        isPayUsers: projects.some(item => item.licenseType === 1) || IsLocal,
+        isPayUsers:
+          projects.some(item => item.licenseType === 1) || window.platformENV.isOverseas || window.platformENV.isLocal,
         myPermissions,
         selectTab: [0, 2].includes(licenseType) ? TABS[2].value : hasMemberManageAuth ? TABS[0].value : TABS[1].value,
       },
@@ -88,15 +89,15 @@ class AddFriends extends Component {
     if (fromType === FROM_TYPE.PERSONAL) {
       content = (
         <div className="headerText ellipsis">
-          <span className="Gray_75">{_l('邀请用户为')}</span>
+          <span className="textSecondary">{_l('邀请用户为')}</span>
           <span className="mLeft3 mRight3">{_l('个人好友')}</span>
-          <span className="Gray_75">({_l('非同事')})</span>
+          <span className="textSecondary">({_l('非同事')})</span>
         </div>
       );
     } else {
       content = (
         <div className="headerText ellipsis w100 TxtCenter">
-          <span className="Gray_75">{_l('邀请用户加入')}</span>
+          <span className="textSecondary">{_l('邀请用户加入')}</span>
           <span className="mLeft3">
             {fromText ||
               _.get(
@@ -192,7 +193,7 @@ class AddFriends extends Component {
                 '近期有不法分子利用平台进行诈骗活动。为了保护平台安全，此功能需要完成身份认证后才能使用。对您使用造成的不便，深表歉意！',
               )}
               <span
-                className="ThemeColor ThemeHoverColor2 pointer"
+                className="colorPrimary ThemeHoverColor2 pointer"
                 onClick={() =>
                   (location.href = `/certification/project/${projectId || getCurrentProjectId()}?returnUrl=${encodeURIComponent(location.href)}`)
                 }

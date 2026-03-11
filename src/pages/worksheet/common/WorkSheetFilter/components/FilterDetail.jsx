@@ -7,7 +7,7 @@ import { Dialog, UpgradeIcon, VCenterIconText } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { FlexCenter, VerticalMiddle } from 'worksheet/components/Basics';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import { saveWorksheetFilter } from '../../SaveWorksheetFilter';
@@ -16,6 +16,7 @@ import { formatForSave } from '../model';
 import AddCondition from './AddCondition';
 import ConditionsGroup from './ConditionsGroup';
 import FilterDetailName from './FilterDetailName';
+import QueryButton from './QueryButton';
 import SaveButton from './SaveButton';
 import SplitDropdown from './SplitDropdown';
 
@@ -37,9 +38,9 @@ const Con = styled.div`
     overflow: visible;
   }
   .addGroupTip {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     &:hover {
-      color: #757575;
+      color: var(--color-text-secondary);
     }
   }
 `;
@@ -55,7 +56,7 @@ const BackBtn = styled(FlexCenter)`
   width: 32px;
   height: 32px;
   font-size: 16px;
-  color: #757575;
+  color: var(--color-text-secondary);
 `;
 const Content = styled.div`
   &:not(.isSingleFilter) {
@@ -77,16 +78,18 @@ const Footer = styled(VerticalMiddle)`
 
 const AddButton = styled(VCenterIconText)`
   cursor: pointer;
-  color: #757575;
+  color: var(--color-text-secondary);
   font-weight: bold;
   &:hover {
-    color: #1677ff;
+    color: var(--color-primary);
   }
 `;
 
 export default function FilterDetail(props) {
   const {
     maxHeight,
+    showQueryButton = false,
+    queryButtonDisabled = false,
     supportGroup,
     isSingleFilter,
     from,
@@ -102,13 +105,15 @@ export default function FilterDetail(props) {
     setActiveTab = () => {},
     onAddCondition = () => {},
     handleTriggerFilter = () => {},
+    onQuery = () => {},
     filterResigned = true,
     filterError = [],
     isRules,
     showCustom,
   } = props;
   const formattedCondition = formatForSave(filter);
-  const canSave = !!_.sum(formattedCondition.map(c => (c.isGroup ? _.get(c, 'groupFilters.length') : 1)));
+  const notEmptyConditionsNum = _.sum(formattedCondition.map(c => (c.isGroup ? _.get(c, 'groupFilters.length') : 1)));
+  const canSave = !!notEmptyConditionsNum;
   const needSave = props.needSave || nameIsUpdated;
   const isNew = filter.id.startsWith('new');
   const saveButtonDisabled = !(isNew || needSave) || !canSave;
@@ -341,6 +346,9 @@ export default function FilterDetail(props) {
                     ]
               }
             />
+          )}
+          {showQueryButton & !!notEmptyConditionsNum && (
+            <QueryButton num={notEmptyConditionsNum} hasQuery={queryButtonDisabled} onClick={onQuery} />
           )}
         </Footer>
       )}

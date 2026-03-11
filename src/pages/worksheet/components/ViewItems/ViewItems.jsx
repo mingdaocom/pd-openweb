@@ -22,7 +22,7 @@ import './ViewItems.less';
 
 const EmptyData = styled.div`
   font-size: 12px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   text-align: center;
   margin-top: 120px;
 `;
@@ -66,7 +66,7 @@ export default class ViewItems extends Component {
       this.computeViewItemActiveLeft(500);
     }
 
-    if (nextProps.currentViewId !== this.props.currentViewId) {
+    if (nextProps.currentViewId !== this.props.currentViewId && nextProps?.currentViewId) {
       const elem = $(`.workSheetViewsWrapper .viewsScroll .workSheetViewItemViewId-${nextProps.currentViewId}`);
 
       if (elem[0]) {
@@ -236,7 +236,10 @@ export default class ViewItems extends Component {
   };
   handleCopyView = view => {
     const { viewList, appId, worksheetId } = this.props;
-    window.clearLocalDataTime({ requestData: { worksheetId }, clearSpecificKey: 'Worksheet_GetWorksheetInfo' });
+    window.clearLocalDataTime({
+      requestData: { worksheetId },
+      clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetBaseInfo'],
+    });
     sheetAjax
       .copyWorksheetView({
         appId,
@@ -500,11 +503,11 @@ export default class ViewItems extends Component {
 
     return (
       <Fragment>
-        <div className="drawerWorksheetRecycleListTitle Gray_9e valignWrapper" onClick={this.handleExpandRecycle}>
+        <div className="drawerWorksheetRecycleListTitle textTertiary valignWrapper" onClick={this.handleExpandRecycle}>
           <span className="flex valignWrapper">
             {_l('最近删除')}
             <Tooltip title={_l('视图60天后将被自动删除')}>
-              <Icon icon="info" className="Gray_9e Font14 mLeft8" />
+              <Icon icon="info" className="textTertiary Font14 mLeft8" />
             </Tooltip>
           </span>
           <Icon icon={expandRecycle ? 'arrow-down' : 'arrow-right-tip'} className="mRight12" />
@@ -575,7 +578,7 @@ export default class ViewItems extends Component {
           {!isLock && (
             <Icon
               icon="settings"
-              className="Gray_75 Hover_21 hoverGray manageSettingIcon"
+              className="textSecondary hoverColorPrimary hoverGray manageSettingIcon"
               onClick={this.handleManageItem}
             />
           )}
@@ -672,7 +675,7 @@ export default class ViewItems extends Component {
           <Tooltip placement="bottom" title={_l('全部视图%05005')}>
             <Icon
               icon="menu-02"
-              className={cx('Font14 mLeft10 pointer Gray_75 allVieListwIcon hoverGray', {
+              className={cx('Font14 mLeft10 pointer textSecondary allVieListwIcon hoverGray', {
                 menuVisible: setWorksheetHidden,
                 currentIsHide: currentViewHideValue && currentViewHideValue.search(/hpc|hide/g) > -1,
               })}
@@ -692,7 +695,7 @@ export default class ViewItems extends Component {
             visible={setWorksheetHidden}
           >
             <div className="searchBox">
-              <i className="icon icon-search Gray_9e Font20"></i>
+              <i className="icon icon-search textTertiary Font20"></i>
               <Input
                 value={searchWorksheetListValue}
                 onChange={value => this.setState({ searchWorksheetListValue: value })}
@@ -709,7 +712,7 @@ export default class ViewItems extends Component {
               {!!searchWorksheetListValue && (
                 <Icon
                   icon="cancel"
-                  className="Font16 Hand Gray_9e mRight10"
+                  className="Font16 Hand textTertiary mRight10"
                   onClick={() => {
                     this.setState({ searchWorksheetListValue: '' });
                   }}
@@ -730,7 +733,7 @@ export default class ViewItems extends Component {
                   ),
                 )}
                 {isCharge && !!hideList.length && (
-                  <div className="drawerWorksheetHiddenListTitle Gray_9e">{_l('隐藏的视图')}</div>
+                  <div className="drawerWorksheetHiddenListTitle textTertiary">{_l('隐藏的视图')}</div>
                 )}
                 {isCharge && this.renderSortList('drawerWorksheetHiddenList', hideList)}
                 {isCharge && this.renderRecycle()}
@@ -757,7 +760,9 @@ export default class ViewItems extends Component {
             <Tooltip placement="bottom" title={_l('添加视图')}>
               <Icon
                 icon="add"
-                className={cx('Font20 Gray_75 pointer addViewIcon mLeft8 hoverGray', { menuVisible: addMenuVisible })}
+                className={cx('Font20 textSecondary pointer addViewIcon mLeft8 hoverGray', {
+                  menuVisible: addMenuVisible,
+                })}
               />
             </Tooltip>
           </Trigger>
@@ -774,12 +779,12 @@ export default class ViewItems extends Component {
           <div className="Width95">
             <Icon
               icon="arrow-left-tip"
-              className={cx('Gray_9e pointer Font15', { Alpha3: hideDirection === 'left' })}
+              className={cx('textTertiary pointer Font15', { Alpha3: hideDirection === 'left' })}
               onClick={() => this.handleScrollPosition(0)}
             />
             <Icon
               icon="arrow-right-tip"
-              className={cx('Gray_9e pointer Font15', { Alpha3: hideDirection === 'right' })}
+              className={cx('textTertiary pointer Font15', { Alpha3: hideDirection === 'right' })}
               onClick={() => this.handleScrollPosition(1)}
             />
           </div>

@@ -9,7 +9,7 @@ import { addToken } from 'src/utils/common';
 import 'rc-trigger/assets/index.css';
 
 const Wrap = styled.div`
-  color: #151515;
+  color: var(--color-text-title);
   font-size: 13px;
   display: flex;
   flex-direction: column;
@@ -28,20 +28,20 @@ const Wrap = styled.div`
   .exportLine {
     width: 100%;
     height: 1px;
-    background-color: #eaeaea;
+    background-color: var(--color-border-secondary);
     margin: 20px 0;
   }
   .exportData {
     width: 203px;
     height: 36px;
-    border: 1px solid #d5d5d5;
+    border: 1px solid var(--color-border-primary);
     border-radius: 3px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 12px;
     box-sizing: border-box;
-    color: #757575;
+    color: var(--color-text-secondary);
     font-size: 12px;
     margin-top: 10px;
     letter-spacing: 1px;

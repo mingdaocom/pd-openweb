@@ -22,9 +22,9 @@ const TimeWrapper = styled.div`
   height: 14px;
   margin-top: 9px;
   position: absolute;
-  border: 2px solid #1677ff;
+  border: 2px solid var(--color-primary);
   border-radius: 2px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   cursor: pointer;
 `;
 
@@ -33,7 +33,7 @@ const MilepostTimeWrapper = styled.div`
   top: 0;
   left: 0;
   height: 22px;
-  border-color: #1677ff;
+  border-color: var(--color-primary);
   cursor: pointer;
   transform: translateY(5px);
   &::before,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 const SearchWrap = styled.div`
@@ -7,21 +7,25 @@ const SearchWrap = styled.div`
   height: 32px;
   padding: 9px 10px;
   box-sizing: border-box;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   border-radius: 15px;
   input {
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     border: none;
   }
 `;
 
 export default function SearchInput(props) {
-  const { className, placeholder, onSearch = () => {} } = props;
-  const [searchValue, setSearchalue] = useState();
+  const { className, placeholder, keywords, onSearch = () => {}, onChange = () => {} } = props;
+  const [searchValue, setSearchValue] = useState(keywords);
+
+  useEffect(() => {
+    setSearchValue(keywords);
+  }, [keywords]);
 
   return (
     <SearchWrap className={className}>
-      <i className="icon icon-search Gray_9e" />
+      <i className="icon icon-search textTertiary" />
       <input
         placeholder={placeholder || _l('搜索')}
         type="search"
@@ -32,7 +36,8 @@ export default function SearchInput(props) {
           }
         }}
         onChange={e => {
-          setSearchalue(e.target.value);
+          setSearchValue(e.target.value);
+          onChange(e.target.value);
         }}
       />
     </SearchWrap>

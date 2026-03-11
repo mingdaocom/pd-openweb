@@ -3,7 +3,6 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import UseKey from 'react-use/lib/component/UseKey';
-import { generate } from '@ant-design/colors';
 import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -36,7 +35,7 @@ const Drag = styled.div(
   height: 100%;
   cursor: ew-resize;
   &:hover {
-    border-left: 1px solid #ddd;
+    border-left: 1px solid var(--color-border-primary);
   }
 `,
 );
@@ -226,6 +225,7 @@ class WorkSheet extends Component {
     // 禁止浏览器触摸板触发的前进后退
     document.body.style.overscrollBehaviorX = 'none';
     emitter.on('MINGO_CREATE_RECORD', this.handleMingoCreateRecord);
+    window.isWorksheet = true;
   }
   componentWillReceiveProps(nextProps) {
     const { updateBase, worksheetId, updateWorksheetLoading, views } = nextProps;
@@ -298,9 +298,10 @@ class WorkSheet extends Component {
     this.removeAppThemeColor();
     updateWorksheetLoading(true);
     emitter.off('MINGO_CREATE_RECORD', this.handleMingoCreateRecord);
+    window.isWorksheet = false;
   }
-  handleMingoCreateRecord() {
-    this.setState({ createRecordSideMaskVisible: true });
+  handleMingoCreateRecord(base) {
+    this.setState({ createRecordSideMaskVisible: true, createRecordSideMaskBase: base });
   }
   changeAppThemeColor(themeColor) {
     if (themeColor) {
@@ -310,7 +311,7 @@ class WorkSheet extends Component {
         themeColor,
       )
         .darken(5)
-        .toString()};  --app-highlight-color: ${generate(themeColor)[0].toString()}}`;
+        .toString()};  --app-highlight-color: ${new TinyColor(themeColor).setAlpha(0.2).toRgbString()}}`;
       document.head.appendChild(style);
       this.appThemeColorStyle = style;
     } else if (!themeColor && this.appThemeColorStyle) {
@@ -374,7 +375,7 @@ class WorkSheet extends Component {
   render() {
     let { sheetList = [], match, appPkg, isCharge, sheetListLoading, sheetListIsUnfold } = this.props;
     const { projectId, currentPcNaviStyle } = appPkg;
-    const { navWidth, dragMaskVisible, createRecordSideMaskVisible } = this.state;
+    const { navWidth, dragMaskVisible, createRecordSideMaskVisible, createRecordSideMaskBase } = this.state;
     let { appId, groupId, worksheetId } = match.params;
     if (md.global.Account.isPortal) {
       appId = md.global.Account.appId;
@@ -470,9 +471,12 @@ class WorkSheet extends Component {
         </div>
         {createRecordSideMaskVisible && (
           <CreateRecordSideMask
-            appId={appId}
-            worksheetId={worksheetId}
-            viewId={match.params.viewId}
+            appId={createRecordSideMaskBase.appId}
+            worksheetId={createRecordSideMaskBase.worksheetId}
+            viewId={createRecordSideMaskBase.viewId}
+            defaultFormData={createRecordSideMaskBase.defaultFormData}
+            defaultFormDataEditable={createRecordSideMaskBase.defaultFormDataEditable}
+            onAdd={createRecordSideMaskBase.onAdd}
             onClose={() => this.setState({ createRecordSideMaskVisible: false })}
           />
         )}

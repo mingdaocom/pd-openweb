@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import cx from 'classnames';
 import { get, isEmpty } from 'lodash';
 import { match } from 'path-to-regexp';
@@ -25,13 +25,12 @@ const MingoWelcomeWrap = styled.div`
     height: 100%;
     min-height: 420px;
   }
-  .mongoHead {
+  .mingoHead {
     width: 105px;
     height: 105px;
     border-radius: 50%;
-    background: url(${mingoHead}) no-repeat center center;
     background-size: 100% 100%;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
   }
   .hello {
     margin: 12px 0 5px;
@@ -40,12 +39,12 @@ const MingoWelcomeWrap = styled.div`
   }
   .description {
     font-size: 16px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   .aiTasksTitle {
     margin: 26px 0 8px;
     font-size: 14px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   .aiTasks {
     .aiTask {
@@ -53,11 +52,11 @@ const MingoWelcomeWrap = styled.div`
       align-items: center;
       justify-content: space-between;
       font-size: 15px;
-      color: #151515;
+      color: var(--color-text-title);
       padding: 0 10px;
       height: 48px;
       border-radius: 6px;
-      border: 1px solid #eaeaea;
+      border: 1px solid var(--color-border-secondary);
       margin-bottom: 12px;
       .taskIconCon {
         margin-right: 10px;
@@ -74,7 +73,7 @@ const MingoWelcomeWrap = styled.div`
         }
       }
       &.disabled {
-        background: #f5f5f5;
+        background: var(--color-background-secondary);
       }
       &:not(.disabled) {
         cursor: pointer;
@@ -135,7 +134,6 @@ export default function MingoWelcome({ loading, onStartTask = () => {} }) {
     store: { appInfo, activeWorksheet },
   } = useGlobalStore();
   const appId = urlParams(location.pathname)?.params?.appId || '';
-  const [appLoading, setAppLoading] = useState(false);
   const isCharge = appInfo?.id === appId ? checkIsCharge(appInfo) : false;
   const { isOwner, isAdmin, isRunner, isDeveloper } = getUserRole(appInfo?.permissionType);
   const isManager = isOwner || isDeveloper || isRunner || isAdmin;
@@ -148,13 +146,14 @@ export default function MingoWelcome({ loading, onStartTask = () => {} }) {
       !appId || !get(activeWorksheet, 'allowAdd') || !isManager || !get(activeWorksheet, 'template.controls').length,
   });
   const visibleTasks = AI_TASKS.filter(aiTask => !hiddenTypes.includes(aiTask.type));
-  if (appLoading) {
-    return <MingoWelcomeWrap className="t-flex-1" />;
-  }
+
   return (
     <MingoWelcomeWrap className="t-flex-1">
       <div className="t-flex t-flex-col t-items-center t-justify-center content">
-        <div className="mongoHead"></div>
+        <div
+          className="mingoHead"
+          style={{ backgroundImage: `url(${md.global.SysSettings.aiBrandLogoUrl || mingoHead})` }}
+        ></div>
         <div className="hello">{getHello()}</div>
         {!isEmpty(visibleTasks) && (
           <div className="w100 mTop10">
@@ -190,7 +189,7 @@ export default function MingoWelcome({ loading, onStartTask = () => {} }) {
                       </div>
                       {aiTask.name}
                     </div>
-                    {aiTask.disabled && <span className="Gray_bd">{_l('规划中...')}</span>}
+                    {aiTask.disabled && <span className="textDisabled">{_l('规划中...')}</span>}
                   </div>
                 ))}
             </div>

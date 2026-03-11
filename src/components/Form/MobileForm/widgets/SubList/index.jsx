@@ -119,6 +119,7 @@ export default function SubList(props) {
           controlId: control.controlId,
           recordId,
           worksheetId,
+          appId,
           formData: formData
             .map(c => _.pick(c, ['controlId', 'type', 'value', 'options', 'attribute', 'enumDefault']))
             .filter(c => !!c.value),

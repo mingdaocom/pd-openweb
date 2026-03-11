@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { mdNotification } from 'ming-ui/functions';
@@ -25,7 +26,7 @@ const WarnBox = styled.div`
   align-items: center;
   font-size: 13px;
   font-weight: bold;
-  color: #f44336;
+  color: var(--color-error);
   background: rgba(244, 67, 54, 0.1);
 `;
 
@@ -47,7 +48,7 @@ class ChatPanelSession extends Component {
     };
     window[`onChangeChatValue-${id}`] = this.handleChange;
 
-    if (this.state.isContact && !isGroup && !md.global.Config.IsLocal) {
+    if (this.state.isContact && !isGroup && !window.platformENV.isOverseas && !window.platformENV.isLocal) {
       this.checkAccountSecured();
     }
   }
@@ -388,7 +389,7 @@ class ChatPanelSession extends Component {
     const { session, referMessage } = this.props;
     const hideChat = md.global.SysSettings.forbidSuites.includes('6');
     const isContact = this.state.isContact && !hideChat;
-    const { id } = session;
+    const { id, isCertificated = true } = session;
 
     return (
       <div>
@@ -403,16 +404,16 @@ class ChatPanelSession extends Component {
         />
         <div className="ChatPanel-body minHeight0">
           <div className="ChatPanel-sessionWrapper">
-            {!isSecured && (
+            {(!isSecured || !isCertificated) && (
               <WarnBox>
                 <i className="Font20 icon-error1 mRight10" />
-                {_l('此用户未实名认证，谨防诈骗，谨慎沟通。')}
+                <div className="flex">{_l('本平台仅用于企业协作，警惕交友、投资、刷单等各类诈骗！')}</div>
                 <a
-                  href={`https://d557778d685be9b5.share.mingdao.net/public/form/9877cd6f85d447fc9bc630129d523814?source=${session.accountId}`}
+                  href={`https://d557778d685be9b5.share.mingdao.net/public/form/9877cd6f85d447fc9bc630129d523814?source=${session.isGroup ? _.get(session, 'groupUsers[0].accountId') : session.accountId}`}
                   target="_blank"
                   className="mLeft5"
                 >
-                  {_l('举报')}
+                  {_l('我要举报')}
                 </a>
               </WarnBox>
             )}

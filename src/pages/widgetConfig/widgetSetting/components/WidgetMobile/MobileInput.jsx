@@ -43,7 +43,7 @@ export default ({ data, onChange }) => {
             placement="bottom"
             title={_l('通过启用设备摄像头实现扫码输入。仅移动app中扫码支持区分条形码、二维码，其他平台扫码不做区分。')}
           >
-            <i className="icon-help Gray_9e Font16 pointer"></i>
+            <i className="icon-help textTertiary Font16 pointer"></i>
           </Tooltip>
         </div>
         {SCAN_CODE_CONFIG.map(i => {

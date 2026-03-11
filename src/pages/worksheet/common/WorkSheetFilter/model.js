@@ -61,6 +61,7 @@ class Actions {
     this.dispatch({
       type: 'UPDATE',
       value: {
+        needSave: false,
         activeFilter: filter,
       },
     });
@@ -160,6 +161,12 @@ class Actions {
     this.dispatch({
       type: 'DELETE_CONDITIONS_GROUP',
       groupIndex,
+    });
+  };
+
+  clearConditions = () => {
+    this.dispatch({
+      type: 'CLEAR_CONDITIONS',
     });
   };
 
@@ -395,6 +402,12 @@ export function createReducer(state = {}, action) {
         editingFilter: {
           conditionsGroups: { $splice: [[action.groupIndex, 1]] },
         },
+      });
+    case 'CLEAR_CONDITIONS':
+      return updateWithLastAction(state, {
+        needSave: { $set: true },
+        editingFilterVersion: { $set: Math.random() },
+        editingFilter: { conditionsGroups: { $set: [] } },
       });
     case 'UPDATE_FILTERS':
       return updateWithLastAction(state, {

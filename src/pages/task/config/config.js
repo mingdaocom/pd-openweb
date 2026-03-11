@@ -97,22 +97,22 @@ const config = {
   FilterMeTaskClassify: [3], // 排除的`我的任务`分类 默认
   FilterTaskID: [], // 排除的`我的任务` 打开分类 的 已有taskID
   BrowserScrollWidth: 0, // 滚动条宽度
-  groundGlassHtml: '<div class="ThemeBG taskGroundGlass"></div>',
+  groundGlassHtml: '<div class="bgTertiary taskGroundGlass"></div>',
   detailDescMaxLength: 20000, // 任务描述最长字数
 
   configHtml: {
     searchNullHtml:
       '<div id="taskSearchNullTask"><div class="searchNullTip boderRadAll_3"><i class="taskNullSearch"></i><div>' +
       _l('没有搜索到相关任务') +
-      '</div></div><div class="ThemeBG taskGroundGlass"></div></div>',
+      '</div></div><div class="bgTertiary taskGroundGlass"></div></div>',
     filterNullHtml:
       '<div id="taskSearchNullTask"> <div class="filterNullTip boderRadAll_3"><i class="taskNullFilter"></i><div>' +
       _l('没有筛选结果') +
-      '</div></div><div class="ThemeBG taskGroundGlass"></div></div>',
+      '</div></div><div class="bgTertiary taskGroundGlass"></div></div>',
     noCompleteNullHtml:
       '<div id="taskSearchNullTask"><div class="noCompleteTip boderRadAll_3"><i class="taskNullFilter"></i><div>' +
       _l('没有已完成任务') +
-      '</div></div><div class="ThemeBG taskGroundGlass"></div></div>',
+      '</div></div><div class="bgTertiary taskGroundGlass"></div></div>',
   },
 };
 

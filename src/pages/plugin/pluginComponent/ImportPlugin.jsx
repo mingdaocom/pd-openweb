@@ -21,7 +21,7 @@ const UploadWrapper = styled.div`
     align-items: center;
     justify-content: center;
     border-radius: 4px;
-    border: 1px dashed #eaeaea;
+    border: 1px dashed var(--color-border-secondary);
     box-sizing: border-box;
     .uploadImg {
       width: 52px;
@@ -29,7 +29,7 @@ const UploadWrapper = styled.div`
       margin-bottom: 15px;
     }
     .error {
-      color: #f44336;
+      color: var(--color-error);
     }
   }
 `;
@@ -47,13 +47,13 @@ const PluginInfoItem = styled.div`
     .ant-select-selector {
       min-height: 36px;
       padding: 2px 11px !important;
-      border: 1px solid #ccc !important;
+      border: 1px solid var(--color-border-tertiary) !important;
       border-radius: 3px !important;
       box-shadow: none !important;
     }
     &.ant-select-focused {
       .ant-select-selector {
-        border-color: #1e88e5 !important;
+        border-color: var(--color-primary) !important;
       }
     }
   }
@@ -89,7 +89,7 @@ function ExistPluginDialog(props) {
         <div className="flexRow alignItemsCenter">
           {importing && !isCreateLoading && (
             <div className="notificationIconWrap mRight8">
-              <i className="icon-loading_button Font20 White"></i>
+              <i className="icon-loading_button Font20 textWhite"></i>
             </div>
           )}
           {_l('确认')}
@@ -249,7 +249,7 @@ function ImportPlugin(props) {
             {iconUrl ? (
               <SvgIcon url={iconUrl} fill={iconColor} size={16} />
             ) : (
-              <Icon icon="extension" className="Font16 Gray_bd" />
+              <Icon icon="extension" className="Font16 textDisabled" />
             )}
             <span title={name} className="mLeft8 bold overflow_ellipsis">
               {name}
@@ -304,7 +304,7 @@ function ImportPlugin(props) {
         <div className="flexRow alignItemsCenter">
           {importing && (
             <div className="notificationIconWrap mRight8">
-              <i className="icon-loading_button Font20 White"></i>
+              <i className="icon-loading_button Font20 textWhite"></i>
             </div>
           )}
           <span>{!pluginId ? _l('导入创建') : _l('导入')}</span>
@@ -315,7 +315,7 @@ function ImportPlugin(props) {
     >
       {_.isEmpty(pluginInfo) ? (
         <UploadWrapper>
-          <div className="Gray_75 mBottom24">
+          <div className="textSecondary mBottom24">
             {_l('将插件文件导入组织创建一个新的插件，启用后即可在全组织范围内使用。')}
             <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/" />
           </div>
@@ -324,7 +324,7 @@ function ImportPlugin(props) {
             {file.name ? (
               <React.Fragment>
                 <div className="Font17">{file.name}</div>
-                <div className="Gray_75 mTop6">{_l('大小：') + formatFileSize(file.size)}</div>
+                <div className="textSecondary mTop6">{_l('大小：') + formatFileSize(file.size)}</div>
                 {errorTip && (
                   <div className="mTop15 error Font14">
                     <span className="icon-cancel Font15 mRight6"></span>
@@ -333,14 +333,18 @@ function ImportPlugin(props) {
                 )}
               </React.Fragment>
             ) : (
-              <div className="Gray_9e">{_l('请选择.mdye格式的应用文件')}</div>
+              <div className="textTertiary">{_l('请选择.mdye格式的应用文件')}</div>
             )}
             {(fileChecking || uploading) && (
               <div className="flexRow mTop16">
                 <div className="notificationIconWrap">
                   <i className="icon-loading_button Font20 ThemeColor3"></i>
                 </div>
-                {<span className="Gray_75 mLeft10">{fileChecking ? _l('正在解析文件...') : _l('文件上传中...')}</span>}
+                {
+                  <span className="textSecondary mLeft10">
+                    {fileChecking ? _l('正在解析文件...') : _l('文件上传中...')}
+                  </span>
+                }
               </div>
             )}
 
@@ -351,7 +355,7 @@ function ImportPlugin(props) {
                       {_l('上传文件')}
                     </Button>,
                   )
-                : renderUpload(<div className="ThemeColor Hand">{_l('重新上传')}</div>))}
+                : renderUpload(<div className="colorPrimary Hand">{_l('重新上传')}</div>))}
           </div>
         </UploadWrapper>
       ) : (

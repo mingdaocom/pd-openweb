@@ -22,7 +22,7 @@ const LinkParaWrap = styled.div`
     flex: 1;
     margin: 0 6px;
     .icon-workflow_other {
-      color: #9e9e9e !important;
+      color: var(--color-text-tertiary) !important;
     }
     input {
       border-radius: 3px 0 0 3px !important;
@@ -34,19 +34,19 @@ const LinkParaWrap = styled.div`
       flex-shrink: 0;
       width: 32px;
       line-height: 30px;
-      border: 1px solid #d9d9d9;
+      border: 1px solid var(--color-border-primary);
       border-left: none;
       text-align: center;
-      background: #fff;
+      background: var(--color-background-primary);
       &.active,
       &:hover {
         i {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
       i {
         vertical-align: sub;
-        color: #757575;
+        color: var(--color-text-secondary);
       }
     }
   }
@@ -54,21 +54,21 @@ const LinkParaWrap = styled.div`
     line-height: 34px;
     flex: 1;
     padding-left: 12px;
-    border: 1px solid #d9d9d9;
-    background: #fff;
+    border: 1px solid var(--color-border-primary);
+    background: var(--color-background-primary);
   }
   .add {
     margin-top: 16px;
     font-weight: bold;
-    color: #1677ff;
+    color: var(--color-primary);
     &:hover {
-      color: #1b83d6;
+      color: var(--color-primary-dark);
     }
   }
   .deleteWrap {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     &:hover {
-      color: #757575;
+      color: var(--color-text-secondary);
     }
   }
   .ant-checkbox-input {

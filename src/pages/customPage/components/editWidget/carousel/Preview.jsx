@@ -15,7 +15,7 @@ const Wrap = styled.div`
     border-radius: 4px;
     box-shadow: 0px 1px 4px #00000029;
     overflow: auto;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
 `;
 

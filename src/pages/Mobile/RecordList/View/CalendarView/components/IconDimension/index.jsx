@@ -12,8 +12,8 @@ const IconDimensionWrapper = styled.div`
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--color-background-primary);
-  box-shadow: 0px 3px 6px 1px rgba(0, 0, 0, 0.16);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-md);
   z-index: 999;
   .icon {
     color: var(--color-text-tertiary);

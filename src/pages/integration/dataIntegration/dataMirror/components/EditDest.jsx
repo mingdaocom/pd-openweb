@@ -7,18 +7,18 @@ import ExistSourceModal from 'src/pages/integration/dataIntegration/components/E
 
 const Wrap = styled.div`
   .addSource {
-    background: #ffffff;
-    border: 1px dashed #dddddd;
+    background: var(--color-background-primary);
+    border: 1px dashed var(--color-border-primary);
     border-radius: 4px;
-    color: #1677ff;
+    color: var(--color-primary);
     &:hover {
-      border: 1px dashed #1677ff;
+      border: 1px dashed var(--color-primary);
     }
   }
   .sourceCard {
     padding: 12px 20px;
-    background: #ffffff;
-    border: 1px solid #e2e2e2;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-secondary);
     border-radius: 4px;
     .imgCon {
       width: 32px;
@@ -66,7 +66,7 @@ function EditDest(props) {
             </div>
             <div className="flex mLeft8">
               <div className="name Bold flexRow alignItemsCenter">{dest.sourceName}</div>
-              <div className="des Gray_9e">{tableName}</div>
+              <div className="des textTertiary">{tableName}</div>
             </div>
             {props.canEdit && <i className="icon icon-expand_more Font20 Hand Block" />}
           </div>

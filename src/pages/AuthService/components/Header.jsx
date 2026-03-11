@@ -5,7 +5,7 @@ function Header(props) {
   const { lineLoading, logo, hasGetLogo, isDefaultLogo, loading } = props;
 
   let brandLogo = '';
-  if (!_.get(md, 'global.Config.IsLocal')) {
+  if (!window.platformENV.isOverseas && !window.platformENV.isLocal) {
     if (hasGetLogo) {
       brandLogo = isDefaultLogo ? '' : logo;
     } else {
@@ -15,7 +15,8 @@ function Header(props) {
     brandLogo = logo || _.get(md, 'global.SysSettings.brandLogoUrl');
   }
 
-  const brandLogoRedirectUrl = _.get(md, 'global.Config.IsLocal') ? md.global.SysSettings.brandLogoRedirectUrl : '/';
+  const brandLogoRedirectUrl =
+    window.platformENV.isOverseas || window.platformENV.isLocal ? md.global.SysSettings.brandLogoRedirectUrl : '/';
   const renderLogo = () => {
     return <img src={brandLogo} height={_.get(md, 'global.SysSettings.brandLogoHeight') || 40} />;
   };

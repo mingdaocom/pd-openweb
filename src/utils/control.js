@@ -23,7 +23,7 @@ import { RELATION_TYPE_NAME } from 'src/pages/worksheet/components/CellControls/
 import { getTemporaryAttachmentFromUrl } from 'src/utils/common';
 import { accMul, browserIsMobile, countChar, domFilterHtmlScript } from 'src/utils/common';
 import RegExpValidator from 'src/utils/expression';
-import { dateConvertToUserZone } from 'src/utils/project';
+import { dateConvertToUserZone, dateServerZoneToAppZone, getTimeZone } from 'src/utils/project';
 
 export const REQUIRED_SUPPORTED_WIDGET_TYPES = [
   WIDGETS_TO_API_TYPE_ENUM.TEXT, // 2 - 文本
@@ -322,14 +322,14 @@ export function sortControlByIds(controls = [], sortedIds = []) {
 /** 获取控件默认排序 */
 export function getControlsSorts(controls = [], sortedIds = []) {
   if (!sortedIds.length) {
-    return controls.map(c => c.controlId || c.data.controlId).filter(() => _.identity);
+    return controls.map(c => c?.controlId || c?.data?.controlId).filter(() => _.identity);
   }
   sortedIds = sortedIds
-    .filter(id => _.find(controls, control => (control.controlId || control.data.controlId) === id))
+    .filter(id => _.find(controls, control => (control?.controlId || control?.data?.controlId) === id))
     .filter(_.identity);
   const leftControlIds = controls
-    .filter(c => !_.find(sortedIds, id => (c.controlId || c.data.controlId) === id))
-    .map(c => c.controlId || c.data.controlId)
+    .filter(c => !_.find(sortedIds, id => (c?.controlId || c?.data?.controlId) === id))
+    .map(c => c?.controlId || c?.data?.controlId)
     .filter(() => _.identity);
   return sortedIds.concat(leftControlIds);
 }
@@ -430,6 +430,9 @@ export function parseAdvancedSetting(setting = {}) {
     rctitlestyle,
     freezeids,
     layercontrolid,
+    direction = '0',
+    columnnum,
+    showtitleid,
   } = setting;
   return {
     allowadd: setting.allowadd === '1', // 子表允许新增
@@ -457,6 +460,9 @@ export function parseAdvancedSetting(setting = {}) {
     titleCenter: rctitlestyle === '1', // 垂直居中
     showCount: showcount !== '1', // 显示计数 默认勾选
     treeLayerControlId: layercontrolid, // 子表树形对应控件id
+    direction, // 布局方向
+    columnNum: columnnum, // h5 子表平铺显示列数
+    showTitleId: showtitleid, // h5 子表平铺显示标题字段id
   };
 }
 
@@ -667,9 +673,9 @@ export function wgs84togcj02(longitude, latitude) {
 export const getValueStyle = data => {
   const item = Object.assign({}, data);
   let type = item.type;
-  let { valuecolor = '#151515', valuesize = '0', valuestyle = '0000' } = item.advancedSetting || {};
+  let { valuecolor = 'var(--color-text-primary)', valuesize = '0', valuestyle = '0000' } = item.advancedSetting || {};
   if (item.type === 30) {
-    valuecolor = _.get(item, 'sourceControl.advancedSetting.valuecolor') || '#151515';
+    valuecolor = _.get(item, 'sourceControl.advancedSetting.valuecolor') || 'var(--color-text-primary)';
     valuesize = _.get(item, 'sourceControl.advancedSetting.valuesize') || '0';
     valuestyle = _.get(item, 'sourceControl.advancedSetting.valuestyle') || '0000';
     type = _.get(item, 'sourceControl.type');
@@ -784,7 +790,7 @@ export function getTitleTextFromControls(controls, data, titleSourceControlType,
   if (titleControl && data) {
     titleControl = Object.assign({}, titleControl, { value: data[titleControl.controlId] || data.titleValue });
   }
-  return titleControl ? renderText(titleControl, options) || _l('未命名') : _l('未命名');
+  return titleControl ? renderText(titleControl, options) || titleControl.value || _l('未命名') : _l('未命名');
 }
 
 /**
@@ -943,10 +949,21 @@ export function renderText(cell, options = {}) {
         const showFormat = _.includes(['ctime', 'utime', 'dtime'], cell.controlId)
           ? 'YYYY-MM-DD HH:mm:ss'
           : getShowFormat(cell);
-        const dateTime = type === 16 && !options.doNotHandleTimeZone ? dateConvertToUserZone(cell.value) : cell.value;
+
+        let dateTime = cell.value;
+
+        if (type === 16 && !options.doNotHandleTimeZone) {
+          dateTime =
+            advancedSetting.timezonetype === '1'
+              ? dateServerZoneToAppZone(cell.value, window[`timeZone_${options.appId}`])
+              : dateConvertToUserZone(cell.value);
+        }
+
         value = ['partal_regtime', 'dtime'].includes(cell.controlId)
           ? createTimeSpan(dateTime)
           : getDateToEn(showFormat, dateTime, advancedSetting.showformat);
+
+        value = advancedSetting.showtimezone === '1' ? value + ' ' + getTimeZoneText(cell, options.appId) : value;
         break;
       case 46: // TIME 时间
         if (_.isEmpty(value)) {
@@ -1077,7 +1094,7 @@ export function renderText(cell, options = {}) {
         if (!_.isArray(parsedData)) {
           parsedData = [];
         }
-        value = parsedData.length ? parsedData[0].name : '';
+        value = parsedData.length ? parsedData.map(item => item.name || _l('未命名')).join(',') : '';
         break;
       case 29: // RELATESHEET 关联表
         try {
@@ -1369,7 +1386,7 @@ export function formatAttachmentValue(value, isRecreate = false, isRelation = fa
         const urlPathNameArr = (url.pathname || '').split('/');
         const fileName = isLinkFile ? item.filename : (urlPathNameArr[urlPathNameArr.length - 1] || '').split('.')[0];
         let filePath = isLinkFile ? fileUrl : (url.pathname || '').slice(1).replace(fileName + item.ext, '');
-        const IsLocal = md.global.Config.IsLocal;
+        const IsLocal = window.platformENV.isOverseas || window.platformENV.isLocal;
         const host = RegExpValidator.fileIsPicture(item.ext)
           ? md.global.FileStoreConfig.pictureHost + '/'
           : md.global.FileStoreConfig.documentHost + '/';
@@ -1491,10 +1508,10 @@ export const getButtonColor = (mainColor, showAsPrimary = true) => {
       _.toLower(mainColor),
     )
       ? '#fff'
-      : '#151515';
+      : 'var(--color-text-primary)';
   if (mainColor === 'transparent') {
-    fontColor = '#151515';
-    borderColor = browserIsMobile() ? '#eee' : '#ddd';
+    fontColor = 'var(--color-text-primary)';
+    borderColor = browserIsMobile() ? 'var(--color-border-secondary)' : 'var(--color-border-primary)';
   }
   return showAsPrimary
     ? {
@@ -1503,9 +1520,9 @@ export const getButtonColor = (mainColor, showAsPrimary = true) => {
         color: fontColor,
       }
     : {
-        backgroundColor: '#fff',
-        border: '1px solid #ddd',
-        color: '#333',
+        backgroundColor: 'var(--color-background-primary)',
+        border: '1px solid var(--color-border-primary)',
+        color: 'var(--color-text-primary)',
       };
 };
 
@@ -1956,6 +1973,18 @@ export function formatAiGenControlValue(control, value = '') {
   }
 }
 
+/**
+ * 根据控件配置显示时区文本
+ */
+export const getTimeZoneText = (data, appId) => {
+  const { advancedSetting = {} } = data;
+  const appTimeZone = window[`timeZone_${appId}`];
+  const { userZone } = getTimeZone();
+  const timeZone = advancedSetting.timezonetype === '1' ? appTimeZone : userZone;
+  if (_.isUndefined(timeZone)) return '';
+  return `UTC${timeZone > 0 ? '+' : ''}${timeZone / 60}`;
+};
+
 export const getDefaultCount = (data = {}, value = 0) => {
   value = parseInt(value);
   if (value) {
@@ -1977,4 +2006,12 @@ export const getDefaultCount = (data = {}, value = 0) => {
     }
   }
   return value;
+};
+
+export const isTimeStyle = (data = {}) => {
+  let type = data.type;
+  if (type === 30) {
+    type = data.sourceControlType;
+  }
+  return type === 16 || (type === 38 && data.enumDefault === 2 && data.unit !== '3');
 };

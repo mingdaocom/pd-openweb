@@ -16,7 +16,17 @@ function login() {
 
 function getParams() {
   const query = qs.parse(location.search.slice(1, location.search.length));
-  if (/\/apps\/kcshare\/(\w+)/.test(location.pathname)) {
+  if (/\/rowfiles\/\w+/.test(location.pathname.replace(/^\/portal/, ''))) {
+    const args = (location.pathname.match(/\/rowfiles\/(.+?)\/?$/) || [])[1]?.split('/') || [];
+    return {
+      type: 'record_share_files',
+      worksheetId: args[0],
+      recordId: args[1],
+      controlId: args[2],
+      fileId: args[3],
+      getType: args[4],
+    };
+  } else if (/\/apps\/kcshare\/(\w+)/.test(location.pathname)) {
     return {
       type: 'kc_share',
       id: location.pathname.match(/.*\/apps\/kcshare\/(\w+)/)[1],
@@ -43,8 +53,8 @@ function getParams() {
 }
 
 export function getAttachment() {
-  const { type, id, getType } = getParams();
-  if (!id) {
+  const { type, id, getType, worksheetId, recordId, controlId, fileId } = getParams();
+  if (!id && type !== 'record_share_files') {
     throw new Error();
   }
   switch (type) {
@@ -90,6 +100,27 @@ export function getAttachment() {
         .catch(err => {
           console.log(err);
           alert(_l('获取附件详情失败'), 2);
+        });
+    case 'record_share_files':
+      if (!_.get(md, 'global.Account.accountId')) {
+        login();
+        return;
+      }
+      return worksheetAjax
+        .getAttachmentList({
+          worksheetId,
+          rowId: recordId,
+          controlId,
+          fileId,
+          getType,
+        })
+        .then(res => {
+          if (res.resultCode === 1) {
+            return {
+              fileId,
+              attachments: res.attachments || res.attachmens,
+            };
+          }
         });
     default:
       throw new Error();

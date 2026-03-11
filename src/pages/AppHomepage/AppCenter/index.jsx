@@ -78,7 +78,8 @@ function AppCenter(props) {
     currentProject.project !== 'external' &&
       getMyPermissions(currentProject.projectId, false).then(permissionIds => setMyPermissions(permissionIds));
 
-    !md.global.Config.IsLocal &&
+    !window.platformENV.isOverseas &&
+      !window.platformENV.isLocal &&
       fetch(`${themeFileUrlPrefix}/themes.js?${moment().format('YYYY_MM_DD_') + Math.floor(moment().hour() / 24)}`)
         .then(res => res.text())
         .then(res => {
@@ -212,12 +213,13 @@ function AppCenter(props) {
   return (
     <WaterMark projectId={currentProject.projectId}>
       <Con
+        className="containerImage"
         style={{
           backgroundImage: keyStr === 'dashboard' && currentThemeKey ? `url(${currentTheme.bgImg})` : 'unset',
-          backgroundColor: keyStr === 'dashboard' && currentThemeKey ? dashboardColor.bgColor : 'unset',
+          // backgroundColor: keyStr === 'dashboard' && currentThemeKey ? dashboardColor.bgColor : 'unset',
         }}
       >
-        {!(keyStr === 'lib' && !md.global.Config.IsLocal) && (
+        {!(keyStr === 'lib' && !window.platformENV.isOverseas && !window.platformENV.isLocal) && (
           <SideNav
             active={keyStr}
             currentProject={currentProject}

@@ -282,12 +282,12 @@ export default class PortalList extends Component {
     return (
       <div className="portalManagementList h100 flexColumn">
         <div className="appManagementCount flexRow">
-          <span className="Gray_9e mRight5">{_l('计费外部用户人数')}</span>
+          <span className="textTertiary mRight5">{_l('计费外部用户人数')}</span>
           <span className="bold">
             {allCount} / {limitExternalUserCount}
           </span>
 
-          <span className="Gray_9e mLeft15 mRight5">{_l('剩余')}</span>
+          <span className="textTertiary mLeft15 mRight5">{_l('剩余')}</span>
           <span className="bold">
             {_l('%0人', limitExternalUserCount - allCount < 0 ? 0 : limitExternalUserCount - allCount)}
           </span>
@@ -300,7 +300,7 @@ export default class PortalList extends Component {
                 type="portalupgrade"
                 projectId={this.props.projectId}
               />
-              <span className="Gray_9e mLeft5 mRight5">{_l('或')}</span>
+              <span className="textTertiary mLeft5 mRight5">{_l('或')}</span>
             </span>
           )}
 
@@ -386,12 +386,12 @@ export default class PortalList extends Component {
                         {startDate && endDate ? (
                           _l('%0 至 %1', startDate, endDate)
                         ) : (
-                          <span className="Gray_9e">{item.text}</span>
+                          <span className="textTertiary">{item.text}</span>
                         )}
                       </span>
-                      <span className="icon-arrow-down-border icon Gray_9e" id={`dateArrowIcon_${item.id}`} />
+                      <span className="icon-arrow-down-border icon textTertiary" id={`dateArrowIcon_${item.id}`} />
                       <span
-                        className="icon-cancel icon Gray_9e Hidden"
+                        className="icon-cancel icon textTertiary Hidden"
                         id={`dateDeleteIcon_${item.id}`}
                         onClick={e => {
                           e.stopPropagation();

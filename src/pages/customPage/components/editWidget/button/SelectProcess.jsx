@@ -140,7 +140,7 @@ export default function SelectProcess(props) {
     {
       text: _l('其它应用下的封装业务流程'),
       value: 'other',
-      className: 'Gray_75',
+      className: 'textSecondary',
     },
   ];
 
@@ -158,7 +158,7 @@ export default function SelectProcess(props) {
               ? () => (
                   <Fragment>
                     <span>{otherAppProcess.processName}</span>
-                    <span className="Gray_75 mLeft5">{`(${otherAppProcess.appName})`}</span>
+                    <span className="textSecondary mLeft5">{`(${otherAppProcess.appName})`}</span>
                   </Fragment>
                 )
               : undefined
@@ -171,7 +171,7 @@ export default function SelectProcess(props) {
               changeProcessId(value);
             }
           }}
-          style={{ width: '100%', background: '#fff' }}
+          style={{ width: '100%', background: 'var(--color-background-primary)' }}
           menuStyle={{ width: '100%' }}
           placeholder={_l('请选择业务流程')}
           noData={_l('暂无业务流程，请先在应用里创建')}

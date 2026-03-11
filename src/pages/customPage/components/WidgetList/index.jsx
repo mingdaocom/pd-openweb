@@ -10,13 +10,13 @@ import EditWidget from '../editWidget';
 const WidgetWrap = styled.div`
   box-sizing: border-box;
   width: 240px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   padding: 10px;
   .header {
     padding-left: 12px;
     line-height: 36px;
     span {
-      color: #757575;
+      color: var(--color-text-secondary);
     }
     .iconWrap {
       margin-left: 6px;
@@ -38,7 +38,7 @@ const WidgetWrap = styled.div`
         visibility: hidden;
       }
       &:hover {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-hover);
         .add {
           visibility: visible;
         }
@@ -131,10 +131,10 @@ function WidgetList({ components, activeContainerInfo = {}, addWidget = _.noop, 
           }
         }}
       >
-        <i className={`Font18 icon-${icon} Gray_75`}></i>
+        <i className={`Font18 icon-${icon} textSecondary`}></i>
         <span>{name}</span>
         <span className="flex" />
-        <i className="add icon-add Font18 Gray_75"></i>
+        <i className="add icon-add Font18 textSecondary"></i>
       </li>
     );
   };

@@ -119,7 +119,9 @@ export default function WidgetSection(props) {
     }
     if (_.isFunction(props.triggerCustomEvent) && changeControls.length && triggerType) {
       changeControls.forEach(itemControl => {
-        props.triggerCustomEvent({ ...itemControl, triggerType });
+        setTimeout(() => {
+          props.triggerCustomEvent({ ...itemControl, triggerType });
+        }, 500);
       });
     }
     $sectionControls.current = tabControls;
@@ -133,7 +135,9 @@ export default function WidgetSection(props) {
     if (activeControl.type === 52) {
       return (
         <div className="customFieldsContainer" style={isSplit ? { margin: 0, padding: '0 12px' } : {}}>
-          {activeControl.desc && <div className="Gray_9e WordBreak pLeft12 pRight12 mTop12">{activeControl.desc}</div>}
+          {activeControl.desc && (
+            <div className="textTertiary WordBreak pLeft12 pRight12 mTop12">{activeControl.desc}</div>
+          )}
           {renderForm(activeControl.child)}
         </div>
       );

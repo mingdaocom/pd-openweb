@@ -124,7 +124,7 @@ class Unit extends Component {
               <Select
                 className="chartSelect w100"
                 value={magnitude}
-                suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                 onChange={value => {
                   this.handleChangeMagnitude(value, data);
                 }}
@@ -161,7 +161,7 @@ class Unit extends Component {
                   <div className="flexColumn">
                     <Icon
                       icon="expand_less"
-                      className="Gray_9e Font20 pointer mBottom2"
+                      className="textTertiary Font20 pointer mBottom2"
                       onClick={() => {
                         let newYdot = Number(ydot);
                         this.handleChangeYdot(newYdot + 1, data);
@@ -169,7 +169,7 @@ class Unit extends Component {
                     />
                     <Icon
                       icon="expand_more"
-                      className="Gray_9e Font20 pointer mTop2"
+                      className="textTertiary Font20 pointer mTop2"
                       onClick={() => {
                         let newYdot = Number(ydot);
                         this.handleChangeYdot(newYdot ? newYdot - 1 : 0, data);
@@ -181,7 +181,7 @@ class Unit extends Component {
               <Select
                 className="chartSelect w100 mTop10"
                 value={roundType}
-                suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                 onChange={value => {
                   this.handleChangeYaxis('roundType', value, data);
                 }}
@@ -210,7 +210,7 @@ class Unit extends Component {
                   placement="bottom"
                   arrowPointAtCenter
                 >
-                  <Icon className="Gray_9e Font18 pointer" icon="info" />
+                  <Icon className="textTertiary Font18 pointer" icon="info" />
                 </Tooltip>
               </div>
             </div>
@@ -223,7 +223,7 @@ class Unit extends Component {
               className="chartSelect"
               disabled={[0].includes(magnitude)}
               value={fixType || 0}
-              suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+              suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
               onChange={value => {
                 this.handleChangeYaxis('fixType', value, data);
               }}
@@ -311,7 +311,7 @@ class Unit extends Component {
                       <div className="flexColumn">
                         <Icon
                           icon="expand_less"
-                          className="Gray_9e Font20 pointer mBottom2"
+                          className="textTertiary Font20 pointer mBottom2"
                           onClick={() => {
                             let newYdot = Number(percent.dot);
                             this.handleChangeYaxis(
@@ -326,7 +326,7 @@ class Unit extends Component {
                         />
                         <Icon
                           icon="expand_more"
-                          className="Gray_9e Font20 pointer mTop2"
+                          className="textTertiary Font20 pointer mTop2"
                           onClick={() => {
                             let newYdot = Number(percent.dot);
                             this.handleChangeYaxis(
@@ -345,7 +345,7 @@ class Unit extends Component {
                   <Select
                     className="chartSelect w100 mTop10"
                     value={percent.roundType}
-                    suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                    suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                     onChange={value => {
                       this.handleChangeYaxis(
                         'percent',
@@ -388,7 +388,7 @@ class Unit extends Component {
                       placement="bottom"
                       arrowPointAtCenter
                     >
-                      <Icon className="Gray_9e Font18 pointer" icon="info" />
+                      <Icon className="textTertiary Font18 pointer" icon="info" />
                     </Tooltip>
                   </div>
                 </div>
@@ -417,7 +417,7 @@ export default function unitPanelGenerator(props) {
             .filter(data => data.normType !== 7)
             .map(item => (
               <Fragment>
-                <div className="mBottom12 Bold Gray_75">{item.controlName}</div>
+                <div className="mBottom12 Bold textSecondary">{item.controlName}</div>
                 <Unit
                   currentReport={currentReport}
                   data={item}
@@ -442,7 +442,7 @@ export default function unitPanelGenerator(props) {
         <Collapse.Panel header={_l('值')} key="leftUnit" {...collapseProps}>
           {firstYaxis && (
             <Fragment>
-              {isDualAxes && <div className="mBottom12 Bold Gray_75">{_l('Y轴')}</div>}
+              {isDualAxes && <div className="mBottom12 Bold textSecondary">{_l('Y轴')}</div>}
               <Unit
                 changeAllYaxis={true}
                 data={firstYaxis}
@@ -464,7 +464,7 @@ export default function unitPanelGenerator(props) {
           )}
           {firstRightYaxis && (
             <Fragment>
-              <div className="mBottom12 Bold Gray_75">{isDualAxes ? _l('辅助Y轴') : _l('数值(2)')}</div>
+              <div className="mBottom12 Bold textSecondary">{isDualAxes ? _l('辅助Y轴') : _l('数值(2)')}</div>
               <Unit
                 changeAllYaxis={true}
                 data={firstRightYaxis}
@@ -501,13 +501,13 @@ export default function unitPanelGenerator(props) {
               <div className="mBottom8">{_l('卡片内容')}</div>
               <div className="chartTypeSelect flexRow valignWrapper">
                 <div
-                  className={cx('flex centerAlign pointer Gray_75', { active: tooltipValueType === 0 })}
+                  className={cx('flex centerAlign pointer textSecondary', { active: tooltipValueType === 0 })}
                   onClick={() => onChangeStyle({ tooltipValueType: 0 })}
                 >
                   {_l('原值')}
                 </div>
                 <div
-                  className={cx('flex centerAlign pointer Gray_75', { active: tooltipValueType === 1 })}
+                  className={cx('flex centerAlign pointer textSecondary', { active: tooltipValueType === 1 })}
                   onClick={() => onChangeStyle({ tooltipValueType: 1 })}
                 >
                   {_l('显示单位')}

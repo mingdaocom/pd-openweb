@@ -122,7 +122,7 @@ export default class ExportAppCom extends Component {
         {hasPassword && (
           <i
             className={cx(
-              'icon Font14 Hover_21 mLeft5 Hand showVisibilityIcon',
+              'icon Font14 hoverColorPrimary mLeft5 Hand showVisibilityIcon',
               showPassword ? 'icon-visibility_off' : 'icon-visibility',
             )}
             onClick={() => {
@@ -170,7 +170,7 @@ export default class ExportAppCom extends Component {
           </div>
         ) : (
           <div className="exportAppListWrap flexColumn flex overflowHidden">
-            <div className="row headerRow flexRow Gray_9e Font14">
+            <div className="row headerRow flexRow textTertiary Font14">
               <div className="operator">{_l('操作人')}</div>
               <div className="date">{_l('导出时间')}</div>
               <div className="exportType flex">{_l('导出类型')}</div>
@@ -183,8 +183,8 @@ export default class ExportAppCom extends Component {
                 <EmptyStatus
                   radiusSize={132}
                   icon="import"
-                  iconClassName="Gray_9e Font50"
-                  emptyTxtClassName="Gray_bd mTop18 Font17"
+                  iconClassName="textTertiary Font50"
+                  emptyTxtClassName="textDisabled mTop18 Font17"
                   emptyTxt={_l('暂无导出记录')}
                 />
               ) : (
@@ -205,7 +205,7 @@ export default class ExportAppCom extends Component {
                             projectId={projectId}
                           />
                           <UserName
-                            className="Gray Font13 pLeft5 pRight10 pTop3 flex ellipsis"
+                            className="textPrimary Font13 pLeft5 pRight10 pTop3 flex ellipsis"
                             user={{
                               userName: operator.fullname,
                               accountId: operator.accountId,
@@ -230,7 +230,7 @@ export default class ExportAppCom extends Component {
                               {_l('下载')}
                             </a>
                           ) : (
-                            <span className="Gray_9e">{_l('下载')}</span>
+                            <span className="textTertiary">{_l('下载')}</span>
                           )}
                         </div>
                       </div>

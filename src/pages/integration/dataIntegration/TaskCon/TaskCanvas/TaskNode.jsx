@@ -37,7 +37,7 @@ const Wrap = styled.div`
     // 线60
     height: ${tH}px;
     border-radius: 6px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     box-shadow: 0px 1px 3px rgba(51, 51, 51, 0.08);
     transition: box-shadow 0.2s ease-out;
     overflow: hidden;
@@ -48,7 +48,7 @@ const Wrap = styled.div`
         0 2px 6px rgba(33, 150, 243, 0.5);
     }
     &.isErr {
-      border: 1px solid #f44336;
+      border: 1px solid var(--color-error);
     }
     .moreOperate {
       opacity: 0;
@@ -68,7 +68,7 @@ const Wrap = styled.div`
 `;
 
 export const AddNode = styled(Circle)`
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   justify-content: center;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
   cursor: pointer;
@@ -76,17 +76,17 @@ export const AddNode = styled(Circle)`
   z-index: 1;
   .icon {
     font-size: 18px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     transition: transform 0.25s;
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
       transform: rotate(90deg);
     }
   }
 `;
 const WrapAct = styled.div`
   min-width: 160px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.25);
   border-radius: 3px;
   padding: 6px 0;
@@ -97,13 +97,13 @@ const WrapAct = styled.div`
       width: 24px;
     }
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
   .line {
     margin: 6px 0;
     width: 100%;
-    border-top: 1px solid #dddddd;
+    border-top: 1px solid var(--color-border-primary);
   }
 `;
 const MoreOperate = styled.span`
@@ -114,11 +114,11 @@ const MoreOperate = styled.span`
   display: inline-block;
   width: 24px;
   height: 24px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   font-size: 18px;
   &:hover {
     background-color: rgba(0, 0, 0, 0.03);
-    color: #1677ff;
+    color: var(--color-primary);
   }
 `;
 const MenuWrap = styled(Menu)`
@@ -135,16 +135,16 @@ const MenuItemWrap = styled(MenuItem)`
 
 const RedMenuItemWrap = styled(MenuItemWrap)`
   .Item-content {
-    color: #f44336 !important;
+    color: var(--color-error) !important;
     .Icon {
-      color: #f44336 !important;
+      color: var(--color-error) !important;
     }
   }
 `;
 const DelNode = styled.div`
   font-weight: 400;
   width: 320px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 3px 6px rgb(0 0 0 / 16%);
   position: absolute;
   padding: 24px 20px 16px;
@@ -163,7 +163,7 @@ const DelNode = styled.div`
     height: 0px;
     border: 6px solid #000;
     border-top-color: transparent;
-    border-bottom-color: #fff;
+    border-bottom-color: var(--color-background-primary);
     border-left-color: transparent;
     border-right-color: transparent;
   }
@@ -174,15 +174,15 @@ const DelNode = styled.div`
     display: inline-block;
     border-radius: 3px;
     &.onDel {
-      background: #f44336;
-      color: #fff;
+      background: var(--color-error);
+      color: var(--color-white);
     }
   }
   .cover {
     position: fixed;
     left: 0;
     top: 0;
-    background: #ccc;
+    background: var(--color-text-placeholder);
   }
 `;
 
@@ -382,9 +382,9 @@ class TaskNode extends Component {
             {/* 错误提示 */}
             <div className="name Font13 Bold overflow_ellipsis WordBreak">{getNodeName(flowData, nodeData)}</div>
             {isAct ? (
-              <Des nodeData={nodeData} className="Font12 Gray_9e" showEdit />
+              <Des nodeData={nodeData} className="Font12 textTertiary" showEdit />
             ) : (
-              <Des nodeData={nodeData} className="Font12 Gray_9e" />
+              <Des nodeData={nodeData} className="Font12 textTertiary" />
             )}
           </div>
 

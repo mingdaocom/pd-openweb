@@ -9,11 +9,11 @@ import { getIconByType } from 'src/pages/widgetConfig/util';
 const WrapChoose = styled.div`
   width: 260px;
   max-height: 300px;
-  background: #ffffff;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.24);
+  background: var(--color-background-primary);
+  box-shadow: var(--shadow-lg);
   border-radius: 3px;
   .search {
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     min-height: 35px;
     max-height: 35px;
     line-height: 35px;
@@ -31,12 +31,12 @@ const WrapChoose = styled.div`
     line-height: 36px;
     padding: 0 15px;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
   .disabled {
     cursor: not-allowed;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 `;
 export default function DropChoose(props) {
@@ -65,7 +65,7 @@ export default function DropChoose(props) {
         return (
           <WrapChoose className="WrapChoose flexColumn">
             <div className="search flexRow alignItemsCenter">
-              <i className="icon icon-search Gray_9d Hand Font16 mRight5"></i>
+              <i className="icon icon-search textTertiary Hand Font16 mRight5"></i>
               <input
                 type="text"
                 className="flex"
@@ -80,7 +80,7 @@ export default function DropChoose(props) {
             </div>
             <ul className="flex">
               {list.length <= 0 ? (
-                <div className="TxtCenter pTop45 pBottom50 Gray_9e">{_l('暂无相关内容')}</div>
+                <div className="TxtCenter pTop45 pBottom50 textTertiary">{_l('暂无相关内容')}</div>
               ) : (
                 list.map(o => {
                   return (
@@ -97,12 +97,16 @@ export default function DropChoose(props) {
                       {o.mdType ? (
                         <Icon
                           icon={getIconByType(o.mdType, false)}
-                          className={cx('Font16 Gray_bd customIcon TxtMiddle')}
+                          className={cx('Font16 textDisabled customIcon TxtMiddle')}
                         />
                       ) : (
-                        !!o.dataType && <span className="Gray_bd">{`[${o.dataType}]`}</span>
+                        !!o.dataType && <span className="textDisabled">{`[${o.dataType}]`}</span>
                       )}
-                      <span className={cx('Gray flex WordBreak overflow_ellipsis mLeft5', { Gray_bd: o.disabled })}>
+                      <span
+                        className={cx('textPrimary flex WordBreak overflow_ellipsis mLeft5', {
+                          textDisabled: o.disabled,
+                        })}
+                      >
                         {o.alias || o.name}
                       </span>
                     </li>
@@ -122,7 +126,10 @@ export default function DropChoose(props) {
         overflow: { adjustX: true, adjustY: true },
       }}
     >
-      <i className="icon icon-task_add-02 mTop12 Hand Font24 TxtBottom InlineBlock" style={{ color: '#DFDFDF' }}></i>
+      <i
+        className="icon icon-task_add-02 mTop12 Hand Font24 TxtBottom InlineBlock"
+        style={{ color: 'var(--color-border-primary)' }}
+      ></i>
     </Trigger>
   );
 }

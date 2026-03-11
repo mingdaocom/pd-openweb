@@ -12,7 +12,7 @@ const Con = styled.div`
   line-height: 32px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  border: 1px solid ${({ active }) => (active ? '#1677ff' : 'var(--border-color)')} !important;
+  border: 1px solid ${({ active }) => (active ? 'var(--color-primary)' : 'var(--border-color)')} !important;
   .clearIcon {
     display: none;
   }
@@ -36,16 +36,16 @@ const AreasCon = styled.div`
 const Icon = styled.i`
   cursor: pointer;
   font-size: 13px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   margin-right: 8px;
 `;
 
 const InputWrap = styled(Input)`
   font-size: 13px;
-  color: #151515 !important;
+  color: var(--color-text-title) !important;
   height: 32px !important;
   &::-webkit-input-placeholder {
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
 `;
 export default function Areas(props) {
@@ -107,7 +107,7 @@ export default function Areas(props) {
               <BaseSelectedItem key={i}>
                 <span className="name ellipsis">{v.name}</span>
                 <i
-                  className="icon icon-delete Gray_9e Font10 Hand"
+                  className="icon icon-delete textTertiary Font10 Hand"
                   onClick={e => {
                     e.stopPropagation();
                     onChange({ values: values.filter(d => d.id !== v.id) });

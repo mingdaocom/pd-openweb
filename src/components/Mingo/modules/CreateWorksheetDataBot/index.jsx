@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import sseAjax from 'src/api/sse';
 import worksheetAjax from 'src/api/worksheet';
 import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
-import { controlState, formatControlToServer } from 'src/components/Form/core/utils';
+import { formatControlToServer } from 'src/components/Form/core/utils';
 import {
   SYSTEM_CONTROL,
   WIDGETS_TO_API_TYPE_ENUM,
@@ -14,7 +14,7 @@ import {
 } from 'src/pages/widgetConfig/config/widget';
 import useChat from 'src/pages/worksheet/hooks/useChat';
 import { emitter } from 'src/utils/common';
-import { formatAiGenControlValue } from 'src/utils/control';
+import { controlState, formatAiGenControlValue } from 'src/utils/control';
 import { AI_FEATURE_TYPE } from 'src/utils/enum';
 import { parseStreamingJsonlData } from 'src/utils/sse';
 import MessageList from '../../ChatBot/components/MessageList';
@@ -34,7 +34,7 @@ const MingoContentWrap = styled.div`
     font-weight: bold;
     margin: 26px 0 6px;
     font-size: 15px;
-    color: #151515;
+    color: var(--color-text-title);
   }
   .sendCon {
     position: relative;

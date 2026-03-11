@@ -2,7 +2,7 @@
   .header {
     height: 57px;
     padding: 0 20px;
-    border-bottom: 1px solid #dddddd;
+    border-bottom: 1px solid var(--color-border-primary);
     justify-content: space-between;
     .backHome {
       margin-top: 1px;
@@ -15,7 +15,7 @@
       padding: 3px 5px;
       border-radius: 3px;
       &:hover {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-hover);
       }
     }
   }
@@ -33,7 +33,7 @@
 
 .searchWrap() {
   padding: 10px 0;
-  border-bottom: 1px solid #f5f5f5;
+  border-bottom: 1px solid var(--color-background-secondary);
   margin-right: 15px;
   input {
     padding: 3px;
@@ -51,14 +51,14 @@
       padding: 0 10px;
       margin-right: 12px;
       &:hover {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-hover);
       }
     }
   }
   .itemName {
     padding: 3px;
     .icon {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
   }
   .nodeItem {
@@ -78,7 +78,7 @@
     border-radius: 3px !important;
     box-shadow: none !important;
     &[disabled] {
-      color: #151515;
+      color: var(--color-text-title);
     }
   }
   .highlight {
@@ -92,10 +92,10 @@
   }
   @keyframes shining {
     from {
-      background-color: #fff;
+      background-color: var(--color-background-primary);
     }
     to {
-      background-color: #dbeefd;
+      background-color: var(--color-primary-transparent);
     }
   }
 }

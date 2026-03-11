@@ -4,11 +4,12 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import { controlState } from 'src/utils/control';
 import RelationSearchCount from '../../components/RelationSearchCount';
 import WidgetsDesc from '../../components/WidgetsDesc';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from '../../core/config';
 import { HAVE_VALUE_STYLE_WIDGET } from '../../core/enum';
-import { controlState, renderCount } from '../../core/utils';
+import { renderCount } from '../../core/utils';
 import { TITLE_SIZE_OPTIONS } from '../tools/config';
 import { getTitleStyle, isSheetDisplay } from '../tools/utils';
 
@@ -53,7 +54,7 @@ const ControlLabel = styled.div`
     }};
   }
   .filledByAi {
-    color: #773be0;
+    color: var(--color-mingo);
     font-size: 18px;
     margin-left: 3px;
   }
@@ -76,7 +77,7 @@ export default ({
     valuesize = '0',
     titlesize = item.type === 34 ? '1' : '0',
     titlestyle = '0000',
-    titlecolor = item.type === 34 ? '#151515' : '#757575',
+    titlecolor = item.type === 34 ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
     allowlink,
     hidetitle,
     required,
@@ -151,7 +152,7 @@ export default ({
             placement="topLeft"
             align={{ offset: [-12, 0] }}
           >
-            <i className="icon-info_outline pointer Font16 Gray_9e mBottom10" />
+            <i className="icon-info_outline pointer Font16 textTertiary mBottom10" />
           </Tooltip>
         )}
 
@@ -199,7 +200,7 @@ export default ({
       >
         {loadingItems[item.controlId] ? (
           <div className="requiredBtnBox">
-            <i className="icon-loading_button customFormItemLoading Gray_9e" />
+            <i className="icon-loading_button customFormItemLoading textTertiary" />
           </div>
         ) : (
           item.required &&
@@ -235,7 +236,7 @@ export default ({
         {item.type === 45 && allowlink === '1' && item.enumDefault === 1 && (
           <Tooltip title={_l('新页面打开')}>
             <Icon
-              className="Hand Font16 mLeft3 Gray_9e mTop3"
+              className="Hand Font16 mLeft3 textTertiary mTop3"
               icon="launch"
               onClick={() => {
                 if (/^https?:\/\/.+$/.test(item.value)) {

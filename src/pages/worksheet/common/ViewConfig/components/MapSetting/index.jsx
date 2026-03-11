@@ -12,7 +12,7 @@ import { SwitchStyle } from '../style';
 
 const MapSettingWrap = styled.div`
   .splitLine {
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     width: 100%;
     height: 1px;
   }
@@ -42,7 +42,7 @@ const DisplayControlOption = styled(FlexCenter)`
 const SelectValue = styled(DisplayControlOption)`
   &:hover {
     .icon {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
@@ -108,7 +108,7 @@ export default function MapSetting(props) {
       </div>
       <div className="mBottom32 mTop32">
         <div className="title bold mBottom8">{_l('位置标签')}</div>
-        <div className="Gray_75 mTop8">{_l('在地图上显示位置名称（使用记录标题）')}</div>
+        <div className="textSecondary mTop8">{_l('在地图上显示位置名称（使用记录标题）')}</div>
         <div className="configSwitch mTop10">
           <SwitchStyle className="flexRow alignItemsCenter">
             <Icon
@@ -146,11 +146,11 @@ export default function MapSetting(props) {
               {_l('动态颜色')}
               {tagColorControl && tagColorControl.enumDefault2 !== 1 && (
                 <Tooltip className="mLeft6" title={_l('当前选择的字段未启用颜色')}>
-                  <i className="icon icon-error1 Font16" style={{ color: '#ff9300' }}></i>
+                  <i className="icon icon-error1 Font16" style={{ color: 'var(--color-warning)' }}></i>
                 </Tooltip>
               )}
             </div>
-            <div className="mTop6 mBottom10 Font12 Gray_75">
+            <div className="mTop6 mBottom10 Font12 textSecondary">
               {_l('选择一个单选字段，标签将按照此字段中的选项颜色来显示')}
             </div>
             <Dropdown

@@ -1,16 +1,15 @@
-
 .myProcess {
   .icon-knowledge_file {
-    color: #607D8B;
+    color: #607d8b;
     font-size: 18px;
   }
   .count {
-    color: #F44336;
+    color: var(--color-error);
     padding: 5px 8px;
     line-height: 8px;
     border-radius: 20px;
     margin-left: 10px;
-    background-color: #fce4e3;
+    background-color: var(--color-error-bg);
   }
 }
 
@@ -29,23 +28,23 @@
     height: 7px;
     width: 7px;
     border-radius: 20px;
-    background-color: #f76d6d;
+    background-color: var(--color-error);
     position: absolute;
     right: 0;
     top: 0;
   }
   .native {
-    color: #fff;
-    background-color: red;
+    color: var(--color-white);
+    background-color: var(--color-error);
   }
   .app {
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
   .appIcon {
     transition: all 0.25s;
     color: rgba(255, 255, 255, 0.8);
     &:hover {
-      color: #fff;
+      color: var(--color-white);
     }
   }
 }

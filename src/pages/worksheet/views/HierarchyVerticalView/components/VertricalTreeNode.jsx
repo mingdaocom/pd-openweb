@@ -15,7 +15,7 @@ const ParentNodeWrap = styled.div`
   text-align: center;
   font-size: 13px;
   font-weight: 600;
-  color: #151515;
+  color: var(--color-text-title);
   position: relative;
   .rootAddRecord {
     position: absolute;
@@ -50,7 +50,7 @@ const VerticalTreeChildNode = styled.div(
     position: absolute;
     width: 2px;
     height: 20px;
-    background: #d3d3d3;
+    background: var(--color-border-primary);
     content: '';
   }
   >div.mixTreeNode::after {

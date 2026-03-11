@@ -41,7 +41,7 @@ const MenuWrap = styled(Menu)`
       padding-left: 16px !important;
       &:hover {
         i {
-          color: #fff;
+          color: var(--color-white);
         }
       }
       i {
@@ -72,10 +72,10 @@ const OptionsWrap = styled.div`
     .setOption {
       display: flex;
       align-items: center;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       span:hover,
       i:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
@@ -84,14 +84,14 @@ const OptionsWrap = styled.div`
 const OptionListItem = styled.div`
   margin-top: 12px;
   padding: 0 12px;
-  border: 1px solid #ddd;
-  background-color: #fff;
+  border: 1px solid var(--color-border-primary);
+  background-color: var(--color-background-primary);
   border-radius: 3px;
   .title {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-primary);
     line-height: 24px;
     padding: 10px 0;
     .delete {
@@ -102,10 +102,10 @@ const OptionListItem = styled.div`
   .operate {
     i {
       cursor: pointer;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       font-size: 16px;
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
@@ -128,7 +128,7 @@ const OptionListItem = styled.div`
     }
     i {
       &:hover {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
     .hideIcon {
@@ -146,8 +146,8 @@ const OptionListItem = styled.div`
       position: absolute;
       bottom: 0;
       width: 100%;
-      background-color: #fff;
-      color: #1677ff;
+      background-color: var(--color-background-primary);
+      color: var(--color-primary);
       cursor: pointer;
       font-weight: 600;
       &:hover {
@@ -273,7 +273,7 @@ export default function SelectOptions(props) {
           <div className="optionSetting">
             <div className="setColor flexCenter">
               <i
-                style={{ color: colorful ? '#43bd36' : '#bdbdbd' }}
+                style={{ color: colorful ? 'var(--color-success)' : 'var(--color-text-disabled)' }}
                 className={`Font24 pointer icon-${colorful ? 'ic_toggle_on' : 'ic_toggle_off'}`}
                 onClick={e => {
                   e.stopPropagation();
@@ -312,9 +312,9 @@ export default function SelectOptions(props) {
                     {` ( ${(getOptions(optionList) || []).length} )`}
                   </span>
                   {!deleteStatus ? (
-                    <span className="Gray_75">{optionList.appName}</span>
+                    <span className="textSecondary">{optionList.appName}</span>
                   ) : (
-                    <span className="Gray_bd">{_l('无所属应用')}</span>
+                    <span className="textDisabled">{_l('无所属应用')}</span>
                   )}
                 </div>
                 <div className="operate flexCenter">
@@ -406,7 +406,7 @@ export default function SelectOptions(props) {
                               />
                             </Tooltip>
                           )}
-                          {optionList.enableScore ? <span className="Gray_75 mLeft15">{score || 0}</span> : null}
+                          {optionList.enableScore ? <span className="textSecondary mLeft15">{score || 0}</span> : null}
                         </div>
                       </li>
                     );
@@ -476,7 +476,7 @@ export default function SelectOptions(props) {
           disabled={true}
           title={_l('恢复至本应用')}
           description={
-            <span className="Gray_75">
+            <span className="textSecondary">
               {_l('将选项集恢复到当前应用下。恢复后，应用管理员和开发者可以管理、引用选项集。')}
             </span>
           }

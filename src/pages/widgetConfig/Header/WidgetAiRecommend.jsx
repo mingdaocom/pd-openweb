@@ -30,10 +30,10 @@ const enumLangType = {
 };
 
 const AiWrap = styled.span`
-  color: #9709f2;
+  color: var(--color-mingo-light);
   cursor: pointer;
   &:hover span {
-    border-bottom: 1px dashed #9709f2;
+    border-bottom: 1px dashed var(--color-mingo-light);
   }
   i {
     background: linear-gradient(316deg, #c822eb, #6e00ff);
@@ -66,7 +66,7 @@ const AiWidgetWrap = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 4px 20px 1px rgba(0, 0, 0, 0.16);
   border-radius: 4px;
   position: relative;
@@ -77,12 +77,12 @@ const AiWidgetWrap = styled.div`
     text-align: center;
     background: rgba(33, 150, 243, 0.12);
     border-radius: 32px;
-    color: #1677ff;
+    color: var(--color-primary);
     font-size: 15px;
     font-weight: bold;
     cursor: pointer;
     &:hover {
-      background: rgba(33, 150, 243, 0.08);
+      background: var(--color-primary-transparent);
     }
   }
   .closeBtn {
@@ -99,7 +99,7 @@ const AiWidgetWrap = styled.div`
     .titleIcon {
       font-size: 80px;
       &.error {
-        color: #ff3d00;
+        color: var(--color-error);
       }
     }
   }
@@ -110,7 +110,7 @@ const AiWidgetWrap = styled.div`
       padding: 0 120px 0 50px;
       height: 48px;
       border-radius: 24px;
-      border: 2px solid rgb(255, 255, 255);
+      border: 2px solid var(--color-background-primary);
       box-shadow: 0px 1px 4px hsl(0deg 0% 0% / 20%);
     }
     .searchIcon {
@@ -118,7 +118,7 @@ const AiWidgetWrap = styled.div`
       position: absolute;
       top: 15px;
       left: 24px;
-      color: #757575;
+      color: var(--color-text-secondary);
     }
     .searchBtn {
       position: absolute;
@@ -141,7 +141,7 @@ const AiWidgetWrap = styled.div`
     input {
       width: 100%;
       height: 36px;
-      border: 1px solid #ccc;
+      border: 1px solid var(--color-border-tertiary);
       border-radius: 4px;
       padding: 0 12px;
     }
@@ -155,9 +155,9 @@ const AiWidgetWrap = styled.div`
         height: 36px;
         text-align: center;
         line-height: 36px;
-        background: #1677ff;
+        background: var(--color-primary);
         border-radius: 32px;
-        color: #fff;
+        color: var(--color-white);
         font-size: 14px;
         font-weight: bold;
         cursor: pointer;
@@ -165,8 +165,8 @@ const AiWidgetWrap = styled.div`
           background: rgba(33, 150, 243, 0.8);
         }
         &.disabled {
-          color: #bdbdbd;
-          background: #f5f5f5 !important;
+          color: var(--color-text-disabled);
+          background: var(--color-background-secondary) !important;
           cursor: not-allowed;
         }
       }
@@ -304,7 +304,7 @@ export default function WidgetAiRecommend(props) {
           {status === 2 ? (
             <Rate value={rate} onChange={value => setRate(value)} />
           ) : (
-            <span className={cx('Gray_9e', { Hidden: !detail.subText })}>{detail.subText}</span>
+            <span className={cx('textTertiary', { Hidden: !detail.subText })}>{detail.subText}</span>
           )}
         </div>
 

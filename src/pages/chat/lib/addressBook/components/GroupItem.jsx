@@ -4,7 +4,7 @@ import cx from 'classnames';
 export default function GroupItem(props) {
   const { avatar, name, isOpen, groupId, groupMemberCount, isSelected, itemClickHandler } = props;
   const className = cx('list-item Font13 Hand', {
-    'Gray_bd disabled': !isOpen,
+    'textDisabled disabled': !isOpen,
     ThemeBGColor6: isSelected,
   });
   const style = !isOpen ? { opacity: 0.5 } : null;
@@ -20,7 +20,7 @@ export default function GroupItem(props) {
         {name}
       </span>
       {isOpen ? null : <span className="pLeft5 group-tip">{_l('(已关闭)')}</span>}
-      <span className="Gray_bd pLeft5">{groupMemberCount}</span>
+      <span className="textDisabled pLeft5">{groupMemberCount}</span>
     </div>
   );
 }

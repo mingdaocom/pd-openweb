@@ -8,12 +8,12 @@ import { Tooltip } from 'ming-ui/antd-components';
 const Wrap = styled.div`
   .imageUpload {
     height: 160px;
-    color: #757575;
-    border: 1.5px dashed #bdbdbd;
+    color: var(--color-text-secondary);
+    border: 1.5px dashed var(--color-text-disabled);
     border-radius: 4px;
     &:hover {
-      color: #1677ff;
-      border-color: #1677ff;
+      color: var(--color-primary);
+      border-color: var(--color-primary);
     }
   }
   .imageView {
@@ -40,9 +40,9 @@ const Wrap = styled.div`
     .resetBtn {
       padding: 10px;
       border-radius: 4px;
-      background-color: #fff;
+      background-color: var(--color-background-primary);
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
@@ -125,7 +125,7 @@ export default props => {
                     });
                   }}
                 >
-                  <Icon className="Gray_9e Font20" icon="delete2" />
+                  <Icon className="textTertiary Font20" icon="delete2" />
                 </div>
               </Tooltip>
             </div>
@@ -168,7 +168,7 @@ export default props => {
       <Select
         className="mdAntSelect w100"
         value={fillType}
-        suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+        suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
         onChange={value => {
           handleChange({ fillType: value });
         }}

@@ -7,7 +7,7 @@ import { INVITE_FAILED_REASON } from './enum';
 
 const UserItemWrap = styled.div`
   height: 28px;
-  background: #f7f7f7;
+  background: var(--color-background-secondary);
   border-radius: 20px;
   display: inline-block;
   padding-right: 2px;
@@ -66,7 +66,7 @@ function InviteFailedDialog(props) {
                 <div className="flexRow">
                   <UserItem {...user} key={user.accountId} />
                   <span
-                    className="mLeft20 LineHeight28 Hand ThemeColor Hover_51"
+                    className="mLeft20 LineHeight28 Hand colorPrimary Hover_51"
                     onClick={() =>
                       addUserFeedbackFunc({
                         projectId,

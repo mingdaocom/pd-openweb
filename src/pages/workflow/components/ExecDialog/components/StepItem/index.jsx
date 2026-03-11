@@ -17,10 +17,19 @@ import './index.less';
 const UNNECESSARY_OPERATION_CODE = 22;
 const OVERRULE = 5;
 
-const WAIT_TEXT = {
-  3: _l('等我填写...'),
-  4: _l('等我审批...'),
-  5: _l('等我查看...'),
+const getWaitText = (type, principal) => {
+  const WAIT_TEXT = {
+    3: _l('等我填写...'),
+    4: _l('等我审批...'),
+    5: _l('等我查看...'),
+  };
+  const ENTRUST_WAIT_TEXT = {
+    3: _l('%0委托我填写...', principal?.fullName),
+    4: _l('%0委托我审批...', principal?.fullName),
+    5: _l('%0委托我查看...', principal?.fullName),
+  };
+
+  return principal ? ENTRUST_WAIT_TEXT[type] : WAIT_TEXT[type];
 };
 
 const SIGN_TYPE = {
@@ -148,7 +157,7 @@ export default class StepItem extends Component {
     if (!operationTime && !logIds) {
       // 等我操作
       if (isCurrentWork && isCurrentUser) {
-        return <div className="waitInfo current Font14 bold">{WAIT_TEXT[type]}</div>;
+        return <div className="waitInfo current Font14 bold">{getWaitText(type, principal)}</div>;
       }
       if (workItemLog && workItemLog.action === UNNECESSARY_OPERATION_CODE) {
         return (
@@ -236,7 +245,7 @@ export default class StepItem extends Component {
                 {action === UNNECESSARY_OPERATION_CODE ? (
                   UNNECESSARY_OPERATION[type]
                 ) : action === OVERRULE && actionTargetName ? (
-                  <span style={{ color: '#ff982d' }}>{_l('退回到%0', actionTargetName)}</span>
+                  <span style={{ color: 'var(--color-warning)' }}>{_l('退回到%0', actionTargetName)}</span>
                 ) : !operationTime && !!logIds ? (
                   _l('暂存')
                 ) : (
@@ -258,7 +267,7 @@ export default class StepItem extends Component {
         return (
           <Fragment>
             <div className="userName">{workItemAccount.fullName}</div>
-            <div className="timeAction flexRow Gray_75">
+            <div className="timeAction flexRow textSecondary">
               {formatTime(operationTime)}
               <span className="mLeft4">{_l('查看')}</span>
             </div>
@@ -282,7 +291,7 @@ export default class StepItem extends Component {
       <Fragment>
         <Tooltip title={_l('查看更新记录')}>
           <span
-            className="pointer mLeft5 Gray_75 ThemeHoverColor3 flexRow"
+            className="pointer mLeft5 textSecondary ThemeHoverColor3 flexRow"
             onClick={() => this.setState({ showLogDialog: true })}
           >
             <Icon type="visibility" className="Font16" />
@@ -334,20 +343,20 @@ export default class StepItem extends Component {
                   </ul>
                 }
               >
-                <Icon icon="report" className="Font16 Gray_75 mLeft4" />
+                <Icon icon="report" className="Font16 textSecondary mLeft4" />
               </Tooltip>
             )}
           </div>
         )}
         {_.includes([1, 2, 3], opinionType) ? (
-          <div className="info Gray_75">{SYSTEM_TEXT[opinionType]}</div>
+          <div className="info textSecondary">{SYSTEM_TEXT[opinionType]}</div>
         ) : opinion ? (
-          <div className="info Gray_75">{opinion}</div>
+          <div className="info textSecondary">{opinion}</div>
         ) : null}
         {signature && <div className="infoSignature" style={{ backgroundImage: `url(${signature.server})` }} />}
         {files && this.renderFiles(files)}
         {action !== UNNECESSARY_OPERATION_CODE && (
-          <div className="timeAction flexRow Gray_75">
+          <div className="timeAction flexRow textSecondary">
             {operationTime && formatTime(operationTime)}
             {!operationTime && !!logIds && updateTime && formatTime(updateTime)}
           </div>
@@ -463,7 +472,7 @@ export default class StepItem extends Component {
 
     if (!maxEndTimeConsuming) {
       const time = this.covertTime(maxTimeConsuming, true);
-      return time ? <span className="Gray_75 TxtRight flex ellipsis">{_l('耗时：%0', time)}</span> : null;
+      return time ? <span className="textSecondary TxtRight flex ellipsis">{_l('耗时：%0', time)}</span> : null;
     }
 
     return (
@@ -481,8 +490,8 @@ export default class StepItem extends Component {
           <span
             className="stepTimeConsuming flexRow"
             style={{
-              color: maxEndTimeConsuming > 0 ? '#F44336' : '#4CAF50',
-              backgroundColor: maxEndTimeConsuming > 0 ? '#FCE4E3' : '#eef7ee',
+              color: maxEndTimeConsuming > 0 ? 'var(--color-error)' : 'var(--color-success)',
+              backgroundColor: maxEndTimeConsuming > 0 ? 'var(--color-error-bg)' : 'var(--color-success-bg)',
             }}
           >
             <Icon icon={maxEndTimeConsuming > 0 ? 'access_time' : 'task'} className="Font14 mRight2" />
@@ -536,7 +545,8 @@ export default class StepItem extends Component {
       <span
         className="stepTimeConsuming flexRow"
         style={{
-          color: time > 0 ? '#F44336' : currentAccountNotified ? '#FF9800' : '#1677ff',
+          color:
+            time > 0 ? 'var(--color-error)' : currentAccountNotified ? 'var(--color-warning)' : 'var(--color-primary)',
         }}
       >
         <Icon icon={time > 0 ? 'error1' : 'hourglass'} className="Font14 mRight2" />
@@ -602,7 +612,7 @@ export default class StepItem extends Component {
         </div>
         <div className="stepItem flex flexColumn">
           <div className="flexRow alignItemsCenter">
-            <div className="stepItemTime Font15 flex ellipsis Gray_75 bold">
+            <div className="stepItemTime Font15 flex ellipsis textSecondary bold">
               {workItems[0] && createTimeSpan(dateConvertToUserZone(workItems[0].receiveTime))}
             </div>
             {this.renderTimeConsuming()}
@@ -624,7 +634,7 @@ export default class StepItem extends Component {
             </div>
 
             {countersign && (
-              <div className="mTop6 mLeft14 mRight14 Gray_75">
+              <div className="mTop6 mLeft14 mRight14 textSecondary">
                 {countersignType === 3
                   ? MULTIPLE_OPERATION[flowNode.type || '4']
                   : `${condition ? condition + '%' : ''}${SIGN_TYPE[countersignType]}`}
@@ -634,7 +644,7 @@ export default class StepItem extends Component {
             {workItems[0].type === 5 && (
               <Fragment>
                 <div
-                  className="mTop6 mLeft14 mRight14 breakAll Gray_75"
+                  className="mTop6 mLeft14 mRight14 breakAll textSecondary"
                   style={{ whiteSpace: 'normal' }}
                   dangerouslySetInnerHTML={{
                     __html: filterXSS(this.generateLink(workItems[0].opinion)),
@@ -667,7 +677,7 @@ export default class StepItem extends Component {
               Object.keys(debugEventDump).map((key, index) => {
                 return (
                   <div className="stepContent pBottom16" key={index}>
-                    <div className="mTop10 Gray_75 Font12">
+                    <div className="mTop10 textSecondary Font12">
                       {_.includes(['1', '2', '3'], key) && _l('测试')}
                       {key === '101' && _l('自动通过')}
                       {_.includes(['102', '105'], key) && _l('代理')}

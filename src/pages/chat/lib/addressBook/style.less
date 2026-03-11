@@ -16,7 +16,7 @@
     min-width: 200px;
     max-width: 200px;
     flex: 0 0 auto;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
     display: flex;
     flex-flow: column nowrap;
     .invite-btn {
@@ -30,7 +30,7 @@
     }
     .invite-dropdown {
       .icon {
-        color: #999;
+        color: var(--color-text-tertiary);
       }
     }
     .contacts-tabs {
@@ -40,7 +40,7 @@
       position: relative;
       .dividor {
         margin: 6px 0 6px 24px;
-        border-top: 1px solid #ddd;
+        border-top: 1px solid var(--color-border-primary);
       }
     }
     .inbox-apps {
@@ -51,7 +51,7 @@
     .list-header,
     .list-item {
       &:not(.list-item-active):hover {
-        background: #fafafa;
+        background: var(--color-background-secondary);
       }
       padding: 0 24px;
       font-size: 13px;
@@ -69,7 +69,7 @@
     }
     .list-item {
       &-active {
-        background-color: #e0e0e0;
+        background-color: var(--color-background-secondary);
       }
       .item-tip {
         &:after {
@@ -89,7 +89,7 @@
     box-sizing: border-box;
     display: flex;
     flex-flow: column nowrap;
-    border-right: 1px solid #f5f5f5;
+    border-right: 1px solid var(--color-background-secondary);
     .contacts-search {
       padding-top: 16px;
       padding-bottom: 5px;
@@ -98,7 +98,7 @@
       padding-left: 14px;
       &-wrapper {
         padding: 6px 5px 6px 10px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--color-border-primary);
         border-radius: 17px;
         flex: 1 0 0%;
         display: flex;
@@ -129,14 +129,14 @@
           top: 0;
           left: 0;
           right: 0;
-          background: #fff;
-          border-bottom: 1px solid #ddd;
+          background: var(--color-background-primary);
+          border-bottom: 1px solid var(--color-border-primary);
           z-index: 1;
         }
       }
       .list-item {
         &:hover {
-          background: #fafafa;
+          background: var(--color-background-hover);
         }
         display: flex;
         flex-flow: row nowrap;
@@ -173,10 +173,10 @@
     flex: 1 0 0%;
     min-width: 0;
     .border-top {
-      border-top: 1px solid #f5f5f5;
+      border-top: 1px solid var(--color-background-secondary);
     }
     .border-bottom {
-      border-bottom: 1px solid #f5f5f5;
+      border-bottom: 1px solid var(--color-background-secondary);
     }
     &-wrapper {
       padding: 16px 24px;
@@ -209,10 +209,10 @@
         padding: 7px 20px;
         border-radius: 18px;
         display: inline-block;
-        background: #f0f0f0;
-        color: #fff;
+        background: var(--color-background-disabled);
+        color: var(--color-white);
         &:hover {
-          background: #e3e3e3;
+          background: var(--color-border-secondary);
         }
       }
     }
@@ -241,7 +241,7 @@
       align-items: center;
       .detail-null-icon {
         font-size: 128px;
-        color: #e0e0e0;
+        color: var(--color-border-secondary);
       }
       .icon-chat-person {
         font-size: 100px;
@@ -262,7 +262,7 @@
     align-items: center;
     &-icon {
       font-size: 60px;
-      color: #f78c00;
+      color: var(--color-warning);
       margin-bottom: 20px;
     }
   }
@@ -280,7 +280,7 @@
     .list-header {
       font-size: 15px;
       padding: 10px 0;
-      border-bottom: 1px solid #f5f5f5;
+      border-bottom: 1px solid var(--color-background-secondary);
     }
     .list-content {
       width: 100%;
@@ -305,7 +305,7 @@
     padding: 10px 0;
     &-item {
       &:hover {
-        background-color: #fafafa;
+        background-color: var(--color-background-hover);
       }
       padding-left: 16px;
       height: 50px;
@@ -328,7 +328,7 @@
     flex-flow: column nowrap;
     justify-content: center;
     align-items: center;
-    color: #757575;
+    color: var(--color-text-secondary);
     &-icon {
       display: inline-block;
       width: 120px;

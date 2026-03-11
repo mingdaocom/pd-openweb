@@ -19,7 +19,7 @@ import { WrapS } from './style';
 
 const WrapItem = styled.div`
   height: 36px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.16);
   border-radius: 4px;
   z-index: 1000;
@@ -37,7 +37,7 @@ const WrapItem = styled.div`
 `;
 const ActWrap = styled.div`
   width: 180px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
   border-radius: 4px;
   padding: 6px 0;
@@ -49,7 +49,7 @@ const ActWrap = styled.div`
     min-height: 36px;
     line-height: 36px;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
     .ant-input {
       height: 28px;
@@ -200,7 +200,7 @@ function FormatWrap(props) {
                     '勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8',
                   )}
                 >
-                  <i className="icon-help Gray_bd Font15"></i>
+                  <i className="icon-help textDisabled Font15"></i>
                 </Tooltip>
               </Checkbox>
             </div>
@@ -210,7 +210,7 @@ function FormatWrap(props) {
     >
       <MenuItem className="flexRow alignItemsCenter">
         <span className="text flex Font14">{_l('数据格式')}</span>
-        <Icon className="Font15 Gray_9e Font13" icon="arrow-right-tip" />
+        <Icon className="Font15 textTertiary Font13" icon="arrow-right-tip" />
       </MenuItem>
     </Trigger>
   );
@@ -228,7 +228,7 @@ export default function AggregationCon(props) {
     });
 
     const index = getSourceIndex(flowData, item);
-    const color = item.isCalculateField ? '#9e9e9e' : DEFAULT_COLORS[index];
+    const color = item.isCalculateField ? 'var(--color-text-tertiary)' : DEFAULT_COLORS[index];
     let isDelete = _.get(item, 'isDelete');
     if (item.isCalculateField) {
       const ids = extractBetweenDollars(_.get(item, 'controlSetting.dataSource'));
@@ -246,7 +246,7 @@ export default function AggregationCon(props) {
     return (
       <WrapItem className="flexRow cardItem alignItemsCenter Relative mTop12 hoverBoxShadow">
         <DragHandle className="alignItemsCenter flexRow">
-          <Icon className="Font14 Hand Gray_9e Hover_21 dragIcon" icon="drag" />
+          <Icon className="Font14 Hand textTertiary hoverColorPrimary dragIcon" icon="drag" />
         </DragHandle>
         {(getAllSourceList(flowData) || []).length > 1 && !item.isCalculateField && (
           <div className="colorByWorksheet" style={{ backgroundColor: color }}></div>
@@ -278,7 +278,7 @@ export default function AggregationCon(props) {
               title={
                 <span className="">
                   {_.get(item, 'parentFieldInfo.controlSetting.controlName') && (
-                    <span className="Gray_bd pRight5">{_l('关联')}</span>
+                    <span className="textDisabled pRight5">{_l('关联')}</span>
                   )}
                   {`${
                     _.get(item, 'parentFieldInfo.controlSetting.controlName')
@@ -296,7 +296,7 @@ export default function AggregationCon(props) {
                 </span>
               }
             >
-              <Icon icon="info_outline" className="Hand Gray_9e ThemeHoverColor3 Font16" />
+              <Icon icon="info_outline" className="Hand textTertiary ThemeHoverColor3 Font16" />
             </Tooltip>
           )}
           {!item.isCalculateField ? (
@@ -380,7 +380,7 @@ export default function AggregationCon(props) {
                           }}
                         >
                           <span className="text flex Font14">{_l('聚合方式')}</span>
-                          <Icon className="Font15 Gray_9e Font13" icon="arrow-right-tip" />
+                          <Icon className="Font15 textTertiary Font13" icon="arrow-right-tip" />
                         </MenuItem>
                       </Trigger>
                       <FormatWrap {...props} num={num} />
@@ -391,7 +391,7 @@ export default function AggregationCon(props) {
             >
               <Icon
                 icon="arrow-down-border"
-                className="Hand Gray_9e ThemeHoverColor3 Font16 mLeft8"
+                className="Hand textTertiary ThemeHoverColor3 Font16 mLeft8"
                 onClick={() =>
                   setState({
                     popupVisible: true,
@@ -403,7 +403,7 @@ export default function AggregationCon(props) {
             <Tooltip title={_l('编辑')}>
               <Icon
                 icon="edit_17"
-                className="Hand Gray_9e ThemeHoverColor3 Font16 mLeft8"
+                className="Hand textTertiary ThemeHoverColor3 Font16 mLeft8"
                 onClick={() => {
                   setState({
                     showCalculation: true,
@@ -415,7 +415,7 @@ export default function AggregationCon(props) {
           <Tooltip title={_l('删除')}>
             <Icon
               icon="clear"
-              className="clearIcon Hand Gray_9e del ThemeHoverColor3 mLeft8 Font16"
+              className="clearIcon Hand textTertiary del ThemeHoverColor3 mLeft8 Font16"
               onClick={() => {
                 onUpdate(items.filter((o, i) => i !== num));
               }}

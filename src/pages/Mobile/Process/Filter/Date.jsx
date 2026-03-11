@@ -8,7 +8,7 @@ const InputCon = styled(Input)`
   width: 100%;
   border-radius: 18px !important;
   border: none !important;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
 `;
 
 export default props => {
@@ -34,7 +34,7 @@ export default props => {
               showType="date"
               precision="date"
               isOpen={startDateVisible}
-              value={startDate || new Date()}
+              value={startDate}
               onClose={() => setStartDateVisible(false)}
               onCancel={() => onChange({ startDate: '' })}
               onSelect={date => {
@@ -61,7 +61,7 @@ export default props => {
               showType="date"
               precision="date"
               isOpen={endDateVisible}
-              value={endDate || new Date()}
+              value={endDate}
               onClose={() => setEndDateVisible(false)}
               onCancel={() => onChange({ endDate: '' })}
               onSelect={date => {

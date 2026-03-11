@@ -13,17 +13,15 @@ const TimeZone = styled.div`
   display: flex;
   align-items: center;
   padding-left: 4px;
-  border-left: 1px solid #ccc;
-  color: #9e9e9e;
-  background: #fff;
+  border-left: 1px solid var(--color-border-tertiary);
+  color: var(--color-text-tertiary);
+  background: var(--color-background-primary);
 `;
 
 export default function TimeZoneTag(props) {
   const { appId, position = {}, displayFixedValue } = props;
 
   const appTimeZone = window[`timeZone_${appId}`];
-
-  const isBusinessRule = /\/worksheet\/formSet\/edit\/(\w{24})\/display/.test(location.pathname); //是业务规则页
 
   if (
     _.isUndefined(appTimeZone) ||
@@ -49,7 +47,7 @@ export default function TimeZoneTag(props) {
 
   return (
     <TimeZone className="timeZoneTag" style={position}>
-      {getTimeZoneText(displayFixedValue || isBusinessRule ? md.global.Config.DefaultTimeZone : appTimeZone)}
+      {getTimeZoneText(displayFixedValue ? md.global.Config.DefaultTimeZone : appTimeZone)}
     </TimeZone>
   );
 }

@@ -48,7 +48,7 @@ const Area = props => {
         })}
       >
         <span className={cx('flex ellipsis', { customFormPlaceholder: !value })}>{getShowText()}</span>
-        {(!disabled || !formDisabled) && <Icon icon="arrow-right-border" className="Font16 Gray_bd" />}
+        {(!disabled || !formDisabled) && <Icon icon="arrow-right-border" className="Font16 textDisabled" />}
       </div>
     </CityPicker>
   );

@@ -29,11 +29,11 @@ import OperateColumn from './OperateColumn';
 import PluginConfig from './PluginConfig';
 
 const Wrapper = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   min-height: 100%;
   .headerWrapper {
     height: 260px;
-    background: linear-gradient(180deg, #ffffff 0%, #f7f7f7 100%);
+    background: linear-gradient(180deg, #ffffff 0%, var(--color-background-secondary) 100%);
     box-sizing: border-box;
 
     .headerContent {
@@ -55,16 +55,16 @@ const Wrapper = styled.div`
         border-bottom: 4px solid rgba(0, 0, 0, 0);
         a {
           height: 44px;
-          color: #151515;
+          color: var(--color-text-title);
           padding: 10px;
           font-weight: 600;
           display: inline-block;
           font-size: 16px;
         }
         &.isCur {
-          border-bottom: 4px solid #1677ff;
+          border-bottom: 4px solid var(--color-primary);
           a {
-            color: #1677ff;
+            color: var(--color-primary);
           }
         }
       }
@@ -93,14 +93,14 @@ const Wrapper = styled.div`
       }
       .headerBtn {
         padding: 8px 24px;
-        background: #1677ff;
+        background: var(--color-primary);
         border-radius: 18px;
-        color: #fff;
+        color: var(--color-white);
         display: inline-block;
         cursor: pointer;
 
         &:hover {
-          background: #1764c0;
+          background: var(--color-link-hover);
         }
       }
     }
@@ -113,7 +113,7 @@ const PluginListBox = styled.div`
     align-items: center;
     margin: 0;
     padding: 14px 8px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
   }
 
   .dataItem {
@@ -121,15 +121,15 @@ const PluginListBox = styled.div`
     align-items: center;
     margin: 0;
     padding: 8px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
     cursor: pointer;
     &.isActive {
-      background: rgba(247, 247, 247, 1);
+      background: var(--color-background-card);
     }
     &:hover {
-      background: rgba(247, 247, 247, 1);
+      background: var(--color-background-card);
       .name {
-        color: #1677ff;
+        color: var(--color-primary);
       }
       .operateIcon {
         background: rgba(247, 247, 247, 1);
@@ -165,12 +165,12 @@ const PluginListBox = styled.div`
       width: 32px;
       height: 32px;
       border-radius: 50%;
-      color: #9e9e9e;
-      background: #fff;
+      color: var(--color-text-tertiary);
+      background: var(--color-background-primary);
 
       &:hover {
-        color: #1677ff;
-        background: #fff !important;
+        color: var(--color-primary);
+        background: var(--color-background-primary) !important;
       }
     }
   }
@@ -182,10 +182,10 @@ const NoDataWrapper = styled.div`
     width: 130px;
     height: 130px;
     line-height: 130px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     border-radius: 50%;
     margin: 64px auto 0;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 `;
 
@@ -296,13 +296,13 @@ export default function PluginComponent(props) {
               {item.iconUrl ? (
                 <SvgIcon url={item.iconUrl} fill={item.iconColor} size={16} className="pTop3" />
               ) : (
-                <Icon icon="extension" className="Font16 Gray_bd" />
+                <Icon icon="extension" className="Font16 textDisabled" />
               )}
               <span title={item.name} className="mLeft8 bold overflow_ellipsis">
                 {item.name}
               </span>
               <div className="flex" />
-              {item.source === 3 && <Icon icon="merchant" className="Font16 Gray_bd" />}
+              {item.source === 3 && <Icon icon="merchant" className="Font16 textDisabled" />}
             </div>
           );
         },
@@ -319,7 +319,7 @@ export default function PluginComponent(props) {
                   : _l('启用时全组织可用，关闭后不影响已创建视图')
               }
             >
-              <Icon icon="info_outline" className="Gray_bd mLeft4 pointer" />
+              <Icon icon="info_outline" className="textDisabled mLeft4 pointer" />
             </Tooltip>
           </div>
         ),
@@ -362,7 +362,7 @@ export default function PluginComponent(props) {
         dataIndex: 'currentVersion',
         title: _l('当前版本'),
         render: item => (
-          <span className={!item.currentVersion.versionCode ? 'Gray_9e bold' : 'bold'}>
+          <span className={!item.currentVersion.versionCode ? 'textTertiary bold' : 'bold'}>
             {!item.currentVersion.versionCode ? _l('未发布') : item.currentVersion.versionCode}
           </span>
         ),
@@ -526,7 +526,9 @@ export default function PluginComponent(props) {
                   <span className="iconCon InlineBlock TxtCenter ">
                     <i className="icon-extension Font64 TxtMiddle" />
                   </span>
-                  <p className="Gray_9e mTop20 mBottom0">{fetchState.keyWords ? _l('暂无搜索结果') : _l('暂无数据')}</p>
+                  <p className="textTertiary mTop20 mBottom0">
+                    {fetchState.keyWords ? _l('暂无搜索结果') : _l('暂无数据')}
+                  </p>
                 </NoDataWrapper>
               )}
             </PluginListBox>

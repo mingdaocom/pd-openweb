@@ -7,7 +7,7 @@ import ItemCon from './ItemCon';
 const Wrap = styled.p`
   font-size: 12px;
   font-weight: bold;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   padding-left: 18px;
   margin: 10px 0 4px 0;
 `;

@@ -18,12 +18,12 @@ const GroupingItem = styled.div`
   height: 32px;
   padding: 0 20px 0 12px;
   .addCoin {
-    color: #1677ff;
+    color: var(--color-primary);
     display: none;
     transform: translateX(5px);
   }
   &.addGunterRecord:hover {
-    color: #1677ff !important;
+    color: var(--color-primary) !important;
   }
   &.allowAdd:hover {
     .addCoin {
@@ -112,7 +112,7 @@ export default class GroupItem extends Component {
             this.handleCreateRecord(key);
           }}
         >
-          <Icon className="Gray_9e Font20 mRight10" icon="add" />
+          <Icon className="textTertiary Font20 mRight10" icon="add" />
           <span>{_l('新建%0', worksheetInfo.entityName)}</span>
         </Menu.Item>
         {milepost && (
@@ -125,7 +125,7 @@ export default class GroupItem extends Component {
               this.handleCreateRecord(key, true);
             }}
           >
-            <Icon className="Gray_9e Font20 mRight10" icon="flag" />
+            <Icon className="textTertiary Font20 mRight10" icon="flag" />
             <span>{_l('新建里程碑')}</span>
           </Menu.Item>
         )}
@@ -146,7 +146,7 @@ export default class GroupItem extends Component {
         {!group.hide && (
           <GroupingItem className={cx('valignWrapper pointer', { allowAdd: allowAdd })}>
             <Icon
-              className="Font12 Gray_9e mRight8"
+              className="Font12 textTertiary mRight8"
               icon={group.subVisible ? 'arrow-down' : 'arrow-right-tip'}
               onClick={() => {
                 this.handleChangeSubVisible(group.key);
@@ -154,14 +154,14 @@ export default class GroupItem extends Component {
             />
             <div className="valignWrapper h100" style={{ width: width - 50 }}>
               <div
-                className="Gray_75 h100 valignWrapper flex overflow_ellipsis"
+                className="textSecondary h100 valignWrapper flex overflow_ellipsis"
                 onClick={() => {
                   this.handleChangeSubVisible(group.key);
                 }}
               >
                 <GroupContent group={group} />
               </div>
-              <div className="Gray_9e totalNum">{rows.length}</div>
+              <div className="textTertiary totalNum">{rows.length}</div>
               {allowAdd && (
                 <Dropdown overlay={this.renderOverlay(group)} trigger={['click']}>
                   <Icon className="addCoin Font18" icon="add_circle" />
@@ -174,7 +174,7 @@ export default class GroupItem extends Component {
           rows.map(row => <Record key={row.rowid} groupKey={group.key} row={row} widthConfig={widthConfig} />)}
         {_.isEmpty(viewControl) && allowAdd && (
           <GroupingItem
-            className="valignWrapper addGunterRecord Gray_9e pointer"
+            className="valignWrapper addGunterRecord textTertiary pointer"
             onClick={() => {
               this.handleCreateRecord(group.key);
             }}

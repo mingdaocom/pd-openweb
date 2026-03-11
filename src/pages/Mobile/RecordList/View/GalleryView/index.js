@@ -65,7 +65,7 @@ class MobileGalleryView extends Component {
                   window.mobileNavigateTo(`/mobile/addRecord/${appId}/${worksheetInfo.worksheetId}/${view.viewId}`);
                 }}
               >
-                <Icon icon="add" className="Font22 White" />
+                <Icon icon="add" className="Font22 textWhite" />
                 {worksheetInfo.entityName}
               </Button>
             )

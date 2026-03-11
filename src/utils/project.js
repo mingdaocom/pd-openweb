@@ -193,7 +193,7 @@ export const getThemeColors = projectId => {
 /**
  * 获取时区
  */
-const getTimeZone = () => {
+export const getTimeZone = () => {
   const serverZone = md.global.Config.DefaultTimeZone; // 服务器时区
   const userZone = md.global.Account.timeZone === 1 ? new Date().getTimezoneOffset() * -1 : md.global.Account.timeZone; // 用户时区
 
@@ -223,6 +223,34 @@ export const dateConvertToServerZone = date => {
 
   return moment(date)
     .add(serverZone - userZone, 'm')
+    .format('YYYY-MM-DD HH:mm:ss');
+};
+
+/**
+ * 日期时间应用时区转为服务器时区时间
+ */
+export const dateAppZoneToServerZone = (date, appTimeZone) => {
+  if (!date) return '';
+  if (!appTimeZone) return date;
+
+  const { serverZone } = getTimeZone();
+
+  return moment(date)
+    .add(serverZone - appTimeZone, 'm')
+    .format('YYYY-MM-DD HH:mm:ss');
+};
+
+/**
+ * 服务器时区转应用时区呈现
+ */
+export const dateServerZoneToAppZone = (date, appTimeZone) => {
+  if (!date) return '';
+  if (!appTimeZone) return date;
+
+  const { serverZone } = getTimeZone();
+
+  return moment(date)
+    .add(appTimeZone - serverZone, 'm')
     .format('YYYY-MM-DD HH:mm:ss');
 };
 

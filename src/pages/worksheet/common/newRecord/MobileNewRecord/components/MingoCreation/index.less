@@ -1,0 +1,89 @@
+@keyframes enterAnim {
+  0% {
+    transform: translateX(-50%) translateY(45px) rotate(90deg);
+  }
+  100% {
+    transform: translateX(-50%) translateY(-90px) rotate(0deg);
+  }
+}
+
+@keyframes exitAnim {
+  0% {
+    transform: translateX(-50%) translateY(-90px) rotate(0deg);
+  }
+  100% {
+    transform: translateX(-50%) translateY(45px) rotate(90deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.mingoCreationWrapper {
+  .creationTypesList {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-bottom: 190px;
+    .createItem {
+      display: flex;
+      align-items: center;
+      padding: 20px;
+      .typeIcon {
+        margin-right: 24px;
+        width: 32px;
+      }
+      .title {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--color-text-primary);
+      }
+    }
+    &.fadeIn {
+      animation: fadeIn 0.35s ease-out forwards;
+    }
+
+    &.fadeOut {
+      animation: fadeOut 0.35s ease forwards;
+    }
+  }
+  .closeBtn {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(-45px) rotate(90deg);
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    font-size: 30px;
+    font-weight: 600;
+    color: var(--color-white);
+    background-color: #5a36ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &.enter {
+      animation: enterAnim 0.35s ease-out forwards;
+    }
+
+    &.exit {
+      animation: exitAnim 0.35s ease forwards;
+    }
+  }
+}

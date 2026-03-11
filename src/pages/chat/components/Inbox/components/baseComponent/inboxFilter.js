@@ -5,6 +5,7 @@ import moment from 'moment';
 import 'moment/locale/zh-cn';
 import { Icon, MdAntDateRangePicker } from 'ming-ui';
 import { quickSelectUser } from 'ming-ui/functions';
+import AppFilter from './appFilter';
 
 const customDate = 8;
 
@@ -83,6 +84,7 @@ export default class InboxFilter extends React.Component {
       userValue: null,
       timeLevel: null,
       time: null,
+      appId: null,
     };
   }
 
@@ -92,18 +94,20 @@ export default class InboxFilter extends React.Component {
         userValue: null,
         timeLevel: null,
         time: null,
+        appId: null,
       });
     }
   }
 
   handleSave = () => {
-    const { userValue, timeLevel, time } = this.state;
+    const { userValue, timeLevel, time, appId } = this.state;
     const [startTime, endTime] = time || [null, null];
     this.props.onChange({
       user: userValue,
       startTime,
       endTime,
       timeName: timeLevel ? _.find(dateScope, { value: timeLevel }).name : null,
+      appId,
     });
   };
 
@@ -135,8 +139,8 @@ export default class InboxFilter extends React.Component {
   };
 
   handleEmptyUser = () => {
-    const { time } = this.state;
-    if (time) {
+    const { time, appId } = this.state;
+    if (time || appId) {
       this.setState(
         {
           userValue: null,
@@ -176,24 +180,22 @@ export default class InboxFilter extends React.Component {
     const { userValue, timeLevel } = this.state;
     return (
       <div className="InboxFilterWrapper">
-        {!['workflow'].includes(inboxType) && (
-          <div className="flexRow valignWrapper mBottom20 userItemWrapper">
-            <div className="Gray_75 Font14 mRight15 userLabel">{_l('回复、提到我的人')}</div>
-            {userValue ? (
-              <div className="userWrapper flexRow valignWrapper">
-                <img src={userValue.avatar} />
-                <div className="name flexRow valignWrapper">
-                  <span className="Font13">{userValue.fullname}</span>
-                  <Icon onClick={this.handleEmptyUser} className="Gray_9e Font13 pointer" icon="close" />
-                </div>
+        <div className="flexRow valignWrapper mBottom20 userItemWrapper">
+          <div className="textSecondary Font14 mRight15 userLabel">{_l('回复、提到我的人')}</div>
+          {userValue ? (
+            <div className="userWrapper flexRow valignWrapper">
+              <img src={userValue.avatar} />
+              <div className="name flexRow valignWrapper">
+                <span className="Font13">{userValue.fullname}</span>
+                <Icon onClick={this.handleEmptyUser} className="textTertiary Font13 pointer" icon="close" />
               </div>
-            ) : (
-              <Icon onClick={this.handlePickUser} className="flexRow valignWrapper pointer" icon="plus" />
-            )}
-          </div>
-        )}
+            </div>
+          ) : (
+            <Icon onClick={this.handlePickUser} className="flexRow valignWrapper pointer" icon="plus" />
+          )}
+        </div>
         <div className="flexRow">
-          <div className="Gray_75 Font14 mRight15 timeLabel">{_l('时间')}</div>
+          <div className="textSecondary Font14 mRight15 timeLabel">{_l('时间')}</div>
           <div className="flexColumn flex">
             <div className="flexRow valignWrapper flex dateScope">
               {dateScope.map((item, index) => (
@@ -208,7 +210,7 @@ export default class InboxFilter extends React.Component {
                           time: null,
                         },
                         () => {
-                          this.state.userValue ? this.handleSave() : this.props.onChange(null);
+                          this.state.userValue || this.state.appId ? this.handleSave() : this.props.onChange(null);
                         },
                       );
                     } else {
@@ -241,6 +243,26 @@ export default class InboxFilter extends React.Component {
             )}
           </div>
         </div>
+        {['workflow', 'worksheet'].includes(inboxType) && (
+          <div className="flexRow mBottom10">
+            <div className="textSecondary Font14 mRight15 timeLabel">{_l('应用')}</div>
+            <div className="flexColumn flex">
+              <AppFilter
+                apkId={this.state.appId}
+                onChange={appId => {
+                  this.setState(
+                    {
+                      appId,
+                    },
+                    () => {
+                      appId || this.state.userValue || this.state.time ? this.handleSave() : this.props.onChange(null);
+                    },
+                  );
+                }}
+              />
+            </div>
+          </div>
+        )}
       </div>
     );
   }

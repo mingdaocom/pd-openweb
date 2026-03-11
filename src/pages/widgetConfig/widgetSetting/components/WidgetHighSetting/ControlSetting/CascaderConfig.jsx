@@ -3,9 +3,10 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Checkbox, Dropdown } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import FilterDialog from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterDialog';
+import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import { EditInfo, SettingItem, SheetViewWrap } from '../../../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
-import { FilterDialog, FilterItemTexts } from '../../../components/FilterData';
 import DynamicDefaultValue from '../../DynamicDefaultValue';
 import SearchConfig from '../../relateSheet/SearchConfig';
 
@@ -46,10 +47,13 @@ const topFiltersToDefsource = data => {
       relateSheetName: _.get(item, 'name'),
     };
   });
-  return handleAdvancedSettingChange(data, {
-    defsource: JSON.stringify(tempDefSourcce),
-    defaulttype: '',
-  });
+  return {
+    ...handleAdvancedSettingChange(data, {
+      defsource: JSON.stringify(tempDefSourcce),
+      defaulttype: '',
+    }),
+    enumDefault: 2,
+  };
 };
 
 export default function CascaderConfig(props) {
@@ -167,7 +171,7 @@ export default function CascaderConfig(props) {
             data={topFiltersToDefsource(data)}
             className="mTop10"
             hideTitle={true}
-            multiple={true}
+            hideOtherFields={true}
             hideSearchAndFun={true}
             propFiledVisible={true}
             onChange={newData => {
@@ -251,7 +255,7 @@ export default function CascaderConfig(props) {
                 '勾选后，将完整展示选项的层级路径，如：上海市/徐汇区/漕河泾。注意，当数据源表记录数大于10000条时，不显示路径。',
               )}
             >
-              <i className="icon-help Gray_9e Font16"></i>
+              <i className="icon-help textTertiary Font16"></i>
             </Tooltip>
           </Checkbox>
         </div>
@@ -268,7 +272,7 @@ export default function CascaderConfig(props) {
                 '选中后，将存储选项被选中当下的层级路径，后续不会自动同步路径的变更。若需要获取最新的层级路径，可对该字段进行校准。存储路径后，支持在统计中按层级进行归组统计。',
               )}
             >
-              <i className="icon-help Gray_9e Font16"></i>
+              <i className="icon-help textTertiary Font16"></i>
             </Tooltip>
           </Checkbox>
         </div>
@@ -290,7 +294,7 @@ export default function CascaderConfig(props) {
           >
             <span>{_l('搜索设置')}</span>
             <Tooltip placement="bottom" title={_l('设置按数据源表中记录的具体字段进行搜索。未设置时，按记录搜索。')}>
-              <i className="icon-help Gray_9e Font16"></i>
+              <i className="icon-help textTertiary Font16"></i>
             </Tooltip>
           </Checkbox>
         </div>
@@ -309,7 +313,7 @@ export default function CascaderConfig(props) {
         )}
         {searchcontrol && (
           <EditInfo style={{ marginTop: '8px' }} onClick={() => setVisibleInfo({ searchVisible: true })}>
-            <div className="text overflow_ellipsis Gray">
+            <div className="text overflow_ellipsis textPrimary">
               <span className="Bold mRight3">{_l('搜索')}</span>
               {_.get(
                 relationControls.find(item => item.controlId === searchcontrol),

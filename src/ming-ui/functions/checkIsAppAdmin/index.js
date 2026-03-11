@@ -10,10 +10,10 @@ import { addBehaviorLog } from 'src/utils/project';
 const DialogCom = styled(Dialog)`
   .checkAdminDialog {
     .Button--primary {
-      background: #f5f5f5;
-      color: #1677ff;
+      background: var(--color-background-secondary);
+      color: var(--color-primary);
       &:hover {
-        background: #f5f5f5;
+        background: var(--color-background-hover);
       }
     }
   }

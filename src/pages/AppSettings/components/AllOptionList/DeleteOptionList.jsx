@@ -14,14 +14,14 @@ const OptionQuoteWrap = styled.div`
     padding: 0 4px;
     border-radius: 3px;
     &:hover {
-      background-color: #f5f5f5;
-      color: #1677ff;
+      background-color: var(--color-background-hover);
+      color: var(--color-primary);
     }
     &.disabled {
       cursor: auto;
       &:hover {
-        background-color: #fff;
-        color: #151515;
+        background-color: var(--color-background-primary);
+        color: var(--color-text-title);
       }
     }
   }
@@ -41,7 +41,7 @@ const Empty = styled.div`
     justify-content: center;
     align-items: center;
     border-radius: 50%;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
   }
 `;
 export default function DeleteOptionList({ collectionId, name, title, type, ...rest }) {
@@ -92,14 +92,14 @@ export default function DeleteOptionList({ collectionId, name, title, type, ...r
         type === 'checkQuote' ? (
           controls.length ? (
             <Fragment>
-              <div className="Gray">{_l('该选项集正被%0个字段引用。', controls.length)}</div>
-              <div className="Gray_75 mTop16">{_l('以下为具体引用的工作表，点击跳转到表单编辑页。')}</div>
+              <div className="textPrimary">{_l('该选项集正被%0个字段引用。', controls.length)}</div>
+              <div className="textSecondary mTop16">{_l('以下为具体引用的工作表，点击跳转到表单编辑页。')}</div>
             </Fragment>
           ) : (
             ''
           )
         ) : (
-          <span className="Gray">
+          <span className="textPrimary">
             {_l(
               '此选项集正在被以下%0个字段引用，无法直接删除。请先解除引用关系后再删除选项集。若仅希望选项集不再被新字段引用，可将选项集停用。停用选项集不影响已引用字段的正常使用。',
               controls.length,
@@ -111,7 +111,7 @@ export default function DeleteOptionList({ collectionId, name, title, type, ...r
         title ? (
           title
         ) : (
-          <span className="Bold" style={{ color: '#f44336', wordBreak: 'break-all' }}>
+          <span className="Bold" style={{ color: 'var(--color-error)', wordBreak: 'break-all' }}>
             {_l('无法直接删除选项集 “%0”', name)}
           </span>
         )
@@ -125,9 +125,9 @@ export default function DeleteOptionList({ collectionId, name, title, type, ...r
           ) : type === 'checkQuote' && _.isEmpty(dataInfo) ? (
             <Empty>
               <div className="emptyIconWrap">
-                <i className="icon icon-link_record Font50 Gray_9e" />
+                <i className="icon icon-link_record Font50 textTertiary" />
               </div>
-              <div className="Gray_bd mTop18 Font17">{_l('暂无引用字段')}</div>
+              <div className="textDisabled mTop18 Font17">{_l('暂无引用字段')}</div>
             </Empty>
           ) : (
             Object.values(dataInfo).map(info => {

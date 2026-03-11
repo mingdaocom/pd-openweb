@@ -30,11 +30,11 @@ export default ({
       <div key={item.fieldId} className={cx('relative', { mLeft24: singleObj.dataSource })}>
         <div className="mTop15 ellipsis Font13">
           {selectNodeType !== NODE_TYPE.PLUGIN && (
-            <span className="Gray_75 mRight5">[{getControlTypeName(singleObj)}]</span>
+            <span className="textSecondary mRight5">[{getControlTypeName(singleObj)}]</span>
           )}
           <span className={cx({ bold: selectNodeType === NODE_TYPE.PLUGIN })}>{controlName}</span>
           {singleObj.required && <span className="mLeft5 red">*</span>}
-          {singleObj.type === 29 && <span className="Gray_75">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>}
+          {singleObj.type === 29 && <span className="textSecondary">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>}
         </div>
         {singleObj.type !== 22 && (
           <SingleControlValue
@@ -60,7 +60,7 @@ export default ({
             i={i}
           />
         )}
-        {singleObj.desc && <div className="mTop5 Gray_75 breakAll">{singleObj.desc}</div>}
+        {singleObj.desc && <div className="mTop5 textSecondary breakAll">{singleObj.desc}</div>}
         {singleObj.type === 22 && <div className="actionFieldsSplit mTop5 mRight0" />}
       </div>
     );

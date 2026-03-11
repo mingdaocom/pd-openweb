@@ -87,6 +87,7 @@ export default function RelateRecordTableIndex(props) {
         control: { ...control, relationControls: store.getState().controls, recordId },
         formData,
         filterKey: 'resultfilters',
+        appId,
       }),
     );
   }, [

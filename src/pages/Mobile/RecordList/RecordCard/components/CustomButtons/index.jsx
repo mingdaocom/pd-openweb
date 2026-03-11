@@ -97,7 +97,7 @@ const CustomButtons = props => {
     if (!!iconUrl && !!icon && icon.endsWith('_svg')) {
       let fillColor =
         !button.color || button.color === 'transparent' || btnDisable[button.btnId] || button.disabled
-          ? '#bdbdbd'
+          ? 'var(--color-text-disabled)'
           : buttonColor.color;
       if (!button.showAsPrimary) {
         fillColor = button.color;
@@ -117,11 +117,11 @@ const CustomButtons = props => {
       return (
         <i
           className={cx(`icon icon-${button.icon || 'custom_actions'}`, {
-            Gray_bd: !button.showAsPrimary && !button.icon && (!button.color || button.color === 'transparent'),
+            textDisabled: !button.showAsPrimary && !button.icon && (!button.color || button.color === 'transparent'),
           })}
           style={
             (!button.showAsPrimary && !(btnDisable[button.btnId] || button.disabled)) || !isInCard
-              ? { color: button.color || '#1677ff' }
+              ? { color: button.color || 'var(--color-primary)' }
               : {}
           }
         />
@@ -129,7 +129,7 @@ const CustomButtons = props => {
     }
 
     if (!isInCard) {
-      return <i className="icon icon-custom_actions Gray_bd" />;
+      return <i className="icon icon-custom_actions textDisabled" />;
     }
 
     return null;

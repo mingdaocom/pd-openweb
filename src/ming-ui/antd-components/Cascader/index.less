@@ -1,0 +1,279 @@
+.custom-cascader {
+  position: relative;
+  width: 100%;
+  font-size: 14px;
+
+  // 多选模式：input 跟随 tags 后面
+  .cascader-selected-tags ~ .cascader-search-input {
+    flex: 1 1 3px;
+  }
+
+  .cascader-input {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0px 12px;
+    background-color: transparent;
+    border: 1px solid var(--color-border-primary);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover:not(.disabled) {
+      border-color: var(--color-text-placeholder);
+    }
+
+    &.focused:not(.disabled) {
+      border-color: var(--color-primary) !important;
+      background-color: transparent !important;
+    }
+
+    &.disabled {
+      cursor: not-allowed;
+      background-color: transparent !important;
+      border-color: transparent !important;
+      padding: 0 !important;
+      .cascader-selected-value {
+        cursor: not-allowed;
+      }
+      .cascader-selected-tag {
+        cursor: not-allowed;
+        color: var(--color-text-primary) !important;
+        background-color: #efefef !important;
+        border-color: #d9d9d9 !important;
+      }
+    }
+
+    .cascader-input-content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-content: flex-start;
+      position: relative;
+
+      .cascader-placeholder {
+        max-width: 95%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        line-height: 34px;
+        font-size: 13px;
+        color: var(--color-text-disabled);
+        cursor: pointer;
+      }
+
+      .cascader-selected-tags {
+        display: contents;
+
+        .cascader-selected-tag {
+          display: inline-flex;
+          align-items: center;
+          overflow: hidden;
+          white-space: nowrap;
+          border-radius: 12px;
+          padding: 0 12px;
+          margin-top: 2px;
+          margin-bottom: 2px;
+          line-height: 24px;
+          height: 24px;
+          border: 1px solid #f0f0f0;
+          background: #f5f5f5;
+          flex-shrink: 0;
+          max-width: 97%;
+          .cascader-selected-tag-label {
+            margin-right: 6px;
+            font-size: 13px;
+            max-width: 100%;
+          }
+
+          .cascader-selected-tag-close {
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px !important;
+            &:hover {
+              color: var(--color-primary);
+            }
+          }
+        }
+      }
+
+      .cascader-search-input {
+        display: inline-flex;
+        font-size: 13px;
+        height: auto;
+        line-height: 22px;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0;
+
+        &:focus,
+        &:hover {
+          border: none !important;
+          box-shadow: none !important;
+        }
+      }
+
+      // 单选模式：input 占据整行
+      .cascader-selected-value ~ .cascader-search-input,
+      .cascader-placeholder ~ .cascader-search-input {
+        width: calc(100% - 24px) !important;
+        flex: 1 1 auto !important;
+        position: absolute !important;
+        background: transparent !important;
+      }
+
+      .cascader-tag {
+        margin: 0;
+        background: #f0f7ff;
+        border-color: #91caff;
+        color: #1677ff;
+        display: inline-flex;
+        align-items: center;
+        max-width: 100%;
+        cursor: pointer;
+      }
+
+      .cascader-selected-value {
+        display: inline-block;
+        max-width: calc(100% - 20px);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        line-height: 22px;
+        font-size: 13px;
+        color: var(--color-text-primary);
+        cursor: pointer;
+      }
+    }
+
+    .cascader-input-suffix {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+      margin-right: -2px;
+
+      .cascader-clear-icon {
+        top: 11px;
+        right: 11px;
+        color: var(--color-text-tertiary);
+        background: var(--color-background-primary);
+        cursor: pointer;
+        transition: color 0.2s;
+        &:hover {
+          color: var(--color-text-secondary);
+        }
+      }
+
+      .cascader-arrow {
+        position: absolute;
+        top: 50%;
+        right: 11px;
+        display: flex;
+        align-items: center;
+        height: 12px;
+        margin-top: -6px;
+        color: rgba(0, 0, 0, 0.25);
+        font-size: 12px;
+        line-height: 1;
+        text-align: center;
+        pointer-events: none;
+
+        &.expanded {
+          transform: rotate(180deg);
+        }
+      }
+    }
+  }
+}
+
+// cascader 弹出层样式
+.cascader-trigger-popup {
+  .cascader-content {
+    min-width: auto;
+    box-sizing: border-box;
+    padding: 4px 0;
+    overflow: hidden;
+    font-size: 14px;
+    font-variant: initial;
+    background-color: #fff;
+    border-radius: 2px;
+    outline: none;
+    box-shadow:
+      0 3px 6px -4px #0000001f,
+      0 6px 16px #00000014,
+      0 9px 28px 8px #0000000d;
+    display: flex;
+
+    .cascader-not-found-content {
+      color: var(--color-text-disabled);
+      padding: 4px 12px;
+    }
+
+    .cascader-selected-value {
+      max-width: 100%;
+    }
+
+    .cascader-panel {
+      min-width: 110px;
+      height: 180px;
+      flex-grow: 1;
+      overflow-x: hidden;
+      overflow-y: auto;
+      vertical-align: top;
+      list-style: none;
+      border-right: 1px solid rgba(0, 0, 0, 0.06);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+
+      .cascader-option {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        padding: 5px 12px;
+        overflow: hidden;
+        line-height: 22px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        cursor: pointer;
+        transition: all 0.3s;
+        flex-shrink: 0;
+        max-width: 1000px;
+        &:hover {
+          background-color: #f5f5f5;
+        }
+
+        .cascader-checkbox {
+          margin-right: 8px;
+        }
+
+        .cascader-option-label {
+          flex: auto;
+          color: rgba(0, 0, 0, 0.85);
+          font-size: 14px;
+          border-radius: 2px;
+          padding: 0 4px;
+          &.cascader-option-label-selected {
+            background-color: #bae7ff;
+          }
+        }
+
+        .cascader-option-icons {
+          i,
+          .ant-spin {
+            color: #9e9e9e;
+          }
+          .ant-spin-dot {
+            font-size: 12px;
+          }
+        }
+      }
+    }
+  }
+}

@@ -41,6 +41,7 @@ const MobilePhone = props => {
   const {
     hint,
     inputClassName,
+    isCellEdit,
     disabled,
     value,
     onChange,
@@ -87,7 +88,7 @@ const MobilePhone = props => {
 
   const setValue = () => {
     if (itiRef.current) {
-      !isEditing && itiRef.current.setNumber(valueRef.current || '');
+      (!isEditing || isCellEdit) && itiRef.current.setNumber(valueRef.current || '');
       setHideCountry(!_.keys(itiRef.current.getSelectedCountryData()).length);
       setItiWidth($(inputRef.current).css('padding-left'));
     }
@@ -251,7 +252,7 @@ const MobilePhone = props => {
         isEditing={isEditing}
         className={cx(
           'customFormControlBox customFormTextareaBo',
-          { Gray_bd: !value },
+          { textDisabled: !value },
           { controlDisabled: disabled },
           { Hidden: isCell },
         )}

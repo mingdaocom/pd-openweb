@@ -115,7 +115,7 @@ export default ({ list, isIntegration = false, json }) => {
 
       if (type === 10000008 && !!list.find(o => o.dataSource === controlId)) {
         return result && _.isArray(result) ? (
-          <span className="Gray_75">{_l('共 %0 组数据，以下仅显示第 1 组参考值', result.length)}</span>
+          <span className="textSecondary">{_l('共 %0 组数据，以下仅显示第 1 组参考值', result.length)}</span>
         ) : (
           ''
         );
@@ -125,7 +125,7 @@ export default ({ list, isIntegration = false, json }) => {
     } catch (e) {
       console.log(e);
 
-      return <span className="Gray_75">{_l('暂无结果')}</span>;
+      return <span className="textSecondary">{_l('暂无结果')}</span>;
     }
   };
 

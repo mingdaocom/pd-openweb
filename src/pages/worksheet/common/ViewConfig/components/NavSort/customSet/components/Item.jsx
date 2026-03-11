@@ -97,7 +97,7 @@ export default function (props) {
     <div className="flexRow customsortItem alignItemsCenter" ref={$ref}>
       <span className={cx('con flexRow flex alignItemsCenter pLeft6 pRight6')}>
         <DragHandle className="alignItemsCenter flexRow">
-          <Icon className="mRight10 Font16 Gray_9e ThemeHoverColor3 Hand dragHandle" icon="drag" />
+          <Icon className="mRight10 Font16 textTertiary ThemeHoverColor3 Hand dragHandle" icon="drag" />
         </DragHandle>
         {isSameType([9, 10, 11], props.controlInfo) && (
           <span className="flex WordBreak overflow_ellipsis">
@@ -139,7 +139,7 @@ export default function (props) {
       </span>
       <Icon
         className={cx(
-          'Font16 addNext mLeft15 Gray_9e TxtCenter',
+          'Font16 addNext mLeft15 textTertiary TxtCenter',
           setting.length >= 50 ? 'disabled' : 'Hand ThemeHoverColor3',
         )}
         icon="add"

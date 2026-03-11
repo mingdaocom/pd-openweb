@@ -319,7 +319,7 @@ export default class GetMoreRecord extends Component {
           ) && <div className="bold mBottom20">{actionTypes[data.actionId]}</div>}
 
         {!isPlugin && (
-          <div className="Font14 Gray_75 workflowDetailDesc">
+          <div className="Font14 textSecondary workflowDetailDesc">
             {!_.includes(
               [ACTION_ID.BATCH_UPDATE, ACTION_ID.BATCH_DELETE, ACTION_ID.REFRESH_MULTIPLE_DATA],
               data.actionId,
@@ -390,7 +390,7 @@ export default class GetMoreRecord extends Component {
         {data.actionId && isSelect && (
           <Fragment>
             <div className="mTop20 bold">{_l('限制数量')}</div>
-            <div className="Font13 Gray_75 mTop5">{_l('最多获取条数')}</div>
+            <div className="Font13 textSecondary mTop5">{_l('最多获取条数')}</div>
             <div className="mTop10">
               <SpecificFieldsValue
                 projectId={this.props.companyId}
@@ -399,7 +399,7 @@ export default class GetMoreRecord extends Component {
                 selectNodeId={this.props.selectNodeId}
                 updateSource={numberFieldValue => this.updateSource({ numberFieldValue })}
                 type="number"
-                max={md.global.Config.IsLocal ? 20000 : 10000}
+                max={window.platformENV.isOverseas || window.platformENV.isLocal ? 20000 : 10000}
                 allowedEmpty
                 data={data.numberFieldValue}
               />
@@ -516,7 +516,7 @@ export default class GetMoreRecord extends Component {
             {_l('设置筛选条件，获得满足条件的数据。如果未设置筛选条件，则获得所有数据')}
             {data.actionId === ACTION_ID.FROM_WORKSHEET && (
               <Tooltip title={_l('请谨慎选择“他表字段”作为条件字段，可能因为数据同步更新延迟而导致结果非预期')}>
-                <i className="icon-info Font16 mLeft5 Gray_9e" />
+                <i className="icon-info Font16 mLeft5 textTertiary" />
               </Tooltip>
             )}
           </Fragment>
@@ -545,7 +545,7 @@ export default class GetMoreRecord extends Component {
       {
         text: isAggregationSheet ? _l('其它应用下的聚合表') : _l('其它应用下的工作表'),
         value: 'other',
-        className: 'Gray_75',
+        className: 'textSecondary',
       },
     ];
 
@@ -569,7 +569,7 @@ export default class GetMoreRecord extends Component {
           value={data.appId}
           renderTitle={
             !data.appId
-              ? () => <span className="Gray_75">{_l('请选择')}</span>
+              ? () => <span className="textSecondary">{_l('请选择')}</span>
               : data.appId && !selectAppItem
                 ? () => (
                     <span className="errorColor">
@@ -579,7 +579,9 @@ export default class GetMoreRecord extends Component {
                 : () => (
                     <Fragment>
                       <span>{selectAppItem.name}</span>
-                      {selectAppItem.otherApkName && <span className="Gray_75">（{selectAppItem.otherApkName}）</span>}
+                      {selectAppItem.otherApkName && (
+                        <span className="textSecondary">（{selectAppItem.otherApkName}）</span>
+                      )}
                     </Fragment>
                   )
           }
@@ -610,7 +612,7 @@ export default class GetMoreRecord extends Component {
       text: (
         <span>
           {controlName}
-          <span className="Gray_75">（{_l('关联表“%0”', sourceEntityName)}）</span>
+          <span className="textSecondary">（{_l('关联表“%0”', sourceEntityName)}）</span>
         </span>
       ),
       value: controlId,
@@ -643,13 +645,13 @@ export default class GetMoreRecord extends Component {
               value={fieldId}
               renderTitle={
                 !fieldId
-                  ? () => <span className="Gray_75">{_l('请选择')}</span>
+                  ? () => <span className="textSecondary">{_l('请选择')}</span>
                   : fieldId && !item
                     ? () => <span className="errorColor">{_l('字段不存在或已删除')}</span>
                     : () => (
                         <span>
                           {item.controlName}
-                          <span className="Gray_75">（{_l('关联表“%0”', item.sourceEntityName)}）</span>
+                          <span className="textSecondary">（{_l('关联表“%0”', item.sourceEntityName)}）</span>
                         </span>
                       )
               }
@@ -747,7 +749,7 @@ export default class GetMoreRecord extends Component {
               value={fieldId}
               renderTitle={
                 !fieldId
-                  ? () => <span className="Gray_75">{_l('请选择')}</span>
+                  ? () => <span className="textSecondary">{_l('请选择')}</span>
                   : fieldId && !item
                     ? () => <span className="errorColor">{_l('字段不存在或已删除')}</span>
                     : () => <span>{item.controlName}</span>
@@ -828,7 +830,7 @@ export default class GetMoreRecord extends Component {
         <div className="actionFieldsSplit mRight0 mTop30" />
 
         <div className="mTop30 bold">{_l('获取后，更新记录')}</div>
-        <div className="mTop5 Gray_75">
+        <div className="mTop5 textSecondary">
           {_l('最大更新%0行数据', md.global.SysSettings.worktableBatchOperateDataLimitCount)}
         </div>
 
@@ -859,7 +861,8 @@ export default class GetMoreRecord extends Component {
         <div className="actionFieldsSplit mRight0 mTop30" />
 
         <div className="mTop30 bold">{_l('获取后，删除记录')}</div>
-        <div className="mTop5 Gray_75">
+
+        <div className="mTop5 textSecondary">
           {_l('最大删除%0行数据', md.global.SysSettings.worktableBatchOperateDataLimitCount)}
         </div>
 
@@ -871,7 +874,7 @@ export default class GetMoreRecord extends Component {
             onClick={checked => this.updateSource({ destroy: !checked })}
           />
         </div>
-        <div className="Gray_75 mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
+        <div className="textSecondary mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
       </Fragment>
     );
   }

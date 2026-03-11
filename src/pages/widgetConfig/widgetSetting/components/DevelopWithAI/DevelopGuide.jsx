@@ -95,7 +95,7 @@ export default function DevelopGuide() {
         </Modal>
       )}
       <IconButton className="mLeft15" onClick={() => setVisible(true)}>
-        <Icon className="icon icon-help" color="#9e9e9e" />
+        <Icon className="icon icon-help" color="var(--color-text-tertiary)" />
         <span className="text">{_l('开发指南')} </span>
       </IconButton>
     </Fragment>

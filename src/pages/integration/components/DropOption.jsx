@@ -21,7 +21,7 @@ const MenuWrap = styled(Menu)`
     left: 100%;
     width: 160px;
     bottom: 0;
-    background: #ffffff;
+    background: var(--color-background-primary);
     box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.25) !important;
     opacity: 1;
     border-radius: 3px;
@@ -32,8 +32,8 @@ const MenuWrap = styled(Menu)`
       line-height: 36px;
       padding: 0 16px;
       &:hover {
-        background: #f5f5f5;
-        color: #1677ff;
+        background: var(--color-background-secondary);
+        color: var(--color-primary);
       }
     }
   }
@@ -45,8 +45,8 @@ const MenuWrap = styled(Menu)`
     bottom: 0;
     z-index: 0;
   }
-  .gray_75 {
-    color: #757575;
+  .textSecondary {
+    color: var(--color-text-secondary);
   }
 `;
 export default function DropOption(props) {
@@ -84,7 +84,7 @@ export default function DropOption(props) {
           )}
           {props.list.map(({ text, value, disabled, getTime = () => {} }, i) => (
             <React.Fragment>
-              {forGroup && i === 0 && <div className="Gray_75 mLeft12 LineHeight36">{_l('时间')}</div>}
+              {forGroup && i === 0 && <div className="textSecondary mLeft12 LineHeight36">{_l('时间')}</div>}
               <MenuItem
                 key={value}
                 className={cx({ cur: value === props.value })}
@@ -98,18 +98,21 @@ export default function DropOption(props) {
               >
                 <div className="flexRow">
                   <span className="viewName flex">{text}</span>
-                  {forGroup && <span className="gray_75">{getTime()}</span>}
+                  {forGroup && <span className="textSecondary">{getTime()}</span>}
                 </div>
               </MenuItem>
               {forGroup && ['TIME', 'CUR_MINUTE'].includes(value) && (
                 <React.Fragment>
-                  <div className="mTop3 mBottom3" style={{ borderBottom: '1px solid #EAEAEA' }}></div>
-                  <div className="Gray_75 mLeft12 LineHeight36">{_l('集合')}</div>
+                  <div
+                    className="mTop3 mBottom3"
+                    style={{ borderBottom: '1px solid var(--color-border-secondary)' }}
+                  ></div>
+                  <div className="textSecondary mLeft12 LineHeight36">{_l('集合')}</div>
                 </React.Fragment>
               )}
             </React.Fragment>
           ))}
-          <div className="mTop3 mBottom3" style={{ borderBottom: '1px solid #EAEAEA' }}></div>
+          <div className="mTop3 mBottom3" style={{ borderBottom: '1px solid var(--color-border-secondary)' }}></div>
           <MenuItem
             onClick={e => {
               props.handleOpenChangeName();

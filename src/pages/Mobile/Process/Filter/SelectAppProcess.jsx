@@ -22,10 +22,10 @@ const SelectApp = props => {
     <SidebarWrap className="flexColumn">
       <div className="flexRow alignItemsCenter">
         <div className="flexRow alignItemsCenter flex">
-          <Icon icon="backspace" className="Gray_9e Font20 mRight10" onClick={onClose} />
-          <div className="Gray_9e Font13 flex ellipsis">{_l('应用')}</div>
+          <Icon icon="backspace" className="textTertiary Font20 mRight10" onClick={onClose} />
+          <div className="textTertiary Font13 flex ellipsis">{_l('应用')}</div>
         </div>
-        <Icon icon="close" className="Gray_9e close" onClick={onClose} />
+        <Icon icon="close" className="textTertiary close" onClick={onClose} />
       </div>
       <div className="flex overflowY mTop10">
         {list.map(item => {
@@ -46,7 +46,7 @@ const SelectApp = props => {
                 <SvgIcon url={app.iconUrl} fill="#fff" size={20} />
               </div>
               <div className="flex mLeft10 mRight10 ellipsis Font15">{app.name}</div>
-              {selectAppId === app.id && <Icon icon="done" className="ThemeColor Font18" />}
+              {selectAppId === app.id && <Icon icon="done" className="colorPrimary Font18" />}
             </div>
           );
         })}
@@ -61,10 +61,10 @@ const Process = props => {
     <SidebarWrap className="flexColumn">
       <div className="flexRow alignItemsCenter">
         <div className="flexRow alignItemsCenter flex">
-          <Icon icon="backspace" className="Gray_9e Font20 mRight10" onClick={onClose} />
-          <div className="Gray_9e Font13 flex ellipsis">{app.name}</div>
+          <Icon icon="backspace" className="textTertiary Font20 mRight10" onClick={onClose} />
+          <div className="textTertiary Font13 flex ellipsis">{app.name}</div>
         </div>
-        <Icon icon="close" className="Gray_9e close" onClick={onClose} />
+        <Icon icon="close" className="textTertiary close" onClick={onClose} />
       </div>
       <div className="flex overflowY mTop10">
         {processes.map(item => (
@@ -86,7 +86,7 @@ const Process = props => {
             }}
           >
             <div className="flex ellipsis">{item.name}</div>
-            {processId === item.id && <Icon icon="done" className="ThemeColor Font18" />}
+            {processId === item.id && <Icon icon="done" className="colorPrimary Font18" />}
           </div>
         ))}
       </div>
@@ -129,10 +129,12 @@ export default props => {
       ) : (
         <div>
           <div className="flexRow alignItemsCenter pBottom10" onClick={() => !requestAppId && setAppVisible(true)}>
-            <div className={cx('flex Font14 bold', { Gray_9e: !_.get(selectAppInfo, 'app.id') })}>{_l('应用')}</div>
+            <div className={cx('flex Font14 bold', { textTertiary: !_.get(selectAppInfo, 'app.id') })}>
+              {_l('应用')}
+            </div>
             <div className="flexRow alignItemsCenter flex justifyContentRight">
-              <div className="ThemeColor ellipsis">{_.get(selectAppInfo, 'app.name')}</div>
-              {!requestAppId && <Icon icon="arrow-right-border" className="Font18 Gray_c6" />}
+              <div className="colorPrimary ellipsis">{_.get(selectAppInfo, 'app.name')}</div>
+              {!requestAppId && <Icon icon="arrow-right-border" className="Font18 textPlaceholder" />}
             </div>
           </div>
           {appVisible && (
@@ -149,10 +151,10 @@ export default props => {
           )}
           {currentSelectAppId && (
             <div className="flexRow alignItemsCenter pTop10 pBottom10" onClick={() => setProcessVisible(true)}>
-              <div className={cx('flex Font14 bold', { Gray_9e: false })}>{_l('流程')}</div>
+              <div className={cx('flex Font14 bold', { textTertiary: false })}>{_l('流程')}</div>
               <div className="flexRow alignItemsCenter flex justifyContentRight">
-                <div className="ThemeColor ellipsis">{_.get(selectProcess, 'name')}</div>
-                <Icon icon="arrow-right-border" className="Font18 Gray_c6" />
+                <div className="colorPrimary ellipsis">{_.get(selectProcess, 'name')}</div>
+                <Icon icon="arrow-right-border" className="Font18 textPlaceholder" />
               </div>
             </div>
           )}

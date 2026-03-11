@@ -18,7 +18,7 @@ button {
     'Microsoft Yahei',
     '宋体',
     '黑体';
-  color: #151515;
+  color: var(--color-text-title);
   line-height: 1.5;
 }
 body {
@@ -38,7 +38,7 @@ ol {
 }
 a {
   text-decoration: none;
-  color: #1e88e5;
+  color: var(--color-primary);
   cursor: pointer;
 }
 /*盒子布局*/
@@ -126,13 +126,13 @@ body {
   height: 100%;
 }
 body {
-  background-color: #f2f4f8;
+  background-color: var(--color-background-hover);
   padding: 15px 10px 0;
 }
 .main {
-  background-color: #fff;
-  -webkit-box-shadow: 0 0 5px #ccc;
-  box-shadow: 0 0 5px #ccc;
+  background-color: var(--color-background-primary);
+  -webkit-box-shadow: 0 0 5px var(--color-border-tertiary);
+  box-shadow: 0 0 5px var(--color-border-tertiary);
   border-radius: 3px;
   overflow: hidden;
   max-width: 720px;
@@ -140,16 +140,16 @@ body {
   margin: 0 auto;
 }
 header {
-  background-color: #2c98f0;
+  background-color: var(--color-primary-focus);
   height: 50px;
   line-height: 50px;
-  color: #fff;
+  color: var(--color-white);
 }
 header.overdue {
-  background-color: #9e9e9e;
+  background-color: var(--color-text-tertiary);
 }
 header.joinStyle {
-  background-color: #4caf50;
+  background-color: var(--color-success);
 }
 .content {
   min-height: 330px;
@@ -201,8 +201,8 @@ header.joinStyle {
 }
 
 .title {
-  color: #484848;
-  border-bottom: 1px solid #e0e0e0;
+  color: var(--color-text-title);
+  border-bottom: 1px solid var(--color-border-secondary);
   word-wrap: break-word;
   padding-top: 15px;
   padding-bottom: 15px;
@@ -212,7 +212,7 @@ header.joinStyle {
 .address,
 .members,
 .desc {
-  color: #999;
+  color: var(--color-text-tertiary);
   margin-top: 21px;
 }
 .date {
@@ -222,7 +222,7 @@ header.joinStyle {
 .addressDesc,
 .member,
 .descContent {
-  color: #151515;
+  color: var(--color-text-title);
   line-height: 30px;
   margin-top: 6px;
 }
@@ -250,7 +250,7 @@ header.joinStyle {
   padding-left: 75px;
   padding-right: 50px;
   height: 60px;
-  border: 1px solid #ededed;
+  border: 1px solid var(--color-border-secondary);
 }
 .folderListItemIcon {
   position: absolute;
@@ -258,7 +258,7 @@ header.joinStyle {
   top: 0;
   width: 63px;
   height: 58px;
-  background-color: #ededed;
+  background-color: var(--color-border-secondary);
   display: inline-block;
 }
 .folderListItemIcon span {
@@ -295,14 +295,14 @@ header.joinStyle {
 }
 .itemName,
 .itemSize {
-  color: #151515;
+  color: var(--color-text-title);
   line-height: 20px;
   height: 20px;
   padding-top: 10px;
 }
 .itemSize {
   padding: 0;
-  color: #999;
+  color: var(--color-text-tertiary);
 }
 
 .images {
@@ -315,7 +315,7 @@ header.joinStyle {
   float: left;
 }
 .imagesListItem {
-  border: 1px solid #d5d4d5;
+  border: 1px solid var(--color-border-primary);
   height: 100px;
   display: -webkit-box;
   display: -webkit-flex;
@@ -337,12 +337,12 @@ header.joinStyle {
 
 footer {
   padding-bottom: 20px !important;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
   padding-top: 20px !important;
 }
 footer .footerTitle {
   text-align: center;
-  color: #151515;
+  color: var(--color-text-title);
   height: 80px;
   line-height: 80px;
 }
@@ -352,7 +352,7 @@ footer a {
   line-height: 50px;
   text-align: center;
   border-radius: 3px;
-  border: 1px solid #1677ff;
+  border: 1px solid var(--color-primary);
   display: block;
   margin: 0 auto;
   -webkit-box-sizing: border-box;
@@ -361,19 +361,19 @@ footer a {
 }
 footer a.join,
 footer a.addCalendar {
-  color: #fff;
-  background-color: #1677ff;
+  color: var(--color-white);
+  background-color: var(--color-primary);
 }
 footer a.addCalendar {
   margin-bottom: 20px;
 }
 footer a.wAddCalendar {
-  color: #1677ff;
+  color: var(--color-primary);
   margin-top: 12px;
 }
 footer a.join.leave {
-  background-color: #f44336;
-  border-color: #f44336;
+  background-color: var(--color-error);
+  border-color: var(--color-error);
   margin-top: 15px;
 }
 .leaveBoxTitle,
@@ -384,14 +384,14 @@ footer a.join.leave {
   padding-top: 5px;
 }
 .leaveBoxTitle {
-  color: #4caf50;
-  border-bottom: 1px solid #ccc;
+  color: var(--color-success);
+  border-bottom: 1px solid var(--color-border-tertiary);
   padding-bottom: 20px;
 }
 .leaveBoxMessage1 {
   padding-top: 10px;
   padding-bottom: 5px;
-  color: #151515;
+  color: var(--color-text-title);
 }
 #leaveBox .qrCode img {
   width: 180px;
@@ -402,15 +402,15 @@ footer a.join.leave {
 #leaveBox .qrCodeMessage {
   text-align: center;
   line-height: 26px;
-  color: #999;
+  color: var(--color-text-tertiary);
   padding-bottom: 30px;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid var(--color-border-tertiary);
   margin-bottom: 20px;
 }
 .leaveBoxMessage {
   text-align: center;
   margin-top: 20px;
-  color: #f44336;
+  color: var(--color-error);
 }
 .leaveBoxTitle span {
   position: static;
@@ -483,7 +483,7 @@ footer a.join.leave {
   margin: 40px auto 0;
   padding-bottom: 30px;
   text-align: center;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   padding-top: 60px;
 }
 
@@ -499,7 +499,7 @@ footer a.join.leave {
 }
 
 .noCalendarTitle {
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   text-align: center;
   line-height: 36px;
   margin-top: 30px;
@@ -511,7 +511,7 @@ footer a.join.leave {
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  border: 2px solid #1677ff;
+  border: 2px solid var(--color-primary);
   border-bottom-color: transparent !important;
   -webkit-animation: clipLoader 0.75s infinite linear;
   -moz-animation: clipLoader 0.75s infinite linear;

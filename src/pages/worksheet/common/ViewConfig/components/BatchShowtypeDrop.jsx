@@ -13,7 +13,7 @@ const WrapMenu = styled(Menu)`
     border-bottom: 0;
     border-left: 0;
     border-right: 0;
-    border-top: 1px solid #ccc;
+    border-top: 1px solid var(--color-border-tertiary);
   }
 `;
 
@@ -29,7 +29,7 @@ const CoverFillTypeDisplayMenu = props => {
           onClick={() => onClick(value)}
         >
           <div className="valignWrapper flex">
-            <span className="Gray">{text}</span>
+            <span className="textPrimary">{text}</span>
           </div>
           {coverFillType === value && <Icon icon="done" className="mRight12" />}
         </Menu.Item>
@@ -70,7 +70,7 @@ export default function (props) {
                 setDropdownVisible(false);
               }}
             >
-              <span className="Gray">{o.text}</span>
+              <span className="textPrimary">{o.text}</span>
               {showtype === value && <Icon icon="done" className="mRight12" />}
             </Menu.Item>
           );
@@ -110,8 +110,8 @@ export default function (props) {
               }
             >
               <Menu.Item className="changeCoverFillType viewTypeItem flexRow" data-event={'value'} key={'value'}>
-                <span className="Gray flex">{_l('图片填充方式')}</span>
-                <Icon icon="navigate_next" className="mRight12 Font18 Gray_9e" />
+                <span className="textPrimary flex">{_l('图片填充方式')}</span>
+                <Icon icon="navigate_next" className="mRight12 Font18 textTertiary" />
               </Menu.Item>
             </Trigger>
           </React.Fragment>
@@ -138,7 +138,7 @@ export default function (props) {
         <div className={cx('Dropdown--input Dropdown--border')}>
           <div className="w100 flexRow alignItemsCenter">
             <span className="ellipsis flex">{data.find(o => o.value === showtype).text}</span>
-            <Icon icon={'arrow-down-border'} className="mLeft8 Gray_9e" />
+            <Icon icon={'arrow-down-border'} className="mLeft8 textTertiary" />
           </div>
         </div>
       </div>

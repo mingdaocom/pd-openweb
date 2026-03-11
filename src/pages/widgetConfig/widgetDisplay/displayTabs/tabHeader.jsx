@@ -21,7 +21,7 @@ const TabHeaderItemWrap = styled.div`
   height: 44px;
   line-height: 44px;
   padding: 0 16px;
-  background: #fff;
+  background: var(--color-background-primary);
   .Width16 {
     width: 16px;
   }
@@ -48,10 +48,10 @@ const DragItemWrap = styled.div`
   margin-left: 8px;
   &:hover,
   &.isOpen {
-    border-bottom-color: #cccccc;
+    border-bottom-color: var(--color-text-placeholder);
   }
   &.isActive {
-    border-bottom-color: #1677ff;
+    border-bottom-color: var(--color-primary);
   }
 
   .insertPointer {
@@ -59,7 +59,7 @@ const DragItemWrap = styled.div`
     top: 0;
     height: 100%;
     width: 4px;
-    background: #1677ff;
+    background: var(--color-primary);
     &.left {
       left: -2px;
     }
@@ -79,18 +79,18 @@ export function TabHeaderItem(props) {
     if (showIcon !== '1') return null;
 
     if (data.type === 29) {
-      return <Icon icon="link_record" className="Font16 mRight8 Gray_9e" />;
+      return <Icon icon="link_record" className="Font16 mRight8 textTertiary" />;
     }
 
     if (data.type === 51) {
-      return <Icon icon="Worksheet_query" className="Font16 mRight8 Gray_9e" />;
+      return <Icon icon="Worksheet_query" className="Font16 mRight8 textTertiary" />;
     }
 
     const { iconUrl } = getAdvanceSetting(data, 'icon');
     return iconUrl ? (
-      <SvgIcon url={iconUrl} fill="#9e9e9e" size={16} className="mRight8 LineHeight16 Width16" />
+      <SvgIcon url={iconUrl} fill="var(--color-text-tertiary)" size={16} className="mRight8 LineHeight16 Width16" />
     ) : (
-      <Icon icon="subheader" className="Font16 mRight8 Gray_9e" />
+      <Icon icon="subheader" className="Font16 mRight8 textTertiary" />
     );
   };
 
@@ -146,7 +146,7 @@ export function TabHeaderItem(props) {
           placement="bottom"
         >
           <div className="tabDeleteIcon">
-            <Icon icon="arrow-down" className="Gray_9" />
+            <Icon icon="arrow-down" className="textTertiary" />
           </div>
         </Dropdown>
       )}

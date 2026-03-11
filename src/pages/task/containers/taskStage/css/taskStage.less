@@ -28,14 +28,14 @@
     overflow-y: auto;
     box-sizing: border-box;
     max-height: 100%;
-    border-top: 50px #cacdd1 solid;
-    border-right: 1px #cacdd1 solid;
-    border-bottom: 45px #cacdd1 solid;
-    border-left: 1px #cacdd1 solid;
-    background-color: #eef0f4;
+    border-top: 50px var(--color-border-primary) solid;
+    border-right: 1px var(--color-border-primary) solid;
+    border-bottom: 45px var(--color-border-primary) solid;
+    border-left: 1px var(--color-border-primary) solid;
+    background-color: var(--color-background-secondary);
   }
   .singleStage .stageContentBox.addNewTask {
-    border-bottom: 1px #ccc solid;
+    border-bottom: 1px var(--color-border-tertiary) solid;
   }
   .stageHeader {
     position: absolute;
@@ -47,7 +47,7 @@
     cursor: -webkit-grab;
     cursor: grab;
     border-radius: 3px 3px 0 0;
-    background-color: #eef0f4;
+    background-color: var(--color-background-secondary);
     box-sizing: initial;
   }
   .stageHeader .icon-arrow-down-border {
@@ -60,7 +60,7 @@
     }
   }
   .stageHeader .icon-arrow-down-border:not(:hover) {
-    color: #757575 !important;
+    color: var(--color-text-secondary) !important;
   }
   .stageHeader input.updateStageName,
   .stageHeader .txtAddNew {
@@ -73,6 +73,7 @@
   }
   .stageHeader input.updateStageName {
     font-size: 15px;
+    border-color: var(--color-primary);
   }
   .stageHeader .listStageDownOperator {
     position: absolute;
@@ -82,18 +83,18 @@
     display: none;
     width: 240px;
     padding: 10px 0;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     .listStageDownOperatorHr {
       height: 0;
       width: 100%;
       margin: 5px 0;
-      border-top: 1px solid #ccc;
+      border-top: 1px solid var(--color-border-tertiary);
       box-sizing: border-box;
     }
   }
   .stageHeader .listStageDownOperator li:hover {
-    color: #fff;
-    background-color: #0091ea;
+    color: var(--color-white);
+    background-color: var(--color-primary);
   }
   .stageHeader .listStageDownOperator li {
     line-height: 35px;
@@ -102,10 +103,10 @@
     cursor: pointer;
     &:not(:hover) {
       i {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
       &.delStage {
-        color: #f44336;
+        color: var(--color-error);
       }
     }
   }
@@ -115,7 +116,7 @@
     width: auto;
     max-width: 170px;
     cursor: text;
-    color: #151515;
+    color: var(--color-text-primary);
   }
 
   #taskList .listStageDate .colorTagsDiv {
@@ -134,23 +135,23 @@
     display: inline-block;
     margin-left: 5px;
     padding-top: 1px;
-    color: rgba(0, 0, 0, 0.5);
+    color: var(--color-text-secondary);
   }
   #taskList .singleTreeTask .taskListDate {
     display: inline-block;
     width: auto;
   }
   .stageContentBox .stageContent {
-    background-color: #e9ecf1;
+    background-color: var(--color-border-secondary);
   }
   .bottomNewBox {
     position: relative;
-    top: -48px;
+    top: -45px;
     display: inline-block;
     width: 300px;
-    height: 47px;
+    height: 44px;
     margin-left: 1px;
-    background-color: #eef0f4;
+    background-color: var(--color-background-secondary);
     border-radius: 0 0 3px 3px;
   }
   .bottomNewBox:hover {
@@ -166,11 +167,11 @@
     border-radius: 18px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
     &:hover {
-      color: #fff !important;
+      color: var(--color-white) !important;
     }
     &:not(:hover) {
-      color: #757575 !important;
-      background: #fff !important;
+      color: var(--color-text-secondary) !important;
+      background: var(--color-background-primary) !important;
     }
   }
   .bottomNewBox .btnBottomNew.Hidden {
@@ -192,17 +193,17 @@
     margin: 0 0 5px 5px;
     padding: 8px 0 8px 10px;
     cursor: pointer;
-    background-color: #fff;
+    background-color: var(--color-background-card);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   }
   .listStageContent > ul > li.addNewTask {
     position: relative;
     padding: 0;
-    background-color: #e4e7ec !important;
+    background-color: var(--color-border-secondary) !important;
   }
   li.addNewTask .topBox {
-    border: 1px #48a3ce solid;
-    background-color: #fff;
+    border: 1px var(--color-primary) solid;
+    background-color: var(--color-background-primary);
     border-radius: 3px;
   }
   .listStageContent .addNewTask .taskStar {
@@ -211,7 +212,7 @@
     top: 9px;
     right: 8px;
     display: inline-block;
-    color: #9ca2aa;
+    color: var(--color-text-tertiary);
   }
   .listStageContent > ul > li.addNewTask .teaStageNameBox {
     width: 100%;
@@ -236,13 +237,13 @@
     line-height: 32px;
     padding: 0 30px;
     border-radius: 18px;
-    color: #fff;
+    color: var(--color-white);
   }
   .addNewTask .stageDate {
     font-size: 12px;
     float: right;
     margin-top: 16px;
-    color: #999;
+    color: var(--color-text-tertiary);
   }
   .addNewTask .icon-bellSchedule {
     font-size: 16px;
@@ -259,7 +260,7 @@
     visibility: visible;
   }
   .listStageContent li:hover {
-    background-color: #f7f8f9;
+    background-color: var(--color-background-hover);
   }
   .listStageContent li .chargeHeaderAvatar,
   .chargeHeaderAvatar {
@@ -322,7 +323,7 @@
     height: 21px;
     margin-top: 2px;
     vertical-align: top;
-    color: #0091ea;
+    color: var(--color-primary);
   }
   .listStageBottom {
     position: relative;
@@ -335,9 +336,9 @@
     -ms-user-select: none;
     user-select: none;
     text-decoration: none;
-    color: #8c8c8c;
+    color: var(--color-text-secondary);
     border-radius: 3px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     -webkit-box-flex: 0;
     -webkit-flex: 0 0 auto;
     -ms-flex: 0 0 auto;
@@ -347,7 +348,7 @@
     text-decoration: none;
   }
   .listStage li.selectTask {
-    background-color: #cfe8fc;
+    background-color: var(--color-primary-transparent);
   }
   .listStage li.selectTask .icon-star-hollow {
     display: inline-block;
@@ -356,7 +357,7 @@
   .nullCompleteTask {
     font-size: 18px;
     margin-left: 10px;
-    color: #ccc;
+    color: var(--color-text-placeholder);
   }
   /* 日期控件样式重写  */
   .singleStage .warpDatePickerMain {
@@ -378,7 +379,7 @@
     -webkit-transform: rotate(3deg);
     -ms-transform: rotate(3deg);
     transform: rotate(3deg);
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     list-style: none;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   }
@@ -410,7 +411,7 @@
   }
   #insertVirtualStage {
     width: 302px;
-    border: 1px #ccc solid;
+    border: 1px var(--color-border-tertiary) solid;
     background-color: rgba(153, 153, 153, 0.4);
   }
   .draggableElementStage {
@@ -446,7 +447,7 @@
     display: inline-block;
   }
   .listStageContent .icon-star-hollow:not(:hover) {
-    color: #9ca2aa !important;
+    color: var(--color-text-tertiary) !important;
   }
   .listStageContent .taskStar.icon-task-star {
     display: inline-block;
@@ -460,9 +461,9 @@
     margin-left: 5px;
     cursor: pointer;
     text-align: center;
-    color: #ccc;
-    border: 1px #ccc solid;
-    background-color: #fff;
+    color: var(--color-text-placeholder);
+    border: 1px var(--color-border-tertiary) solid;
+    background-color: var(--color-background-primary);
   }
   #stageLoading {
     line-height: 40px;
@@ -483,7 +484,7 @@
     margin-right: 5px;
   }
   .listStageDate .subCounts {
-    color: rgba(0, 0, 0, 0.5);
+    color: var(--color-text-secondary);
   }
   .addNewStage {
     width: 300px;
@@ -491,7 +492,7 @@
     line-height: 52px;
     border-radius: 3px;
     background: rgba(77, 77, 77, 0.5);
-    color: #fff;
+    color: var(--color-white);
     font-size: 14px;
     cursor: pointer;
     &:not(.Hidden) {
@@ -511,8 +512,8 @@
     &:hover {
       background: rgba(77, 77, 77, 0.75);
       i {
-        color: #9e9e9e;
-        background: #fff;
+        color: var(--color-text-tertiary);
+        background: var(--color-background-primary);
       }
     }
   }
@@ -580,7 +581,7 @@
         min-height: 18px;
       }
       .listStageCustomItemColor {
-        color: #757575;
+        color: var(--color-text-secondary);
         .overflow_ellipsis {
           max-width: 85px;
           vertical-align: top;

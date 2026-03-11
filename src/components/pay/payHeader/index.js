@@ -10,7 +10,7 @@ const PayHeaderWrap = styled.div`
   width: 100%;
   padding-left: 32px;
   height: 60px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   z-index: 10;
   box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.15);
   &::before {
@@ -23,11 +23,11 @@ const PayHeaderWrap = styled.div`
   .netManageTitle {
     height: 32px;
     line-height: 32px;
-    color: #151515;
+    color: var(--color-text-title);
     padding-left: 20px;
     margin-left: 20px;
     font-size: 17px;
-    border-left: 1px solid #ddd;
+    border-left: 1px solid var(--color-border-primary);
   }
 `;
 

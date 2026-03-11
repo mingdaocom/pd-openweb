@@ -1,5 +1,4 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import store from 'redux/configureStore';
 import { Popover } from 'antd';
 import cx from 'classnames';
 import { saveAs } from 'file-saver';
@@ -14,8 +13,8 @@ import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
 import appManagementApi from 'src/api/appManagement';
 import customApi from 'statistics/api/custom';
 import { chartNav } from 'statistics/common';
-import SelectIcon from 'worksheet/common/SelectIcon';
 import SheetDesc from 'worksheet/common/SheetDesc';
+import selectIconDialog from 'worksheet/components/selectIconDialog';
 import { deleteSheet } from 'worksheet/redux/actions/sheetList';
 import { updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
 import { canEditData } from 'worksheet/redux/actions/util';
@@ -26,6 +25,7 @@ import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup
 import { EditExternalLink } from 'src/pages/worksheet/common/WorkSheetLeft/ExternalLink';
 import Share from 'src/pages/worksheet/components/Share';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
+import store from 'src/redux/configureStore';
 import { navigateTo } from 'src/router/navigateTo';
 import { getTranslateInfo } from 'src/utils/app';
 import { getCurrentProject } from 'src/utils/project';
@@ -58,9 +58,9 @@ export default function CustomPageHeader(props) {
   const appId = appPkg.id || apk.appId;
   const { icon, workSheetName, urlTemplate, configuration } = currentSheet;
   const pageId = ids.worksheetId;
-  const [visible, updateVisible] = useState({ popupVisible: false, editNameVisible: false, editIntroVisible: false });
+  const [visible, updateVisible] = useState({ popupVisible: false, editIntroVisible: false });
   const desc = urlTemplate ? configuration.desc : props.desc;
-  const { popupVisible, editNameVisible, editIntroVisible } = visible;
+  const { popupVisible, editIntroVisible } = visible;
   const name = pageName !== workSheetName ? workSheetName || pageName : pageName || workSheetName;
   const showName = getTranslateInfo(appId, null, pageId).name || name;
   const showAppName = getTranslateInfo(appId, null, appId).name || appName;
@@ -152,9 +152,20 @@ export default function CustomPageHeader(props) {
         setExternalLinkIsEditing(true);
         break;
       case 'editName':
+        selectIconDialog({
+          ...rest,
+          ...ids,
+          isActive: true,
+          appItem: currentSheet,
+          projectId,
+          name,
+          icon,
+          workSheetId: pageId,
+        });
+        break;
       case 'editIntro':
         setDescIsEditing(true);
-        updateVisible(update(visible, { [`${type}Visible`]: { $set: true }, popupVisible: { $set: false } }));
+        updateVisible(update(visible, { editIntroVisible: { $set: true }, popupVisible: { $set: false } }));
         break;
       case 'adjustScreen':
         handleUpdatePage(data);
@@ -179,7 +190,7 @@ export default function CustomPageHeader(props) {
           title: <span className="Bold">{_l('删除自定义页面 “%0”', name)}</span>,
           description: (
             <div>
-              <span style={{ color: '#151515', fontWeight: 'bold' }}>
+              <span style={{ color: 'var(--color-text-title)', fontWeight: 'bold' }}>
                 {_l('注意：自定义页面下所有配置和数据将被删除。')}
               </span>
               {_l('请务必确认所有应用成员都不再需要此自定义页面后，再执行此操作。')}
@@ -234,9 +245,9 @@ export default function CustomPageHeader(props) {
     return (
       <div className="customPageAutoLinkagePopover">
         <div className="valignWrapper" style={{ padding: '0 4px 0 9px' }}>
-          <div className="Font17 bold Gray flex">{_l('联动筛选')}</div>
+          <div className="Font17 bold textPrimary flex">{_l('联动筛选')}</div>
           <Icon
-            className="Font24 Gray_9e pointer"
+            className="Font24 textTertiary pointer"
             icon="close"
             onClick={() => document.querySelector('.autoLinkageTrigger').click()}
           />
@@ -248,12 +259,12 @@ export default function CustomPageHeader(props) {
                 <div className="linkageFilter mTop10" key={item.reportId}>
                   <div className="flexRow alignItemsCenter mBottom2">
                     <Icon
-                      className="Font16 mRight5 ThemeColor"
+                      className="Font16 mRight5 colorPrimary"
                       icon={_.find(chartNav, { type: item.reportType }).icon}
                     />
                     <div className="flex ellipsis bold">{item.reportName}</div>
                     <Icon
-                      className="Font17 Gray_9e pointer"
+                      className="Font17 textTertiary pointer"
                       icon="trash"
                       onClick={() => deleteLinkageFiltersGroup({ value: item.key })}
                     />
@@ -277,7 +288,7 @@ export default function CustomPageHeader(props) {
             </div>
             <div className="mTop10 TxtRight">
               <span
-                className="pointer ThemeColor closeText"
+                className="pointer colorPrimary closeText"
                 onClick={() => {
                   updatePageInfo({ linkageFiltersGroup: {} });
                   document.querySelector('.autoLinkageTrigger').click();
@@ -289,8 +300,8 @@ export default function CustomPageHeader(props) {
           </Fragment>
         ) : (
           <div className="flexColumn alignItemsCenter justifyContentCenter mTop20 mBottom20">
-            <Icon className="Font64 Gray_df" icon="linkage_filter" />
-            <div className="Gray_9e mTop5 Font14">{_l('未发起联动筛选')}</div>
+            <Icon className="Font64 textPlaceholder" icon="linkage_filter" />
+            <div className="textTertiary mTop5 Font14">{_l('未发起联动筛选')}</div>
           </div>
         )}
       </div>
@@ -510,21 +521,6 @@ export default function CustomPageHeader(props) {
           // handleVisibleChange(false, 'editIntroVisible');
         }}
       />
-      {editNameVisible && (
-        <SelectIcon
-          {...rest}
-          {...ids}
-          isActive
-          appItem={currentSheet}
-          projectId={projectId}
-          name={name}
-          icon={icon}
-          workSheetId={pageId}
-          onCancel={() => {
-            handleVisibleChange(false, 'editNameVisible');
-          }}
-        />
-      )}
       {shareDialogVisible && (
         <Share
           title={_l('分享页面: %0', name)}

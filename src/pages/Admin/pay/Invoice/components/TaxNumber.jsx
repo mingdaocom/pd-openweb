@@ -4,18 +4,21 @@ import moment from 'moment';
 import styled from 'styled-components';
 import { LoadDiv, UserHead } from 'ming-ui';
 import merchantInvoiceApi from 'src/api/merchantInvoice';
+import { hasPermission } from 'src/components/checkPermission';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import EmptyIndexContent from 'src/pages/Admin/pay/components/EmptyIndexContent';
 import { InvoiceConfirmDialog } from 'src/pages/invoice/InvoiceConfirm';
 import { navigateTo } from 'src/router/navigateTo';
 import { VersionProductType } from 'src/utils/enum';
 import { TAX_STATUS_TEXT } from '../config';
 import CreateTaxNumber from './CreateTaxNumber';
+import { TaxSettingDialog } from './TaxSetting';
 
 const ExplainWrap = styled.div`
-  background: #f2fafe;
+  background: var(--color-primary-transparent);
   border-radius: 3px;
   font-size: 13px;
   padding: 12px;
@@ -23,7 +26,7 @@ const ExplainWrap = styled.div`
 `;
 
 const TaxNumber = forwardRef((props, ref) => {
-  const { projectId, createTaxVisible, onCreateTax, featureType, curTaxNo, onShowCreateTaxBtn } = props;
+  const { projectId, createTaxVisible, onCreateTax, featureType, curTaxNo, onShowCreateTaxBtn, myPermissions } = props;
   const [loading, setLoading] = useState(true);
   const [taxList, setTaxList] = useState({ list: [], total: 0 });
   const [pageIndex, setPageIndex] = useState(1);
@@ -77,7 +80,16 @@ const TaxNumber = forwardRef((props, ref) => {
       width: 120,
       render: (text, record) => {
         return (
-          <span style={{ color: record.planType === 5 ? '#4CAF50' : record.planType === 99 ? '#f44336' : '#1677ff' }}>
+          <span
+            style={{
+              color:
+                record.planType === 5
+                  ? 'var(--color-success)'
+                  : record.planType === 99
+                    ? 'var(--color-error)'
+                    : 'var(--color-primary)',
+            }}
+          >
             {TAX_STATUS_TEXT[record.planType]}
           </span>
         );
@@ -126,35 +138,48 @@ const TaxNumber = forwardRef((props, ref) => {
 
         return (
           <Fragment>
-            <span
-              className="Hand ThemeColor mRight24 Hover_51"
-              onClick={() => {
-                onCreateTax(record.taxNo);
-                setDetailEmail(record.email);
-              }}
-            >
-              {_l('详情')}
-            </span>
-            <PurchaseExpandPack
-              className="Hand ThemeColor Hover_51"
-              text={planType === 5 ? _l('续费') : _l('付费开通')}
-              type="invoice"
-              projectId={projectId}
-              extraParam={planType === 5 ? `${record.taxNo}/renew` : record.taxNo}
-              onClick={
-                featureType === '2'
-                  ? () => buriedUpgradeVersionDialog(projectId, VersionProductType.invoice)
-                  : undefined
-              }
-            />
-            {planType !== 99 && (
+            {hasPermission(myPermissions, PERMISSION_ENUM.TAX_OPEN) && (
+              <Fragment>
+                <span
+                  className="Hand colorPrimary mRight24 Hover_51"
+                  onClick={() => {
+                    onCreateTax(record.taxNo);
+                    setDetailEmail(record.email);
+                  }}
+                >
+                  {_l('详情')}
+                </span>
+                <PurchaseExpandPack
+                  className="Hand colorPrimary Hover_51"
+                  text={planType === 5 ? _l('续费') : _l('付费开通')}
+                  type="invoice"
+                  projectId={projectId}
+                  extraParam={planType === 5 ? `${record.taxNo}/renew` : record.taxNo}
+                  onClick={
+                    featureType === '2'
+                      ? () => buriedUpgradeVersionDialog(projectId, VersionProductType.invoice)
+                      : undefined
+                  }
+                />
+                {planType !== 99 && (
+                  <span
+                    className="Hand colorPrimary Hover_51 mLeft24"
+                    onClick={() => {
+                      InvoiceConfirmDialog({ isLandPage: false, isTest: true, taxNo: record.taxNo, projectId });
+                    }}
+                  >
+                    {_l('开票测试')}
+                  </span>
+                )}
+              </Fragment>
+            )}
+
+            {hasPermission(myPermissions, PERMISSION_ENUM.TAX_SETTING) && (
               <span
-                className="Hand ThemeColor Hover_51 mLeft24"
-                onClick={() => {
-                  InvoiceConfirmDialog({ isLandPage: false, isTest: true, taxNo: record.taxNo, projectId });
-                }}
+                className="Hand colorPrimary Hover_51 mLeft24"
+                onClick={() => TaxSettingDialog({ taxInfo: record, projectId, onSaveSuccess: getTaxList })}
               >
-                {_l('开票测试')}
+                {_l('设置')}
               </span>
             )}
           </Fragment>
@@ -169,7 +194,7 @@ const TaxNumber = forwardRef((props, ref) => {
     <div className="flex flexColumn overflowHidden">
       <ExplainWrap>
         <div>
-          {md.global.Config.IsLocal
+          {window.platformENV.isOverseas || window.platformENV.isLocal
             ? _l('1、每个开票税号开通后，到期后自动停用，付费开通后可继续使用')
             : _l('1、每个开票税号开通后，享有 7 天免费试用，到期后自动停用，付费开通后可继续使用')}
         </div>
@@ -178,7 +203,7 @@ const TaxNumber = forwardRef((props, ref) => {
         <div>
           <span>{_l('4、审核操作通常由财务人员完成，建议在')}</span>
           <span
-            className="mLeft3 mRight3 ThemeColor ThemeHoverColor2 pointer"
+            className="mLeft3 mRight3 colorPrimary ThemeHoverColor2 pointer"
             onClick={() => navigateTo(`/admin/sysroles/${projectId}`)}
           >
             {_l('组织-管理员')}
@@ -188,7 +213,9 @@ const TaxNumber = forwardRef((props, ref) => {
       </ExplainWrap>
       <PageTableCon
         loading={loading}
-        columns={columns.filter(item => (md.global.Config.IsLocal ? item.dataIndex !== 'email' : true))}
+        columns={columns.filter(item =>
+          window.platformENV.isOverseas || window.platformENV.isLocal ? item.dataIndex !== 'email' : true,
+        )}
         dataSource={taxList.list}
         count={taxList.total}
         paginationInfo={{ pageIndex, pageSize: 50 }}

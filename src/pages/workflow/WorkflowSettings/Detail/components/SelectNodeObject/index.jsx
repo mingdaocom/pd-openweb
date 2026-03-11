@@ -17,7 +17,7 @@ export default class SelectNodeObject extends Component {
         <span
           className={cx(
             getIcons(item.nodeTypeId, item.appType, item.actionId),
-            item.nodeId ? 'Font16 Gray_75' : 'Font18 errorColor',
+            item.nodeId ? 'Font16 textSecondary' : 'Font18 errorColor',
           )}
         />
         <span className={cx('Font14 mLeft5', { errorColor: !item.nodeId })}>{item.nodeName || _l('节点已删除')}</span>
@@ -28,7 +28,7 @@ export default class SelectNodeObject extends Component {
             <span className="Font14 mLeft5 bold">{`“${item.appName}”`}</span>
           </Fragment>
         ) : !_.isEmpty(item) ? (
-          <span className="Font14 mLeft5 Gray_75">{_l('工作表已删除')}</span>
+          <span className="Font14 mLeft5 textSecondary">{_l('工作表已删除')}</span>
         ) : null}
       </Fragment>
     );
@@ -42,15 +42,15 @@ export default class SelectNodeObject extends Component {
 
     return (
       <div className="flexRow alignItemsCenter">
-        <span className={cx('Font16 Gray_75', getIcons(item.nodeTypeId, item.appType, item.actionId))} />
-        <span className={cx('Font14 mLeft5 ellipsis flex', { Gray_75: !item.appId })}>{item.nodeName}</span>
+        <span className={cx('Font16 textSecondary', getIcons(item.nodeTypeId, item.appType, item.actionId))} />
+        <span className={cx('Font14 mLeft5 ellipsis flex', { textSecondary: !item.appId })}>{item.nodeName}</span>
         {isIntegration || item.appType === APP_TYPE.LOOP_PROCESS ? null : item.appId && item.appName ? (
           <Fragment>
             <span className="Font14 mLeft5 bold">{item.appTypeName}</span>
             <span className="Font14 mLeft5 bold ellipsis" style={{ maxWidth: 150 }}>{`“${item.appName}”`}</span>
           </Fragment>
         ) : (
-          <span className="Font14 mLeft5 Gray_75">
+          <span className="Font14 mLeft5 textSecondary">
             <i className="icon-info_outline Font14 mRight5" />
             {_l('设置此节点后才能选择')}
           </span>

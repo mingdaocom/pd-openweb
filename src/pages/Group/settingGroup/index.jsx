@@ -40,12 +40,12 @@ const ActionResult = {
 const PAGE_SIZE = 30;
 
 const SettingDialog = styled(Dialog)`
-  background: #f5f5f5 !important;
+  background: var(--color-background-secondary) !important;
 `;
 
 const ContentWrap = styled.div`
   .group-card {
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     border-radius: 6px;
     padding: 16px;
     display: flex;
@@ -58,13 +58,13 @@ const ContentWrap = styled.div`
   .button-card {
     font-size: 13px;
     font-weight: 600;
-    color: #151515;
+    color: var(--color-text-title);
     justify-content: center;
     &.red {
-      color: #ff4d4f;
+      color: var(--color-error);
     }
     &.orange {
-      color: #ff9a00;
+      color: var(--color-warning);
     }
   }
   .switch-other-item {
@@ -77,7 +77,7 @@ const ContentWrap = styled.div`
     align-items: flex-start;
     > div {
       height: 46px;
-      border-bottom: 1px solid #f5f5f5;
+      border-bottom: 1px solid var(--color-background-secondary);
       &:last-child {
         border-bottom: none;
       }
@@ -103,7 +103,7 @@ const ContentWrap = styled.div`
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.4);
-        color: #fff;
+        color: var(--color-white);
         opacity: 0;
         display: flex;
         align-items: center;
@@ -122,14 +122,14 @@ const ContentWrap = styled.div`
       .label {
         font-size: 13px;
         font-weight: 600;
-        color: #757575;
+        color: var(--color-text-secondary);
         margin-bottom: 8px;
         padding-left: 16px;
       }
     }
     input {
       border: none !important;
-      background: #fff !important;
+      background: var(--color-background-primary) !important;
       padding: 0 16px !important;
       border-radius: 6px !important;
       height: 46px !important;
@@ -153,12 +153,12 @@ const ContentWrap = styled.div`
     margin: 0 16px;
     width: calc(100% - 36px);
     height: 1px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
   }
 `;
 
 const AboutTextarea = styled(Textarea)`
-  background: #fff !important;
+  background: var(--color-background-primary) !important;
   border-radius: 6px !important;
 `;
 
@@ -167,7 +167,7 @@ const UserDialogContent = styled.div`
   flex-direction: column;
   height: 100%;
   .selectUsers {
-    background: #fff;
+    background: var(--color-background-primary);
     border-radius: 6px;
     padding-top: 6px;
     padding-bottom: 16px;
@@ -191,7 +191,7 @@ const UserDialogContent = styled.div`
     gap: 8px;
     padding: 0 16px;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
     .name {
       width: 170px;
@@ -634,15 +634,15 @@ function SettingGroup(props) {
           )}
         </div>
         <div className="flex overflow_ellipsis">
-          <div className="Font17 Gray_15 Bold mBottom8 overflow_ellipsis">{groupInfo.name}</div>
+          <div className="Font17 textPrimary Bold mBottom8 overflow_ellipsis">{groupInfo.name}</div>
           {_.get(groupInfo, 'project.companyName') && (
-            <div className="Font13 Gray_75 overflow_ellipsis">{groupInfo.project.companyName}</div>
+            <div className="Font13 textSecondary overflow_ellipsis">{groupInfo.project.companyName}</div>
           )}
         </div>
         {groupInfo.isPost && (
           <div className="barcodeWrap">
             <QrPopup tip={_l('手机扫描邀请成员加入')} getLink={getQrCode}>
-              <Icon icon="zendeskHelp-qrcode" className="Gray_9e Font22 Hover_21 pointer" />
+              <Icon icon="zendeskHelp-qrcode" className="textTertiary Font22 hoverColorPrimary pointer" />
             </QrPopup>
           </div>
         )}
@@ -673,7 +673,7 @@ function SettingGroup(props) {
             );
           })}
         </div>
-        {editable && <Icon icon="arrow-right-border" className="Font16 mLeft20 Gray_9f" />}
+        {editable && <Icon icon="arrow-right-border" className="Font16 mLeft20 textTertiary" />}
       </div>
     );
   };
@@ -698,10 +698,10 @@ function SettingGroup(props) {
             className="group-card valignWrapper justifyContentBetween Hand"
             onClick={() => setState({ aboutDialogVisible: true })}
           >
-            <span className={cx('flex ellipsis', { Gray_9e: !_.get(groupInfo, 'about') })}>
+            <span className={cx('flex ellipsis', { textTertiary: !_.get(groupInfo, 'about') })}>
               {_.get(groupInfo, 'about')}
             </span>
-            <Icon icon="arrow-right-border" className="Font16 mLeft20 Gray_9f" />
+            <Icon icon="arrow-right-border" className="Font16 mLeft20 textTertiary" />
           </div>
         );
       case 'users':
@@ -756,7 +756,7 @@ function SettingGroup(props) {
                         </span>
                       )}
                     </div>
-                    <span className="Gray_75 mLeft42 mBottom10" style={{ marginTop: -6 }}>
+                    <span className="textSecondary mLeft42 mBottom10" style={{ marginTop: -6 }}>
                       {_l('新成员加入部门后自动加入群组')}
                     </span>
                   </Fragment>
@@ -775,7 +775,7 @@ function SettingGroup(props) {
                   />
                   <span>{_l('新成员加入需要管理员验证')}</span>
                 </div>
-                <div className="Font13 Gray_9e mTop6 mLeft16 mBottom20">
+                <div className="Font13 textTertiary mTop6 mLeft16 mBottom20">
                   {_l('仅对主动申请加入和通过链接邀请的用户生效')}
                 </div>
               </Fragment>
@@ -789,7 +789,7 @@ function SettingGroup(props) {
               />
               <span>{_l('消息免打扰')}</span>
             </div>
-            <div className="Font13 Gray_9e mTop6 mLeft16 mBottom20">
+            <div className="Font13 textTertiary mTop6 mLeft16 mBottom20">
               {_l('开启后，仅接收到@我及@全体群成员的消息提醒')}
             </div>
           </div>
@@ -824,7 +824,7 @@ function SettingGroup(props) {
               </div>
               <div className="content">{renderContentItem(item)}</div>
               {item.key === 'project.companyName' && (
-                <div className="mTop8 Gray_75">{_l('组织成员离职后自动退出群组')}</div>
+                <div className="mTop8 textSecondary">{_l('组织成员离职后自动退出群组')}</div>
               )}
             </div>
           );
@@ -853,13 +853,13 @@ function SettingGroup(props) {
                 <div className={cx('group-card button-card Hand', { red: l.red })} onClick={() => onClickButton(l)}>
                   {groupInfo.isPost ? l.label : l.chatLabel}
                 </div>
-                {!!desc && <div className="Font13 Gray_9e mTop6 mLeft16 mBottom20">{desc}</div>}
+                {!!desc && <div className="Font13 textTertiary mTop6 mLeft16 mBottom20">{desc}</div>}
                 {l.splintLine && <div className="btnSplitLine"></div>}
               </div>
             );
           })}
         </div>
-        <div className="mTop20 Font12 TxtRight Gray_9e">
+        <div className="mTop20 Font12 TxtRight textTertiary">
           {_l('创建时间')}: {groupInfo.createTime}
         </div>
       </Fragment>
@@ -880,7 +880,7 @@ function SettingGroup(props) {
         renderPointer={() => (
           <span className="actioWrap">
             <span>{USER_ACTIONS_MAP[user.groupUserRole]}</span>
-            <Icon icon="arrow-up-border1" className="Font14 Gray_9e" />
+            <Icon icon="arrow-up-border1" className="Font14 textTertiary" />
           </span>
         )}
       />
@@ -906,7 +906,7 @@ function SettingGroup(props) {
         renderPointer={() => (
           <span className="actioWrap">
             <span>{_l('等待审批加入群组')}</span>
-            <Icon icon="arrow-up-border1" className="Font14 Gray_9e" />
+            <Icon icon="arrow-up-border1" className="Font14 textTertiary" />
           </span>
         )}
       />
@@ -922,7 +922,7 @@ function SettingGroup(props) {
         return DropdownCon;
       } else {
         return groupInfo.isAdmin ? (
-          <span className="ThemeColor action Hand" onClick={() => onClickUserAction(3, user)}>
+          <span className="colorPrimary action Hand" onClick={() => onClickUserAction(3, user)}>
             {_l('移出')}
           </span>
         ) : null;
@@ -959,11 +959,11 @@ function SettingGroup(props) {
         onCancel={() => setState({ covertVisible: false })}
       >
         <div>
-          <div className="mTop15 Gray_6 flexRow alignItemsCenter">
+          <div className="mTop15 textSecondary flexRow alignItemsCenter">
             <div>{_l('所属组织')}</div>
             <div className="mLeft15 flex">{renderOrg()}</div>
           </div>
-          <p className="mTop15 Gray_6">{_l('点选转换后，该长期群组将永久隶属于此组织，不可更改')}</p>
+          <p className="mTop15 textSecondary">{_l('点选转换后，该长期群组将永久隶属于此组织，不可更改')}</p>
         </div>
       </Dialog>
     );
@@ -1007,7 +1007,7 @@ function SettingGroup(props) {
             )}
             <div className="selectUsers minHeight0">
               <div className="searchWrap">
-                <Icon icon="search" className="mRight5 Gray_75" />
+                <Icon icon="search" className="mRight5 textSecondary" />
                 <Input
                   className="w100"
                   placeholder={_l('搜索')}
@@ -1020,7 +1020,7 @@ function SettingGroup(props) {
               </div>
               <div className="userList minHeight0">
                 {_.isEmpty(userList) ? (
-                  <div className="Gray_bd Font13 mTop32 TxtCenter">{_l('无匹配结果')}</div>
+                  <div className="textDisabled Font13 mTop32 TxtCenter">{_l('无匹配结果')}</div>
                 ) : (
                   <ScrollView onScrollEnd={onScrollEnd}>{userList.map(l => renderUserItem(l))}</ScrollView>
                 )}

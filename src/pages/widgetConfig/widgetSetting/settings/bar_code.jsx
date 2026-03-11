@@ -68,7 +68,7 @@ export default function BarCode({ data, onChange, allControls, from, subListData
             }
           }}
         />
-        <div className="Gray_9e mTop10">
+        <div className="textTertiary mTop10">
           {enumDefault === 1
             ? _l('编码方式：code128，仅支持数字、字母、符号，最大包含128个字符')
             : _l('编码方式：QR-code，可支持汉字，最大包含150个字')}
@@ -120,7 +120,7 @@ export default function BarCode({ data, onChange, allControls, from, subListData
                 </span>
               }
             >
-              <i className="icon-help Gray_9e Font16 pointer"></i>
+              <i className="icon-help textTertiary Font16 pointer"></i>
             </Tooltip>
           </div>
           <Dropdown

@@ -16,7 +16,7 @@ const PopupWrap = styled(Popup)`
   }
   .titleBox {
     display: flex;
-    padding: 24px 15px 30px;
+    padding: 20px 15px 20px;
     .descIconBox {
       margin-right: 15px;
       .success {
@@ -35,11 +35,11 @@ const PopupWrap = styled(Popup)`
     }
     .title {
       font-size: 17px;
-      font-weight: 500;
+      font-weight: bold;
       color: var(--color-text-primary);
     }
     .subDesc {
-      margin-top: 10px;
+      margin-top: 8px;
       font-size: 13px;
       color: var(--color-text-secondary);
     }
@@ -63,11 +63,11 @@ const PopupWrap = styled(Popup)`
     }
     .primary {
       background-color: var(--color-info);
-      color: var(--color-text-inverse);
+      color: var(--color-white);
     }
     .delete {
       background-color: var(--color-error);
-      color: var(--color-text-inverse);
+      color: var(--color-white);
     }
   }
 `;

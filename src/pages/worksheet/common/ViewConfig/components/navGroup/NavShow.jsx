@@ -11,15 +11,17 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
 import { EditInfo } from 'src/pages/widgetConfig/styled/index.js';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
-import { FilterDialog, FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import FilterDialog from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterDialog';
+import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import SortCustom from 'src/pages/worksheet/common/ViewConfig/components/NavSort/customSet/index.jsx';
+import { replaceControlsTranslateInfo } from 'src/utils/translate.js';
 
 const Wrap = styled.div`
   .icon-rename_input {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     padding-right: 10px;
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .Dropdown {
@@ -28,7 +30,7 @@ const Wrap = styled.div`
     line-height: 36px;
     height: 36px;
     opacity: 1;
-    background: #ffffff;
+    background: var(--color-background-primary);
     border-radius: 4px;
     margin: 8px 0;
     box-sizing: border-box;
@@ -42,11 +44,11 @@ const Wrap = styled.div`
       padding: 0 12px 0 12px !important;
       width: 100%;
       display: flex;
-      border: 1px solid #dddddd;
+      border: 1px solid var(--color-border-primary);
       border-radius: 4px;
       height: 36px;
       &.active {
-        border: 1px solid #1677ff;
+        border: 1px solid var(--color-primary);
       }
       .value,
       .Dropdown--placeholder {
@@ -87,13 +89,13 @@ const Wrap = styled.div`
     }
   }
   .ant-select:hover {
-    border-color: #dddddd !important;
+    border-color: var(--color-border-primary) !important;
   }
   .ant-select-arrow {
-    color: #9e9e9e !important;
+    color: var(--color-text-tertiary) !important;
   }
   .RelateRecordDropdown-selected:not(.active) {
-    border-color: #ddd !important;
+    border-color: var(--color-border-primary) !important;
   }
 `;
 const SwitchStyle = styled.div`
@@ -107,7 +109,7 @@ const SwitchStyle = styled.div`
       color: #00c345;
     }
     &-ic_toggle_off {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
   }
 `;
@@ -186,15 +188,21 @@ export default function NavShow(props) {
       if (relateControls) {
         setState({ relateControls });
       } else {
+        const relationWorksheetId = _.get(props, 'filterInfo.globalSheetInfo.worksheetId');
+        const appId = _.get(props, 'filterInfo.globalSheetInfo.appId');
         sheetAjax
           .getWorksheetInfo({
             worksheetId: data.dataSource,
             getViews: true,
             getTemplate: true,
-            relationWorksheetId: _.get(props, 'filterInfo.globalSheetInfo.worksheetId'),
+            relationWorksheetId,
           })
           .then(res => {
-            setState({ relateControls: _.get(res, ['template', 'controls']) || [], loading: false });
+            const relateControls = _.get(res, ['template', 'controls']) || [];
+            setState({
+              relateControls: replaceControlsTranslateInfo(appId, res.worksheetId, relateControls),
+              loading: false,
+            });
           });
       }
     }
@@ -249,7 +257,7 @@ export default function NavShow(props) {
 
   return (
     <Wrap>
-      {params.txt && <div className="title mTop30 Gray Bold">{params.txt}</div>}
+      {params.txt && <div className="title mTop30 textPrimary Bold">{params.txt}</div>}
       <Dropdown
         data={
           filterInfo.navGroupId === 'wfstatus' && !showSysWorkflow
@@ -263,7 +271,7 @@ export default function NavShow(props) {
       {(value === '2' || (filters.length > 0 && value === '3' && !loading)) && <div className="mTop12"></div>}
       {value === '2' && (
         <EditInfo className="pointer flexRow" onClick={() => setState({ showCustom: true })}>
-          <div className={cx('overflow_ellipsis flex', filters.length <= 0 ? 'Gray_75' : 'Gray')}>
+          <div className={cx('overflow_ellipsis flex', filters.length <= 0 ? 'textSecondary' : 'textPrimary')}>
             {filters.length <= 0 ? _l('设置指定项') : _l('选中%0个', filters.length)}
           </div>
           <div className="edit">

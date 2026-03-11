@@ -18,7 +18,7 @@ const ChildTableComp = connect(state => ({
       <div
         style={{
           minHeight: 74,
-          background: '#f7f7f7',
+          background: 'var(--color-background-secondary)',
         }}
       ></div>
     );

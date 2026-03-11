@@ -14,7 +14,7 @@ const SignatureBox = styled.div`
     width: 100%;
     height: 200px;
     border-radius: 4px;
-    background: #f5f5f5;
+    background: var(--color-background-tertiary);
     vertical-align: top;
     display: flex;
     align-items: center;
@@ -29,7 +29,7 @@ const SignatureBox = styled.div`
   }
   .signatureFromMobile {
     font-size: 12px;
-    color: #757575;
+    color: var(--color-text-secondary);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -66,7 +66,9 @@ export default class Signature extends Component {
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
     canvas.getContext('2d');
+    const penColor = getComputedStyle(document.body).getPropertyValue('--color-text-primary');
     this.signaturePad = new SignaturePad.default(canvas, {
+      penColor,
       onBegin: () => {
         this.setState({ isEdit: true });
         if (isFunction(onBegin)) {

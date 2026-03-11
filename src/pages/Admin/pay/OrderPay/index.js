@@ -449,7 +449,7 @@ export default class OrderPay extends Component {
               ) : (
                 ''
               )}
-              <div className="ThemeColor mBottom24 TxtCenter">
+              <div className="colorPrimary mBottom24 TxtCenter">
                 <span className={cx('amount', isMobile ? 'Font50' : 'Font40')}>
                   ¥ {amount <= 0 ? 0 : formatNumberThousand(amount)}
                 </span>

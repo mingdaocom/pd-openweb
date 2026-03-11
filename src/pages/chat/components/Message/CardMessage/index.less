@@ -1,7 +1,7 @@
 .Message-card {
   width: 370px;
-  background: #fff;
-  border: 1px solid #ccc;
+  background: var(--color-background-card);
+  border: 1px solid var(--color-border-tertiary);
   border-radius: 10px;
   transition: all 0.3s;
   cursor: pointer;
@@ -15,7 +15,7 @@
     height: 36px;
     display: flex;
     align-items: center;
-    color: #999;
+    color: var(--color-text-tertiary);
     font-size: 14px;
     i {
       margin-right: 4px;
@@ -26,7 +26,7 @@
     }
     &-title {
       font-weight: 600;
-      color: #151515;
+      color: var(--color-text-title);
       font-size: 15px;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -41,7 +41,7 @@
       justify-content: flex-end;
     }
     .icon-attachment {
-      color: #bbb;
+      color: var(--color-text-disabled);
       margin-left: 5px;
     }
   }
@@ -64,7 +64,7 @@
       height: 28px;
       overflow: hidden;
       padding: 2px;
-      background: #fff;
+      background: var(--color-background-primary);
       display: inline-block;
       border-radius: 50%;
       margin-right: 0;
@@ -88,8 +88,8 @@
         height: 24px;
         line-height: 26px;
         border-radius: 50%;
-        color: #fff;
-        background-color: #a7a7a7;
+        color: var(--color-white);
+        background-color: var(--color-text-tertiary);
         font-size: 13px;
         text-align: center;
       }
@@ -116,7 +116,7 @@
           display: inline-block;
           width: 14px;
           height: 14px;
-          border: 1px solid #bbb;
+          border: 1px solid var(--color-text-disabled);
           position: absolute;
           left: 0;
           top: 0;
@@ -126,7 +126,7 @@
     &-voteState {
       margin-right: 10px;
       &.proceed {
-        color: #4caf50;
+        color: var(--color-success);
       }
       &.end {
         color: #f00;

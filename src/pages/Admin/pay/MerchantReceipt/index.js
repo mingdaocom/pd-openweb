@@ -14,7 +14,7 @@ const Wrap = styled.div`
   width: 100%;
   .content {
     height: 299px;
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     border-radius: 9px 9px 9px 9px;
     padding: 50px 16px 0;
     .label {
@@ -33,10 +33,10 @@ const Wrap = styled.div`
     .backBtn {
       width: 113px;
       height: 36px;
-      background: #ffffff;
+      background: var(--color-background-primary);
       border-radius: 18px;
-      border: 1px solid #1677ff;
-      color: #1677ff;
+      border: 1px solid var(--color-primary);
+      color: var(--color-primary);
       margin: 0 auto;
       line-height: 34px;
     }
@@ -95,17 +95,17 @@ export default function MerchantReceipt() {
           <img src={data.projectLogo} className="logo" />
         )}
 
-        <div className="Font20 bold TxtCenter Gray">{data.description}</div>
+        <div className="Font20 bold TxtCenter textPrimary">{data.description}</div>
         <div className="flexRow mBottom20">
-          <div className="flex Gray_75">{_l('订单状态')}</div>
+          <div className="flex textSecondary">{_l('订单状态')}</div>
           <div className="value">{_l('支付成功')}</div>
         </div>
         <div className="flexRow mBottom20">
-          <div className="flex Gray_75 label">{_l('商户单号')}</div>
+          <div className="flex textSecondary label">{_l('商户单号')}</div>
           <div className="value">{data.merchantOrderId}</div>
         </div>
         <div className="flexRow mBottom30">
-          <div className="flex Gray_75">{_l('支付总额')}</div>
+          <div className="flex textSecondary">{_l('支付总额')}</div>
           <div className="value">¥ {data.amount}</div>
         </div>
 

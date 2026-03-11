@@ -5,7 +5,6 @@ import { MobileSearch, PopupWrapper, ScrollView } from 'ming-ui';
 import RecordCard from 'mobile/RecordList/RecordCard';
 import { getFormateView } from '../../util';
 import EmptyStatus from '../EmptyStatus';
-import './index.less';
 
 const DailySchedule = forwardRef((props, ref) => {
   const {
@@ -61,19 +60,19 @@ const DailySchedule = forwardRef((props, ref) => {
       >
         <div className="h100 flexColumn">
           <MobileSearch placeholder={_l('搜索记录')} onSearch={searchResult} />
-          <ScrollView className="flex">
+          <ScrollView className="flex pLeft8 pRight8">
             {filterData.length > 0 ? (
               <div className="weeklyCalendarContentList">
                 {filterData.map(item => (
                   <RecordCard
-                    key={`${item.originalProps.rowid}-${item.mark}`}
-                    data={item.originalProps}
+                    key={`${item.row.rowid}-${item.mark}`}
+                    data={item.row}
                     view={getFormateView(view, item)}
                     appId={base.appId}
                     projectId={worksheetInfo.projectId}
                     controls={controls}
                     mark={item.mark}
-                    onClick={() => openRecord(item.originalProps)}
+                    onClick={() => openRecord(item.row)}
                   />
                 ))}
               </div>

@@ -47,7 +47,7 @@ export default class AppNameHeader extends Component {
               </span>
             </div>
             <div
-              className="appName Gray Font16 Hand"
+              className="appName textPrimary Font16 Hand"
               onClick={() => {
                 navigateTo(`/app/${this.props.match.params.apkId}`);
               }}

@@ -664,7 +664,7 @@ $.extend(RootSettings.prototype, {
           });
       });
     } else {
-      $createFolderBox.find('.folderContent .dropBox').css('color', '#7d7d7d');
+      $createFolderBox.find('.folderContent .dropBox').css('color', 'var(--color-text-secondary)');
     }
 
     //成员名片层

@@ -23,9 +23,9 @@ const Wrap = styled.div`
   }
   .setBtn {
     padding: 5px 20px;
-    background: #1677ff;
+    background: var(--color-primary);
     border-radius: 3px 3px 3px 3px;
-    color: #fff !important;
+    color: var(--color-white) !important;
   }
   .customUrlCon {
     padding: 0 24px 0;
@@ -36,7 +36,7 @@ const Wrap = styled.div`
     height: 36px;
     line-height: 36px;
     padding: 0 12px;
-    background-color: #f1f1f1;
+    background-color: var(--color-background-disabled);
     border-radius: 3px;
   }
   .numCon {
@@ -52,9 +52,9 @@ const Wrap = styled.div`
       transform: translate(-50%, 0);
     }
     .icon {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       &:hover {
-        color: red;
+        color: var(--color-error);
       }
       opacity: 0;
     }
@@ -89,10 +89,10 @@ const WrapDetail = styled.div`
     height: 36px;
     line-height: 36px;
     border-radius: 3px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     padding: 0 12px;
     &:focus {
-      border: 1px solid #1677ff;
+      border: 1px solid var(--color-primary);
     }
   }
   .setCheckbox {
@@ -104,22 +104,22 @@ const CustomUrlSet = styled.div`
   border-radius: 3px;
   height: 36px;
   line-height: 36px;
-  background-color: #f1f1f1;
-  color: #151515;
+  background-color: var(--color-background-disabled);
+  color: var(--color-text-title);
   font-size: 14px;
   padding: 0 10px;
   cursor: pointer;
   padding: 0;
   width: 36px;
-  color: #757575;
+  color: var(--color-text-secondary);
   font-size: 18px;
   text-align: center;
   margin-left: 6px;
-  background: #fff;
-  border: 1px solid #ddd;
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border-primary);
   &:hover {
-    border-color: #1677ff;
-    color: #1677ff;
+    border-color: var(--color-primary);
+    color: var(--color-primary);
   }
 `;
 
@@ -186,13 +186,13 @@ function Setting(props) {
             <span className="Bold">{_l('生成地址')}</span>
             <Icon
               icon="close"
-              className="Right LineHeight25 Gray_9 Hand Font22 ThemeHoverColor3"
+              className="Right LineHeight25 textTertiary Hand Font22 ThemeHoverColor3"
               onClick={() => {
                 closeSet();
               }}
             />
           </div>
-          <div className="Gray_75 Font13 mTop10 pLeft24 pRight24">
+          <div className="textSecondary Font13 mTop10 pLeft24 pRight24">
             {_l('外部门户通过配置注册方式、登录方式、角色可生成多个链接，实现外部用户个性化登录。')}
           </div>
           <div className="pLeft24 pRight24">
@@ -302,7 +302,7 @@ function Setting(props) {
           }}
         >
           <WrapDetail className={''}>
-            <h6 className="Font13 Gray Bold mBottom0">{_l('名称')}</h6>
+            <h6 className="Font13 textPrimary Bold mBottom0">{_l('名称')}</h6>
             <Input
               type="text"
               className="mTop6 w100 nameInput"
@@ -314,7 +314,7 @@ function Setting(props) {
                 });
               }}
             />
-            <h6 className={cx('Font13 Gray Bold mBottom0 mTop32')}>{_l('注册方式')}</h6>
+            <h6 className={cx('Font13 textPrimary Bold mBottom0 mTop32')}>{_l('注册方式')}</h6>
             <div className="">
               {REJISTER_WAY.map(o => {
                 return (
@@ -332,7 +332,7 @@ function Setting(props) {
                 );
               })}
             </div>
-            <h6 className={cx('Font13 Gray Bold mBottom0 mTop32')}>{_l('登录方式')}</h6>
+            <h6 className={cx('Font13 textPrimary Bold mBottom0 mTop32')}>{_l('登录方式')}</h6>
             <div className="">
               {LOGIN_WAY.map(o => {
                 if (o.key === 'weChat' && md.global.SysSettings.hideWeixin) return;
@@ -352,7 +352,7 @@ function Setting(props) {
                 );
               })}
             </div>
-            <h6 className={cx('Font13 Gray Bold mBottom0 mTop32')}>{_l('默认角色')}</h6>
+            <h6 className={cx('Font13 textPrimary Bold mBottom0 mTop32')}>{_l('默认角色')}</h6>
             <Dropdown
               data={roleList.map(o => {
                 return { text: o.name, value: o.roleId };

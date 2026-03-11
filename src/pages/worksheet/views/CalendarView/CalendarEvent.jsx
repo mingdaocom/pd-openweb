@@ -4,7 +4,7 @@ import { Popover } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
 import SheetContext from 'worksheet/common/Sheet/SheetContext';
-import { getEmbedValue } from 'src/components/Form/core/formUtils';
+import { getEmbedValue } from 'src/components/Form/core/formUtils/helper';
 import { permitList } from 'src/pages/FormSet/config';
 import { isOpenPermit } from 'src/pages/FormSet/util';
 import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
@@ -12,9 +12,9 @@ import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/D
 import EditableCard from 'src/pages/worksheet/views/components/EditableCard.jsx';
 import { getRecordAttachments } from 'src/pages/worksheet/views/util.js';
 import { RENDER_RECORD_NECESSARY_ATTR } from 'src/pages/worksheet/views/util.js';
-import { dateConvertToServerZone } from 'src/utils/project';
+import { isTimeStyle } from 'src/utils/control';
 import { getRecordColorConfig } from 'src/utils/record';
-import { isEmojiCharacter, isTimeStyle } from './util';
+import { isEmojiCharacter } from './util';
 
 const EventCardContent = ({
   info,
@@ -33,13 +33,11 @@ const EventCardContent = ({
   const item = _.cloneDeep(_.get(info, 'event.extendedProps'));
   if (item?.info?.begin && item[item.info.begin]) {
     item[item.info.begin] = isTimeStyle(_.get(item, 'info.startData'))
-      ? dateConvertToServerZone(moment(item[item.info.begin]))
+      ? moment(item[item.info.begin])
       : item[item.info.begin];
   }
   if (item?.info?.end && item[item.info.end]) {
-    item[item.info.end] = isTimeStyle(_.get(item, 'info.endData'))
-      ? dateConvertToServerZone(moment(item[item.info.end]))
-      : item[item.info.end];
+    item[item.info.end] = isTimeStyle(_.get(item, 'info.endData')) ? moment(item[item.info.end]) : item[item.info.end];
   }
   const coverCid = currentView.coverCid || _.get(worksheetInfo, 'advancedSetting.coverid');
   let formData = controls.map(o => ({ ...o, value: item[o.controlId] }));

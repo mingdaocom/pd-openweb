@@ -44,7 +44,7 @@ const TreeWrap = styled(Tree)`
     flex: 1;
   }
   .nodeName {
-    color: #151515 !important;
+    color: var(--color-text-title) !important;
   }
   .ant-tree-treenode {
     width: 233px;
@@ -52,7 +52,7 @@ const TreeWrap = styled(Tree)`
     border-radius: 3px;
     position: relative;
     &:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
       .dragIcon {
         opacity: 1;
       }
@@ -61,7 +61,7 @@ const TreeWrap = styled(Tree)`
       }
     }
     .disabledIcon {
-      color: #fd5d22 !important;
+      color: var(--color-warning) !important;
     }
     &-selected {
       background-color: rgba(33, 150, 243, 0.11) !important;
@@ -78,13 +78,13 @@ const TreeWrap = styled(Tree)`
       }
       .nodeName {
         font-weight: 600 !important;
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
   }
   .dragIcon {
     opacity: 0;
-    color: #9e9e9e !important;
+    color: var(--color-text-tertiary) !important;
   }
   .moreActionButton {
     display: inline-block;
@@ -96,7 +96,7 @@ const TreeWrap = styled(Tree)`
 `;
 
 const DeleteText = styled.div`
-  color: #f51744;
+  color: var(--color-error);
 `;
 
 const DefaultGroup = {
@@ -621,7 +621,7 @@ class RoleManage extends Component {
     if (!searchRes.data.length && !searchLoading)
       return (
         <div className="searchList">
-          <div className="Gray_9e Font13 mLeft24">{_l('暂无搜索结果')}</div>
+          <div className="textTertiary Font13 mLeft24">{_l('暂无搜索结果')}</div>
         </div>
       );
 
@@ -654,14 +654,14 @@ class RoleManage extends Component {
         onClick={() => this.handleClick(l)}
       >
         {l.key === 'isMore' ? (
-          <span className="ThemeColor mLeft26">{_l('加载')}</span>
+          <span className="colorPrimary mLeft26">{_l('加载')}</span>
         ) : (
           <Fragment>
-            {searchValue && <Icon icon="person_new" className="Gray_9e Font18" />}
+            {searchValue && <Icon icon="person_new" className="textTertiary Font18" />}
             <span className={cx('flex ellipsis Font13 nodeName', { mLeft4: l.isLeaf })}>
               {orgGroup.title ? `${orgGroup.title}-${l.title}` : l.title}
               {l.disabled && !l.organizeId && (
-                <Icon icon="person_off_a" className="Gray_9e Font18 mLeft6 TxtMiddle disabledIcon" />
+                <Icon icon="person_off_a" className="textTertiary Font18 mLeft6 TxtMiddle disabledIcon" />
               )}
             </span>
             {!isDefault && hasPermission(authority, PERMISSION_ENUM.ROLE_MENAGE) && (
@@ -717,7 +717,7 @@ class RoleManage extends Component {
                 >
                   <Icon
                     icon="moreop"
-                    className="Gray_9e Font18 TxtMiddle editIcon Hover_21"
+                    className="textTertiary Font18 TxtMiddle editIcon hoverColorPrimary"
                     onClick={e => e.stopPropagation()}
                   />
                 </Trigger>
@@ -725,7 +725,7 @@ class RoleManage extends Component {
             )}
             {l.isLeaf && l.remark && l.organizeId !== showDeleteId && (
               <Tooltip placement="rightTop" align={{ offset: [0, -15] }} title={l.remark}>
-                <Icon icon="info_outline" className="remarkTooptip Gray_9e Font16 TxtMiddle mLeft2" />
+                <Icon icon="info_outline" className="remarkTooptip textTertiary Font16 TxtMiddle mLeft2" />
               </Tooltip>
             )}
           </Fragment>
@@ -915,7 +915,7 @@ class RoleManage extends Component {
                 }
               >
                 <i
-                  className="icon icon-moreop ant-dropdown-trigger Gray_9e Hand Font20 iconHover LineHeight28"
+                  className="icon icon-moreop ant-dropdown-trigger textTertiary Hand Font20 iconHover LineHeight28"
                   onClick={() => this.setState({ popupVisible: true })}
                 />
               </Trigger>
@@ -937,7 +937,7 @@ class RoleManage extends Component {
                   draggable={treeNode => {
                     if (!hasRoleAuth || (!treeNode.isLeaf && treeNode.key === 'defaultGroup')) return false;
                     return {
-                      icon: <Icon icon="indicator" className="dragIcon Gray_9e" />,
+                      icon: <Icon icon="indicator" className="dragIcon textTertiary" />,
                     };
                   }}
                   showIcon
@@ -947,7 +947,7 @@ class RoleManage extends Component {
                     return (
                       <Icon
                         icon={l.disabled ? 'person_off_a' : 'person_new'}
-                        className={`Gray_9e Font18 LineHeight24 ${l.disabled ? 'disabledIcon' : ''}`}
+                        className={`textTertiary Font18 LineHeight24 ${l.disabled ? 'disabledIcon' : ''}`}
                       />
                     );
                   }}
@@ -959,7 +959,7 @@ class RoleManage extends Component {
               )}
               {!loading && !searchValue && !treeData.length && (
                 <div className="searchList">
-                  <div className="Gray_9e Font13 mLeft24">{_l('暂无结果')}</div>
+                  <div className="textTertiary Font13 mLeft24">{_l('暂无结果')}</div>
                 </div>
               )}
             </ScrollView>

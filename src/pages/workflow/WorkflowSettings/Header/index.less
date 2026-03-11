@@ -9,12 +9,12 @@
     padding: 0 20px;
     height: 55px;
     align-items: center;
-    background: #fff;
+    background: var(--color-background-primary);
     z-index: 2;
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    box-shadow: var(--shadow-sm);
     &.workflowReleaseHeader {
-      background: #313131;
-      color: #fff;
+      background: var(--color-background-inverse);
+      color: var(--color-white);
       .workflowHeaderDesc div,
       .workflowHeaderTab:not(.active),
       .workflowReleaseBox {
@@ -22,10 +22,10 @@
       }
       .workflowHeaderTab.active,
       .icon-restore2:hover {
-        color: #fff !important;
+        color: var(--color-white) !important;
       }
       .workflowReturn {
-        color: #fff;
+        color: var(--color-white);
         &:hover {
           background: rgba(0, 0, 0, 0.24);
         }
@@ -36,13 +36,13 @@
       margin-right: 10px;
       font-size: 20px;
       padding: 4px;
-      color: #757575;
+      color: var(--color-text-secondary);
       border-radius: 50%;
       height: 28px;
       width: 28px;
       display: flex;
       &:hover {
-        background: #f8f8f8;
+        background: var(--color-background-hover);
       }
     }
     .workflowHeaderDesc {
@@ -64,15 +64,15 @@
       box-sizing: border-box;
       transition: all 0.3s ease-out;
       &:not(:hover):not(.active) {
-        color: #757575 !important;
+        color: var(--color-text-secondary) !important;
         border-bottom-color: transparent !important;
       }
     }
     .workflowSettingsHeaderUpdateBtn {
       height: 22px;
-      background: #151515;
+      background: var(--color-text-primary);
       border-radius: 11px;
-      color: #fff;
+      color: var(--color-text-inverse);
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -87,7 +87,7 @@
       justify-content: center;
       .icon {
         font-size: 24px;
-        color: #fff;
+        color: var(--color-white);
       }
     }
   }
@@ -119,11 +119,11 @@
     line-height: 38px;
     border-radius: 3px;
     cursor: pointer;
-    color: #fff;
+    color: var(--color-white);
     text-align: center;
     box-sizing: border-box;
-    border: 1px solid #bdbdbd;
-    color: #757575;
+    border: 1px solid var(--color-text-disabled);
+    color: var(--color-text-secondary);
     &::after {
       text-align: left;
     }
@@ -148,9 +148,9 @@
 .leaveWorkflowConfirm {
   .Dialog-footer-btns {
     .Button--primary {
-      background: #f44336;
+      background: var(--color-error);
       &:hover {
-        background: #e53935;
+        background: var(--color-error);
       }
     }
   }
@@ -162,18 +162,18 @@
   resize: none;
   vertical-align: top;
   width: 100%;
-  border-color: #bdbdbd;
+  border-color: var(--color-border-primary);
 }
 
 .actionProcessDialog {
   .Dialog-footer-btns {
     .Button--primary:first-child {
-      background: #fff !important;
-      color: #151515;
-      border: 1px solid #d0d0d0;
+      background: var(--color-background-primary) !important;
+      color: var(--color-text-title);
+      border: 1px solid var(--color-border-primary);
       &:hover {
-        color: #1677ff;
-        border-color: #1677ff;
+        color: var(--color-primary);
+        border-color: var(--color-primary);
       }
     }
   }

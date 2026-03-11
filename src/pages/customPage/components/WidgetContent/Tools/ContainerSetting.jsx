@@ -42,7 +42,9 @@ export default props => {
       title: <div className="Bold">{_l('删除 “%0”', tab.name)}</div>,
       description: (
         <div>
-          <span style={{ color: '#151515', fontWeight: 'bold' }}>{_l('注意:%0下所有配置和数据将被删除。', name)}</span>
+          <span style={{ color: 'var(--color-text-title)', fontWeight: 'bold' }}>
+            {_l('注意:%0下所有配置和数据将被删除。', name)}
+          </span>
           {_l('请务必确认所有应用成员都不再需要此%0后, 再执行此操作。', name)}
         </div>
       ),
@@ -68,7 +70,7 @@ export default props => {
     return (
       <div className="flexRow valignWrapper mTop10 mBottom5" key={item.id}>
         <DragHandle>
-          <Icon icon="drag" className="Gray_bd Font20 pointer hoverText" />
+          <Icon icon="drag" className="textDisabled Font20 pointer hoverText" />
         </DragHandle>
         <Input
           className={cx('flex mLeft5 mRight5', `tabInput-${item.id}`)}
@@ -92,7 +94,7 @@ export default props => {
         {tabs.length > 1 && (
           <Icon
             icon="trash"
-            className="Gray_bd Font20 pointer"
+            className="textDisabled Font20 pointer"
             onClick={() => {
               handleDeleteConfirm(item);
             }}
@@ -158,13 +160,13 @@ export default props => {
             <div className="bold mRight10">{_l('显示方式')}</div>
             <div className="typeSelect flex flexRow valignWrapper">
               <div
-                className={cx('centerAlign flex pointer Gray_75', { active: showType === 1 })}
+                className={cx('centerAlign flex pointer textSecondary', { active: showType === 1 })}
                 onClick={() => handleChangeConfig({ showType: 1 })}
               >
                 {_l('透明')}
               </div>
               <div
-                className={cx('centerAlign flex pointer Gray_75', { active: showType === 2 })}
+                className={cx('centerAlign flex pointer textSecondary', { active: showType === 2 })}
                 onClick={() => handleChangeConfig({ showType: 2 })}
               >
                 {_l('卡片')}
@@ -200,7 +202,7 @@ export default props => {
               />
               {tabs.length < 20 && (
                 <div
-                  className="flexRow valignWrapper pointer ThemeColor mTop5"
+                  className="flexRow valignWrapper pointer colorPrimary mTop5"
                   onClick={() => {
                     handleChangeConfig({
                       tabs: tabs.concat({

@@ -19,7 +19,7 @@ const Con = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
-  background-color: #fafafa;
+  background-color: var(--color-background-secondary);
   padding: 12px;
   .controlContent {
     margin-right: 6px;
@@ -41,12 +41,12 @@ const Con = styled.div`
     }
   }
   .count {
-    color: #999;
+    color: var(--color-text-tertiary);
     font-size: 12px;
     margin: 0 8px;
   }
   .controlText {
-    color: #151515;
+    color: var(--color-text-title);
     font-size: 14px;
     font-weight: bold;
   }
@@ -54,7 +54,7 @@ const Con = styled.div`
     margin: 0;
   }
   .Score-wrapper.customScoreWrap .text {
-    color: #151515;
+    color: var(--color-text-title);
     font-size: 14px;
     font-weight: bold;
     margin-left: 5px !important;
@@ -81,7 +81,7 @@ const Icon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #333;
+  color: var(--color-text-primary);
   font-size: 16px;
   margin-right: 6px;
   cursor: pointer;
@@ -143,7 +143,7 @@ export function ControlContent(props) {
   } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.SCORE) {
     return (
       <div className="controlContent">
-        <CustomScore hideTip backgroundColor="rgba(0,0,0,0.16)" score={name} data={control} disabled />
+        <CustomScore hideTip backgroundColor="var(--color-border-primary)" score={name} data={control} disabled />
       </div>
     );
   } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.USER_PICKER) {
@@ -280,7 +280,7 @@ export default function GroupByControl(props) {
         }}
       >
         <Icon className="hoverShow" onClick={e => e.stopPropagation()}>
-          <i className="icon icon-more_horiz Gray_9e"></i>
+          <i className="icon icon-more_horiz textTertiary"></i>
         </Icon>
       </Trigger>
       {addRecordVisible && (
@@ -301,7 +301,7 @@ export default function GroupByControl(props) {
             });
           }}
         >
-          <i className="icon icon-add Gray_9e"></i>
+          <i className="icon icon-add textTertiary"></i>
         </Icon>
       )}
     </Con>

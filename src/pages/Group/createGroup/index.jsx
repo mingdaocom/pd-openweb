@@ -24,7 +24,7 @@ const ContentWrap = styled.div`
     }
     .label {
       font-size: 13px;
-      color: #151515;
+      color: var(--color-text-title);
       width: 20%;
       font-weight: 600;
     }
@@ -157,9 +157,9 @@ function CreateGroup(props) {
       <Fragment>
         <div className="mBottom24">
           <Switch checked={isApproval} onClick={() => setState({ isApproval: !isApproval })} size="small" />
-          <span className="Font13 Gray_15 mLeft8">{_l('新成员加入需要管理员验证')}</span>
+          <span className="Font13 textPrimary mLeft8">{_l('新成员加入需要管理员验证')}</span>
           <Tooltip title={_l('仅对主动申请加入和通过链接邀请的用户生效')}>
-            <Icon icon="info_outline" className="mLeft4 Gray_bd Font16" />
+            <Icon icon="info_outline" className="mLeft4 textDisabled Font16" />
           </Tooltip>
         </div>
         {type === 0 && !hideOfficial && (
@@ -176,14 +176,14 @@ function CreateGroup(props) {
               }}
               size="small"
             />
-            <span className="Font13 Gray_15 mLeft8">{_l('关联部门')}</span>
+            <span className="Font13 textPrimary mLeft8">{_l('关联部门')}</span>
             {!_.isEmpty(department) && isOfficial && (
-              <span className="ThemeColor mLeft8 Hand bold" onClick={onSelectDept}>
+              <span className="colorPrimary mLeft8 Hand bold" onClick={onSelectDept}>
                 {department.departmentName}
               </span>
             )}
 
-            <div className="mTop5 Gray_75 mLeft42">{_l('新成员加入部门后自动加入群组')}</div>
+            <div className="mTop5 textSecondary mLeft42">{_l('新成员加入部门后自动加入群组')}</div>
           </div>
         )}
       </Fragment>
@@ -201,7 +201,7 @@ function CreateGroup(props) {
           }
         />
         <SelectAvatarTrigger onChange={value => setState(value)}>
-          <span className="ThemeColor mLeft12 Hand">{_l('修改')}</span>
+          <span className="colorPrimary mLeft12 Hand">{_l('修改')}</span>
         </SelectAvatarTrigger>
       </div>
     );
@@ -256,7 +256,7 @@ function CreateGroup(props) {
             <div className="label">{_l('群类型')}</div>
             <div className="content">
               {renderGroupType()}
-              <div className="mTop8 Gray_75">
+              <div className="mTop8 textSecondary">
                 {type === 0
                   ? _l('组织成员离职后自动退群，信息沟通更安全（推荐）')
                   : _l('群组归属于个人，组织成员离职并不会退出该群组')}

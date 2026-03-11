@@ -319,7 +319,7 @@ class Discuss extends Component {
         )}
         {recordDiscussSwitch && (
           <div
-            className="flexRow alignItemsCenter participation WhiteBG"
+            className="flexRow alignItemsCenter participation bgPrimary"
             onClick={() => {
               if (window.isPublicApp) {
                 alert(_l('预览模式下，不能操作'), 3);
@@ -330,24 +330,24 @@ class Discuss extends Component {
           >
             {_.isEmpty(firstTemporaryDiscuss) ? (
               <Fragment>
-                <i className="icon icon-chat Font24 Gray_9e mTop3" />
-                {discussionCount ? <span className="Font15 Gray_75 mLeft5 mTop2">{discussionCount}</span> : null}
+                <i className="icon icon-chat Font24 textTertiary mTop3" />
+                {discussionCount ? <span className="Font15 textSecondary mLeft5 mTop2">{discussionCount}</span> : null}
                 <div className="flex"></div>
                 {!md.global.Account.isPortal && entityType !== 2 && rowId && (
                   <div onClick={this.handleShowAttention}>
                     <i
-                      className={`icon Font24 mTop3 ${isAttention ? 'icon-notification_turn_on ThemeColor3' : 'icon-Silent Gray_9e'}`}
+                      className={`icon Font24 mTop3 ${isAttention ? 'icon-notification_turn_on ThemeColor3' : 'icon-Silent textTertiary'}`}
                     />
                   </div>
                 )}
               </Fragment>
             ) : (
               <Fragment>
-                <span className="ThemeColor">{_l('草稿：')}</span>
-                <span className="flex ellipsis Gray_9e">{firstTemporaryDiscuss.content || ''}</span>
+                <span className="colorPrimary">{_l('草稿：')}</span>
+                <span className="flex ellipsis textTertiary">{firstTemporaryDiscuss.content || ''}</span>
                 <Icon
                   icon="cancel"
-                  className="close Font22 Gray_9e Static"
+                  className="close Font22 textTertiary Static"
                   onClick={e => {
                     e.stopPropagation();
                     delete temporaryDiscuss[firstTemporaryDiscuss.replyId || 'empty'];
@@ -416,12 +416,12 @@ class Discuss extends Component {
               </div>
             </div>
             <div
-              className={`flexRow alignItemsCenter pLeft15 pRight15 mBottom20 ${isAttention ? 'ThemeColor3' : 'Gray_9e'}`}
+              className={`flexRow alignItemsCenter pLeft15 pRight15 mBottom20 ${isAttention ? 'ThemeColor3' : 'textTertiary'}`}
               onClick={this.setFollow}
             >
               <i className="icon icon-notification_turn_on Font24 mRight12" />
               <div className="flex">
-                <div className={`Font15 bold ${isAttention ? 'ThemeColor3' : 'Gray'}`}>
+                <div className={`Font15 bold ${isAttention ? 'ThemeColor3' : 'textPrimary'}`}>
                   {!isAttention ? _l('关注') : _l('关注中...')}
                 </div>
                 <div className="Font12">

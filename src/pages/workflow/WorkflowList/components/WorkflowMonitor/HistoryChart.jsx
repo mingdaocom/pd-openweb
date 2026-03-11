@@ -126,8 +126,8 @@ export default class HistoryChart extends PureComponent {
         offset: -40,
         offsetY: -50,
         domStyles: {
-          'g2-tooltip-list-item': { textAlign: 'left', color: '#151515' },
-          'g2-tooltip-title': { color: '#757575' },
+          'g2-tooltip-list-item': { textAlign: 'left', color: 'var(--color-text-title)' },
+          'g2-tooltip-title': { color: 'var(--color-text-secondary)' },
         },
         customContent: (title, items) => {
           const [data1 = {}] = items;
@@ -151,7 +151,7 @@ export default class HistoryChart extends PureComponent {
             })()}
             </ul>
             <li class="g2-tooltip-list-item TxtCenter">
-              <span class="g2-tooltip-name ThemeColor Hand customContent" data-date=${JSON.stringify(
+              <span class="g2-tooltip-name colorPrimary Hand customContent" data-date=${JSON.stringify(
                 date,
               )} date1=${date}>查看详情</span>
             </li>
@@ -292,11 +292,11 @@ export default class HistoryChart extends PureComponent {
             {showDate && (
               <Fragment>
                 <span className="mRight30 Font12">
-                  <span className="Gray_75">{_l('累计新增')} </span>
+                  <span className="textSecondary">{_l('累计新增')} </span>
                   <span className="Font14 bold">{formatter(accumulateAdd)}</span>
                 </span>
                 <span className="mRight30 Font12">
-                  <span className="Gray_75">{_l('累计消费')} </span>
+                  <span className="textSecondary">{_l('累计消费')} </span>
                   <span className="Font14 bold">{formatter(accumulateConsumer)}</span>
                 </span>
               </Fragment>

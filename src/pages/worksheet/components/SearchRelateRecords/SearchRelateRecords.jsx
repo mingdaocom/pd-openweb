@@ -10,7 +10,7 @@ import RecordCoverCardList from './RecordCoverCardList';
 const Title = styled.div`
   font-size: 16px;
   font-weight: 600;
-  color: #151515;
+  color: var(--color-text-title);
   margin-left: 24px;
 `;
 
@@ -19,17 +19,17 @@ const SearchCon = styled.div`
   margin: 16px 24px 0px;
   align-items: center;
   border-radius: 3px;
-  border: 1px solid #dddddd;
+  border: 1px solid var(--color-border-primary);
   padding: 0 10px;
   .ming.Input {
     padding: 0 6px;
     border: none;
   }
   input::placeholder {
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
   &.focus {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
   }
 `;
 
@@ -41,7 +41,7 @@ const RecordsCon = styled.div`
 
 const Empty = styled.div`
   font-size: 14px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -57,14 +57,14 @@ const NewRecordButton = styled.div`
   margin-top: 20px;
   height: 38px;
   border-radius: 38px;
-  background-color: #1677ff;
+  background-color: var(--color-primary);
   padding: 0 24px;
-  color: #fff;
+  color: var(--color-white);
   display: flex;
   align-items: center;
   cursor: pointer;
   &:hover {
-    background: #0c88eb;
+    background: var(--color-link-hover);
   }
 `;
 
@@ -78,7 +78,7 @@ function Search(props) {
   }, []);
   return (
     <SearchCon className={focus ? 'focus' : ''}>
-      <Icon icon="search" className="Gray_9d Font18" />
+      <Icon icon="search" className="textTertiary Font18" />
       <Input
         value={value}
         manualRef={ref => {
@@ -96,7 +96,7 @@ function Search(props) {
       {enableClear && value && (
         <Icon
           icon="cancel"
-          className="Hand Gray_9d Font16"
+          className="Hand textTertiary Font16"
           onClick={() => {
             inputRef.current.value = '';
             onChange('');
@@ -257,7 +257,7 @@ export default function SearchRelateRecords(props) {
         {!loading && !!keyWords && !list.length && (
           <Empty>
             <img src={emptyImg} alt="" />
-            <div className="Font16 Gray_9e">{_l('没有搜索结果')}</div>
+            <div className="Font16 textTertiary">{_l('没有搜索结果')}</div>
             {allowAdd && (
               <NewRecordButton
                 onClick={() => {
@@ -265,7 +265,7 @@ export default function SearchRelateRecords(props) {
                   onCancel();
                 }}
               >
-                <i className="Icon icon icon-plus Font13 mRight5 White" />
+                <i className="Icon icon icon-plus Font13 mRight5 textWhite" />
                 {_l('新建%0', sourceEntityName)}
               </NewRecordButton>
             )}

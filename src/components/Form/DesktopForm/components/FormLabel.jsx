@@ -7,10 +7,11 @@ import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE } from 'worksheet/co
 import { TITLE_SIZE_OPTIONS } from 'src/pages/widgetConfig/config/setting';
 import { isSheetDisplay } from 'src/pages/widgetConfig/util';
 import { canSetWidgetStyle, getTitleStyle } from 'src/pages/widgetConfig/util/setting';
+import { controlState } from 'src/utils/control';
 import RelationSearchCount from '../../components/RelationSearchCount';
 import WidgetsDesc from '../../components/WidgetsDesc';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from '../../core/config';
-import { controlState, renderCount } from '../../core/utils';
+import { renderCount } from '../../core/utils';
 import { ControlLabel } from '../style';
 
 export default ({
@@ -99,7 +100,7 @@ export default ({
       >
         {loadingItems[item.controlId] ? (
           <div className="requiredBtnBox">
-            <i className="icon-loading_button customFormItemLoading Gray_9e" />
+            <i className="icon-loading_button customFormItemLoading textTertiary" />
           </div>
         ) : (
           item.required &&
@@ -131,7 +132,7 @@ export default ({
         {item.type === 45 && allowlink === '1' && item.enumDefault === 1 && (
           <Tooltip title={_l('新页面打开')}>
             <Icon
-              className="Hand Font16 mLeft3 Gray_9e mTop3"
+              className="Hand Font16 mLeft3 textTertiary mTop3"
               icon="launch"
               onClick={() => {
                 if (/^https?:\/\/.+$/.test(item.value)) {

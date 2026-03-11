@@ -17,9 +17,9 @@ export default class Action extends Component {
     const { item } = this.props;
 
     if (
-      (!item.appId && !item.selectNodeId && !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR], item.appType)) ||
+      (!item.appId && !item.selectNodeId) ||
       (_.includes(
-        [APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER, APP_TYPE.GLOBAL_VARIABLE, APP_TYPE.CALENDAR],
+        [APP_TYPE.EXTERNAL_USER, APP_TYPE.CALENDAR, APP_TYPE.INVOICE, APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE],
         item.appType,
       ) &&
         !item.fields.length)
@@ -39,7 +39,7 @@ export default class Action extends Component {
             {item.fields.length === 0 ? (
               <div className="pLeft8 pRight8 mTop4 yellow pBottom5">{_l('未设置可执行的动作')}</div>
             ) : (
-              <div className="pLeft8 pRight8 mTop4 Gray_75 pBottom5">
+              <div className="pLeft8 pRight8 mTop4 textSecondary pBottom5">
                 {item.actionId === ACTION_ID.REFRESH_SINGLE_DATA
                   ? _l('校准了%0个字段', item.fields.length)
                   : _l('修改了%0个字段', item.fields.length)}
@@ -66,14 +66,14 @@ export default class Action extends Component {
         return (
           <Fragment>
             <WorksheetMessage item={item} />
-            {item.selectNodeId && <div className="pLeft8 pRight8 mTop4 Gray_75">{_l('批量新增')}</div>}
+            {item.selectNodeId && <div className="pLeft8 pRight8 mTop4 textSecondary">{_l('批量新增')}</div>}
 
             {item.fields.length === 0 ? (
               <div className={cx('pLeft8 pRight8 yellow pBottom5', item.selectNodeId ? 'mTop4' : 'mTop8')}>
                 {_l('未设置可执行的动作')}
               </div>
             ) : (
-              <div className={cx('pLeft8 pRight8 Gray_75 pBottom5', item.selectNodeId ? 'mTop4' : 'mTop8')}>
+              <div className={cx('pLeft8 pRight8 textSecondary pBottom5', item.selectNodeId ? 'mTop4' : 'mTop8')}>
                 {_l('填写了%0个字段', item.fields.length)}
                 {item.errorFields.length > 0 ? '，' : ''}
                 <span className="yellow">{item.errorFields.length || ''}</span>
@@ -98,7 +98,7 @@ export default class Action extends Component {
         return (
           <Fragment>
             <WorksheetMessage item={item} />
-            <div className="workflowContentInfo ellipsis Gray_75 mTop4">{_l('删除记录')}</div>
+            <div className="workflowContentInfo ellipsis textSecondary mTop4">{_l('删除记录')}</div>
           </Fragment>
         );
       }
@@ -126,9 +126,9 @@ export default class Action extends Component {
         return (
           <Fragment>
             <div className="workflowContentInfo ellipsis workflowContentBG">
-              <span className="Gray_75 mRight5">{_l('关联表')}</span>“{item.sourceEntityName}”
+              <span className="textSecondary mRight5">{_l('关联表')}</span>“{item.sourceEntityName}”
             </div>
-            <div className="workflowContentInfo ellipsis mTop4 Gray_75">
+            <div className="workflowContentInfo ellipsis mTop4 textSecondary">
               {_l('从关联字段获取')}
               <span>{item.executeType === 0 ? _l('，无结果时中止或执行查找结果分支') : _l('，无结果时继续执行')}</span>
             </div>
@@ -150,7 +150,7 @@ export default class Action extends Component {
         return (
           <Fragment>
             <WorksheetMessage item={item} />
-            <div className="pLeft8 pRight8 mTop4 Gray_75 pBottom5">
+            <div className="pLeft8 pRight8 mTop4 textSecondary pBottom5">
               {_l('填写了%0个字段', item.fields.length)}
               {item.errorFields.length > 0 ? '，' : ''}
               <span className="yellow">{item.errorFields.length || ''}</span>
@@ -171,7 +171,7 @@ export default class Action extends Component {
     // 更新参数
     if (item.appType === APP_TYPE.PROCESS) {
       return (
-        <div className="pLeft8 pRight8 Gray_75">
+        <div className="pLeft8 pRight8 textSecondary">
           {_l('更新了%0个参数', item.fields.length)}
           {item.errorFields.length > 0 ? '，' : ''}
           <span className="yellow">{item.errorFields.length || ''}</span>
@@ -185,13 +185,13 @@ export default class Action extends Component {
       if (item.appName) {
         return (
           <Fragment>
-            <div className="pLeft8 pRight8 ellipsis Gray_75">
+            <div className="pLeft8 pRight8 ellipsis textSecondary">
               {item.selectNodeId ? _l('邀请多名用户') : _l('邀请1名用户')}
             </div>
             {item.fields.length === 0 ? (
               <div className="pLeft8 pRight8 mTop4 yellow">{_l('未设置可执行的动作')}</div>
             ) : (
-              <div className="pLeft8 pRight8 mTop4 Gray_75">
+              <div className="pLeft8 pRight8 mTop4 textSecondary">
                 {_l('填充%0个用户信息字段', item.fields.length)}
                 {item.errorFields.length > 0 ? '，' : ''}
                 <span className="yellow">{item.errorFields.length || ''}</span>
@@ -213,7 +213,7 @@ export default class Action extends Component {
     // 更新全局变量
     if (item.appType === APP_TYPE.GLOBAL_VARIABLE) {
       return (
-        <div className="pLeft8 pRight8 Gray_75">
+        <div className="pLeft8 pRight8 textSecondary">
           {_l('更新了%0个变量', item.fields.length)}
           {item.errorFields.length > 0 ? '，' : ''}
           <span className="yellow">{item.errorFields.length || ''}</span>
@@ -232,18 +232,39 @@ export default class Action extends Component {
         return (
           <Fragment>
             <div className={cx('pLeft8 pRight8', { pTop5: hasFile })}>
-              <span className="Gray_75">{_l('成员')}：</span>
+              <span className="textSecondary">{_l('成员')}：</span>
               {this.getMemberName(createAccount)}
               {_l('（发起人）')}
               {members.fieldValue || members.fieldValueId ? '、' : ''}
               {this.getMemberName(members)}
             </div>
-            {hasFile && <div className="pLeft8 pRight8 Gray_75 mTop4 pBottom5">{_l('同时生成ICS文件')}</div>}
+            {hasFile && <div className="pLeft8 pRight8 textSecondary mTop4 pBottom5">{_l('同时生成ICS文件')}</div>}
           </Fragment>
         );
       }
 
-      return <div className="pLeft8 pRight8 Gray_75">{_l('仅生成ICS文件')}</div>;
+      return <div className="pLeft8 pRight8 textSecondary">{_l('仅生成ICS文件')}</div>;
+    }
+
+    // 电子开票
+    if (item.appType === APP_TYPE.INVOICE) {
+      const members = item.fields.find(o => o.fieldId === 'accountId');
+
+      return (
+        <Fragment>
+          <div className="pLeft8 pRight8">
+            <span className="textSecondary">{_l('申请人')}：</span>
+            {this.getMemberName(members)}
+          </div>
+        </Fragment>
+      );
+    }
+
+    // 支付订单退款
+    if (item.appType === APP_TYPE.REFUND) {
+      const refundType = item.fields.find(o => o.fieldId === 'refundType').fieldValue;
+
+      return <div className="pLeft8 pRight8">{refundType === '1' ? _l('全额退款') : _l('部分退款')}</div>;
     }
   }
 
@@ -259,7 +280,10 @@ export default class Action extends Component {
 
   render() {
     const { processId, item, disabled, selectNodeId, openDetail, isSimple } = this.props;
-    const bgClassName = _.includes([APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE], item.appType)
+    const bgClassName = _.includes(
+      [APP_TYPE.INVOICE, APP_TYPE.REFUND, APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE],
+      item.appType,
+    )
       ? 'BGBlueAsh'
       : item.appType === APP_TYPE.TASK || item.actionId === ACTION_ID.REFRESH_SINGLE_DATA
         ? 'BGGreen'
@@ -277,9 +301,24 @@ export default class Action extends Component {
               {
                 errorShadow:
                   (((item.appId || item.selectNodeId) &&
-                    !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR, APP_TYPE.EXTERNAL_USER], item.appType)) ||
+                    !_.includes(
+                      [
+                        APP_TYPE.EXTERNAL_USER,
+                        APP_TYPE.CALENDAR,
+                        APP_TYPE.INVOICE,
+                        APP_TYPE.PROCESS,
+                        APP_TYPE.GLOBAL_VARIABLE,
+                      ],
+                      item.appType,
+                    )) ||
                     (_.includes(
-                      [APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER, APP_TYPE.GLOBAL_VARIABLE, APP_TYPE.CALENDAR],
+                      [
+                        APP_TYPE.EXTERNAL_USER,
+                        APP_TYPE.CALENDAR,
+                        APP_TYPE.INVOICE,
+                        APP_TYPE.PROCESS,
+                        APP_TYPE.GLOBAL_VARIABLE,
+                      ],
                       item.appType,
                     ) &&
                       (item.fields || []).length)) &&
@@ -297,7 +336,13 @@ export default class Action extends Component {
                     !item.selectNodeId &&
                     !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR], item.appType)) ||
                     (_.includes(
-                      [APP_TYPE.PROCESS, APP_TYPE.EXTERNAL_USER, APP_TYPE.GLOBAL_VARIABLE, APP_TYPE.CALENDAR],
+                      [
+                        APP_TYPE.PROCESS,
+                        APP_TYPE.EXTERNAL_USER,
+                        APP_TYPE.GLOBAL_VARIABLE,
+                        APP_TYPE.CALENDAR,
+                        APP_TYPE.INVOICE,
+                      ],
                       item.appType,
                     ) &&
                       !(item.fields || []).length)
@@ -309,7 +354,11 @@ export default class Action extends Component {
             </div>
             <NodeOperate nodeClassName={bgClassName} {...this.props} />
             <div className="workflowContent">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? (
+                <span className="pLeft8 pRight8 textSecondary">{_l('加载中...')}</span>
+              ) : (
+                this.renderContent()
+              )}
             </div>
           </div>
           {item.resultTypeId ? <div className="workflowLineBtn" /> : <CreateNode {...this.props} />}

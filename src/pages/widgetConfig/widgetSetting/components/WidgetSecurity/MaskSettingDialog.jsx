@@ -71,36 +71,36 @@ const SelectItem = styled.div`
   }
   .Dropdown--input {
     padding: 5px 8px 5px 12px !important;
-    border-color: #ddd !important;
+    border-color: var(--color-border-primary) !important;
   }
   .opBtn {
     width: 70px;
     height: 36px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     border-radius: 3px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     line-height: 34px;
     text-align: center;
     margin-left: 11px;
     cursor: pointer;
     &:hover {
-      color: #1677ff;
-      background: #fafafa;
+      color: var(--color-primary);
+      background: var(--color-background-secondary);
     }
   }
   .inputBox {
-    border: 1px solid #ddd !important;
+    border: 1px solid var(--color-border-primary) !important;
     height: 36px;
     border-radius: 4px;
     padding: 0px 12px;
     &::placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
     &:focus {
-      border-color: #1677ff !important;
+      border-color: var(--color-primary) !important;
     }
     &.err {
-      border-color: #ff0000;
+      border-color: var(--color-error);
     }
   }
   .Width100 {
@@ -132,6 +132,7 @@ export default function MaskSettingDialog(props) {
     'mechar',
     'maskmid',
     'masklen',
+    'maskwords',
   ]);
   const [detail, setDetail] = useSetState({
     ...originAdvanceData,
@@ -146,14 +147,14 @@ export default function MaskSettingDialog(props) {
   // status  掩盖：true，解密：false
   const [testInfo, setTestInfo] = useSetState({ text: '', maskText: '', status: false, visible: !!detail.masklen });
 
-  const { masktype, maskmid = '', masklen = '' } = detail;
+  const { masktype, maskmid = '', masklen = '', maskwords = '' } = detail;
 
   const renderShowValue = (item = {}) => {
     const selectValue = _.find(DISPLAY_MASK, i => i.value === item.value) || {};
     return (
       <span>
         {selectValue.text}
-        <span className="mLeft10 subText" style={{ color: '#9e9e9e' }}>
+        <span className="mLeft10 subText" style={{ color: 'var(--color-text-tertiary)' }}>
           {selectValue.subText}
         </span>
       </span>
@@ -216,7 +217,7 @@ export default function MaskSettingDialog(props) {
       {masktype === 'custom' && (
         <SelectItem>
           <div className="title Bold">{_l('设置')}</div>
-          <div className="Gray_9e">{_l('设置需要显示的字符，其他字符全部显示为掩码')}</div>
+          <div className="textTertiary">{_l('设置需要显示的字符，其他字符全部显示为掩码')}</div>
 
           {Setting_Config.map(({ text, dropdownKey, inputKey, data, errKey }) => {
             const dropValue = detail[dropdownKey] || '0';
@@ -282,6 +283,21 @@ export default function MaskSettingDialog(props) {
             />
           </div>
 
+          <div className="flexCenter mTop12">
+            <span className="Width100 mRight10">
+              {_l('始终掩盖')}
+              <Tooltip placement="bottom" title={_l('掩盖规则的优先级高于开头显示、结尾显示和中间显示。')}>
+                <Icon icon="help" className="Font15 textTertiary mLeft4" />
+              </Tooltip>
+            </span>
+            <Input
+              className="flex inputBox"
+              placeholder={_l('输入隐藏的字符，多个使用,隔开。如：a,b,c')}
+              value={maskwords}
+              onChange={value => setDetail({ maskwords: value })}
+            />
+          </div>
+
           <div className="flexCenter mTop12 LineHeight36">
             <Checkbox
               className="mRight12"
@@ -300,7 +316,7 @@ export default function MaskSettingDialog(props) {
                 placement="bottom"
                 title={_l('未勾选时，按照真实字数显示掩码；勾选后，按照虚拟字数显示掩码，不暴露真实长度')}
               >
-                <Icon icon="help" className="Font15 Gray_9e TxtMiddle" />
+                <Icon icon="help" className="Font15 textTertiary" />
               </Tooltip>
             </Checkbox>
             {testInfo.visible && (

@@ -87,14 +87,14 @@ export default function MobileCustomNav(props) {
         {DragHandle ? (
           <div className="flex Hand dragItem">
             <DragHandle>
-              <div className="Hand ellipsis Gray flexRow">
+              <div className="Hand ellipsis textPrimary flexRow">
                 <span className="flex ellipsis"> {item.workSheetName}</span>
-                <i className="icon Gray_9e Font16 Right ThemeHoverColor3 dragHandle icon-drag"></i>
+                <i className="icon textTertiary Font16 Right ThemeHoverColor3 dragHandle icon-drag"></i>
               </div>
             </DragHandle>
           </div>
         ) : (
-          <div className="flex ellipsis Gray">{item.workSheetName}</div>
+          <div className="flex ellipsis textPrimary">{item.workSheetName}</div>
         )}
       </div>
     );
@@ -121,14 +121,14 @@ export default function MobileCustomNav(props) {
         removeIcon={null}
         value={selectedAppNavList.map(item => item.workSheetId)}
         showSearch={false}
-        suffixIcon={<i className="icon icon-arrow-down-border Gray_9e" />}
+        suffixIcon={<i className="icon icon-arrow-down-border textTertiary" />}
         dropdownRender={() => {
           const unselectList = appItemList.filter(it => !_.includes(appNavItemIds, it.workSheetId));
 
           return (
             <div className="mobileAppItemsWrap flexColumn">
               <div className="searchWrap valignWrapper pBottom10">
-                <Icon icon="search" className="mLeft12 Gray_75 Font20" />
+                <Icon icon="search" className="mLeft12 textSecondary Font20" />
                 <input className="flex pLeft10 pRight10" placeholder={_l('搜索')} onChange={handleSearch} />
               </div>
               <div className="line mTop0 mBottom10"></div>
@@ -137,7 +137,7 @@ export default function MobileCustomNav(props) {
                   !_.isEmpty(searchList) ? (
                     searchList.map(item => renderAppItem({ item }))
                   ) : (
-                    <div className="Gray_bd mTop20 mBottom30 TxtCenter">{_l('没有搜索结果')}</div>
+                    <div className="textDisabled mTop20 mBottom30 TxtCenter">{_l('没有搜索结果')}</div>
                   )
                 ) : (
                   <Fragment>

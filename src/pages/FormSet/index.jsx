@@ -10,6 +10,7 @@ import { navigateToApp } from 'src/pages/widgetConfig/util/data';
 import { getTranslateInfo } from 'src/utils/app';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import { MODULE_TYPE_TO_NAME } from './config';
+import AIAction from './containers/AIAction';
 import Alias from './containers/Alias';
 import ColumnRules from './containers/ColumnRules';
 import CustomBtnFormSet from './containers/CustomBtnFormSet';
@@ -63,7 +64,10 @@ class FormSet extends React.Component {
 
         //清理缓存时间
         const { worksheetId } = match.params;
-        window.clearLocalDataTime({ requestData: { worksheetId }, clearSpecificKey: 'Worksheet_GetWorksheetInfo' });
+        window.clearLocalDataTime({
+          requestData: { worksheetId },
+          clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetBaseInfo'],
+        });
 
         //0：非成员 1：表负责人（弃用） 2：管理员 3：成员 4:开发者 6:开发者+运营者
         if (![2, 4, 6].includes(data.roleType)) {
@@ -106,8 +110,10 @@ class FormSet extends React.Component {
         return <Print {...param} />;
       case 'functionalSwitch':
         return <FunctionalSwitch {...param} />;
-      case 'customBtn':
+      case 'customAction':
         return <CustomBtnFormSet {...param} />;
+      case 'aiAction':
+        return <AIAction {...param} />;
       case 'indexSetting':
         return <FormIndexSetting {...param} />;
       case 'editProtect':
@@ -145,7 +151,7 @@ class FormSet extends React.Component {
           onClose={() => navigateToApp(worksheetId)}
         />
         {noRight ? (
-          <div className="w100 WhiteBG Absolute" style={{ top: 0, bottom: 0, zIndex: 2 }}>
+          <div className="w100 bgPrimary Absolute" style={{ top: 0, bottom: 0, zIndex: 2 }}>
             <ErrorState
               text={_l('权限不足，无法编辑')}
               showBtn

@@ -31,7 +31,7 @@ const AddWorkflowDialogContentWrap = styled.div`
   flex-direction: column;
   min-height: 0;
   .Grey_21 {
-    color: #212121;
+    color: var(--color-white);
   }
   .selectItem {
     width: 100%;
@@ -74,16 +74,16 @@ const AddWorkflowDialogContentWrap = styled.div`
     }
   }
   .headerCon {
-    border-color: #ddd;
-    color: #757575;
+    border-color: var(--color-border-primary);
+    color: var(--color-text-secondary);
   }
   .workflowListWrap .listItem,
   .headerCon.listItem {
     padding: 12px 24px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     display: flex;
     align-items: center;
-    color: #aaa;
+    color: var(--color-text-tertiary);
     .Checkbox-box {
       margin-right: 12px;
     }
@@ -95,7 +95,7 @@ const AddWorkflowDialogContentWrap = styled.div`
   .workflowListWrap .listItem .columnName {
     display: flex;
     align-items: center;
-    color: #212121;
+    color: var(--color-white);
     .workflowInfoWrap {
       align-items: center;
       width: 100%;
@@ -106,7 +106,7 @@ const AddWorkflowDialogContentWrap = styled.div`
         justify-content: center;
         align-items: center;
         .icon {
-          color: #fff;
+          color: var(--color-white);
           font-size: 24px;
         }
       }
@@ -135,7 +135,7 @@ const DropDownInputWrap = styled.div`
   margin-right: 10px;
   .searchApp {
     border: none;
-    border-bottom: 1px solid #f0f0f0 !important;
+    border-bottom: 1px solid var(--color-background-disabled) !important;
     box-shadow: none;
     padding-left: 3px;
     padding-right: 3px;
@@ -152,26 +152,26 @@ const EmptyWrap = styled.div`
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     display: inline-block;
     line-height: 100px;
-    color: #c2c3c3;
+    color: var(--color-text-placeholder);
   }
 `;
 
 const CheckedWorkflowWrap = styled.div`
   height: 100%;
   .headerCon {
-    border-color: #ddd;
-    color: #757575;
+    border-color: var(--color-border-primary);
+    color: var(--color-text-secondary);
   }
   .workflowListWrap .listItem,
   .headerCon.listItem {
     padding: 12px 24px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     display: flex;
     align-items: center;
-    color: #aaa;
+    color: var(--color-text-tertiary);
     .Checkbox-box {
       margin-right: 12px;
     }
@@ -194,7 +194,7 @@ const CheckedWorkflowWrap = styled.div`
       justify-content: center;
       width: 36px;
       .icon {
-        color: #fff;
+        color: var(--color-white);
         font-size: 24px;
       }
     }
@@ -211,7 +211,7 @@ const renderEmpty = appId => {
   return (
     <EmptyWrap>
       <span className="iconCon icon-department Font48"></span>
-      <div className="mTop12 Gray_9e">{appId ? _l('暂无工作流') : _l('请选择应用')}</div>
+      <div className="mTop12 textTertiary">{appId ? _l('暂无工作流') : _l('请选择应用')}</div>
     </EmptyWrap>
   );
 };
@@ -414,7 +414,7 @@ function AddWorkflowDialog(props) {
               <div
                 className="columnStatus"
                 style={{
-                  color: item.enabled ? '#00C985' : '#aaa',
+                  color: item.enabled ? 'var(--color-task)' : 'var(--color-text-tertiary)',
                 }}
               >
                 {item.enabled ? _l('开启') : _l('关闭')}
@@ -468,7 +468,7 @@ function AddWorkflowDialog(props) {
               <div className="columnType">
                 {(START_APP_TYPE[item.process.child ? 'subprocess' : item.process.startAppType] || {}).text}
               </div>
-              <div className="columnStatus Gray">{item.name}</div>
+              <div className="columnStatus textPrimary">{item.name}</div>
             </div>
           );
         })}
@@ -494,7 +494,7 @@ function AddWorkflowDialog(props) {
           <span className="Font17 bold">
             {_l('添加工作流')}
             <Tooltip title={_l('工作流中引用的子流程、封装业务流程，会在工作流所在的专属算力资源上运行。')}>
-              <span className="mLeft8 Font17 Gray_bd icon-info_outline"></span>
+              <span className="mLeft8 Font17 textDisabled icon-info_outline"></span>
             </Tooltip>
           </span>
         }
@@ -518,7 +518,7 @@ function AddWorkflowDialog(props) {
             className="selectItem mTop16 mBottom32"
             size="large"
             placeholder={_l('选择应用')}
-            notFoundContent={appLoading ? null : <span className="Gray_9e">{_l('无搜索结果')}</span>}
+            notFoundContent={appLoading ? null : <span className="textTertiary">{_l('无搜索结果')}</span>}
             loading={appLoading}
             onChange={value => {
               setAppId(value);
@@ -535,7 +535,7 @@ function AddWorkflowDialog(props) {
                     id="selectSearchApp"
                     className="searchApp"
                     size="large"
-                    prefix={<Icon icon="search" className="Gray_bd" />}
+                    prefix={<Icon icon="search" className="textDisabled" />}
                     placeholder={_l('搜索应用名称')}
                     ref={searchRef}
                     onChange={onSearch}

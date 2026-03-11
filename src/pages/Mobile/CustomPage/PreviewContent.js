@@ -45,8 +45,8 @@ const PreviewContentWrapper = styled.div`
 function ErrorInfo(props) {
   return (
     <div className="flexColumn valignWrapper fileWrapper h100">
-      <Icon className="Font56 Gray_df mBottom20" icon={props.icon} />
-      <span className="Font14 Gray_9d">{props.text}</span>
+      <Icon className="Font56 textPlaceholder mBottom20" icon={props.icon} />
+      <span className="Font14 textTertiary">{props.text}</span>
     </div>
   );
 }

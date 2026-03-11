@@ -229,7 +229,7 @@ export default class Checklist extends Component {
         <div
           style={{
             height: config.height + 'px',
-            backgroundColor: '#e0e0e0',
+            backgroundColor: 'var(--color-border-secondary)',
             marginTop: '10px',
             borderRadius: '5px',
           }}

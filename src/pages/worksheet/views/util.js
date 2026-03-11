@@ -3,9 +3,8 @@ import _ from 'lodash';
 import { permitList } from 'src/pages/FormSet/config';
 import { isOpenPermit } from 'src/pages/FormSet/util';
 import { FIELD_REG_EXP } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
-import { isTimeStyle } from 'src/pages/worksheet/views/CalendarView/util';
 import { getAdvanceSetting } from 'src/utils/control';
-import { renderText as renderCellText } from 'src/utils/control';
+import { isTimeStyle, renderText as renderCellText } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 import { dateConvertToServerZone } from 'src/utils/project';
 
@@ -220,13 +219,16 @@ export const renderTitleByViewtitle = (row, controls, view, useDateConvertToServ
       const control = controls.find(it => it.controlId === o);
       str =
         str +
-        renderCellText({
-          ...control,
-          value:
-            useDateConvertToServerZone && (isTimeStyle(control) || (control.type === 38 && control.enumDefault === 2))
-              ? dateConvertToServerZone(row[o])
-              : row[o],
-        });
+        renderCellText(
+          {
+            ...control,
+            value:
+              useDateConvertToServerZone && (isTimeStyle(control) || (control.type === 38 && control.enumDefault === 2))
+                ? dateConvertToServerZone(row[o])
+                : row[o],
+          },
+          { appId: view.appId },
+        );
       return;
     }
     str = str + o;

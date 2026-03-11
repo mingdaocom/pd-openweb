@@ -29,7 +29,7 @@ const PermissionListWrapper = styled.div`
   }
   .divider {
     height: 1px;
-    background: #eaeaea;
+    background: var(--color-border-secondary);
     margin: 16px 0;
   }
 `;
@@ -78,7 +78,14 @@ export default function PermissionList(props) {
       if (!featureType && item.permissionId === 16000) return null;
 
       // 私有部署非平台版无账务
-      if (item.permissionId === 13300 && md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal) return null;
+      if (item.permissionId === 13300 && !window.platformENV.isPlatform) return null;
+
+      if (
+        (item.permissionId === 19500 && md.global.SysSettings.hidePlugin) ||
+        (_.includes([19100, 19300], item.permissionId) && md.global.SysSettings.hideIntegration) ||
+        (item.permissionId === 19000 && md.global.SysSettings.hideIntegration && md.global.SysSettings.hidePlugin)
+      )
+        return null;
 
       if (
         (item.permissionId === 19500 && md.global.SysSettings.hidePlugin) ||
@@ -127,7 +134,7 @@ export default function PermissionList(props) {
             {hasChildren && (
               <Icon
                 icon={isFolded ? 'arrow-right-tip' : 'arrow-down'}
-                className="Font14 mRight8 pointer Gray_9e ThemeHoverColor3"
+                className="Font14 mRight8 pointer textTertiary ThemeHoverColor3"
                 onClick={() => {
                   setFoldedId(
                     isFolded ? foldedId.filter(id => id !== item.permissionId) : foldedId.concat(item.permissionId),
@@ -148,7 +155,7 @@ export default function PermissionList(props) {
 
             {item.description && (
               <Tooltip title={item.description}>
-                <Icon icon="info_outline" className="pointer Gray_bd mLeft4" />
+                <Icon icon="info_outline" className="pointer textDisabled mLeft4" />
               </Tooltip>
             )}
           </div>

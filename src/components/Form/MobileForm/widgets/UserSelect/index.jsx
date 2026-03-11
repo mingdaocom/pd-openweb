@@ -182,9 +182,9 @@ function UserSelect(props) {
           {!_.isEmpty(selectUsers) ? (
             <div className="flexRow alignItemsCenter flex ellipsis">{renderItem(selectUsers[0])}</div>
           ) : (
-            <div className="flex Gray_bd">{_l('请选择')}</div>
+            <div className="flex textDisabled">{_l('请选择')}</div>
           )}
-          {!formDisabled && <i className="icon icon-arrow-right-border Font16 Gray_bd" />}
+          {!formDisabled && <i className="icon icon-arrow-right-border Font16 textDisabled" />}
         </div>
       ) : (
         <Fragment>

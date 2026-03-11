@@ -10,7 +10,7 @@
 }
 .voteContent .voteItemContainer label {
   word-wrap: break-word;
-  color: #151515;
+  color: var(--color-text-title);
   font-size: 14px !important;
   line-height: 28px !important;
   margin-left: 5px;
@@ -29,7 +29,7 @@
 .voteContent .btn {
   height: 28px;
   line-height: 28px;
-  color: #fff;
+  color: var(--color-white);
   border: none;
   padding: 0 15px;
 }

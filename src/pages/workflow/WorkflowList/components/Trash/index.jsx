@@ -20,7 +20,7 @@ const WrapHeader = styled.div`
     input {
       width: 184px;
       height: 30px;
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       border-radius: 16px 16px 16px 16px;
     }
   }
@@ -30,7 +30,7 @@ const Wrap = styled.div`
   .table {
     border-top: 1px solid rgba(0, 0, 0, 0.16);
     .nameWrapTr {
-      min-width: 260px;
+      min-width: 260px !important;
       max-width: 260px;
     }
     .iconWrap {
@@ -43,7 +43,7 @@ const Wrap = styled.div`
       justify-content: center;
       .icon {
         font-size: 24px;
-        color: #fff;
+        color: var(--color-white);
       }
     }
     .optionWrapTr {
@@ -64,9 +64,9 @@ const Wrap = styled.div`
         width: 130px;
         height: 130px;
         border-radius: 130px;
-        background: #f5f5f5;
+        background: var(--color-background-secondary);
         .icon {
-          color: #bdbdbd;
+          color: var(--color-text-disabled);
           font-size: 66px;
         }
       }
@@ -78,29 +78,29 @@ const Wrap = styled.div`
     }
     .trashLi {
       padding: 15px 10px;
-      border-bottom: 1px solid #e0e0e0;
-      background: #fff;
+      border-bottom: 1px solid var(--color-border-secondary);
+      background: var(--color-background-primary);
       .icon-reply1,
       .icon-trash {
-        color: #9d9d9d;
+        color: var(--color-text-tertiary);
         cursor: pointer;
         opacity: 0;
         font-size: 20px;
       }
       &:hover {
-        background: #f5f5f5;
+        background: var(--color-background-secondary);
         .icon-reply1,
         .icon-trash {
           opacity: 1;
         }
         .icon-reply1 {
           &:hover {
-            color: #1677ff;
+            color: var(--color-primary);
           }
         }
         .icon-trash {
           &:hover {
-            color: #f32121;
+            color: var(--color-error);
           }
         }
       }
@@ -343,7 +343,7 @@ export default function TrashDialog(props) {
         <WrapHeader className="flexRow alignItemsCenter">
           <div className="Font17 flex">
             {_l('回收站')}（ {_l('工作流')}）
-            <span className="Gray_75 Font13 mLeft10">{_l('可恢复60天内删除的工作流')}</span>
+            <span className="textSecondary Font13 mLeft10">{_l('可恢复60天内删除的工作流')}</span>
           </div>
           <Search
             className="trashSearch"
@@ -360,7 +360,7 @@ export default function TrashDialog(props) {
               <div className="emptyIcon">
                 <i className="icon icon-recycle"></i>
               </div>
-              <p className="TxtCenter Gray_75 Font17 mTop10">
+              <p className="TxtCenter textSecondary Font17 mTop10">
                 {cache.current.keyWords ? _l('没有找到符合条件的结果') : _l('回收站暂无内容')}
               </p>
             </div>

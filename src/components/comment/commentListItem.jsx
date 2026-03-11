@@ -19,7 +19,7 @@ const Menu = styled.ul`
   width: 140px;
   padding: 5px 0;
   border-radius: 3px;
-  background: white;
+  background: var(--color-background-primary);
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.13),
     0 2px 6px rgba(0, 0, 0, 0.1);
@@ -29,7 +29,7 @@ const Menu = styled.ul`
     line-height: 36px;
     width: 100%;
     &:hover {
-      background-color: #f2f2f2 !important;
+      background-color: var(--color-background-disabled) !important;
     }
   }
 `;
@@ -194,7 +194,7 @@ export default class CommentListItem extends React.Component {
         />
         <div className="talkDiscussion">
           <div className="singleTop">
-            <span className="userName Gray userMessage">{createAccount.fullname}</span>
+            <span className="userName textPrimary userMessage">{createAccount.fullname}</span>
             {replyId ? (
               <span>
                 <span className="pLeft5">{_l('回复')}</span>

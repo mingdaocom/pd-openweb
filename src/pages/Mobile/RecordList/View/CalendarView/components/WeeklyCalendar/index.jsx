@@ -144,14 +144,14 @@ const WeeklyCalendar = forwardRef((props, ref) => {
               <div className="weeklyCalendarContentList">
                 {calendarFormatData.map(item => (
                   <RecordCard
-                    key={`${item.originalProps.rowid}-${item.mark}`}
-                    data={item.originalProps}
+                    key={`${item.row.rowid}-${item.mark}`}
+                    data={item.row}
                     view={getFormateView(view, item)}
                     appId={base.appId}
                     projectId={worksheetInfo.projectId}
                     controls={controls}
                     mark={item.mark}
-                    onClick={() => openRecord(item.originalProps)}
+                    onClick={() => openRecord(item.row)}
                   />
                 ))}
               </div>

@@ -33,9 +33,9 @@
   }
 
   &:not(.active) {
-    background-color: #fff !important;
+    background-color: var(--color-background-primary) !important;
     padding-left: 0px;
-    color: #9d9d9d !important;
+    color: var(--color-text-tertiary) !important;
   }
 }
 
@@ -50,21 +50,21 @@
 .workSheetFilter {
   width: 400px;
   border-radius: 4px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow: rgba(0, 0, 0, 0.24) 0px 4px 16px;
 
   .filterHeader {
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
     padding: 0 0 0 20px;
     line-height: 44px;
     font-size: 16px;
-    color: #151515;
+    color: var(--color-text-title);
 
     .addFilterBtn {
       float: right;
       margin: 10px;
       font-size: 23px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       line-height: 1em;
       right: 0;
     }
@@ -76,14 +76,14 @@
 
     hr {
       border: none;
-      border-top: 1px solid #e0e0e0;
+      border-top: 1px solid var(--color-border-secondary);
       margin: 6px 0;
     }
 
     .title {
       padding: 6px 20px;
       font-size: 12px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
 
     > div:last-child:not(.customFilter):not(.expanded) {
@@ -94,7 +94,7 @@
   .filterItem {
     padding: 0px 20px;
     font-size: 14px;
-    color: #fff;
+    color: var(--color-white);
     line-height: 36px;
     cursor: pointer;
 
@@ -109,7 +109,7 @@
     .moreOperateBtn {
       cursor: pointer;
       float: right;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       margin: 0px 10px;
       font-size: 18px;
       line-height: 36px;
@@ -132,45 +132,45 @@
     }
 
     .moreOperateBtn {
-      color: #fff !important;
+      color: var(--color-white) !important;
     }
 
     input {
-      color: #fff;
+      color: var(--color-white);
     }
 
     &:not(.expanded):hover {
       .filterTitle {
-        color: #fff !important;
+        color: var(--color-white) !important;
       }
 
       .slideIcon {
         opacity: 1;
         visibility: visible;
-        color: #fff !important;
+        color: var(--color-white) !important;
       }
     }
 
     &:not(:hover) {
-      color: #151515 !important;
-      background-color: #fff !important;
+      color: var(--color-text-title) !important;
+      background-color: var(--color-background-primary) !important;
 
       input {
-        color: #151515;
+        color: var(--color-text-title);
       }
 
       .moreOperateBtn,
       .slideIcon {
-        color: #9e9e9e !important;
+        color: var(--color-text-tertiary) !important;
       }
     }
 
     &.expanded {
-      background-color: #fafafa !important;
-      border-top: 1px solid #e0e0e0;
+      background-color: var(--color-background-secondary) !important;
+      border-top: 1px solid var(--color-border-secondary);
 
       input {
-        color: #151515;
+        color: var(--color-text-title);
       }
 
       .slideIcon {
@@ -179,7 +179,7 @@
 
       .moreOperateBtn,
       .slideIcon {
-        color: #9e9e9e !important;
+        color: var(--color-text-tertiary) !important;
       }
     }
   }
@@ -192,15 +192,16 @@
 
   .conditionsCon {
     padding: 0 15px 10px 20px;
-    background-color: #fafafa;
+    background-color: var(--color-background-secondary);
     overflow: hidden;
   }
 
   .conditionItem {
     margin: 12px 0 0;
     font-size: 13px;
+
     .errorName {
-      color: #f44336;
+      color: var(--color-error);
     }
 
     .conditionItemHeader {
@@ -209,8 +210,9 @@
       padding-right: 58px;
 
       .deletedColumn {
-        color: #f44336;
+        color: var(--color-error);
         margin-bottom: 6px;
+
         .icon {
           transform: rotate(90deg);
           font-size: 16px;
@@ -229,14 +231,14 @@
         margin-left: 14px;
         padding: 5px 4px;
         border-radius: 4px;
-        color: #515151;
+        color: var(--color-text-title);
 
         .Dropdown--input .icon {
           visibility: hidden;
         }
 
         &:hover {
-          background-color: #e8e8e8;
+          background-color: var(--color-border-secondary);
         }
       }
 
@@ -244,7 +246,7 @@
         cursor: pointer;
         position: absolute;
         right: 45px;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         margin-top: 5px;
         visibility: hidden;
 
@@ -268,8 +270,8 @@
       }
 
       .deletedColumn {
-        background: #ffebeb !important;
-        border-color: #f44336 !important;
+        background: var(--color-error-bg) !important;
+        border-color: var(--color-error) !important;
       }
 
       .conditionRelation {
@@ -277,7 +279,7 @@
         right: 0px;
         top: 50%;
         margin-top: -14px;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
 
         .relationType {
           display: inline-block;
@@ -326,8 +328,8 @@
 
   .customFilter {
     padding: 10px 15px 10px 20px;
-    background-color: #fafafa;
-    border-bottom: 1px solid #e0e0e0;
+    background-color: var(--color-background-secondary);
+    border-bottom: 1px solid var(--color-border-secondary);
 
     .customFilterTitle {
       font-size: 14px;
@@ -338,10 +340,10 @@
   .addFilterCondition {
     position: relative;
     margin: 16px 0 6px;
-    color: #757575;
+    color: var(--color-text-secondary);
 
     &:hover {
-      color: #1e88e5;
+      color: var(--color-primary);
     }
 
     .icon {
@@ -354,10 +356,10 @@
   input {
     &:disabled {
       cursor: not-allowed;
-      background-color: #f5f5f5;
+      background-color: var(--color-background-secondary);
 
       &:hover {
-        border-color: #ccc;
+        border-color: var(--color-border-tertiary);
       }
     }
   }
@@ -366,6 +368,7 @@
     box-shadow: none;
     margin: 0;
     width: 100%;
+
     .conditionItem .conditionValue {
       &:hover {
         .timeZoneTag {
@@ -375,75 +378,90 @@
     }
   }
 }
+
 .addFilterPopup {
-  background-color: #fff;
+  background-color: var(--color-background-card);
   border-radius: 3px;
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.13),
     0 2px 6px rgba(0, 0, 0, 0.1);
+
   .columnsFilter {
     padding: 0 10px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
     display: flex;
     flex-direction: row;
+
     .icon-search {
       width: 20px;
       margin: 10px 0 0;
       text-align: center;
       font-size: 18px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
+
     .Input {
       flex: 1;
       width: 124px;
       border: none;
       font-size: 13px;
       padding: 0 10px;
+
       &::placeholder {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
     }
   }
+
   .Menu {
     width: 100%;
     box-shadow: none !important;
   }
+
   .tip {
     padding: 10px 20px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
+
   &.inEmpty {
     box-shadow: none;
     margin-top: 6px;
+
     .columnsFilter {
       margin: 0 20px;
       padding: 0px;
+
       .Input {
         padding: 0 7px;
       }
     }
+
     .worksheetFilterColumnOptionList.Menu {
       width: 100% !important;
       padding: 5px 6px 6px;
+
       .ming.MenuItem .Item-content {
         font-size: 14px;
         border-radius: 3px;
+
         &:hover {
-          background-color: #f5f5f5 !important;
           .icon {
-            color: #9e9e9e !important;
+            color: var(--color-text-tertiary) !important;
           }
+
           span {
-            color: #151515 !important;
+            color: var(--color-text-title) !important;
           }
         }
       }
     }
   }
 }
+
 .worksheetFilterColumnOptionList.Menu {
   width: 220px !important;
 }
+
 .worksheetFilterOperateList.Menu,
 .worksheetFilterColumnOptionList.Menu {
   position: static !important;
@@ -453,10 +471,11 @@
   .ming.Item {
     &.selected {
       .Item-content {
-        background-color: #e4f3fd;
-        color: #0096ef;
+        background-color: var(--color-primary-transparent);
+        color: var(--color-primary);
+
         .icon {
-          color: #0096ef;
+          color: var(--color-primary);
         }
       }
     }
@@ -464,12 +483,14 @@
 
   .Item-content {
     text-align: left;
+
     .icon {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       margin-right: 10px;
       font-size: 14px;
       vertical-align: middle;
     }
+
     > span {
       vertical-align: middle;
     }
@@ -477,22 +498,22 @@
 
   .ming.Item .Item-content.disabled {
     .icon {
-      color: #bbb !important;
+      color: var(--color-text-disabled) !important;
     }
   }
 
   .ming.Item.disabled .Item-content {
     cursor: not-allowed;
-    background-color: #fff !important;
-    color: #bdbdbd !important;
+    background-color: var(--color-background-primary) !important;
+    color: var(--color-text-disabled) !important;
 
     .icon {
-      color: #bdbdbd !important;
+      color: var(--color-text-disabled) !important;
     }
   }
 
   .segmentationLine {
-    border-top: 1px solid #ddd;
+    border-top: 1px solid var(--color-border-primary);
     margin: 8px 0;
     padding-top: 8px;
   }
@@ -504,32 +525,35 @@
 
 .worksheetFilterOperateList.Menu {
   .icon {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     margin-right: 10px;
     font-size: 16px;
   }
 
   hr {
     border: none;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--color-border-secondary);
     margin: 6px 0;
   }
 }
 
 .worksheetFilterTextCondition {
   outline: none;
+
   .ant-select-selector {
     min-height: 36px;
-    border-color: #d0d0d0 !important;
+    border-color: var(--color-border-primary) !important;
     box-shadow: none !important;
     padding: 3px 4px !important;
+
     .ant-select-selection-overflow {
       gap: 6px;
     }
   }
+
   &.ant-select-focused {
     .ant-select-selector {
-      border-color: #1677ff !important;
+      border-color: var(--color-primary) !important;
     }
   }
 }
@@ -546,12 +570,12 @@
 .worksheetFilterNumberCondition {
   .numberRange {
     input::placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
 
     .split {
       line-height: 36px;
-      color: #666;
+      color: var(--color-text-secondary);
       margin: 0 4px;
     }
   }
@@ -559,21 +583,24 @@
 
 .worksheetFilterDateCondition {
   .dateInputCon {
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     box-sizing: border-box;
     height: 36px;
     border-radius: 3px;
     font-size: 12px;
-    background: #fff;
+    background: var(--color-background-primary);
     position: relative;
+
     .ant-picker {
       input {
         font-size: 12px !important;
       }
+
       &.ant-picker-range {
         padding: 0 8px;
       }
     }
+
     .ming.Dropdown {
       width: 100%;
 
@@ -586,6 +613,7 @@
         margin: 4px;
       }
     }
+
     .customFormControlBox:not(.ant-picker) {
       height: 34px;
     }
@@ -598,13 +626,14 @@
   }
 
   .dateRangeType {
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     height: 36px;
     line-height: 24px;
     border-radius: 0 3px 3px 0;
     vertical-align: middle;
     width: 70px !important;
     border-left: none;
+
     .icon {
       float: right;
       margin-top: 5px;
@@ -620,6 +649,11 @@
 
   .customDate {
     line-height: 34px;
+    display: flex;
+
+    > * {
+      flex: 1;
+    }
 
     .mui-datetime-picker {
       width: 100%;
@@ -631,6 +665,7 @@
       border: none;
       box-shadow: none;
     }
+
     .customFormControlBox {
       font-size: 12px;
       padding: 0px 11px !important;
@@ -639,16 +674,19 @@
         .dateClearIcon {
           display: none;
           cursor: pointer;
-          color: #bdbdbd;
+          color: var(--color-text-disabled);
+
           &:hover {
-            color: #777 !important;
+            color: var(--color-text-secondary) !important;
           }
         }
+
         &:focus,
         &:hover {
           .dateClearIcon {
             display: inline-block;
           }
+
           .bellScheduleIcon {
             display: none;
           }
@@ -656,21 +694,25 @@
       }
     }
   }
+
   .dateRangeInputCon {
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     box-sizing: border-box;
     height: 36px;
     border-radius: 3px;
     font-size: 12px;
-    background: #fff;
+    background: var(--color-background-primary);
+
     .ant-picker {
       margin: 4px 0;
       border: none;
       box-shadow: none;
+
       input {
         font-size: 12px !important;
       }
     }
+
     .ant-picker-range {
       width: 100%;
     }
@@ -690,15 +732,15 @@
     padding: 6px 8px 0 8px;
     box-sizing: border-box;
     min-height: 36px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     border-radius: 3px;
     font-size: 14px;
-    color: #9e9e9e;
-    background-color: #fff;
+    color: var(--color-text-tertiary);
+    background-color: var(--color-background-primary);
 
     &.disabled {
       cursor: not-allowed;
-      background-color: #f5f5f5;
+      background-color: var(--color-background-secondary);
 
       .userItem {
         .remove {
@@ -709,7 +751,7 @@
       }
 
       &:hover {
-        border-color: #ccc;
+        border-color: var(--color-border-tertiary);
       }
     }
   }
@@ -719,14 +761,14 @@
     display: inline-block;
     font-size: 12px;
     margin: 0 6px 6px 0;
-    background-color: #e5e5e5;
+    background-color: var(--color-border-secondary);
     border-radius: 12px;
-    color: #151515;
+    color: var(--color-text-title);
 
     .iconCon {
       border-radius: 50%;
       display: inline-block;
-      background-color: #fff;
+      background-color: var(--color-background-primary);
     }
 
     .userHead {
@@ -747,12 +789,12 @@
 
     .remove {
       cursor: pointer;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       margin: 0 8px 0 4px;
       font-size: 12px;
 
       &:hover {
-        color: #757575;
+        color: var(--color-text-secondary);
       }
     }
   }
@@ -770,6 +812,7 @@
 .worksheetFilterRelateRecordCondition {
   .recordItem {
     max-width: 360px;
+
     .recordname {
       display: inline-block;
       max-width: calc(~'100% - 28px');
@@ -780,18 +823,20 @@
 .worksheetFilterCascaderCondition {
   .cascaderDropdown {
     margin-top: 0px !important;
+    .ant-select-selector {
+      background-color: transparent !important;
+      border-color: var(--color-border-primary) !important;
+    }
+    .customAntSelect:not(.ant-select-open):not(.ant-select-disabled) .ant-select-selector:hover {
+      background-color: transparent !important;
+      border-color: var(--color-text-placeholder) !important;
+    }
   }
 }
 
-// .worksheetFilterCascaderPopup {
-//   &.ant-tree-select-dropdown {
-//     transform: translate(-9px, -13px);
-//   }
-// }
-
 .filterCustomUserHead {
-  color: #4bb04f;
-  box-shadow: inset 0 0 0px 4px #4bb04f;
+  color: var(--color-success);
+  box-shadow: inset 0 0 0px 4px var(--color-success);
   border-radius: 25px;
   font-size: 27px;
   vertical-align: middle;
@@ -802,21 +847,21 @@
   padding: 6px 8px;
   box-sizing: border-box;
   min-height: 36px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border-tertiary);
   border-radius: 3px;
   font-size: 14px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
 
   .placeholder {
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
 
   .fiterTagItem {
     display: inline-block;
-    background-color: #e5e5e5;
+    background-color: var(--color-border-secondary);
     border-radius: 12px;
 
     .text {
@@ -827,19 +872,19 @@
 
     .remove {
       cursor: pointer;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       margin: 0 8px 0 4px;
       font-size: 12px;
 
       &:hover {
-        color: #757575;
+        color: var(--color-text-secondary);
       }
     }
   }
 
   &.disabled {
     cursor: not-allowed;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
 
     .fiterTagItem {
       .remove {
@@ -850,7 +895,7 @@
     }
 
     &:hover {
-      border-color: #ccc;
+      border-color: var(--color-border-tertiary);
     }
   }
 }
@@ -859,35 +904,39 @@
   .CityPicker-wrapper,
   .CityPicker-input-container {
     display: block;
+
     .CityPicker-input-tagSearchBox {
       height: auto;
     }
   }
+
   .optionCheckboxs {
     .optionCheckbox {
       cursor: pointer;
-      background: #fff;
+      background: var(--color-background-primary);
       box-sizing: border-box;
       display: inline-flex;
       align-items: center;
       margin: 6px 6px 0 0;
       padding: 0 10px;
       height: 26px;
-      color: #aaa;
+      color: var(--color-text-tertiary);
       font-size: 13px;
       border-radius: 26px;
-      border: 1px solid #ccc;
+      border: 1px solid var(--color-border-tertiary);
       max-width: 100%;
 
       &.checked {
-        color: #fff;
+        color: var(--color-white);
+
         &.multiple {
           .selectedIcon {
             font-size: 16px;
             margin: 0 5px 0 -4px;
           }
-          color: #1565c0;
-          background-color: #e3f2fd !important;
+
+          color: var(--color-link-hover);
+          background-color: var(--color-primary-transparent) !important;
           border: 1px solid rgba(21, 101, 192, 0.17) !important;
         }
       }
@@ -908,19 +957,19 @@
 
   .tip {
     margin: 4px 10px;
-    color: #999;
+    color: var(--color-text-tertiary);
   }
 
   .deleteSplit {
     hr {
       border: none;
-      border-top: 1px solid #ddd;
+      border-top: 1px solid var(--color-border-primary);
       margin: 4px 0;
     }
 
     .title {
       font-size: 12px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       padding: 0 16px;
       margin: 12px 0 6px;
     }
@@ -928,7 +977,7 @@
 }
 
 .ming.Input.disabled {
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
 }
 
 .worksheetFilterRelateCondition {
@@ -936,7 +985,7 @@
   // height: 36px;
 
   .inputText {
-    border: 1px solid #d0d0d0;
+    border: 1px solid var(--color-border-primary);
     display: inline-block;
     width: 100%;
     overflow: hidden;
@@ -954,11 +1003,11 @@
     min-height: 36px;
     line-height: 24px;
     vertical-align: top;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
     position: relative;
 
     &.focusInput {
-      border: 1px solid #1677ff;
+      border: 1px solid var(--color-primary);
     }
 
     .moreIntro {
@@ -972,9 +1021,9 @@
       min-height: 24px;
       display: inline-block;
       padding: 0 6px 0 12px;
-      border: 1px solid #2193f3;
-      background: #e3f2fd;
-      color: #2083d3;
+      border: 1px solid var(--color-primary-focus);
+      background: var(--color-primary-transparent);
+      color: var(--color-link-hover);
       border-radius: 15px;
       line-height: 22px;
       margin-right: 6px;
@@ -983,8 +1032,8 @@
       box-sizing: border-box;
 
       &.isWrong {
-        color: #f44336;
-        border: 1px solid #f44336;
+        color: var(--color-error);
+        border: 1px solid var(--color-error);
         background: rgba(244, 67, 54, 0.06);
       }
 
@@ -993,11 +1042,11 @@
         // opacity: .6;
         margin-left: 6px;
         // font-weight: 200;
-        color: #2083d3;
+        color: var(--color-link-hover);
         opacity: 0.6;
 
         &.icon {
-          color: #151515;
+          color: var(--color-text-title);
           opacity: 0.2;
           cursor: pointer;
           font-size: 12px;
@@ -1024,14 +1073,14 @@
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     border-radius: 3px;
-    background: #fff;
+    background: var(--color-background-primary);
     left: 0;
     top: 100%;
     margin-bottom: 20px;
 
     .searchInput {
       width: 100%;
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-secondary);
       display: flex;
 
       .searchIcon {
@@ -1047,7 +1096,7 @@
         flex: 1;
 
         &::placeholder {
-          color: #bdbdbd;
+          color: var(--color-text-disabled);
         }
       }
     }
@@ -1066,13 +1115,13 @@
 
     ul {
       padding: 6px 0;
-      border-top: 1px solid #eaeaea;
+      border-top: 1px solid var(--color-border-secondary);
 
       p {
         height: 36px;
         line-height: 36px;
         box-sizing: border-box;
-        color: #151515;
+        color: var(--color-text-title);
         font-weight: 500;
         padding: 0 16px;
         margin: 0;
@@ -1086,14 +1135,16 @@
         cursor: pointer;
 
         i {
-          color: #9e9e9e;
+          color: var(--color-text-tertiary);
           vertical-align: middle;
         }
+
         &:hover {
-          color: #fff;
-          background: #1677ff;
+          color: var(--color-white);
+          background: var(--color-primary);
+
           i {
-            color: #fff;
+            color: var(--color-white);
           }
         }
       }

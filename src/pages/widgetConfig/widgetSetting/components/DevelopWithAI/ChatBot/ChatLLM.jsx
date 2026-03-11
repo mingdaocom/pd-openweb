@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { v4 } from 'uuid';
 import { Skeleton } from 'ming-ui';
 import ResponseError from 'src/components/Mingo/ChatBot/components/ResponseError';
-import { previewQiniuUrl } from 'src/components/previewAttachments';
+import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
 import { AI_FEATURE_TYPE } from 'src/utils/enum';
 import { generateParamsForPrompt, getMessageList, saveMessageList } from '../util';
 import AutoHeightInput from './AutoHeightInput';
@@ -19,25 +19,25 @@ import useChatBot from './useChat';
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  background-color: white;
+  background-color: var(--color-background-primary);
   height: 100%;
   padding-top: 12px;
   .code-card {
     margin-bottom: 10px;
     font-size: 12px;
     width: 260px;
-    background-color: #ffffff;
+    background-color: var(--color-background-primary);
     border-radius: 8px;
     box-shadow: inset 0 0 0 2px rgba(189, 189, 189, 0.2);
     position: relative;
     padding: 10px 20px;
     .title {
       font-weight: bold;
-      color: #151515;
+      color: var(--color-text-title);
     }
     .file-name {
       margin-top: 2px;
-      color: #757575;
+      color: var(--color-text-secondary);
     }
   }
 
@@ -66,7 +66,7 @@ const Message = styled.div`
   margin: 10px 0 16px;
   cursor: ${props => (props.loading ? 'default' : 'pointer')};
   // &.active {
-  //   border: 1px solid #1677ff;
+  //   border: 1px solid var(--color-primary);
   // }
 `;
 
@@ -74,16 +74,16 @@ const Avatar = styled.div`
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  border: 1px solid #dfc6ff;
+  border: 1px solid var(--color-mingo-transparent);
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   flex-shrink: 0;
   overflow: hidden;
   .icon-ai1 {
     font-size: 14px;
-    color: white;
+    color: var(--color-white);
   }
   img {
     width: 100%;
@@ -107,9 +107,9 @@ const InputWrapper = styled.div`
   font-size: 0px;
   padding: 4px 0;
   border-radius: 5px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   &.focused {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
   }
 `;
 
@@ -138,11 +138,11 @@ const SendTools = styled.div`
 
 const SendButton = styled.div`
   cursor: pointer;
-  color: #1677ff;
+  color: var(--color-primary);
   font-size: 20px;
   line-height: 1em;
   &.disabled {
-    color: #ccc;
+    color: var(--color-text-placeholder);
     cursor: default;
   }
 `;
@@ -153,7 +153,7 @@ const AbortButton = styled.div`
   width: 22px;
   height: 22px;
   border-radius: 24px;
-  background-color: #222;
+  background-color: var(--color-background-inverse);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -162,16 +162,16 @@ const AbortButton = styled.div`
     width: 8px;
     height: 8px;
     border-radius: 1px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
   &:hover {
-    background-color: #444;
+    background-color: var(--color-background-inverse);
   }
 `;
 
 const Footer = styled.div`
   height: 40px;
-  color: #757575;
+  color: var(--color-text-secondary);
   display: flex;
   align-items: center;
   padding: 0 17px;
@@ -187,12 +187,12 @@ const ScrollToBottomButton = styled.div`
   position: absolute;
   right: 17px;
   font-size: 18px;
-  color: #555;
+  color: var(--color-text-title);
   width: 30px;
   height: 30px;
   border-radius: 30px;
-  background-color: #fff;
-  border: 1px solid #e7e7e7;
+  background-color: var(--color-background-primary);
+  border: 1px solid var(--color-border-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -349,7 +349,7 @@ function ChatLLM(
         const messageId = $codeCard.dataset.messageId;
         onCodeCardClick(messageId);
       } else if (e.target.tagName.toLowerCase() === 'img') {
-        previewQiniuUrl(e.target.src, { ext: 'png' });
+        previewAttachments(transformQiniuUrl(e.target.src, { ext: 'png' }));
       }
     },
     [loading],
@@ -394,7 +394,7 @@ function ChatLLM(
       }
       setMessageListLoading(false);
       setTimeout(() => {
-        messagesEndRef.current.scrollIntoView();
+        messagesEndRef.current?.scrollIntoView();
       }, 0);
     });
   }, []);
@@ -539,12 +539,12 @@ function ChatLLM(
               });
             }}
           >
-            <i className="icon icon-cleaning_services Gray_9e Font16" />
-            <span className="Gray_75 mLeft6">{_l('清除对话')}</span>
+            <i className="icon icon-cleaning_services textTertiary Font16" />
+            <span className="textSecondary mLeft6">{_l('清除对话')}</span>
           </div>
           {/* <div className="Hand mLeft12">
-            <i className="icon icon-wait Gray_9e Font17" />
-            <span className="Gray_75 mLeft6">237 / 200</span>
+            <i className="icon icon-wait textTertiary Font17" />
+            <span className="textSecondary mLeft6">237 / 200</span>
           </div> */}
           <div className="flex"></div>
           <div>{_l('内容由 AI 生成，可能存在错误，仅供参考')}</div>

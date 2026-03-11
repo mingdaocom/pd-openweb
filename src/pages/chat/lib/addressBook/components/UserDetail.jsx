@@ -106,7 +106,7 @@ export default class UserDetail extends React.Component {
     if (!isFriend) {
       return (
         <span
-          className="Right Gray_75 Hand ThemeHoverColor3"
+          className="Right textSecondary Hand ThemeHoverColor3"
           onClick={() => checkCertification({ isPersonal: true, checkSuccess: this.addFriendConfirm })}
         >
           <i className="Font14 icon-custom_add_circle TxtMiddle" />
@@ -131,7 +131,7 @@ export default class UserDetail extends React.Component {
               </Menu>
             }
           >
-            <span className="Gray_75 Hand ThemeHoverColor3">
+            <span className="textSecondary Hand ThemeHoverColor3">
               <i className="Font14 icon-check_circle TxtMiddle" />
               <span className="mLeft5 TxtMiddle Font12">{_l('我的好友')}</span>
               <i className="Font14 mLeft5 icon-moreop TxtMiddle" />
@@ -159,9 +159,9 @@ export default class UserDetail extends React.Component {
             <div className="flex ellipsis pRight10">
               <div className="ellipsis bold">{fullname}</div>
               {accountId !== md.global.Account.accountId && commonOrg.length > 0 ? (
-                <div className="ThemeColor">{_l('%0个共同组织', commonOrg.length)}</div>
+                <div className="colorPrimary">{_l('%0个共同组织', commonOrg.length)}</div>
               ) : companyName ? (
-                <div className="Gray_75 ellipsis Font14">{companyName}</div>
+                <div className="textSecondary ellipsis Font14">{companyName}</div>
               ) : (
                 ''
               )}
@@ -184,7 +184,7 @@ export default class UserDetail extends React.Component {
             <Icon icon="chat" className="mRight5 Font18 TxtMiddle" />
             {_l('发消息')}
           </a>
-          <a href={'/user_' + accountId} className="detail-btn Gray_75 mLeft10 NoUnderline" target="_blank">
+          <a href={'/user_' + accountId} className="detail-btn textSecondary mLeft10 NoUnderline" target="_blank">
             <Icon icon="dynamic-empty" className="mRight10 Font17 TxtMiddle" />
             {_l('TA的动态')}
           </a>
@@ -203,7 +203,7 @@ export default class UserDetail extends React.Component {
   renderDetail() {
     return (
       <React.Fragment>
-        <span className="Gray_9e Hover_21 Hand" onClick={this.onCopyID}>
+        <span className="textTertiary hoverColorPrimary Hand" onClick={this.onCopyID}>
           {_l('用户ID')}
           <Icon icon="copy" className="mLeft5" />
         </span>

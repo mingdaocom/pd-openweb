@@ -48,7 +48,7 @@ export default class FeedDetailEntrypoint extends Component {
         <div>
           <i className="icon-error1 Font56 Feeddetail-errorIcon" />
         </div>
-        <div className="Font18 mTop20 Gray">{this.props.error}</div>
+        <div className="Font18 mTop20 textPrimary">{this.props.error}</div>
         <br />
         <br />
         <br />

@@ -17,9 +17,9 @@ const Wrap = styled.div`
   }
   .fieldEditorRemark.hasData {
     .ck .ck-content {
-      border: 1px solid #dddddd !important;
+      border: 1px solid var(--color-border-primary) !important;
       &:hover {
-        border: 1px solid #1677ff !important;
+        border: 1px solid var(--color-primary) !important;
       }
     }
   }

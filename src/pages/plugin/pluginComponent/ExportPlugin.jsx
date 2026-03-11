@@ -19,16 +19,16 @@ const FormItem = styled.div`
   .labelText {
     display: flex;
     align-items: center;
-    color: #757575;
+    color: var(--color-text-secondary);
     margin-bottom: 8px;
     .requiredStar {
-      color: #f44336;
+      color: var(--color-error);
       margin-left: 4px;
       font-weight: bold;
     }
     i {
       font-size: 14px;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       margin-left: 8px;
     }
   }
@@ -36,7 +36,7 @@ const FormItem = styled.div`
     width: 100%;
     font-size: 13px !important;
     &.notEditPwd {
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       border: none;
     }
   }
@@ -44,7 +44,7 @@ const FormItem = styled.div`
     min-width: 82px;
   }
   .error {
-    color: #f44336;
+    color: var(--color-error);
     margin-top: 5px;
   }
 
@@ -52,7 +52,7 @@ const FormItem = styled.div`
     width: 100%;
     height: 36px;
     transition: none;
-    border-color: #ccc;
+    border-color: var(--color-border-tertiary);
     border-radius: 3px;
     box-shadow: none;
     .ant-picker-input {
@@ -61,10 +61,10 @@ const FormItem = styled.div`
       }
     }
     &:hover {
-      border-color: #bbb;
+      border-color: var(--color-text-disabled);
     }
     &.ant-picker-focused {
-      border-color: #1e88e5;
+      border-color: var(--color-primary);
     }
   }
   &.fitContent {
@@ -151,7 +151,7 @@ function ExportPlugin(props) {
                 <div className="pwdOperate">
                   {!pwdEditing && data.password ? (
                     <ClipboardButton
-                      className="pointer Gray_9e ThemeHoverColor3 mLeft16"
+                      className="pointer textTertiary ThemeHoverColor3 mLeft16"
                       component="span"
                       data-clipboard-text={data.password}
                       onSuccess={() => alert(_l('复制成功'))}
@@ -162,7 +162,7 @@ function ExportPlugin(props) {
                     </ClipboardButton>
                   ) : (
                     <span
-                      className="ThemeColor ThemeHoverColor2 pointer mLeft10 mRight20 nowrap"
+                      className="colorPrimary ThemeHoverColor2 pointer mLeft10 mRight20 nowrap"
                       onMouseDown={() => {
                         setData({ password: generateRandomPassword(8) });
                         setPwdEditing(false);

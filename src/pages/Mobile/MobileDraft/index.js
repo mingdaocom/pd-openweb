@@ -13,8 +13,8 @@ const ModalWrap = styled(Popup)`
     padding-top: 25px;
   }
   .adm-popup-body {
-    color: #151515 !important;
-    background-color: #f5f5f5;
+    color: var(--color-text-title) !important;
+    background-color: var(--color-background-secondary);
   }
 `;
 
@@ -25,7 +25,7 @@ const DraftEntry = styled.div`
 `;
 
 const TotalNumWrap = styled.span`
-  background-color: #eaeaea;
+  background-color: var(--color-border-secondary);
   padding: 2px 6px;
   border-radius: 10px;
 `;
@@ -64,8 +64,8 @@ function MobileDraftList(props) {
       <ModalWrap onClose={onCancel} visible={visible} className="mobileModal full">
         <div className="flexColumn h100">
           <div className="flexRow valignWrapper pTop15 pLeft20 pRight20 pBottom8">
-            <div className="flex Font15 Gray_9e leftAlign ellipsis">{_l('共%0条', draftData.length)}</div>
-            <Icon icon="cancel" className="Font22 Gray_9e" onClick={onCancel} />
+            <div className="flex Font15 textTertiary leftAlign ellipsis">{_l('共%0条', draftData.length)}</div>
+            <Icon icon="cancel" className="Font22 textTertiary" onClick={onCancel} />
           </div>
           <DraftList
             draftData={draftData}
@@ -130,9 +130,9 @@ export default function MobileDraft(props) {
             setVisible(true);
           }}
         >
-          <Icon icon="drafts_approval" className="Font20 Gray_9e pointer mTop4" />
-          <span className="TxtTop mLeft5 Font13 Gray_75">{_l('草稿箱')}</span>
-          {total ? <TotalNumWrap className="TxtTop mLeft5 Gray Font13">{total}</TotalNumWrap> : ''}
+          <Icon icon="drafts_approval" className="Font20 textTertiary pointer mTop4" />
+          <span className="TxtTop mLeft5 Font13 textSecondary">{_l('草稿箱')}</span>
+          {total ? <TotalNumWrap className="TxtTop mLeft5 textPrimary Font13">{total}</TotalNumWrap> : ''}
         </DraftEntry>
       ) : (
         ''

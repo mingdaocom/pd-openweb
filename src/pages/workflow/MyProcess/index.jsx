@@ -68,7 +68,7 @@ class Filter extends Component {
     const length = this.getFilterLength();
     return (
       <div
-        className={cx('processFilterTarget flexRow valignWrapper Gray_75 pointer', { active: visible || length })}
+        className={cx('processFilterTarget flexRow valignWrapper textSecondary pointer', { active: visible || length })}
         onClick={this.props.handleOpen}
       >
         <Icon icon="worksheet_filter" className="mBottom2" />
@@ -372,7 +372,7 @@ export default class MyProcess extends Component {
     const { list, visible } = this.state;
     const countData = _.isEmpty(this.props.countData) ? this.state.countData : this.props.countData;
     const { waitingExamine, myProcessCount } = countData;
-    const newList = list.filter(n => n.workId !== item.workId);
+    const newList = list.filter(n => n.workId !== item?.workId);
     this.setState({
       list: newList,
       visible: newList.length ? visible : false,
@@ -457,13 +457,16 @@ export default class MyProcess extends Component {
             <div>
               {success.length && !fail.length ? (
                 <div className="flexColumn alignItemsCenter justifyContentCenter mTop20">
-                  <Icon icon="check_circle1" className="Font64" style={{ color: '#4CB050' }} />
-                  <div className="Gray Font18 mTop20 mBottom50">
+                  <Icon icon="check_circle1" className="Font64" style={{ color: 'var(--color-success)' }} />
+                  <div className="textPrimary Font18 mTop20 mBottom50">
                     {_l('成功')}
                     {': '}
                     <span
                       dangerouslySetInnerHTML={{
-                        __html: _l('%0 条', `<span style="color: #4CB050;font-weight: bold;">${success.length}</span>`),
+                        __html: _l(
+                          '%0 条',
+                          `<span style="color: var(--color-success);font-weight: bold;">${success.length}</span>`,
+                        ),
                       }}
                     />
                   </div>
@@ -471,16 +474,25 @@ export default class MyProcess extends Component {
               ) : (
                 !!(success.length || fail.length) && (
                   <Fragment>
-                    {!!fail.length && <div className="Gray">{_l('已完成批量操作，部分记录处理失败，请查看详情')}</div>}
+                    {!!fail.length && (
+                      <div className="textPrimary">{_l('已完成批量操作，部分记录处理失败，请查看详情')}</div>
+                    )}
                     {!!success.length && (
                       <div className="flexRow alignItemsCenter mTop10">
-                        <Icon icon="check_circle1" className="Font24 mRight5" style={{ color: '#4CB050' }} />
-                        <div className="Gray Font18">
+                        <Icon
+                          icon="check_circle1"
+                          className="Font24 mRight5"
+                          style={{ color: 'var(--color-success)' }}
+                        />
+                        <div className="textPrimary Font18">
                           {_l('成功')}
                           {': '}
                           <span
                             dangerouslySetInnerHTML={{
-                              __html: _l('%0 条', `<span style="color: #4CB050;">${success.length}</span>`),
+                              __html: _l(
+                                '%0 条',
+                                `<span style="color: var(--color-success);">${success.length}</span>`,
+                              ),
                             }}
                           />
                         </div>
@@ -488,14 +500,14 @@ export default class MyProcess extends Component {
                     )}
                     {!!fail.length && (
                       <div className="flexRow mTop10">
-                        <Icon icon="report" className="Font24 mRight5" style={{ color: '#F54337' }} />
+                        <Icon icon="report" className="Font24 mRight5" style={{ color: 'var(--color-error)' }} />
                         <div className="w100">
-                          <div className="Gray Font18 mBottom5">
+                          <div className="textPrimary Font18 mBottom5">
                             {_l('异常')}
                             {': '}
                             <span
                               dangerouslySetInnerHTML={{
-                                __html: _l('%0 条', `<span style="color: #F54337;">${fail.length}</span>`),
+                                __html: _l('%0 条', `<span style="color: var(--color-error);">${fail.length}</span>`),
                               }}
                             />
                           </div>
@@ -504,7 +516,7 @@ export default class MyProcess extends Component {
                               const [id, workId] = key.split(',');
                               const card = _.find(cards, { id, workId });
                               return card ? (
-                                <div className="Gray Font15 mBottom3">{`${card.entityName}: ${card.title || _l('未命名')}`}</div>
+                                <div className="textPrimary Font15 mBottom3">{`${card.entityName}: ${card.title || _l('未命名')}`}</div>
                               ) : null;
                             })}
                           </div>
@@ -639,16 +651,16 @@ export default class MyProcess extends Component {
             }}
             customRender={() => {
               return (
-                <Tooltip title={_l('查看已归档数据')} placement="bottom">
+                <Tooltip title={_l('查看历史待办消息')} placement="bottom">
                   <div className="mRight26">
                     <div
                       className={cx(
-                        'flexRow valignWrapper mBottom3 pointer Hover_21',
-                        _.isEmpty(archivedItem) ? 'Gray_75' : 'ThemeColor',
+                        'flexRow valignWrapper mBottom3 pointer hoverColorPrimary',
+                        _.isEmpty(archivedItem) ? 'textSecondary' : 'colorPrimary',
                       )}
                     >
-                      <Icon icon="drafts_approval" className="Font24" />
-                      <div className="Font14 mLeft5 nowrap">{_l('归档')}</div>
+                      <Icon icon="article" className="Font24" />
+                      <div className="Font14 mLeft5 nowrap">{_l('历史待办')}</div>
                     </div>
                   </div>
                 </Tooltip>
@@ -662,7 +674,7 @@ export default class MyProcess extends Component {
                 <span className="mRight15">
                   <Icon
                     icon="launch"
-                    className="pointer Font22 Gray_9d ThemeHoverColor3"
+                    className="pointer Font22 textTertiary ThemeHoverColor3"
                     onClick={() => {
                       if (_.includes([TABS.COMPLETE], stateTab) && filter) {
                         let secondType;
@@ -684,7 +696,7 @@ export default class MyProcess extends Component {
                 <span>
                   <Icon
                     icon="close"
-                    className="pointer Font28 Gray_9d ThemeHoverColor3"
+                    className="pointer Font28 textTertiary ThemeHoverColor3"
                     onClick={this.props.onCancel}
                   />
                 </span>
@@ -771,7 +783,7 @@ export default class MyProcess extends Component {
                 color="#FFF"
                 content={
                   <div className="pAll10 flexColumn">
-                    <span className="Gray Font15">{_l('您将通过选择的%0个审批事项', approveCards.length)}</span>
+                    <span className="textPrimary Font15">{_l('您将通过选择的%0个审批事项', approveCards.length)}</span>
                     <div className="flexRow mTop10" style={{ justifyContent: 'flex-end' }}>
                       <Button
                         type="link"
@@ -964,7 +976,7 @@ export default class MyProcess extends Component {
           this.password = undefined;
         }}
       >
-        <div className="Gray_75 Font14 mBottom10">
+        <div className="textSecondary Font14 mBottom10">
           {_l('其中')}
           {!!signatureApproveCards.length && _l('%0个事项需要签名', signatureApproveCards.length)}
           {!!(signatureApproveCards.length && encryptCard.length) && '，'}
@@ -979,7 +991,7 @@ export default class MyProcess extends Component {
                 this.signature = signature;
               }}
             />
-            <div className="mTop20 BorderBottom borderColor_ef" />
+            <div className="mTop20 BorderBottom borderSecondary" />
           </Fragment>
         )}
         {encryptType && (
@@ -1031,7 +1043,7 @@ export default class MyProcess extends Component {
         ))}
         {!!noRejectCards.length && (
           <Fragment>
-            <div className="mBottom10 Gray_75">
+            <div className="mBottom10 textSecondary">
               {_l('不能否决事项')} {noRejectCards.length}
             </div>
             {noRejectCards.map(item => (

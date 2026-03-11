@@ -10,7 +10,7 @@ import ItemCon from './ItemCon';
 
 const WrapL = styled.div`
   .roleSearch {
-    background: #fff;
+    background: var(--color-background-primary);
     border-radius: 0;
     width: 100%;
     padding-left: 0;
@@ -19,7 +19,7 @@ const WrapL = styled.div`
 const Wrap = styled.p`
   font-size: 12px;
   font-weight: bold;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   padding-left: 18px;
   margin: 10px 0 4px 0;
 `;
@@ -30,7 +30,7 @@ const WrapTips = styled.div`
   text-align: center;
   width: 200px;
   margin: 10px auto;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   border-radius: 24px;
 `;
 
@@ -121,7 +121,7 @@ export default class Con extends React.Component {
         </WrapL>
         <div className="navCon flex navConList">
           {roleList.length <= 0 ? (
-            <div className="TxtCenter Gray_bd mTop20">{_l('无相关角色')}</div>
+            <div className="TxtCenter textDisabled mTop20">{_l('无相关角色')}</div>
           ) : (
             <ul>
               {sysList.length > 0 && <Wrap>{_l('系统')}</Wrap>}
@@ -156,7 +156,7 @@ export default class Con extends React.Component {
         </div>
         {roleLimitInfo.limitState && (
           <WrapTips>
-            <Icon icon="error_outline" className="Font16 Gray_75" />
+            <Icon icon="error_outline" className="Font16 textSecondary" />
             <span className="mLeft6">
               {_l('使用人数限制')}
               <span className="mLeft3">

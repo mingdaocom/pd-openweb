@@ -12,11 +12,11 @@ const Wrapper = styled.div`
     display: inline-block;
     font-size: 13px;
     padding: 8px 10px;
-    color: #868686;
+    color: var(--color-text-secondary);
     border-radius: 4px;
     cursor: pointer;
     &:hover {
-      background-color: #f8f8f8;
+      background-color: var(--color-background-hover);
     }
   }
 `;

@@ -5,11 +5,11 @@ const Con = styled.div`
   font-size: 15px;
   margin-top: 8px;
   .direct-add {
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     border-radius: 6px;
     padding: 12px;
     font-size: 14px;
-    color: #6e09f9;
+    color: var(--color-mingo);
     cursor: pointer;
     margin: 15px 0;
     font-weight: bold;

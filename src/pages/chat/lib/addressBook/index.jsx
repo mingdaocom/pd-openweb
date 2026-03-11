@@ -92,7 +92,7 @@ export default function AddressBookDialog(props) {
     <Dialog {...dialogProps}>
       <Icon
         icon={'delete'}
-        className="contacts-dialog-close Gray_6 Hand"
+        className="contacts-dialog-close textSecondary Hand"
         onClick={() => {
           props.closeDialog();
         }}

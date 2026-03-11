@@ -2,7 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
-import { Button, Icon, LoadDiv, Menu, MenuItem } from 'ming-ui';
+import { Icon, LoadDiv, Menu, MenuItem } from 'ming-ui';
 import appManagementAjax from 'src/api/appManagement';
 import attachmentAjax from 'src/api/attachment';
 import sheetAjax from 'src/api/worksheet';
@@ -11,6 +11,7 @@ import { createEditFileLink } from 'src/pages/UploadTemplateSheet/utils';
 import { VersionProductType } from 'src/utils/enum';
 import RegExpValidator from 'src/utils/expression';
 import { getFeatureStatus } from 'src/utils/project';
+import DrawerFooter from './DrawerFooter';
 import PrintTemSetting from './PrintTemSetting';
 import './editPrint.less';
 
@@ -406,6 +407,7 @@ class EditPrint extends React.Component {
       featureType,
       advanceSettings,
       isCreate,
+      saveLoading,
     } = this.state;
     const {
       onClose,
@@ -432,7 +434,7 @@ class EditPrint extends React.Component {
           </span>
           <Icon
             icon="close"
-            className="mLeft10 Gray_9e ThemeHoverColor3 Hand"
+            className="mLeft10 textTertiary ThemeHoverColor3 Hand"
             onClick={() => {
               onClose();
             }}
@@ -442,7 +444,7 @@ class EditPrint extends React.Component {
           <div className="uploadCon">
             <p className="tiTop">{_l('1.下载示范模板')}</p>
             <p className="desc mTop20">
-              <span className="Font13 Gray_9e">
+              <span className="Font13 textTertiary">
                 {_l(
                   '请先根据系统提供的字段代码对照表将所需要的字段代码复制后粘贴到对应 的本地的 %0 模板中制作成模板。',
                   fileType,
@@ -470,7 +472,7 @@ class EditPrint extends React.Component {
               {fileName && !error ? (
                 <span className={fileType === 'Excel' ? 'icon-new_excel Font50 excelIcon' : 'wordIcon'}></span>
               ) : (
-                <Icon icon="file" className="LightGray" />
+                <Icon icon="file" style={{ color: 'var(--color-border-primary)' }} />
               )}
               <p className="mTop15 TxtCenter">
                 {(fileName && !error) || templateId ? (
@@ -499,7 +501,7 @@ class EditPrint extends React.Component {
                     )}
                   </React.Fragment>
                 ) : (
-                  <span className="Gray_9e">
+                  <span className="textTertiary">
                     {_l('若选择本地上传，请选择%0格式的%1文件；', SUFFIX[fileType], fileType)}
                     <br />
                     {isAdmin &&
@@ -564,14 +566,12 @@ class EditPrint extends React.Component {
             />
           </div>
         </div>
-        <div className="btnWrap">
-          <Button size="mdbig" disabled={disabledOkBtn} onClick={this.onOk}>
-            {_l('确定')}
-          </Button>
-          <Button size="mdbig" type="ghost" onClick={this.handleClose}>
-            {_l('取消')}
-          </Button>
-        </div>
+        <DrawerFooter
+          saveLoading={saveLoading}
+          disabled={disabledOkBtn}
+          handleSave={this.onOk}
+          onCancel={this.handleClose}
+        />
       </div>
     );
   }

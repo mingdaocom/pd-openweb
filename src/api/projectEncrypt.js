@@ -70,6 +70,18 @@ export default {
     return mdyAPI('ProjectEncrypt', 'EditEncryptRule', args, options);
   },
   /**
+   * 测试加密规则
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织Id
+   * @param {} args.testEncryptRule
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  testEncryptRule: function (args, options = {}) {
+    return mdyAPI('ProjectEncrypt', 'TestEncryptRule', args, options);
+  },
+  /**
    * 设置默认加密规则
    * @param {Object} args 请求参数
    * @param {string} args.projectId 组织Id

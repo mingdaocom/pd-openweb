@@ -76,7 +76,7 @@ export default function CommonFieldDropdown(props) {
       placeholder={_l('选择字段')}
       renderTitle={() =>
         !selectedCount ? (
-          <span className="Gray_bd">{_l('选择字段')}</span>
+          <span className="textDisabled">{_l('选择字段')}</span>
         ) : (
           <span>{_l('已选择%0个字段', selectedCount)}</span>
         )

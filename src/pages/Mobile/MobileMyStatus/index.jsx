@@ -136,11 +136,11 @@ export default function MobileMyStatus() {
       <Fragment>
         <div className="header flexRow pLeft0 pRight0">
           <div className="flex">
-            <div className="bold Font17 Gray_15">{_l('我的状态')}</div>
-            <div className="Gray_75">{_l('设置您的个人状态，让所有协作的同事及时知晓')}</div>
+            <div className="bold Font17 textPrimary">{_l('我的状态')}</div>
+            <div className="textSecondary">{_l('设置您的个人状态，让所有协作的同事及时知晓')}</div>
           </div>
           <Icon
-            className="Gray_9e Font17"
+            className="textTertiary Font17"
             icon="closeelement-bg-circle"
             onClick={() => setData({ visible: false, currentStatusId: unsetStatus ? undefined : currentStatusId })}
           />
@@ -176,7 +176,7 @@ export default function MobileMyStatus() {
         <div className="header flexRow pLeft0 pRight0">
           <div className="flex"></div>
           <Icon
-            className="Gray_9e Font17"
+            className="textTertiary Font17"
             icon="closeelement-bg-circle"
             onClick={() =>
               setData({
@@ -200,7 +200,7 @@ export default function MobileMyStatus() {
           </div>
         </div>
         <div className="flex">
-          <div className="Gray bold Font14 mBottom10">{_l('让同事知道你现在的状态')}</div>
+          <div className="textPrimary bold Font14 mBottom10">{_l('让同事知道你现在的状态')}</div>
           <Input
             className={`w100 mBottom10 ${!onStatusOption.remark ? 'error' : ''}`}
             value={onStatusOption.remark}
@@ -236,12 +236,14 @@ export default function MobileMyStatus() {
                   <div className="datePickerWrap">
                     <div className="flex ellipsis Font12" onClick={() => setData({ startDateVisible: true })}>
                       {onStatusOption.beginTime ? (
-                        <span className="Gray_15">{moment(onStatusOption.beginTime).format('YYYY-MM-DD HH:mm')}</span>
+                        <span className="textPrimary">
+                          {moment(onStatusOption.beginTime).format('YYYY-MM-DD HH:mm')}
+                        </span>
                       ) : (
-                        <span className="Gray_bd ">{_l('请选择')}</span>
+                        <span className="textDisabled ">{_l('请选择')}</span>
                       )}
                     </div>
-                    <Icon icon="arrow-right-border" className="Gray_9d" />
+                    <Icon icon="arrow-right-border" className="textTertiary" />
                   </div>
                   {startDateVisible && (
                     <MobileDatePicker
@@ -269,12 +271,12 @@ export default function MobileMyStatus() {
                   <div className="datePickerWrap">
                     <div className="flex ellipsis Font12" onClick={() => setData({ endDateVisible: true })}>
                       {onStatusOption.endTime ? (
-                        <span className="Gray_15">{moment(onStatusOption.endTime).format('YYYY-MM-DD HH:mm')}</span>
+                        <span className="textPrimary">{moment(onStatusOption.endTime).format('YYYY-MM-DD HH:mm')}</span>
                       ) : (
-                        <span className="Gray_bd ">{_l('请选择')}</span>
+                        <span className="textDisabled ">{_l('请选择')}</span>
                       )}
                     </div>
-                    <Icon icon="arrow-right-border" className="Gray_9d" />
+                    <Icon icon="arrow-right-border" className="textTertiary" />
                   </div>
                   {endDateVisible && (
                     <MobileDatePicker
@@ -318,7 +320,7 @@ export default function MobileMyStatus() {
       ) : (
         <div>
           <span className="mobileMyStatus mLeft10" onClick={() => setData({ visible: true, isEdit: false })}>
-            <Icon icon="add_reaction" className="Font22 Gray_9e" />
+            <Icon icon="add_reaction" className="Font22 textTertiary" />
             <span className="mLeft6 Font15 bold">{_l('添加您的个人状态')}</span>
           </span>
         </div>

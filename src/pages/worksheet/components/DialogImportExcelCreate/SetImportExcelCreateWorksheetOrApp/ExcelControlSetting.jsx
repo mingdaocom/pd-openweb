@@ -13,10 +13,8 @@ import Settings from 'src/pages/widgetConfig/widgetSetting/settings';
 import { EXCEL_CONTROLS, getList, HAS_RADIO_CONTROL, NO_OTHER_CONFIG } from './config';
 
 const ExcelControlSettingWrap = styled.div`
-  background: #ffffff;
-  box-shadow:
-    0 4px 20px rgb(0 0 0 / 13%),
-    0 2px 6px rgb(0 0 0 / 10%);
+  background: var(--color-background-primary);
+  box-shadow: var(--shadow-lg);
   border-radius: 3px 3px 3px 3px;
   width: 350px;
   padding: 20px;
@@ -122,11 +120,11 @@ export default class ExcelControlSetting extends Component {
   }
 
   render() {
-    const { data = {}, worksheetList = [], createType, projectId } = this.props;
+    const { data = {}, worksheetList = [], createType, projectId, appId } = this.props;
     const { step, visible, controls, loading } = this.state;
     const { type, controlName, dataSource, sourceConfig = {} } = data;
     const ENUM_TYPE = enumWidgetType[type];
-    const allProps = { data, onChange: this.handleChange, globalSheetInfo: { projectId } };
+    const allProps = { data, onChange: this.handleChange, globalSheetInfo: { projectId, appId } };
     const SettingComponent = Settings[ENUM_TYPE];
 
     const SETTING_WIDGETS =
@@ -153,7 +151,7 @@ export default class ExcelControlSetting extends Component {
             renderTitle={() => {
               return (
                 <div className="flex name">
-                  <Icon className="icon Font17 mRight5 Gray_9d" icon={getIconByType(type)} />
+                  <Icon className="icon Font17 mRight5 textTertiary" icon={getIconByType(type)} />
                   <div className="ellipsis InlineBlock Font14">
                     {type === 29 ? _l('关联到') : _.get(this.getSelectControl(), 'text')}
                     {type === 29 && (
@@ -172,7 +170,7 @@ export default class ExcelControlSetting extends Component {
                   <span>
                     {data.attribute === 1 && (item.value === 14 || item.value === 36 || item.value === 'next') && (
                       <Tooltip title={_l('标题字段不能设置为此类型')}>
-                        <Icon icon="info_outline" className="Gray_bd mLeft8 Hand Font15" />
+                        <Icon icon="info_outline" className="textDisabled mLeft8 Hand Font15" />
                       </Tooltip>
                     )}
                   </span>

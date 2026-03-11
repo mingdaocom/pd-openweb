@@ -321,7 +321,7 @@ export function handleRemoveNode(args) {
         _l('删除文件') +
         '</span><div class="Font14 mTop10">' +
         _l('文件的引用和分享链接也将失效，确认删除？') +
-        '</div><div class="Font14 mTop10 Gray_9">' +
+        '</div><div class="Font14 mTop10 textTertiary">' +
         _l('您可以在该文件夹对应的回收站内找回') +
         '</div></span>'
       : '<span class="Font16"><span class="Bold">' +

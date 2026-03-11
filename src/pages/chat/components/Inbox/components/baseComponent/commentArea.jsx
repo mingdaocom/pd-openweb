@@ -253,7 +253,7 @@ class CommentItem extends React.Component {
           return (
             <a
               href={buildSourceLink(sourceType, sourceId)}
-              className="Gray_a NoUnderline"
+              className="textTertiary NoUnderline"
               title={_l('点击查看动态详情')}
             >
               {formatMsgDate(createTime)}
@@ -263,7 +263,7 @@ class CommentItem extends React.Component {
           return (
             <a
               href={buildSourceLink(sourceType, sourceId)}
-              className="Gray_a NoUnderline"
+              className="textTertiary NoUnderline"
               title={_l('点击查看任务详情')}
             >
               {formatMsgDate(createTime)}
@@ -273,7 +273,7 @@ class CommentItem extends React.Component {
           return (
             <a
               href={buildSourceLink(sourceType, sourceId)}
-              className="Gray_a NoUnderline"
+              className="textTertiary NoUnderline"
               title={_l('点击查看项目详情')}
             >
               {formatMsgDate(createTime)}
@@ -283,7 +283,7 @@ class CommentItem extends React.Component {
           return (
             <a
               href={buildSourceLink(sourceType, sourceId)}
-              className="Gray_a NoUnderline"
+              className="textTertiary NoUnderline"
               title={_l('点击查看日程详情')}
             >
               {formatMsgDate(createTime)}

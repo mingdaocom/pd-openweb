@@ -16,10 +16,10 @@ const ErrorContent = styled.div`
   justify-content: center;
   i {
     font-size: ${props => (props.disabled ? '40px' : '80px')};
-    color: #e0e0e0;
+    color: var(--color-border-secondary);
   }
   span {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     margin-top: 16px;
     font-size: ${props => (props.disabled ? '13px' : '17px')};
     font-weight: bold;

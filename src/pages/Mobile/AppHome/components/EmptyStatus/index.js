@@ -19,7 +19,7 @@ export default function EmptyStatus(props) {
   return (
     <Wrap className="w100 h100 flexColumn alignItemsCenter justifyContentCenter">
       <img src={IMAGES[emptyType]} />
-      <div className="Gray_bd mTop20 Font15">{emptyTxt}</div>
+      <div className="textDisabled mTop20 Font15">{emptyTxt}</div>
     </Wrap>
   );
 }

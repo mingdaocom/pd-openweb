@@ -23,8 +23,8 @@ const Wrap = styled.div`
     height: 32px;
     border-radius: 3px;
     padding: 4px;
-    border: 1px solid #dddddd;
-    background-color: #fff;
+    border: 1px solid var(--color-border-primary);
+    background-color: var(--color-background-primary);
     .colorBlock {
       width: 100%;
       height: 100%;
@@ -83,7 +83,9 @@ const TitleStyle = props => {
             {alignTypes.map(item => (
               <Tooltip key={item.value} arrowPointAtCenter title={item.tooltip} placement="bottom">
                 <div
-                  className={cx('flex centerAlign pointer Gray_75', { active: item.value === pivotTableStyle[key] })}
+                  className={cx('flex centerAlign pointer textSecondary', {
+                    active: item.value === pivotTableStyle[key],
+                  })}
                   onClick={() => {
                     handleChangePivotTableStyle({
                       [key]: item.value,
@@ -264,7 +266,7 @@ const TitleStyle = props => {
                   style={{ width: 130 }}
                   className="chartSelect"
                   value={_.isNumber(style.pivotTableLineFreezeIndex) ? style.pivotTableLineFreezeIndex : 'all'}
-                  suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                  suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                   onChange={value => {
                     onChangeStyle({
                       pivotTableLineFreezeIndex: value,
@@ -300,7 +302,7 @@ const TitleStyle = props => {
                   value={
                     _.isNumber(style.mobilePivotTableLineFreezeIndex) ? style.mobilePivotTableLineFreezeIndex : 'all'
                   }
-                  suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                  suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                   onChange={value => {
                     onChangeStyle({
                       mobilePivotTableLineFreezeIndex: value,
@@ -321,7 +323,7 @@ const TitleStyle = props => {
                   placement="bottomRight"
                   arrowPointAtCenter
                 >
-                  <Icon className="Gray_9e Font18 pointer" icon="info" />
+                  <Icon className="textTertiary Font18 pointer" icon="info" />
                 </Tooltip>
               </div>
             </div>
@@ -356,7 +358,7 @@ const TitleStyle = props => {
                   placement="bottomRight"
                   arrowPointAtCenter
                 >
-                  <Icon className="Gray_9e Font18 pointer" icon="info" />
+                  <Icon className="textTertiary Font18 pointer" icon="info" />
                 </Tooltip>
               </div>
             </div>

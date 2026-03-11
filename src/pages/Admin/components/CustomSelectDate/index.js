@@ -113,7 +113,13 @@ export default function CustomSelectDate(props) {
               <DatePicker.RangePicker
                 offset={{ top: 0, left: -24 }}
                 popupParentNode={() => $ref.current}
-                min={min ? min : md.global.Config.IsLocal ? undefined : moment().subtract(6, 'months')}
+                min={
+                  min
+                    ? min
+                    : window.platformENV.isOverseas || window.platformENV.isLocal
+                      ? undefined
+                      : moment().subtract(6, 'months')
+                }
                 onOk={([start, end]) => {
                   const copyStart = _.cloneDeep(start);
                   const copyEnd = _.cloneDeep(end);

@@ -17,7 +17,7 @@ const MenuWrap = styled(Menu)`
       padding-left: 16px !important;
       &:hover {
         i {
-          color: #fff;
+          color: var(--color-white);
         }
       }
       i {

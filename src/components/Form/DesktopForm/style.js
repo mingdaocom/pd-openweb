@@ -53,6 +53,24 @@ export const CustomFormItemControlWrap = styled.div`
       ${props => props.valueStyle}
     }
   }
+
+  .customCascader {
+    .cascader-input:not(.focused):not(.disabled) {
+      .cascader-search-input {
+        ${props => (!props.isCreated ? 'background-color: transparent !important;' : '')}
+      }
+      ${props =>
+        !props.isCreated
+          ? 'border-color: var(--color-background-secondary);background-color: var(--color-background-secondary);'
+          : ''}
+      &:hover {
+        ${props =>
+          !props.isCreated
+            ? 'border-color: var(--color-background-secondary) !important;background-color: var(--color-background-secondary) !important;'
+            : ''}
+      }
+    }
+  }
 `;
 
 export const ControlLabel = styled.div`

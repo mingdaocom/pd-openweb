@@ -47,9 +47,9 @@ export default function WorkSheetGroup(props) {
     if (darkColor) {
       return `rgba(255, 255, 255, ${0.9})`;
     } else if ([1, 3].includes(currentPcNaviStyle)) {
-      return isActive || ['light'].includes(themeType) ? iconColor : '#757575';
+      return isActive || ['light'].includes(themeType) ? iconColor : 'var(--color-text-secondary)';
     } else {
-      return isActive ? iconColor : '#757575';
+      return isActive ? iconColor : 'var(--color-text-secondary)';
     }
   };
 
@@ -97,7 +97,12 @@ export default function WorkSheetGroup(props) {
           <Icon
             className="Font16 mRight10 visibilityIcon"
             icon={icon}
-            style={{ color: [1, 3].includes(currentPcNaviStyle) && themeType === 'theme' ? '#FCD8D3' : '#ee6f09' }}
+            style={{
+              color:
+                [1, 3].includes(currentPcNaviStyle) && themeType === 'theme'
+                  ? 'var(--color-error-bg)'
+                  : 'var(--color-warning)',
+            }}
           />
         </Tooltip>
       )

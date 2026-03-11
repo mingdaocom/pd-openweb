@@ -13,7 +13,7 @@
     .barchTaskMain {
       width: 100%;
       height: 100%;
-      background-color: #fff;
+      background-color: var(--color-background-primary);
     }
     .taskDetailStatusBtn {
       border-radius: 19px;
@@ -27,19 +27,19 @@
       display: inline-block;
       margin-top: 12px;
       &:not(:hover):not(.active) {
-        color: #9e9e9e !important;
-        border-color: #bdbdbd !important;
+        color: var(--color-text-tertiary) !important;
+        border-color: var(--color-text-disabled) !important;
       }
       &.active {
-        color: #30af00 !important;
-        border-color: #30af00 !important;
+        color: var(--color-task) !important;
+        border-color: var(--color-task) !important;
       }
     }
     .detailTime {
       padding: 0 25px;
       align-items: center;
       justify-content: center;
-      border-bottom: 1px solid #e0e0e0;
+      border-bottom: 1px solid var(--color-border-secondary);
       height: 90px;
       margin-bottom: 10px;
       .detailTimeIcon {
@@ -48,20 +48,20 @@
           display: block;
         }
         .icon-watch_later {
-          color: #bdbdbd;
+          color: var(--color-text-disabled);
         }
         .icon-go_out {
-          color: #1677ff;
+          color: var(--color-primary);
         }
         .icon-check_circle {
-          color: #30af00;
+          color: var(--color-task);
         }
       }
       .detailTimeLabel {
         width: 90px;
       }
       .detailTimeLabelText {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
       .detailTimeNowStart {
         height: 22px;
@@ -91,7 +91,7 @@
   #batchTask .header {
     height: 58px;
     padding: 0 25px;
-    border-bottom: 1px #ccc solid;
+    border-bottom: 1px var(--color-border-tertiary) solid;
   }
   #batchTask .header .myTaskIcon {
     cursor: pointer;
@@ -141,7 +141,7 @@
     width: 100%;
     height: 32px;
     padding: 4px 6px;
-    border: 1px solid #a3d7f7;
+    border: 1px solid var(--color-primary-light);
   }
   #batchTask .autoBatchFolder {
     width: 439px;
@@ -154,15 +154,15 @@
     margin-top: 8px;
     margin-left: 5px;
     vertical-align: top;
-    color: #aaa;
+    color: var(--color-text-tertiary);
   }
   .batchFolder .showBatchFolder {
     font-size: 16px;
     margin-top: 8px;
-    color: #c6c8cb;
+    color: var(--color-text-placeholder);
   }
   .batchFolder .showBatchFolder:hover {
-    color: #0091ea;
+    color: var(--color-primary);
   }
   #batchTask .batchCharge {
     display: inline-block;
@@ -191,7 +191,7 @@
     height: 18px;
     margin-top: 5px;
     vertical-align: top;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   .batchMember .members .icon-task-add-member-circle {
     font-size: 28px;
@@ -200,7 +200,7 @@
     vertical-align: top;
   }
   .batchMember .members .icon-task-add-member-circle:not(:hover) {
-    color: #aaa !important;
+    color: var(--color-text-tertiary) !important;
   }
   #batchTask .folderNameEdit {
     font-size: 14px;
@@ -208,10 +208,10 @@
     float: right;
     margin-top: 10px;
     cursor: pointer;
-    color: #c6c8cb;
+    color: var(--color-text-placeholder);
   }
   #batchTask .folderNameEdit:hover {
-    color: #0091ea;
+    color: var(--color-primary);
   }
   #backTaskCount {
     margin: 0 2px;
@@ -230,7 +230,7 @@
     display: inline-block;
     height: 12px;
     vertical-align: top;
-    color: #757575;
+    color: var(--color-text-secondary);
     margin-top: 2px;
     margin-right: 5px;
   }
@@ -250,12 +250,12 @@
     height: 26px;
     margin-bottom: 4px;
     padding: 0 17px;
-    color: #000;
+    color: var(--color-text-primary);
     border: 0;
     -webkit-border-radius: 13px;
     -moz-border-radius: 13px;
     border-radius: 13px;
-    background: #eee;
+    background: var(--color-border-secondary);
   }
   .categorys .textboxlist-autocomplete {
     margin-top: 3px;
@@ -263,7 +263,7 @@
   .categorys .textboxlist-autocomplete-placeholder {
     padding-top: 8px;
     padding-bottom: 8px;
-    color: #aaa;
+    color: var(--color-text-tertiary);
   }
   .categorys .textboxlist-autocomplete-placeholder,
   .categorys .textboxlist-autocomplete-results {
@@ -272,7 +272,7 @@
     opacity: 1;
     border: 0;
     border-radius: 3px;
-    background: #fff;
+    background: var(--color-background-primary);
     -webkit-box-shadow:
       0 4px 20px rgba(0, 0, 0, 0.13),
       0 2px 6px rgba(0, 0, 0, 0.1);
@@ -291,10 +291,10 @@
   #batchTask .batchIcon.iconTaskNoNews:not(:hover),
   #batchTask .batchIcon.iconTaskNewLocked:not(:hover),
   #batchTask .batchIcon.batchMore:not(:hover) {
-    color: #757575 !important;
+    color: var(--color-text-secondary) !important;
   }
   #batchTask .batchIcon.iconTaskNoNews.close:not(:hover) {
-    color: #dd2c00 !important;
+    color: var(--color-error) !important;
   }
   #batchTask .batchOperator {
     position: absolute;
@@ -302,7 +302,7 @@
     top: 50px;
     right: -15px;
     padding: 6px 0;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
   #batchTask .batchOperator > li {
     line-height: 32px;
@@ -315,14 +315,14 @@
     font-size: 14px;
     display: inline-block;
     margin-right: 10px;
-    color: #999;
+    color: var(--color-text-tertiary);
   }
   #batchTask .batchOperator li:hover > i {
-    color: #fff;
+    color: var(--color-white);
   }
   #batchTask .batchOperator > li:hover {
-    color: #fff;
-    background: #0091ea;
+    color: var(--color-white);
+    background: var(--color-primary);
   }
   #batchAutoFolder {
     position: absolute;
@@ -334,7 +334,7 @@
     width: 100%;
     max-height: 320px;
     padding: 4px 0;
-    background: #fff;
+    background: var(--color-background-primary);
   }
   #batchAutoFolder li {
     line-height: 32px;
@@ -347,11 +347,11 @@
     cursor: pointer;
     white-space: nowrap;
     text-overflow: ellipsis;
-    color: #000;
+    color: var(--color-text-primary);
   }
   #batchAutoFolder li.active {
-    color: #fff;
-    background: #0091ea;
+    color: var(--color-white);
+    background: var(--color-primary);
   }
   #batchTask .singleuser {
     display: inline-block;
@@ -368,11 +368,11 @@
   #batchFavorite {
     font-size: 20px;
     float: right;
-    color: #99a1ab;
+    color: var(--color-text-tertiary);
     margin-top: 13px;
   }
   #batchFavorite.icon-star-hollow:hover {
-    color: #0091ea;
+    color: var(--color-primary);
   }
   #batchFavorite.icon-task-star {
     color: #fbc02d;
@@ -391,11 +391,11 @@
     line-height: 45px;
     box-sizing: border-box;
     height: 45px;
-    border-right: 1px solid #e0e0e0;
+    border-right: 1px solid var(--color-border-secondary);
   }
   .messageBtnRemove:not(:hover),
   .messageBtnPerson:not(:hover) {
-    color: #151515 !important;
+    color: var(--color-text-title) !important;
   }
   #batchTaskFolder_autocomplete li {
     position: relative;
@@ -429,7 +429,7 @@
   .autoBatchFolder .folderDetail span {
     line-height: 40px;
     font-size: 14px;
-    color: #999;
+    color: var(--color-text-tertiary);
   }
 
   // selectize
@@ -441,7 +441,7 @@
       word-break: break-all;
       display: inline-flex;
       &.active {
-        background: #f2f2f2;
+        background: var(--color-background-disabled);
       }
     }
     .remove {
@@ -463,19 +463,19 @@
 
 .deleteTaskBox {
   .title {
-    color: #f44336;
+    color: var(--color-error);
   }
   .yesText {
-    background: #f44336 !important;
+    background: var(--color-error) !important;
     &:hover {
-      background: #e53935 !important;
+      background: var(--color-error) !important;
     }
   }
   .btnCk {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .deleteFolderColor {
-    color: #757575;
+    color: var(--color-text-secondary);
   }
 }
 
@@ -505,7 +505,7 @@
 .afterUpdate .tipTitle,
 .afterUpdateMsg .tipTitle {
   font-size: 13px;
-  color: #dd2c00;
+  color: var(--color-error);
   border-bottom: 8px #fff solid;
 }
 .afterUpdate .authTaskBox,

@@ -10,13 +10,13 @@ import { isUser } from '../util';
 const UserPickerWrapper = styled.div`
   width: 220px;
   padding: 16px 0;
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 4px;
-  box-shadow: 0px 3px 6px 1px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
   .divider {
     height: 1px;
-    background: #ddd;
+    background: var(--color-border-primary);
     margin: 12px 0;
   }
   .userItem {
@@ -26,7 +26,7 @@ const UserPickerWrapper = styled.div`
     height: 40px;
     cursor: pointer;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
     .userIcon {
       width: 28px;
@@ -35,8 +35,8 @@ const UserPickerWrapper = styled.div`
       display: flex;
       justify-content: center;
       align-items: center;
-      background: #b4bdc4;
-      color: #fff;
+      background: var(--color-text-disabled);
+      color: var(--color-white);
     }
   }
 `;

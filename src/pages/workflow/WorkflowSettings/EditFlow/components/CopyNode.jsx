@@ -8,7 +8,7 @@ export default ({ processId, isCopy, selectCopyIds, item, selectCopyNode, select
 
   return (
     <span
-      className={cx('workflowNodeCopy', index === -1 ? 'icon-ok Font16' : 'ThemeBGColor3 White active')}
+      className={cx('workflowNodeCopy', index === -1 ? 'icon-ok Font16' : 'ThemeBGColor3 textWhite active')}
       onMouseDown={e => {
         e.stopPropagation();
         selectCopyNode(item.id);

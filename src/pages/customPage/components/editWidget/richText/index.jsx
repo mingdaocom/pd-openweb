@@ -32,7 +32,7 @@ const ContentWrap = styled.div`
     background: var(--widget-color) !important;
   }
   &.focusedWrap {
-    border-color: #1677ff !important;
+    border-color: var(--color-primary) !important;
   }
   &.transparent {
     .ck.ck-content {
@@ -164,7 +164,7 @@ export const EditRichText = props => {
             backGroundColor={showType === 1 ? 'transparent' : undefined}
           />
         ) : (
-          <div className="h100 flexColumn alignItemsCenter justifyContentCenter Gray_9e">
+          <div className="h100 flexColumn alignItemsCenter justifyContentCenter textTertiary">
             <div className="Font17">{_l('暂无内容')}</div>
           </div>
         ))}

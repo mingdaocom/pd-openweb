@@ -6,33 +6,33 @@ import { MINGO_TASK_STATUS } from 'src/components/Mingo/ChatBot/enum';
 const Con = styled.div`
   padding: 10px;
   border-radius: 6px;
-  border: 1px solid #ddd;
-  background: #f7f8f9;
+  border: 1px solid var(--color-border-primary);
+  background: var(--color-background-tertiary);
   margin-bottom: 10px;
   white-space: break-spaces;
 `;
 
 const CreateWorksheetButton = styled.div`
-  background: var(--ai-primary-color);
+  background: var(--color-mingo);
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-top: 12px;
   border-radius: 18px;
-  color: #fff;
+  color: var(--color-white);
   font-size: 13px;
   font-weight: bold;
   cursor: pointer;
   &.disabled,
   &.create-worksheet-begin,
   &.create-worksheet-success {
-    color: #151515;
-    background: #fff;
+    color: var(--color-text-title);
+    background: var(--color-background-primary);
     font-weight: normal;
     cursor: not-allowed;
     .icon {
-      color: #4caf50;
+      color: var(--color-success);
       font-size: 18px;
       margin-right: 5px;
     }
@@ -40,12 +40,12 @@ const CreateWorksheetButton = styled.div`
 
   &.disabled,
   &.create-worksheet-success {
-    color: #757575;
+    color: var(--color-text-secondary);
   }
 `;
 
 const Icon = styled.i`
-  color: #4caf50;
+  color: var(--color-success);
   font-size: 18px;
   margin-right: 5px;
 `;

@@ -78,10 +78,10 @@ const ReSyncDialog = ({ aggTableId, onClose, onChange, items, projectId, appId }
       onOk={handleOk}
     >
       <div class="">
-        <div class="Gray Font14">{_l('重新获取数据源数据')}</div>
+        <div class="textPrimary Font14">{_l('重新获取数据源数据')}</div>
         {reCheck && aggNameList.length > 0 && (
           <div class="mTop5">
-            <div className="Gray_9e">{_l('以下%0个聚合表使用该数据源', aggNameList.length)}</div>
+            <div className="textTertiary">{_l('以下%0个聚合表使用该数据源', aggNameList.length)}</div>
             {aggNameList.map(o => {
               return <div className="mTop8">{o}</div>;
             })}
@@ -180,7 +180,7 @@ export default function ItemCard(props) {
     const deleteDia = () => {
       Dialog.confirm({
         title: (
-          <span style={{ color: '#f44336' }} className="WordBreak">
+          <span style={{ color: 'var(--color-error)' }} className="WordBreak">
             {_l('删除聚合表“%0”', item.name)}
           </span>
         ),
@@ -189,7 +189,7 @@ export default function ItemCard(props) {
         okText: _l('删除'),
         description: (
           <div className="pBottom6 pTop8">
-            <span className="Gray">{_l('聚合表删除后不可恢复，确认删除吗？')}</span>
+            <span className="textPrimary">{_l('聚合表删除后不可恢复，确认删除吗？')}</span>
           </div>
         ),
         onOk: onDeleteItem,
@@ -210,7 +210,7 @@ export default function ItemCard(props) {
         if (hasGet) {
           Dialog.confirm({
             title: (
-              <span style={{ color: '#f44336' }} className="WordBreak">
+              <span style={{ color: 'var(--color-error)' }} className="WordBreak">
                 {_l('无法直接删除聚合表"%0"', item.name)}
               </span>
             ),
@@ -221,15 +221,17 @@ export default function ItemCard(props) {
             type: 'scroll',
             description: (
               <WrapDialog>
-                <span className="Gray">{_l('此聚合表正在被引用，无法直接删除。请先解除引用关系后再删除聚合表。')}</span>
+                <span className="textPrimary">
+                  {_l('此聚合表正在被引用，无法直接删除。请先解除引用关系后再删除聚合表。')}
+                </span>
                 {/* 统计图表引用 */}
                 {reportsRes?.map((app, i) => (
                   <div className="mTop20" key={i}>
-                    <div className="Gray Bold">{_l('统计图表')}</div>
+                    <div className="textPrimary Bold">{_l('统计图表')}</div>
                     {app?.reports?.map((report, j) => (
                       <div className="ic mTop6" key={j}>
                         <span
-                          className="Gray ThemeHoverColor3 Hand"
+                          className="textPrimary ThemeHoverColor3 Hand"
                           onClick={() => window.open(`/worksheet/${report.pageId}`)}
                         >
                           {app.apkName} - {report.reportName}
@@ -242,12 +244,12 @@ export default function ItemCard(props) {
                 {/* 工作流引用 */}
                 {referencesRes?.data?.map((app, i) => (
                   <div className="mTop20" key={i}>
-                    <div className="Gray Bold">{_l('工作流')}</div>
+                    <div className="textPrimary Bold">{_l('工作流')}</div>
                     {app?.references?.flatMap(workflow =>
                       workflow.referenceItems?.map((item, j) => (
                         <div className="ic mTop6" key={j}>
                           <span
-                            className="Gray ThemeHoverColor3 Hand"
+                            className="textPrimary ThemeHoverColor3 Hand"
                             onClick={() => window.open(`/workflowedit/${workflow.parentId}`)}
                           >
                             {app.appName} - {workflow.parentName} - {item.name}
@@ -311,7 +313,7 @@ export default function ItemCard(props) {
           <span
             className={cx(
               'mLeft12 flex WordBreak overflow_ellipsis flexShrink0 ThemeHoverColor3 Hand Font14',
-              item.taskStatus !== TASK_STATUS_TYPE.RUNNING ? 'Gray_75' : 'Gray',
+              item.taskStatus !== TASK_STATUS_TYPE.RUNNING ? 'textSecondary' : 'textPrimary',
             )}
           >
             {item.name}
@@ -336,7 +338,7 @@ export default function ItemCard(props) {
           <span
             className={cx(
               'flex WordBreak flexShrink0 Hand Font14',
-              item.taskStatus !== TASK_STATUS_TYPE.RUNNING ? 'Gray_75' : 'Gray',
+              item.taskStatus !== TASK_STATUS_TYPE.RUNNING ? 'textSecondary' : 'textPrimary',
             )}
           >
             {(item.datasources || []).map((o, i) => {
@@ -363,7 +365,7 @@ export default function ItemCard(props) {
             }}
             loading={updating}
           />
-          {item.aggTableTaskStatus === 0 && <span className="Gray_9e Font12">{_l('未发布')}</span>}
+          {item.aggTableTaskStatus === 0 && <span className="textTertiary Font12">{_l('未发布')}</span>}
           {item.taskStatus !== TASK_STATUS_TYPE.RUNNING && item.errorInfo && (
             <Tooltip title={<span className="InlineBlock WordBreak">{item.errorInfo}</span>}>
               <Icon type={'error'} className="Red Font16 TxtMiddle InlineBlock" />
@@ -372,9 +374,9 @@ export default function ItemCard(props) {
         </div>
       </div>
       <div className="w180px pRight20 mRight20 flexRow alignItemsCenter">
-        <span className="Gray_9e">{`${createTimeSpan(item[displayType])}`}</span>
+        <span className="textTertiary">{`${createTimeSpan(item[displayType])}`}</span>
       </div>
-      <div className="w100px minWidth100 mRight20 Gray_75 flexRow alignItemsCenter">
+      <div className="w100px minWidth100 mRight20 textSecondary flexRow alignItemsCenter">
         <UserHead
           className="createHeadImg circle userAvarar pointer userMessage"
           user={{
@@ -390,7 +392,7 @@ export default function ItemCard(props) {
       <div
         className={cx(
           'w50px mRight20 Bold ',
-          item.aggTableTaskStatus !== 0 ? 'ThemeColor Hand ThemeHoverColor3' : 'Gray_9e',
+          item.aggTableTaskStatus !== 0 ? 'colorPrimary Hand ThemeHoverColor3' : 'textTertiary',
         )}
         onClick={() => {
           if (item.aggTableTaskStatus === 0 || !canEdit) {
@@ -420,7 +422,7 @@ export default function ItemCard(props) {
                     event.stopPropagation();
                   }}
                 >
-                  <div className="mLeft16 Gray">{_l('重命名')}</div>
+                  <div className="mLeft16 textPrimary">{_l('重命名')}</div>
                 </MenuItem>
                 <MenuItem
                   icon={<Icon className="Font16" icon={'copy'} />}
@@ -432,7 +434,7 @@ export default function ItemCard(props) {
                     event.stopPropagation();
                   }}
                 >
-                  <div className="mLeft16 Gray">{_l('复制')}</div>
+                  <div className="mLeft16 textPrimary">{_l('复制')}</div>
                 </MenuItem>
                 <MenuItem
                   onClick={event => {
@@ -444,7 +446,7 @@ export default function ItemCard(props) {
                   }}
                   icon={<Icon className="Font16" icon={'swap_horiz'} />}
                 >
-                  <div className="mLeft16 Gray">{_l('移动到')}</div>
+                  <div className="mLeft16 textPrimary">{_l('移动到')}</div>
                 </MenuItem>
                 {item.taskStatus === TASK_STATUS_TYPE.RUNNING && (
                   <MenuItem
@@ -454,7 +456,7 @@ export default function ItemCard(props) {
                     }}
                     icon={<Icon className="Font16" icon={'ic_refresh_black'} />}
                   >
-                    <div className="mLeft16 Gray">{_l('重新同步')}</div>
+                    <div className="mLeft16 textPrimary">{_l('重新同步')}</div>
                   </MenuItem>
                 )}
                 {item.taskStatus !== TASK_STATUS_TYPE.RUNNING && (
@@ -493,7 +495,7 @@ export default function ItemCard(props) {
             <Icon
               icon="more_horiz"
               className={cx(
-                'moreActive Hand Font20 mLeft6 Gray_9e ThemeHoverColor3',
+                'moreActive Hand Font20 mLeft6 textTertiary ThemeHoverColor3',
                 showMoreOption && 'show ThemeColor3',
               )}
               onClick={e => e.stopPropagation()}

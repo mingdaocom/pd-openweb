@@ -277,6 +277,7 @@ export default {
    * @param {Object} args 请求参数
    * @param {array} args.withdrawIds 提现订单号
    * @param {} args.withdrawType
+   * @param {string} args.bankCode 联行号 打款人可修改当前提现单联行号
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

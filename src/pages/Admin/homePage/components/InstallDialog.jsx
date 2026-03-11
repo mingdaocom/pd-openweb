@@ -28,7 +28,7 @@ const InstallDialog = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   transition: all 0.75s;
   visibility: hidden;
   opacity: 0;
@@ -58,7 +58,7 @@ const InstallDialog = styled.div`
       width: 76px;
       height: 76px;
       border-radius: 50%;
-      background-color: #eee;
+      background-color: var(--color-border-secondary);
       text-align: center;
       line-height: 76px;
       font-size: 32px;
@@ -66,17 +66,17 @@ const InstallDialog = styled.div`
     .line {
       width: 160px;
       margin: 0 16px;
-      border-top: 4px dashed #eee;
+      border-top: 4px dashed var(--color-border-secondary);
     }
   }
   .text {
     margin: 32px;
     font-size: 18px;
-    color: #999;
+    color: var(--color-text-tertiary);
   }
   .selectUser {
     span {
-      color: #1677ff;
+      color: var(--color-primary);
       margin-left: 4px;
       cursor: pointer;
     }

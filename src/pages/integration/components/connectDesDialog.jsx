@@ -14,8 +14,8 @@ const Wrap = styled.div`
   }
   padding: 20px;
   width: 640px;
-  background: #ffffff;
-  border: 1px solid #dddddd;
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border-primary);
   box-shadow: 0px 4px 8px rgb(0, 0, 0, 0.16);
   border-radius: 3px;
   position: absolute;
@@ -30,8 +30,8 @@ const Wrap = styled.div`
   .logo {
     width: 58px;
     height: 58px;
-    background: #ffffff;
-    border: 1px solid #efefef;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-secondary);
     border-radius: 50%;
     margin-top: 8px;
     display: inline-block;
@@ -41,12 +41,12 @@ const Wrap = styled.div`
   }
   input,
   textarea {
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     padding: 8px 15px;
     border-radius: 3px;
     width: 100%;
     &:focus {
-      border: 1px solid #1677ff;
+      border: 1px solid var(--color-primary);
     }
   }
   textarea {
@@ -56,19 +56,19 @@ const Wrap = styled.div`
   .btn {
     margin-top: 32px;
     padding: 8px 32px;
-    background: #1677ff;
-    color: #fff;
+    background: var(--color-primary);
+    color: var(--color-white);
     line-height: 1em;
     border-radius: 3px;
     &:hover {
-      background: #1764c0;
+      background: var(--color-link-hover);
     }
   }
   .num {
     position: absolute;
     right: 8px;
     bottom: 10px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 `;
 
@@ -121,16 +121,16 @@ function ConnectDesDia(props) {
 
   return (
     <Wrap className="">
-      <h5 className="Gray Font17 Bold">{_l('基础信息设置')}</h5>
+      <h5 className="textPrimary Font17 Bold">{_l('基础信息设置')}</h5>
       <p className="title pTop3">Logo</p>
       {iconName ? (
         <img src={iconName} alt="" srcset="" className="logo InlineBlock mTop8" onClick={handleUploadImg} />
       ) : (
         <span className="upload" onClick={handleUploadImg}>
-          <Icon icon="add" className="Gray_75 Font28 TxtMiddle" />
+          <Icon icon="add" className="textSecondary Font28 TxtMiddle" />
         </span>
       )}
-      <p className="txt Gray_9e mTop6">{_l('支持.png、.jpg图片格式，不小于80*80px')}</p>
+      <p className="txt textTertiary mTop6">{_l('支持.png、.jpg图片格式，不小于80*80px')}</p>
       <p className="title">{_l('连接名称')}</p>
       <div className="Relative">
         <input

@@ -164,7 +164,7 @@ export default class Link extends Component {
 
     return (
       <Fragment>
-        <div className="Gray_75 workflowDetailDesc pTop15 pBottom15">
+        <div className="textSecondary workflowDetailDesc pTop15 pBottom15">
           {data.actionId === ACTION_ID.RECORD_LINK_PAY
             ? _l(
                 '根据当前流程节点中的记录对象，生成特定的对外支付链接，可以通过邮件、短信的正文里引用此节点，邀请用户下单或者付款',
@@ -175,7 +175,7 @@ export default class Link extends Component {
         </div>
 
         <div className="mTop20 bold">{_l('获取链接对象')}</div>
-        <div className="Gray_75 mTop5">{_l('当前流程中的节点对象')}</div>
+        <div className="textSecondary mTop5">{_l('当前流程中的节点对象')}</div>
 
         <SelectNodeObject
           appList={data.appList}
@@ -216,7 +216,7 @@ export default class Link extends Component {
                   onClick={() => this.switchLinkType(item.value)}
                 />
               </div>
-              {item.desc && <div className="mTop5 Gray_75 mLeft30 Font12">{item.desc}</div>}
+              {item.desc && <div className="mTop5 textSecondary mLeft30 Font12">{item.desc}</div>}
             </Fragment>
           ))}
         </div>
@@ -234,7 +234,7 @@ export default class Link extends Component {
               value={data.viewId}
               renderTitle={
                 !data.viewId || !views.length
-                  ? () => <span className="Gray_75">{_l('请选择')}</span>
+                  ? () => <span className="textSecondary">{_l('请选择')}</span>
                   : data.viewId && !selectView
                     ? () => <span className="errorColor">{_l('视图无效或已删除')}</span>
                     : () => <span>{selectView.text}</span>
@@ -252,7 +252,7 @@ export default class Link extends Component {
                   '通过工作流发送邮件时，链接可以按照设置的链接名称显示。如：在邮件中将链接显示为【点击查看记录】',
                 )}
               >
-                <Icon className="Font16 Gray_9e mLeft5" icon="help" />
+                <Icon className="Font16 textTertiary mLeft5" icon="help" />
               </Tooltip>
             </div>
             <div className="mTop10">

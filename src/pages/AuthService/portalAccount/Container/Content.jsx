@@ -93,7 +93,7 @@ export default function (props) {
           moment().isAfter(_.get(registerInfo, 'endTime'))));
     if (allowUserType === 9 || isNoRightTime) {
       return (
-        <p className={cx('txt TxtCenter Gray_75 Bold Font14 footerTxt', { mTop24: isScanLogin })}>
+        <p className={cx('txt TxtCenter textSecondary Bold Font14 footerTxt', { mTop24: isScanLogin })}>
           {allowUserType === 9
             ? _l('仅受邀用户可以注册')
             : isNoRightTime
@@ -112,7 +112,7 @@ export default function (props) {
           <div className="mTop16 flexRow alignItemsCenter">
             {findPassword && (
               <span
-                className="Hand ThemeHoverColor3 Gray Font14"
+                className="Hand ThemeHoverColor3 textPrimary Font14"
                 style={{ margin: '0 0 0 auto' }}
                 onClick={() => {
                   navigateTo(
@@ -152,7 +152,7 @@ export default function (props) {
         {(termsAndAgreementEnable || (!paramForPcWx && autoLogin)) && (
           <div className="mTop40">
             {termsAndAgreementEnable && (
-              <div className="mTop12 Gray Bold Font14 TxtTop LineHeight22 flexRow">
+              <div className="mTop12 textPrimary Bold Font14 TxtTop LineHeight22 flexRow">
                 <Checkbox
                   checked={hasCheck}
                   onClick={() => setState({ hasCheck: !hasCheck })}
@@ -185,7 +185,7 @@ export default function (props) {
               <div className="mTop12 flexRow alignItemsCenter">
                 <div className="flexRow alignItemsCenter" onClick={() => setAutoLogin(!isAutoLogin)}>
                   <Checkbox checked={isAutoLogin} className="Hand" name="" />
-                  <span className="Gray Font14 Bold Hand">{_l('7天内免登录')}</span>
+                  <span className="textPrimary Font14 Bold Hand">{_l('7天内免登录')}</span>
                 </div>
               </div>
             )}
@@ -243,7 +243,7 @@ export default function (props) {
             ) : urlWX ? (
               <img src={urlWX} />
             ) : (
-              <p className="pAll30 Font18 Gray_bd">
+              <p className="pAll30 Font18 textDisabled">
                 {txt || _l('授权不足，请管理员到组织管理-微信服务号重新绑定授权')}
               </p>
             )}
@@ -262,7 +262,7 @@ export default function (props) {
               </div>
             )}
           </div>
-          <div className="mTop16 TxtCenter Gray_75 Font14 Bold">
+          <div className="mTop16 TxtCenter textSecondary Font14 Bold">
             {subscribeWXOfficial ? _l('扫描关注微信服务号并登录') : _l('微信扫码登录')}
           </div>
           {autoLogin && (
@@ -271,7 +271,7 @@ export default function (props) {
               onClick={() => setAutoLogin(!isAutoLogin)}
             >
               <Checkbox checked={isAutoLogin} className="" name="" />
-              <span className="Gray_9e Font14 Bold Hand">{_l('7天内免登录')}</span>
+              <span className="textTertiary Font14 Bold Hand">{_l('7天内免登录')}</span>
             </div>
           )}
           {footerNotice(true)}

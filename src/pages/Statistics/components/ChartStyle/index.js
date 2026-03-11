@@ -281,7 +281,9 @@ export default class ChartStyle extends Component {
           {LegendTypeData.map(item => (
             <div
               key={item.value}
-              className={cx('flex centerAlign pointer Gray_75', { active: displaySetup.legendType == item.value })}
+              className={cx('flex centerAlign pointer textSecondary', {
+                active: displaySetup.legendType == item.value,
+              })}
               onClick={() => {
                 this.handleChangeDisplayValue('legendType', item.value);
               }}
@@ -358,7 +360,7 @@ export default class ChartStyle extends Component {
                 <div className="flexColumn">
                   <Icon
                     icon="expand_less"
-                    className={cx('Font20 pointer mBottom2', columnCount === 4 ? 'disabled' : 'Gray_9e')}
+                    className={cx('Font20 pointer mBottom2', columnCount === 4 ? 'disabled' : 'textTertiary')}
                     onClick={() => {
                       let value = Number(columnCount);
                       changeColumnCount(value + 1);
@@ -366,7 +368,7 @@ export default class ChartStyle extends Component {
                   />
                   <Icon
                     icon="expand_more"
-                    className={cx('Font20 pointer mBottom2', columnCount === 1 ? 'disabled' : 'Gray_9e')}
+                    className={cx('Font20 pointer mBottom2', columnCount === 1 ? 'disabled' : 'textTertiary')}
                     onClick={() => {
                       let value = Number(columnCount);
                       changeColumnCount(value - 1);
@@ -386,7 +388,7 @@ export default class ChartStyle extends Component {
               {_l('允许容器内滚动')}
             </Checkbox>
             <Tooltip title={_l('当统计项较多时，勾选此配置可以在容器内滚动查看')} placement="bottom" arrowPointAtCenter>
-              <Icon className="Gray_9e Font18 pointer" icon="info" />
+              <Icon className="textTertiary Font18 pointer" icon="info" />
             </Tooltip>
           </div>
         </div>
@@ -709,7 +711,7 @@ export default class ChartStyle extends Component {
   renderExpandIcon(panelProps) {
     return (
       <Icon
-        className={cx('Font18 mRight5 Gray_9e', { 'icon-arrow-active': panelProps.isActive })}
+        className={cx('Font18 mRight5 textTertiary', { 'icon-arrow-active': panelProps.isActive })}
         icon="arrow-down-border"
       />
     );

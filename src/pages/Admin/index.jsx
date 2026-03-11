@@ -14,6 +14,7 @@ import Menu from './menu';
 import ApplyRole from './organization/roleAuth/apply';
 import MyRole from './organization/roleAuth/myRole';
 import { menuList } from './router.config.js';
+import { allPlatformsHidden } from './util';
 import './index.less';
 
 const getComponent = component =>
@@ -41,7 +42,7 @@ const CommonEmpty = (
 const NoPermission = (
   <div className="noPermissionWrapper">
     <img className="img" src={withoutPermission} />
-    <div className="Gray_75 Font17 mTop30">{_l('无权限，请联系管理员')}</div>
+    <div className="textSecondary Font17 mTop30">{_l('无权限，请联系管理员')}</div>
   </div>
 );
 
@@ -97,28 +98,21 @@ export default class AdminEntryPoint extends PureComponent {
       const subMenuArray = _.flatten(menuList.map(item => item.subMenuList));
 
       const result = _.uniq(keys).filter(key => {
-        if (md.global.Config.IsLocal) {
+        if (window.platformENV.isOverseas || window.platformENV.isLocal) {
           if (key === 'aggregationTable' && !md.global.Config.EnableDataPipeline) return;
-          if (key === 'billinfo' && !md.global.Config.IsPlatformLocal) return;
+          if (key === 'billinfo' && !window.platformENV.isPlatform) return;
           if (key === 'weixin' && md.global.SysSettings.hideWeixin) return;
-          if (
-            key === 'platformintegration' &&
-            md.global.SysSettings.hideWorkWeixin &&
-            md.global.SysSettings.hideDingding &&
-            md.global.SysSettings.hideFeishu &&
-            md.global.SysSettings.hideWelink
-          )
-            return;
+          if (key === 'platformintegration' && allPlatformsHidden()) return;
         }
 
-        if (!md.global.Config.IsLocal && key === 'quota') return;
+        if (!window.platformENV.isOverseas && !window.platformENV.isLocal && key === 'quota') return;
 
         const itemMenu = subMenuArray.filter(sub => sub.key === key)[0] || {};
         let featureType = getFeatureStatus(projectId, itemMenu.featureId);
 
         if (itemMenu.featureIds) {
           itemMenu.featureIds
-            .filter(l => !md.global.Config.IsPlatformLocal || !itemMenu.platformHiddenIds.includes(l))
+            .filter(l => !window.platformENV.isPlatform || !itemMenu.platformHiddenIds.includes(l))
             .forEach(l => {
               let itemFeatureType = getFeatureStatus(projectId, l);
               if (itemFeatureType) {
@@ -136,8 +130,17 @@ export default class AdminEntryPoint extends PureComponent {
 
   renderHomeContent(routes) {
     const { authority } = this.state;
+    // 过滤掉所有平台都被隐藏时的 platformintegration 菜单项
+    const filteredRoutes = _.map(routes, route => ({
+      ...route,
+      subMenuList: _.filter(
+        route.subMenuList || [],
+        item => item.key !== 'platformintegration' || !allPlatformsHidden(),
+      ),
+    }));
+
     const childRoutes = _.reduce(
-      routes,
+      filteredRoutes,
       (result, { subMenuList = [] }) => {
         return result.concat(...subMenuList.map(item => item.routes));
       },
@@ -150,7 +153,7 @@ export default class AdminEntryPoint extends PureComponent {
       <WaterMark projectId={projectId}>
         <div className="adminMainContent w100">
           <div className="flexRow w100 mainContainerWrapper">
-            <Menu isExtend={isExtend} menuList={routes} />
+            <Menu isExtend={isExtend} menuList={filteredRoutes} />
             <div id="mainContainer" className="Relative">
               <Switch>
                 {childRoutes.map(({ path, exact, component }) => {

@@ -215,7 +215,7 @@ class CommentList extends React.Component {
       if (nullCommentList) {
         return nullCommentList;
       }
-      return <div className="mTop15 Gray_bd Font13 commentEmpty">{getEmptyText()}</div>;
+      return <div className="mTop15 textDisabled Font13 commentEmpty">{getEmptyText()}</div>;
     }
 
     return (

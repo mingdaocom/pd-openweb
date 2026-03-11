@@ -13,18 +13,18 @@ const SSHCheckbox = styled(Checkbox)`
   margin-top: 12px;
   span {
     font-weight: bold;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
 `;
 const SaveButton = styled(Button)`
   margin-left: 16px;
   &.ming.Button--disabled,
   .ming.Button--disabled:hover {
-    background: #93c4f1;
+    background: var(--color-primary-light);
   }
 `;
 const CrackTextarea = styled(Textarea)`
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   max-height: 100px !important;
 `;
 
@@ -35,22 +35,22 @@ const CommonSelect = styled(Select)`
     height: 36px !important;
     padding: 2px 11px !important;
     border-radius: 3px !important;
-    border-color: #ccc !important;
+    border-color: var(--color-border-tertiary) !important;
     transition: 0;
     box-shadow: none !important;
     &:hover {
-      border-color: #1e88e5 !important;
+      border-color: var(--color-primary) !important;
     }
   }
   &.ant-select-focused {
     .ant-select-selector {
-      border-color: #1e88e5 !important;
+      border-color: var(--color-primary) !important;
     }
   }
   &.ant-select-disabled {
     .ant-select-selector {
       &:hover {
-        border-color: #d9d9d9 !important;
+        border-color: var(--color-border-primary) !important;
       }
     }
   }
@@ -67,7 +67,7 @@ const Wrapper = styled.div`
       cursor: pointer;
       color: rgba(0, 0, 0, 0.85);
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     .ant-select-item-empty {
@@ -81,12 +81,12 @@ const Wrapper = styled.div`
     padding-top: 12px;
     text-align: center;
     .icon-copy {
-      color: #757575;
+      color: var(--color-text-secondary);
       font-size: 16px;
       cursor: pointer;
 
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     &.isHide {
@@ -106,7 +106,7 @@ const OptionItem = styled.div`
 
   .icon-trash {
     display: none;
-    color: #757575;
+    color: var(--color-text-secondary);
     font-size: 16px;
     cursor: pointer;
     :hover {
@@ -135,7 +135,7 @@ const DialogWrapper = styled.div`
   }
 
   .copyButton {
-    color: #1677ff;
+    color: var(--color-primary);
     cursor: pointer;
     margin-right: 8px;
     &.isHide {
@@ -250,7 +250,7 @@ export default function SSHConnect(props) {
         <OptionItem>
           <div className="itemWrapper">
             <div className="overflow_ellipsis">{`${option.sshUser}@${option.sshHost}:${option.sshPort}`}</div>
-            {option.remark && <div className="Gray_9e overflow_ellipsis">{option.remark}</div>}
+            {option.remark && <div className="textTertiary overflow_ellipsis">{option.remark}</div>}
           </div>
           <Tooltip title={_l('删除')}>
             <Icon icon="trash" onClick={e => onDelete(e, option)} />
@@ -391,7 +391,7 @@ export default function SSHConnect(props) {
             ) : (
               <div className="mBottom20">
                 <CrackTextarea disabled={true} value={sshFormData.sshPublicKey} />
-                <p className="Gray_9e TxtRight">
+                <p className="textTertiary TxtRight">
                   <span
                     className={cx('copyButton', { isHide: !sshFormData.sshPublicKey })}
                     onClick={() => {

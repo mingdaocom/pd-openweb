@@ -171,9 +171,13 @@ export default class ReportRelation extends Component {
             projectId,
           })
           .then(function (res) {
-            if (res) {
+            if (res === 1) {
               _this.setState({ pageIndex: 1 });
               _this.fetchRender(1);
+            } else if (res === 10001) {
+              alert(_l('该员工已离职'), 2);
+            } else if (res === 10002) {
+              alert(_l('汇报关系已存在'), 2);
             } else {
               alert(_l('操作失败'), 2);
             }
@@ -211,7 +215,7 @@ export default class ReportRelation extends Component {
           <div className="list children">
             {children.length ? this.renderList(children) : null}
             {allowStructureSelfEdit && !isLimited && (
-              <div className="node Font16 LineHeight80 Gray_bd addSub Hand" onClick={() => this.handleAddSub()}>
+              <div className="node Font16 LineHeight80 textDisabled addSub Hand" onClick={() => this.handleAddSub()}>
                 <span className="Font24 mRight15 mLeft24 TxtMiddle icon-add-member2" />
                 <span className="TxtMiddle">{_l('添加我的下属')}</span>
               </div>
@@ -256,8 +260,8 @@ export default class ReportRelation extends Component {
           </div>
           {param.accountId === md.global.Account.accountId && subTotalCount ? (
             <div className="subordinateCount">
-              <span className="icon-charger Gray_a TxtMiddle Font14"></span>
-              <span className="TxtMiddle Gray mLeft5">{subTotalCount}</span>
+              <span className="icon-charger textTertiary TxtMiddle Font14"></span>
+              <span className="TxtMiddle textPrimary mLeft5">{subTotalCount}</span>
             </div>
           ) : null}
           {allowStructureSelfEdit ? (
@@ -279,7 +283,7 @@ export default class ReportRelation extends Component {
           <div className="headerIcon">
             <Icon
               icon="backspace"
-              className="Hand mRight18 TxtMiddle Font24 Hover_49"
+              className="Hand mRight18 TxtMiddle Font24 hoverTextPrimaryLight"
               onClick={() => navigateTo('/personal?type=enterprise')}
             ></Icon>
             <span className="Font17 Bold">{_l('我的汇报关系')}</span>
@@ -299,7 +303,7 @@ export default class ReportRelation extends Component {
           </div>
           <div>
             <span
-              className={cx('ThemeColor3 Hand Hover_49', { Hidden: !hasProjectAdminAuth })}
+              className={cx('ThemeColor3 Hand hoverTextPrimaryLight', { Hidden: !hasProjectAdminAuth })}
               onClick={() => this.handleGoAdmin()}
             >
               {_l('去管理后台查看')}

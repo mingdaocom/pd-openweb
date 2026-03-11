@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import store from 'redux/configureStore';
 import cx from 'classnames';
 import _ from 'lodash';
 import { func, string } from 'prop-types';
@@ -8,14 +7,15 @@ import { Dialog, Icon, Input, LoadDiv, Textarea } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import mingoApi from 'src/api/mingo';
 import { openMingoCreateWorksheet } from 'src/components/Mingo/modules/CreateWorksheetBot';
-import LoadingDots from 'src/pages/widgetConfig/widgetSetting/components/DevelopWithAI/ChatBot/LoadingDots';
+import CreateAIDialog from 'src/pages/worksheet/components/CreateAIDialog';
+import store from 'src/redux/configureStore';
 import ExternalLink from './ExternalLink';
 
 const CreateNewContent = styled.div`
   input,
   textarea {
     &::placeholder {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
   }
   .ming.Textarea {
@@ -28,61 +28,42 @@ const CreateNewContent = styled.div`
     border-radius: 3px;
   }
   .withdraw:hover {
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
   }
   .active {
     cursor: pointer;
-    color: #9709f2;
+    color: var(--color-mingo-light);
     &:hover {
       background: #9709f20f;
     }
   }
   .error {
     .ming.Textarea {
-      border-color: red !important;
+      border-color: var(--color-error) !important;
     }
     .TxtRight {
-      color: red;
+      color: var(--color-error);
     }
   }
   .aiCreate,
   .importExcelCreate {
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     border-radius: 4px;
     padding: 10px;
     cursor: pointer;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
   .aiCreate {
     .icon-auto_awesome {
-      color: #9709f2;
+      color: var(--color-mingo-light);
     }
   }
   .importExcelCreate {
     .icon-new_excel {
-      color: #268beb;
+      color: var(--color-primary);
     }
-  }
-`;
-
-const TagWrap = styled.div`
-  display: flex;
-  align-items: center;
-  width: max-content;
-  padding: 6px 12px;
-  border-radius: 23px;
-  border: 1px solid #e5e5e5;
-  cursor: pointer;
-  margin: 0 10px 10px 0;
-  &:hover {
-    background: #f5f5f5;
-  }
-  &.active {
-    font-weight: bold;
-    color: var(--app-primary-color);
-    border-color: var(--app-primary-color);
   }
 `;
 
@@ -190,7 +171,7 @@ class CreateSheetOrPage extends Component {
     if (remark && sourceAi && !loading) {
       return (
         <div
-          className="flexRow alignItemsCenter withdraw Gray_9e pointer"
+          className="flexRow alignItemsCenter withdraw textTertiary pointer"
           onClick={() => {
             this.setState({
               sourceAi: false,
@@ -208,7 +189,7 @@ class CreateSheetOrPage extends Component {
 
     return (
       <div
-        className={cx('flexRow alignItemsCenter', { active: value, Gray_9e: !value })}
+        className={cx('flexRow alignItemsCenter', { active: value, textTertiary: !value })}
         onClick={value && this.handleCreateAi}
       >
         <span className="mRight4 bold">{_l('AI 生成')}</span>
@@ -237,7 +218,7 @@ class CreateSheetOrPage extends Component {
                         <Icon icon="auto_awesome" className="Font24" />
                         <div className="flexColumn mLeft10">
                           <span className="bold mBottom5 Font14">{_l('使用 AI 创建')}</span>
-                          <span className="Gray_9e">{_l('描述业务需求，智能生成工作表')}</span>
+                          <span className="textTertiary">{_l('描述业务需求，智能生成工作表')}</span>
                         </div>
                       </div>
                     )}
@@ -250,7 +231,7 @@ class CreateSheetOrPage extends Component {
                       <Icon icon="new_excel" className="Font24" />
                       <div className="flexColumn mLeft10">
                         <span className="bold mBottom5 Font14">{_l('从 Excel 导入创建')}</span>
-                        <span className="Gray_9e">{_l('上传文件，自动生成工作表')}</span>
+                        <span className="textTertiary">{_l('上传文件，自动生成工作表')}</span>
                       </div>
                     </div>
                   </div>
@@ -275,7 +256,7 @@ class CreateSheetOrPage extends Component {
                       '用于定义工作表的用途和业务背景，便于 AI 正确理解并运用表中的信息。该描述不会直接展示给普通用户。',
                     )}
                   >
-                    <Icon icon="info_outline" className="Gray_9e Font15 pointer mLeft5" />
+                    <Icon icon="info_outline" className="textTertiary Font15 pointer mLeft5" />
                   </Tooltip>
                 </div>
                 {!md.global.SysSettings.hideAIBasicFun && this.renderState()}
@@ -356,14 +337,9 @@ class CreateChatbot extends Component {
           generateLoading: false,
           chatRobotInfos: [],
         });
-      })
-      .catch(() => {
-        this.setState({
-          generateLoading: false,
-        });
       });
   };
-  handleOk = () => {
+  handleOk = hasIcon => {
     const { type, onCreate } = this.props;
     const { name, remark, generateChatRobotInfoLoading } = this.state;
     if (generateChatRobotInfoLoading) return;
@@ -378,6 +354,7 @@ class CreateChatbot extends Component {
           type: 2,
           robotDescription: remark,
           langType: window.getCurrentLangCode(),
+          hasIcon, // 自定义创建需要生成图标
         })
         .then(data => {
           data.name = name;
@@ -401,67 +378,28 @@ class CreateChatbot extends Component {
   };
   render() {
     const { onCancel } = this.props;
-    const { generateChatRobotInfoLoading, name, remark, generateLoading, chatRobotInfos = [] } = this.state;
+    const { generateChatRobotInfoLoading, remark, generateLoading, chatRobotInfos = [] } = this.state;
+
     return (
-      <Dialog
+      <CreateAIDialog
         visible
-        title={_l('你希望创建什么样的对话机器人？')}
-        width={580}
-        okText={generateChatRobotInfoLoading ? _l('生成中...') : _l('创建')}
+        title={_l('创建对话机器人')}
+        width={800}
+        okText={_l('创建')}
         okDisabled={!remark}
+        aiTitle={_l('AI 建议')}
+        customTitle={_l('自定义创建')}
+        customDescription={_l(
+          '描述机器人的目标和功能，以及他的服务对象。例如：“订单统计助手，可通过对话快速查询客户订单明细并统计金额。”',
+        )}
+        placeholder={_l('AI 将根据您的描述自动生成名称、欢迎语、预设提问、提示词等配置 ')}
+        loadingAIsuggestions={generateLoading}
+        generateLoading={generateChatRobotInfoLoading}
+        aiList={chatRobotInfos}
+        updateData={(data, callback = () => {}) => this.setState({ ...data }, callback)}
         onOk={this.handleOk}
         onCancel={onCancel}
-      >
-        <div className="Gray_75">
-          {_l(
-            '尝试描述这个对话机器人的目标和功能，以及它为谁服务。例如:“订单统计助手，通过对话快速查询客户订单和明细，统计订单金额”',
-          )}
-        </div>
-        <div className="bold mTop20 mBottom7">{_l('描述')}</div>
-        <div className="Gray_75 mBottom12">{_l('AI 将根据你的描述自动生成名称、欢迎语、预置提问、提示词等配置')}</div>
-        <Textarea
-          autoFocus
-          className="w100 Font13"
-          disabled={generateLoading}
-          value={remark}
-          minHeight={120}
-          onChange={remark => this.setState({ remark })}
-        />
-        {!!chatRobotInfos.length && (
-          <div className={cx('flexRow alignItemsCenter mTop8 mBottom10', { Visibility: generateLoading })}>
-            <div className="Gray_75">{_l('试一试')}</div>
-            {/*
-          <Tooltip title={_l('换一批')}>
-            <Icon
-              icon="refresh"
-              className="Font16 Gray_9e pointer mLeft5 Hover_21"
-              onClick={() => this.handleGenerate(true)}
-            />
-          </Tooltip>
-          */}
-          </div>
-        )}
-        {generateLoading ? (
-          <div className="flexRow alignItemsCenter justifyContentCenter">
-            <LoadingDots dotNumber={3} />
-            <div className="mLeft10 Gray_75">{_l('AI 正在为您推荐，请稍候…')}</div>
-          </div>
-        ) : (
-          <div className="flexRow" style={{ flexWrap: 'wrap' }}>
-            {chatRobotInfos.map((item, index) => (
-              <TagWrap
-                key={index}
-                className={cx({ active: item.summary === name })}
-                onClick={() => {
-                  this.setState({ name: item.summary, remark: item.description });
-                }}
-              >
-                {item.summary}
-              </TagWrap>
-            ))}
-          </div>
-        )}
-      </Dialog>
+      />
     );
   }
 }

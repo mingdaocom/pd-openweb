@@ -43,7 +43,7 @@ const Empty = styled.span`
   display: inline-block;
   width: 22px;
   height: 6px;
-  background: #eaeaea;
+  background: var(--color-border-secondary);
   border-radius: 3px;
 `;
 
@@ -55,7 +55,7 @@ const Control = styled.div`
   .label {
     max-width: 200px;
     min-width: 70px;
-    color: #757575;
+    color: var(--color-text-secondary);
     line-height: 16px;
     margin: 6px 0;
     padding-right: 1em;

@@ -37,7 +37,7 @@ const Item = data => {
   return (
     <WrapLi className="flexRow alignItemsCenter mBottom10 itemSortLi" key={key}>
       <DragHandle className="alignItemsCenter flexRow">
-        <Icon className="mRight10 Font16 Hand Gray_9e" icon="drag" />
+        <Icon className="mRight10 Font16 Hand textTertiary" icon="drag" />
       </DragHandle>
       <div
         className="typeTxt WordBreak overflow_ellipsis"

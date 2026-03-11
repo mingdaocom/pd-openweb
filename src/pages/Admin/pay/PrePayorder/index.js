@@ -298,7 +298,7 @@ export default class PrePayOrder extends Component {
               <div className="flex pLeft25 amountWrap">
                 <div className="Font15 bold">
                   {_l('应付金额：')}
-                  <span className="amount Font40 ThemeColor">¥{amount <= 0 ? 0 : formatNumberThousand(amount)}</span>
+                  <span className="amount Font40 colorPrimary">¥{amount <= 0 ? 0 : formatNumberThousand(amount)}</span>
                 </div>
                 {paymentModule === 5 ? null : expireTime === 0 ? (
                   <div className="Font15">
@@ -407,12 +407,12 @@ export default class PrePayOrder extends Component {
           actions: [],
           extra: (
             <div className="flexColumn w100">
-              <div className="bold Gray Font17 pTop10">{_l('您确定放弃支付？')}</div>
-              <div className="Font13 Gray_9e mBottom10">{_l('放弃支付后，当前填写的表单数据不会提交')}</div>
+              <div className="bold textPrimary Font17 pTop10">{_l('您确定放弃支付？')}</div>
+              <div className="Font13 textTertiary mBottom10">{_l('放弃支付后，当前填写的表单数据不会提交')}</div>
               <div className="valignWrapper flexRow confirm mTop24">
                 <Button
                   radius
-                  className="flex mRight6 bold Gray_75 flex ellipsis Font13 cancelPayBtn"
+                  className="flex mRight6 bold textSecondary flex ellipsis Font13 cancelPayBtn"
                   onClick={() => this.conformAction.close()}
                 >
                   {_l('取消')}
@@ -506,7 +506,7 @@ export default class PrePayOrder extends Component {
         ) : (
           <div className="preOrderWrap">
             <div className={cx('bold Font24', { mBottom16: isMobile })}>{description}</div>
-            <div className="ThemeColor bold mBottom10 mTop10">
+            <div className="colorPrimary bold mBottom10 mTop10">
               <span className="Font50 amount">¥ {amount <= 0 ? 0 : formatNumberThousand(amount)}</span>
             </div>
 

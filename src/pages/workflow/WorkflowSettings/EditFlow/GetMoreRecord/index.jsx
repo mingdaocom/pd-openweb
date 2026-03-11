@@ -59,7 +59,7 @@ export default class GetMoreRecord extends Component {
         item.actionId,
       )
     ) {
-      return <div className="pLeft8 pRight8 ellipsis Gray_75">{text[item.actionId]}</div>;
+      return <div className="pLeft8 pRight8 ellipsis textSecondary">{text[item.actionId]}</div>;
     }
 
     return (
@@ -68,7 +68,7 @@ export default class GetMoreRecord extends Component {
           item={{ ...item, appTypeName: item.appType === APP_TYPE.SHEET ? _l('工作表') : _l('聚合表') }}
         />
         {_.includes([ACTION_ID.BATCH_UPDATE, ACTION_ID.REFRESH_MULTIPLE_DATA], item.actionId) ? (
-          <div className="workflowContentInfo Gray_75 mTop4 pBottom5">
+          <div className="workflowContentInfo textSecondary mTop4 pBottom5">
             {item.actionId === ACTION_ID.REFRESH_MULTIPLE_DATA
               ? _l('校准了%0个字段', item.fields.length)
               : _l('修改了%0个字段', item.fields.length)}
@@ -77,7 +77,7 @@ export default class GetMoreRecord extends Component {
             {item.errorFields.length > 0 ? _l('个字段存在异常') : ''}
           </div>
         ) : (
-          <div className="workflowContentInfo ellipsis Gray_75 mTop4 pBottom5">{text[item.actionId]}</div>
+          <div className="workflowContentInfo ellipsis textSecondary mTop4 pBottom5">{text[item.actionId]}</div>
         )}
       </Fragment>
     );
@@ -110,7 +110,11 @@ export default class GetMoreRecord extends Component {
             </div>
             <NodeOperate nodeClassName={isCalibration ? 'BGGreen' : 'BGYellow'} {...this.props} />
             <div className="workflowContent Font13">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? (
+                <span className="pLeft8 pRight8 textSecondary">{_l('加载中...')}</span>
+              ) : (
+                this.renderContent()
+              )}
             </div>
           </div>
           {item.resultTypeId ? <div className="workflowLineBtn" /> : <CreateNode {...this.props} />}

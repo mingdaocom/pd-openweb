@@ -13,15 +13,15 @@
           .title {
             font-size: 17px;
             font-weight: 600;
-            color: #151515;
+            color: var(--color-text-title);
             margin-bottom: 8px;
           }
           .subTitle {
             font-size: 13px;
             font-weight: 400;
-            color: #9e9e9e;
+            color: var(--color-text-tertiary);
             .help {
-              color: #1677ff;
+              color: var(--color-primary);
               margin-left: 5px;
             }
           }
@@ -35,11 +35,11 @@
           background: rgba(255, 159, 51, 0.15);
           height: 32px;
           line-height: 32px;
-          color: #e68619;
+          color: var(--color-warning);
           font-size: 12px;
           padding-left: 20px;
           .icon {
-            color: #ff9f33;
+            color: var(--color-warning);
           }
         }
       }
@@ -55,7 +55,7 @@
   height: 100%;
   .tabWrap {
     display: flex;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-primary);
     .tabItem {
       width: 96px;
       height: 42px;
@@ -67,8 +67,8 @@
         margin-left: 32px;
       }
       &.active {
-        border-bottom: 2px solid #1890ff;
-        color: #1890ff;
+        border-bottom: 2px solid var(--color-link-hover);
+        color: var(--color-link-hover);
       }
     }
   }
@@ -83,13 +83,13 @@
         margin-right: 13px;
       }
       .icon {
-        color: #9d9d9d;
+        color: var(--color-text-tertiary);
       }
     }
     li.delete {
-      color: #f44336;
+      color: var(--color-error);
       .icon {
-        color: #f44336;
+        color: var(--color-error);
       }
     }
   }
@@ -132,37 +132,37 @@
     border: none;
     outline: none;
     border-radius: 3px;
-    color: #fff;
+    color: var(--color-white);
     vertical-align: middle;
     cursor: pointer;
     width: 92px;
     text-align: center;
   }
   .cancelBtn {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .cancelBtn:hover {
-    color: #1e88e5;
+    color: var(--color-primary);
   }
   .disabledConfirmBtn {
-    color: #fff;
-    background: #bdbdbd;
+    color: var(--color-white);
+    background: var(--color-text-disabled);
   }
   .confirmBtn {
-    background: #1677ff;
+    background: var(--color-primary);
     cursor: pointer;
   }
   .confirmBtn:hover {
-    background-color: #1565c0;
+    background-color: var(--color-link-hover);
   }
 }
 
 .deleteBackupDialog {
   .ming.Button--primary {
-    background-color: #f44336;
+    background-color: var(--color-error);
   }
   .ming.Button--primary:hover {
-    background-color: #ba160a;
+    background-color: var(--color-error-hover);
   }
 }
 
@@ -170,7 +170,7 @@
   .mui-dialog-header {
     font-size: 13px;
     line-height: 17px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   .mui-dialog-body {
     padding: 0;

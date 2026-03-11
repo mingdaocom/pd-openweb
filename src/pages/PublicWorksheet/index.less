@@ -15,7 +15,7 @@ body,
     height: 40px;
     text-align: center;
     line-height: 40px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     font-size: 30px;
     border-radius: 2px;
 
@@ -28,7 +28,7 @@ body,
 
     &:hover {
       &.icon {
-        color: #1677ff;
+        color: var(--color-primary);
       }
 
       > div {
@@ -42,7 +42,7 @@ body,
     width: 800px;
     margin: 200px auto 5px;
     border-radius: 3px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     box-shadow: 0px 1px 4px #00000029;
 
     .infoCon {
@@ -62,7 +62,7 @@ body,
       .itemInfo {
         height: 22px;
         margin-left: 8px;
-        color: #757575;
+        color: var(--color-text-secondary);
         span {
           font-size: 13px;
           font-weight: bold;
@@ -72,7 +72,7 @@ body,
     }
 
     .worksheetDescription {
-      color: #151515;
+      color: var(--color-text-title);
       white-space: pre-line;
       width: 100%;
       box-sizing: border-box;
@@ -115,11 +115,11 @@ body,
     padding: 10px 32px 12px;
 
     a {
-      color: #000;
+      color: var(--color-text-primary);
       text-decoration: none;
 
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
@@ -147,6 +147,9 @@ body,
 .fillWorksheetSection {
   display: flex;
   margin-left: -19px;
+  .formContainer {
+    overflow: hidden;
+  }
   &.isFixedRight {
     margin-left: 0;
     flex-direction: row-reverse;
@@ -236,7 +239,7 @@ body,
     font-weight: 600;
   }
   .mui-dialog-body {
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     padding: 0px !important;
   }
   .recordItem {
@@ -245,12 +248,12 @@ body,
     min-height: 82px;
     padding: 16px 12px;
     margin: 10px;
-    background: #fff;
+    background: var(--color-background-primary);
     box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.16);
     border-radius: 3px;
     cursor: pointer;
     &:hover {
-      background: #fcfcfc;
+      background: var(--color-background-hover);
     }
 
     .recordFooter {
@@ -260,10 +263,10 @@ body,
       .statusWrapper {
         margin-left: 36px;
         .Success {
-          color: #4caf50;
+          color: var(--color-success);
         }
         .Warning {
-          color: #ff9d00;
+          color: var(--color-warning);
         }
       }
       .btnWrapper {
@@ -278,34 +281,34 @@ body,
         padding: 0 20px;
         line-height: 32px;
         border-radius: 3px;
-        color: #fff;
-        background: #1677ff;
+        color: var(--color-white);
+        background: var(--color-primary);
         cursor: pointer;
         font-weight: 500;
         &.invoice,
         &.edit,
         &.delete {
-          background: #fff !important;
-          border: 1px solid #e0e0e0;
+          background: var(--color-background-primary) !important;
+          border: 1px solid var(--color-border-secondary);
         }
 
         &.invoice,
         &.edit {
-          color: #333;
+          color: var(--color-text-primary);
         }
         &.delete {
-          color: #f44336 !important;
+          color: var(--color-error) !important;
         }
 
         &:hover {
-          background: #1e88e5;
+          background: var(--color-primary);
           &.invoice,
           &.edit {
-            border-color: #1677ff;
-            color: #1677ff;
+            border-color: var(--color-primary);
+            color: var(--color-primary);
           }
           &.delete {
-            border-color: #f44336;
+            border-color: var(--color-error);
           }
         }
       }

@@ -2,12 +2,11 @@ import React, { Fragment, useState } from 'react';
 import { Checkbox, Collapse, Input, Select, Switch } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { ColorPicker, Icon, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import { dialogSelectIcon } from 'ming-ui/functions';
 import { replaceColor } from 'statistics/Charts/NumberChart';
-import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 import { defaultNumberChartStyle, normTypes, sizeTypes } from '../../../enum';
 import BgPicker from './BgPicker';
 import RuleColor from './Color/RuleColor';
@@ -19,7 +18,7 @@ const Wrap = styled.div`
       padding: 3px 8px !important;
     }
     .active .shape {
-      background-color: #1677ff;
+      background-color: var(--color-primary);
     }
   }
   .lable {
@@ -30,8 +29,8 @@ const Wrap = styled.div`
     height: 32px;
     border-radius: 3px;
     padding: 4px;
-    border: 1px solid #dddddd;
-    background-color: #fff;
+    border: 1px solid var(--color-border-primary);
+    background-color: var(--color-background-primary);
     .colorBlock {
       width: 100%;
       height: 100%;
@@ -41,7 +40,7 @@ const Wrap = styled.div`
   .circle {
     width: 12px;
     height: 12px;
-    background-color: #9e9e9e;
+    background-color: var(--color-text-tertiary);
   }
   .square {
     border-radius: 3px;
@@ -52,16 +51,16 @@ const Wrap = styled.div`
 `;
 
 const EntranceWrapper = styled.div`
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--color-border-primary);
   border-radius: 4px;
   height: 30px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   &.ruleIcon {
     width: 30px;
     margin-left: 10px;
     justify-content: center;
     &:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
     }
   }
 `;
@@ -124,7 +123,7 @@ const CardLayout = props => {
           {alignTypes.map(item => (
             <div
               key={item.value}
-              className={cx('flex centerAlign pointer Gray_75', {
+              className={cx('flex centerAlign pointer textSecondary', {
                 active: item.value === (numberChartStyle.textAlign || 'center'),
               })}
               onClick={() => {
@@ -152,7 +151,7 @@ const CardLayout = props => {
                   icon="expand_less"
                   className={cx(
                     'Font20 pointer mBottom2',
-                    numberChartStyle.columnCount === maxColumnCount ? 'disabled' : 'Gray_9e',
+                    numberChartStyle.columnCount === maxColumnCount ? 'disabled' : 'textTertiary',
                   )}
                   onClick={() => {
                     let value = Number(numberChartStyle.columnCount);
@@ -161,7 +160,10 @@ const CardLayout = props => {
                 />
                 <Icon
                   icon="expand_more"
-                  className={cx('Font20 pointer mBottom2', numberChartStyle.columnCount === 1 ? 'disabled' : 'Gray_9e')}
+                  className={cx(
+                    'Font20 pointer mBottom2',
+                    numberChartStyle.columnCount === 1 ? 'disabled' : 'textTertiary',
+                  )}
                   onClick={() => {
                     let value = Number(numberChartStyle.columnCount);
                     changeColumnCount(value - 1);
@@ -183,7 +185,7 @@ const CardLayout = props => {
             {_l('允许容器内滚动')}
           </Checkbox>
           <Tooltip title={_l('当统计项较多时，勾选此配置可以在容器内滚动查看')} placement="bottom" arrowPointAtCenter>
-            <Icon className="Gray_9e Font18 pointer" icon="info" />
+            <Icon className="textTertiary Font18 pointer" icon="info" />
           </Tooltip>
         </div>
       )}
@@ -214,31 +216,25 @@ const IconSetting = props => {
     <Wrap className="mBottom16">
       <div className="flexRow valignWrapper mBottom12">
         <div style={{ width: 60 }}>{_l('图标')}</div>
-        <Trigger
-          zIndex={1000}
-          action={['click']}
-          popupAlign={{ points: ['tc', 'bc'], offset: [0, 5], overflow: { adjustX: true, adjustY: true } }}
-          popup={
-            <SelectIcon
-              hideInput={true}
-              hideColor={true}
-              projectId={projectId}
-              icon={icon}
-              iconColor={iconColor}
-              className="Relative"
-              onModify={data => {
-                const { icon } = data;
-                if (icon) {
-                  onChangeNumberStyle({ icon });
-                }
-              }}
-            />
-          }
+        <EntranceWrapper
+          className="ruleIcon flexRow valignWrapper pointer mLeft0 mRight10"
+          onClick={() => {
+            dialogSelectIcon({
+              hideInput: true,
+              hideColor: true,
+              projectId,
+              icon,
+              iconColor,
+              onModify: data => data?.icon && onChangeNumberStyle({ icon: data.icon }),
+            });
+          }}
         >
-          <EntranceWrapper className="ruleIcon flexRow valignWrapper pointer mLeft0 mRight10">
-            <SvgIcon url={`${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`} fill="#9e9e9e" size={22} />
-          </EntranceWrapper>
-        </Trigger>
+          <SvgIcon
+            url={`${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`}
+            fill="var(--color-text-tertiary)"
+            size={22}
+          />
+        </EntranceWrapper>
         <ColorPicker
           isPopupBody={true}
           sysColor={true}
@@ -264,7 +260,7 @@ const IconSetting = props => {
             <div
               key={item.value}
               style={{ width: 41 }}
-              className={cx('flex centerAlign pointer Gray_75', {
+              className={cx('flex centerAlign pointer textSecondary', {
                 active: (numberChartStyle.shape || 'square') === item.value,
               })}
               onClick={() => {
@@ -300,7 +296,7 @@ const StatisticsValue = props => {
           {sizeTypes.map(item => (
             <div
               key={item.value}
-              className={cx('flex centerAlign pointer Gray_75', {
+              className={cx('flex centerAlign pointer textSecondary', {
                 active: (numberChartStyle.fontSize || 28) === item.value,
               })}
               onClick={() => {
@@ -359,7 +355,7 @@ const StatisticsValue = props => {
               setRuleColorModalVisible(true);
             }}
           >
-            <Icon className="Font16 Gray_9e" icon="formula" />
+            <Icon className="Font16 textTertiary" icon="formula" />
           </EntranceWrapper>
         </Tooltip>
         {colorRule && (
@@ -369,7 +365,7 @@ const StatisticsValue = props => {
               onChangeDisplayValue('colorRules', []);
             }}
           >
-            <Icon className="Font16 Gray_9e" icon="trash" />
+            <Icon className="Font16 textTertiary" icon="trash" />
           </EntranceWrapper>
         )}
         <RuleColor
@@ -448,7 +444,7 @@ export const ContrastValue = props => {
           {colorTypes.map(item => (
             <div
               key={item.value}
-              className={cx('flex centerAlign pointer Gray_75', {
+              className={cx('flex centerAlign pointer textSecondary', {
                 active: (numberChartStyle.contrastColor || 0) === item.value,
               })}
               onClick={() => {
@@ -474,7 +470,7 @@ export const ContrastValue = props => {
             <div className="flexColumn">
               <Icon
                 icon="expand_less"
-                className="Gray_9e Font20 pointer mBottom2"
+                className="textTertiary Font20 pointer mBottom2"
                 onClick={() => {
                   let value = Number(numberChartStyle.contrastValueDot);
                   handleChangeContrastValueDot(value + 1);
@@ -482,7 +478,7 @@ export const ContrastValue = props => {
               />
               <Icon
                 icon="expand_more"
-                className="Gray_9e Font20 pointer mTop2"
+                className="textTertiary Font20 pointer mTop2"
                 onClick={() => {
                   let value = Number(numberChartStyle.contrastValueDot);
                   handleChangeContrastValueDot(value ? value - 1 : 0);
@@ -551,7 +547,7 @@ export function numberSummaryPanelGenerator(props) {
         <Select
           className="chartSelect w100"
           value={summary.type}
-          suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+          suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           onChange={value => {
             const item = _.find(normTypes, { value });
             const isDefault = normTypes.map(item => item.text).includes(summary.name);

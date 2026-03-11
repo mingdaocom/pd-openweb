@@ -133,7 +133,8 @@ const CheckboxWidgets = props => {
         <span
           className={cx(
             'customRadioItem WordBreak ellipsis',
-            { White: enumDefault2 === 1 && !isLightColor(item.color) },
+            { textWhite: enumDefault2 === 1 && !isLightColor(item.color) },
+            { textBlack: enumDefault2 === 1 && isLightColor(item.color) },
             {
               'pLeft12 pRight12': enumDefault2 === 1,
             },
@@ -309,7 +310,7 @@ const CheckboxWidgets = props => {
           showArrow
           suffixIcon={<Icon icon="arrow-down-border Font14" />}
           filterOption={() => true}
-          notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
+          notFoundContent={<span className="textTertiary">{_l('无搜索结果')}</span>}
           onSearch={keywords => setKeywords(keywords.trim())}
           onKeyDown={createEventHandler}
           onDropdownVisibleChange={open => {
@@ -345,7 +346,7 @@ const CheckboxWidgets = props => {
         >
           {!keywords.length && allowadd === '1' && canAddOption && (
             <Select.Option disabled className="cursorDefault">
-              <span className="ellipsis customRadioItem Gray_9e">{_l('或直接输入添加新选项')}</span>
+              <span className="ellipsis customRadioItem textTertiary">{_l('或直接输入添加新选项')}</span>
             </Select.Option>
           )}
 
@@ -396,22 +397,24 @@ const CheckboxWidgets = props => {
         className={cx(
           'mTop5 mBottom5 mRight5',
           {
-            White: enumDefault2 === 1 && !isLightColor(currentItem.color),
+            textWhite: enumDefault2 === 1 && !isLightColor(currentItem.color),
             isEmpty: tagValue === 'isEmpty',
           },
           enumDefault2 === 1 || isFocus ? 'customAntDropdownTitleWithBG' : 'customAntDropdownTitle',
         )}
-        style={{ background: enumDefault2 === 1 ? currentItem.color : isFocus ? 'var(--color-border-secondary)' : '' }}
+        style={{
+          background: enumDefault2 === 1 ? currentItem.color : isFocus ? 'var(--color-background-tertiary)' : '',
+        }}
         title={label}
       >
-        <div className="ellipsis Font13">
+        <div className="ellipsis Font13" style={{ color: enumDefault2 !== 1 ? 'var(--color-text-primary)' : '' }}>
           {label}
           {enumDefault2 !== 1 && !isFocus && tagValue !== checkIds[checkIds.length - 1] && ','}
         </div>
         {isFocus && (
           <Icon
             icon={cx('close Font14 mLeft5 pointer', {
-              White: enumDefault2 === 1 && !isLightColor(currentItem.color),
+              textWhite: enumDefault2 === 1 ? !isLightColor(currentItem.color) : window.themeMode === 'dark',
             })}
             onMouseDown={event => {
               event.preventDefault();

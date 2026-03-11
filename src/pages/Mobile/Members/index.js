@@ -30,12 +30,12 @@ class Members extends Component {
       title: <span className="Font17 bold">{_l('确认删除应用吗？')}</span>,
       content: (
         <div className="TxtCenter">
-          <span className="Font13 Gray mBottom5">
+          <span className="Font13 textPrimary mBottom5">
             {_l('应用下所有配置和数据将被永久删除，不可恢复，请确认是否执行此操作！')}
           </span>
           <Input
             className="mTop10 pAll5 appNameInput"
-            style={{ borderRadius: 4, border: '1px solid #ededed', '--font-size': 13 }}
+            style={{ borderRadius: 4, border: '1px solid var(--color-border-secondary)', '--font-size': 13 }}
             placeholder={_l('输入应用名称以确定删除')}
           />
         </div>
@@ -84,16 +84,16 @@ class Members extends Component {
             }}
           >
             <div className="flexRow alignItemsCenter">
-              <div className="flex Gray Font17 Bold overflow_ellipsis">
+              <div className="flex textPrimary Font17 Bold overflow_ellipsis">
                 {isInCurrentRole && <span className="isMyRole" />}
                 {item.label}
               </div>
               <div className="flex TxtRight moreAction">
-                <span className="Gray_75 Bold TxtMiddle">{count > 0 && count}</span>
-                <Icon icon="arrow-right-border" className="Font20 mLeft5 Gray_75 TxtMiddle" />
+                <span className="textSecondary Bold TxtMiddle">{count > 0 && count}</span>
+                <Icon icon="arrow-right-border" className="Font20 mLeft5 textSecondary TxtMiddle" />
               </div>
             </div>
-            <div className="Gray_75 Font14 mTop8 ellipsis">
+            <div className="textSecondary Font14 mTop8 ellipsis">
               {item.description ||
                 (item.roleType === 100
                   ? _l('可以配置应用，管理应用下所有数据和人员')
@@ -138,10 +138,10 @@ class Members extends Component {
           }}
         >
           <div className="flexRow alignItemsCenter">
-            <div className="flex Gray Font17 overflow_ellipsis pendingApply">{_l('待处理的申请')}</div>
+            <div className="flex textPrimary Font17 overflow_ellipsis pendingApply">{_l('待处理的申请')}</div>
             <div className="flex TxtMiddle TxtRight moreAction">
               <span className="Bold Red">{_l('%0人', memberData.applyList.length)}</span>
-              <Icon icon="arrow-right-border" className="Font20 mLeft5 Gray_75" />
+              <Icon icon="arrow-right-border" className="Font20 mLeft5 textSecondary" />
             </div>
           </div>
         </Card>

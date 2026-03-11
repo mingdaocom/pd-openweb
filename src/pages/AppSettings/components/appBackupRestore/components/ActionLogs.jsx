@@ -22,24 +22,24 @@ const Header = styled.div`
 const Content = styled.div`
   flex: 1;
   height: calc(100% - 50px);
-  background-color: #f7f7f7;
+  background-color: var(--color-background-secondary);
   padding: 16px 0;
   overflow: hidden;
 `;
 
 const SelectCon = styled.div`
   font-size: 13px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   display: flex;
   justify-content: space-between;
   margin-bottom: 16px;
   padding: 0 24px;
   .icon {
     font-size: 18px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   .icon.icon-arrow-down {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     font-size: 8px;
     width: 18px;
     display: inline-block;
@@ -51,7 +51,7 @@ const SelectCon = styled.div`
   .selectUser,
   .selectDate {
     padding: 8px 12px;
-    background: #fff;
+    background: var(--color-background-primary);
     display: flex;
     align-items: center;
     width: fit-content;
@@ -75,9 +75,9 @@ const SelectCon = styled.div`
     margin: 0 4px;
   }
   .selectLight {
-    color: #1677ff;
+    color: var(--color-primary);
     .icon {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .left {
@@ -86,9 +86,9 @@ const SelectCon = styled.div`
 `;
 
 const ActionLogWrap = styled.div`
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid var(--color-border-secondary);
   padding: 16px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   margin: 0 24px 16px;
   box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.08);
   .row {
@@ -104,14 +104,14 @@ const ActionLogWrap = styled.div`
     .name,
     .action,
     .date {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
   }
   .actContent {
-    color: #151515;
+    color: var(--color-text-title);
     padding-left: 8px;
     .changeBefore {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       text-decoration: line-through;
     }
   }
@@ -346,7 +346,7 @@ export default function ActionLogs(props) {
                     {operationType === 4 && <span className="renameContent">{backupFileName}</span>}
                   </div>
                   {appItemTotal || rowTotal ? (
-                    <div className="Gray_9e">
+                    <div className="textTertiary">
                       <span className="mRight16"> {appItemTotal ? _l('%0个应用项', appItemTotal) : ''}</span>
                       <span>{rowTotal ? _l('%0行记录', rowTotal) : ''}</span>
                     </div>

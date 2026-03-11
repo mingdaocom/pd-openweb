@@ -13,9 +13,9 @@
     bottom: 0;
     z-index: 1000;
     text-align: left;
-    color: #1677ff;
+    color: var(--color-primary);
     &:hover {
-      color: #1185e2;
+      color: var(--color-link-hover);
     }
   }
 
@@ -52,7 +52,7 @@
   .ant-tree.ant-tree-directory .ant-tree-treenode-selected {
     .treeNodeIcon,
     .departmentName {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
     .ant-tree-draggable-icon {
       display: none !important;
@@ -63,7 +63,7 @@
     &.ant-tree-treenode-selected {
       &:hover {
         &::before {
-          background: #dbeeff 0 0 no-repeat padding-box !important;
+          background: var(--color-primary-transparent) 0 0 no-repeat padding-box !important;
         }
         .ant-tree-switcher {
           background: none !important;
@@ -88,7 +88,7 @@
       display: none !important;
     }
     .disabledDepartmentIcon {
-      color: #fd5d22 !important;
+      color: var(--color-warning) !important;
     }
   }
 
@@ -128,7 +128,7 @@
     }
     &.ant-tree-treenode-selected:hover::before,
     &.ant-tree-treenode-selected::before {
-      background: #dbeeff 0 0 no-repeat padding-box !important;
+      background: var(--color-primary-transparent) 0 0 no-repeat padding-box !important;
     }
     &.ant-tree-treenode::before {
       background: rgba(0, 0, 0, 0.04) !important;
@@ -138,7 +138,7 @@
   .ant-tree.ant-tree-directory {
     .ant-tree-treenode {
       .ant-tree-node-content-wrapper.ant-tree-node-selected {
-        color: #151515 !important;
+        color: var(--color-text-title) !important;
       }
     }
   }
@@ -146,7 +146,7 @@
   .ant-tree .ant-tree-switcher {
     .ant-tree-switcher-icon svg,
     .ant-select-tree-switcher-icon svg {
-      color: #9e9e9e !important;
+      color: var(--color-text-tertiary) !important;
     }
   }
 
@@ -202,7 +202,7 @@
 
           &:hover {
             .Icon {
-              color: #1677ff;
+              color: var(--color-primary);
             }
           }
         }
@@ -268,7 +268,7 @@
     > span.ant-tree-switcher,
   .ant-tree.ant-tree-directory > .ant-tree-treenode span.ant-tree-switcher,
   .ant-tree.ant-tree-directory .ant-tree-child-tree > .ant-tree-treenode span.ant-tree-switcher {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 
   .ant-tree-child-tree > .ant-tree-treenode:first-child {
@@ -290,7 +290,7 @@
     .ant-tree-child-tree
     > .ant-tree-treenode
     span.ant-tree-node-content-wrapper:hover::before {
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     border-radius: 3px;
     height: 36px;
     width: 256px;
@@ -304,7 +304,7 @@
     .ant-tree-child-tree
     > .ant-tree-treenode
     span.ant-tree-node-content-wrapper.ant-tree-node-selected {
-    color: #151515;
+    color: var(--color-text-title);
     z-index: 0;
   }
 
@@ -322,18 +322,18 @@
 
   .ant-tree.ant-tree-directory .ant-tree-treenode-selected:hover::before,
   .ant-tree.ant-tree-directory .ant-tree-treenode-selected::before {
-    background: #dbeeff 0 0 no-repeat padding-box !important;
+    background: var(--color-primary-transparent) 0 0 no-repeat padding-box !important;
   }
 }
 
 .disabledDepartmentDialog {
   .mui-dialog-desc {
-    color: #151515 !important;
+    color: var(--color-text-title) !important;
   }
   .departmentStatusWrap {
     display: inline-block;
     padding: 0px 10px;
     border-radius: 22px;
-    background: #f7f7f7;
+    background: var(--color-background-secondary);
   }
 }

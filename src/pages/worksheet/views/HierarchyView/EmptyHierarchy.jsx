@@ -10,7 +10,7 @@ const EmptyHierarchyWrap = styled.div`
     padding: 0;
     height: 28px;
     border-radius: 0;
-    border-bottom: 2px solid #1677ff;
+    border-bottom: 2px solid var(--color-primary);
     background-color: transparent;
     font-size: 14px;
     font-weight: bold;
@@ -32,8 +32,8 @@ const EmptyHierarchyWrap = styled.div`
     line-height: 48px;
     transition: all 0.25s;
     border-radius: 3px;
-    background-color: #fff;
-    color: #9e9e9e;
+    background-color: var(--color-background-primary);
+    color: var(--color-text-tertiary);
     font-weight: bold;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
     &:hover {
@@ -42,7 +42,7 @@ const EmptyHierarchyWrap = styled.div`
     &.allowAdd {
       cursor: pointer;
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
@@ -67,7 +67,7 @@ export default function EmptyHierarchy({ allowAdd, onAdd, layersName, updateLaye
             />
           ) : (
             <span
-              className={cx('overflow_ellipsis layerTitle', value ? 'Gray_75 Bold' : 'Gray_bd Bold')}
+              className={cx('overflow_ellipsis layerTitle', value ? 'textSecondary Bold' : 'textDisabled Bold')}
               onClick={() => setEdit(true)}
             >
               {value || _l('一级')}

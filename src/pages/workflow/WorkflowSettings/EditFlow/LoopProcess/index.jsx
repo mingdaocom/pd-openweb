@@ -19,10 +19,10 @@ export default class LoopProcess extends Component {
         <div className="ellipsis">
           {item.subProcessId ? (
             <Fragment>
-              <span className="Gray_75">
+              <span className="textSecondary">
                 {item.actionId === ACTION_ID.CONDITION_LOOP ? _l('满足条件时循环：') : _l('循环指定次数：')}
               </span>
-              {item.subProcessName || <span style={{ color: '#f44336' }}>{_l('流程已删除')}</span>}
+              {item.subProcessName || <span style={{ color: 'var(--color-error)' }}>{_l('流程已删除')}</span>}
             </Fragment>
           ) : (
             _l('设置此节点')
@@ -66,7 +66,11 @@ export default class LoopProcess extends Component {
             </div>
             <NodeOperate nodeClassName="BGBlueAsh" {...this.props} noCopy={true} />
             <div className="workflowContent Font13">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? (
+                <span className="pLeft8 pRight8 textSecondary">{_l('加载中...')}</span>
+              ) : (
+                this.renderContent()
+              )}
             </div>
           </div>
           <CreateNode {...this.props} />

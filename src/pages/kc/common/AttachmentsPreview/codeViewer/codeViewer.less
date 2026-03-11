@@ -1,5 +1,5 @@
 .codeViewer {
-  background: #fff;
+  background: var(--color-background-primary);
   position: absolute;
   overflow: scroll;
   padding: 0 10px 20px;
@@ -22,7 +22,8 @@
   align-items: center;
 }
 
-.codeViewer, .chatGPTElement {
+.codeViewer,
+.chatGPTElement {
   @font-face {
     font-family: octicons-link;
     src: url(data:font/woff;charset=utf-8;base64,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);
@@ -31,8 +32,8 @@
   .markdown-body {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    color: #151515;
-    background-color: #fff;
+    color: var(--color-text-title);
+    background-color: var(--color-background-primary);
     font-size: 16px;
     line-height: 1.6;
     word-wrap: break-word;
@@ -70,9 +71,9 @@
     overflow: auto;
     display: block;
     padding: 1em;
-    background: #151515;
-    color: white;
-    border: 1px solid #cccccc;
+    background: var(--color-text-title);
+    color: var(--color-white);
+    border: 1px solid var(--color-text-placeholder);
     border-radius: 3px 3px 3px 3px;
     font-size: 13px !important;
     line-height: 1.3em !important;
@@ -119,12 +120,21 @@
   }
 
   .markdown-body input {
-    font: 13px / 1.4 Helvetica, arial, nimbussansl, liberationsans, freesans, clean, sans-serif, 'Apple Color Emoji',
-      'Segoe UI Emoji', 'Segoe UI Symbol';
+    font:
+      13px / 1.4 Helvetica,
+      arial,
+      nimbussansl,
+      liberationsans,
+      freesans,
+      clean,
+      sans-serif,
+      'Apple Color Emoji',
+      'Segoe UI Emoji',
+      'Segoe UI Symbol';
   }
 
   .markdown-body a {
-    color: #4078c0;
+    color: var(--color-link-hover);
     text-decoration: none;
   }
 
@@ -139,7 +149,7 @@
     overflow: hidden;
     background: transparent;
     border: 0;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-primary);
   }
 
   .markdown-body hr:before {
@@ -223,7 +233,12 @@
   .markdown-body pre {
     margin-top: 0;
     margin-bottom: 0;
-    font: 12px Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font:
+      12px Consolas,
+      'Liberation Mono',
+      Menlo,
+      Courier,
+      monospace;
   }
 
   .markdown-body .select::-ms-expand {
@@ -299,7 +314,7 @@
   .markdown-body h4 .octicon-link,
   .markdown-body h5 .octicon-link,
   .markdown-body h6 .octicon-link {
-    color: #000;
+    color: var(--color-text-primary);
     vertical-align: middle;
     visibility: hidden;
   }
@@ -326,7 +341,7 @@
     padding-bottom: 0.3em;
     font-size: 2.25em;
     line-height: 1.2;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--color-border-secondary);
   }
 
   .markdown-body h1 .anchor {
@@ -337,7 +352,7 @@
     padding-bottom: 0.3em;
     font-size: 1.75em;
     line-height: 1.225;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--color-border-secondary);
   }
 
   .markdown-body h2 .anchor {
@@ -371,7 +386,7 @@
 
   .markdown-body h6 {
     font-size: 1em;
-    color: #777;
+    color: var(--color-text-secondary);
   }
 
   .markdown-body h6 .anchor {
@@ -393,7 +408,7 @@
     height: 4px;
     padding: 0;
     margin: 16px 0;
-    background-color: #e7e7e7;
+    background-color: var(--color-border-secondary);
     border: 0 none;
   }
 
@@ -433,8 +448,8 @@
 
   .markdown-body blockquote {
     padding: 0 15px;
-    color: #777;
-    border-left: 4px solid #ddd;
+    color: var(--color-text-secondary);
+    border-left: 4px solid var(--color-border-primary);
   }
 
   .markdown-body blockquote > :first-child {
@@ -460,22 +475,22 @@
   .markdown-body table th,
   .markdown-body table td {
     padding: 6px 13px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
   }
 
   .markdown-body table tr {
-    background-color: #fff;
-    border-top: 1px solid #ccc;
+    background-color: var(--color-background-primary);
+    border-top: 1px solid var(--color-border-tertiary);
   }
 
   .markdown-body table tr:nth-child(2n) {
-    background-color: #f8f8f8;
+    background-color: var(--color-background-secondary);
   }
 
   .markdown-body img {
     max-width: 100%;
     box-sizing: content-box;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
 
   .markdown-body code {
@@ -539,13 +554,13 @@
     padding: 3px 5px;
     font-size: 11px;
     line-height: 10px;
-    color: #555;
+    color: var(--color-text-title);
     vertical-align: middle;
-    background-color: #fcfcfc;
-    border: solid 1px #ccc;
-    border-bottom-color: #bbb;
+    background-color: var(--color-background-secondary);
+    border: solid 1px var(--color-border-tertiary);
+    border-bottom-color: var(--color-text-disabled);
     border-radius: 3px;
-    box-shadow: inset 0 -1px 0 #bbb;
+    box-shadow: inset 0 -1px 0 var(--color-text-disabled);
   }
 
   .markdown-body .pl-c {
@@ -564,7 +579,7 @@
 
   .markdown-body .pl-s .pl-s1,
   .markdown-body .pl-smi {
-    color: #151515;
+    color: var(--color-text-title);
   }
 
   .markdown-body .pl-ent {
@@ -590,12 +605,12 @@
   }
 
   .markdown-body .pl-id {
-    color: #b52a1d;
+    color: var(--color-error-hover);
   }
 
   .markdown-body .pl-ii {
-    background-color: #b52a1d;
-    color: #f8f8f8;
+    background-color: var(--color-error-hover);
+    color: var(--color-background-secondary);
   }
 
   .markdown-body .pl-sr .pl-cce {
@@ -615,27 +630,27 @@
   }
 
   .markdown-body .pl-mq {
-    color: #008080;
+    color: var(--color-cyan);
   }
 
   .markdown-body .pl-mi {
-    color: #151515;
+    color: var(--color-text-title);
     font-style: italic;
   }
 
   .markdown-body .pl-mb {
-    color: #151515;
+    color: var(--color-text-title);
     font-weight: bold;
   }
 
   .markdown-body .pl-md {
-    background-color: #ffecec;
-    color: #bd2c00;
+    background-color: var(--color-error-bg);
+    color: var(--color-error-hover);
   }
 
   .markdown-body .pl-mi1 {
     background-color: #eaffea;
-    color: #55a532;
+    color: var(--color-success);
   }
 
   .markdown-body .pl-mdr {
@@ -650,15 +665,20 @@
   .markdown-body kbd {
     display: inline-block;
     padding: 3px 5px;
-    font: 11px Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font:
+      11px Consolas,
+      'Liberation Mono',
+      Menlo,
+      Courier,
+      monospace;
     line-height: 10px;
-    color: #555;
+    color: var(--color-text-title);
     vertical-align: middle;
-    background-color: #fcfcfc;
-    border: solid 1px #ccc;
-    border-bottom-color: #bbb;
+    background-color: var(--color-background-secondary);
+    border: solid 1px var(--color-border-tertiary);
+    border-bottom-color: var(--color-text-disabled);
     border-radius: 3px;
-    box-shadow: inset 0 -1px 0 #bbb;
+    box-shadow: inset 0 -1px 0 var(--color-text-disabled);
   }
 
   .markdown-body .task-list-item {
@@ -677,13 +697,13 @@
   .markdown-body :checked + .radio-label {
     z-index: 1;
     position: relative;
-    border-color: #4078c0;
+    border-color: var(--color-link-hover);
   }
 
   .markdown-body code,
   .markdown-body tt {
-    background-color: #f8f8f8;
-    border: 1px solid #eaeaea;
+    background-color: var(--color-background-secondary);
+    border: 1px solid var(--color-border-secondary);
     border-radius: 3px 3px 3px 3px;
     margin: 0 2px;
     padding: 0 5px;
@@ -731,7 +751,7 @@
   }
   code[class*='language-'],
   pre[class*='language-'] {
-    color: #ccc;
+    color: var(--color-text-placeholder);
     background: none;
     font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
     font-size: 1em;
@@ -761,7 +781,7 @@
 
   :not(pre) > code[class*='language-'],
   pre[class*='language-'] {
-    background: #2d2d2d;
+    background: var(--color-background-inverse);
   }
 
   /* Inline code */
@@ -776,35 +796,35 @@
   .token.prolog,
   .token.doctype,
   .token.cdata {
-    color: #999;
+    color: var(--color-text-tertiary);
   }
 
   .token.punctuation {
-    color: #ccc;
+    color: var(--color-text-placeholder);
   }
 
   .token.tag,
   .token.attr-name,
   .token.namespace,
   .token.deleted {
-    color: #e2777a;
+    color: var(--color-error);
   }
 
   .token.function-name {
-    color: #6196cc;
+    color: var(--color-primary-light);
   }
 
   .token.boolean,
   .token.number,
   .token.function {
-    color: #f08d49;
+    color: var(--color-warning);
   }
 
   .token.property,
   .token.class-name,
   .token.constant,
   .token.symbol {
-    color: #f8c555;
+    color: var(--color-warning-border);
   }
 
   .token.selector,
@@ -812,7 +832,7 @@
   .token.atrule,
   .token.keyword,
   .token.builtin {
-    color: #cc99cd;
+    color: var(--color-mingo-transparent);
   }
 
   .token.string,
@@ -820,13 +840,13 @@
   .token.attr-value,
   .token.regex,
   .token.variable {
-    color: #7ec699;
+    color: var(--color-task);
   }
 
   .token.operator,
   .token.entity,
   .token.url {
-    color: #67cdcc;
+    color: var(--color-cyan);
   }
 
   .token.important,

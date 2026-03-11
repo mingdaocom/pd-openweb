@@ -7,6 +7,7 @@ import { LoadDiv, SvgIcon } from 'ming-ui';
 import sheetApi from 'src/api/worksheet';
 import { SHARE_STATE, ShareState, VerificationPass } from 'worksheet/components/ShareState';
 import preall from 'src/common/preall';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import globalEvents from 'src/router/globalEvents';
 import { getTranslateInfo, shareGetAppLangDetail } from 'src/utils/app';
 import { getRequest } from 'src/utils/common';
@@ -18,7 +19,7 @@ const Wrap = styled.div`
     padding: 0 24px;
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.16);
     justify-content: space-between;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     z-index: 1;
   }
   .header,
@@ -32,7 +33,7 @@ const Wrap = styled.div`
   .SingleViewHeader {
     height: 44px;
     padding: 0 24px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     .icon-task-later,
     .addRecord {
       display: none;
@@ -56,49 +57,59 @@ const Entry = () => {
   const { showHeader } = getRequest();
   const [loading, setLoading] = useState(true);
   const [share, setShare] = useState({});
+  const [errorCode, setErrorCode] = useState(null);
 
   useEffect(() => {
     const clientId = sessionStorage.getItem(shareId);
     window.clientId = clientId;
     getShareInfoByShareId({
       clientId,
-    }).then(async result => {
-      const { data } = result;
-      const { projectId } = data || {};
-      localStorage.setItem('currentProjectId', projectId);
-      preall(
-        { type: 'function' },
-        {
-          allowNotLogin: true,
-          requestParams: { projectId },
-        },
-      );
-      setShare(result);
-      setLoading(false);
-    });
+    })
+      .then(async result => {
+        const { data = {} } = result;
+        const { projectId } = data || {};
+        localStorage.setItem('currentProjectId', projectId);
+        preall(
+          { type: 'function' },
+          {
+            allowNotLogin: true,
+            requestParams: { projectId },
+          },
+        );
+        setShare(result);
+        setLoading(false);
+      })
+      .catch(err => {
+        setLoading(false);
+        setErrorCode(err.errorCode);
+      });
     globalEvents();
   }, []);
 
   const getShareInfoByShareId = data => {
-    return new Promise(async resolve => {
-      const result = await sheetApi.getShareInfoByShareId({ shareId, ...data });
-      const clientId = _.get(result, 'data.clientId');
-      const { appId, projectId } = result.data;
-      window.clientId = clientId;
-      clientId && sessionStorage.setItem(shareId, clientId);
-      if (result.resultCode === 1) {
-        const lang = await shareGetAppLangDetail({
-          projectId,
-          appId,
-        });
-        if (lang) {
-          window.appInfo = { id: appId };
-          data.appName = getTranslateInfo(appId, null, appId).name || data.appName;
-          data.worksheetName = getTranslateInfo(appId, null, data.worksheetId).name || data.worksheetName;
-          data.viewName = getTranslateInfo(appId, null, data.viewId).name || data.viewName;
+    return new Promise(async (resolve, reject) => {
+      try {
+        const result = await sheetApi.getShareInfoByShareId({ shareId, ...data });
+        const clientId = _.get(result, 'data.clientId');
+        window.clientId = clientId;
+        clientId && sessionStorage.setItem(shareId, clientId);
+        if (result.resultCode === 1) {
+          const { appId, projectId } = result.data;
+          const lang = await shareGetAppLangDetail({
+            projectId,
+            appId,
+          });
+          if (lang) {
+            window.appInfo = { id: appId };
+            data.appName = getTranslateInfo(appId, null, appId).name || data.appName;
+            data.worksheetName = getTranslateInfo(appId, null, data.worksheetId).name || data.worksheetName;
+            data.viewName = getTranslateInfo(appId, null, data.viewId).name || data.viewName;
+          }
         }
+        resolve(result);
+      } catch (err) {
+        reject(err);
       }
-      resolve(result);
     });
   };
 
@@ -108,6 +119,10 @@ const Entry = () => {
         <LoadDiv />
       </div>
     );
+  }
+
+  if (errorCode === 300016) {
+    return <RestrictAccessStatus />;
   }
 
   const renderContent = () => {

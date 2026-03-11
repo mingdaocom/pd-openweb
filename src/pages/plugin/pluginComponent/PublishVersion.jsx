@@ -22,7 +22,7 @@ const FormItem = styled.div`
     font-weight: 500;
     margin-bottom: 10px;
     .requiredStar {
-      color: #f44336;
+      color: var(--color-error);
       margin-left: -4px;
     }
   }
@@ -38,13 +38,13 @@ const FormItem = styled.div`
     .ant-select-selector {
       min-height: 36px;
       padding: 2px 11px !important;
-      border: 1px solid #ccc !important;
+      border: 1px solid var(--color-border-tertiary) !important;
       border-radius: 3px !important;
       box-shadow: none !important;
     }
     &.ant-select-focused {
       .ant-select-selector {
-        border-color: #1e88e5 !important;
+        border-color: var(--color-primary) !important;
       }
     }
   }
@@ -249,7 +249,7 @@ export default function PublishVersion(props) {
           value={formData.v3}
           onChange={value => onChangeVersionValue(value, 'v3')}
         />
-        {!!latestVersion && <span className="Gray_75 mLeft12">{_l('版本号必须大于：') + latestVersion}</span>}
+        {!!latestVersion && <span className="textSecondary mLeft12">{_l('版本号必须大于：') + latestVersion}</span>}
       </FormItem>
       <FormItem>
         <div className="labelText">
@@ -272,7 +272,7 @@ export default function PublishVersion(props) {
             }}
           />
           <div
-            className="mTop12 InlineBlock pointer Gray_75 Hover_21"
+            className="mTop12 InlineBlock pointer textSecondary hoverColorPrimary"
             onClick={() => {
               textareaRef.current.setValue(defaultConfigValue);
               setFormData({ configuration: defaultConfigValue });

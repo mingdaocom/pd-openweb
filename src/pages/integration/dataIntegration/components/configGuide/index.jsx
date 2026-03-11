@@ -15,7 +15,7 @@ import SqlServerGuide from './SqlServer';
 
 const TabList = styled.div`
   box-sizing: border-box;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-border-primary);
 
   ul {
     /* text-align: center; */
@@ -25,15 +25,15 @@ const TabList = styled.div`
       box-sizing: border-box;
       border-bottom: 3px solid rgba(0, 0, 0, 0);
       a {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         display: inline-block;
         font-size: 13px;
         padding-bottom: 8px;
       }
       &.isCur {
-        border-bottom: 3px solid #1677ff;
+        border-bottom: 3px solid var(--color-primary);
         a {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }

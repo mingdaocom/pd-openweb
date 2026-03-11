@@ -14,7 +14,7 @@ export const formatInboxItem = function (inboxItem) {
   switch (inboxType) {
     // 私信 deprecated
     case MSGTYPES.UserMessage:
-      typeName = "<span class='Gray_9'>" + _l('对你说') + '</span>';
+      typeName = "<span class='textTertiary'>" + _l('对你说') + '</span>';
       break;
     // 各种系统消息
     case MSGTYPES.SystemMessage:
@@ -31,10 +31,10 @@ export const formatInboxItem = function (inboxItem) {
       typeName = '';
       break;
     case MSGTYPES.AttendanceMessage:
-      typeName = "<span class='Gray_9'>" + _l('考勤消息') + '</span>';
+      typeName = "<span class='textTertiary'>" + _l('考勤消息') + '</span>';
       break;
     case MSGTYPES.DossierMessage:
-      typeName = "<span class='Gray_9'>" + _l('人事消息') + '</span>';
+      typeName = "<span class='textTertiary'>" + _l('人事消息') + '</span>';
       break;
     // 动态消息
     case MSGTYPES.PostMentionedUser:

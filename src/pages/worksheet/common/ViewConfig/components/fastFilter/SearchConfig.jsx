@@ -10,7 +10,7 @@ const TEXT_TYPE_CONTROL = [2, 3, 4, 5, 7, 32, 33];
 const ConfigWrap = styled.div`
   padding-bottom: 24px;
   .lineBox {
-    border-top: 1px solid #dddddd;
+    border-top: 1px solid var(--color-border-primary);
     margin: 32px 0;
   }
   .title {

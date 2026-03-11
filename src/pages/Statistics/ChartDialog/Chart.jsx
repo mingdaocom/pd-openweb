@@ -24,9 +24,9 @@ const VerticalDrag = styled.div(
   width: 100%;
   height: 2px;
   cursor: ns-resize;
-  background-color: #ccc;
+  background-color: var(--color-text-placeholder);
   &:hover {
-    background-color: #ddd;
+    background-color: var(--color-border-primary);
   }
 `,
 );
@@ -39,9 +39,9 @@ const HorizontalDrag = styled.div(
   width: 2px;
   height: 100%;
   cursor: ew-resize;
-  background-color: #ccc;
+  background-color: var(--color-text-placeholder);
   &:hover {
-    background-color: #ddd;
+    background-color: var(--color-border-primary);
   }
 `,
 );
@@ -277,7 +277,7 @@ export default class Chart extends Component {
             <Fragment>
               {this.renderChart()}
               {idVisible && !_.get(window, 'shareState.shareId') && (
-                <div className="flexRow mTop10 Gray_9e Font13 userInfo">
+                <div className="flexRow mTop10 textTertiary Font13 userInfo">
                   <span className="mRight25 ellipsis" style={{ maxWidth: 280 }}>
                     {_l('创建人')}: {createdBy.fullName}
                   </span>

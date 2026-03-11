@@ -12,7 +12,7 @@ export default ({ item, type }) => {
       className={cx('flexColumn nameBox ThemeColor3', { unable: !item.enabled })}
     >
       <div className="ellipsis Font14">{item.name}</div>
-      <div className="ellipsis Font12 Gray_bd">{item.explain}</div>
+      <div className="ellipsis Font12 textDisabled">{item.explain}</div>
     </MdLink>
   );
 };

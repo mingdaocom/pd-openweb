@@ -7,8 +7,8 @@ export default function () {
       <div>
         <Icon icon="manage" className="icon InlineBlock" />
       </div>
-      <div className="pTop20 Font17 Gray_9e">{_l('暂无下属')}</div>
-      <div className="mTop10 Font15 Gray_9e">{_l('点击上方 + 添加下属')}</div>
+      <div className="pTop20 Font17 textTertiary">{_l('暂无下属')}</div>
+      <div className="mTop10 Font15 textTertiary">{_l('点击上方 + 添加下属')}</div>
     </div>
   );
 }

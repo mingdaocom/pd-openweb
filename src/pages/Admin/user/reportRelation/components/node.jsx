@@ -216,10 +216,10 @@ class Node extends Component {
       return (
         <div className="rootNodeItem">
           <div className="Font24 pLeft8">
-            <Icon icon="business" className="TxtMiddle Gray_9e" />
+            <Icon icon="business" className="TxtMiddle textTertiary" />
             <span className="Font16 TxtMiddle mLeft10 mRight10">{this.props.fullname}</span>
             {auth ? (
-              <span className="Hand Font14 TxtMiddle Gray_9e" onClick={this.add.bind(this)}>
+              <span className="Hand Font14 TxtMiddle textTertiary" onClick={this.add.bind(this)}>
                 <Icon className="Font24 mRight10 TxtMiddle" icon="add-member2" />
                 <span className="TxtMiddle">{_l('添加下属')}</span>
               </span>

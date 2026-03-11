@@ -120,7 +120,7 @@ export default class PortalUserSet extends Component {
         // 清除不走缓存
         window.clearLocalDataTime({
           requestData: { worksheetId: worksheetId },
-          clearSpecificKey: 'Worksheet_GetWorksheetInfo',
+          clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetBaseInfo'],
         });
         removePssId();
         //删除自动登录的key
@@ -178,7 +178,7 @@ export default class PortalUserSet extends Component {
   render() {
     const {
       name,
-      iconColor = '#1677ff',
+      iconColor = 'var(--color-primary)',
       showUserInfo,
       showUserInfoDialog,
       currentData,
@@ -212,7 +212,7 @@ export default class PortalUserSet extends Component {
             <div className="headerCenter">
               <div
                 className={cx('appName Font16 Hand', { appNameM: isMobile })}
-                style={{ color: isMobile ? '#151515' : '#fff' }}
+                style={{ color: isMobile ? 'var(--color-text-title)' : '#fff' }}
               >
                 {this.props.name || name}
               </div>
@@ -235,7 +235,7 @@ export default class PortalUserSet extends Component {
                       [1, 3].includes(currentPcNaviStyle) ? 'mLeft20 mRight20' : 'mRight20',
                     )}
                   >
-                    <Icon icon="language" className="Font20 White pointer" />
+                    <Icon icon="language" className="Font20 textWhite pointer" />
                   </div>
                 </Tooltip>
               </LanguageList>
@@ -281,7 +281,7 @@ export default class PortalUserSet extends Component {
                     this.setState({ showUserInfo: false });
                   }}
                 >
-                  <Icon icon="backspace mRight8 Gray_9e" />
+                  <Icon icon="backspace mRight8 textTertiary" />
                   {_l('我的账户')}
                 </span>
               </React.Fragment>
@@ -303,7 +303,7 @@ export default class PortalUserSet extends Component {
                 </span>
               </div>
               <div className={cx('email mTop32')}>
-                <span className="title Gray_9e Block w100">{_l('手机号')}</span>
+                <span className="title textTertiary Block w100">{_l('手机号')}</span>
                 <span className="telNumber mTop10 Block">
                   {(currentData.find(o => o.alias === 'mobilephone') || {}).value}
                   <span
@@ -322,7 +322,7 @@ export default class PortalUserSet extends Component {
                 </span>
               </div>
               <div className={cx('tel mTop24')}>
-                <span className="title Gray_9e Block w100">{_l('邮箱')}</span>
+                <span className="title textTertiary Block w100">{_l('邮箱')}</span>
                 <span className="telNumber mTop10 Block">
                   {(currentData.find(o => o.controlId === 'portal_email') || {}).value}
                   <span
@@ -341,10 +341,10 @@ export default class PortalUserSet extends Component {
                 </span>
               </div>
               <div className={cx('tel mTop24')}>
-                <span className="title Gray_9e Block w100">{_l('密码')}</span>
+                <span className="title textTertiary Block w100">{_l('密码')}</span>
                 <span
                   className={cx('telNumber Block mTop10', {
-                    Gray_bd: !this.state.hasPassword,
+                    textDisabled: !this.state.hasPassword,
                   })}
                 >
                   {this.state.hasPassword ? _l('已设置') : _l('未设置')}
@@ -361,7 +361,7 @@ export default class PortalUserSet extends Component {
                 </span>
               </div>
               <div className={cx('tel alignItemsCenter mTop24')}>
-                <span className="title Gray_9e Block w100">{_l('语言设置')}</span>
+                <span className="title textTertiary Block w100">{_l('语言设置')}</span>
                 <div className="languagueSetting flexRow mTop10">
                   {langConfig.map(item => {
                     return (
@@ -402,9 +402,9 @@ export default class PortalUserSet extends Component {
                   .map(o => {
                     return (
                       <div className="tel flexRow mTop10">
-                        <span className="title InlineBlock Gray_9e WordBreak">{o.controlName}</span>
+                        <span className="title InlineBlock textTertiary WordBreak">{o.controlName}</span>
                         <span className={cx('flex mLeft24 rInfo', { isOption: [9, 10, 11].includes(o.type) })}>
-                          {renderText({ ...o })}
+                          {renderText({ ...o }, { appId })}
                         </span>
                       </div>
                     );
@@ -501,7 +501,7 @@ export default class PortalUserSet extends Component {
             }}
           >
             <div className="flexRow header">
-              <div className="Font13 Gray_9e flex">{_l('更多')}</div>
+              <div className="Font13 textTertiary flex">{_l('更多')}</div>
               <div
                 className="closeIcon"
                 onClick={() => {
@@ -510,7 +510,7 @@ export default class PortalUserSet extends Component {
                   });
                 }}
               >
-                <Icon icon="close" className="Font17 Gray_9e bold" />
+                <Icon icon="close" className="Font17 textTertiary bold" />
               </div>
             </div>
             <div className="actionContent">

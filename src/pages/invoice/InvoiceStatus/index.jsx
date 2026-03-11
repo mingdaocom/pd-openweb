@@ -64,8 +64,8 @@ export default function InvoiceStatus(props) {
       let actionHandler = ActionSheet.show({
         extra: (
           <div className="flexColumn w100">
-            <div className="bold Gray Font17 pTop10">{_l('取消申请')}</div>
-            <div className="pTop10 Gray_75">{_l('确定取消申请该发票吗？')}</div>
+            <div className="bold textPrimary Font17 pTop10">{_l('取消申请')}</div>
+            <div className="pTop10 textSecondary">{_l('确定取消申请该发票吗？')}</div>
             <div className="invoiceStatusFooterBtns mTop24">
               <Button radius className="cancelBtn flex" onClick={() => actionHandler.close()}>
                 {_l('取消')}
@@ -125,36 +125,39 @@ export default function InvoiceStatus(props) {
     return (
       <Fragment>
         <div className={`flexRow alignItemsCenter ${isLandPage ? 'mBottom4' : 'mBottom12'}`}>
-          <span className="Gray_75 bold">{_l('发票金额：')}</span>
-          <span style={{ color: isLandPage ? '#4CAF50' : '#151515' }} className={cx('bold', { Font24: isLandPage })}>
+          <span className="textSecondary bold">{_l('发票金额：')}</span>
+          <span
+            style={{ color: isLandPage ? 'var(--color-success)' : 'var(--color-text-title)' }}
+            className={cx('bold', { Font24: isLandPage })}
+          >
             {'￥' + (price || '0')}
           </span>
         </div>
         <div className="mBottom12">
-          <span className="Gray_75 bold">{_l('抬头类型：')}</span>
+          <span className="textSecondary bold">{_l('抬头类型：')}</span>
           <span>{invoiceOutputType === 1 ? _l('企业') : _l('个人')}</span>
         </div>
         <div className="mBottom12">
-          <span className="Gray_75 bold">{_l('发票抬头：')}</span>
+          <span className="textSecondary bold">{_l('发票抬头：')}</span>
           <span>{invoiceTitle}</span>
         </div>
 
         {fromType === 'confirm' && (
           <div className="mBottom12">
-            <span className="Gray_75 bold">{_l('发票内容：')}</span>
+            <span className="textSecondary bold">{_l('发票内容：')}</span>
             <span>{_l('按类目汇总')}</span>
           </div>
         )}
 
         {invoiceOutputType === 1 && (
           <div className="mBottom12">
-            <span className="Gray_75 bold">{_l('税号：')}</span>
+            <span className="textSecondary bold">{_l('税号：')}</span>
             <span>{taxPayerNo}</span>
           </div>
         )}
 
         <div>
-          <span className="Gray_75 bold">{_l('申请时间：')}</span>
+          <span className="textSecondary bold">{_l('申请时间：')}</span>
           <span>{moment(createTime).format('YYYY-MM-DD HH:mm:ss')}</span>
         </div>
       </Fragment>
@@ -206,7 +209,7 @@ export default function InvoiceStatus(props) {
           <Icon className="Font50" style={{ color: statusInfo.color }} icon={statusInfo.icon} />
           <div className="mTop16 Font28 bold">{statusInfo.title}</div>
           {((status === INVOICE_STATUS.UN_INVOICED && invoiceRemark) || isError) && (
-            <div className="Gray_75 mTop12">
+            <div className="textSecondary mTop12">
               {isError
                 ? fromType === 'confirm'
                   ? message
@@ -243,14 +246,16 @@ export default function InvoiceStatus(props) {
   ) : (
     <Popup position="bottom" className="mobileModal topRadius" visible onMaskClick={onCancel}>
       <div className="flexRow header LineHeight24 pBottom0">
-        <div className={`Font20 bold ${status === INVOICE_STATUS.FAILED ? 'Red' : 'Gray'}`}>{statusInfo.title}</div>
+        <div className={`Font20 bold ${status === INVOICE_STATUS.FAILED ? 'Red' : 'textPrimary'}`}>
+          {statusInfo.title}
+        </div>
         <div className="closeIcon TxtCenter" onClick={onCancel}>
           <icon className="icon icon-close" />
         </div>
       </div>
       <div className="pLeft15 pRight15">
         {status === INVOICE_STATUS.UN_INVOICED && invoiceRemark && (
-          <div className="Gray_75 mTop12">{invoiceRemark}</div>
+          <div className="textSecondary mTop12">{invoiceRemark}</div>
         )}
         <div className="mTop16">{renderContent()}</div>
       </div>

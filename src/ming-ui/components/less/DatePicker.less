@@ -1,6 +1,8 @@
 @import '/src/common/mdcss/Themes/themeVariables.less';
 @datepicker-radius: 3px;
-@datepicker-shadow: 0 4px 16px 1px rgba(0, 0, 0, 0.24), 0 0 1px 0 rgba(0, 0, 0, 0.12);
+@datepicker-shadow:
+  0 4px 16px 1px rgba(0, 0, 0, 0.24),
+  0 0 1px 0 rgba(0, 0, 0, 0.12);
 @datepicker-border: 1px solid @grayLighter;
 @datepicker-panel-width: 246px;
 
@@ -22,7 +24,7 @@
   list-style: none;
   font-size: 12px;
   text-align: left;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   border-radius: 3px;
   box-shadow: @datepicker-shadow;
   background-clip: padding-box;
@@ -51,7 +53,7 @@
     }
 
     .@{prefixClass}-content {
-      color: #000;
+      color: var(--color-text-primary);
       & > span {
         display: inline-block;
         margin-left: 4px;
@@ -133,9 +135,9 @@
       float: left;
       user-select: none;
       cursor: pointer;
-      color: #151515;
+      color: var(--color-text-title);
       &:hover {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-hover);
       }
       &.active {
         color: @themeColor3;
@@ -164,9 +166,9 @@
       float: left;
       user-select: none;
       cursor: pointer;
-      color: #151515;
+      color: var(--color-text-title);
       &:hover {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-hover);
       }
       &.active {
         color: @themeColor3;
@@ -175,7 +177,7 @@
   }
 
   .calender-task-header {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
     border-radius: 3px 0 0 3px;
     &:after {
       content: '';
@@ -232,7 +234,7 @@
     line-height: 24px;
     text-align: center;
     &:hover {
-      background-color: #e0e0e0;
+      background-color: var(--color-background-hover);
     }
   }
 
@@ -244,11 +246,11 @@
 
   &-disabled-cell &-date:hover {
     cursor: not-allowed;
-    background: #fff;
+    background: var(--color-background-primary);
   }
 
   &-selected-date &-date {
-    color: #fff !important;
+    color: var(--color-white) !important;
     background-color: @themeColor3;
   }
 
@@ -262,7 +264,7 @@
   }
 
   &-footer {
-    border-top: 1px solid #ccc;
+    border-top: 1px solid var(--color-border-tertiary);
     text-align: center;
     position: relative;
     background-color: @grayLightest;
@@ -282,7 +284,7 @@
       font-size: 24px;
       text-align: center;
       line-height: 30px;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       user-select: none;
       cursor: pointer;
       &:hover {
@@ -334,7 +336,7 @@
     text-shadow: none;
     border: none;
     border-radius: 3px;
-    color: white;
+    color: var(--color-white);
     cursor: pointer;
     user-select: none;
     background: @themeColor3;

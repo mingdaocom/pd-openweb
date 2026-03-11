@@ -1,4 +1,4 @@
-﻿import React, { Component } from 'react';
+import React, { Component } from 'react';
 import cx from 'classnames';
 import _, { find, get } from 'lodash';
 import PropTypes from 'prop-types';
@@ -7,10 +7,11 @@ import { Button, Dialog, EditingBar, WaterMark } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
 import paymentAjax from 'src/api/payment.js';
 import worksheetAjax from 'src/api/worksheet';
+import DragCore from 'worksheet/common/DragCore';
 import DragMask from 'worksheet/common/DragMask';
 import { RECORD_INFO_FROM, RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { checkRuleLocked } from 'src/components/Form/core/formUtils';
-import { getTitleTextFromControls, isPublicLink } from 'src/components/Form/core/utils';
+import { isPublicLink } from 'src/components/Form/core/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import SheetWorkflow from 'src/pages/workflow/components/SheetWorkflow';
@@ -22,7 +23,7 @@ import {
   removeTempRecordValueFromLocal,
   saveTempRecordValueToLocal,
 } from 'src/utils/common';
-import { isRelateRecordTableControl, updateOptionsOfControls } from 'src/utils/control';
+import { getTitleTextFromControls, isRelateRecordTableControl, updateOptionsOfControls } from 'src/utils/control';
 import { VersionProductType } from 'src/utils/enum';
 import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
 import { getRecordTempValue } from 'src/utils/record';
@@ -37,14 +38,14 @@ import './RecordInfo.less';
 
 const SIDE_MIN_WIDTH = 200 + 226;
 
-const Drag = styled.div`
+const Drag = styled(DragCore)`
   z-index: 11;
   width: 10px;
   height: 100%;
   margin-right: -10px;
   cursor: ew-resize;
   &:hover {
-    border-left: 2px solid #ddd;
+    border-left: 2px solid var(--color-border-primary);
   }
 `;
 
@@ -55,7 +56,7 @@ const LoadMask = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--color-background-overlay-white);
   z-index: 2;
 `;
 
@@ -361,7 +362,6 @@ export default class RecordInfo extends Component {
     needReLoadSheetSwitch,
     closeWhenNotViewData,
     needUpdateControlIds,
-    isRefresh,
     cb = _.noop,
   }) {
     const {
@@ -1146,9 +1146,11 @@ export default class RecordInfo extends Component {
       workflowStatus,
       hideFormHeader,
       isRelateRecord,
+      didMountTimestamp,
       customBtnTriggerCb = () => {},
       worksheetInfo = {},
       printCharge,
+      setModalRightComp = () => {},
     } = this.props;
     const {
       loading,
@@ -1205,6 +1207,7 @@ export default class RecordInfo extends Component {
       this.props.recordTitle ||
       getTitleTextFromControls(tempFormData, undefined, undefined, {
         noMask: showFullValue,
+        appId,
       });
 
     const recordbase = {
@@ -1281,6 +1284,7 @@ export default class RecordInfo extends Component {
           {this.renderDialogs()}
           {(from !== RECORD_INFO_FROM.WORKFLOW || viewId) && !hideEditingBar && (
             <EditingBar
+              didMountTimestamp={didMountTimestamp}
               okDisabled={!iseditting}
               loading={submitLoading}
               style={{ left: formSectionWidth, width: width - formSectionWidth - (sideVisible ? sideWidth : 0) }}
@@ -1343,6 +1347,8 @@ export default class RecordInfo extends Component {
                 <Header
                   isCharge={isCharge}
                   printCharge={printCharge}
+                  recordTitle={recordTitle}
+                  worksheetInfo={worksheetInfo}
                   from={from}
                   isRecordLock={isRecordLock}
                   sideBarBtnVisible={recordinfo.resultCode === 1}
@@ -1436,6 +1442,7 @@ export default class RecordInfo extends Component {
                     });
                   }}
                   updateRecordLock={this.updateRecordLock}
+                  setModalRightComp={setModalRightComp}
                 />
               )}
             <div className="recordBody flex flexRow">
@@ -1595,8 +1602,8 @@ export default class RecordInfo extends Component {
               />
               {sideVisible && (
                 <Drag
-                  ref={drag => (this.drag = drag)}
-                  onMouseDown={() => {
+                  setRef={drag => (this.drag = drag)}
+                  onDrag={() => {
                     let newDragLeft = formWidth;
                     try {
                       newDragLeft =
@@ -1610,6 +1617,11 @@ export default class RecordInfo extends Component {
                       dragMaskVisible: true,
                       dragLeft: newDragLeft,
                     });
+                  }}
+                  onDBClick={() => {
+                    // set min width and save to local storage
+                    safeLocalStorageSetItem('RECORD_INFO_SIDE_WIDTH', SIDE_MIN_WIDTH);
+                    this.setState({ sideWidth: SIDE_MIN_WIDTH, dragMaskVisible: false });
                   }}
                 />
               )}

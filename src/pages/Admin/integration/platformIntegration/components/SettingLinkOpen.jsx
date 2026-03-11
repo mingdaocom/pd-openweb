@@ -26,7 +26,7 @@ function SettingLinkOpen(props) {
 
   return (
     <div className={cx('stepItem', className)}>
-      <h3 className="stepTitle Font16 Gray pBottom5">{_l('消息链接')}</h3>
+      <h3 className="stepTitle Font16 textPrimary pBottom5">{_l('消息链接')}</h3>
       {messageLinkTypes.map(item => {
         return (
           <Radio

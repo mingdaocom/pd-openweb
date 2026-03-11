@@ -122,9 +122,9 @@ export default class PageTableCon extends Component {
                 <Tooltip title={_l('自定义显示列')}>
                   <Icon
                     icon="visibility"
-                    className={cx('Hover_21', {
-                      Gray_bd: checkedCols.length === this.state.columns.length,
-                      ThemeColor: checkedCols.length !== this.state.columns.length,
+                    className={cx('hoverColorPrimary', {
+                      textDisabled: checkedCols.length === this.state.columns.length,
+                      colorPrimary: checkedCols.length !== this.state.columns.length,
                     })}
                   />
                 </Tooltip>
@@ -170,15 +170,17 @@ export default class PageTableCon extends Component {
                 columns={columns.map(item => ({
                   ...item,
                   onCell: () => {
-                    return {
-                      style: {
-                        maxWidth: item.width || 150,
-                        minWidth: item.width || 150,
-                        overflow: 'hidden',
-                        whiteSpace: 'nowrap',
-                        textOverflow: 'ellipsis',
-                      },
+                    const cellStyle = {
+                      minWidth: item.minWidth || item.width || 150,
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap',
+                      textOverflow: 'ellipsis',
                     };
+                    // Firefox 对表格单元格的 fit-content 支持有问题，需要特殊处理
+                    if (item.width !== 'fit-content') {
+                      cellStyle.maxWidth = item.width || 150;
+                    }
+                    return { style: cellStyle };
                   },
                 }))}
                 dataSource={dataSource}
@@ -205,9 +207,9 @@ export default class PageTableCon extends Component {
               <Tooltip title={_l('自定义显示列')}>
                 <Icon
                   icon="visibility"
-                  className={cx('Hover_21', {
-                    Gray_bd: checkedCols.length === this.state.columns.length,
-                    ThemeColor: checkedCols.length !== this.state.columns.length,
+                  className={cx('hoverColorPrimary', {
+                    textDisabled: checkedCols.length === this.state.columns.length,
+                    colorPrimary: checkedCols.length !== this.state.columns.length,
                   })}
                 />
               </Tooltip>

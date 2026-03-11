@@ -9,8 +9,10 @@ import { LoadDiv, SvgIcon } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
 import { SHARE_STATE, ShareState, VerificationPass } from 'worksheet/components/ShareState';
 import preall from 'src/common/preall';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import { changeAppColor, syncAppDetail } from 'src/pages/PageHeader/redux/action';
 import store from 'src/redux/configureStore';
+import globalEvents from 'src/router/globalEvents';
 import { getTranslateInfo, shareGetAppLangDetail } from 'src/utils/app';
 import { browserIsMobile, getRequest } from 'src/utils/common';
 import './index.less';
@@ -21,7 +23,7 @@ const Wrap = styled.div`
     padding: 0 24px;
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.16);
     justify-content: space-between;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     z-index: 1;
   }
 `;
@@ -34,6 +36,7 @@ const Entry = () => {
   const id = pathname[pathname.length - 1];
   const [loading, setLoading] = useState(true);
   const [share, setShare] = useState({});
+  const [errorCode, setErrorCode] = useState(null);
   const [Components, setComponents] = useState(null);
 
   useEffect(() => {
@@ -42,28 +45,33 @@ const Entry = () => {
 
     getEntityShareById({
       clientId,
-    }).then(async result => {
-      const { data = {} } = result;
-      const { projectId } = data;
-      localStorage.setItem('currentProjectId', projectId);
-      preall(
-        { type: 'function' },
-        {
-          allowNotLogin: true,
-          requestParams: { projectId },
-        },
-      );
+    })
+      .then(async result => {
+        const { data = {} } = result;
+        const { projectId } = data;
+        localStorage.setItem('currentProjectId', projectId);
+        preall(
+          { type: 'function' },
+          {
+            allowNotLogin: true,
+            requestParams: { projectId },
+          },
+        );
 
-      store.dispatch(
-        syncAppDetail({
-          name: data.appName,
-          projectId: data.projectId,
-        }),
-      );
-      store.dispatch(changeAppColor(''));
-      setShare(result);
-      setLoading(false);
-    });
+        store.dispatch(
+          syncAppDetail({
+            name: data.appName,
+            projectId: data.projectId,
+          }),
+        );
+        store.dispatch(changeAppColor(''));
+        setShare(result);
+        setLoading(false);
+      })
+      .catch(err => {
+        setLoading(false);
+        setErrorCode(err.errorCode);
+      });
 
     if (hideHeader === 'true') {
       setCookie('i18n_langtag', 'zh-Hans');
@@ -72,27 +80,33 @@ const Entry = () => {
     (isMobile ? import('src/pages/Mobile/CustomPage') : import('src/pages/customPage/pageContent')).then(res => {
       setComponents(res);
     });
+
+    globalEvents();
   }, []);
 
   const getEntityShareById = data => {
-    return new Promise(async resolve => {
-      const result = await appManagementApi.getEntityShareById({ id, sourceType: 21, ...data });
-      const clientId = _.get(result, 'data.clientId');
-      window.clientId = clientId;
-      clientId && sessionStorage.setItem(id, clientId);
-      if (result.resultCode === 1) {
-        const { appId, projectId } = result.data;
-        const info = await shareGetAppLangDetail({
-          appId,
-          projectId,
-        });
-        if (info) {
-          window.appInfo = { id: appId };
-          data.appName = getTranslateInfo(appId, null, appId).name || data.appName;
-          data.customerPageName = getTranslateInfo(appId, null, data.sourceId).name || data.customerPageName;
+    return new Promise(async (resolve, reject) => {
+      try {
+        const result = await appManagementApi.getEntityShareById({ id, sourceType: 21, ...data });
+        const clientId = _.get(result, 'data.clientId');
+        window.clientId = clientId;
+        clientId && sessionStorage.setItem(id, clientId);
+        if (result.resultCode === 1) {
+          const { appId, projectId } = result.data || {};
+          const info = await shareGetAppLangDetail({
+            appId,
+            projectId,
+          });
+          if (info) {
+            window.appInfo = { id: appId };
+            data.appName = getTranslateInfo(appId, null, appId).name || data.appName;
+            data.customerPageName = getTranslateInfo(appId, null, data.sourceId).name || data.customerPageName;
+          }
         }
+        resolve(result);
+      } catch (err) {
+        reject(err);
       }
-      resolve(result);
     });
   };
 
@@ -102,6 +116,10 @@ const Entry = () => {
         <LoadDiv />
       </div>
     );
+  }
+
+  if (errorCode === 300016) {
+    return <RestrictAccessStatus />;
   }
 
   const renderContent = () => {

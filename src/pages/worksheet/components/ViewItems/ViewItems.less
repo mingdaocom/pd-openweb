@@ -14,11 +14,11 @@
   }
   &::before {
     left: 0;
-    background-image: linear-gradient(to right, #fff 30%, rgba(255, 255, 255, 0) 100%);
+    background-image: linear-gradient(to right, var(--color-background-primary) 30%, rgba(255, 255, 255, 0) 100%);
   }
   &::after {
     right: 0;
-    background-image: linear-gradient(to left, #fff 30%, rgba(255, 255, 255, 0) 100%);
+    background-image: linear-gradient(to left, var(--color-background-primary) 30%, rgba(255, 255, 255, 0) 100%);
   }
   .viewsScroll {
     display: flex;
@@ -53,22 +53,22 @@
     .developIcon {
       font-size: 14px;
       margin: 0 6px 0 -6px;
-      color: #ff9300;
+      color: var(--color-warning);
     }
   }
   .deit {
     border: none;
     border-radius: 4px;
-    background-color: #eaeaea;
+    background-color: var(--color-border-secondary);
     padding: 2px 10px;
     width: 120px;
   }
   &:hover {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-hover);
   }
   &.active {
     .name {
-      color: #1677ff;
+      color: var(--color-primary);
       padding-right: 0;
     }
     .icon-arrow-down {
@@ -81,7 +81,7 @@
       left: 0;
       width: 100%;
       height: 3px;
-      background-color: #1677ff;
+      background-color: var(--color-primary);
     }
     &:hover {
       background-color: inherit;
@@ -91,9 +91,9 @@
     padding: 0 8px;
     display: none;
     font-size: 12px;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
     &:hover {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
   }
 }
@@ -102,7 +102,7 @@
   max-height: 400px;
   overflow-y: scroll;
   .active {
-    color: #1677ff;
+    color: var(--color-primary);
   }
 }
 
@@ -110,7 +110,7 @@
   position: relative;
   top: 3px;
   .splitLine {
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     border-top: none;
     margin: 3px 0;
   }
@@ -122,13 +122,13 @@
     .disabled {
       .icon,
       .text {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
     }
     .Icon {
       margin: 0 6px;
       vertical-align: middle;
-      color: #999;
+      color: var(--color-text-tertiary);
     }
     .Icon.Font16 {
       margin: 0 3px;
@@ -141,14 +141,14 @@
       .disabled {
         .icon,
         .text {
-          color: #bdbdbd;
+          color: var(--color-text-disabled);
         }
       }
     }
     &.delete {
       .Icon,
       .text {
-        color: #f44338 !important;
+        color: var(--color-error) !important;
       }
     }
   }
@@ -169,11 +169,10 @@
   }
 }
 .viewTypeMenuWrap.ant-menu {
-  background-color: #fff;
+  background-color: var(--color-background-card);
   padding: 6px 0;
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.13),
-    0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
+  border-right: none;
   .viewTypeItem.ant-menu-item {
     display: flex;
     align-items: center;
@@ -186,15 +185,15 @@
     cursor: pointer;
     margin: 0;
     &:hover {
-      background: rgba(0, 0, 0, 0.05);
+      background: var(--color-background-hover);
     }
     &.current {
-      background-color: #e0f4ff !important;
+      background-color: var(--color-primary-transparent) !important;
       .ming.Icon.icon.icon-done {
         font-size: 18px;
         left: unset;
         right: 13px;
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
 
@@ -207,7 +206,7 @@
 
     span.viewName {
       margin-left: 12px;
-      color: #151515;
+      color: var(--color-text-title);
     }
     .newIcon {
       display: flex;
@@ -233,13 +232,13 @@
     display: flex;
     align-items: center;
     padding-left: 20px;
-    color: #151515;
+    color: var(--color-text-title);
     margin-bottom: 6px;
     input {
       padding-left: 9px;
       border: none;
       &::-webkit-input-placeholder {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
     }
   }
@@ -252,7 +251,7 @@
     margin-bottom: 5px;
   }
   .drawerWorksheetHiddenHelper {
-    background-color: red;
+    background-color: var(--color-error);
   }
   .manageViewItem {
     padding: 0 16px;
@@ -261,10 +260,10 @@
     border-radius: 5px 5px 5px 5px;
     justify-content: center;
     border: 5px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     position: relative;
     .manageIcon {
-      color: #ff9300;
+      color: var(--color-warning);
     }
     .manageSettingIcon {
       position: absolute;
@@ -275,18 +274,18 @@
       line-height: 28px;
       display: none;
       &:hover {
-        background: #eeeeee !important;
+        background: var(--color-border-secondary) !important;
       }
     }
     &:hover {
-      border: 1px solid #dddddd;
+      border: 1px solid var(--color-border-primary);
       background: rgba(0, 0, 0, 0.04);
       .manageSettingIcon {
         display: block;
       }
     }
     &.active {
-      border: 1px solid #1677ff !important;
+      border: 1px solid var(--color-primary) !important;
     }
   }
 }
@@ -301,11 +300,9 @@
   }
 }
 .hiddenMenu.ant-menu {
-  background-color: #fff;
+  background-color: var(--color-background-card);
   padding: 6px 0;
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.13),
-    0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
   .hiddenMenuItem.ant-menu-item {
     display: flex;
     align-items: center;
@@ -318,21 +315,20 @@
     margin: 0;
     &:hover,
     &:active {
-      background: rgba(0, 0, 0, 0.05);
-      color: #151515;
+      background: var(--color-background-hover);
     }
   }
   .current.ant-menu-item {
-    background-color: #e0f4ff !important;
+    background-color: var(--color-primary-transparent) !important;
     .ming.Icon.icon.icon-done {
       font-size: 18px;
       left: unset;
       right: 13px;
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
   .splitLine {
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     border-top: none;
     margin: 6px 0;
   }
@@ -347,12 +343,12 @@
   align-items: center;
   font-size: 13px;
   cursor: pointer;
-  background-color: white;
+  background-color: var(--color-background-primary);
   position: relative;
   border-radius: 4px;
   .icon-drag {
     opacity: 0;
-    color: #9d9d9d;
+    color: var(--color-text-tertiary);
     font-size: 20px;
   }
   .viewName {
@@ -374,14 +370,14 @@
     .icon-drag {
       opacity: 1;
       &:hover {
-        color: #757575;
+        color: var(--color-text-secondary);
       }
     }
     .more {
       opacity: 1;
     }
     .more:hover {
-      color: #757575 !important;
+      color: var(--color-text-secondary) !important;
     }
     .hideicon {
       right: 44px;
@@ -419,7 +415,7 @@
 }
 
 .drawerWorksheetShowListItem.active {
-  background: #e0f4ff;
+  background: var(--color-primary-transparent);
   &:hover {
     .icon-drag {
       opacity: 1;
@@ -428,15 +424,14 @@
 }
 
 .viewItemMoreOperate .ming.MenuItem > .Item-content:not(.disabled):hover {
-  background-color: #f2f2f2 !important;
-  color: #151515 !important;
+  background-color: var(--color-background-hover) !important;
   & > span > .icon {
-    color: #9e9e9e !important;
+    color: var(--color-text-tertiary) !important;
   }
   &.delete {
     .Icon,
     .text {
-      color: #f44338 !important;
+      color: var(--color-error) !important;
     }
   }
 }
@@ -444,7 +439,7 @@
 .viewItemMoreOperate .ming.MenuItem.delete .Item-content:not(.disabled):hover {
   .Icon,
   .text {
-    color: #f44338 !important;
+    color: var(--color-error) !important;
   }
 }
 
@@ -470,7 +465,7 @@
   .sheetHeader .icon-discussion:hover,
   .sheetHeader .icon-drafts_approval:hover,
   .sheetHeader .fullRotate:hover {
-    color: #1677ff !important;
+    color: var(--color-primary) !important;
   }
   .hoverGray {
     width: 24px;
@@ -481,14 +476,14 @@
     border-radius: 3px;
   }
   .hoverGray:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
   .menuVisible {
-    background: #f5f5f5;
-    color: #1677ff !important;
+    background: var(--color-background-secondary);
+    color: var(--color-primary) !important;
   }
   .currentIsHide {
-    color: #1677ff !important;
+    color: var(--color-primary) !important;
   }
 }
 

@@ -1,11 +1,10 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import copy from 'copy-to-clipboard';
 import _, { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Dialog, Icon, Menu, MenuItem } from 'ming-ui';
-import { Tooltip } from 'ming-ui/antd-components';
 import favoriteApi from 'src/api/favorite';
 import worksheetAjax from 'src/api/worksheet';
 import { deleteRecord, handleCustomWidget, handleOpenInNew } from 'worksheet/common/recordInfo/crtl';
@@ -16,6 +15,7 @@ import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import { copyRow } from 'worksheet/controllers/record';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { navigateTo } from 'src/router/navigateTo';
 import { emitter } from 'src/utils/common';
 import { controlState } from 'src/utils/control';
 import { VersionProductType } from 'src/utils/enum';
@@ -30,14 +30,14 @@ const Loading = styled.div`
   height: 36px;
   .icon {
     font-size: 20px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     height: 20px;
     animation: rotate 0.6s infinite linear;
   }
 `;
 
 const Hr = styled.div`
-  border-top: 1px solid #ebebeb;
+  border-top: 1px solid var(--color-border-secondary);
   margin: 6px 0;
 `;
 
@@ -63,16 +63,16 @@ const MenuItemWrap = styled(MenuItem)`
 
 const RedMenuItemWrap = styled(MenuItemWrap)`
   .Item-content {
-    color: #f44336 !important;
+    color: var(--color-error) !important;
     .Icon {
-      color: #f44336 !important;
+      color: var(--color-error) !important;
     }
   }
 `;
 
 const Empty = styled.div`
   font-size: 12px;
-  color: #bdbdbd;
+  color: var(--color-text-disabled);
   padding: 9px;
   text-align: center;
 `;
@@ -85,17 +85,17 @@ const MoreOperate = styled.span`
   display: inline-block;
   width: 24px;
   height: 24px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   font-size: 18px;
   &:hover {
     background-color: rgba(0, 0, 0, 0.03);
-    color: #1677ff;
+    color: var(--color-primary);
   }
 `;
 
 const DangerConfirmTitle = styled.div`
   font-weight: bold;
-  color: #f44336;
+  color: var(--color-error);
 `;
 
 export const memodRecordOperate = React.memo(
@@ -600,14 +600,14 @@ export default function RecordOperate(props) {
                   <Icon
                     className="Font17 mLeft5"
                     icon={!isFavorite ? 'star_outline' : 'star'}
-                    style={{ color: isFavorite ? '#ffc402' : '' }}
+                    style={{ color: isFavorite ? 'var(--color-yellow)' : '' }}
                   />
                 }
                 onClick={() => {
                   handleCollectRecord();
                 }}
               >
-                {isFavorite ? _l('取消收藏') : _l('收藏记录')}
+                {isFavorite ? _l('取消收藏') : _l('收藏')}
               </MenuItemWrap>
             )}
             {!!groupControl &&
@@ -732,6 +732,32 @@ export default function RecordOperate(props) {
                 }}
               >
                 {_l('编辑表单')}
+              </MenuItemWrap>
+            )}
+            {!window.isPublicApp && showEditForm && (
+              <MenuItemWrap
+                data-event="editSheet"
+                className="openCustomWidget"
+                icon={<Icon icon="custom_actions" className="Font18 mLeft5" />}
+                onClick={() => {
+                  hideRecordInfo();
+                  navigateTo(`/worksheet/formSet/edit/${worksheetId}/customAction`);
+                }}
+              >
+                {_l('编辑自定义动作')}
+              </MenuItemWrap>
+            )}
+            {!window.isPublicApp && showEditForm && !md.global.SysSettings.hideAIBasicFun && (
+              <MenuItemWrap
+                data-event="editSheet"
+                className="openCustomWidget"
+                icon={<Icon icon="auto_awesome" className="Font17 mLeft5" />}
+                onClick={() => {
+                  hideRecordInfo();
+                  navigateTo(`/worksheet/formSet/edit/${worksheetId}/aiAction`);
+                }}
+              >
+                {_l('编辑AI 动作')}
               </MenuItemWrap>
             )}
           </MenuWrap>

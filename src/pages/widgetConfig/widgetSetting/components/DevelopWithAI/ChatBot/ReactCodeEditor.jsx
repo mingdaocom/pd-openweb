@@ -22,7 +22,7 @@ const Con = styled.div`
   flex-direction: column;
   .CodeMirror {
     height: 100%;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--color-border-primary);
     font-size: 14px;
     font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
   }
@@ -39,8 +39,8 @@ const Con = styled.div`
     font-size: 90%;
     max-height: 20em;
     overflow-y: auto;
-    background: white;
-    border: 1px solid #ddd;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-primary);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
@@ -48,7 +48,7 @@ const Con = styled.div`
     padding: 4px 8px;
     border-radius: 2px;
     border-left: 2px solid #61dafb;
-    color: #151515;
+    color: var(--color-text-title);
   }
 
   .CodeMirror-hint {
@@ -56,38 +56,38 @@ const Con = styled.div`
     padding: 4px 8px;
     border-radius: 2px;
     white-space: pre;
-    color: #151515;
+    color: var(--color-text-title);
     cursor: pointer;
   }
 
   .CodeMirror-hint-active {
-    background: #f0f0f0;
-    color: #151515;
+    background: var(--color-background-disabled);
+    color: var(--color-text-title);
   }
 
   /* 选中文本的背景色 */
   .CodeMirror-selected {
-    background: #e3f2fd !important;
+    background: var(--color-primary-transparent) !important;
   }
 
   /* 当前行的背景色 */
   .CodeMirror-activeline-background {
-    background: #fafafa;
+    background: var(--color-background-secondary);
   }
 
   /* 光标颜色 */
   .CodeMirror-cursor {
-    border-left: 1px solid #151515;
+    border-left: 1px solid var(--color-text-title);
   }
 
   /* 行号样式 */
   .CodeMirror-linenumber {
-    color: #999;
+    color: var(--color-text-tertiary);
   }
 
   /* 折叠图标样式 */
   .CodeMirror-foldgutter {
-    color: #999;
+    color: var(--color-text-tertiary);
   }
 `;
 

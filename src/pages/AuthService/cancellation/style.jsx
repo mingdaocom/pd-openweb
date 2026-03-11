@@ -1,14 +1,14 @@
 import styled from 'styled-components';
 
 export const Wrap = styled.div`
-  background-color: #f2f5f7;
+  background-color: var(--color-background-secondary);
   background-repeat: no-repeat;
   background-size: cover;
   min-height: 100%;
   background-position: center;
   height: auto;
   .contentWrap {
-    background: #f2f5f7;
+    background: var(--color-background-secondary);
     height: 100vh;
     .contentBox {
       width: 80%;
@@ -16,7 +16,7 @@ export const Wrap = styled.div`
       height: 396px;
       border-radius: 3px;
       margin: 0 auto;
-      background: #fff;
+      background: var(--color-background-primary);
       &.mobileContainerWidth {
         width: 95%;
       }
@@ -42,7 +42,7 @@ export const Wrap = styled.div`
       margin-bottom: 80px;
     }
     .disabled {
-      background-color: #9e9e9e;
+      background-color: var(--color-text-tertiary);
       cursor: not-allowed;
     }
   }
@@ -58,7 +58,7 @@ export const Wrap = styled.div`
     margin: 0 80px;
     overflow: auto;
     .termsCon {
-      background: #fff;
+      background: var(--color-background-primary);
       max-width: 900px;
       padding: 50px;
       border-radius: 4px;

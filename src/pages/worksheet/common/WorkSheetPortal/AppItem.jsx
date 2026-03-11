@@ -3,7 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, MdLink, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { getEmbedValue } from 'src/components/Form/core/formUtils';
+import { getEmbedValue } from 'src/components/Form/core/formUtils/helper';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util';
 import { getTranslateInfo } from 'src/utils/app';
@@ -60,7 +60,7 @@ const AppItem = props => {
     return (
       ([2, 3, 4].includes(status) || [2, 3, 4].includes(parentStatus)) && (
         <Tooltip placement="bottom" title={_l('仅系统角色可见（包含管理员、开发者）')}>
-          <Icon className="Font16 mRight10 visibilityIcon" icon={icon} style={{ color: '#ee6f09' }} />
+          <Icon className="Font16 mRight10 visibilityIcon" icon={icon} style={{ color: 'var(--color-warning)' }} />
         </Tooltip>
       )
     );
@@ -75,7 +75,7 @@ const AppItem = props => {
         <SvgIcon url={iconUrl} fill={iconColor} size={44} />
       </div>
       <div className="nameWrap flexRow alignItemsCenter justifyContentCenter">
-        <span className="Gray">{getTranslateInfo(appId, null, workSheetId).name || appItem.workSheetName}</span>
+        <span className="textPrimary">{getTranslateInfo(appId, null, workSheetId).name || appItem.workSheetName}</span>
       </div>
     </Fragment>
   );
@@ -99,7 +99,7 @@ const AppItem = props => {
         ) && (
           <MoreOperation {...props}>
             <div className="moreIcon">
-              <Icon icon="more_horiz" className="Font18 Gray_9e" />
+              <Icon icon="more_horiz" className="Font18 textTertiary" />
             </div>
           </MoreOperation>
         )}

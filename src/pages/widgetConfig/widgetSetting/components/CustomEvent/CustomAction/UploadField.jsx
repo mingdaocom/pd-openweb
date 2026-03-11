@@ -9,17 +9,17 @@ import RegExpValidator from 'src/utils/expression';
 
 const UploadWrap = styled.div`
   height: 390px;
-  border: 1px dashed #dddddd;
+  border: 1px dashed var(--color-border-primary);
   border-radius: 4px;
   .icon {
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
   &.active,
   &:hover {
-    border-color: #1677ff;
-    background: #f8fcff;
+    border-color: var(--color-primary);
+    background: var(--color-primary-transparent);
     .icon {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
@@ -37,16 +37,16 @@ const UploadListWrap = styled.div`
     width: 100%;
     display: flex;
     line-height: 54px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-primary);
     .mp3Icon {
       width: 20px;
       height: 23px;
     }
     .deleteIcon {
       font-size: 14px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       &:hover {
-        color: #757575;
+        color: var(--color-text-secondary);
       }
     }
     .ant-progress {
@@ -63,20 +63,20 @@ const UploadListWrap = styled.div`
       border-radius: 3px;
     }
     .uploadBtn {
-      border: 1px solid #1677ff;
-      color: #1677ff;
+      border: 1px solid var(--color-primary);
+      color: var(--color-primary);
       margin-right: 20px;
       &:hover {
-        background: #1677ff;
-        border-color: #1677ff;
-        color: #fff;
+        background: var(--color-primary);
+        border-color: var(--color-primary);
+        color: var(--color-white);
       }
     }
     .submitBtn {
-      background: #1677ff;
-      color: #fff;
+      background: var(--color-primary);
+      color: var(--color-white);
       &:hover {
-        background: #1565c0;
+        background: var(--color-link-hover);
       }
     }
   }
@@ -160,7 +160,7 @@ export default class UploadFile extends Component {
     if (files.length) {
       return (
         <UploadListWrap>
-          <div className="uploadItem Gray_9e">
+          <div className="uploadItem textTertiary">
             <div className="flex">{_l('文件')}</div>
             <div className="Width110">{_l('大小')}</div>
             <div className="Width250">{_l('状态')}</div>
@@ -178,7 +178,7 @@ export default class UploadFile extends Component {
                   <div className="Width250 flexCenter">
                     <Progress
                       style={{ width: 196, marginLeft: '36px' }}
-                      trailColor="#eaeaea"
+                      trailColor="var(--color-border-secondary)"
                       strokeColor="#1677ff"
                       strokeWidth={4}
                       percent={Math.floor((file.loaded / (file.size || 0)) * 100)}
@@ -231,7 +231,7 @@ export default class UploadFile extends Component {
         >
           <Icon icon="upload_file" className="Font56 mBottom18" />
           <div className="Font14 mBottom12">{dragOver ? _l('松开鼠标开始上传') : _l('点击上传文件，或拖拽文件')}</div>
-          <div className="Gray_9e">{_l('支持10MB以内的mp3文件')}</div>
+          <div className="textTertiary">{_l('支持10MB以内的mp3文件')}</div>
         </div>
       </UploadWrap>
     );

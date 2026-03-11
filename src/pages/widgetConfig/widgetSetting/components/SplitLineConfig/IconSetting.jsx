@@ -1,16 +1,14 @@
 import React from 'react';
 import cx from 'classnames';
-import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { SvgIcon } from 'ming-ui';
-import IconTabs from 'src/pages/AppHomepage/components/SelectIcon/IconTabs';
+import { dialogSelectIcon } from 'ming-ui/functions';
 
 const ColorBox = styled.div`
   width: 100px;
   height: 32px;
-  background: #ffffff;
-  border: 1px solid #e0e0e0;
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border-primary);
   border-radius: 3px;
   cursor: pointer;
   padding: 4px;
@@ -24,50 +22,39 @@ const ColorBox = styled.div`
     font-size: 14px;
     border-radius: 3px;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
 `;
 
 export default function IconSetting(props) {
+  const { projectId, iconColor, handleClick } = props;
   const { icon = '', iconUrl = '' } = safeParse(props.icon || '{}');
 
   return (
-    <Trigger
-      popup={() => {
-        return (
-          <div className="selectIconWrap" style={{ width: '350px', position: 'relative' }}>
-            <IconTabs {..._.pick(props, ['projectId', 'iconColor', 'handleClick'])} icon={icon} />
-          </div>
-        );
+    <ColorBox
+      onClick={() => {
+        dialogSelectIcon({ hideColor: true, hideInput: true, icon, iconColor, projectId, onModify: handleClick });
       }}
-      action={['click']}
-      popupAlign={{
-        points: ['tl', 'bl'],
-        offset: [-80, 3],
-        overflow: { adjustX: true, adjustY: true },
-      }}
-      getPopupContainer={() => document.body}
-      destroyPopupOnHide
     >
-      <ColorBox>
-        <div className="flex pTop2 mLeft6">
-          {iconUrl ? (
-            <SvgIcon url={iconUrl} fill="#9E9E9E" size={16} />
-          ) : (
-            <span className={cx('Font14', props.type === 52 ? 'icon-subheader Gray_9e' : 'icon-block Gray_c')}></span>
-          )}
-        </div>
-        <span
-          className={cx('iconBox', iconUrl ? 'icon-clear' : 'icon-arrow-down-border')}
-          onClick={e => {
-            if (iconUrl) {
-              e.stopPropagation();
-              props.handleClick();
-            }
-          }}
-        ></span>
-      </ColorBox>
-    </Trigger>
+      <div className="flex pTop2 mLeft6">
+        {iconUrl ? (
+          <SvgIcon url={iconUrl} fill="var(--color-text-tertiary)" size={16} />
+        ) : (
+          <span
+            className={cx('Font14', props.type === 52 ? 'icon-subheader textTertiary' : 'icon-block textPlaceholder')}
+          ></span>
+        )}
+      </div>
+      <span
+        className={cx('iconBox', iconUrl ? 'icon-clear' : 'icon-arrow-down-border')}
+        onClick={e => {
+          if (iconUrl) {
+            e.stopPropagation();
+            props.handleClick();
+          }
+        }}
+      ></span>
+    </ColorBox>
   );
 }

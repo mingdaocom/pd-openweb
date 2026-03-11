@@ -18,7 +18,7 @@ const Wrap = styled.div`
       padding: 0 10px;
       margin-right: 12px;
       &:hover {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-hover);
       }
     }
   }
@@ -126,7 +126,7 @@ export default function View(props) {
     <Wrap className="flexRow pAll10 h100">
       <div className="viewsNav flexColumn">
         <div className="searchWrap flexRow alignItemsCenter mBottom10">
-          <Icon className="Gray_9e Font20 mRight5" icon="search" />
+          <Icon className="textTertiary Font20 mRight5" icon="search" />
           <input
             placeholder={_l('视图')}
             className="flex"
@@ -135,7 +135,9 @@ export default function View(props) {
               setSearchValue(e.target.value);
             }}
           />
-          {searchValue && <Icon className="Gray_9e pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />}
+          {searchValue && (
+            <Icon className="textTertiary pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />
+          )}
         </div>
         <ScrollView className="h100">
           {views.filter(view => view.name.includes(searchValue)).map(view => renderViewNav(view))}

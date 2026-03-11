@@ -3,8 +3,9 @@ import cx from 'classnames';
 import _, { get, identity } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { previewQiniuUrl } from 'src/components/previewAttachments';
-import { getTitleControlId, getTitleTextFromRelateControl } from '../../../core/utils';
+import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
+import { getTitleTextFromRelateControl } from 'src/utils/control';
+import { getTitleControlId } from '../../../core/utils';
 import { getRecordCardStyle } from '../../tools/utils';
 import CardCellControls from './CardCellControls';
 
@@ -12,7 +13,7 @@ const Con = styled.div`
   position: relative;
   width: 100%;
   border-radius: 3px;
-  background-color: ${({ backgroundColor }) => backgroundColor || 'var(--color-background-primary)'};
+  background-color: ${({ backgroundColor }) => backgroundColor || 'var(--color-background-card)'};
   border: 1px solid
     ${({ borderColor, canSelect, selected }) => {
       if (canSelect) {
@@ -39,7 +40,7 @@ const Con = styled.div`
     top: 1px;
     right: 1px;
     font-size: 18px;
-    color: var(--color-background-primary);
+    color: var(--color-white);
   }
 
   .removeBtn {
@@ -93,7 +94,7 @@ const ControlCon = styled.div`
     box-sizing: content-box;
     border-radius: 3px;
     object-fit: contain;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     ${({ small }) => (small ? 'margin-bottom: 15px' : 'margin-right: 15px')};
   }
 `;
@@ -155,10 +156,12 @@ export default function RecordCoverCard(props) {
       src={cover}
       onClick={e => {
         e.stopPropagation();
-        previewQiniuUrl(cover.replace(/imageView2\/2\/w\/200\|/, ''), {
-          disableDownload: true,
-          ext: (cover.match(/\.(jpg|jpeg|png|gif|bmp)(\?|$)/i) || '')[1] || 'png',
-        });
+        previewAttachments(
+          transformQiniuUrl(cover.replace(/imageView2\/2\/w\/200\|/, ''), {
+            disableDownload: true,
+            ext: (cover.match(/\.(jpg|jpeg|png|gif|bmp)(\?|$)/i) || '')[1] || 'png',
+          }),
+        );
       }}
     />
   );
@@ -206,7 +209,7 @@ export default function RecordCoverCard(props) {
               {title}
               {titleMasked && !forceShowFullValue && (
                 <i
-                  className="icon icon-eye_off ThemeHoverColor3 Hand maskData Font16 Gray_9e mLeft4 mTop4 hoverShow"
+                  className="icon icon-eye_off ThemeHoverColor3 Hand maskData Font16 textTertiary mLeft4 mTop4 hoverShow"
                   style={{ verticalAlign: 'middle' }}
                   onClick={e => {
                     e.stopPropagation();

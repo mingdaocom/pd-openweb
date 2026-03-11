@@ -48,7 +48,7 @@ export default function SortableTags() {
               style={{
                 padding: '4px 8px',
                 borderRadius: 4,
-                backgroundColor: '#f0f0f0',
+                backgroundColor: 'var(--color-background-disabled)',
               }}
               key={index}
               index={index}

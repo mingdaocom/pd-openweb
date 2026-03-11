@@ -21,20 +21,20 @@ const Wrap = styled.div`
       width: 130px;
       height: 130px;
       line-height: 130px;
-      background: #ffffff;
+      background: var(--color-background-primary);
       border-radius: 50%;
       margin: 120px auto 0;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
   }
   .addApi {
     padding: 8px 24px;
-    background: #1677ff;
+    background: var(--color-primary);
     border-radius: 21px;
-    color: #fff;
+    color: var(--color-white);
     display: inline-block;
     &:hover {
-      background: #1764c0;
+      background: var(--color-link-hover);
     }
   }
   .apiCon {
@@ -42,7 +42,7 @@ const Wrap = styled.div`
     margin: 32px auto;
     .searchCon {
       & > div {
-        background: #fff;
+        background: var(--color-background-primary);
         height: 36px;
       }
     }
@@ -59,7 +59,7 @@ const Wrap = styled.div`
 // 用户可以上下拖动卡片进行排序，拖动释放后自动保存排序；
 // 点击卡片可以侧拉弹出API详情；
 function APIList(props) {
-  let str = 'https://alifile.mingdaocloud.com/open/js/apilibrary_v4.js' + '?' + moment().format('YYYYMMDD');
+  let str = 'https://alifile.mingdaocloud.com/open/js/apilibrary_v5.js' + '?' + moment().format('YYYYMMDD');
   const featureType = getFeatureStatus(props.companyId, VersionProductType.apiIntergration);
   const [{ list, keywords, show, listId, loading, pageIndex, publishing, showType, change, listSearch }, setState] =
     useSetState({
@@ -201,7 +201,7 @@ function APIList(props) {
         <div>
           {cite.length > 0 ? (
             <React.Fragment>
-              <span className="Font14 Bold Gray">{_l('注意：当前API正在被组织内引用')}</span>
+              <span className="Font14 Bold textPrimary">{_l('注意：当前API正在被组织内引用')}</span>
               <span
                 className="ThemeColor3 Font14 mLeft3 Hand"
                 onClick={() => {
@@ -211,7 +211,7 @@ function APIList(props) {
               >
                 {_l('查看引用')}
               </span>
-              <p className="Gray_75 Font14 mTop8">{_l('请务必确认引用位置不再需要此API，再执行此操作')}</p>
+              <p className="textSecondary Font14 mTop8">{_l('请务必确认引用位置不再需要此API，再执行此操作')}</p>
             </React.Fragment>
           ) : (
             _l('API 删除后将不可恢复，确认删除吗？')
@@ -239,7 +239,7 @@ function APIList(props) {
         <span className="iconCon InlineBlock TxtCenter ">
           <i className="icon-workflow_webhook Font64 TxtMiddle" />
         </span>
-        <p className="Gray_9e mTop20 mBottom0">
+        <p className="textTertiary mTop20 mBottom0">
           {keywords
             ? _l('无匹配的结果，换一个关键词试试吧')
             : !props.isConnectOwner && props.connectData.hasAuth
@@ -394,7 +394,7 @@ function APIList(props) {
                     return o;
                   }
                 })
-              : list.concat(obj);
+              : [obj, ...list];
             setState({
               listId: obj.id,
               list: listNew,

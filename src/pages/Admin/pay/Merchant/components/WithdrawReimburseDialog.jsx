@@ -7,15 +7,15 @@ import merchantInvoiceApi from 'src/api/merchantInvoice';
 import paymentAjax from 'src/api/payment';
 
 const InputWrap = styled.div`
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-secondary);
   border-radius: 3px;
   &.focusWrap {
-    border: 1px solid #1e88e5;
+    border: 1px solid var(--color-primary);
   }
   .ming.Input {
     border: none;
     &::placeholder {
-      color: #bfbfbf;
+      color: var(--color-text-disabled);
     }
   }
 `;
@@ -142,7 +142,7 @@ function WithdrawReimburseDialog(props) {
         });
       }}
     >
-      <div className="Font14 Gray_75 mBottom10">{label}</div>
+      <div className="Font14 textSecondary mBottom10">{label}</div>
       <InputWrap className={cx('flexRow alignItemsCenter pRight16', { focusWrap: isFocus })}>
         <Input
           ref={inputRef}
@@ -181,7 +181,7 @@ function WithdrawReimburseDialog(props) {
           }}
           onFocus={() => setIsFocus(true)}
         />
-        <div className="Hand ThemeColor Hover_51" onClick={() => setAmount(max > 0 ? max : 0)}>
+        <div className="Hand colorPrimary Hover_51" onClick={() => setAmount(max > 0 ? max : 0)}>
           {type === 'reimburse' ? _l('全部退款') : _l('全部提现')}
         </div>
       </InputWrap>

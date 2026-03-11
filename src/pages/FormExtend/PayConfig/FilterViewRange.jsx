@@ -8,15 +8,15 @@ import { Checkbox, Icon, Radio } from 'ming-ui';
 const Wrap = styled.div`
   height: 36px;
   align-items: center;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-secondary);
   padding: 0 10px;
   &.current {
-    border: 1px solid #1677ff !important;
+    border: 1px solid var(--color-primary) !important;
   }
 `;
 
 const RangeBox = styled.div`
-  background: #ffffff 0% 0% no-repeat padding-box;
+  background: var(--color-background-primary) 0% 0% no-repeat padding-box;
   box-shadow: 0px 12px 24px #0000003d;
   box-sizing: border-box;
   line-height: 1;
@@ -28,7 +28,7 @@ const RangeBox = styled.div`
     overflow: auto;
     .Radio-text {
       font-weight: initial;
-      color: #151515;
+      color: var(--color-text-title);
     }
   }
   .inputTxt {
@@ -108,7 +108,7 @@ export default function FilterViewRange(props) {
         <span className="Font14 flex">
           {_.isEmpty(viewIds) ? _l('所有记录') : _l('%0个视图下的记录', viewIds.length)}
         </span>
-        <Icon icon="arrow-down-border" className="Gray_9d Hand Font20" />
+        <Icon icon="arrow-down-border" className="textTertiary Hand Font20" />
       </Wrap>
     </Trigger>
   );

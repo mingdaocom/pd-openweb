@@ -4,7 +4,7 @@ export const Wrap = styled.div`
   &.messageBox {
     .mesDiv.errorDiv:not(.errorDivCu) {
       .title {
-        color: red !important;
+        color: var(--color-error) !important;
         top: -9;
       }
       input[type='text']:not(.iti__search-input),
@@ -35,9 +35,9 @@ export const Wrap = styled.div`
           transition: all 0.3s;
         }
         &.active {
-          border: 2px solid #1677ff !important;
+          border: 2px solid var(--color-primary) !important;
           .title {
-            color: #1677ff !important;
+            color: var(--color-primary) !important;
             top: -9;
           }
           .Dropdown--placeholder {
@@ -61,7 +61,7 @@ export const Wrap = styled.div`
 export const WrapCon = styled.div`
   position: absolute;
   top: 100%;
-  background: #fff;
+  background: var(--color-background-primary);
   z-index: 10;
   width: 100%;
   padding: 6px 0;
@@ -81,10 +81,10 @@ export const WrapCon = styled.div`
     padding: 6px 8px;
     &:hover,
     &.isCur {
-      background: #1677ff;
-      color: #fff;
+      background: var(--color-primary);
+      color: var(--color-white);
       .ThemeColor3 {
-        color: #fff !important;
+        color: var(--color-white) !important;
       }
     }
   }
@@ -94,25 +94,25 @@ export const WrapConDp = styled.div`
   .controlDropdown {
     height: auto;
     .itemT {
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       border-radius: 4px 4px 4px 4px;
       padding: 3px 8px 3px 10px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border-secondary);
       line-height: 20px;
       i {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         &:hover {
-          color: #757575;
+          color: var(--color-text-secondary);
         }
       }
     }
     span.itemSpan {
-      color: #151515 !important;
+      color: var(--color-text-title) !important;
       font-size: 15px;
     }
     .ming.Item .Item-content:not(.disabled):hover {
       span.itemSpan {
-        color: white !important;
+        color: var(--color-white) !important;
         font-size: 15px;
       }
     }

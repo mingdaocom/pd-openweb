@@ -17,7 +17,7 @@ const Wrap = styled.div`
 const Con = styled.div`
   width: 800px;
   margin: 22px auto;
-  background: #ffffff;
+  background: var(--color-background-primary);
   padding: 32px 24px;
   border-radius: 4px;
 `;
@@ -31,25 +31,25 @@ const WrapCon = styled.div`
   .line {
     margin: 32px 0;
     width: 100%;
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-secondary);
   }
   .timeNum {
     justify-content: space-between;
     li {
       width: 224px;
       height: 120px;
-      background: #fafafa;
+      background: var(--color-background-secondary);
       border-radius: 4px;
       text-align: center;
       .des {
         font-weight: 600;
-        color: #757575;
+        color: var(--color-text-secondary);
         padding-top: 18px;
       }
       .txt {
         font-size: 32px;
         font-weight: 400;
-        color: #151515;
+        color: var(--color-text-title);
       }
       .txtTime {
         font-size: 12px;
@@ -69,14 +69,14 @@ const WrapCon = styled.div`
   }
   .listTable {
     .trCon {
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-secondary);
       font-weight: 400;
-      color: #757575;
+      color: var(--color-text-secondary);
       &.isErr {
-        color: #f44336;
+        color: var(--color-error);
       }
       &.isGreen {
-        color: #4caf50;
+        color: var(--color-success);
       }
       .item {
         flex-shrink: 0;
@@ -96,10 +96,10 @@ const WrapCon = styled.div`
       display: inline-block;
       margin: 0 32px;
       cursor: pointer;
-      color: #151515;
+      color: var(--color-text-title);
       &.disable {
         cursor: not-allowed;
-        color: #aaaaaa;
+        color: var(--color-text-tertiary);
       }
     }
   }
@@ -299,8 +299,8 @@ function Monitor(props) {
         title: v => `${moment(v).format([3, 4].includes(showDate) ? 'MMMDo' : 'MMMDo HH:mm')}`,
         showContent: true,
         domStyles: {
-          'g2-tooltip-list-item': { textAlign: 'left', color: '#151515' },
-          'g2-tooltip-title': { color: '#757575' },
+          'g2-tooltip-list-item': { textAlign: 'left', color: 'var(--color-text-title)' },
+          'g2-tooltip-title': { color: 'var(--color-text-secondary)' },
         },
       },
     });
@@ -315,7 +315,7 @@ function Monitor(props) {
             <li>
               <div className="des">{_l('累计运行时长')}</div>
               <div className="txt">{_l('%0天', Math.floor(runningTime / 86400000))}</div>
-              <div className="txtTime Gray_9e">
+              <div className="txtTime textTertiary">
                 {_l(
                   '%0小时%1分钟',
                   Math.floor((runningTime % 86400000) / 3600000),
@@ -337,7 +337,7 @@ function Monitor(props) {
             <span className="flex Bold Font16">
               {_l('历史')}
               <Tooltip title={_l('仅保留最近6个月的读写历史')}>
-                <Icon className="mLeft5 Gray_bd" type="info" />
+                <Icon className="mLeft5 textDisabled" type="info" />
               </Tooltip>
             </span>
             <Dropdown
@@ -359,7 +359,7 @@ function Monitor(props) {
           <div className="title Bold Font16">
             {_l('日志')}
             <Tooltip title={_l('仅保留最近6个月的日志')}>
-              <Icon className="mLeft5 Gray_bd" type="info" />
+              <Icon className="mLeft5 textDisabled" type="info" />
             </Tooltip>
           </div>
           <div className="listTable">
@@ -369,7 +369,9 @@ function Monitor(props) {
               <div className="item flex2">{_l('内容')}</div>
               <div className="item width100"></div>
             </div>
-            {list.length <= 0 && <div className="TxtCenter pTop80 pBottom140 Font17 Gray_9e">{_l('暂无相关数据')}</div>}
+            {list.length <= 0 && (
+              <div className="TxtCenter pTop80 pBottom140 Font17 textTertiary">{_l('暂无相关数据')}</div>
+            )}
             {list.map(o => {
               return (
                 <div className={cx('trCon flexRow alignItemsCenter')}>
@@ -437,7 +439,7 @@ function Monitor(props) {
                   {_l('报错信息')}
                   <Icon
                     type="copy"
-                    className="Gray_9e Font18 Hand mLeft10 ThemeHoverColor3"
+                    className="textTertiary Font18 Hand mLeft10 ThemeHoverColor3"
                     onClick={() => {
                       copy(errorDetail);
                       alert(_l('复制成功'));

@@ -39,6 +39,7 @@ function PublicWorksheetConfig(props) {
     newVisibleType === VISIBLE_TYPE.PUBLIC
       ? checkCertification({
           projectId,
+          authType: 2,
           checkSuccess: () => updateWorksheetVisibleType(newVisibleType, () => updateFormVisible(true)),
         })
       : updateWorksheetVisibleType(newVisibleType);

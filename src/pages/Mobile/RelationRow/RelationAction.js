@@ -7,10 +7,10 @@ import _ from 'lodash';
 import { Icon, MobileConfirmPopup } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import MobileRecordCardListDialog from 'mobile/components/RecordCardListDialog';
-import { controlState } from 'src/components/Form/core/utils';
 import RelateScanQRCode from 'src/components/Form/MobileForm/components/RelateScanQRCode.jsx';
 import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { controlState } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 import * as actions from './redux/actions';
 
@@ -52,6 +52,10 @@ class RelationAction extends Component {
           } else {
             alert(_l('删除失败！'), 2);
           }
+          this.setState({ showConfirmPopup: false });
+        })
+        .catch(() => {
+          this.setState({ showConfirmPopup: false });
         });
     } else {
       sheetAjax
@@ -75,9 +79,11 @@ class RelationAction extends Component {
           } else {
             alert(_l('取消关联失败！'), 2);
           }
+          this.setState({ showConfirmPopup: false });
         })
         .catch(() => {
           alert(_l('取消关联失败！'), 2);
+          this.setState({ showConfirmPopup: false });
         });
     }
   };
@@ -132,11 +138,12 @@ class RelationAction extends Component {
     const entityName = relationRow.worksheet.entityName || _l('记录');
     this.setState({
       showRelevanceRecord: visible,
+      isScan: false,
       title: visible ? _l('选择%0', entityName) : _l('%0详情', entityName),
     });
   };
   renderDialog() {
-    const { showCreateRecord, recordkeyWords, showRelevanceRecord } = this.state;
+    const { showCreateRecord, recordkeyWords, showRelevanceRecord, isScan } = this.state;
     const { base, rowInfo, relationRow, actionParams, permissionInfo, isDraft } = this.props;
     const { showControls, coverCid } = actionParams;
     const { worksheet } = relationRow;
@@ -170,7 +177,7 @@ class RelationAction extends Component {
         {showRelevanceRecord && (
           <MobileRecordCardListDialog
             multiple
-            isScan={true}
+            isScan={isScan}
             control={_.find(rowInfo.templateControls, { controlId: controlId })}
             formData={formData}
             visible={showRelevanceRecord}
@@ -194,7 +201,7 @@ class RelationAction extends Component {
             relationRowIds={(this.props.relationRows || []).map(it => it.rowid)}
             isDraft={isDraft}
             onClose={() => {
-              this.setState({ recordkeyWords: '' });
+              this.setState({ recordkeyWords: '', isScan: false });
               this.handleSetShowRelevanceRecord(false);
             }}
             onOk={records => {
@@ -236,7 +243,7 @@ class RelationAction extends Component {
     const { worksheet } = relationRow;
     const formData = this.props.formData || rowInfo.templateControls;
     const control = _.find(formData, { controlId: base.controlId });
-    const filterControls = getFilter({ control, formData });
+    const filterControls = getFilter({ control, formData, appId: base.appId });
 
     return (
       <RelateScanQRCode
@@ -256,7 +263,7 @@ class RelationAction extends Component {
           ) {
             return;
           }
-          this.setState({ showRelevanceRecord: true, recordkeyWords: keyWords });
+          this.setState({ showRelevanceRecord: true, recordkeyWords: keyWords, isScan: true });
         }}
       >
         <Button className="Font13 bold pLeft0 pRight0 TxtCenter InlineBlock w100" color="primary">
@@ -276,7 +283,7 @@ class RelationAction extends Component {
     return (
       <Fragment>
         <Button
-          className="flex mLeft6 mRight6 edit Gray_75 bold Font13"
+          className="flex mLeft6 mRight6 edit textSecondary bold Font13"
           onClick={() => {
             this.handleSetEdit(false);
           }}
@@ -342,7 +349,7 @@ class RelationAction extends Component {
         {control.type !== 51 && allowRemoveRelation && hasEdit && !rulesLocked && (
           <Button
             disabled={!relationRows.length || isRecordLock}
-            className="flex mLeft6 mRight6 edit Gray_75 bold Font13 pLeft0 pRight0 TxtCenter"
+            className="flex mLeft6 mRight6 edit textSecondary bold Font13 pLeft0 pRight0 TxtCenter"
             onClick={() => {
               this.handleSetEdit(true);
             }}
@@ -406,7 +413,7 @@ class RelationAction extends Component {
     }
 
     return (
-      <div className="flexRow alignItemsCenter justifyContentCenter WhiteBG pAll10">
+      <div className="flexRow alignItemsCenter justifyContentCenter bgPrimary pAll10">
         {title && <DocumentTitle title={title} />}
         {isEdit ? this.renderEdit() : this.renderContent()}
         {this.renderDialog()}

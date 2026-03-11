@@ -41,27 +41,30 @@ export default class ExclusiveComp extends Component {
     const computingFeature = getFeatureStatus(projectId, VersionProductType.exclusiveResource);
     const databaseFeature =
       getFeatureStatus(projectId, VersionProductType.dataBase) &&
-      (!md.global.Config.IsPlatformLocal || !md.global.Config.IsLocal);
+      (!window.platformENV.isPlatform || (!window.platformENV.isOverseas && !window.platformENV.isLocal));
 
     return (
-      <div className="exclusiveHeader">
-        <div className="exclusiveHeaderTextCon">
+      <div className="orgManagementHeader">
+        <div className="tabBox flex">
           {computingFeature && (
             <span
-              className={cx('Hand', { active: activeKey === 'computing' })}
+              className={cx('tabItem Hand', { active: activeKey === 'computing' })}
               onClick={() => this.onClick('computing')}
             >
               {_l('算力')}
             </span>
           )}
           {databaseFeature && (
-            <span className={cx('Hand', { active: activeKey === 'database' })} onClick={() => this.onClick('database')}>
+            <span
+              className={cx('tabItem Hand', { active: activeKey === 'database' })}
+              onClick={() => this.onClick('database')}
+            >
               {_l('数据库')}
             </span>
           )}
         </div>
         <div className="refresh Hand Font20 mRight24 " onClick={this.onRefresh}>
-          <i className="icon-task-later Gray_9" />
+          <i className="icon-task-later textTertiary" />
         </div>
         <Support text={_l('帮助')} type={2} href="https://help.mingdao.com/application/exclusive-computing-power" />
       </div>
@@ -73,11 +76,11 @@ export default class ExclusiveComp extends Component {
     const projectId = _.get(this.props, 'match.params.projectId');
     const hasDataBase =
       getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
-      (!md.global.Config.IsPlatformLocal || !md.global.Config.IsLocal);
+      (!window.platformENV.isPlatform || (!window.platformENV.isOverseas && !window.platformENV.isLocal));
     const hasComputing = getFeatureStatus(projectId, VersionProductType.exclusiveResource);
 
     return (
-      <div className="orgManagementWrap exclusiveComp flex flexColumn">
+      <div className="orgManagementWrap exclusiveComp">
         <AdminTitle prefix={activeKey === 'computing' ? _l('专属资源 - 算力') : _l('专属资源 - 数据库')} />
         {this.renderHeader()}
 

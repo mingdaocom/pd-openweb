@@ -23,7 +23,7 @@ import { WrapS } from './style';
 
 const WrapItem = styled.div`
   height: 36px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.16);
   border-radius: 4px;
   z-index: 1000;
@@ -75,13 +75,13 @@ export default function GroupCon(props) {
           <div className="colorByWorksheet" style={{ backgroundColor: color }}></div>
         )}
         <DragHandle className="alignItemsCenter flexRow">
-          <Icon className="Font14 Hand Gray_9e Hover_21 dragIcon" icon="drag" />
+          <Icon className="Font14 Hand textTertiary hoverColorPrimary dragIcon" icon="drag" />
         </DragHandle>
         <div className="flex flexRow pLeft16 pRight12 alignItemsCenter">
           <React.Fragment>
             <Icon
               icon={getIconByType(_.get(item, 'resultField.mdType'))}
-              className={cx('Gray_9e Font16 ThemeHoverColor3')}
+              className={cx('textTertiary Font16 ThemeHoverColor3')}
             />
             <div
               className={cx('flex mLeft8 mRight8 overflow_ellipsis WordBreak', {
@@ -97,7 +97,7 @@ export default function GroupCon(props) {
               title={
                 <span className="">
                   {_.get(item, 'resultField.parentFieldInfo.controlSetting.controlName') && (
-                    <span className="Gray_bd pRight5">{_l('关联')}</span>
+                    <span className="textDisabled pRight5">{_l('关联')}</span>
                   )}
                   {`${
                     _.get(item, 'resultField.parentFieldInfo.controlSetting.controlName')
@@ -113,7 +113,7 @@ export default function GroupCon(props) {
                 </span>
               }
             >
-              <Icon icon="info_outline" className="Hand Gray_9e ThemeHoverColor3 Font16" />
+              <Icon icon="info_outline" className="Hand textTertiary ThemeHoverColor3 Font16" />
             </Tooltip>
           )}
           <Trigger
@@ -204,14 +204,14 @@ export default function GroupCon(props) {
                         }}
                       >
                         <span className="text flex Font14">{_l('归组')}</span>
-                        <span className="Gray_75">
+                        <span className="textSecondary">
                           {
                             getDefaultOperationForGroup(item).find(
                               o => o.value === _.get(item, 'resultField.aggFuncType'),
                             ).text
                           }
                         </span>
-                        <Icon className="Font15 Gray_9e Font13" icon="arrow-right-tip" />
+                        <Icon className="Font15 textTertiary Font13" icon="arrow-right-tip" />
                       </MenuItem>
                     </Trigger>
                   </React.Fragment>
@@ -272,8 +272,10 @@ export default function GroupCon(props) {
                         }}
                       >
                         <span className="text flex Font14">{_l('归组')}</span>
-                        <span className="Gray_75">{arraySplitList.find(o => !o.value === !item.arraySplit).txt}</span>
-                        <Icon className="Font15 Gray_9e Font13" icon="arrow-right-tip" />
+                        <span className="textSecondary">
+                          {arraySplitList.find(o => !o.value === !item.arraySplit).txt}
+                        </span>
+                        <Icon className="Font15 textTertiary Font13" icon="arrow-right-tip" />
                       </MenuItem>
                     </Trigger>
                   </React.Fragment>
@@ -283,7 +285,7 @@ export default function GroupCon(props) {
           >
             <Icon
               icon="arrow-down-border"
-              className="Hand Gray_9e ThemeHoverColor3 Font16 mLeft8"
+              className="Hand textTertiary ThemeHoverColor3 Font16 mLeft8"
               onClick={() =>
                 setState({
                   popupVisible: true,
@@ -294,7 +296,7 @@ export default function GroupCon(props) {
           <Tooltip title={_l('删除')}>
             <Icon
               icon="clear"
-              className="clearIcon Hand Gray_9e del ThemeHoverColor3 mLeft8 Font16"
+              className="clearIcon Hand textTertiary del ThemeHoverColor3 mLeft8 Font16"
               onClick={() => {
                 onUpdate(
                   items.filter(

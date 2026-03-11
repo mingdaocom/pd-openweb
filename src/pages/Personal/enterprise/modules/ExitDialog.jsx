@@ -38,7 +38,7 @@ export default class ExitDialog extends Component {
     const { projectId, companyName } = this.props;
     Dialog.confirm({
       title: <spam className="Font15 Bold">{_l('您是组织【%0】超级管理员', companyName)}</spam>,
-      description: <span className="Font13 Gray">{_l('请先注销组织或交接后方可注销。')}</span>,
+      description: <span className="Font13 textPrimary">{_l('请先注销组织或交接后方可注销。')}</span>,
       okText: _l('前往注销'),
       showCancel: false,
       onOk: () => {

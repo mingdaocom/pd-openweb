@@ -47,7 +47,7 @@ const ContentWrap = styled.div`
     &.ant-select-multiple .ant-select-selection-item {
       border-radius: 13px !important;
       align-items: center !important;
-      background: #f5f5f5 !important;
+      background: var(--color-background-secondary) !important;
       border: none !important;
       padding: 0 10px;
       .ant-select-selection-item-remove {
@@ -67,7 +67,7 @@ const SearchCon = styled.div`
   display: flex;
   align-items: center;
   padding: 0 12px;
-  border-bottom: 1px solid #dddddd;
+  border-bottom: 1px solid var(--color-border-primary);
   margin-bottom: 6px;
   input {
     flex: 1;
@@ -94,7 +94,7 @@ const SelectItem = styled.div`
 
 const DialogWrap = styled(Dialog)`
   .mui-dialog-header {
-    border-bottom: 1px solid #ededed !important;
+    border-bottom: 1px solid var(--color-border-secondary) !important;
   }
   .mui-dialog-body {
     padding: 16px 0 22px !important;
@@ -230,7 +230,7 @@ export default function CopyViewConfig(props) {
             {isCustomize ? (
               <SvgIcon
                 url={_.get(item, 'pluginInfo.iconUrl') || 'https://fp1.mingdaoyun.cn/customIcon/sys_12_4_puzzle.svg'}
-                fill={_.get(item, 'pluginInfo.iconColor') || '#445A65'}
+                fill={_.get(item, 'pluginInfo.iconColor') || 'var(--color-cyan-dark)'}
                 size={18}
               />
             ) : (
@@ -251,7 +251,7 @@ export default function CopyViewConfig(props) {
 
     return (
       <div className="selectViewWrap">
-        <div className="Font13 Gray_15 mBottom6 bold">{_l('选择视图')}</div>
+        <div className="Font13 textPrimary mBottom6 bold">{_l('选择视图')}</div>
         {!isCopyFrom && (
           <div className="mBottom12">
             {VIEW_TYPE_OPTIONS.map((l, i) => (
@@ -277,14 +277,14 @@ export default function CopyViewConfig(props) {
               className="w100 selectViewCon"
               placeholder={_l('请选择')}
               mode={isCopyFrom ? '' : 'multiple'}
-              suffixIcon={<Icon icon="expand_more" className="Font18 Gray_9d" />}
+              suffixIcon={<Icon icon="expand_more" className="Font18 textTertiary" />}
               dropdownStyle={{ width: 512 }}
               dropdownRender={menu => (
                 <div style={{ width: 512 }}>
                   <SearchCon className="searchCon">
-                    <Icon icon="search" className="Font16 Gray" />
+                    <Icon icon="search" className="Font16 textPrimary" />
                     <Input
-                      className="Gray"
+                      className="textPrimary"
                       value={keywords}
                       placeholder={_l('搜索')}
                       onChange={value => setState({ keywords: value })}
@@ -305,12 +305,12 @@ export default function CopyViewConfig(props) {
               {renderSelectViews(selected.sameType.filter(filterFun))}
               {!_.isEmpty(others) && (
                 <Select.Option disabled>
-                  <div className="Font13 Gray_75">{_l('其他视图')}</div>
+                  <div className="Font13 textSecondary">{_l('其他视图')}</div>
                 </Select.Option>
               )}
               {renderSelectViews(others)}
             </Select>
-            {!isCopyFrom && <Icon icon="expand_more" className="Font18 Gray_9d expandIcon" />}
+            {!isCopyFrom && <Icon icon="expand_more" className="Font18 textTertiary expandIcon" />}
           </div>
         )}
       </div>
@@ -323,18 +323,20 @@ export default function CopyViewConfig(props) {
 
     return (
       <div className="configWrap">
-        <div className="Font13 Gray_15 mBottom10 bold">{_l('选择要复制的配置项')}</div>
+        <div className="Font13 textPrimary mBottom10 bold">{_l('选择要复制的配置项')}</div>
         <div className="Font13 mBottom14">
           <span
-            className={cx('mRight24', disabledBtn ? 'Gray_9e cursorNotAllowed' : 'Gray_75 Hand', {
-              Hover_21: !disabledBtn,
+            className={cx('mRight24', disabledBtn ? 'textTertiary cursorNotAllowed' : 'textSecondary Hand', {
+              hoverColorPrimary: !disabledBtn,
             })}
             onClick={() => onBatchConfigs('all')}
           >
             {_l('选择全部')}
           </span>
           <span
-            className={cx(disabledBtn ? 'Gray_9e cursorNotAllowed' : 'Gray_75 Hand', { Hover_21: !disabledBtn })}
+            className={cx(disabledBtn ? 'textTertiary cursorNotAllowed' : 'textSecondary Hand', {
+              hoverColorPrimary: !disabledBtn,
+            })}
             onClick={() => onBatchConfigs('clear')}
           >
             {_l('清除全部')}
@@ -345,7 +347,7 @@ export default function CopyViewConfig(props) {
           if (list.length > 0) {
             return (
               <>
-                <div className="mTop20 pBottom10 Gray_75">{o.title}</div>
+                <div className="mTop20 pBottom10 textSecondary">{o.title}</div>
                 {list.map(l => {
                   return (
                     <div className="valignWrapper mBottom14">
@@ -360,8 +362,8 @@ export default function CopyViewConfig(props) {
                           })
                         }
                       />
-                      <Icon icon={l.icon} className="Font20 mRight8 Gray_9e" />
-                      <span className="Gray_15 Font13">{l.label}</span>
+                      <Icon icon={l.icon} className="Font20 mRight8 textTertiary" />
+                      <span className="textPrimary Font13">{l.label}</span>
                     </div>
                   );
                 })}

@@ -10,7 +10,7 @@ const InputCon = styled(Input)`
   width: 100%;
   border-radius: 18px !important;
   border: none !important;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
 `;
 
 const dealDate = date => {
@@ -45,7 +45,7 @@ export default function Time(props) {
           appId={appId}
           position={{
             position: 'unset',
-            color: '#9e9e9e ',
+            color: 'var(--color-text-tertiary) ',
             border: 'none',
             height: 'auto',
             lineHeight: 'unset',
@@ -100,7 +100,7 @@ export default function Time(props) {
                     }
               }
               isOpen={startDateVisible}
-              value={startDateValue ? new Date(startDateValue) : new Date()}
+              value={startDateValue ? startDateValue : ''}
               onClose={() => {
                 setStartDateVisible(false);
               }}
@@ -141,7 +141,7 @@ export default function Time(props) {
             <MobileDatePicker
               customHeader={_l('结束时间')}
               isOpen={endDateVisible}
-              value={endDateValue ? new Date(endDateValue) : new Date()}
+              value={endDateValue ? endDateValue : ''}
               min={new Date(startDateValue)}
               dateConfig={
                 unit === '1'

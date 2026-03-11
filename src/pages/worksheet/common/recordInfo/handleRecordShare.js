@@ -1,6 +1,6 @@
 import { getRowDetail } from 'worksheet/api';
-import { getTitleTextFromControls } from 'src/components/Form/core/utils';
 import { openShareDialog } from 'src/pages/worksheet/components/Share';
+import { getTitleTextFromControls } from 'src/utils/control';
 import { isOwner } from './crtl';
 
 export async function handleShare({

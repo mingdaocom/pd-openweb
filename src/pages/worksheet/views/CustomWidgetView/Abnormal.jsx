@@ -19,7 +19,7 @@ const Con = styled.div`
     width: 130px;
     height: 130px;
     border-radius: 130px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -30,32 +30,32 @@ const Con = styled.div`
     }
     .icon {
       font-size: 70px;
-      color: #a5a5a5;
+      color: var(--color-text-tertiary);
     }
   }
   .tip {
     font-size: 17px;
     margin-top: 40px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   .tip-sec {
     font-size: 14px;
     margin-top: 20px;
-    color: #aaa;
+    color: var(--color-text-tertiary);
   }
   .continueDevelop {
     margin-top: 45px;
   }
   &.isDark {
-    background: #151515;
+    background: var(--color-background-inverse);
     .iconCon {
-      background: #4a4a4a;
+      background: var(--color-background-inverse);
       .icon {
-        color: #818181;
+        color: var(--color-text-secondary);
       }
     }
     .tip {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
   }
 `;
@@ -92,7 +92,7 @@ export default function Abnormal(props) {
         </div>
       )}
       {status === CUSTOM_WIDGET_VIEW_STATUS.LOAD_SCRIPT_ERROR &&
-        md.global.Config.IsLocal &&
+        (window.platformENV.isOverseas || window.platformENV.isLocal) &&
         !window.isFirefox &&
         location.protocol === 'http:' &&
         !(location.host || '').startsWith('localhost') && (

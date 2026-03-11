@@ -30,7 +30,7 @@ export default function Item(props) {
   return (
     <WrapSortControls className="mBottom10 porTalSort flexRow">
       <DragHandle className="alignItemsCenter flexRow">
-        <Icon className="mRight12 Font16 Hand Gray_9e" icon="drag" />
+        <Icon className="mRight12 Font16 Hand textTertiary" icon="drag" />
       </DragHandle>
       {type ? (
         <span className="InlineBlock controlN">

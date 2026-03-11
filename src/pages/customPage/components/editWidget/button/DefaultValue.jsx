@@ -16,21 +16,20 @@ const AddButton = styled.div`
   padding: 0 10px;
   height: 32px;
   max-width: 100%;
-  border: 1px solid #eaeaea;
+  border: 1px solid var(--color-border-secondary);
   border-radius: 15px;
-  background-color: #ffffff;
-  color: #1677ff;
+  background-color: var(--color-background-primary);
+  color: var(--color-primary);
   transition: all 0.3s;
   &:hover {
-    color: #1079cc;
+    color: var(--color-link-hover);
   }
 `;
 
 const SortColumnsWrap = styled.div`
   width: 300px;
-  box-shadow:
-    0 4px 20px #00000021,
-    0 2px 6px #0000001a;
+  box-shadow: var(--shadow-sm);
+  background: var(--color-background-card);
   border-radius: 3px;
   .searchBar {
     padding: 0 10px;
@@ -53,8 +52,8 @@ const DefaultValueInputWrap = styled.div`
   .optionsCon {
     border-radius: 4px;
     padding: 0 10px;
-    border: 1px solid #ccc;
-    background: #ffffff;
+    border: 1px solid var(--color-border-tertiary);
+    background: var(--color-background-primary);
     height: 36px;
     line-height: 36px;
     width: 100%;
@@ -89,12 +88,12 @@ const DefaultValueInputWrap = styled.div`
       width: calc(100%) !important;
       border-radius: 4px !important;
       &:hover {
-        border-color: #ccc !important;
+        border-color: var(--color-border-tertiary) !important;
       }
     }
     .ant-input:focus,
     .ant-input-focused {
-      border-color: #1677ff !important;
+      border-color: var(--color-primary) !important;
       box-shadow: none !important;
     }
     .selectOtherFieldContainer {
@@ -219,7 +218,7 @@ function DefaultValue(props) {
             />
           </DefaultValueInputWrap>
           <Icon
-            className="Font18 Gray_9e pointer mLeft5"
+            className="Font18 textTertiary pointer mLeft5"
             icon="delete_12"
             onClick={() => {
               const writeControls = temporaryWriteControls.filter(c => c.controlId !== control.controlId);
@@ -237,7 +236,7 @@ function DefaultValue(props) {
       <div className="settingTitle valignWrapper mBottom10">
         <span>{_l('默认值')}</span>
         <Tooltip title={_l('通过点击按钮创建记录时，将会优先生效此处配置的默认值')}>
-          <Icon className="mLeft5 Gray_9e Font16 pointer" icon="help" />
+          <Icon className="mLeft5 textTertiary Font16 pointer" icon="help" />
         </Tooltip>
       </div>
       {temporaryWriteControls.map(control => defaultValueInput(control))}

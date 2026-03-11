@@ -117,7 +117,7 @@ export default class ValueAddService extends Component {
             </div>
             <span>{_l('选择充值信用点')}</span>
           </div>
-          <div className={cx('Gray_9 Font13 Normal mTop10', { Hidden: step !== 1 })}>
+          <div className={cx('textTertiary Font13 Normal mTop10', { Hidden: step !== 1 })}>
             {_l('如需特别定制，请联系电话 400-665-6655')}
           </div>
           <div className="stepContent">
@@ -155,7 +155,7 @@ export default class ValueAddService extends Component {
                   <div className="oneStepLeft">{_l('总计')}</div>
                   <span className="Font20 color_b">￥</span>
                   <span className="Font20 color_b Bold">{currentPrice}</span>
-                  <span className="Gray_9 mLeft5">
+                  <span className="textTertiary mLeft5">
                     {_l('购买后增值服务账户信用点余额：%0', parseFloat(currentPrice) + parseFloat(balance))}
                   </span>
                 </div>
@@ -167,13 +167,13 @@ export default class ValueAddService extends Component {
               </div>
             ) : (
               <div className="infoShow">
-                <div className="mTop16 mBottom24 Font13 Gray_9">
+                <div className="mTop16 mBottom24 Font13 textTertiary">
                   <span className="mRight8">{_l('总计')}</span>
                   <span>￥{currentPrice}</span>
                 </div>
                 <button
                   type="button"
-                  className="ming Button Button--link ThemeColor3 pAll0 Hover_49"
+                  className="ming Button Button--link ThemeColor3 pAll0 hoverTextPrimaryLight"
                   onClick={() => this.setStep(1)}
                 >
                   {_l('修改')}
@@ -192,7 +192,7 @@ export default class ValueAddService extends Component {
           </div>
           <div className={cx('stepContent', { Hidden: step !== 2 })}>
             <div className="mTop30">
-              <span className="Font13 mRight8 Gray_9">{_l('总计：')}</span>
+              <span className="Font13 mRight8 textTertiary">{_l('总计：')}</span>
               <span className="Font24 Bold color_b">￥{currentPrice}</span>
             </div>
             <div className="pTop40">

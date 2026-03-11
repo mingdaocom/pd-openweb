@@ -50,6 +50,9 @@ function flatRowsFromGroups(groups, groupControl, view, controls) {
   let result = [];
   const newGroups = sortDataByGroupItems(groups, view, controls);
   newGroups.forEach(group => {
+    if (_.get(groupControl, 'options.length')) {
+      group.name = _.get(_.find(groupControl.options, { key: group.key }), 'value') || group.name;
+    }
     const groupRow = {
       rowid: 'groupTitle',
       key: group.key,
@@ -238,61 +241,71 @@ export const fetchRows = ({
     const fetchRowsAjax = worksheetAjax.getFilterRows(getFilledRequestParams(args, filters.requestParams), {
       abortController,
     });
-    fetchRowsAjax.then(res => {
-      if (updateWorksheetControls && _.get(res, 'template.controls')) {
-        const newControls = _.get(res, 'template.controls').filter(
-          c =>
-            c.controlId.length === 24 ||
-            _.includes(
-              SYSTEM_CONTROL.concat(WORKFLOW_SYSTEM_CONTROL).map(c => c.controlId),
-              c.controlId,
-            ),
-        );
-        controls = replaceControlsTranslateInfo(appId, worksheetId, newControls);
-        try {
-          dispatch({
-            type: 'WORKSHEET_UPDATE_CONTROLS',
-            controls,
-          });
-        } catch (err) {
-          console.log(err);
+    fetchRowsAjax
+      .then(res => {
+        if (updateWorksheetControls && _.get(res, 'template.controls')) {
+          const newControls = _.get(res, 'template.controls').filter(
+            c =>
+              c.controlId.length === 24 ||
+              _.includes(
+                SYSTEM_CONTROL.concat(WORKFLOW_SYSTEM_CONTROL).map(c => c.controlId),
+                c.controlId,
+              ),
+          );
+          controls = replaceControlsTranslateInfo(appId, worksheetId, newControls);
+          try {
+            dispatch({
+              type: 'WORKSHEET_UPDATE_CONTROLS',
+              controls,
+            });
+          } catch (err) {
+            console.log(err);
+          }
+          dispatch(setViewLayout(viewId));
         }
-        dispatch(setViewLayout(viewId));
-      }
-      let rows = res.data;
-      if (groupControl && !isTreeTableView) {
-        rows = flatRowsFromGroups(rows, groupControl, view, controls);
-        dispatch(initGroupFolded(view, res.data, controls));
-      }
-      dispatch({
-        type: 'WORKSHEET_SHEETVIEW_FETCH_ROWS',
-        rows,
-        resultCode: res.resultCode,
+        let rows = res.data;
+        if (groupControl && !isTreeTableView) {
+          rows = flatRowsFromGroups(rows, groupControl, view, controls);
+          dispatch(initGroupFolded(view, res.data, controls));
+        }
+        dispatch({
+          type: 'WORKSHEET_SHEETVIEW_FETCH_ROWS',
+          rows,
+          resultCode: res.resultCode,
+        });
+        if (isGroupedView) {
+          dispatch({
+            type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT',
+            count: sum(rows.filter(r => r.rowid === 'groupTitle').map(r => r.count)),
+          });
+        }
+        dispatch({ type: 'WORKSHEET_VIEW_UPDATE_ROWS_LOADING', value: false });
+        if (isTreeTableView) {
+          const { treeMap, maxLevel } = treeDataUpdater(
+            {},
+            { rootRows: res.data.filter(r => !r.pid), rows: res.data, levelLimit: Number(args.layer) },
+          );
+          dispatch({
+            type: 'UPDATE_TREE_TABLE_VIEW_DATA',
+            value: { maxLevel, treeMap },
+          });
+        }
+        if (chartId) {
+          dispatch({
+            type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT',
+            count: res.count,
+          });
+        }
+      })
+      .catch(err => {
+        if (err.errorCode === 300016) {
+          dispatch({
+            type: 'WORKSHEET_SHEETVIEW_FETCH_ROWS',
+            rows: [],
+            resultCode: err.errorCode,
+          });
+        }
       });
-      if (isGroupedView) {
-        dispatch({
-          type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT',
-          count: sum(rows.filter(r => r.rowid === 'groupTitle').map(r => r.count)),
-        });
-      }
-      dispatch({ type: 'WORKSHEET_VIEW_UPDATE_ROWS_LOADING', value: false });
-      if (isTreeTableView) {
-        const { treeMap, maxLevel } = treeDataUpdater(
-          {},
-          { rootRows: res.data.filter(r => !r.pid), rows: res.data, levelLimit: Number(args.layer) },
-        );
-        dispatch({
-          type: 'UPDATE_TREE_TABLE_VIEW_DATA',
-          value: { maxLevel, treeMap },
-        });
-      }
-      if (chartId) {
-        dispatch({
-          type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT',
-          count: res.count,
-        });
-      }
-    });
     if (pageIndex === 1 && !chartId && !isGroupedView) {
       const fetchRowsNumAjax = worksheetAjax.getFilterRowsTotalNum(getFilledRequestParams(args), { abortController });
       fetchRowsNumAjax.then(data => {

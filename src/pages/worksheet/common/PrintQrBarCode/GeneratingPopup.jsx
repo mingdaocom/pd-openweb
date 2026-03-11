@@ -19,7 +19,7 @@ const Header = styled.div`
   display: flex;
   height: 50px;
   padding: 0 10px 0 20px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   justify-content: space-between;
   box-shadow: 0px 1px 3px #00000029;
   z-index: 2;
@@ -28,7 +28,7 @@ const Header = styled.div`
     font-size: 17px;
     line-height: 50px;
     font-weight: bold;
-    color: #151515;
+    color: var(--color-text-title);
     max-width: 100%;
   }
   .close {
@@ -36,17 +36,14 @@ const Header = styled.div`
     font-size: 24px;
     line-height: 50px;
     padding: 0 10px;
-    color: #444;
-    &:hover {
-      color: #222;
-    }
+    color: var(--color-text-title);
   }
 `;
 
 const Pagination = styled.div`
   display: flex;
   font-size: 13px;
-  color #151515;
+  color var(--color-text-title);
   align-items: center;
   .info {
     margin-right: 8px;
@@ -59,12 +56,12 @@ const Pagination = styled.div`
     cursor: pointer;
     margin-right: 8px;
     &:not(.disabled):hover {
-      color: #1677ff;
-      background: #F5F5F5;
+      color: var(--color-primary);
+      background: var(--color-background-secondary);
     }
     &.disabled {
       cursor: not-allowed;
-      color: #BDBDBD;
+      color: var(--color-text-disabled);
     }
   }
 `;
@@ -73,25 +70,25 @@ const PrintButton = styled.div`
   position: absolute;
   right: 40px;
   top: 70px;
-  background: #151515639;
-  color: #f1f1f1;
+  background: var(--color-background-overlay);
+  color: var(--color-background-disabled);
   font-size: 20px;
   border-radius: 3px;
   padding: 5px 10px;
   cursor: pointer;
   &:hover {
-    background: #434649;
+    background: var(--color-background-inverse);
   }
 `;
 
 const Body = styled(FlexCenter)`
   flex: 1;
-  background: #eaeaea;
+  background: var(--color-border-secondary);
 `;
 
 const Loading = styled.div`
   text-align: center;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   .icon {
     display: inline-block;
     font-size: 24px;

@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { Dropdown, LoadDiv, Radio, ScrollView } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
+import { RELATION_TYPE } from '../../enum';
 import {
   CustomTextarea,
   DetailFooter,
@@ -118,7 +119,7 @@ export default class Template extends Component {
 
     return (
       <Fragment>
-        <div className="Gray_75 workflowDetailDesc">
+        <div className="textSecondary workflowDetailDesc">
           {_l(
             '发送服务号消息是指向已关注服务号的微信用户发送模版消息。发送对象支持使用人员字段（通过微信授权注册的外部门户用户）或文本字段（存储微信服务号openid）。使用微信服务号模板消息需要组织后台绑定已认证的企业服务号，并在微信服务号后台开通“模板消息”功能。',
           )}
@@ -127,12 +128,12 @@ export default class Template extends Component {
         {data.service.appId ? (
           <div className="workflowDetailDesc mTop10">
             {_l('官方认证服务号')}
-            <span className="mLeft5" style={{ color: '#01ca83' }}>
+            <span className="mLeft5" style={{ color: 'var(--color-task)' }}>
               {data.service.serviceName}
             </span>
           </div>
         ) : (
-          <div className="Gray_75 workflowDetailDesc mTop10">
+          <div className="textSecondary workflowDetailDesc mTop10">
             {_l('当前应用外部门户未开通微信登录，请前往')}
             <a
               href={`/app/${this.props.relationId}/role/external`}
@@ -158,13 +159,13 @@ export default class Template extends Component {
         <div className="mTop20 bold">
           {_l('发送给')}
           <Tooltip title={_l('发送对象必须是已关注当前服务号的外部用户')}>
-            <i className="Font16 icon-info mLeft5 Gray_9e" />
+            <i className="Font16 icon-info mLeft5 textTertiary" />
           </Tooltip>
         </div>
         <Member
           companyId={this.props.companyId}
           accounts={data.accounts}
-          appId={this.props.relationType === 2 ? this.props.relationId : ''}
+          appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
           removeOrganization={true}
           updateSource={this.updateSource}
         />
@@ -175,7 +176,7 @@ export default class Template extends Component {
           <i className="Font28 icon-task-add-member-circle mRight10" />
           {_l('选择成员或包含openid的文本字段')}
           <SelectUserDropDown
-            appId={this.props.relationType === 2 ? this.props.relationId : ''}
+            appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
             specialType={10000005}
             visible={showSelectUserDialog}
             companyId={this.props.companyId}
@@ -216,7 +217,7 @@ export default class Template extends Component {
           <Tooltip
             title={_l('请严格按照模板消息的运营规范配置，防止模板消息被封。如未添加消息模板，请先去服务号中配置。')}
           >
-            <i className="Font16 icon-info mLeft5 Gray_9e" />
+            <i className="Font16 icon-info mLeft5 textTertiary" />
           </Tooltip>
         </div>
         <Dropdown
@@ -233,7 +234,7 @@ export default class Template extends Component {
         {data.appId && (
           <Fragment>
             <div className="mTop20 bold">{_l('内容设置')}</div>
-            <div className="mTop15 Font13 Gray_75">{_l('标题')}</div>
+            <div className="mTop15 Font13 textSecondary">{_l('标题')}</div>
             <div className="mTop8 actionControlBox actionDisabled pLeft10 pRight10">
               {(_.find(appList, item => item.value === data.appId) || {}).text}
             </div>
@@ -302,7 +303,7 @@ export default class Template extends Component {
               </Fragment>
             ) : (
               <Fragment>
-                <div className="mTop15 Gray_75">{_l('选择小程序链接，则小程序需已关联该服务号')}</div>
+                <div className="mTop15 textSecondary">{_l('选择小程序链接，则小程序需已关联该服务号')}</div>
                 <div className="mTop15">{_l('小程序ID（AppID）')}</div>
                 <div className="mTop10">
                   <CustomTextarea

@@ -67,9 +67,7 @@ const SignatureWrap = styled.div`
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center;
-  box-shadow:
-    0 1px 4px rgba(0, 0, 0, 0.12),
-    0 0 2px rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--color-border-secondary);
   border-radius: 4px;
   &:hover {
     box-shadow:
@@ -134,7 +132,7 @@ const GrayButton = styled.div`
   border-radius: 3px;
   font-weight: bold;
   &:hover {
-    background-color: var(--color-background-tertiary);
+    background-color: var(--color-background-hover);
   }
   &.iconButton {
     width: 36px;
@@ -261,7 +259,9 @@ const Signature = props => {
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
     canvas.getContext('2d');
+    const penColor = getComputedStyle(document.body).getPropertyValue('--color-text-primary');
     signaturePadRef.current = new SignaturePad.default(canvas, {
+      penColor,
       onBegin: () => {
         setIsEdit(true);
       },
@@ -439,7 +439,7 @@ const Signature = props => {
           <ClickAwayable onClickAway={clickEvent}>
             <SignaturePopup onClick={e => e.nativeEvent.stopImmediatePropagation()}>
               <div className="header">
-                <span className="Gray">{_l('请在下方空白区域横向书写签名')}</span>
+                <span className="textPrimary">{_l('请在下方空白区域横向书写签名')}</span>
                 <i onClick={closePopup} className="Font18 icon-close"></i>
               </div>
               {lastInfo ? (
@@ -464,7 +464,7 @@ const Signature = props => {
                 e.nativeEvent.stopImmediatePropagation();
               }}
             >
-              <i className="icon-e-signature Font17 Gray_9e"></i>
+              <i className="icon-e-signature Font17 textTertiary"></i>
               <span className="mLeft5">{_l('添加签名')}</span>
             </GrayButton>
             {allowappupload && (
@@ -486,7 +486,7 @@ const Signature = props => {
                 <div>
                   <Tooltip title={_l('从移动设备输入')} placement="bottom" mouseEnterDelay={0}>
                     <GrayButton type="ghostgray" className="iconButton">
-                      <i className="icon icon-mobile Font20 Gray_9e"></i>
+                      <i className="icon icon-mobile Font20 textTertiary"></i>
                     </GrayButton>
                   </Tooltip>
                 </div>

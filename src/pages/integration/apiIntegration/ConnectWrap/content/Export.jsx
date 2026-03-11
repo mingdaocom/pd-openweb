@@ -3,6 +3,7 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Checkbox, Dialog, LoadDiv } from 'ming-ui';
+import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import AppManagement from 'src/pages/workflow/api/ApiManagement.js';
 import PackageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import APITable from 'src/pages/integration/components/APITable.jsx';
@@ -23,8 +24,8 @@ const Wrap = styled.div`
     }
   }
 `;
-export default function ExportDialog(props) {
-  const { projectId, info, onClose } = props;
+function ExportDialog(props) {
+  const { projectId, info, onClose = () => {} } = props;
   const [{ selectedList, list, isCheckAll, loading, notCheck }, setState] = useSetState({
     list: [],
     selectedList: [],
@@ -91,7 +92,7 @@ export default function ExportDialog(props) {
       name: _l('状态'),
       render: item => {
         const { enabled } = item;
-        return <span className={cx(enabled ? 'Green' : 'Gray_75')}>{enabled ? _l('开启') : _l('关闭')}</span>;
+        return <span className={cx(enabled ? 'Green' : 'textSecondary')}>{enabled ? _l('开启') : _l('关闭')}</span>;
       },
     },
   ];
@@ -112,7 +113,7 @@ export default function ExportDialog(props) {
 
   return (
     <Dialog
-      title={_l('导入连接')}
+      title={_l('导出连接')}
       visible={true}
       footer={null}
       width={640}
@@ -124,7 +125,7 @@ export default function ExportDialog(props) {
       ) : (
         <Wrap className="flexColumn">
           <div className="mBottom24">
-            <span className="Gray_75">
+            <span className="textSecondary">
               {_l('将API配置导出为文件，之后可以将此文件导入其他组织以实现 API 迁移或升级')}
             </span>
           </div>
@@ -175,14 +176,18 @@ export default function ExportDialog(props) {
                 }}
               />
             </div>
-            <button type="button" className="ming Button Button--link Hover_49 Bold" onClick={() => onClose()}>
+            <button
+              type="button"
+              className="ming Button Button--link hoverTextPrimaryLight Bold"
+              onClick={() => onClose()}
+            >
               {_l('取消')}
             </button>
             <button
               type="button"
               className={cx(
                 'ming Button Button--primary  importBtn Bold mLeft20',
-                selectedList.length <= 0 ? 'Button--disabled' : 'Hover_49',
+                selectedList.length <= 0 ? 'Button--disabled' : 'hoverTextPrimaryLight',
               )}
               onClick={() => exportConnect()}
             >
@@ -194,3 +199,5 @@ export default function ExportDialog(props) {
     </Dialog>
   );
 }
+
+export default props => FunctionWrap(ExportDialog, { ...props });

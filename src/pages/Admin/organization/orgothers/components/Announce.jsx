@@ -17,7 +17,7 @@ const WrapCom = styled.div`
   .toolItem {
     width: 100%;
     padding: 23px 0;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     display: flex;
     &:nth-child(3) {
       border-bottom: none;
@@ -25,7 +25,7 @@ const WrapCom = styled.div`
     .toolItemLabel {
       width: 155px;
       font-size: 13px;
-      color: #151515;
+      color: var(--color-text-title);
     }
     .toolItemRight {
       flex: 1;
@@ -40,14 +40,14 @@ const WrapCom = styled.div`
         align-items: center;
         font-size: 13px;
         .color_g {
-          color: #757575;
+          color: var(--color-text-secondary);
         }
       }
       .ming.Checkbox {
         margin-top: 10px;
         display: flex;
         align-items: center;
-        color: #151515;
+        color: var(--color-text-title);
         font-size: 13px;
       }
     }
@@ -213,7 +213,7 @@ export default class Announce extends Component {
           if (failCount === 0) {
             alert(_l('发布成功'));
           } else if (failCount) {
-            const message = '<div className="Font12 Gray_c">' + _l('%0人发送失败', failCount) + '</div>';
+            const message = '<div className="Font12 textPlaceholder">' + _l('%0人发送失败', failCount) + '</div>';
             alert(message, 3);
           }
           this.setState({
@@ -242,7 +242,7 @@ export default class Announce extends Component {
   renderAttachmentList = () => {
     return (
       <AttachmentList>
-        <div className="ThemeHoverColor3 pointer mTop5 mBottom10 Font13 Gray_75">
+        <div className="ThemeHoverColor3 pointer mTop5 mBottom10 Font13 textSecondary">
           <span
             className="InlineBlock ThemeColor3 Hand adminHoverColor"
             id="uploadAttachment"

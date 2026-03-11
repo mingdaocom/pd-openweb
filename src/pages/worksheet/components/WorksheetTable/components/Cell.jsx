@@ -7,8 +7,8 @@ import 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
 import { ROW_HEIGHT, WORKSHEET_ALLOW_SET_ALIGN_CONTROLS } from 'worksheet/constants/enum';
-import { controlState } from 'src/components/Form/core/utils';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { controlState } from 'src/utils/control';
 import { checkCellIsEmpty, controlIsNumber, isRelateRecordTableControl } from 'src/utils/control';
 import { getRecordColor } from 'src/utils/record';
 import CollapseExpandButton from './CollapseExpandButton';
@@ -89,7 +89,7 @@ const TreeExpandIcon = styled.div`
   margin-right: 10px;
   &:hover {
     .icon {
-      color: #1677ff;
+      color: var(--color-primary);
     }
     background: rgba(0, 0, 0, 0.05);
     .line {
@@ -97,7 +97,7 @@ const TreeExpandIcon = styled.div`
     }
   }
   .icon {
-    color: #757575;
+    color: var(--color-text-secondary);
     &.folded {
       transform: rotate(-90deg);
     }
@@ -115,7 +115,7 @@ const TreeLoadingIcon = styled.div`
   margin-right: 10px;
   .icon {
     font-size: 14px;
-    color: #757575;
+    color: var(--color-text-secondary);
     animation: 2s linear infinite rotate;
   }
 `;
@@ -129,9 +129,9 @@ const AddChildBtn = styled.div`
   top: 4px;
   width: 24px;
   height: 24px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   border-radius: 3px;
-  background: #fff;
+  background: var(--color-background-primary);
   .icon {
     font-size: 20px;
   }
@@ -242,6 +242,7 @@ function getCellType(id) {
 function Cell(props) {
   const { key, style = {}, data = {} } = props;
   const {
+    isCharge,
     tableDataWithRowFormData,
     columnStyles = {},
     treeTableViewData,
@@ -299,7 +300,10 @@ function Cell(props) {
     getColumnWidth,
     isDraft,
     inView,
+    direction = 'horizontal',
+    cellProps = {},
   } = data;
+  const isHorizontal = direction === 'horizontal';
   const cellCache = useRef({});
   const { columnIndex, rowIndex } = getIndex({
     columnIndex: props.columnIndex,
@@ -309,7 +313,7 @@ function Cell(props) {
   const leftFixedCount = grid.leftFixedCount || 1;
   const cellStyle = { ...style };
   const cellIndex = rowIndex * cellColumnCount + columnIndex;
-  const row = rows[rowIndex] || {};
+  const row = rows[isHorizontal ? rowIndex : columnIndex - 1] || {};
   cellCache.current.row = row;
 
   // 缓存 getRow 函数
@@ -317,7 +321,7 @@ function Cell(props) {
     return row;
   }, [row]);
   const control = {
-    ...(visibleColumns[columnIndex] || {}),
+    ...(visibleColumns[isHorizontal ? columnIndex : rowIndex] || {}),
   };
   control.fieldPermission = rulePermissions[`${row.rowid}-${control.controlId}`] || control.fieldPermission || '111';
   const currentColumnStyle = columnStyles[control.controlId] || {};
@@ -328,6 +332,7 @@ function Cell(props) {
   const cellType = getCellType(grid.id);
   const needHightLight =
     !isUndefined(window[`sheetTableHighlightRow${tableId}`]) && window[`sheetTableHighlightRow${tableId}`] === rowIndex;
+  const addLineColumnOfVerticalTable = direction === 'vertical' && columnIndex === cellColumnCount;
   let className = cx(
     `control-${control.type === 30 ? control.sourceControlType || control.type : control.type}`,
     `row-${includes(['head', 'foot'], cellType) ? cellType : rowIndex}`,
@@ -344,6 +349,7 @@ function Cell(props) {
       emptyRow: row.rowid && isFunction(row.rowid.startsWith) && row.rowid.startsWith('empty'),
       oddRow: rowIndex % 2 === 1,
       lastRow: rowIndex === rows.length - 1,
+      addLineColumnOfVerticalTable,
       readonly:
         lineEditable &&
         !disableQuickEdit &&
@@ -354,7 +360,8 @@ function Cell(props) {
       fixedRow: rowIndex === 0,
       lastFixedColumn: columnIndex === fixedColumnCount && fixedColumnCount !== 0,
       // focus: !_.isUndefined(cache.focusIndex) && cellIndex === cache.focusIndex,
-      highlight: needHightLight || String(window[`activeRowIndex-${tableId}`]) === String(rowIndex),
+      highlight:
+        needHightLight || String(window[`activeRowIndex-${tableId}`]) === String(isHorizontal ? rowIndex : columnIndex),
       highlightFromProps: sheetViewHighlightRows[row.rowid],
       focusShowEditIcon:
         tableType === 'classic' &&
@@ -404,7 +411,7 @@ function Cell(props) {
       className += ' headAlignCenter';
     }
   }
-  if (control.type === 'emptyForResize') {
+  if (control.type === 'emptyForResize' && cellType !== 'foot') {
     return (
       <div
         style={cellStyle}
@@ -417,6 +424,12 @@ function Cell(props) {
         }}
       />
     );
+  }
+  if (addLineColumnOfVerticalTable && rowIndex === 0 && isFunction(cellProps.renderVerticalAddLine)) {
+    return cellProps.renderVerticalAddLine({
+      className,
+      style: cellStyle,
+    });
   }
   const recordColor =
     recordColorConfig &&
@@ -451,7 +464,11 @@ function Cell(props) {
       getColumnWidth,
     });
   }
-  if (isFunction(renderFunctions.rowHead) && control.type === 'rowHead' && cellType !== 'foot') {
+  if (
+    isFunction(renderFunctions.rowHead) &&
+    (isHorizontal ? control.type === 'rowHead' : false) &&
+    cellType !== 'foot'
+  ) {
     const rowHeadComp = control.empty ? (
       <span className={className} style={cellStyle} />
     ) : (
@@ -483,8 +500,9 @@ function Cell(props) {
       rowHeadComp
     );
   }
-  if (isFunction(renderFunctions.head) && cellType === 'head') {
+  if (isFunction(renderFunctions.head) && (isHorizontal ? cellType === 'head' : columnIndex === 0)) {
     return renderFunctions.head({
+      isVertical: direction === 'vertical',
       className,
       fixedColumnCount: fixedColumnCount + 1,
       key,
@@ -492,10 +510,14 @@ function Cell(props) {
       columnIndex,
       rowIndex,
       control,
+      row,
       updateSheetColumnWidths,
     });
   }
   if (isFunction(renderFunctions.foot) && cellType === 'foot') {
+    if (control.type === 'emptyForResize') {
+      className += ' emptyForResize';
+    }
     return renderFunctions.foot({
       className,
       style: cellStyle,
@@ -528,6 +550,9 @@ function Cell(props) {
   }
   const cell = (
     <MemorizedDataCell
+      isCharge={isCharge}
+      cellProps={cellProps}
+      direction={direction}
       chatButton={data.chatButton}
       key={key}
       isTrash={isTrash}
@@ -562,8 +587,9 @@ function Cell(props) {
       masterData={masterData}
       columnStyle={currentColumnStyle}
       // functions
+      updateSheetColumnWidths={updateSheetColumnWidths}
       setActiveRow={setActiveRow}
-      rowFormData={tableDataWithRowFormData[rowIndex]}
+      rowFormData={tableDataWithRowFormData[isHorizontal ? rowIndex : columnIndex - 1]}
       getRow={getRow}
       clearCellError={clearCellError}
       getPopupContainer={getPopupContainer}
@@ -574,7 +600,7 @@ function Cell(props) {
       checkRulesErrorOfControl={checkRulesErrorOfControl}
       cellUniqueValidate={cellUniqueValidate}
       updateCell={(args, options) => updateCell({ row, rowIndex, args, options })}
-      registerRef={ref => registerRef(ref, cellIndex)}
+      registerRef={(ref, newCellIndex) => registerRef(ref, newCellIndex || cellIndex)}
     />
   );
   if (control.isTreeExpandCell && treeNodeData) {
@@ -648,7 +674,7 @@ function Cell(props) {
               <i className="icon icon-loading_button" />
             </TreeLoadingIcon>
           )}
-          <span className="Gray_9e">{(treeNodeData.levelList || []).join('.')}</span>
+          <span className="textTertiary">{(treeNodeData.levelList || []).join('.')}</span>
         </TreeExpandCell>
         {cell}
         {addSubRecordVisible && (

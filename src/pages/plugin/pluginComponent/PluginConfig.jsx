@@ -3,12 +3,11 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, Input, LoadDiv, ScrollView, SvgIcon, TagTextarea } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
+import { dialogSelectIcon } from 'ming-ui/functions';
 import appManagementApi from 'src/api/appManagement';
-import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import { navigateToView } from 'src/pages/widgetConfig/util/data';
 import Search from 'src/pages/workflow/components/Search';
@@ -29,18 +28,18 @@ const ConfigWrapper = styled.div`
   right: 0;
   top: 0;
   bottom: 0;
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow: 0px 3px 24px rgba(0, 0, 0, 0.16);
 
   .tabList {
     width: 100%;
-    background: #fff;
+    background: var(--color-background-primary);
     position: sticky;
     top: -1px;
 
     ul {
       padding: 24px 24px 0 24px;
-      border-bottom: 1px solid #ebebeb;
+      border-bottom: 1px solid var(--color-border-secondary);
       li {
         display: inline-block;
         font-size: 15px;
@@ -51,8 +50,8 @@ const ConfigWrapper = styled.div`
         border-bottom: 2px solid rgba(0, 0, 0, 0);
         cursor: pointer;
         &.isCur {
-          color: #1677ff;
-          border-bottom: 2px solid #1677ff;
+          color: var(--color-primary);
+          border-bottom: 2px solid var(--color-primary);
         }
       }
     }
@@ -78,12 +77,12 @@ const ConfigWrapper = styled.div`
     font-size: 24px;
     cursor: pointer;
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 
   .configHeader {
-    background: #ffffff;
+    background: var(--color-background-primary);
     padding: 32px 24px 0px 24px;
     width: 100%;
     transition: height 0.2s;
@@ -97,8 +96,8 @@ const ConfigWrapper = styled.div`
       height: 48px;
       min-width: 48px;
       margin-right: 20px;
-      background: #fff;
-      color: #bdbdbd;
+      background: var(--color-background-primary);
+      color: var(--color-text-disabled);
       border-radius: 8px;
       cursor: pointer;
     }
@@ -114,8 +113,8 @@ const ConfigWrapper = styled.div`
       display: flex;
       align-items: center;
       width: 100%;
-      background: #ffffff;
-      border: 1px solid #ddd;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-primary);
       border-radius: 6px;
       padding: 22px 20px;
       margin-top: 24px;
@@ -127,8 +126,8 @@ const ConfigWrapper = styled.div`
         line-height: 36px;
         padding: 0 16px;
         border-radius: 36px;
-        background: #e3f2fd;
-        color: #1677ff;
+        background: var(--color-primary-transparent);
+        color: var(--color-primary);
         cursor: pointer;
         i {
           margin-right: 6px;
@@ -152,7 +151,7 @@ const ConfigWrapper = styled.div`
   }
 
   .configFooter {
-    background: #fff;
+    background: var(--color-background-primary);
     padding: 16px 20px;
 
     .footerBtn {
@@ -165,20 +164,20 @@ const ConfigWrapper = styled.div`
 
       &.close,
       &.recoverDefault {
-        color: #757575;
-        border: 1px solid #ebebeb;
+        color: var(--color-text-secondary);
+        border: 1px solid var(--color-border-secondary);
         &:hover {
-          color: #1677ff;
-          border: 1px solid #1677ff;
+          color: var(--color-primary);
+          border: 1px solid var(--color-primary);
         }
       }
       &.save {
-        color: #fff;
-        background: #1677ff;
-        border: 1px solid #1677ff;
+        color: var(--color-white);
+        background: var(--color-primary);
+        border: 1px solid var(--color-primary);
         &:hover {
-          background: #1764c0;
-          border: 1px solid #1764c0;
+          background: var(--color-link-hover);
+          border: 1px solid var(--color-link-hover);
         }
       }
     }
@@ -426,10 +425,37 @@ function PluginConfig(props) {
   };
 
   const renderIcon = () => {
-    const content = (
+    const onEditIcon = () => {
+      if (
+        hasManagePluginAuth ||
+        md.global.Account.accountId === _.get(detailData, 'creator.accountId') ||
+        belongType === 'myPlugin'
+      ) {
+        dialogSelectIcon({
+          hideInput: true,
+          iconColor: detailData.iconColor,
+          icon: detailData.icon,
+          projectId,
+          onModify: ({ iconColor, icon, iconUrl }) => {
+            const updateObj = { iconColor, icon, iconUrl };
+
+            if (configType !== pluginConfigType.create) {
+              onUpdate({ iconColor, icon }, () => {
+                setDetailData(updateObj);
+              });
+            } else {
+              setDetailData(updateObj);
+            }
+          },
+        });
+      }
+    };
+
+    return (
       <div
         className="iconWrapper"
         style={{ backgroundColor: detailData.iconColor ? getRgbaByColor(detailData.iconColor, '0.08') : '#fff' }}
+        onClick={onEditIcon}
       >
         {detailData.iconUrl ? (
           <SvgIcon url={detailData.iconUrl} fill={detailData.iconColor} size={32} />
@@ -437,48 +463,6 @@ function PluginConfig(props) {
           <Icon icon="extension" className="Font32" />
         )}
       </div>
-    );
-    return hasManagePluginAuth ||
-      md.global.Account.accountId === _.get(detailData, 'creator.accountId') ||
-      belongType === 'myPlugin' ? (
-      <Trigger
-        action={['click']}
-        popup={
-          <SelectIcon
-            hideInput
-            iconColor={detailData.iconColor}
-            icon={detailData.icon}
-            projectId={projectId}
-            onModify={({ iconColor, icon, iconUrl }) => {
-              let updateObj = {};
-              if (iconColor) {
-                updateObj = { iconColor };
-              } else {
-                updateObj = { icon, iconUrl };
-              }
-              if (configType !== pluginConfigType.create) {
-                onUpdate(iconColor ? { iconColor } : { icon }, () => {
-                  setDetailData({ ...detailData, ...updateObj });
-                });
-              } else {
-                setDetailData({ ...detailData, ...updateObj });
-              }
-            }}
-          />
-        }
-        zIndex={1000}
-        popupAlign={{
-          points: ['tl', 'bl'],
-          overflow: {
-            adjustX: true,
-            adjustY: true,
-          },
-        }}
-      >
-        {content}
-      </Trigger>
-    ) : (
-      content
     );
   };
 
@@ -532,7 +516,7 @@ function PluginConfig(props) {
       case pluginConfigType.paramSetting:
         return (
           <div className="mTop12">
-            <p className="Gray_75 mBottom8">{_l('配置插件运行时所需要的环境参数，采用JSON格式')}</p>
+            <p className="textSecondary mBottom8">{_l('配置插件运行时所需要的环境参数，采用JSON格式')}</p>
             <TagTextarea
               getRef={ref => (textareaRef.current = ref)}
               defaultValue={
@@ -622,7 +606,7 @@ function PluginConfig(props) {
                       belongType === 'myPlugin') && (
                       <Icon
                         icon="edit"
-                        className="Font16 mLeft5 Gray_9d Hand Hover_21"
+                        className="Font16 mLeft5 textTertiary Hand hoverColorPrimary"
                         onClick={() => {
                           setEditingName(true);
                           setTimeout(() => {
@@ -664,7 +648,7 @@ function PluginConfig(props) {
                 {detailData.currentVersion.versionCode ? (
                   <div className="flex flexRow alignItemsCenter">
                     <span className="Font24 bold">{detailData.currentVersion.versionCode}</span>
-                    <span className="Gray_75 mLeft12 flexColumn minWidth0">
+                    <span className="textSecondary mLeft12 flexColumn minWidth0">
                       <div>
                         {source === 0
                           ? `${detailData.creator.fullname} ${_l('发布于')} ${moment(
@@ -676,13 +660,13 @@ function PluginConfig(props) {
                     </span>
                   </div>
                 ) : (
-                  <div className="flex Font24 bold Gray_9e">{_l('未发布版本')}</div>
+                  <div className="flex Font24 bold textTertiary">{_l('未发布版本')}</div>
                 )}
 
                 {(hasManagePluginAuth ||
                   md.global.Account.accountId === _.get(detailData, 'creator.accountId') ||
                   belongType === 'myPlugin') &&
-                  (detailData.source !== 3 || md.global.Config.IsLocal) && (
+                  (detailData.source !== 3 || window.platformENV.isOverseas || window.platformENV.isLocal) && (
                     <div
                       className="versionPublishBtn"
                       onClick={() =>

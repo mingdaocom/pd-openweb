@@ -5,7 +5,7 @@ import { Icon, RichText } from 'ming-ui';
 
 const Wrap = styled.div`
   .ck .ck-content {
-    background: #fff !important;
+    background: var(--color-background-primary) !important;
   }
   // .ck-editor__main {
   //   max-height: ${props => `${props.richTextHeight}px`};
@@ -14,7 +14,7 @@ const Wrap = styled.div`
     opacity: 0;
     &:hover {
       .Icon {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }

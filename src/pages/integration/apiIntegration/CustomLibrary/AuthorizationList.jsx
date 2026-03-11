@@ -7,7 +7,7 @@ import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 
 const AuthListDrawer = styled(Drawer)`
-  color: #151515;
+  color: var(--color-text-title);
   .ant-drawer-mask {
     background-color: transparent;
   }
@@ -45,9 +45,9 @@ const AuthListDrawer = styled(Drawer)`
         width: 130px;
         height: 130px;
         text-align: center;
-        background: #f5f5f5;
+        background: var(--color-background-secondary);
         border-radius: 50%;
-        color: #c2c3c3;
+        color: var(--color-text-placeholder);
         i {
           line-height: 130px;
         }
@@ -61,13 +61,13 @@ const ListItem = styled.div`
   align-items: center;
   padding: 24px 12px;
   margin: 0 24px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--color-border-secondary);
   &.titleItem {
     padding: 12px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   &:not(.titleItem):hover {
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
   }
   .applyUser,
   .name,
@@ -84,13 +84,13 @@ const ListItem = styled.div`
   }
 
   .reject {
-    color: #f44336;
+    color: var(--color-error);
   }
   .agree {
-    color: #4caf50;
+    color: var(--color-success);
   }
   .reviewing {
-    color: #1677ff;
+    color: var(--color-primary);
   }
 `;
 
@@ -252,7 +252,7 @@ export default function AuthorizationList(props) {
           <div className="iconCon">
             <Icon icon="connect" className="Font64" />
           </div>
-          <div className="mTop24 Font16 Gray_9e">{_l('暂无使用申请')}</div>
+          <div className="mTop24 Font16 textTertiary">{_l('暂无使用申请')}</div>
         </div>
       )}
     </AuthListDrawer>

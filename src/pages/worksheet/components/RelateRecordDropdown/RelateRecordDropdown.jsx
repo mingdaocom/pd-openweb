@@ -5,14 +5,16 @@ import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { ClickAway, SortableList } from 'ming-ui';
+import { RecordFormContext } from 'worksheet/common/recordInfo/RecordForm';
 import RelateRecordCards from 'worksheet/components/RelateRecordCards';
 import { FROM } from 'src/components/Form/core/config';
-import { getTitleTextFromRelateControl } from 'src/components/Form/core/utils';
+import { selectRecords } from 'src/components/SelectRecords';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import { updateRelateRecordSorts } from 'src/pages/worksheet/controllers/record';
 import ViewHoverRelateRecordCard from 'src/pages/worksheet/views/components/ViewHoverRelateRecordCard.jsx';
 import { getTranslateInfo } from 'src/utils/app';
+import { getTitleTextFromRelateControl } from 'src/utils/control';
 import { checkIsTextControl } from 'src/utils/control';
 import AutoWidthInput from './AutoWidthInput';
 import RelateRecordList from './RelateRecordList';
@@ -21,17 +23,17 @@ import './style.less';
 const OnlyScanTip = styled.div`
   width: 310px;
   padding: 10px 16px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   border-radius: 3px;
-  background-color: #fff;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.24);
+  background-color: var(--color-background-primary);
+  box-shadow: var(--shadow-lg);
   .clearBtn {
     padding: 6px 16px;
     margin: 0 -16px 6px;
     cursor: pointer;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     &:hover {
-      background: #e4f4ff;
+      background: var(--color-primary-transparent);
     }
   }
 `;
@@ -41,7 +43,7 @@ const PlaceHolder = styled.div`
   left: 10px;
   top: 50%;
   margin-top: -6px;
-  color: #bdbdbd;
+  color: var(--color-text-disabled);
   line-height: 1em;
   width: calc(100% - 10px);
 `;
@@ -98,7 +100,9 @@ export default class RelateRecordDropdown extends React.Component {
   componentDidMount() {
     if (this.props.isediting) {
       if (this.canSelect) {
-        this.openPopup();
+        setTimeout(() => {
+          this.openPopup();
+        }, 10);
       } else {
         if (this.props.selected.length > 0 && this.props.multiple) {
           return;
@@ -401,11 +405,11 @@ export default class RelateRecordDropdown extends React.Component {
                 if (!allowOpenRecord || isMobileTable) {
                   return;
                 }
-                this.setState({ previewRecord: { recordId: selected[0].rowid } });
+                this.setState({ previewRecord: { recordId: selected[0]?.rowid } });
                 e.stopPropagation();
               }}
             >
-              {selected[0].rowid ? title : _l('关联当前%0', entityName)}
+              {selected[0]?.rowid ? title : _l('关联当前%0', entityName)}
             </span>
           </ViewHoverRelateRecordCard>
         )}
@@ -703,18 +707,28 @@ export default class RelateRecordDropdown extends React.Component {
 
   renderSelected(free) {
     const {
+      control,
+      recordId,
+      coverCid,
+      showControls,
+      appId,
+      parentWorksheetId,
+      viewId,
       isDark,
       isQuickFilter,
       isediting,
       insheet,
       multiple,
+      formData,
       selectedClassName,
       selectedStyle,
       disabled,
       allowOpenRecord,
       renderSelected,
+      onVisibleChange,
+      onChange,
     } = this.props;
-    const { selected, keywords, listvisible } = this.state;
+    const { selected, keywords, listvisible, deletedIds, defaultSelected } = this.state;
     let content;
     if (_.isFunction(renderSelected) && !(isQuickFilter && listvisible)) {
       content = renderSelected(selected, { handleDelete: this.handleDelete });
@@ -723,6 +737,15 @@ export default class RelateRecordDropdown extends React.Component {
     } else {
       content = _.isArray(selected) && selected.length > 1 ? this.renderMultipe() : this.renderSingle();
     }
+    const showDialogSelect = get(control, 'advancedSetting.openfastfilters') === '1';
+    const showClearIcon =
+      !disabled &&
+      this.allowRemove &&
+      (!!selected.length || keywords) &&
+      (!insheet || this.active) &&
+      !!selected.length &&
+      (listvisible || !showDialogSelect);
+    const formDataArray = typeof formData === 'function' ? formData() : formData;
     return (
       <div
         className={cx('RelateRecordDropdown-selected', selectedClassName, {
@@ -733,16 +756,59 @@ export default class RelateRecordDropdown extends React.Component {
           allowOpenRecord: allowOpenRecord,
           isDark,
           'customFormControlBox mobile': this.isMobile,
+          showDialogSelect,
         })}
         ref={this.cell}
         style={selectedStyle}
         onClick={this.handleClick}
       >
         {content}
-        {!disabled && !(this.active && keywords) && (
+        {!disabled && !(this.active && keywords) && !showDialogSelect && (
           <i className={`icon ${this.isMobile ? 'icon-arrow-right-border' : 'icon-arrow-down-border'} dropIcon`}></i>
         )}
-        {!disabled && this.allowRemove && (!!selected.length || keywords) && (!insheet || this.active) && (
+        {!disabled && showDialogSelect && (insheet ? isediting : true) && (
+          <i
+            className={cx('icon icon-table selectDialogIcon ThemeHoverColor3', { clearVisible: showClearIcon })}
+            onClick={e => {
+              e.stopPropagation();
+              e.preventDefault();
+              selectRecords({
+                // projectId: worksheet?.projectId,
+                control,
+                controlId: control.controlId,
+                recordId,
+                isCharge: control.isCharge,
+                multiple,
+                // allowNewRecord:
+                //   allowNewRecord &&
+                //   allowAdd &&
+                //   !(_.get(window, 'shareState.isPublicFormPreview') || _.get(window, 'shareState.isPublicForm')),
+                coverCid,
+                appId,
+                viewId,
+                formData: formDataArray,
+                relateSheetId: control.dataSource,
+                parentWorksheetId: parentWorksheetId,
+                showControls: showControls,
+                needHideRowIds: selected.map(r => r.rowid),
+                ignoreRowIds: deletedIds,
+                onOk: records => {
+                  this.setState({ keywords: '' });
+                  if (multiple) {
+                    records.forEach(record => {
+                      this.handleAdd(_.assign({}, record, { isNewAdd: true }));
+                    });
+                  } else {
+                    onChange(records);
+                    onVisibleChange(false);
+                  }
+                },
+                isDraft: control.isDraft,
+              });
+            }}
+          ></i>
+        )}
+        {showClearIcon && (
           <i
             className="icon icon-cancel Hand clearIcon"
             onClick={e => {
@@ -853,6 +919,7 @@ export default class RelateRecordDropdown extends React.Component {
                   ...control.advancedSetting,
                   showtype: '1',
                 },
+                coverCid: get(control, 'advancedSetting.choosecoverid'),
               }}
               records={selected.slice(0, 1)}
               from={from}
@@ -867,31 +934,36 @@ export default class RelateRecordDropdown extends React.Component {
           />
         )}
         {newrecordVisible && !disabledManualWrite && (
-          <NewRecord
-            showFillNext
-            directAdd
-            className="worksheetRelateNewRecord"
-            worksheetId={dataSource}
-            addType={2}
-            defaultFormDataEditable
-            isDraft={control.isDraft}
-            defaultFormData={
-              this.searchControl && checkIsTextControl(this.searchControl.type) && keywords
-                ? {
-                    [this.searchControl.controlId]: keywords,
-                  }
-                : {}
-            }
-            defaultRelatedSheet={this.getDefaultRelateSheetValue()}
-            visible={newrecordVisible}
-            hideNewRecord={() => {
-              this.setState({ newrecordVisible: false });
-            }}
-            onAdd={record => this.handleItemClick(record)}
-            updateWorksheetControls={newOptionsControlsForRelationControls => {
-              this.setState({ newOptionsControlsForRelationControls });
-            }}
-          />
+          <RecordFormContext.Consumer>
+            {({ isMingoCreate } = {}) => (
+              <NewRecord
+                allowShowMingoCreate={!isMingoCreate}
+                showFillNext
+                directAdd
+                className="worksheetRelateNewRecord"
+                worksheetId={dataSource}
+                addType={2}
+                defaultFormDataEditable
+                isDraft={control.isDraft}
+                defaultFormData={
+                  this.searchControl && checkIsTextControl(this.searchControl.type) && keywords
+                    ? {
+                        [this.searchControl.controlId]: keywords,
+                      }
+                    : {}
+                }
+                defaultRelatedSheet={this.getDefaultRelateSheetValue()}
+                visible={newrecordVisible}
+                hideNewRecord={() => {
+                  this.setState({ newrecordVisible: false });
+                }}
+                onAdd={record => this.handleItemClick(record)}
+                updateWorksheetControls={newOptionsControlsForRelationControls => {
+                  this.setState({ newOptionsControlsForRelationControls });
+                }}
+              />
+            )}
+          </RecordFormContext.Consumer>
         )}
         {from !== FROM.PUBLIC_ADD && previewRecord && (
           <RecordInfoWrapper

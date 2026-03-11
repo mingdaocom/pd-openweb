@@ -84,7 +84,7 @@ const DevelopContent = ({ data, allControls, onChange }) => {
             placement="bottom"
             title={_l('仅允许使用字母（不区分大小写）、数字和下划线组合， 且必须以字母开头，不可重复。')}
           >
-            <Icon icon="help" className="Font16 Gray_bd mLeft4" />
+            <Icon icon="help" className="Font16 textDisabled mLeft4" />
           </Tooltip>
         </div>
         <Input
@@ -119,7 +119,7 @@ const DevelopContent = ({ data, allControls, onChange }) => {
         <div className="settingItemTitle">
           {_l('备注')}
           <Tooltip placement="bottom" title={_l('输入的内容仅应用管理员和开发者可见')}>
-            <Icon icon="help" className="Font16 Gray_bd mLeft4" />
+            <Icon icon="help" className="Font16 textDisabled mLeft4" />
           </Tooltip>
         </div>
         <Input.TextArea autoSize={false} rows={4} value={remark} onChange={e => onChange({ remark: e.target.value })} />

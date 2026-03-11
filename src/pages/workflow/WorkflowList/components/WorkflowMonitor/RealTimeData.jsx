@@ -79,9 +79,9 @@ export default class RealTimeData extends PureComponent {
         <div className="countValue">{formatter(realTimeData[type]) || '-'}</div>
         {type === 'difference' ? (
           <div>
-            {isWarning ? <span className="Gray_75">{_l('预警（%0）', warningValue)}</span> : ''}
+            {isWarning ? <span className="textSecondary">{_l('预警（%0）', warningValue)}</span> : ''}
             <span
-              className="ThemeColor Hand"
+              className="colorPrimary Hand"
               onClick={() => {
                 settingEarlyWarning({
                   type: 'workflow',

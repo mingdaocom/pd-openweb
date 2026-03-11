@@ -1544,5 +1544,10 @@ const report = {
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'reportrefreshData', JSON.stringify(args), $.extend(base, options));
   },
+  getReports: function (args, options) {
+    base.ajaxOptions.url = base.server() + '/report/getReports';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'reportgetReports', JSON.stringify(args), $.extend(base, options));
+  },
 };
 export default report;

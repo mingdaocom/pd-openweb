@@ -9,7 +9,7 @@ const typeColors = {
   ai: '#ff9100',
   cal: '#9c27b0',
   doc: '#acacac',
-  excel: '#4caf50',
+  excel: 'var(--color-success)',
   img: '#ff5252',
   mmap: '#d32f2f',
   pdf: '#d32f2f',
@@ -61,7 +61,7 @@ class ThumbnailItem extends React.Component {
         />
       );
     } else {
-      const bgColor = typeColors[getFileIconNameByExt(ext)] || '#acacac';
+      const bgColor = typeColors[getFileIconNameByExt(ext)] || 'var(--color-text-tertiary)';
       content = (
         <span className="typeBlock" style={{ backgroundColor: bgColor }}>
           <span className="fileName">{name.length > 10 ? name.slice(0, 10) + '...' : name}</span>

@@ -18,7 +18,7 @@ const DotWrapper = styled.div`
   border-radius: 50%;
   cursor: pointer;
   z-index: 1;
-  background-color: #1677ff;
+  background-color: var(--color-primary);
 `;
 
 const lineHeight = 32;

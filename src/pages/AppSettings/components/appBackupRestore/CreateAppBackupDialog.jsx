@@ -17,13 +17,13 @@ const CreateBackupCon = styled.div`
     background: rgba(255, 159, 51, 0.15);
     height: 32px;
     line-height: 32px;
-    color: #e68619;
+    color: var(--color-warning);
     .icon {
-      color: #ff9f33;
+      color: var(--color-warning);
     }
   }
   .limitNum {
-    color: #ff1100;
+    color: var(--color-error);
   }
   .FontW {
     font-weight: 600;
@@ -52,35 +52,35 @@ const Footer = styled.div`
     border: none;
     outline: none;
     border-radius: 3px;
-    color: #fff;
+    color: var(--color-white);
     vertical-align: middle;
     cursor: pointer;
     width: 92px;
     text-align: center;
   }
   .cancelBtn {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .cancelBtn:hover {
-    color: #1e88e5;
+    color: var(--color-primary);
   }
   .disabledConfirmBtn {
-    color: #fff;
-    background: #bdbdbd;
+    color: var(--color-white);
+    background: var(--color-text-disabled);
   }
   .confirmBtn {
-    background: #1677ff;
+    background: var(--color-primary);
     cursor: pointer;
   }
   .confirmBtn:hover {
-    background-color: #1565c0;
+    background-color: var(--color-link-hover);
   }
   .disabledBtn {
     cursor: not-allowed;
-    background-color: #bdbdbd;
-    color: #fff;
+    background-color: var(--color-text-disabled);
+    color: var(--color-white);
     &:hover {
-      background-color: #bdbdbd;
+      background-color: var(--color-text-disabled);
     }
   }
 `;
@@ -150,7 +150,7 @@ export default function CreateBackupModal(props) {
       okText={_l('备份')}
       footer={
         <Footer className="flexRow">
-          <div className="Gray_9e flex TxtLeft Font13">
+          <div className="textTertiary flex TxtLeft Font13">
             {validLimit !== -1 ? _l('已备份:%0', `${currentValid}/${validLimit}`) : ''}
           </div>
           <span className="cancelBtn" onClick={props.closeDialog}>
@@ -168,17 +168,18 @@ export default function CreateBackupModal(props) {
         </CreateBackupCon>
       ) : (
         <CreateBackupCon>
-          <div className="Font12 gray_9e mBottom12">{_l('正在备份应用：')}</div>
+          <div className="Font12 textTertiary mBottom12">{_l('正在备份应用：')}</div>
           <div className="flexRow mBottom30">
             <div className="appIcon mRight12" style={{ background: data.iconColor }}>
               <SvgIcon url={data.iconUrl} fill="#fff" size={24} />
             </div>
             <div>
-              <div className="bold Font16 Gray">{appName}</div>
-              <div className="Gray_9e Font12 mTop3">{_l('共有 %0 个应用项', countInfo.appItemTotal)}</div>
+              <div className="bold Font16 textPrimary">{appName}</div>
+              <div className="textTertiary Font12 mTop3">{_l('共有 %0 个应用项', countInfo.appItemTotal)}</div>
             </div>
           </div>
-          {(!md.global.Config.IsLocal || md.global.SysSettings.enableBackupWorksheetData) && (
+          {((!window.platformENV.isOverseas && !window.platformENV.isLocal) ||
+            md.global.SysSettings.enableBackupWorksheetData) && (
             <Fragment>
               <div className="flexRow alignItemsCenter">
                 <Checkbox
@@ -190,7 +191,7 @@ export default function CreateBackupModal(props) {
                 />
               </div>
 
-              <div className="Font12 Gray_9e pLeft24">{_l('预计共有 %0 行记录', countInfo.rowTotal)}</div>
+              <div className="Font12 textTertiary pLeft24">{_l('预计共有 %0 行记录', countInfo.rowTotal)}</div>
             </Fragment>
           )}
 
@@ -199,7 +200,7 @@ export default function CreateBackupModal(props) {
               <div className="mTop50"> - {_l('不限制备份文件个数')}</div>
               <div>
                 {'-' + ' '}
-                {md.global.Config.IsLocal
+                {window.platformENV.isOverseas || window.platformENV.isLocal
                   ? _l('每个备份文件仅保留%0天有效期，超过%0天的会自动删除', md.global.SysSettings.appBackupRecycleDays)
                   : _l('备份文件一年有效，占用应用附件存储量')}
                 <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/application/backup-restore" />

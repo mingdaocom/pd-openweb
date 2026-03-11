@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import RecordCard from 'src/pages/worksheet/components/RelateRecordCards/RecordCard';
 
 const Con = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   min-height: 100%;
   display: flex;
   flex-direction: column;

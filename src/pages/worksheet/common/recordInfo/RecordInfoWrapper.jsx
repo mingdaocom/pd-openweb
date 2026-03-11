@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import cx from 'classnames';
 import _, { isFunction } from 'lodash';
 import PropTypes from 'prop-types';
 import { LoadDiv, Modal } from 'ming-ui';
@@ -23,6 +24,7 @@ export default class RecordInfoWrapper extends Component {
     onError: PropTypes.func,
     allowEdit: PropTypes.bool,
     allowEmptySubmit: PropTypes.bool,
+    allowAiAction: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -31,6 +33,7 @@ export default class RecordInfoWrapper extends Component {
 
   constructor(props) {
     super(props);
+    this.didMountTimestamp = Date.now();
     this.state = {
       loading: props.from === RECORD_INFO_FROM.WORKFLOW || _.isEmpty(props.sheetSwitchPermit),
     };
@@ -98,8 +101,8 @@ export default class RecordInfoWrapper extends Component {
   };
 
   render() {
-    const { notDialog, width, visible, from, instanceId, workId } = this.props;
-    const { loading, error, errorMsg, worksheetId, recordId, viewId } = this.state;
+    const { notDialog, width, visible, from, instanceId, workId, allowAiAction = true } = this.props;
+    const { loading, error, errorMsg, worksheetId, recordId, viewId, modalRightComp } = this.state;
     const extendsProps = {};
     let dialogWidth = width || (window.innerWidth - 32 * 2 > 1600 ? 1600 : window.innerWidth - 32 * 2);
     if (from === RECORD_INFO_FROM.WORKFLOW) {
@@ -110,19 +113,44 @@ export default class RecordInfoWrapper extends Component {
       extendsProps.viewId = viewId;
     }
     const dialogProps = {
-      className: 'workSheetRecordInfo',
+      className: cx('workSheetRecordInfo withSaveShortcut', `createTimestamp-${this.didMountTimestamp}`),
       dislocate: true,
       footer: null,
       onCancel: this.handleCancel,
       type: 'fixed',
       width: dialogWidth,
       visible,
+      needRenderRight: true,
+      ...(modalRightComp
+        ? {
+            renderModalRightComp: () => {
+              return (
+                <div
+                  className="t-flex t-items-center flex-shrink-0"
+                  style={{ borderLeft: '1px solid var(--color-border-primary)' }}
+                >
+                  {modalRightComp}
+                </div>
+              );
+            },
+            fullScreen: true,
+            closeIcon: () => null,
+          }
+        : {}),
     };
+    if (dialogProps.fullScreen) {
+      dialogWidth = window.innerWidth;
+      dialogProps.width = dialogWidth;
+    }
+    if (dialogProps.renderModalRightComp) {
+      dialogWidth = dialogWidth - 420;
+      dialogProps.width = dialogWidth;
+    }
     let content;
     let sheetSwitchPermit = this.props.sheetSwitchPermit || this.state.sheetSwitchPermit;
     let RecordInfoComp = notDialog ? AutoSizeRecordInfo : RecordInfo;
     if (error) {
-      content = <TextAbsoluteCenter className="error Gray_9e">{errorMsg}</TextAbsoluteCenter>;
+      content = <TextAbsoluteCenter className="error textTertiary">{errorMsg}</TextAbsoluteCenter>;
     } else {
       content = loading ? (
         <LoadDiv className="mTop32" />
@@ -130,6 +158,7 @@ export default class RecordInfoWrapper extends Component {
         <RecordInfoComp
           ref={this.recordinfo}
           notDialog={notDialog}
+          didMountTimestamp={this.didMountTimestamp}
           {...{
             ...this.props,
             ...extendsProps,
@@ -149,6 +178,15 @@ export default class RecordInfoWrapper extends Component {
               }
             },
           }}
+          setModalRightComp={
+            allowAiAction &&
+            (comp => {
+              this.setState({ modalRightComp: comp });
+              if (isFunction(this.props.setLandRightComp)) {
+                this.props.setLandRightComp(comp);
+              }
+            })
+          }
         />
       );
     }
@@ -163,7 +201,9 @@ export default class RecordInfoWrapper extends Component {
         {content}
       </Modal>
     ) : (
-      <div className="workSheetRecordInfo h100">{content}</div>
+      <div className={cx('workSheetRecordInfo h100 withSaveShortcut', `createTimestamp-${this.didMountTimestamp}`)}>
+        {content}
+      </div>
     );
   }
 }

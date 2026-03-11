@@ -86,7 +86,7 @@ export default class TimeModal extends Component {
         <Select
           className="chartSelect w100 mTop5"
           value={filterRangeId}
-          suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+          suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           onChange={value => {
             this.setState(
               {
@@ -126,7 +126,7 @@ export default class TimeModal extends Component {
                     : `${pastAndFutureText[rangeType]}${rangeValue}${_l('天')}`
                   : rangeType
               }
-              suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+              suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
               onChange={value => {
                 const data = { rangeType: value };
                 if (_.isString(value)) {
@@ -166,7 +166,7 @@ export default class TimeModal extends Component {
                 {_l('至今天')}
               </Checkbox>
               <Tooltip title={getTodayTooltip({ rangeType, rangeValue })} placement="bottom">
-                <Icon className="Font18 Gray_9e" icon="info" />
+                <Icon className="Font18 textTertiary" icon="info" />
               </Tooltip>
             </div>
           )}
@@ -215,7 +215,7 @@ export default class TimeModal extends Component {
           <Select
             className="chartSelect flex"
             value={dynamicFilter.startType}
-            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
               changeDynamicFilter({
                 startType: value,
@@ -246,7 +246,7 @@ export default class TimeModal extends Component {
               <Select
                 className="chartSelect flex"
                 value={dynamicFilter.startUnit}
-                suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                 onChange={value => {
                   changeDynamicFilter({ startUnit: value });
                 }}
@@ -265,7 +265,7 @@ export default class TimeModal extends Component {
           <Select
             className="chartSelect flex"
             value={dynamicFilter.endType}
-            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
               changeDynamicFilter({
                 endType: value,
@@ -296,7 +296,7 @@ export default class TimeModal extends Component {
               <Select
                 className="chartSelect flex"
                 value={dynamicFilter.endUnit}
-                suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                 onChange={value => {
                   changeDynamicFilter({ endUnit: value });
                 }}
@@ -321,7 +321,7 @@ export default class TimeModal extends Component {
         <Select
           className="chartSelect w100 mTop10"
           value={Number(year)}
-          suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+          suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           onChange={value => {
             this.setState({
               rangeValue: `${value}:${month}`,
@@ -339,7 +339,7 @@ export default class TimeModal extends Component {
           <Select
             className="chartSelect flex"
             value={Number(month)}
-            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
               this.setState({
                 rangeValue: `${year}:${value}`,
@@ -376,7 +376,7 @@ export default class TimeModal extends Component {
         visible={visible}
         centered={true}
         destroyOnClose={true}
-        closeIcon={<Icon icon="close" className="Font20 pointer Gray_9e" />}
+        closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
         footer={this.renderFooter()}
         onCancel={onCancel}
       >

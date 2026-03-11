@@ -10,7 +10,7 @@
     width: 0;
     height: 0;
     border: 9px solid;
-    border-color: transparent transparent #f5f5f5 transparent;
+    border-color: transparent transparent var(--color-background-secondary) transparent;
     position: absolute;
     top: -8px;
     left: 0;
@@ -29,7 +29,7 @@
     align-items: center;
     padding: 10px;
     margin-bottom: 6px;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-tertiary);
   }
   &-entrys {
     display: flex;
@@ -37,15 +37,15 @@
     justify-content: space-between;
     > div {
       cursor: pointer;
-      color: #9e9e9e;
+      color: var(--color-text-secondary);
       margin-right: 15px;
       span {
         padding-left: 5px;
       }
       &:hover {
-        color: #757575;
+        color: var(--color-text-secondary);
         i {
-          color: #757575 !important;
+          color: var(--color-text-secondary) !important;
         }
       }
     }
@@ -62,7 +62,7 @@
     height: 5px;
     flex-basis: 100px;
     margin-right: 10px;
-    background-color: #e0e0e0;
+    background-color: var(--color-background-secondary);
     position: relative;
   }
   &-currentProgress {
@@ -75,7 +75,7 @@
     max-width: 100%;
   }
   &-info {
-    color: #999;
+    color: var(--color-text-tertiary);
     font-size: 12px;
   }
   /* 上传按钮 end */
@@ -106,7 +106,7 @@
   }
   &-file {
     height: 100%;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
     box-sizing: border-box;
     position: relative;
   }
@@ -132,7 +132,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
     div.UploadFiles-fileIcon {
       width: 40px;
       height: 55px;
@@ -161,13 +161,13 @@
     }
   }
   &-fileName {
-    color: #333;
+    color: var(--color-text-primary);
     font-size: 13px;
     padding: 5px 10px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     > span {
       word-break: break-all;
       overflow: hidden;
@@ -181,13 +181,13 @@
   }
   &-forbidFileName {
     font-size: 13px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     width: 100%;
     text-align: left;
   }
   &-kcIcon {
     font-size: 12px;
-    color: #fff;
+    color: var(--color-white);
     position: absolute;
     left: 0;
     top: 0;
@@ -200,7 +200,7 @@
   }
   &-video-kcIcon {
     font-size: 12px;
-    color: #fff;
+    color: var(--color-white);
     position: absolute;
     left: 4px;
     top: -1px;
@@ -210,7 +210,7 @@
     position: absolute;
     left: 0;
     bottom: 0;
-    color: #fff;
+    color: var(--color-white);
     padding: 1px 8px;
     width: 100%;
     box-sizing: border-box;
@@ -222,7 +222,7 @@
   }
   &-kcFileName {
     font-size: 12px;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
     position: relative;
     top: -2px;
     word-break: break-all;
@@ -254,8 +254,11 @@
     }
     &-image {
       background-color: rgba(0, 0, 0, 0.6);
+      .UploadFiles-editInput {
+        color: var(--color-text-inverse);
+      }
       .UploadFiles-panelTextName {
-        color: #fff;
+        color: var(--color-white);
       }
     }
     &-accessory {
@@ -263,12 +266,12 @@
     }
     &-confirm {
       .delete {
-        color: #fff;
-        background-color: #f44336;
+        color: var(--color-white);
+        background-color: var(--color-error);
         margin-right: 10px;
       }
       .cancel {
-        background-color: #fff;
+        background-color: var(--color-background-primary);
       }
       .delete,
       .cancel {
@@ -291,13 +294,13 @@
     font-size: 13px;
     display: flex;
     height: 30px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     padding: 0 10px;
     border-radius: 4px;
     box-sizing: border-box;
   }
   &-panelTextName {
-    color: #333;
+    color: var(--color-text-primary);
     font-size: 12px;
     flex-basis: 30px;
     display: flex;
@@ -347,19 +350,19 @@
     display: flex !important;
     justify-content: center;
     align-items: center;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     cursor: pointer;
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);
     position: relative;
     &-delete:hover i {
-      color: red;
+      color: var(--color-error);
     }
     > i {
       width: 100%;
       height: 100%;
       text-align: center;
       line-height: 24px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       font-size: 17px;
     }
   }
@@ -377,7 +380,7 @@
     width: 100%;
     padding: 5px 10px;
     box-sizing: border-box;
-    border-top: 1px solid #f0f0f0;
+    border-top: 1px solid --color-background-disabled;
   }
   &-panelBtnMask {
     position: absolute !important;
@@ -389,10 +392,10 @@
   &-mask {
     width: 100%;
     height: 100%;
-    background-color: #f3f4f4;
+    background-color: var(--color-background-secondary);
   }
   &-loadfileWrapper {
-    color: #333;
+    color: var(--color-text-primary);
     width: 100%;
     height: 100%;
     position: absolute;
@@ -400,7 +403,7 @@
     left: 0;
     display: flex;
     flex-direction: column;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
     .Progress--circle-content {
       font-size: 12px !important;
     }
@@ -414,7 +417,7 @@
     > div:nth-child(2) {
       padding: 0 10px;
       flex-basis: 30px;
-      background-color: #fff;
+      background-color: var(--color-background-primary);
     }
   }
   &-loadfileClose {
@@ -427,7 +430,7 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);
     cursor: pointer;
     i {
@@ -436,18 +439,18 @@
       height: 100%;
       justify-content: center;
       align-items: center;
-      color: #757575;
+      color: var(--color-text-secondary);
       font-size: 18px;
     }
   }
   &-menuWrapper {
     .icon {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       font-size: 16px;
     }
     &-text {
       margin-left: 20px;
-      color: #151515;
+      color: var(--color-text-title);
     }
   }
   /* 图片列表 end */

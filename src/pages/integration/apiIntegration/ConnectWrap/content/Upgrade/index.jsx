@@ -6,6 +6,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, FullScreenCurtain, Icon, LoadDiv, QiniuUpload, Support } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import AppManagementAjax from 'src/pages/workflow/api/ApiManagement.js';
 import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
 import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
@@ -18,13 +19,15 @@ const { Step } = Steps;
 const Wrap = styled.div`
   width: 100%;
   height: 100%;
-  background: #fff;
+  background: var(--color-background-primary);
   .headerCon {
     width: 100%;
     height: 50px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.16);
     border-radius: 0px 0px 0px 0px;
+    position: sticky;
+    top: 0;
   }
   .upgradeProcessContent {
     width: 70%;
@@ -46,34 +49,34 @@ const Wrap = styled.div`
       }
     }
     .ant-steps-item-wait .ant-steps-item-icon {
-      background: #eaeaea;
-      border-color: #eaeaea;
+      background: var(--color-border-secondary);
+      border-color: var(--color-border-secondary);
     }
     .ant-steps-item-finish .ant-steps-item-icon {
-      border-color: #e5f4fe;
-      background: #e5f4fe;
+      border-color: var(--color-primary-transparent);
+      background: var(--color-primary-transparent);
     }
     .ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon {
-      color: #1677ff;
+      color: var(--color-primary);
     }
     .ant-steps-item-wait .ant-steps-item-icon > .ant-steps-icon {
-      color: #757575;
+      color: var(--color-text-secondary);
     }
     .ant-steps-item-title {
       line-height: 30px;
     }
     .ant-steps-item-process > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title,
     .ant-steps-item-finish > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title {
-      color: #151515;
+      color: var(--color-text-title);
       font-weight: 600;
     }
     .ant-steps-item-wait > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       font-weight: 600;
     }
     .ant-steps-item-process > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title::after,
     .ant-steps-item-finish > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title::after {
-      background-color: #e3e3e3;
+      background-color: var(--color-border-secondary);
     }
   }
   .upgradeProcessFooter {
@@ -82,7 +85,7 @@ const Wrap = styled.div`
     position: fixed;
     bottom: 0;
     left: 0;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     box-shadow: 0px -2px 6px 1px rgba(0, 0, 0, 0.08);
     z-index: 1000;
     .actionContent {
@@ -106,7 +109,7 @@ const Wrap = styled.div`
     justify-content: center;
     border-radius: 8px;
     overflow-y: auto;
-    border: 1px dashed #eaeaea;
+    border: 1px dashed var(--color-border-secondary);
     box-sizing: border-box;
     margin-bottom: 20px;
     .uploadImg {
@@ -117,13 +120,13 @@ const Wrap = styled.div`
     .passwordInputBox {
       width: 250px;
       line-height: 34px;
-      border: 1px solid #1677ff;
+      border: 1px solid var(--color-primary);
       border-radius: 3px;
       padding: 0 12px;
       box-sizing: border-box;
     }
     .errTip {
-      color: #f51744;
+      color: var(--color-error);
     }
   }
   .scopeLoadingWrap {
@@ -138,8 +141,8 @@ const ITEMS = [
   { title: _l('升级范围'), key: 'renderUpgradeScope' },
   { title: _l('开始导入') },
 ];
-export default function Upgrade(props) {
-  const { onClose, info, onUpgrade, projectId } = props;
+function Upgrade(props) {
+  const { onClose = () => {}, info, onUpgrade, projectId } = props;
   const [
     { current, file, errTip, compareLoading, analyzeLoading, contrasts, batchCheckUpgradeLoading, url, upgradeId },
     setState,
@@ -221,7 +224,7 @@ export default function Upgrade(props) {
   const renderUploadFile = () => {
     return (
       <Fragment>
-        <div className="Gray_75 mBottom20">
+        <div className="textSecondary mBottom20">
           {_l('导入 API 配置文件，实现对当前 API 的快速升级，升级过程中不影响原有API正常使用。')}
           <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/application/upgrade" />
         </div>
@@ -231,7 +234,7 @@ export default function Upgrade(props) {
             {file.name ? (
               <Fragment>
                 <div className="Font17">{file.name}</div>
-                <div className="Gray_75 mTop6">{_l('大小：%0', formatFileSize(file.size))}</div>
+                <div className="textSecondary mTop6">{_l('大小：%0', formatFileSize(file.size))}</div>
                 {errTip && (
                   <div className="mTop15 errTip Font14">
                     <span className="icon-cancel Font15 mRight6"></span>
@@ -240,19 +243,19 @@ export default function Upgrade(props) {
                 )}
               </Fragment>
             ) : (
-              <div className="Gray_bd">{_l('请选择.mdy格式的文件')}</div>
+              <div className="textDisabled">{_l('请选择.mdy格式的文件')}</div>
             )}
             {(analyzeLoading || compareLoading) && (
               <div className="flexRow mTop16">
                 <div className="notificationIconWrap">
                   <i className="icon-loading_button Font20 ThemeColor3"></i>
                 </div>
-                <span className="Gray_75 mLeft10">
+                <span className="textSecondary mLeft10">
                   {compareLoading ? _l('正在校验升级内容...') : _l('正在解析文件...')}
                 </span>
               </div>
             )}
-            {compareLoading && <div className="Gray_9e Font14 mTop16">{_l('此步骤可能耗时较久，请耐心等待')}</div>}
+            {compareLoading && <div className="textTertiary Font14 mTop16">{_l('此步骤可能耗时较久，请耐心等待')}</div>}
           </Fragment>
           {!compareLoading && (
             <QiniuUpload
@@ -286,7 +289,7 @@ export default function Upgrade(props) {
                   {_l('上传文件')}
                 </Button>
               ) : (
-                <div className={cx('ThemeColor Hand', { Visibility: analyzeLoading })}>{_l('重新上传')}</div>
+                <div className={cx('colorPrimary Hand', { Visibility: analyzeLoading })}>{_l('重新上传')}</div>
               )}
             </QiniuUpload>
           )}
@@ -303,7 +306,7 @@ export default function Upgrade(props) {
         {batchCheckUpgradeLoading ? (
           <div className="h100 scopeLoadingWrap">
             <LoadDiv size="middle" className="mBottom14" />
-            <div className="Gray_9e Font13 TxtCenter">{_l('数据正在加载中...')}</div>
+            <div className="textTertiary Font13 TxtCenter">{_l('数据正在加载中...')}</div>
           </div>
         ) : _.isEmpty(contrasts.apis) ? (
           ''
@@ -323,6 +326,7 @@ export default function Upgrade(props) {
       { isIntegration: true },
     );
     onUpgrade();
+    onClose();
   };
   const renderFooter = () => {
     return (
@@ -353,7 +357,7 @@ export default function Upgrade(props) {
             </Tooltip>
             <span className="Font18 Bold mLeft10">{_l('导入升级')}</span>
           </div>
-          <div className="Gray_9d Font14 mRight24">
+          <div className="textTertiary Font14 mRight24">
             <Support title={_l('帮助')} type={1} href="https://help.mingdao.com/application/upgrade" />
           </div>
         </div>
@@ -372,3 +376,5 @@ export default function Upgrade(props) {
     </FullScreenCurtain>
   );
 }
+
+export default props => FunctionWrap(Upgrade, { ...props });

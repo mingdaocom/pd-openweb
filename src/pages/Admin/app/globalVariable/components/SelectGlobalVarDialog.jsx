@@ -24,7 +24,7 @@ const SelectVarDialog = styled(Dialog)`
     }
     .tabWrap {
       display: flex;
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-secondary);
       .tabItem {
         padding: 0 20px;
         height: 48px;
@@ -35,8 +35,8 @@ const SelectVarDialog = styled(Dialog)`
           margin-left: 32px;
         }
         &.active {
-          border-bottom: 3px solid #1677ff;
-          color: #1677ff;
+          border-bottom: 3px solid var(--color-primary);
+          color: var(--color-primary);
         }
       }
     }

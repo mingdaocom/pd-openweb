@@ -40,7 +40,7 @@ export default function ProductLicenseInfo(props) {
       return;
     }
 
-    if (md.global.Config.IsLocal) {
+    if (window.platformENV.isOverseas || window.platformENV.isLocal) {
       alert(_l('请前往市场操作续订'), 3);
       return;
     }
@@ -97,15 +97,15 @@ export default function ProductLicenseInfo(props) {
             onClick={e => e.stopPropagation()}
           >
             <div className="flexRow mBottom10">
-              <div className="Gray_75 mRight15 nowrap">{_l('开发者')}</div>
+              <div className="textSecondary mRight15 nowrap">{_l('开发者')}</div>
               <div className="ellipsis">{license.developName}</div>
             </div>
             <div className="flexRow mBottom10">
-              <div className="Gray_75 mRight15 nowrap">{_l('订购计划')}</div>
+              <div className="textSecondary mRight15 nowrap">{_l('订购计划')}</div>
               <div className="ellipsis">{planTypes[license.planType]}</div>
             </div>
             <div className="flexRow mBottom10">
-              <div className="Gray_75 mRight15 nowrap">{_l('周期')}</div>
+              <div className="textSecondary mRight15 nowrap">{_l('周期')}</div>
               <div className="ellipsis">
                 {endTime ? (
                   <React.Fragment>
@@ -118,21 +118,21 @@ export default function ProductLicenseInfo(props) {
               </div>
             </div>
             <div className="flexRow mBottom10">
-              <div className="Gray_75 mRight15 nowrap">{_l('人数限制')}</div>
+              <div className="textSecondary mRight15 nowrap">{_l('人数限制')}</div>
               <div className="ellipsis">{license.personCount || _l('不限制')}</div>
             </div>
             <div className="flexRow mBottom10">
-              <div className="Gray_75 mRight15 nowrap">{_l('版本号')}</div>
+              <div className="textSecondary mRight15 nowrap">{_l('版本号')}</div>
               <div className="ellipsis">{license.versionNo}</div>
             </div>
             <div className="flexRow alignItemsCenter">
-              <div className="Gray_75 mRight15 nowrap">{_l('状态')}</div>
+              <div className="textSecondary mRight15 nowrap">{_l('状态')}</div>
               <div className={cx('licenseStatus', { valid: license.status === 1 })}>
                 {license.status === 1 ? _l('生效中') : _l('已过期')}
               </div>
               {type === 'app' && license.projectType === 2 && (
                 <div
-                  className="ThemeColor ThemeHoverColor2 pointer mLeft8"
+                  className="colorPrimary ThemeHoverColor2 pointer mLeft8"
                   onClick={() => setUpdateSocketVisible(true)}
                 >
                   {_l('更新密钥')}

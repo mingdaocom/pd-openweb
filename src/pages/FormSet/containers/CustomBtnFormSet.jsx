@@ -18,7 +18,7 @@ import TrashDialog from '../components/Trash';
 const Con = styled.div`
   width: 100%;
   height: 100%;
-  background: #fff;
+  background: var(--color-background-primary);
   .topBox {
     position: relative;
     background: none !important;
@@ -35,11 +35,11 @@ const Con = styled.div`
     }
     .moreActive {
       z-index: 1;
-      color: #7d7d7d !important;
+      color: var(--color-text-secondary) !important;
     }
     span {
       position: relative;
-      color: #151515 !important;
+      color: var(--color-text-title) !important;
     }
     input {
       z-index: 1;
@@ -47,19 +47,19 @@ const Con = styled.div`
     }
   }
   .trash {
-    color: #757575;
+    color: var(--color-text-secondary);
     .trashIcon {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
       .trashIcon {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
   .line {
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--color-border-secondary);
     width: 100%;
     margin-top: 8px;
   }
@@ -68,7 +68,7 @@ const Con = styled.div`
 const ArrowUp = styled.span`
   border-width: 5px;
   border-style: solid;
-  border-color: transparent transparent #9e9e9e transparent;
+  border-color: transparent transparent var(--color-text-tertiary) transparent;
   cursor: pointer;
   &:hover,
   &.active {
@@ -79,12 +79,12 @@ const ArrowUp = styled.span`
 const ArrowDown = styled.span`
   border-width: 5px;
   border-style: solid;
-  border-color: #9e9e9e transparent transparent transparent;
+  border-color: var(--color-text-tertiary) transparent transparent transparent;
   cursor: pointer;
   margin-top: 2px;
   &:hover,
   &.active {
-    border-color: #1677ff transparent transparent transparent;
+    border-color: var(--color-primary) transparent transparent transparent;
   }
 `;
 
@@ -155,17 +155,14 @@ function CustomBtnFormSet(props) {
     return (
       <div className="printTemplatesList flex overflowHidden flexColumn">
         <div className="printTemplatesList-header">
-          <div className="name flex mRight20 valignWrapper">
+          <div
+            className="name flex mRight20 valignWrapper Hand sortFields"
+            onClick={() => setState({ sortDirection: sortDirection === 'ASC' ? 'DESC' : 'ASC' })}
+          >
             <div className="flex">{_l('名称')}</div>
             <div className="flexColumn">
-              <ArrowUp
-                className={cx({ active: sortDirection === 'ASC' })}
-                onClick={() => setState({ sortDirection: 'ASC' })}
-              />
-              <ArrowDown
-                className={cx({ active: sortDirection === 'DESC' })}
-                onClick={() => setState({ sortDirection: 'DESC' })}
-              />
+              <ArrowUp className={cx({ active: sortDirection === 'ASC' })} />
+              <ArrowDown className={cx({ active: sortDirection === 'DESC' })} />
             </div>
           </div>
           <div className="views flex mRight20">{_l('使用范围')}</div>
@@ -189,7 +186,7 @@ function CustomBtnFormSet(props) {
               />
             );
           })}
-          {!!batchBtns.length && <p className="Gray_9e Font15 mTop12 pLeft11">{_l('批量数据源')}</p>}
+          {!!batchBtns.length && <p className="textTertiary Font15 mTop12 pLeft11">{_l('批量数据源')}</p>}
           {batchBtns.map(it => {
             return (
               <BtnTd
@@ -218,9 +215,11 @@ function CustomBtnFormSet(props) {
           <div className="flexColumn h100">
             <div className="topBoxText flexRow alignItemsCenter">
               <div className="textCon flex">
-                <h5 className="formName Gray Font17 Bold">{_l('自定义动作')}</h5>
+                <h5 className="formName textPrimary Font17 Bold">{_l('自定义动作')}</h5>
                 <p className="desc mTop8">
-                  <span className="Font13 Gray_9e">{_l('自定义在查看记录详情时或批量选择记录时可执行的操作')}</span>
+                  <span className="Font13 textTertiary">
+                    {_l('自定义在查看记录详情时或批量选择记录时可执行的操作')}
+                  </span>
                 </p>
               </div>
               {featureType && (

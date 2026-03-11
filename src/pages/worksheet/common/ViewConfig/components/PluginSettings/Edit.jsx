@@ -321,7 +321,7 @@ function Edit(params) {
                       })}
                     >
                       <Icon icon={ALL_WIDGETS_TYPE[item.value].icon} className="Font18 Relative" />
-                      <span className="mLeft10 flex Gray">{item.text}</span>
+                      <span className="mLeft10 flex textPrimary">{item.text}</span>
                       {isCur && <Icon icon="done" className="Relative ThemeColor3 Font18" />}
                     </div>
                   );
@@ -417,7 +417,7 @@ function Edit(params) {
                   });
                 }}
               />
-              <p className="Gray_75 mAll0">
+              <p className="textSecondary mAll0">
                 {_l(
                   '输入选项值（每行一个），第一个作为默认值。可设置选项显示名，使用 选项值=[显示名] 表示，如：0=[填充]；1=[完整显示]',
                 )}
@@ -452,7 +452,7 @@ function Edit(params) {
               ).paramName
             }
           </span>
-          <Icon icon={'close'} className="Font20 Hand Gray_9e ThemeHoverColor3" onClick={() => onClose()} />
+          <Icon icon={'close'} className="Font20 Hand textTertiary ThemeHoverColor3" onClick={() => onClose()} />
         </div>
         <div className="flex editCon">
           {keys.map(o => {

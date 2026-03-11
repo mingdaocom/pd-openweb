@@ -62,7 +62,7 @@ const CardWrapper = styled.div`
       includes(['text', 'icon'], btnStyle) &&
       `
       > span {
-        border-right: 1px solid #eaeaea !important;
+        border-right: 1px solid var(--color-border-secondary) !important;
       }
     `}
     .moreButtons.operates-text {
@@ -168,7 +168,7 @@ export default function OperateButtons({
           buttons={buttons.map((button, index) => ({
             ...button,
             icon: button.icon || (style === 'icon' ? 'custom_actions' : ''),
-            color: button.color === 'transparent' ? '#1677ff' : button.color,
+            color: button.color === 'transparent' ? 'var(--color-primary)' : button.color,
             style,
             showIcon,
             showAsPrimary: style === 'standard' && index < primaryNum,
@@ -210,9 +210,10 @@ export default function OperateButtons({
                   handleSystemPrintRecord({
                     worksheetId,
                     viewId,
-                    recordId,
                     appId,
                     projectId,
+                    recordId,
+                    rowIds: [recordId],
                   });
                 } else if (button.type === 'print') {
                   worksheetAjax

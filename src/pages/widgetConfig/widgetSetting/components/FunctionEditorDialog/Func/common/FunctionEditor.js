@@ -2,7 +2,6 @@ import React, { useLayoutEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import CodeMirror from 'codemirror';
 import _, { get, identity, isEmpty } from 'lodash';
-import { Tooltip } from 'ming-ui/antd-components';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { emitter } from 'src/utils/common';
 import { checkTypeSupportForFunction } from 'src/utils/control';
@@ -52,18 +51,18 @@ function createTagEle(text) {
   dom.style.fontSize = '12px';
   dom.style.height = '24px';
   dom.style.lineHeight = '22px';
-  dom.style.color = '#3c6b90';
+  dom.style.color = 'var(--color-link-hover)';
   dom.style.padding = '0 13px';
   dom.style.borderRadius = '24px';
-  dom.style.border = '1px solid #bbd6ea';
+  dom.style.border = '1px solid var(--color-primary-transparent)';
   dom.style.background = '#d8eeff';
   dom.style.fontWeight = '500';
   if (text) {
     dom.innerText = text;
   } else {
     dom.innerText = _l('字段已删除');
-    dom.style.color = '#F44336';
-    dom.style.borderColor = '#FF746A';
+    dom.style.color = 'var(--color-error)';
+    dom.style.borderColor = 'var(--color-error-border)';
     dom.style.background = 'rgba(244,67,54,0.13)';
   }
   return dom;
@@ -234,7 +233,7 @@ export default class Function {
                 const node = document.createElement('div');
                 node.className = 'hint-item';
                 if (isLast && !!filteredFunctions.length) {
-                  parent.style.borderBottom = '1px solid #afdcff';
+                  parent.style.borderBottom = '1px solid var(--color-primary-transparent)';
                 }
                 node.innerHTML = `<i class="icon icon-${getIconByType(getControlType(control) || 2)}"></i> ${
                   control.controlName

@@ -8,7 +8,7 @@ import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
 import { formatValuesOfCondition, redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import { selectRecords } from 'src/components/SelectRecords';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
-import { PRINT_TYPE, PRINT_TYPE_STYLE } from 'src/pages/Print/config';
+import { PRINT_TYPE, PRINT_TYPE_STYLE } from 'src/pages/Print/core/config';
 import ShowBtnFilterDialog from 'src/pages/worksheet/common/CreateCustomBtn/components/ShowBtnFilterDialog.jsx';
 import { getPrintCardInfoOfTemplate } from 'src/pages/worksheet/common/PrintQrBarCode/enum';
 import MoreOption from '../../components/MoreOption';
@@ -243,7 +243,7 @@ export default function PrintSortableItem(props) {
       >
         <Icon
           icon="more_horiz"
-          className="moreActive Hand Font18 Gray_9e Hover_21"
+          className="moreActive Hand Font18 textTertiary hoverColorPrimary"
           onClick={e => {
             e.stopPropagation();
             setIsRename(false);
@@ -328,7 +328,7 @@ export default function PrintSortableItem(props) {
   return (
     <div className="printTemplatesList-tr" onClick={() => onPreview(true)}>
       <DragHandle>
-        <Icon className="Font14 Hand Gray_9e Hover_21 dragIcon" icon="drag" />
+        <Icon className="Font15 Hand textTertiary hoverColorPrimary dragIcon mRight10" icon="drag" />
       </DragHandle>
       <div className="name flex mRight20 valignWrapper overflowHidden">
         <Icon

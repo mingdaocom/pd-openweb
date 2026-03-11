@@ -11,11 +11,11 @@ const BoardIconWrap = styled(FlexCenter)`
   min-width: ${props => props.size || '56px'};
   height: ${props => props.size || '56px'};
   padding: 8px;
-  background-color: #4caf50;
+  background-color: var(--color-success);
   border-radius: 6px;
 `;
 const VerticalItem = styled.div`
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   width: 10px;
   height: ${props => props.height || '100%'};
 `;
@@ -29,7 +29,7 @@ export const BoardIcon = ({ size }) => (
 
 const ConfigHeaderWrap = styled(FlexCenter)`
   padding: 0 24px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-secondary);
 `;
 export const ConfigHeader = ({ text }) => (
   <ConfigHeaderWrap>
@@ -41,7 +41,7 @@ export const ConfigHeader = ({ text }) => (
 
 const AddWrap = styled(FlexCenter)`
   justify-content: center;
-  background-color: rgba(3, 3, 3, 0.05);
+  background-color: var(--color-background-tertiary);
   border-radius: 3px;
   cursor: pointer;
   width: ${props => `${props.width ? props.width : 280}px`};
@@ -51,10 +51,10 @@ const AddWrap = styled(FlexCenter)`
   border-radius: 3px;
   text-align: center;
   transition: all 0.25s;
-  color: #9d9d9d;
+  color: var(--color-text-tertiary);
   &:hover {
-    background-color: rgba(3, 3, 3, 0.1);
-    color: #1677ff;
+    background-color: var(--color-background-overlay-light);
+    color: var(--color-primary);
   }
 `;
 

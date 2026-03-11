@@ -273,11 +273,11 @@ export default class UpgradeService extends Component {
             </div>
             <div className={cx('stepContent', { Hidden: step !== 2 })}>
               <div className="mTop25">
-                <span className="Font13 mRight24 Gray_9">{_l('已选择')}</span>
+                <span className="Font13 mRight24 textTertiary">{_l('已选择')}</span>
                 <span className="color_b">{versionName}</span>
               </div>
               <div className="mTop15">
-                <span className="mRight8 Gray_9">{_l('总计金额')}</span>
+                <span className="mRight8 textTertiary">{_l('总计金额')}</span>
                 <span className="Font24 Bold color_b">￥{totalPrice}</span>
               </div>
               <div className="pTop40">

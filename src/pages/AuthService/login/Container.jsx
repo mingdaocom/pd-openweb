@@ -6,15 +6,17 @@ import { Checkbox, LoadDiv } from 'ming-ui';
 import { captcha } from 'ming-ui/functions';
 import loginController from 'src/api/login';
 import ChangeLang from 'src/components/ChangeLang';
+import { maskValue } from 'src/pages/Admin/security/account/utils';
 import AccountInfo from 'src/pages/AuthService/components/AccountInfo.jsx';
 import { loginCallback } from 'src/pages/AuthService/login/util.js';
-import { getAccountTypes, getDataByFilterXSS, hasCaptcha, validation } from 'src/pages/AuthService/util.js';
+import { getAccountTypes, getDataByFilterXSS, hasCaptcha, isTel, validation } from 'src/pages/AuthService/util.js';
 import { navigateTo } from 'src/router/navigateTo';
 import { getRequest } from 'src/utils/common';
 import { encrypt } from 'src/utils/common';
 import { removePssId } from 'src/utils/pssId';
 import BtnList from './BtnList.jsx';
 import FormContainer from './Form.jsx';
+import IntegrationLogin from './IntegrationLogin.jsx';
 import { Wrap } from './style.jsx';
 import VerifyCode from './verifyCode';
 
@@ -36,6 +38,9 @@ export default function (props) {
     isCheck,
     openLDAP,
     isOpenSystemLogin,
+    emailOrTel,
+    fullName,
+    dialCode,
   } = props;
   const showProjectName = isNetwork && !_.get(md, 'global.SysSettings.hideBrandName');
 
@@ -193,6 +198,11 @@ export default function (props) {
     switch (step) {
       case 'verifyCode':
         return <VerifyCode {...props} />;
+      case 'integrationLogin': {
+        const account =
+          modeType === 1 ? maskValue(dialCode + emailOrTel, isTel(emailOrTel) ? 'mobilePhone' : '') : fullName;
+        return <IntegrationLogin {...props} account={account} />;
+      }
       default:
         const { unionId, state, tpType, loginMode } = getRequest();
         return (
@@ -222,7 +232,7 @@ export default function (props) {
                 )}
                 <div className="mTop24 clearfix Font14">
                   <div
-                    className="cbRememberPasswordDiv Gray Font14 Left Hand flexRow alignItemsCenter"
+                    className="cbRememberPasswordDiv textPrimary Font14 Left Hand flexRow alignItemsCenter"
                     onClick={() => onChange({ isCheck: !isCheck })}
                   >
                     <Checkbox checked={isCheck} className="InlineBlock" />
@@ -244,7 +254,7 @@ export default function (props) {
             )}
             {loginMode !== 'systemLogin' && <BtnList {...props} />}
             {window.isMiniProgram && (
-              <div className="flexRow alignItemsCenter justifyContentCenter mTop25 Gray_75">
+              <div className="flexRow alignItemsCenter justifyContentCenter mTop25 textSecondary">
                 {_l('此小程序仅支持组织内部员工登录使用')}
               </div>
             )}
@@ -260,7 +270,7 @@ export default function (props) {
     }
     const request = getRequest();
     onChange({ warnList: [] });
-    if (md.global.Config.IsPlatformLocal) {
+    if (window.platformENV.isPlatform) {
       //平台版=>/register
       navigateTo('/register');
     } else if (linkInvite) {
@@ -290,18 +300,20 @@ export default function (props) {
       ) : (
         <React.Fragment>
           <div className="titleHeader">
-            {showProjectName && <p className="Font17 Gray mAll0 mTop8">{projectNameLang || companyName}</p>}
+            {showProjectName && <p className="Font17 textPrimary mAll0 mTop8">{projectNameLang || companyName}</p>}
           </div>
           {renderCon()}
           <div className="flexRow alignItemsCenter justifyContentCenter footerCon">
-            {!window.isMiniProgram && !_.get(md, 'global.SysSettings.hideRegister') && (
-              <React.Fragment>
-                <span className="changeBtn Hand TxtRight" onClick={toRegist}>
-                  {_l('注册新账号')}
-                </span>
-                <span className="lineCenter mLeft24"></span>
-              </React.Fragment>
-            )}
+            {!window.isMiniProgram &&
+              !_.get(md, 'global.SysSettings.hideRegister') &&
+              !['verifyCode', 'integrationLogin'].includes(step) && (
+                <React.Fragment>
+                  <span className="changeBtn Hand TxtRight" onClick={toRegist}>
+                    {_l('注册新账号')}
+                  </span>
+                  <span className="lineCenter mLeft24"></span>
+                </React.Fragment>
+              )}
             <div className="mLeft16 TxtLeft">
               <ChangeLang className="justifyContentLeft" />
             </div>

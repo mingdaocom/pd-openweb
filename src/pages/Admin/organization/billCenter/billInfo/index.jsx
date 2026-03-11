@@ -164,6 +164,36 @@ export default function BillInfo({ match }) {
     getData();
   }, [paras]);
 
+  const renderPay = ({ status, payAccountInfo = {}, orderId, recordType }) => {
+    const { accountId, avatar, fullname } = payAccountInfo;
+    if (status === 1) {
+      return (
+        <div
+          className="goToPay"
+          onClick={() =>
+            (location.href = _.includes([5, 6], recordType)
+              ? `/admin/appBillDetail/${projectId}/2/${orderId}`
+              : `/admin/waitingpay/${projectId}/${orderId}`)
+          }
+        >
+          {_l('立即支付')}
+        </div>
+      );
+    }
+    if (_.includes([3, 4, 5], status)) return null;
+    return accountId ? (
+      <Fragment>
+        <UserHead className="billOwner" size={24} user={{ accountId, userHead: avatar }} projectId={projectId} />
+        <span>{fullname}</span>
+      </Fragment>
+    ) : (
+      <Fragment>
+        <img src={systemIcon} alt={_l('系统')} />
+        <span>{_l('系统')}</span>
+      </Fragment>
+    );
+  };
+
   const renderRecordList = () => {
     if (loading) return <LoadDiv />;
     if (!list.length) return <div className="emptyList">{_l('无相应订单数据')}</div>;
@@ -181,13 +211,14 @@ export default function BillInfo({ match }) {
                 status,
                 invoiceStatus,
                 createAccountInfo,
+                payAccountInfo,
                 recordTypeTitle,
                 payType,
               },
               index,
             ) => (
               <li key={orderId || recordId} className="recordItem">
-                <div className="time overflow_ellipsis item Font14 Gray_75">{createTime}</div>
+                <div className="time overflow_ellipsis item Font14 textSecondary">{createTime}</div>
                 <div
                   className={cx('type item flex overflow_ellipsis', { rechargeType: displayRecordType === 'recharge' })}
                 >
@@ -258,8 +289,7 @@ export default function BillInfo({ match }) {
                         </Fragment>
                       )}
                     </div>
-
-                    {!md.global.Config.IsLocal && (
+                    {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
                       <div className="paidPerson overflow_ellipsis item">
                         {renderPay({ status, payAccountInfo, orderId, recordType })}
                       </div>
@@ -301,7 +331,7 @@ export default function BillInfo({ match }) {
                       }
                       popupAlign={{ points: ['tr', 'bc'], offset: [0, -15] }}
                     >
-                      <div className="operation Gray_9e item">
+                      <div className="operation textTertiary item">
                         <i className="icon-moreop Font18 pointer" />
                       </div>
                     </Trigger>
@@ -337,10 +367,10 @@ export default function BillInfo({ match }) {
           </span>
           <Icon
             icon={hideBalance ? 'eye_off' : 'eye'}
-            className="Gray_9e eyeIcon Hand mRight8 mBottom10"
+            className="textTertiary eyeIcon Hand mRight8 mBottom10"
             onClick={() => setVisible({ hideBalance: !hideBalance })}
           />
-          {!md.global.Config.IsLocal && isPaid && (
+          {!window.platformENV.isOverseas && !window.platformENV.isLocal && isPaid && (
             <span className="recharge pointer bold" onClick={() => handleClick('recharge')}>
               {_l('充值')}
             </span>
@@ -374,7 +404,7 @@ export default function BillInfo({ match }) {
                   '异步执行的工作流扣费存在约 5 分钟延迟，同时系统会将 5 分钟内相同操作自动合并成一条扣费记录，如5分钟内相同流程的扣费信息',
                 )}
               >
-                <i className="icon icon-help Font14 mLeft5 Gray_bd ThemeHoverColor3 TxtMiddle" />
+                <i className="icon icon-help Font14 mLeft5 textDisabled ThemeHoverColor3 TxtMiddle" />
               </Tooltip>
             </li>
           </ul>
@@ -395,7 +425,7 @@ export default function BillInfo({ match }) {
                 }
               >
                 <Tooltip title={_l('按照时间筛选')} placement="top">
-                  <div className="date Gray_75">
+                  <div className="date textSecondary">
                     <i className="Font18 icon-sidebar_calendar" />
                   </div>
                 </Tooltip>
@@ -409,7 +439,7 @@ export default function BillInfo({ match }) {
             </div>
             <Tooltip title={_l('导出')} placement="top">
               <div className={cx('exportBtn mLeft10', { disabledExportBtn })} onClick={exportOrderRecord}>
-                <i className="icon icon-download Gray_75 Font18 LineHeight24" />
+                <i className="icon icon-download textSecondary Font18 LineHeight24" />
               </div>
             </Tooltip>
           </div>
@@ -452,7 +482,9 @@ export default function BillInfo({ match }) {
               </div>
               <div className="invoiceStatus item">{_l('发票状态')}</div>
               <div className="createPerson item">{_l('创建人')}</div>
-              {!md.global.Config.IsLocal && <div className="paidPerson item">{_l('付款人')}</div>}
+              {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+                <div className="paidPerson item">{_l('付款人')}</div>
+              )}
               <div className="operation item">{_l('操作')}</div>
             </Fragment>
           )}

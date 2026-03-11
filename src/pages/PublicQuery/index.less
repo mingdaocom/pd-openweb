@@ -10,7 +10,7 @@
     z-index: 10;
     width: 100%;
     height: 54px;
-    background: #fff;
+    background: var(--color-background-primary);
     line-height: 54px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
     overflow-x: hidden;
@@ -30,7 +30,7 @@
 
         &:hover {
           i {
-            color: #1677ff;
+            color: var(--color-primary);
           }
         }
       }
@@ -47,7 +47,7 @@
           width: 26px;
           height: 26px;
           line-height: 26px;
-          color: #fff;
+          color: var(--color-white);
           border-radius: 5px;
           vertical-align: middle;
           text-align: center;
@@ -73,11 +73,11 @@
         margin-top: 0px;
 
         a {
-          color: #1677ff;
+          color: var(--color-primary);
           text-decoration: none;
 
           &:hover {
-            border-bottom: 1px solid #1677ff;
+            border-bottom: 1px solid var(--color-primary);
           }
         }
       }
@@ -110,7 +110,7 @@
         border-radius: 50%;
         background: url('~src/pages/worksheet/assets/worksheet.png') no-repeat;
         background-size: 150px 150px;
-        background-color: #f2f2f2;
+        background-color: var(--color-background-disabled);
         margin: 0 auto;
       }
 
@@ -118,7 +118,7 @@
         width: 100%;
         text-align: center;
         font-size: 16px;
-        color: #999;
+        color: var(--color-text-tertiary);
         margin-top: 16px;
       }
     }

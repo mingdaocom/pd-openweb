@@ -77,7 +77,8 @@ export default ({ projectId }) => {
 
     getAutoPurchaseDataPipelineExtPack();
     getArithmetic();
-    md.global.Config.IsLocal && monitorAjax.getTaskCount({ projectId }).then(res => res && setTaskNum(res));
+    (window.platformENV.isOverseas || window.platformENV.isLocal) &&
+      monitorAjax.getTaskCount({ projectId }).then(res => res && setTaskNum(res));
   }, []);
 
   return (
@@ -87,29 +88,29 @@ export default ({ projectId }) => {
       ) : (
         <div>
           <span>
-            {md.global.Config.IsLocal && (
+            {(window.platformENV.isOverseas || window.platformENV.isLocal) && (
               <Fragment>
-                <span className="Gray_9e mRight3">{_l('直接同步任务数')}</span>
+                <span className="textTertiary mRight3">{_l('直接同步任务数')}</span>
                 <span className="Bold">
                   {taskNum.currentTaskNum} / {taskNum.maxTaskNum} ，
                 </span>
-                <span className="Gray_9e mRight3">{_l('ETL处理任务数')}</span>
+                <span className="textTertiary mRight3">{_l('ETL处理任务数')}</span>
                 <span className="Bold">
                   {taskNum.etlTaskNum} / {taskNum.maxEtlTaskNum}
-                  {md.global.Config.IsPlatformLocal && <span>，</span>}
+                  {window.platformENV.isPlatform && <span>，</span>}
                 </span>
               </Fragment>
             )}
-            {(!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal) && (
+            {window.platformENV.isPlatform && (
               <Fragment>
-                <span className="Gray_9e mRight3">{_l('本月算力')}</span>
+                <span className="textTertiary mRight3">{_l('本月算力')}</span>
                 <span className="Bold">{_l('%0 万行 / %1 万行', used, total)}</span>
-                <span className="Gray_9e mLeft3 mRight3">{_l('剩余')}</span>
+                <span className="textTertiary mLeft3 mRight3">{_l('剩余')}</span>
                 <span className="Bold">{percent}</span>
               </Fragment>
             )}
           </span>
-          {!md.global.Config.IsLocal && (
+          {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
             <PurchaseExpandPack
               className="mLeft10 ThemeHoverColor2"
               text={_l('购买升级包')}
@@ -119,7 +120,7 @@ export default ({ projectId }) => {
           )}
         </div>
       )}
-      {!md.global.Config.IsLocal && !_.includes([0, 2], licenseType) && (
+      {!window.platformENV.isOverseas && !window.platformENV.isLocal && !_.includes([0, 2], licenseType) && (
         <div>
           <Switch className="TxtMiddle mLeft24" checked={autoOrder} size="small" onClick={handleAutoOrder} />
           <span> {_l('自动订购')}</span>

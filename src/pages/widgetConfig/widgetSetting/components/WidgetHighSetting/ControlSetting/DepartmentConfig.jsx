@@ -103,7 +103,7 @@ export default function DepartmentConfig(props) {
       <div className="settingItemTitle">
         {_l('选择范围')}
         <Tooltip placement="bottom" title={_l('使用成员字段设置选择范围时，成员所在的所有部门可选。')}>
-          <i className="icon-help Gray_9e Font16 Hand mLeft4"></i>
+          <i className="icon-help textTertiary Font16 Hand mLeft4"></i>
         </Tooltip>
       </div>
 
@@ -142,7 +142,7 @@ export default function DepartmentConfig(props) {
                 })}
               </Fragment>
             ) : (
-              <span className="Gray_75 mTop4">{_l('请选择')}</span>
+              <span className="textSecondary mTop4">{_l('请选择')}</span>
             )}
           </div>
         </div>

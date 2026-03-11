@@ -23,18 +23,18 @@ const DetailDialog = styled(Dialog)`
 const TabWrap = styled.div`
   display: flex;
   padding: 0 20px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-border-primary);
   .tabItem {
     height: 100%;
     font-size: 13px;
-    color: #151515;
+    color: var(--color-text-title);
     margin-right: 26px;
     padding-bottom: 12px;
   }
   .active {
-    color: #1677ff;
+    color: var(--color-primary);
     font-weight: 600;
-    border-bottom: 2px solid #1677ff;
+    border-bottom: 2px solid var(--color-primary);
   }
 `;
 

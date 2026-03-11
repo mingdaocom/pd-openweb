@@ -45,7 +45,7 @@ export default ({ isSeriousError, errorData = {} }) => {
       <div className="programError flexColumn">
         <div className="programErrorImg" />
         <div className="Font20 mTop20">{_l('程序错误，请刷新页面重试')}</div>
-        <div className="Font13 mTop10 Gray_9e">{_l('如刷新后仍无法解决，请联系客服汇报错误')}</div>
+        <div className="Font13 mTop10 textTertiary">{_l('如刷新后仍无法解决，请联系客服汇报错误')}</div>
         <div
           className="Font14 ThemeBGColor3 ThemeHoverBGColor2 programRefresh mTop25 pointer"
           onClick={() => location.reload()}

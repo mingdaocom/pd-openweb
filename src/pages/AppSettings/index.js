@@ -128,7 +128,7 @@ class AppSettings extends Component {
           sourceType === 60
         ) {
           if (['export'].includes(it.type)) {
-            return false;
+            return data.exported;
           }
           // 模版应用
           if (license.goodsPushType === 1) {
@@ -279,7 +279,7 @@ class AppSettings extends Component {
             <Tooltip title={!collapseAppManageNav ? _l('收起') : _l('展开')}>
               <Icon
                 icon={!collapseAppManageNav ? 'menu_left' : 'menu_right'}
-                className="Font20 Gray_9e pointer collapseWrapIcon"
+                className="Font20 textTertiary pointer collapseWrapIcon"
                 onClick={() => {
                   safeLocalStorageSetItem('collapseAppManageNav', !collapseAppManageNav);
                   this.setState({ collapseAppManageNav: !collapseAppManageNav });
@@ -292,12 +292,12 @@ class AppSettings extends Component {
           <div className="flexColumn flex minHeight0" style={{ minWidth: 800 }}>
             {loading ? (
               <LoadDiv />
-            ) : md.global.Config.IsLocal &&
+            ) : (window.platformENV.isOverseas || window.platformENV.isLocal) &&
               !md.global.Config.EnableDataPipeline &&
               'aggregations' === currentConfigType ? (
               <div className="flexColumn alignItemsCenter justifyContentCenter h100">
                 {upgradeVersionDialog({
-                  hint: md.global.Config.IsPlatformLocal ? (
+                  hint: window.platformENV.isPlatform ? (
                     _l('数据集成服务未部署，暂不可用')
                   ) : (
                     <span>

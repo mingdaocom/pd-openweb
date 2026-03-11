@@ -18,9 +18,11 @@ export const upgradeVersionDialog = options => {
       <div className="netStateWrap">
         <div className="imgWrap" />
         <div className="hint">{hint}</div>
-        {!md.global.Config.IsLocal && !md.global.Account.isPortal && !isExternal && options.explainText && (
-          <div className="explain">{explainText}</div>
-        )}
+        {!window.platformENV.isOverseas &&
+          !window.platformENV.isLocal &&
+          !md.global.Account.isPortal &&
+          !isExternal &&
+          options.explainText && <div className="explain">{explainText}</div>}
       </div>
     );
   };
@@ -46,7 +48,7 @@ export function buriedUpgradeVersionDialog(projectId, featureId, extra, onOk) {
   const { explainText = '', dialogType } = extra || {};
   let upgradeName, versionType;
 
-  if (!md.global.Config.IsLocal) {
+  if (!window.platformENV.isOverseas && !window.platformENV.isLocal) {
     const TYPE_NAME = { 1: _l('标准版'), 2: _l('专业版'), 3: _l('旗舰版') };
     const getFeatureType = versionIdV2 => {
       const versionInfo = _.find(Versions || [], item => item.VersionIdV2 === versionIdV2) || {};
@@ -77,7 +79,7 @@ export function buriedUpgradeVersionDialog(projectId, featureId, extra, onOk) {
     featureId,
     isFree: licenseType === 0 || licenseType === 2,
     explainText:
-      md.global.Config.IsLocal || md.global.Account.isPortal
+      window.platformENV.isOverseas || window.platformENV.isLocal || md.global.Account.isPortal
         ? _l('请升级版本')
         : explainText || _l('请升级至%0解锁开启', upgradeName),
     versionType,

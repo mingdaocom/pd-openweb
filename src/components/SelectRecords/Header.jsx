@@ -12,19 +12,19 @@ const Con = styled.div`
 const Title = styled.div`
   font-size: 16px;
   font-weight: bold;
-  color: #000;
+  color: var(--color-text-primary);
   height: 50px;
   line-height: 50px;
 `;
 
 const Icon = styled.span`
   font-size: 20px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   margin: 2px 0 0 8px;
 `;
 const QueryCon = styled.div`
-  background: #fff;
-  border: 1px solid #e0e0e0;
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border-secondary);
   border-radius: 4px;
   flex: 1;
   display: flex;
@@ -45,8 +45,8 @@ const AddNewRecordBtn = styled(Button)`
 
 const FastFiltersExpandBtn = styled.div`
   cursor: pointer;
-  background: #fff;
-  border: 1px solid #e0e0e0;
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border-secondary);
   border-radius: 4px;
   width: 36px;
   height: 36px;
@@ -54,20 +54,20 @@ const FastFiltersExpandBtn = styled.div`
   line-height: 36px;
   text-align: center;
   font-size: 18px;
-  color: ${({ active }) => (active ? '#1677ff' : '#9e9e9e')};
+  color: ${({ active }) => (active ? 'var(--color-primary)' : 'var(--color-text-tertiary)')};
   &.filtersVisible {
-    color: #9e9e9e;
-    border-color: #e0e0e0;
+    color: var(--color-text-tertiary);
+    border-color: var(--color-border-secondary);
     &:hover {
-      color: #1677ff;
-      border-color: #1677ff;
-      background: #fff;
+      color: var(--color-primary);
+      border-color: var(--color-primary);
+      background: var(--color-background-primary);
     }
   }
   &:hover {
-    color: #1677ff;
-    border-color: #1677ff;
-    background: #fff;
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    background: var(--color-background-primary);
   }
 `;
 
@@ -124,7 +124,7 @@ export default function Header(props) {
                 onSearch('');
               }}
             >
-              <i className="icon icon-cancel Hand Gray_9e Font16"></i>
+              <i className="icon icon-cancel Hand textTertiary Font16"></i>
             </span>
           )}
         </QueryCon>

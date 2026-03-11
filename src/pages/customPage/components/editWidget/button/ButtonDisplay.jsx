@@ -61,7 +61,7 @@ const BtnWrap = styled.div`
   }
   &.edit {
     &:hover {
-      border: 1px dashed #ddd;
+      border: 1px dashed var(--color-border-primary);
     }
     &.active {
       border: 1px solid ${props => new TinyColor(props.color).darken(20).toString()};
@@ -69,7 +69,7 @@ const BtnWrap = styled.div`
   }
   &.adjustText {
     button {
-      background-color: #f8f8f8;
+      background-color: var(--color-background-secondary);
       color: ${props => props.color};
       box-shadow: none;
       &:hover {
@@ -78,7 +78,7 @@ const BtnWrap = styled.div`
     }
     .iconWrap {
       color: ${props => props.color};
-      background-color: #f8f8f8;
+      background-color: var(--color-background-secondary);
     }
   }
 `;

@@ -6,7 +6,7 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 
 const ClearSelect = styled.div`
   padding: 4px 16px 6px 16px;
-  color: #757575;
+  color: var(--color-text-secondary);
   cursor: pointer;
 `;
 

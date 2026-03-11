@@ -8,7 +8,7 @@ import { formatNumberFromInput } from 'src/utils/control';
 const InputCon = styled(Input)`
   width: 100%;
   border: none !important;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
 `;
 
 export default function Number(props) {

@@ -19,12 +19,12 @@ const Wrap = styled.div`
     font-weight: 400;
   }
   .Green_right {
-    color: #4caf50;
+    color: var(--color-success);
   }
   .iconCon {
     width: 44px;
     height: 44px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
     border-radius: 6px;
     position: relative;
     text-align: center;
@@ -32,8 +32,8 @@ const Wrap = styled.div`
   }
   width: 880px;
   margin: 0 auto;
-  background: #ffffff;
-  // border: 1px solid #dddddd;
+  background: var(--color-background-primary);
+  // border: 1px solid var(--color-border-primary);
   border-radius: 10px;
   .con {
     padding: 20px 24px;
@@ -51,13 +51,13 @@ const Wrap = styled.div`
   }
   .line {
     padding: 10px 0;
-    border-bottom: 1px solid #f2f2f2;
+    border-bottom: 1px solid var(--color-background-disabled);
   }
   .btn {
     &.disable {
-      background: #f5f5f5;
-      color: #bdbdbd;
-      border: 1px solid #bdbdbd;
+      background: var(--color-background-secondary);
+      color: var(--color-text-disabled);
+      border: 1px solid var(--color-text-disabled);
     }
   }
   .actionControlBox {
@@ -72,12 +72,12 @@ const Wrap = styled.div`
   }
   .actionControlBox:not(:hover):not(:focus):not(.errorBorder):not(.actionClearBorder),
   .actionControlBox:not(.ThemeBorderColor3) {
-    border-color: #ddd !important;
+    border-color: var(--color-border-primary) !important;
   }
   .showRefreshLogBtn {
     padding: 0 10px;
     &:hover {
-      border-color: #1677ff !important;
+      border-color: var(--color-primary) !important;
     }
   }
 `;
@@ -148,11 +148,11 @@ function ConnectAuth(props) {
   const renderList = fields => {
     return (
       <div className="flexRow mBottom20">
-        <div className="title Gray_75">{_l('可用返回参数')}</div>
+        <div className="title textSecondary">{_l('可用返回参数')}</div>
         <div className="txt flex">
           <div className="flexRow line">
-            <div className="flex Gray_9e">{_l('参数名')}</div>
-            <div className="flex Gray_9e">{_l('参考值')}</div>
+            <div className="flex textTertiary">{_l('参数名')}</div>
+            <div className="flex textTertiary">{_l('参考值')}</div>
           </div>
           {fields.map(o => {
             return (
@@ -174,14 +174,14 @@ function ConnectAuth(props) {
     return (
       <div className="con">
         <div className="flexRow mBottom20">
-          <div className="title Gray_75">{_l('鉴权方式')}</div>
+          <div className="title textSecondary">{_l('鉴权方式')}</div>
           <div className="txt flex">
             <span>{TYPELIST.find(o => o.appType === node.appType).name}</span>
           </div>
         </div>
         <div className="">
           <div className="flexRow mBottom20">
-            <div className="title Gray_75">{_l('Basic Auth 参数')}</div>
+            <div className="title textSecondary">{_l('Basic Auth 参数')}</div>
             <div className="txt flex">
               {/* 密码 账号必须都填才行 */}
               {(node.fields || []).filter(o => !!o.fieldValue).length >= 2 ? (
@@ -286,7 +286,7 @@ function ConnectAuth(props) {
             }
           />
         </div>
-        <div className="Font13 mTop5 Gray_75">{_l('根据 API 状态码/错误码，设置判断刷新Access Token的条件')}</div>
+        <div className="Font13 mTop5 textSecondary">{_l('根据 API 状态码/错误码，设置判断刷新Access Token的条件')}</div>
 
         {!!(node.webHookNodes[testIndex].retryControls || []).length && (
           <div className="flexRow mTop10">
@@ -357,20 +357,20 @@ function ConnectAuth(props) {
     return (
       <div className="con">
         <div className="flexRow mBottom20">
-          <div className="title Gray_75">{_l('鉴权方式')}</div>
+          <div className="title textSecondary">{_l('鉴权方式')}</div>
           <div className="txt flex">
             <span>{TYPELIST.find(o => o.appType === node.appType).name}</span>
           </div>
         </div>
         <div className="">
           <div className="flexRow mBottom20">
-            <div className="title Gray_75">Access Token URL</div>
+            <div className="title textSecondary">Access Token URL</div>
             <div className="txt flex WordBreak">{renderValue(node.webHookNodes[testIndex].url, node)}</div>
           </div>
           {props.forIntegration ? (
             <Fragment>
               <div className="Font13 bold mTop20">{_l('Access Token 过期时间')}</div>
-              <div className="mTop10 Gray_75">
+              <div className="mTop10 textSecondary">
                 {_l('系统将依据这里的时长设置来判断自动刷新 Access Token 的频率，为 0 则不自动刷新')}
               </div>
               <div className="mTop15 flexRow alignItemsCenter">
@@ -412,7 +412,7 @@ function ConnectAuth(props) {
               {/* 安装的连接  OAuth不显示 Access Token和返回参数 */}
               {props.connectType !== 2 && (
                 <div className="flexRow mBottom20">
-                  <div className="title Gray_75">Access Token</div>
+                  <div className="title textSecondary">Access Token</div>
                   <div className="txt flex">
                     {(node.controls || []).length > 0 ? (
                       <span>{_l('已获取')}</span>
@@ -423,7 +423,7 @@ function ConnectAuth(props) {
                 </div>
               )}
               <div className="flexRow mBottom20">
-                <div className="title Gray_75">{_l('过期时间')}</div>
+                <div className="title textSecondary">{_l('过期时间')}</div>
                 <div className="txt flex">
                   {node.expireAfterSeconds} {_l('秒')}
                 </div>
@@ -490,7 +490,7 @@ function ConnectAuth(props) {
         </div>
         <div className="flex pLeft16">
           <p className="Font17 Bold">{node.appType === 31 ? _l('Basic Auth 鉴权认证') : _l('OAuth 鉴权认证')}</p>
-          <p className="Font13 Gray_75 mTop4">
+          <p className="Font13 textSecondary mTop4">
             <span className="TxtMiddle">{_l('配置发送 API 请求时采用的鉴权认证方式')}</span>
             <Support
               href={

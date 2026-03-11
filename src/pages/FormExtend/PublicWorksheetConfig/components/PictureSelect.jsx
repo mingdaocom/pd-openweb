@@ -43,7 +43,7 @@ const PicMask = styled.div`
   text-align: center;
   line-height: 60px;
   font-size: 20px;
-  color: #fff;
+  color: var(--color-white);
 `;
 const Pages = styled.div`
   text-align: center;
@@ -60,7 +60,7 @@ const Page = styled.div(
   width: 8px;
   height: 8px;
   border-radius: 6px;
-  background: ${active ? '#9E9E9E' : '#E0E0E0'};
+  background: ${active ? 'var(--color-text-tertiary)' : 'var(--color-border-secondary)'};
   vertical-align: middle;
 `,
 );

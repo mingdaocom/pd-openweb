@@ -22,21 +22,21 @@ const GlobalSearchSideCon = styled.ul`
     line-height: 14px;
     height: 14px;
     padding-left: 10px;
-    border-left: 2px solid #fff;
+    border-left: 2px solid var(--color-white);
   }
   .sideItem:hover {
-    background: #f7f7f7;
+    background: var(--color-background-secondary);
     span {
-      border-left: 2px solid #f7f7f7;
+      border-left: 2px solid var(--color-background-secondary);
     }
   }
   .sideItem.current {
-    background: #f2faff;
+    background: var(--color-primary-transparent);
     font-weight: 600;
-    color: #1677ff;
+    color: var(--color-primary);
   }
   .sideItem.current span {
-    border-left: 2px solid #1677ff;
+    border-left: 2px solid var(--color-primary);
   }
 `;
 
@@ -62,7 +62,7 @@ export default class GlobalSearchSide extends Component {
                     '可搜索的字段类型包含：文本、邮箱、电话、自动编号、证件、文本组合、关联字段、他表字段(仅存储)。',
                   )}
                 >
-                  <Icon icon="info_outline" className="Font17 Gray_bd mRight10" />
+                  <Icon icon="info_outline" className="Font17 textDisabled mRight10" />
                 </Tooltip>
               )}
             </li>

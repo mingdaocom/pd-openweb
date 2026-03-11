@@ -35,19 +35,19 @@ const BoardTitleWrap = styled(FlexCenter)`
   }
   .optionType {
     &.haveColor {
-      color: #fff;
+      color: var(--color-white);
     }
     &.isLightColor {
-      color: #151515;
+      color: var(--color-text-title);
     }
   }
   .relationSheetType {
-    color: #1677ff;
+    color: var(--color-primary);
     background-color: rgba(0, 0, 0, 0.05);
     cursor: pointer;
     font-size: 15px;
     &:hover {
-      color: #1976d2;
+      color: var(--color-link-hover);
     }
     .icon {
       margin-right: 5px;
@@ -55,10 +55,10 @@ const BoardTitleWrap = styled(FlexCenter)`
   }
   .gradeType {
     font-size: 15px;
-    color: #151515;
+    color: var(--color-text-title);
   }
   .noGroupTitle {
-    color: #757575;
+    color: var(--color-text-secondary);
     font-size: 15px;
   }
 `;
@@ -70,7 +70,7 @@ const RecordCount = styled.div`
   min-width: 24px;
   border-radius: 12px;
   text-align: center;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   background-color: rgba(0, 0, 0, 0.05);
 `;
 

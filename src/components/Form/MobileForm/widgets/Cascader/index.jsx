@@ -1,79 +1,16 @@
 import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
-import { List } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import nzh from 'nzh';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { Icon, LoadDiv, MobileSearch, PopupWrapper, Radio, ScrollView } from 'ming-ui';
+import { Checkbox, Icon, LoadDiv, MobileSearch, PopupWrapper, Radio, ScrollView } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { renderText as renderCellText } from 'src/utils/control';
+import { CustomCommonCapsule } from '../../style';
 import { checkCellIsEmpty, sortPathsBySearchKeyword } from '../../tools/utils';
-
-const AdvancedContentWrap = styled.div`
-  display: flex;
-  align-items: center;
-  min-width: 0;
-
-  .Radio {
-    align-items: center;
-
-    &-box {
-      flex-shrink: 0;
-    }
-  }
-`;
-
-const PopupContentBox = styled.div`
-  height: 100%;
-  overflow-y: auto;
-
-  .adm-list-body {
-    font-size: 15px;
-    border-top: initial;
-  }
-
-  .Radio-box {
-    margin-top: initial !important;
-  }
-
-  .canWrap {
-    word-break: break-all;
-    white-space: wrap !important;
-  }
-
-  .highlight {
-    color: var(--color-primary);
-    vertical-align: initial !important;
-  }
-
-  .errorInfoBox {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 70%;
-
-    .icon {
-      margin-bottom: 16px;
-      font-size: 120px;
-      color: var(--color-text-disabled);
-    }
-    .errorInfo {
-      font-size: 17px;
-    }
-  }
-`;
-
-const getItem = value => {
-  return checkCellIsEmpty(value)
-    ? { name: undefined, sid: '' }
-    : {
-        name: (safeParse(value)[0] || {}).name || _l('未命名'),
-        sid: (safeParse(value)[0] || {}).sid || '',
-      };
-};
+import { CustomMobileCascadeControl, OptionWrap, PopupContentBox } from './style';
 
 const Cascader = props => {
   const {
@@ -86,25 +23,29 @@ const Cascader = props => {
     worksheetId,
     getType,
     formDisabled,
+    controlName,
+    value,
     onChange = () => {},
+    enumDefault,
+    appId,
   } = props;
   const { topshow = '0', anylevel = '0', minlayer = '0', allpath = '0', limitlayer = '0' } = advancedSetting;
   const limitLayer = Number(limitlayer);
   const minLayer = Number(minlayer);
-
+  const isMultiple = enumDefault === 2;
   const ajax = useRef(null);
   const cacheData = useRef([]);
   const sourcePath = useRef({});
   const searchRef = useRef({});
   const [visible, setVisible] = useState(false);
   const [options, setOptions] = useState(null);
-  const [value, setValue] = useState('');
   const [operatePath, setOperatePath] = useState([]);
-  const [selectedId, setSelectedId] = useState('');
-  const [selectItem, setSelectItem] = useState({});
-  const [layersName, setLayersName] = useState(null);
+  const [selectItems, setSelectItems] = useState([]);
+  const [selectedValues, setSelectedValues] = useState([]);
+  const [layersName, setLayersName] = useState([]);
   const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   const getKeywords = () => {
     return searchRef.current && searchRef.current.keywords ? searchRef.current.keywords.trim() : '';
@@ -184,7 +125,6 @@ const Cascader = props => {
       list = data;
       cacheTreePath(data);
     }
-
     setOptions(list);
   };
 
@@ -197,16 +137,16 @@ const Cascader = props => {
     }
 
     // 数据源筛选
-    const filterControls = getFilter({ control: props, formData }) || [];
+    const filterControls = getFilter({ control: props, formData, appId }) || [];
     let navGroupFilters = [];
     // 开始筛选范围处理
     if (topshow === '3' && !rowId) {
-      navGroupFilters = getFilter({ control: props, formData, filterKey: 'topfilters' }) || [];
+      navGroupFilters = getFilter({ control: props, formData, filterKey: 'topfilters', appId }) || [];
     }
 
     setLoading(true);
     const keywords = getKeywords();
-    ajax.current = sheetAjax.getFilterRows({
+    ajax.current = sheetAjax.chooseRelationRows({
       worksheetId: dataSource,
       viewId,
       filterControls,
@@ -233,24 +173,32 @@ const Cascader = props => {
                 ? renderCellText(Object.assign({}, control, { value: item[control.controlId] }), { noMask: true }) ||
                   _l('未命名')
                 : _l('未命名'),
-              path: item.childrenids || item.path,
+              path: keywords ? item.path : item.childrenids || item.path,
               searchPath: keywords ? item.path : '[]', // 搜索快速清空，偶发会显示childrenids路径，改用searchPath
               isLeaf: !!keywords || isEndLeaf(rowId) || !item.childrenids,
             };
           });
 
-          if (!rowId && !_.isArray(layersName)) {
+          if (!rowId && !layersName?.length) {
             setLayersName((_.find(result.worksheet.views, item => item.viewId === viewId) || {}).layersName || []);
           }
 
           ajax.current = '';
           cacheData.current = keywords ? result.data : _.uniqBy(cacheData.current.concat(result.data), 'rowid');
           deepDataUpdate(_.cloneDeep(options), data, rowId);
+          if (isFirstLoad) {
+            setIsFirstLoad(false);
+          }
         } else {
           setIsError(true);
         }
       })
-      .finally(() => setLoading(false));
+      .catch(err => {
+        setIsError(err.errorCode === 300016 ? err.errorCode : err.errorMessage);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   /**
@@ -276,31 +224,38 @@ const Cascader = props => {
   /**
    * 树形更新
    */
-  const treeSelectChange = (id, title) => {
-    if (!canUpdate(id)) {
-      alert(_l('不在可选范围内'), 3);
+  const treeSelectChange = (values = []) => {
+    if (!values.length) {
+      onChange('');
       return;
     }
 
-    let value;
-    let path;
     const keywords = getKeywords();
-    if (keywords) {
-      path = JSON.parse(cacheData.current.find(item => item.rowid === id).path);
-      value = +allpath ? path.join(' / ') : path[path.length - 1];
-    } else {
-      value = +allpath ? sourcePath.current[id] : title;
-    }
+    const result = values.map(item => {
+      const { id, label } = item;
+      let path;
+      let name;
+      const node = cacheData.current.find(i => i.rowid === id);
+      if (keywords) {
+        if (node) {
+          path = JSON.parse(node.path);
+          name = +allpath ? path.join(' / ') : path[path.length - 1];
+        } else {
+          name = label;
+        }
+      } else {
+        path = sourcePath.current[id];
+        name = +allpath ? path : label;
+      }
 
-    onChange(
-      id
-        ? JSON.stringify([
-            { sid: id, name: value, sourcevalue: JSON.stringify(cacheData.current.find(item => item.rowid === id)) },
-          ])
-        : '',
-    );
+      return {
+        sid: id,
+        name,
+        sourcevalue: node ? JSON.stringify(node) : '',
+      };
+    });
 
-    setValue(value);
+    onChange(JSON.stringify(result));
   };
 
   /**
@@ -327,20 +282,29 @@ const Cascader = props => {
     return sourceData;
   };
 
+  const loadNextOperatePath = item => {
+    setOperatePath(operatePath.concat(item.value));
+    loadData(item.value);
+  };
+
+  const handleBreadcrumbClick = index => {
+    setOperatePath(index ? operatePath.slice(0, index) : []);
+    loadData(index ? operatePath[index - 1] : '');
+  };
+
   // 处理项点击事件的函数
-  const handleItemClick = item => {
+  const handleRadioItemClick = item => {
     if (getKeywords() && !canUpdate(item.value)) {
       alert(_l('不在可选范围内'), 3);
       return;
     }
+    // 叶子节点直接保存并关闭弹窗
     if (item.isLeaf) {
-      setVisible(false);
-      setOperatePath([]);
-      setSelectedId(item.value);
-      treeSelectChange(item.value, item.label);
+      handleClose();
+      treeSelectChange([{ id: item.value, label: item.label }]);
     } else {
-      setOperatePath(operatePath.concat(item.value));
-      loadData(item.value);
+      // 非叶子节点，更新层级路径并加载数据
+      loadNextOperatePath(item);
     }
   };
 
@@ -367,47 +331,79 @@ const Cascader = props => {
     return nodes;
   };
 
-  // 简单展示内容（无 Radio）
+  const handleCheckboxClick = item => {
+    if (getKeywords() && !canUpdate(item.value)) {
+      alert(_l('不在可选范围内'), 3);
+      return;
+    }
+
+    setSelectItems(prev => {
+      const exists = prev.some(i => i.id === item.value);
+      // 已选中移除
+      if (exists) {
+        return prev.filter(i => i.id !== item.value);
+      }
+      // 未选中添加
+      return [...prev, { id: item.value, label: item.label }];
+    });
+  };
+
+  // 简单展示内容
   const renderSimpleContent = (item, keywords) => {
     return (
-      <div className="flexRow">
-        <div className={cx('flex ellipsis', { canWrap: keywords })}>
-          {keywords ? formatSearchData(item, keywords) : item.label}
-        </div>
+      <OptionWrap
+        onClick={
+          !item.isLeaf && isMultiple
+            ? e => {
+                e.stopPropagation();
+                loadNextOperatePath(item);
+              }
+            : undefined
+        }
+      >
+        {isMultiple && item.isLeaf ? (
+          <Checkbox
+            text={keywords ? formatSearchData(item, keywords) : item.label}
+            checked={selectItems.some(selected => selected.id === item.value)}
+            onClick={() => handleCheckboxClick(item)}
+          />
+        ) : (
+          <div className="simpleContent">{keywords ? formatSearchData(item, keywords) : item.label}</div>
+        )}
         {!item.isLeaf && (
-          <div className="pLeft10 Font16 Gray_9e">
+          <div className="pLeft10 Font16 textTertiary">
             <i className="icon-arrow-right-border" />
           </div>
         )}
-      </div>
+      </OptionWrap>
     );
   };
 
-  // 高级展示内容（带 Radio）
+  // 高级展示内容（带选项框）
   const renderAdvancedContent = item => (
-    <AdvancedContentWrap>
-      <Radio
-        className="flex flexRow"
-        text={item.label}
-        checked={selectItem.id ? item.value === selectItem.id : item.value === selectedId}
-        onClick={() => setSelectItem({ id: item.value, label: item.label })}
-      />
+    <OptionWrap className="advanced">
+      {isMultiple ? (
+        <Checkbox
+          text={item.label}
+          checked={selectItems.some(selected => selected.id === item.value)}
+          onClick={() => handleCheckboxClick(item)}
+        />
+      ) : (
+        <Radio
+          text={item.label}
+          checked={selectItems.some(selected => selected.id === item.value)}
+          onClick={() => setSelectItems([{ id: item.value, label: item.label }])}
+        />
+      )}
       {!item.isLeaf && (
         <Fragment>
-          <div style={{ borderRight: '1px solid var(--color-border-primary)', height: 18 }} />
-          <div
-            className="pLeft10 Font16 Gray_9e"
-            onClick={e => {
-              e.stopPropagation();
-              setOperatePath([...operatePath, item.value]);
-              loadData(item.value);
-            }}
-          >
+          <div className="splitLine" />
+          <div className="pLeft10 Font16 textTertiary" onClick={() => loadNextOperatePath(item)}>
             <i className="icon-arrow-right-border" />
           </div>
         </Fragment>
       )}
-    </AdvancedContentWrap>
+    </OptionWrap>
   );
 
   /**
@@ -417,11 +413,12 @@ const Cascader = props => {
     if (isError)
       return (
         <div className="errorInfoBox">
-          <Icon icon="error1" className="Gray_bd" />
+          <Icon icon="error1" className="textDisabled" />
           <span className="errorInfo">{_l('数据源异常')}</span>
         </div>
       );
-    if (!options.length) return null;
+
+    if (!options || !options.length) return null;
 
     let _options = getOptions().map(item =>
       limitLayer && limitLayer === operatePath.length ? { ...item, isLeaf: true } : item,
@@ -430,51 +427,57 @@ const Cascader = props => {
     if (!_options.length) return <LoadDiv />;
 
     const keywords = getKeywords();
+    const hasKeywordOrAnyLevel = keywords || +anylevel;
     if (keywords) {
       _options = sortPathsBySearchKeyword(_options, keywords);
     }
-    // 必须选择最后一级
-    if (keywords || +anylevel) {
-      return (
-        <List>
-          {_options.map(item => (
-            <List.Item key={item.value} arrowIcon={false} onClick={() => handleItemClick(item)}>
-              {renderSimpleContent(item, keywords)}
-            </List.Item>
-          ))}
-        </List>
-      );
+    let itemRenderer;
+    let clickHandler = null;
+    if (hasKeywordOrAnyLevel) {
+      // 模式 1：关键词搜索 或 必须选择最后一级
+      itemRenderer = item => renderSimpleContent(item, keywords);
+      clickHandler = !isMultiple ? item => handleRadioItemClick(item) : null;
+    } else if (minLayer) {
+      // 模式 2：至少选择 min 层
+      itemRenderer = item => (operatePath.length >= minLayer ? renderAdvancedContent(item) : renderSimpleContent(item));
+      clickHandler = !isMultiple && !(operatePath.length >= minLayer) ? item => handleRadioItemClick(item) : null;
+    } else {
+      // 模式 3：任意层级
+      itemRenderer = item => renderAdvancedContent(item);
     }
 
-    // 至少向后选择指定级
-    if (minLayer) {
-      return (
-        <List>
-          {_options.map(item => (
-            <List.Item
-              key={item.value}
-              arrowIcon={false}
-              onClick={() => {
-                if (operatePath.length >= minLayer) return;
-                handleItemClick(item);
-              }}
-            >
-              {operatePath.length >= minLayer ? renderAdvancedContent(item) : renderSimpleContent(item)}
-            </List.Item>
-          ))}
-        </List>
-      );
-    }
-
-    // 任意层级
     return (
-      <List>
+      <div className="cascadeOptionBox">
         {_options.map(item => (
-          <List.Item key={item.value} arrowIcon={false}>
-            {renderAdvancedContent(item)}
-          </List.Item>
+          <div className="optionItem" key={item.value} onClick={clickHandler ? () => clickHandler(item) : undefined}>
+            {itemRenderer(item)}
+          </div>
         ))}
-      </List>
+      </div>
+    );
+  };
+
+  const renderBreadcrumb = () => {
+    const keywords = getKeywords();
+    if (keywords?.length) return null;
+
+    let displayList = [];
+    // 有层级名称：取前 breadcrumbLength 项
+    if (layersName?.length) {
+      displayList = layersName.slice(0, operatePath.length + 1);
+    } else {
+      displayList = ['', ...operatePath].map((_, index) => _l('%0级', nzh.cn.encodeS(index + 1)));
+    }
+
+    return (
+      <div className="breadcrumbBox">
+        {displayList.map((text, index) => (
+          <Fragment key={index}>
+            <span onClick={() => handleBreadcrumbClick(index)}>{text || _l('%0级', nzh.cn.encodeS(index + 1))}</span>
+            <span>{index < displayList.length - 1 && ' > '}</span>
+          </Fragment>
+        ))}
+      </div>
     );
   };
 
@@ -484,78 +487,88 @@ const Cascader = props => {
   const handleClose = () => {
     setVisible(false);
     setOperatePath([]);
-    setSelectItem({});
-  };
-
-  const handleBack = () => {
-    setOperatePath(operatePath.slice(0, -1));
+    setSelectItems([]);
   };
 
   const handleClear = () => {
-    setVisible(false);
-    setOperatePath([]);
-    setSelectItem({});
-    setValue('');
-    setSelectedId('');
+    handleClose();
     onChange('');
   };
 
   const handleSave = () => {
-    setVisible(false);
-    setOperatePath([]);
-    setSelectItem({});
-    setSelectedId(selectItem.id);
-    treeSelectChange(selectItem.id, selectItem.label);
+    handleClose();
+    treeSelectChange(selectItems);
   };
 
   const handleSearch = () => {
     setOperatePath([]);
-    setSelectItem({});
     loadData();
   };
 
   useEffect(() => {
-    const items = getItem(props.value);
-    setValue(items.name);
-    setSelectedId(items.sid);
-  }, [props.value]);
+    if (checkCellIsEmpty(value)) {
+      setSelectedValues([]);
+    } else {
+      const formatValue = safeParse(value)?.map(item => ({
+        label: item.name,
+        id: item.sid,
+      }));
+      setSelectedValues(formatValue);
+    }
+  }, [value]);
 
   return (
     <Fragment>
-      <div
-        className={cx('customFormControlBox controlMinHeight flexRow flexCenter', {
-          controlEditReadonly: !formDisabled && value && disabled,
+      <CustomMobileCascadeControl
+        hasMultipleValues={isMultiple && selectedValues.length}
+        className={cx('customFormControlBox controlMinHeight', {
+          controlEditReadonly: !formDisabled && selectedValues.length && disabled,
           controlDisabled: formDisabled,
         })}
         onClick={() => {
           if (!disabled) {
             loadData();
+            setSelectItems(selectedValues);
             setVisible(true);
           }
         }}
       >
-        <span className={cx('flex ellipsis', { customFormPlaceholder: !value })}>{value || _l('请选择')}</span>
-        {(!disabled || !formDisabled) && <Icon icon="arrow-right-border" className="Font16 Gray_bd" />}
-      </div>
+        {!isMultiple || !selectedValues.length ? (
+          <span className={cx('flex ellipsis', { customFormPlaceholder: !selectedValues.length })}>
+            {selectedValues[0]?.label || _l('请选择')}
+          </span>
+        ) : (
+          <div className="cascadeMultipleContentBox">
+            {selectedValues?.map(item => (
+              <CustomCommonCapsule key={item.id}>{item.label}</CustomCommonCapsule>
+            ))}
+          </div>
+        )}
+        {(!disabled || !formDisabled) && <Icon icon="arrow-right-border" className="Font16 textDisabled" />}
+      </CustomMobileCascadeControl>
 
       {visible && (
         <PopupWrapper
           bodyClassName="heightPopupBody40"
           visible={visible}
-          title={(layersName || [])[operatePath.length] || _l('%0级', operatePath.length + 1)}
-          confirmDisable={!(minLayer && !+anylevel ? operatePath.length > minLayer || selectItem.id : !+anylevel)}
-          clearDisable={!value}
+          title={controlName}
+          confirmDisable={!selectItems.length}
+          clearDisable={!selectItems.length}
           onClose={handleClose}
-          onBack={operatePath.length > 0 ? handleBack : null}
           onClear={handleClear}
           onConfirm={handleSave}
         >
-          <PopupContentBox className="flexColumn">
-            <MobileSearch ref={searchRef} onSearch={handleSearch} />
-            <div className="flex overflowHidden">
-              {loading ? <LoadDiv /> : <ScrollView className="h100">{renderPopupContent()}</ScrollView>}
-            </div>
-          </PopupContentBox>
+          {isError === 300016 ? (
+            <RestrictAccessStatus />
+          ) : (
+            <PopupContentBox className="flexColumn">
+              <MobileSearch ref={searchRef} onSearch={handleSearch} />
+              {!isFirstLoad && renderBreadcrumb()}
+              <div className="flex overflowHidden">
+                {loading ? <LoadDiv /> : <ScrollView className="h100">{renderPopupContent()}</ScrollView>}
+              </div>
+            </PopupContentBox>
+          )}
         </PopupWrapper>
       )}
     </Fragment>

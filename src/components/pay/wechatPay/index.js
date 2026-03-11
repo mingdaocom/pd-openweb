@@ -18,7 +18,7 @@ const WecharPayWrap = styled.div`
     flex-direction: column;
     align-items: center;
     margin: 16px auto 0;
-    background: #fff;
+    background: var(--color-background-primary);
     .payInfo {
       width: 280px;
       text-align: left;
@@ -31,7 +31,7 @@ const WecharPayWrap = styled.div`
     .qrCode {
       width: 280px;
       height: 280px;
-      border: 1px solid #eaeaea;
+      border: 1px solid var(--color-border-secondary);
       padding: 9px;
       box-sizing: border-box;
       position: relative;
@@ -56,8 +56,8 @@ const WecharPayWrap = styled.div`
     .payTxt {
       width: 280px;
       height: 50px;
-      background: #15ba11;
-      color: #fff;
+      background: var(--color-success);
+      color: var(--color-white);
       text-align: center;
       line-height: 50px;
       font-size: 15px;
@@ -159,8 +159,8 @@ export default class WechatPay extends Component {
           <div className="payCon">
             <div className="payInfo">
               <div className="Font17 bold mTop32 nowrap">{subject}</div>
-              <div className="Gray_75">{_l('收款方：上海万企明道软件有限公司')}</div>
-              <div className="Gray_75 nowrap">{_l('订单号：%0', orderId)}</div>
+              <div className="textSecondary">{_l('收款方：上海万企明道软件有限公司')}</div>
+              <div className="textSecondary nowrap">{_l('订单号：%0', orderId)}</div>
             </div>
             <div className="payNum">
               <span className="Font24 bold">{_l('%0元', price / 100)}</span>
@@ -174,7 +174,7 @@ export default class WechatPay extends Component {
                 </div>
               )}
             </div>
-            <div className="Gray_75 mTop10">{_l('二维码有效期10分钟，过期请刷新页面')}</div>
+            <div className="textSecondary mTop10">{_l('二维码有效期10分钟，过期请刷新页面')}</div>
             <div className="payTxt">{_l('请使用微信扫描二维码支付')}</div>
           </div>
         )}

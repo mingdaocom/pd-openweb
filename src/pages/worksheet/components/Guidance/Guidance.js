@@ -274,13 +274,13 @@ export default class Guidance extends Component {
             <div className="Font14">{guideText.info}</div>
           </div>
           <div className="flexRow valignWrapper">
-            <div className="flex Font13 Gray_75">{`${guide} / ${maxGuide}`}</div>
+            <div className="flex Font13 textSecondary">{`${guide} / ${maxGuide}`}</div>
             {guide === 1 ? (
-              <div className="mRIght20 Font13 Gray_75 mRight25 pointer skip" onClick={this.props.onClose}>
+              <div className="mRIght20 Font13 textSecondary mRight25 pointer skip" onClick={this.props.onClose}>
                 {_l('跳过')}
               </div>
             ) : (
-              <div className="mRIght20 Font13 Gray_75 mRight25 pointer lastStep" onClick={this.handleLaststep}>
+              <div className="mRIght20 Font13 textSecondary mRight25 pointer lastStep" onClick={this.handleLaststep}>
                 {guide === maxGuide ? _l('再看一遍') : _l('上一步')}
               </div>
             )}

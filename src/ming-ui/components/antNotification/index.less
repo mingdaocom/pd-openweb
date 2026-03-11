@@ -1,12 +1,12 @@
-@success-color: #4caf50;
-@error-color: #f44336;
-@warning-color: #fb0;
-@info-color: #1c97f3;
+@success-color: var(--color-success);
+@error-color: var(--color-error);
+@warning-color: var(--color-warning);
+@info-color: var(--color-info);
 
 .mdNotification {
   width: 440px;
   min-height: 93px;
-  border-top: 4px solid #1677ff;
+  border-top: 4px solid var(--color-primary);
   padding: 14px 20px 20px 14px;
   border-radius: 6px;
   &.error {
@@ -45,11 +45,11 @@
     margin-left: 34px;
     margin-bottom: 8px;
     font-size: 16px;
-    color: #151515;
+    color: var(--color-text-title);
   }
   .ant-notification-notice-description {
     font-size: 13px;
-    color: #757575;
+    color: var(--color-text-secondary);
     .antNotificationDescription {
       white-space: pre-wrap;
       word-break: break-all;
@@ -66,7 +66,7 @@
   .ant-notification-notice-description {
     margin-left: 34px;
     font-size: 13px;
-    color: #151515;
+    color: var(--color-text-title);
   }
   .ant-notification-notice-btn {
     margin-top: 8px;
@@ -75,7 +75,7 @@
     font-size: 20px;
     right: 10px;
     top: 0px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 }
 

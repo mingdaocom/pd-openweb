@@ -102,7 +102,7 @@ export default class ViewKey extends Component {
                   <Fragment key={index}>
                     <div className={cx('keyLabel', { mTop24: index !== 0 })}>{item.text}</div>
                     <div className="subLabel flexRow mTop5">
-                      <div className="Gray_75 breakAll">{this.state[item.key]}</div>
+                      <div className="textSecondary breakAll">{this.state[item.key]}</div>
                       <span
                         className="ThemeColor3 ThemeHoverColor2 mLeft15 pointer"
                         style={{ whiteSpace: 'nowrap' }}

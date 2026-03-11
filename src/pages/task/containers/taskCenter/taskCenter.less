@@ -13,6 +13,7 @@
     max-width: 100%;
     .icon-arrow-down-border {
       font-size: 16px;
+      color: var(--color-text-secondary);
     }
   }
   .taskMainBox {
@@ -38,20 +39,20 @@
     .errorFolderBox {
       width: 100%;
       height: 100%;
-      background: #fff;
+      background: var(--color-background-primary);
     }
     .taskDelayNoStart {
-      border: 1px solid #ffa414;
+      border: 1px solid var(--color-warning);
       border-radius: 12px;
       padding: 4px 10px;
     }
     .taskDelayNoComplete {
-      border: 1px solid #ff0000;
+      border: 1px solid var(--color-error);
       border-radius: 12px;
       padding: 4px 10px;
     }
     .taskTagsBG {
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       padding: 5px 10px;
       border-radius: 12px;
       line-height: normal;
@@ -72,7 +73,7 @@
     width: 451px;
     height: 32px;
     padding-left: 10px;
-    border: 1px solid #efefef;
+    border: 1px solid var(--color-border-secondary);
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     border-radius: 3px;
@@ -130,7 +131,7 @@
     width: 0;
     height: 0;
     border-right: 4px solid transparent;
-    border-bottom: 4px solid #9e9e9e;
+    border-bottom: 4px solid var(--color-text-tertiary);
     border-left: 4px solid transparent;
   }
   .arrow-down {
@@ -138,7 +139,7 @@
     line-height: 0;
     width: 0;
     height: 0;
-    border-top: 4px solid #9e9e9e;
+    border-top: 4px solid var(--color-text-tertiary);
     border-right: 4px solid transparent;
     border-left: 4px solid transparent;
   }
@@ -148,7 +149,7 @@
     width: 0;
     height: 0;
     border-top: 5px solid transparent;
-    border-right: 5px solid #2f2f2f;
+    border-right: 5px solid var(--color-white);
     border-bottom: 5px solid transparent;
   }
   .arrow-right {
@@ -159,10 +160,10 @@
     border-top: 5px solid transparent;
     border-right: 5px solid transparent;
     border-bottom: 5px solid transparent;
-    border-left: 5px solid #2f2f2f;
+    border-left: 5px solid var(--color-white);
   }
   .boxShadow5 {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13);
+    box-shadow: var(--shadow-lg);
   }
   .userSelect {
     user-select: none;
@@ -225,10 +226,10 @@
   }
   #batchInvite .ThemeColor3,
   #batchInvite .ThemeBorderColor3 {
-    color: #0091ea !important;
+    color: var(--color-primary) !important;
   }
   #batchInvite .ThemeBorderColor3 {
-    border-color: #0091ea !important;
+    border-color: var(--color-primary) !important;
   }
   .taskMain .leftNavHairGlass,
   .taskMain .taskGroundGlass {
@@ -257,7 +258,7 @@
   }
   .folderSearchBar {
     padding: 0 20px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     margin: 0 20px 8px;
     height: 40px;
     line-height: 40px;
@@ -275,7 +276,7 @@
   line-height: 30px;
   display: inline-block;
   height: 30px;
-  color: #151515;
+  color: var(--color-text-title);
   max-width: 460px;
   vertical-align: top;
 }
@@ -292,7 +293,7 @@
   border-style: solid;
   border-width: 1px;
   &:not(:focus) {
-    border-color: #ccc !important;
+    border-color: var(--color-border-tertiary) !important;
   }
 }
 

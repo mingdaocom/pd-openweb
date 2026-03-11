@@ -7,7 +7,7 @@ const isMobile = browserIsMobile();
 
 const Con = styled.div`
   height: 100vh;
-  background: #f5f5f9;
+  background: var(--color-background-secondary);
 `;
 
 const RecordCon = styled.div`

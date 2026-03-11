@@ -44,7 +44,7 @@ export default class TimeBlock extends Component {
               updateGroupSubVisible(item.key);
             }}
           >
-            <span className="recordTitle Gray">{<GroupContent group={item} />}</span>
+            <span className="recordTitle textPrimary">{<GroupContent group={item} />}</span>
           </div>
         )}
         {item.subVisible &&

@@ -126,7 +126,7 @@ export default class MobileCheckbox extends Component {
         >
           <div className="flexColumn h100">
             <div className="mobileCheckboxSearchWrapper">
-              <Icon icon="h5_search" className="Gray_75 Font14" />
+              <Icon icon="h5_search" className="textSecondary Font14" />
               <form action="#" className="flex" onSubmit={event => event.preventDefault()}>
                 <input
                   className="w100"
@@ -138,7 +138,7 @@ export default class MobileCheckbox extends Component {
               </form>
               {keywords && (
                 <Icon
-                  icon="workflow_cancel Gray_bd"
+                  icon="workflow_cancel textDisabled"
                   onClick={() => {
                     this.setState({ keywords: '' });
                   }}

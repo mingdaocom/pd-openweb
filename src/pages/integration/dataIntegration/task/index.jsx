@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { ExecNumber, Statistic, TaskList } from './components';
 
 const SyncTaskWrapper = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   padding: 32px 32px 0;
 
   .flexRowBetween {
@@ -36,28 +36,28 @@ const SyncTaskWrapper = styled.div`
       height: 36px;
       border-radius: 50%;
       margin-left: 24px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       cursor: pointer;
 
       &:hover {
-        color: #1677ff;
-        background: #f5f5f5;
+        color: var(--color-primary);
+        background: var(--color-background-secondary);
       }
       &.isActive {
-        color: #1677ff;
+        color: var(--color-primary);
         background: rgba(33, 150, 243, 0.07);
       }
     }
     .addTaskButton {
       padding: 8px 24px;
-      background: #1677ff;
+      background: var(--color-primary);
       border-radius: 18px;
-      color: #fff;
+      color: var(--color-white);
       display: inline-block;
       cursor: pointer;
 
       &:hover {
-        background: #1764c0;
+        background: var(--color-link-hover);
       }
     }
   }

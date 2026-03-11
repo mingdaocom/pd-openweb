@@ -11,14 +11,14 @@ import organizeAjax from 'src/api/organize';
 const RoleSelectWrap = styled.div`
   overflow: hidden;
   width: 360px;
-  background-color: #fff;
+  background-color: var(--color-background-card);
   border-radius: 4px;
-  box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px 1px;
+  box-shadow: var(--shadow-lg);
   .searchRoleWrap {
     padding: 0 16px;
     line-height: 40px;
     height: 40px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     overflow: hidden;
     input {
       outline: none;
@@ -40,7 +40,7 @@ const RoleSelectWrap = styled.div`
       -webkit-transition: none;
     }
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
     &.current {
       background: rgba(33, 150, 243, 0.1) !important;
@@ -51,14 +51,14 @@ const RoleSelectWrap = styled.div`
     text-align: center;
   }
   .selectCurrent {
-    color: #151515;
+    color: var(--color-text-title);
     margin: 4px 0;
     padding: 0 17px;
     height: 44px;
     line-height: 44px;
     font-size: 13px;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
     &.current {
       background: rgba(33, 150, 243, 0.1) !important;
@@ -67,12 +67,12 @@ const RoleSelectWrap = styled.div`
       width: 28px;
       height: 28px;
       display: inline-block;
-      background: #67ac5c;
+      background: var(--color-success);
       text-align: center;
       vertical-align: middle;
       margin-right: 8px;
       line-height: 28px;
-      color: #fff;
+      color: var(--color-white);
       border-radius: 50%;
     }
   }
@@ -80,7 +80,7 @@ const RoleSelectWrap = styled.div`
     margin: 0 6px;
     width: 100%;
     height: 1px;
-    background: #eaeaea;
+    background: var(--color-border-secondary);
     margin-bottom: 6px;
   }
 `;
@@ -277,7 +277,7 @@ export function RoleSelect(props) {
           <span className={cx('flex overflow_ellipsis', { mLeft16: !keywords && !onlyOneGroup })}>
             {roleItem.organizeName}
           </span>
-          {checked && <Icon icon="done" className="ThemeColor" />}
+          {checked && <Icon icon="done" className="colorPrimary" />}
         </div>
       );
     });
@@ -290,7 +290,7 @@ export function RoleSelect(props) {
     ) {
       return (
         <div className="emptyWrap">
-          <div className="Gray_bd Font14">{_l('没有可选组织角色')}</div>
+          <div className="textDisabled Font14">{_l('没有可选组织角色')}</div>
         </div>
       );
     }
@@ -319,7 +319,7 @@ export function RoleSelect(props) {
             >
               <Icon
                 icon="task_custom_btn_unfold"
-                className={cx('Gray_9e expendIcon Hand', {
+                className={cx('textTertiary expendIcon Hand', {
                   expendIconRotate: !expendTreeNodeKey.includes(groupItem.orgRoleGroupId),
                 })}
               />
@@ -329,7 +329,7 @@ export function RoleSelect(props) {
           {renderChildren(groupItem)}
           {groupItem.hasMore && (
             <div
-              className="roleItem Hand valignWrapper ThemeColor"
+              className="roleItem Hand valignWrapper colorPrimary"
               onClick={() => fetchData(undefined, groupItem.orgRoleGroupId, groupItem.pageIndex + 1)}
             >
               <span className={cx({ mLeft16: list.length > 1 })}>{_l('加载更多')}</span>
@@ -343,7 +343,7 @@ export function RoleSelect(props) {
   return (
     <RoleSelectWrap ref={conRef} className="selectRoleDialog">
       <div className="searchRoleWrap valignWrapper">
-        <Icon icon="search" className="searchIcon Gray_9e mRight8 Font18" />
+        <Icon icon="search" className="searchIcon textTertiary mRight8 Font18" />
         <input
           type="text"
           className="flex"
@@ -352,7 +352,7 @@ export function RoleSelect(props) {
           placeholder={_l('搜索')}
           onChange={handleSearch}
         />
-        {keywords && <Icon icon="cancel" className="Font16 mLeft4 Gray_9e" onClick={() => setKeywords('')} />}
+        {keywords && <Icon icon="cancel" className="Font16 mLeft4 textTertiary" onClick={() => setKeywords('')} />}
       </div>
       {isShowRole && showCurrentOrgRole && (
         <Fragment>
@@ -372,7 +372,7 @@ export function RoleSelect(props) {
               <Icon icon="person" className="Font18 TxtMiddle" />
             </span>
             <span className="flex">{_l('当前用户所在的组织角色')}</span>
-            {checkedUserSelf() && <Icon icon="done" className="ThemeColor" />}
+            {checkedUserSelf() && <Icon icon="done" className="colorPrimary" />}
           </div>
           <div className="splitLine"></div>
         </Fragment>

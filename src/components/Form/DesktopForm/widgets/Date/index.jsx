@@ -2,11 +2,38 @@ import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react
 import cx from 'classnames';
 import moment from 'moment';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import { Icon, MdAntDatePicker } from 'ming-ui';
 import { getDatePickerConfigs, getDateToEn, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
-import { dateConvertToServerZone, dateConvertToUserZone } from 'src/utils/project';
-import { compareWithTime, getDynamicValue } from '../../../core/formUtils';
+import { getTimeZoneText } from 'src/utils/control';
+import {
+  dateAppZoneToServerZone,
+  dateConvertToServerZone,
+  dateConvertToUserZone,
+  dateServerZoneToAppZone,
+} from 'src/utils/project';
+import { getDynamicValue } from '../../../core/formUtils';
+import { compareWithTime } from '../../../core/formUtils/helper';
 import { useWidgetEvent } from '../../../core/useFormEventManager';
+
+const DateZoneWrap = styled.div`
+  display: flex;
+  .customAntPicker {
+    flex: 1;
+    min-width: 0;
+    ${props => (props.showTimeZone ? 'border-radius: 4px 0 0 4px !important;' : '')}
+  }
+  .timeZoneTag {
+    display: flex;
+    align-items: center;
+    padding: 0 5px;
+    border: 1px solid var(--color-border-tertiary);
+    border-radius: 0 4px 4px 0;
+    border-left: none;
+    background: var(--color-background-primary);
+    ${props => (props.isCell ? 'border: none;' : '')}
+  }
+`;
 
 const DateWidgets = props => {
   const {
@@ -24,6 +51,7 @@ const DateWidgets = props => {
     hideIcon = false,
     compProps = {},
     formItemId,
+    appId,
     createEventHandler = () => {},
   } = props;
 
@@ -33,6 +61,8 @@ const DateWidgets = props => {
   const [open, setOpen] = useState(compProps.showDatePicker);
   const pickerRef = useRef(null);
   const tempDateValueRef = useRef('');
+  const appTimeZone = window[`timeZone_${appId}`];
+  const timeZoneText = advancedSetting.showtimezone === '1' ? getTimeZoneText(props, appId) : '';
 
   useEffect(() => {
     setDateProps(getDatePickerConfigs(props));
@@ -73,7 +103,9 @@ const DateWidgets = props => {
           ? date.format('YYYY-MM-DD')
           : notConvertZone
             ? date.format('YYYY-MM-DD HH:mm:ss')
-            : dateConvertToServerZone(date);
+            : advancedSetting.timezonetype === '1'
+              ? dateAppZoneToServerZone(date, appTimeZone)
+              : dateConvertToServerZone(date);
     }
 
     tempDateValueRef.current = '';
@@ -94,7 +126,7 @@ const DateWidgets = props => {
               }}
             />
           )}
-          <Icon icon="bellSchedule" className="Font14 Gray_bd bellScheduleIcon" />
+          <Icon icon="bellSchedule" className="Font14 textTertiary bellScheduleIcon" />
         </Fragment>
       );
     }
@@ -103,7 +135,6 @@ const DateWidgets = props => {
 
   const renderValue = (showformat, value) => {
     const { hint = '' } = props;
-    const dateTime = type === 15 || notConvertZone ? value : dateConvertToUserZone(value);
 
     return (
       <div
@@ -119,8 +150,9 @@ const DateWidgets = props => {
           }
         }}
       >
-        <span className={cx('flex ellipsis', { Gray_bd: !value })}>
-          {value ? getDateToEn(showformat, dateTime, advancedSetting.showformat) : hint}
+        <span className={cx('flex ellipsis', { textDisabled: !value })}>
+          {value ? getDateToEn(showformat, value, advancedSetting.showformat) : hint}
+          {value && timeZoneText && <span className="mLeft8">{timeZoneText}</span>}
         </span>
         {renderIcon(value)}
       </div>
@@ -138,7 +170,13 @@ const DateWidgets = props => {
   const currentMinute = moment().minute();
   const defaultValue =
     timeInterval === 1 ? new Date() : moment().minute(currentMinute - (currentMinute % timeInterval));
-  const dateTime = value ? (type === 15 || notConvertZone ? value : dateConvertToUserZone(value)) : defaultValue;
+  const dateTime = value
+    ? type === 15 || notConvertZone
+      ? value
+      : advancedSetting.timezonetype === '1'
+        ? dateServerZoneToAppZone(value, appTimeZone)
+        : dateConvertToUserZone(value)
+    : defaultValue;
 
   let minDate;
   let maxDate;
@@ -172,135 +210,138 @@ const DateWidgets = props => {
   return (
     <Fragment>
       {!isOpen ? (
-        renderValue(showformat, value)
+        renderValue(showformat, value ? dateTime : '')
       ) : (
-        <MdAntDatePicker
-          ref={pickerRef}
-          className={cx('w100 customAntPicker customFormControlBox', { controlDisabled: disabled })}
-          disabled={disabled}
-          value={value ? moment(dateTime) : ''}
-          {...(minDate && advancedSetting.locationbegin === '1' && !value
-            ? { defaultPickerValue: moment(minDate) }
-            : {})}
-          picker={dateProps.mode === 'datetime' ? 'date' : dateProps.mode}
-          showTime={showTime || false}
-          format={showformat}
-          open={open}
-          placeholder={showformat}
-          suffixIcon={!disabled && !hideIcon ? <Icon icon="bellSchedule" className="Font14 Gray_bd" /> : null}
-          hideDisabledOptions
-          minuteStep={timeInterval}
-          onKeyDown={event => {
-            createEventHandler(event, () => {
-              // 阻止enter键触发tab事件，导致日期无法选择
-              if (event.key === 'Enter' && open) {
-                event.stopPropagation();
-                return;
-              }
-            });
-          }}
-          disabledDate={currentDate => {
-            if (currentDate) {
-              const day = currentDate.day();
-              let isBetween = true;
+        <DateZoneWrap showTimeZone={advancedSetting.showtimezone === '1'} isCell={compProps.isCell}>
+          <MdAntDatePicker
+            ref={pickerRef}
+            className={cx('w100 customAntPicker customFormControlBox', { controlDisabled: disabled })}
+            disabled={disabled}
+            value={value ? moment(dateTime) : ''}
+            {...(minDate && advancedSetting.locationbegin === '1' && !value
+              ? { defaultPickerValue: moment(minDate) }
+              : {})}
+            picker={dateProps.mode === 'datetime' ? 'date' : dateProps.mode}
+            showTime={showTime || false}
+            format={showformat}
+            open={open}
+            placeholder={showformat}
+            suffixIcon={!disabled && !hideIcon ? <Icon icon="bellSchedule" className="Font14 textDisabled" /> : null}
+            hideDisabledOptions
+            minuteStep={timeInterval}
+            onKeyDown={event => {
+              createEventHandler(event, () => {
+                // 阻止enter键触发tab事件，导致日期无法选择
+                if (event.key === 'Enter' && open) {
+                  event.stopPropagation();
+                  return;
+                }
+              });
+            }}
+            disabledDate={currentDate => {
+              if (currentDate) {
+                const day = currentDate.day();
+                let isBetween = true;
 
-              if (minDate && isBetween) {
-                isBetween = currentDate.isSameOrAfter(moment(minDate), 'day');
-              }
-
-              if (maxDate && isBetween) {
-                isBetween = currentDate.isSameOrBefore(moment(maxDate), 'day');
-              }
-
-              return allowweek.indexOf(day === 0 ? '7' : day) === -1 || !isBetween;
-            }
-          }}
-          disabledTime={current => {
-            return {
-              disabledHours: () => {
-                const start = parseInt(allowtime.split('-')[0]);
-                const end = allowtime.split('-')[1];
-                const result = [];
-
-                for (let i = 0; i < 24; i++) {
-                  if (i < start || compareWithTime(`${i}:00`, end, 'isAfter')) {
-                    result.push(i);
-                  }
+                if (minDate && isBetween) {
+                  isBetween = currentDate.isSameOrAfter(moment(minDate), 'day');
                 }
 
-                if (current && minDate && moment(current).isSame(moment(minDate), 'day')) {
+                if (maxDate && isBetween) {
+                  isBetween = currentDate.isSameOrBefore(moment(maxDate), 'day');
+                }
+
+                return allowweek.indexOf(day === 0 ? '7' : day) === -1 || !isBetween;
+              }
+            }}
+            disabledTime={current => {
+              return {
+                disabledHours: () => {
+                  const start = parseInt(allowtime.split('-')[0]);
+                  const end = allowtime.split('-')[1];
+                  const result = [];
+
                   for (let i = 0; i < 24; i++) {
-                    if (minDate.split(' ')[1] && i < moment(minDate).hour()) {
+                    if (i < start || compareWithTime(`${i}:00`, end, 'isAfter')) {
                       result.push(i);
                     }
                   }
-                }
 
-                if (current && maxDate && moment(current).isSame(moment(maxDate), 'day')) {
-                  for (let i = 0; i < 24; i++) {
-                    if (maxDate.split(' ')[1] && i > moment(maxDate).hour()) {
-                      result.push(i);
+                  if (current && minDate && moment(current).isSame(moment(minDate), 'day')) {
+                    for (let i = 0; i < 24; i++) {
+                      if (minDate.split(' ')[1] && i < moment(minDate).hour()) {
+                        result.push(i);
+                      }
                     }
                   }
-                }
 
-                return result;
-              },
-              disabledMinutes: selectHours => {
-                let start = allowtime.split('-')[0];
-                const end = allowtime.split('-')[1];
-                const result = [];
-
-                for (let i = 0; i < 60; i++) {
-                  if (
-                    compareWithTime(`${selectHours}:${i}`, start, 'isBefore') ||
-                    compareWithTime(`${selectHours}:${i}`, end, 'isAfter')
-                  ) {
-                    result.push(i);
+                  if (current && maxDate && moment(current).isSame(moment(maxDate), 'day')) {
+                    for (let i = 0; i < 24; i++) {
+                      if (maxDate.split(' ')[1] && i > moment(maxDate).hour()) {
+                        result.push(i);
+                      }
+                    }
                   }
-                }
 
-                if (current && minDate && moment(current).isSame(moment(minDate), 'day')) {
+                  return result;
+                },
+                disabledMinutes: selectHours => {
+                  let start = allowtime.split('-')[0];
+                  const end = allowtime.split('-')[1];
+                  const result = [];
+
                   for (let i = 0; i < 60; i++) {
-                    if (moment(current).hour() === moment(minDate).hour() && i < moment(minDate).minute()) {
+                    if (
+                      compareWithTime(`${selectHours}:${i}`, start, 'isBefore') ||
+                      compareWithTime(`${selectHours}:${i}`, end, 'isAfter')
+                    ) {
                       result.push(i);
                     }
                   }
-                }
 
-                if (current && maxDate && moment(current).isSame(moment(maxDate), 'day')) {
-                  for (let i = 0; i < 60; i++) {
-                    if (moment(current).hour() === moment(maxDate).hour() && i > moment(maxDate).minute()) {
-                      result.push(i);
+                  if (current && minDate && moment(current).isSame(moment(minDate), 'day')) {
+                    for (let i = 0; i < 60; i++) {
+                      if (moment(current).hour() === moment(minDate).hour() && i < moment(minDate).minute()) {
+                        result.push(i);
+                      }
                     }
                   }
-                }
 
-                return result;
-              },
-            };
-          }}
-          dropdownClassName={`customAntPicker_${controlId} ${dropdownClassName || ''}`}
-          onOpenChange={open => {
-            if (open && parseInt(timeArr[0]) === 0 && parseInt(timeArr[1]) === 24) {
-              setTimeout(() => {
-                $(`.customAntPicker_${controlId}`).find('.ant-picker-time-panel-column:first').scrollTop(220);
-              }, 200);
-            }
-            if (!open && tempDateValueRef.current) {
-              handleChange(tempDateValueRef.current);
-            }
-            setShowDatePicker(open);
-            setOpen(open);
-          }}
-          onFocus={e => setOriginValue(e.target.value.trim())}
-          onBlur={() => {
-            onBlur(originValue);
-          }}
-          onSelect={value => (tempDateValueRef.current = value)}
-          onChange={handleChange}
-          {...compProps}
-        />
+                  if (current && maxDate && moment(current).isSame(moment(maxDate), 'day')) {
+                    for (let i = 0; i < 60; i++) {
+                      if (moment(current).hour() === moment(maxDate).hour() && i > moment(maxDate).minute()) {
+                        result.push(i);
+                      }
+                    }
+                  }
+
+                  return result;
+                },
+              };
+            }}
+            dropdownClassName={`customAntPicker_${controlId} ${dropdownClassName || ''}`}
+            onOpenChange={open => {
+              if (open && parseInt(timeArr[0]) === 0 && parseInt(timeArr[1]) === 24) {
+                setTimeout(() => {
+                  $(`.customAntPicker_${controlId}`).find('.ant-picker-time-panel-column:first').scrollTop(220);
+                }, 200);
+              }
+              if (!open && tempDateValueRef.current) {
+                handleChange(tempDateValueRef.current);
+              }
+              setShowDatePicker(open);
+              setOpen(open);
+            }}
+            onFocus={e => setOriginValue(e.target.value.trim())}
+            onBlur={() => {
+              onBlur(originValue);
+            }}
+            onSelect={value => (tempDateValueRef.current = value)}
+            onChange={handleChange}
+            {...compProps}
+          />
+          {timeZoneText && <div className="timeZoneTag">{timeZoneText}</div>}
+        </DateZoneWrap>
       )}
     </Fragment>
   );

@@ -6,7 +6,7 @@ import { Icon } from 'ming-ui';
 import { conditionAdapter, formatQuickFilter, validate } from 'mobile/RecordList/QuickFilter/utils';
 
 const SearchRowsWrapper = styled.div`
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   border-radius: 3px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
   padding: 0 10px;
@@ -15,7 +15,7 @@ const SearchRowsWrapper = styled.div`
     height: 16px;
     width: 1px;
     margin: 0 12px 0 10px;
-    background-color: #bdbdbd;
+    background-color: var(--color-text-disabled);
   }
   .mobileQuickFilterTrigger {
     max-width: 35%;
@@ -72,11 +72,11 @@ class Search extends Component {
       <Fragment>
         <Mask onClick={this.handleVisibleChange}></Mask>
         <div style={{ width: document.body.clientWidth }} className="pLeft10 pRight10">
-          <div className="WhiteBG card pLeft15 pRight15 pTop10 pBottom10">
+          <div className="bgPrimary card pLeft15 pRight15 pTop10 pBottom10">
             {textFilters.map((item, index) => (
               <div
                 key={item.control.controlId}
-                style={{ color: index === filterIndex ? '#1677ff' : null }}
+                style={{ color: index === filterIndex ? 'var(--color-primary)' : null }}
                 className="pTop5 pBottom5 Font14 ellipsis"
                 onClick={() => {
                   this.setState({
@@ -115,13 +115,13 @@ class Search extends Component {
               <span className="Font14 mLeft5 mRight5 ellipsis">
                 {(textFilters[filterIndex] && textFilters[filterIndex].control.controlName) || _l('未命名')}
               </span>
-              <Icon className="Font12 Gray_75" icon="arrow-down" />
+              <Icon className="Font12 textSecondary" icon="arrow-down" />
               <div className="cuttingLine"></div>
             </div>
           </Trigger>
         )}
         <div className="flexRow valignWrapper flex">
-          <Icon icon="h5_search" className="Gray_9e Font17" />
+          <Icon icon="h5_search" className="textTertiary Font17" />
           <form action="#" className="flex" onSubmit={event => event.preventDefault()}>
             <input
               type="search"
@@ -143,7 +143,7 @@ class Search extends Component {
           </form>
           {searchVlaue && (
             <Icon
-              className="Gray_bd"
+              className="textDisabled"
               icon="workflow_cancel"
               onClick={() => {
                 this.setState({ searchVlaue: '' }, this.handleSearch);

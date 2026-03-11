@@ -21,10 +21,10 @@ const TelConfigWrap = styled.div`
     height: 36px;
     line-height: 36px;
     padding: 0 12px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 4px;
     &:hover {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
   }
   .title {
@@ -88,11 +88,11 @@ export default function TelConfig({ data, onChange, globalSheetInfo = {} }) {
   const getCommonDisplayText = () => {
     if (commonData.length > 0) {
       if (commonData.length === COMMON_DEFAULT_COUNTRY.length && isEqual(commonData, COMMON_DEFAULT_COUNTRY)) {
-        return <div className="text Gray_75">{_l('默认')}</div>;
+        return <div className="text textSecondary">{_l('默认')}</div>;
       }
       return <div className="text">{_l('%0个', commonData.length)}</div>;
     }
-    return <div className="text Gray_bd">{_l('请选择')}</div>;
+    return <div className="text textDisabled">{_l('请选择')}</div>;
   };
   return (
     <Fragment>
@@ -119,10 +119,10 @@ export default function TelConfig({ data, onChange, globalSheetInfo = {} }) {
           }
         >
           <DropdownPlaceholder>
-            <div className={cx('text', { Gray_bd: !defaultCountry.name })}>
+            <div className={cx('text', { textDisabled: !defaultCountry.name })}>
               {defaultCountry.name ? `+${defaultCountry.dialCode} ${defaultCountry.name}` : _l('请选择')}
             </div>
-            <i className="icon-arrow-down-border Font14 Gray_9e"></i>
+            <i className="icon-arrow-down-border Font14 textTertiary"></i>
           </DropdownPlaceholder>
         </Dropdown>
       </SettingItem>
@@ -141,14 +141,14 @@ export default function TelConfig({ data, onChange, globalSheetInfo = {} }) {
         <TelConfigWrap>
           <div className="title">{_l('允许选择的国家/地区')}</div>
           <div className="allowSelectDisplay pointer" onClick={() => setVisible({ allowSelectVisible: true })}>
-            <div className={cx('text', { Gray_75: allowData.length < 1 })}>
+            <div className={cx('text', { textSecondary: allowData.length < 1 })}>
               {allowData.length > 0 ? _l('%0个', allowData.length) : _l('全部')}
             </div>
           </div>
           <div className="title">
             {_l('常用的国家/地区')}
             <Tooltip placement="bottom" title={_l('常用的将优先显示在选择列表')}>
-              <i className="icon icon-help Gray_bd Font15 mLeft5 pointer" />
+              <i className="icon icon-help textDisabled Font15 mLeft5 pointer" />
             </Tooltip>
           </div>
           <div className="commonUseDisplay pointer" onClick={() => setVisible({ commonUseVisible: true })}>

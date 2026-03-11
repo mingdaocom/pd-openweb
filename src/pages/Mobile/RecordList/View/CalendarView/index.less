@@ -26,7 +26,7 @@
           align-items: center;
           padding: 0 12px;
           height: 30px;
-          background-color: var(--color-background-tertiary);
+          background-color: var(--color-background-secondary);
           color: var(--color-text-tertiary);
           border-radius: 5px;
           font-size: 0.6em;
@@ -101,7 +101,7 @@
     height: 20px;
     text-align: center;
     line-height: 20px;
-    color: var(--color-background-primary);
+    color: var(--color-white);
     font-weight: normal;
   }
   // 非当前月日期的背景颜色
@@ -133,13 +133,17 @@
     }
   }
   .fc-daygrid-dot-event {
-    border: 1px solid #dddddd;
-    background: #fff;
+    border: 1px solid var(--color-border-primary);
+    background: var(--color-background-primary);
     padding: 0;
   }
   .fc-daygrid-dot-event,
   .fc-daygrid-dot-event.fc-event-mirror {
     background: unset;
+  }
+
+  .fc-event {
+    background-color: var(--color-white);
   }
 
   .fc-event-selected:after,

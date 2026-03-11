@@ -19,33 +19,30 @@ const Wrap = styled.div`
   .btn {
     margin-right: 0px;
   }
-  width: 100%;
-  background: #fff;
-  // border: 1px solid #ebebeb;
+  background: var(--color-background-primary);
+  // border: 1px solid var(--color-border-secondary);
   border-radius: 10px;
   max-width: ${props => `${props.maxW || '800px'}`};
-  margin: 0 auto 0;
   .Green_right {
-    color: #4caf50;
+    color: var(--color-success);
   }
   .con {
     padding: 24px;
-    border-top: 1px solid #ebebeb;
-    text-align: center;
+    border-top: 1px solid var(--color-border-secondary);
     .chooseTypeCon {
     }
     .btn {
       margin: 40px auto 0;
       padding: 11px 50px;
-      background: #1677ff;
-      color: #fff;
+      background: var(--color-primary);
+      color: var(--color-white);
       line-height: 1em;
       border-radius: 30px;
       &.disabled {
         opacity: 0.5;
       }
       &:hover {
-        background: #1764c0;
+        background: var(--color-link-hover);
       }
     }
   }
@@ -67,26 +64,25 @@ const Wrap = styled.div`
     line-height: 34px;
     padding: 0 8px;
     &:hover {
-      background: #f7f7f7;
+      background: var(--color-background-hover);
     }
   }
   .iconCon {
-    text-align: center;
     line-height: 51px;
   }
 `;
 const WrapBtn = styled.div`
   .btnCon {
     padding: 11px 50px;
-    background: #1677ff;
-    color: #fff;
+    background: var(--color-primary);
+    color: var(--color-white);
     line-height: 1em;
     border-radius: 30px;
     &.disabled {
       opacity: 0.5;
     }
     &:hover {
-      background: #1764c0;
+      background: var(--color-link-hover);
     }
   }
 `;
@@ -169,7 +165,7 @@ export default function Item(props) {
   const renderCon = () => {
     if (props.isNew) {
       return (
-        <div className="con">
+        <div className="con TxtCenter">
           <div className="mTop30">
             {[...TYPENODE, { txt: _l('从代码片段库中选择'), key: 'codeSnippet' }].map(o => {
               return (
@@ -194,7 +190,7 @@ export default function Item(props) {
           </div>
           <WrapBtn className="TxtCenter mTop40">
             <span
-              className="Hand Gray_75 Bold ThemeHoverColor3"
+              className="Hand textSecondary Bold ThemeHoverColor3"
               onClick={() => {
                 onCancel();
               }}
@@ -214,7 +210,7 @@ export default function Item(props) {
       );
     } else {
       let typeInfo = TYPENODE.find(o => o.actionId === actionId) || {};
-      return <div className="con Gray_75 TxtLeft">{typeInfo.txt}</div>;
+      return <div className="con textSecondary TxtLeft">{typeInfo.txt}</div>;
     }
   };
   const renderTips = () => {
@@ -226,19 +222,19 @@ export default function Item(props) {
 
   return (
     <div className="flexColumn">
-      <Wrap className={props.className} maxW={props.maxW}>
+      <Wrap className={cx(props.className, 'w100 divCenter')} maxW={props.maxW}>
         <CardTopWrap className="flexRow flex">
-          <div className={cx('iconCon')}>
+          <div className={cx('iconCon TxtCenter')}>
             {renderTips()}
             <Icon icon={props.icon || 'parameter'} className="iconParam Font26" />
           </div>
           <div className="flex pLeft16">
             <p className="Font17 Bold">{props.title || _l('输入参数')}</p>
-            <p className="Font13 Gray_75 mTop4">
+            <p className="Font13 textSecondary mTop4">
               <span className="TxtMiddle">
                 {props.des || _l('输入参数用于在工作表或工作流中使用 API 查询时，可以传入动态值')}
               </span>
-              <Support href={props.support} className="Gray_9e" type={3} text={_l('代码示例')} />
+              <Support href={props.support} className="textTertiary" type={3} text={_l('代码示例')} />
             </p>
           </div>
           {/* 安装的连接 api 不支持编辑，只读显示 */}
@@ -294,7 +290,7 @@ export default function Item(props) {
                     });
                   }}
                 >
-                  <i className={'icon-more_horiz Font22 TxtMiddle Gray_9d'} />
+                  <i className={'icon-more_horiz Font22 TxtMiddle textTertiary'} />
                 </ActWrap>
               </Trigger>
             </React.Fragment>

@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import { Provider } from 'react-redux';
-import store from 'redux/configureStore';
 import PropTypes from 'prop-types';
+import store from 'src/redux/configureStore';
 import { getAppFeaturesPath } from 'src/utils/app';
 import { emitter } from 'src/utils/common';
 import { addSuccess } from '../../../redux/postActions';
@@ -73,7 +73,7 @@ class PostDetails extends React.Component {
             <div>
               <i className="icon-error1 Font56 postDetail-errorIcon" />
             </div>
-            <div className="Font18 mTop20 Gray">{_l('您的权限不足或此动态已被删除，无法查看')}</div>
+            <div className="Font18 mTop20 textPrimary">{_l('您的权限不足或此动态已被删除，无法查看')}</div>
             <br />
             <br />
             <br />

@@ -8,9 +8,9 @@ import { Tooltip } from 'ming-ui/antd-components';
 import ConfirmButton from 'ming-ui/components/Dialog/ConfirmButton';
 import homeAppApi from 'src/api/homeApp';
 import sheetApi from 'src/api/worksheet';
-import SelectIcon from 'worksheet/common/SelectIcon/SelectIcon';
 import SheetMove from 'worksheet/common/SheetMove/SheetMove';
 import DialogImportExcelCreate from 'worksheet/components/DialogImportExcelCreate';
+import selectIconDialog from 'worksheet/components/selectIconDialog';
 import { canEditApp, canEditData } from 'worksheet/redux/actions/util';
 import WorksheetReference, { renderDialog } from 'src/pages/widgetConfig/widgetSetting/components/WorksheetReference';
 import CreateNew from './CreateNew';
@@ -66,8 +66,8 @@ const CopySheetConfirmDescription = props => {
   const renderResetName = () => {
     return (
       <div className={type ? 'mTop10' : 'mTop24'}>
-        <div className="mBottom10 Font14 Gray">{_l('副本名称')}</div>
-        <Input className="w100 Gray" value={name} onChange={value => setName(value.slice(0, 100))} />
+        <div className="mBottom10 Font14 textPrimary">{_l('副本名称')}</div>
+        <Input className="w100 textPrimary" value={name} onChange={value => setName(value.slice(0, 100))} />
       </div>
     );
   };
@@ -83,15 +83,15 @@ const CopySheetConfirmDescription = props => {
         <Fragment>
           <div className="mTop24 mBottom20 Font14">
             <Checkbox
-              className="mBottom10 Font14 Gray"
+              className="mBottom10 Font14 textPrimary"
               checked={isCopyRelevance}
               text={<span className="Font14">{_l('同时复制关联关系')}</span>}
               onClick={() => {
                 setIsCopyRelevance(!isCopyRelevance);
               }}
             />
-            <div className="Gray_9e mLeft25">{_l('未勾选时，所有关联记录字段将被复制为文本字段')}</div>
-            <div className="Gray_9e mLeft25">{_l('勾选时，选中的关联记录字段将会完整复制与其他表的关联关系')}</div>
+            <div className="textTertiary mLeft25">{_l('未勾选时，所有关联记录字段将被复制为文本字段')}</div>
+            <div className="textTertiary mLeft25">{_l('勾选时，选中的关联记录字段将会完整复制与其他表的关联关系')}</div>
           </div>
           {isCopyRelevance && (
             <Fragment>
@@ -101,8 +101,8 @@ const CopySheetConfirmDescription = props => {
                 className="mBottom10"
                 text={
                   <Fragment>
-                    <span className="Font14 Gray mRight2">{_l('全选')}</span>
-                    <span className="Font14 Gray_9e">{`${selectIds.length}/${controls.length}`}</span>
+                    <span className="Font14 textPrimary mRight2">{_l('全选')}</span>
+                    <span className="Font14 textTertiary">{`${selectIds.length}/${controls.length}`}</span>
                   </Fragment>
                 }
                 onClick={value => {
@@ -117,7 +117,7 @@ const CopySheetConfirmDescription = props => {
                 {controls.map(c => (
                   <Checkbox
                     key={c.controlId}
-                    className="mBottom10 Gray"
+                    className="mBottom10 textPrimary"
                     checked={selectIds.includes(c.controlId)}
                     text={<span className="Font14">{c.controlName}</span>}
                     onClick={value => {
@@ -163,7 +163,7 @@ const handleDeleteWorkSheet = ({ projectId, appId, groupId, appItem, sheetListAc
     ),
     description: (
       <div>
-        <span style={{ color: '#151515', fontWeight: 'bold' }}>
+        <span style={{ color: 'var(--color-text-title)', fontWeight: 'bold' }}>
           {isChatBot
             ? _l('对话机器人下所有配置和历史对话将被删除。')
             : _l('注意：%0下所有配置和数据将被删除。', nameMap[type])}
@@ -345,13 +345,9 @@ export default function MoreOperation(props) {
   const { children, appItem, appPkg, isGroup } = props;
   const { projectId, appId, groupId, activeSheetId, sheetListActions, onChangeEdit } = props;
   const [popupVisible, setPopupVisible] = useState(false);
-  const [selectIconVisible, setSelectIconVisible] = useState(
-    appPkg.currentPcNaviStyle === 2 ? false : appItem.edit || false,
-  );
   const [sheetMoveVisible, setSheetMoveVisible] = useState(false);
   const [createType, setCreateType] = useState('');
   const [externalLinkVisible, setExternalLinkVisible] = useState(false);
-
   const isEditApp = canEditApp(_.get(appPkg, ['permissionType']), _.get(appPkg, ['isLock']));
   const isEditData = canEditData(appPkg?.permissionType); //运营者
   const isWorksheet = appItem.type === 0;
@@ -404,7 +400,7 @@ export default function MoreOperation(props) {
               <Icon
                 icon={appItem.isMarked ? 'task-star' : 'star-hollow'}
                 className="Font16"
-                style={{ color: appItem.isMarked ? '#ffc402' : '#9e9e9e' }}
+                style={{ color: appItem.isMarked ? 'var(--color-yellow)' : 'var(--color-text-tertiary)' }}
               />
             }
             onClick={handleMarkApp}
@@ -426,7 +422,7 @@ export default function MoreOperation(props) {
               <Icon
                 icon={appItem.isMarked ? 'task-star' : 'star-hollow'}
                 className="Font18"
-                style={{ color: appItem.isMarked ? '#ffc402' : '#9e9e9e' }}
+                style={{ color: appItem.isMarked ? 'var(--color-yellow)' : 'var(--color-text-tertiary)' }}
               />
             }
             onClick={handleMarkApp}
@@ -460,7 +456,7 @@ export default function MoreOperation(props) {
             if (onChangeEdit) {
               onChangeEdit(appItem.workSheetId);
             } else {
-              setSelectIconVisible(true);
+              selectIcon();
             }
             setPopupVisible(false);
           }}
@@ -625,7 +621,7 @@ export default function MoreOperation(props) {
             {isGroup && (
               <Fragment>
                 <hr className="splitter" />
-                <div className="Gray_9e pLeft12 mTop10">{_l('新建')}</div>
+                <div className="textTertiary pLeft12 mTop10">{_l('新建')}</div>
                 <MenuItem
                   data-event="emptyCreate"
                   onClick={() => {
@@ -688,6 +684,27 @@ export default function MoreOperation(props) {
     );
   };
 
+  const selectIcon = () => {
+    selectIconDialog({
+      projectId,
+      className: 'sheetSelectIconWrap relative',
+      isActive,
+      appItem,
+      name: appItem.workSheetName,
+      icon: appItem.icon,
+      iconColor: appPkg.iconColor,
+      appId,
+      groupId,
+      workSheetId: appItem.workSheetId,
+      updateSheetListAppItem: sheetListActions.updateSheetListAppItem,
+      onCancel: () => {
+        sheetListActions.updateSheetListAppItem(appItem.workSheetId, {
+          edit: false,
+        });
+      },
+    });
+  };
+
   useEffect(() => {
     const appItemEl = document.querySelector(`.workSheetItem-${appItem.workSheetId}`);
     if (popupVisible) {
@@ -696,6 +713,10 @@ export default function MoreOperation(props) {
       appItemEl && appItemEl.classList.remove('hover');
     }
   }, [popupVisible]);
+
+  useEffect(() => {
+    appItem.edit && selectIcon();
+  }, [appItem.edit]);
 
   return (
     <Fragment>
@@ -709,39 +730,6 @@ export default function MoreOperation(props) {
         popupAlign={{ points: ['tl', 'bl'], offset: [1, 1], overflow: { adjustX: true, adjustY: true } }}
       >
         {children}
-      </Trigger>
-      <Trigger
-        popupVisible={selectIconVisible}
-        action={['click']}
-        popup={
-          <SelectIcon
-            projectId={projectId}
-            className="sheetSelectIconWrap relative"
-            isActive={isActive}
-            appItem={appItem}
-            name={appItem.workSheetName}
-            icon={appItem.icon}
-            iconColor={appPkg.iconColor}
-            appId={appId}
-            groupId={groupId}
-            workSheetId={appItem.workSheetId}
-            updateSheetListAppItem={sheetListActions.updateSheetListAppItem}
-            onCancel={() => {
-              sheetListActions.updateSheetListAppItem(appItem.workSheetId, {
-                edit: false,
-              });
-              setSelectIconVisible(false);
-            }}
-          />
-        }
-        destroyPopupOnHide={true}
-        popupAlign={{
-          points: ['tl', 'bl'],
-          offset: appPkg.currentPcNaviStyle === 2 ? [0, 5] : [-220, 20],
-          overflow: { adjustX: true, adjustY: true },
-        }}
-      >
-        <div className="setSheetInfo"></div>
       </Trigger>
       {sheetMoveVisible && (
         <SheetMove

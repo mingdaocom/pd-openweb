@@ -303,7 +303,7 @@ class TaskBasic extends Component {
 
     return (
       <span
-        className="Gray_9e ThemeHoverColor3 pointer w100 oaButton updateTaskCharge"
+        className="textTertiary ThemeHoverColor3 pointer w100 oaButton updateTaskCharge"
         onClick={() => {
           dialogSelectUser({
             sourceId: taskId,
@@ -416,7 +416,7 @@ class TaskBasic extends Component {
     if (!hasAuth && md.global.Account.accountId === account.accountId) {
       return (
         <span
-          className="Gray_9e ThemeHoverColor3 pointer w100 oaButton removeTaskMember"
+          className="textTertiary ThemeHoverColor3 pointer w100 oaButton removeTaskMember"
           onClick={() => this.clickMemberFn('removeTaskMember', account)}
         >
           {_l('退出任务')}
@@ -429,13 +429,13 @@ class TaskBasic extends Component {
       return (
         <Fragment>
           <span
-            className="Gray_9e ThemeHoverColor3 pointer oaButton addMemberAgree"
+            className="textTertiary ThemeHoverColor3 pointer oaButton addMemberAgree"
             onClick={() => this.clickMemberFn('addMemberAgree', account)}
           >
             {_l('同意')}
           </span>
           <span
-            className="Gray_9e ThemeHoverColor3 pointer oaButton addMemberRefuse"
+            className="textTertiary ThemeHoverColor3 pointer oaButton addMemberRefuse"
             onClick={() => this.clickMemberFn('addMemberRefuse', account)}
           >
             {_l('拒绝')}
@@ -447,13 +447,13 @@ class TaskBasic extends Component {
     return (
       <Fragment>
         <span
-          className="Gray_9e ThemeHoverColor3 pointer oaButton updateTaskCharge"
+          className="textTertiary ThemeHoverColor3 pointer oaButton updateTaskCharge"
           onClick={() => this.clickMemberFn('updateTaskCharge', account)}
         >
           {_l('设为负责人')}
         </span>
         <span
-          className="Gray_9e ThemeHoverColor3 pointer oaButton removeTaskMember"
+          className="textTertiary ThemeHoverColor3 pointer oaButton removeTaskMember"
           onClick={() => this.clickMemberFn('removeTaskMember', account)}
         >
           {md.global.Account.accountId === account.accountId ? _l('退出任务') : _l('移出任务')}
@@ -682,7 +682,7 @@ class TaskBasic extends Component {
                   <div className="flexRow taskDetailEditBtn alignItemsCenter">
                     <div className="flex" />
                     <span
-                      className="Gray_9e ThemeHoverColor3 mRight24"
+                      className="textTertiary ThemeHoverColor3 mRight24"
                       onClick={() => this.setState({ isEditing: false })}
                     >
                       {_l('取消')}

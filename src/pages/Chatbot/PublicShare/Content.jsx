@@ -15,12 +15,12 @@ const MessageListHeader = styled.div`
   .title {
     font-size: 26px;
     font-weight: bold;
-    color: #151515;
+    color: var(--color-text-primary);
   }
   .updateTime {
     margin-top: 6px;
     font-size: 13px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   &.isSmallMode {
     padding-top: 2px;

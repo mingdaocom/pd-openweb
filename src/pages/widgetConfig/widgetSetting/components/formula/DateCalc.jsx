@@ -119,7 +119,7 @@ export default class DateCalc extends Component {
         <div className="settingItem">
           <div className="settingItemTitle">{_l('计算方式')}</div>
           <Dropdown
-            className="calType WhiteBG"
+            className="calType bgPrimary"
             data={[
               {
                 text: _l('两个日期间的时长'),
@@ -170,9 +170,9 @@ export default class DateCalc extends Component {
             {enumDefault === 1 && (
               <div className="settingItem mTop10">
                 <div className="mBottom8">{_l('格式化')}</div>
-                <div className="Font12 Gray_9e mBottom8">{_l('参与计算的日期未设置时间时，格式化方式为：')}</div>
+                <div className="Font12 textTertiary mBottom8">{_l('参与计算的日期未设置时间时，格式化方式为：')}</div>
                 <Dropdown
-                  className="WhiteBG calType"
+                  className="bgPrimary calType"
                   data={[
                     { text: _l('开始日期 00:00，结束日期 24:00'), value: '1' },
                     { text: _l('开始日期 00:00，结束日期 00:00'), value: '0' },
@@ -188,7 +188,7 @@ export default class DateCalc extends Component {
               <div className="settingItem mTop10">
                 <div className="mBottom8">{_l('输出单位')}</div>
                 <Dropdown
-                  className="outputType WhiteBG"
+                  className="outputType bgPrimary"
                   data={[
                     { text: _l('年'), value: '5' },
                     { text: _l('月'), value: '4' },
@@ -208,7 +208,7 @@ export default class DateCalc extends Component {
         {enumDefault === 2 && (
           <div className="settingItem">
             <div className="settingItemTitle">{_l('计算')}</div>
-            <p className="Font12 Gray_9e">
+            <p className="Font12 textTertiary">
               {_l('输入你想要 添加/减去 的时间。如：+8h+1m，-1d+8h。当使用数值类型的字段运算时，请不要忘记输入单位。')}
               <Tooltip
                 title={

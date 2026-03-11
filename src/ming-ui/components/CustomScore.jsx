@@ -15,9 +15,9 @@ import './less/Score.less';
 const CustomScoreIcon = styled.div`
   .scoreIcon {
     transition: 0.3s;
-    color: ${props => props.color || 'rgba(0,0,0,0.16)'};
+    color: ${props => props.color || 'var(--color-border-primary)'};
     &:hover {
-      color: ${props => props.color || 'rgba(0,0,0,0.16)'};
+      color: ${props => props.color || 'var(--color-border-primary)'};
     }
   }
 `;
@@ -153,7 +153,9 @@ class CustomScore extends Component {
                     onMouseLeave: this.onMouseLeave,
                   })}
             >
-              <CustomScoreIcon color={score > 0 && index < score ? selectColor : backgroundColor || '#bdbdbd'}>
+              <CustomScoreIcon
+                color={score > 0 && index < score ? selectColor : backgroundColor || 'var(--color-text-disabled)'}
+              >
                 <Tooltip title={this.props.disabled || hideTip ? '' : <span>{tipText}</span>} {...tipProps}>
                   <Icon className={cx('scoreIcon', from === 'recordInfo' ? 'Font24' : 'Font18')} icon={itemicon} />
                 </Tooltip>

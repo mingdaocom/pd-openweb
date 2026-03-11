@@ -7,29 +7,29 @@ const Option = styled.div`
   justify-content: center;
   align-items: center;
   margin: 2px 6px 2px 0;
-  color: #515151;
+  color: var(--color-text-title);
   padding: 0 12px;
   height: 28px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   border-radius: 26px;
   max-width: 200px;
   user-select: none;
   &.checked {
-    color: #fff;
-    border-color: #1677ff !important;
-    background-color: #1677ff;
+    color: var(--color-white);
+    border-color: var(--color-primary) !important;
+    background-color: var(--color-primary);
     &.multiple {
       .selectedIcon {
         font-size: 16px;
         margin: 0 5px 0 -6px;
       }
-      color: #1565c0;
-      background-color: #e3f2fd;
+      color: var(--color-link-hover);
+      background-color: var(--color-primary-transparent);
       border: 1px solid rgba(21, 101, 192, 0.17) !important;
     }
   }
   &:hover {
-    border-color: #ccc;
+    border-color: var(--color-border-tertiary);
   }
 `;
 

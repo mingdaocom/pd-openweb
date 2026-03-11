@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import FullCalendar from '@fullcalendar/react';
@@ -18,9 +18,9 @@ import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import { saveView, updateWorksheetControls } from 'src/pages/worksheet/redux/actions';
 import * as Actions from 'src/pages/worksheet/redux/actions/calendarview';
-import { getAdvanceSetting } from 'src/utils/control';
+import { getAdvanceSetting, isTimeStyle } from 'src/utils/control';
 import { isLightColor } from 'src/utils/control';
-import { addBehaviorLog, dateConvertToServerZone } from 'src/utils/project';
+import { addBehaviorLog } from 'src/utils/project';
 import { handleRecordClick } from 'src/utils/record';
 import SelectField from '../components/SelectField';
 import SelectFieldForStartOrEnd from '../components/SelectFieldForStartOrEnd';
@@ -29,9 +29,10 @@ import CalendarIds from './CalendarIds';
 import { CALENDAR_BUTTON_TEXT, CALENDAR_VIEW_FORMATS, TAB_LIST } from './constants';
 import External from './External';
 import { Wrap, WrapNum } from './styles';
-import { getCalendartypeData, getHoverColor, getRows, getShowExternalData, isIllegalFormat, isTimeStyle } from './util';
+import { getCalendartypeData, getHoverColor, getRows, getShowExternalData, isIllegalFormat } from './util';
 import {
   changeEndStr,
+  formatTimeForSave,
   getCurrentView,
   getTimeControls,
   renderLine,
@@ -246,6 +247,8 @@ class RecordCalendar extends Component {
   };
 
   changeEventFn = info => {
+    const { base } = this.props;
+    const { appId } = base;
     let endData = _.get(info, ['data', 'endData']);
     let startData = _.get(info, ['data', 'startData']) || {};
     let dateStr = info.dateStr;
@@ -266,7 +269,7 @@ class RecordCalendar extends Component {
         controlId: startData.controlId,
         controlName: startData.controlName,
         type: startData.type,
-        value: isTimeStyle(startData) ? dateConvertToServerZone(startTime) : startTime,
+        value: formatTimeForSave(new Date(startTime), startData, appId),
       },
     ];
     if (endData && calendar.end) {
@@ -277,7 +280,7 @@ class RecordCalendar extends Component {
         controlId: endData.controlId,
         controlName: endData.controlName,
         type: endData.type,
-        value: isTimeStyle(endData) ? dateConvertToServerZone(endTime) : endTime,
+        value: formatTimeForSave(new Date(endTime), endData, appId),
       });
     }
     this.updateData(control, rowId, data => {
@@ -475,6 +478,7 @@ class RecordCalendar extends Component {
       <div className={`boxCalendar boxCalendar_${random}`}>
         {this.state.showExternal && (
           <External
+            currentView={currentView}
             showExternal={this.state.showExternal}
             recordInfoVisible={this.state.recordInfoVisible}
             showRecordInfo={(rowid, data, eventData) => {
@@ -670,26 +674,24 @@ class RecordCalendar extends Component {
                     controlId: startData.controlId,
                     controlName: startData.controlName,
                     type: startData.type,
-                    value: dateConvertToServerZone(moment(info.event.start).format(startData.startFormat)),
+                    value: formatTimeForSave(info.event.start, startData, appId),
                   },
                 ];
-                //周/天 非全天 视图 全天拖拽到非全天时间
-                let isNotAllDay =
-                  !info.event.end &&
-                  !info.event.allDay &&
-                  info.oldEvent.allDay &&
-                  ['timeGridDay', 'timeGridWeek'].includes(info.view.type);
-                if (info.event.end || (!info.event.end && info.event.allDay) || isNotAllDay) {
-                  let end = !info.event.end
-                    ? isNotAllDay
-                      ? moment(info.event.start).add(1, 'hours').format(startFormat)
-                      : moment(info.event.start).format('YYYY-MM-DD') + ' 23:59:59'
-                    : changeEndStr(info.event.end, info.event.allDay, calendarview);
+                //日历视图推拽bugfix，结束时间不从组件返回内容取，需要根据开始时间+时间差来处理
+                const item = (info?.event?.extendedProps?.timeList || [])?.[0];
+                const rowStart = item?.row?.[startData?.controlId];
+                const rowEnd = item?.row?.[endData?.controlId];
+                const needEnd =
+                  !!endData?.controlId && !!rowStart && !!rowEnd && !moment(rowEnd).isBefore(moment(rowStart));
+                if (item && needEnd) {
+                  const endTime = moment(info.event.start)
+                    .add(moment(rowEnd).diff(moment(rowStart)), 'ms')
+                    .toDate();
                   control.push({
                     controlId: endData.controlId,
                     controlName: endData.controlName,
                     type: endData.type,
-                    value: dateConvertToServerZone(end),
+                    value: formatTimeForSave(endTime, endData, appId),
                   });
                 }
                 this.updateData(control, info.event.extendedProps.rowid, data => {
@@ -709,7 +711,11 @@ class RecordCalendar extends Component {
                       controlId: endData.controlId,
                       controlName: endData.controlName,
                       type: endData.type,
-                      value: dateConvertToServerZone(changeEndStr(info.event.end, info.event.allDay, calendarview)),
+                      value: formatTimeForSave(
+                        new Date(changeEndStr(info.event.end, info.event.allDay, calendarview)),
+                        endData,
+                        appId,
+                      ),
                     },
                   ],
                   info.event.extendedProps.rowid,
@@ -820,7 +826,7 @@ class RecordCalendar extends Component {
                   $(item.el)
                     .find('.fc-event-title,.fc-event-time')
                     .css({
-                      color: !isLightColor(colorHover) ? '#fff' : '#151515',
+                      color: !isLightColor(colorHover) ? '#fff' : 'var(--color-text-title)',
                     });
                 }
               }}
@@ -841,7 +847,7 @@ class RecordCalendar extends Component {
                   $(item.el)
                     .find('.fc-event-title,.fc-event-time')
                     .css({
-                      color: !isLightColor(item.event.backgroundColor) ? '#fff' : '#151515',
+                      color: !isLightColor(item.event.backgroundColor) ? '#fff' : 'var(--color-text-title)',
                     });
                 }
               }}

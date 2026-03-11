@@ -328,7 +328,9 @@ export default class WorkHandoverDialog extends Component {
   };
 
   renderEmpty = () => {
-    return <div className="h100 Gray_75 flexRow alignItemsCenter justifyContentCenter">{_l('没有内容需要交接')}</div>;
+    return (
+      <div className="h100 textSecondary flexRow alignItemsCenter justifyContentCenter">{_l('没有内容需要交接')}</div>
+    );
   };
 
   replaceAppMember = (addUserId = '') => {
@@ -453,7 +455,7 @@ export default class WorkHandoverDialog extends Component {
               >
                 {item.tabName}
                 {!loading && (
-                  <span className="Gray_75 mLeft4">
+                  <span className="textSecondary mLeft4">
                     {countInfo[item.tab] ||
                       (item.tab === 1 ? getCount(todoList) : item.tab === 2 ? getCount(workflowList) : '')}
                   </span>
@@ -461,7 +463,7 @@ export default class WorkHandoverDialog extends Component {
               </div>
             ))}
             <div className="flex TxtRight pRight24">
-              <i className="icon icon-refresh1 Gray_9e Hand Font18" onClick={() => this.getList(true)} />
+              <i className="icon icon-refresh1 textTertiary Hand Font18" onClick={() => this.getList(true)} />
             </div>
           </div>
           <div className="description">
@@ -474,14 +476,14 @@ export default class WorkHandoverDialog extends Component {
           {loading ? (
             <div className="mTop40 TxtCenter flex">
               <LoadDiv className="mBottom25" />
-              <span className="Gray_9e"> {_l('数据加载中，请耐心等待')}</span>
+              <span className="textTertiary"> {_l('数据加载中，请耐心等待')}</span>
             </div>
           ) : _.isEmpty(dataList) ? (
             this.renderEmpty()
           ) : _.includes([1, 2], activeTab) ? (
             <div className="overflowHidden flex flexRow">
               <div className="apps">
-                <div className="Gray_9e pLeft12 mBottom10">{_l('选择应用')}</div>
+                <div className="textTertiary pLeft12 mBottom10">{_l('选择应用')}</div>
                 <div className="checkItem checkAll flexRow alignItemsCenter">
                   <Checkbox checked={checkedAll} onClick={this.checkedAllApps} />
                   <span className="flex ellipsis">{_l('全选')}</span>
@@ -507,7 +509,7 @@ export default class WorkHandoverDialog extends Component {
                 })}
               </div>
               <div className="handoverList flex">
-                <div className="Gray_9e pLeft12 mBottom10">
+                <div className="textTertiary pLeft12 mBottom10">
                   {activeTab === 1 ? _l('选择流程待办') : activeTab === 2 ? _l('选择工作流') : ''}
                 </div>
                 {_.isEmpty(items)

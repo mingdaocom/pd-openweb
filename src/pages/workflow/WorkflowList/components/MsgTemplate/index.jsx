@@ -99,7 +99,7 @@ export default class MsgTemplate extends Component {
       width: 550,
       title: _l('您确认删除模板?'),
       description: (
-        <span className="Gray">
+        <span className="textPrimary">
           {_l('删除后，工作流中新添加的短信节点将不能在选到此模板，之前已使用此模板的节点不受影响')}
         </span>
       ),
@@ -153,7 +153,7 @@ export default class MsgTemplate extends Component {
                 >
                   {_l('创建时间')}
                   {(isAsc === true || isAsc === false) && (
-                    <Icon icon={isAsc ? 'score-up' : 'score-down'} className="Gray_75" />
+                    <Icon icon={isAsc ? 'score-up' : 'score-down'} className="textSecondary" />
                   )}
                 </div>
               </li>
@@ -189,7 +189,7 @@ export default class MsgTemplate extends Component {
             </ul>
           ) : (
             <EmptyStatus icon="forum" explain={_l('还没有短信模版')} className="workflowMsgTemplateEmpty">
-              <div className="moreTips Gray_75 mTop12">{_l('短信模版可在编辑短信节点时创建')}</div>
+              <div className="moreTips textSecondary mTop12">{_l('短信模版可在编辑短信节点时创建')}</div>
             </EmptyStatus>
           )}
         </Dialog>

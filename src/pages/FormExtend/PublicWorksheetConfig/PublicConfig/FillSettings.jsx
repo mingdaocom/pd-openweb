@@ -12,13 +12,13 @@ const PreFillWrap = styled.div`
   justify-content: space-between;
   padding: 0 16px 0 13px;
   height: 36px;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   border-radius: 3px 3px 3px 3px;
-  border: 1px solid #dddddd;
+  border: 1px solid var(--color-border-primary);
   margin-left: 44px;
   &:hover {
     .Icon {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
 `;
@@ -28,12 +28,12 @@ const FillDialogWrap = styled(Dialog)`
     padding: 24px 24px 28px !important;
   }
   .fillInput {
-    border-color: #ddd !important;
+    border-color: var(--color-border-primary) !important;
     &:hover {
-      border-color: #ccc !important;
+      border-color: var(--color-border-tertiary) !important;
     }
     &:focus {
-      border-color: #1e88e5 !important;
+      border-color: var(--color-primary) !important;
     }
   }
 `;
@@ -111,13 +111,13 @@ export default function FillSettings(props) {
         onOk={changePreFillDesc}
         onCancel={handleCancel}
       >
-        <div className="Gray Font13 mBottom8 Bold">{_l('标题')}</div>
+        <div className="textPrimary Font13 mBottom8 Bold">{_l('标题')}</div>
         <Input
           className="w100 mBottom24 fillInput"
           value={preFillDescData.title}
           onChange={value => setPreFillDescData({ ...preFillDescData, title: value })}
         />
-        <div className="Gray Font13 mBottom8 Bold">{_l('详细内容')}</div>
+        <div className="textPrimary Font13 mBottom8 Bold">{_l('详细内容')}</div>
         <RichText
           className="mBottom24"
           maxWidth={800}
@@ -127,9 +127,9 @@ export default function FillSettings(props) {
           data={preFillDescData.content || ''}
           onSave={value => setPreFillDescData({ ...preFillDescData, content: value })}
         />
-        <div className="Gray Font13 mBottom8">
+        <div className="textPrimary Font13 mBottom8">
           <span className="Bold">{_l('按钮名称')}</span>
-          <span className="Font12 Gray_9e">{_l('（用户在点击按钮后开始填写）')}</span>
+          <span className="Font12 textTertiary">{_l('（用户在点击按钮后开始填写）')}</span>
         </div>
         <Input
           className="w100 mBottom24 fillInput"
@@ -170,8 +170,8 @@ export default function FillSettings(props) {
             {preFillDesc.enable && (
               <Fragment>
                 <PreFillWrap className="valignWrapper mTop16" onClick={() => setPreFillDescVisible(true)}>
-                  <span className="Font13 Gray bold">{preFillDesc.title ? _l('已设置') : _l('未设置')}</span>
-                  <Icon icon="edit" className="Font15 Gray_9d Hand Hover_21" />
+                  <span className="Font13 textPrimary bold">{preFillDesc.title ? _l('已设置') : _l('未设置')}</span>
+                  <Icon icon="edit" className="Font15 textTertiary Hand hoverColorPrimary" />
                 </PreFillWrap>
                 {renderPreFillDialog()}
               </Fragment>
@@ -207,7 +207,7 @@ export default function FillSettings(props) {
                       }
                     : {})}
                 />
-                <span className="mLeft20 Gray_9e">{_l('短信签名：')}</span>
+                <span className="mLeft20 textTertiary nowrap">{_l('短信签名：')}</span>
                 <SmsSignSet
                   projectId={projectId}
                   onOk={value => setState({ smsSignature: value })}

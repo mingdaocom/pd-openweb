@@ -9,24 +9,24 @@ const DropdownWrap = styled.div`
   max-height: 201px;
   overflow-y: scroll;
   font-size: 13px;
-  color: #151515;
+  color: var(--color-text-title);
   border-radius: 3px;
   .item {
     height: 36px;
     line-height: 36px;
     padding: 0 14px;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
     &.current {
-      background: #e6f7ff !important;
+      background: var(--color-cyan-blue) !important;
     }
   }
   .splitLine {
     margin-left: 14px;
     margin-right: 14px;
     height: 1px;
-    background: #eaeaea;
+    background: var(--color-border-secondary);
   }
 `;
 
@@ -54,7 +54,7 @@ function SelectDBInstance(props) {
       onOk={handleOk}
       onCancel={onCancel}
     >
-      <div className="Gray_9e">{_l('选择应用的存储数据库，应用内工作表数据将会保存在所选专属数据库内')}</div>
+      <div className="textTertiary">{_l('选择应用的存储数据库，应用内工作表数据将会保存在所选专属数据库内')}</div>
       <div className="mTop12">{_l('注意：应用创建后，所属数据库不可再修改')}</div>
       <Select
         open={open}
@@ -64,7 +64,7 @@ function SelectDBInstance(props) {
         placeholder={_l('请选择应用的存储数据库')}
         className="w100 mdAntSelect mTop28"
         suffixIcon={<Icon icon="arrow-down-border Font14" />}
-        notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
+        notFoundContent={<span className="textTertiary">{_l('无搜索结果')}</span>}
         onDropdownVisibleChange={visible => setOpen(visible)}
         dropdownRender={() => {
           return (

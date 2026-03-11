@@ -2,7 +2,7 @@
   width: 1000px;
   height: 600px;
   margin: 20px auto 0;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -10,12 +10,12 @@
   overflow-y: scroll;
 
   > div {
-    color: #757575;
+    color: var(--color-text-secondary);
     text-align: center;
     max-width: 800px;
   }
   .group-name {
-    color: #151515;
+    color: var(--color-text-title);
     font-size: 20px;
     padding-bottom: 8px;
   }
@@ -47,7 +47,7 @@
   .group-about {
     text-align: left;
     span {
-      color: #000;
+      color: var(--color-text-primary);
       margin-bottom: 6px;
       font-weight: bold;
       display: inline-block;
@@ -79,10 +79,10 @@
   }
   .group-apply,
   .group-send {
-    color: #fff;
+    color: var(--color-white);
   }
   .group-feed {
     padding: 0 10px;
-    background-color: #ddd;
+    background-color: var(--color-border-primary);
   }
 }

@@ -9,7 +9,7 @@ const Container = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  color: #757575;
+  color: var(--color-text-secondary);
   .imgCon {
     width: 114px;
     height: 118px;

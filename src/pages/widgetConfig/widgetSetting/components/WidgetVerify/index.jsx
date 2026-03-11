@@ -117,7 +117,7 @@ export default function WidgetVerify(props) {
                     '忽略业务规则的配置，在所有写入数据的场景中校验必填，包括工作流、批量导入、API写入、数据集成同步等',
                   )}
                 >
-                  <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
+                  <i className="icon-help tipsIcon textTertiary Font16 pointer"></i>
                 </Tooltip>
               </span>
             </Checkbox>
@@ -153,7 +153,7 @@ export default function WidgetVerify(props) {
                       </span>
                     }
                   >
-                    <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
+                    <i className="icon-help tipsIcon textTertiary Font16 pointer"></i>
                   </Tooltip>
                 )}
               </span>
@@ -229,7 +229,7 @@ export default function WidgetVerify(props) {
           >
             <span>{_l('选择“%0”时，补充信息必填', otherText)}</span>
             <Tooltip placement="bottom" title={_l('勾选后，当用户选中“其他”时，必须在后面的文本框中填写内容。')}>
-              <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
+              <i className="icon-help tipsIcon textTertiary Font16 pointer"></i>
             </Tooltip>
           </Checkbox>
         </div>
@@ -243,7 +243,7 @@ export default function WidgetVerify(props) {
           >
             <span>{_l('选择“%0”时，不能选择常规选项', otherText)}</span>
             <Tooltip placement="bottom" title={_l('勾选后，选择“其他”时清空常规选项，选择常规选项时清空“其他”。')}>
-              <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
+              <i className="icon-help tipsIcon textTertiary Font16 pointer"></i>
             </Tooltip>
           </Checkbox>
         </div>

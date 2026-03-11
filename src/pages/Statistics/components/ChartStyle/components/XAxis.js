@@ -48,7 +48,7 @@ export default class XAxis extends Component {
               )}
               placement="bottom"
             >
-              <Icon className="Gray_9e Font17 pointer" icon="info" />
+              <Icon className="textTertiary Font17 pointer" icon="info" />
             </Tooltip>
           </div>
         )}
@@ -66,7 +66,7 @@ export default class XAxis extends Component {
           </div>
         )}
         {![reportTypes.BidirectionalBarChart].includes(reportType) && (
-          <div className={cx('flexRow valignWrapper mLeft0', xdisplay.showTitle ? 'mBottom8' : 'mBottom16')}>
+          <div className={cx('flexRow valignWrapper mLeft0 mBottom16')}>
             <Checkbox
               checked={xdisplay.showTitle}
               onChange={() => {
@@ -79,18 +79,6 @@ export default class XAxis extends Component {
               {_l('显示标题')}
             </Checkbox>
           </div>
-        )}
-        {xdisplay.showTitle && (
-          <Input
-            defaultValue={xdisplay.title}
-            className="chartInput mBottom16"
-            onBlur={event => {
-              onChangeDisplayValue('xdisplay', {
-                ...xdisplay,
-                title: event.target.value,
-              });
-            }}
-          />
         )}
         {reportTypes.ScatterChart === reportType && (
           <Fragment>

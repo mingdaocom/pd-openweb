@@ -9,11 +9,11 @@ import { browserIsMobile } from 'src/utils/common';
 import { getRequest } from 'src/utils/sso';
 
 const Wrap = styled.div`
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   .con {
     box-sizing: border-box;
     width: 800px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.1);
     border-radius: 4px;
     margin: 40px auto;
@@ -63,7 +63,7 @@ class PrivacyOrAgreen extends React.Component {
       summary: '',
       logoImageUrl: '',
       customizeName: '',
-      appColor: '#00bcd4',
+      appColor: 'var(--color-cyan)',
       appLogoUrl: md.global.FileStoreConfig.pubHost + '/customIcon/0_lego.svg',
       loading: true,
     };
@@ -77,7 +77,10 @@ class PrivacyOrAgreen extends React.Component {
       this.ajax = externalPortalAjax.getPrivacyTerms({ AppId: appId });
     }
     this.ajax.then(res => {
-      const { appColor = '#00bcd4', appLogoUrl = md.global.FileStoreConfig.pubHost + '/customIcon/0_lego.svg' } = res;
+      const {
+        appColor = 'var(--color-cyan)',
+        appLogoUrl = md.global.FileStoreConfig.pubHost + '/customIcon/0_lego.svg',
+      } = res;
       document.title =
         (location.pathname.indexOf('privacy') < 0 ? _l('用户协议') : _l('隐私政策')) +
         ' - ' +
@@ -128,7 +131,7 @@ class PrivacyOrAgreen extends React.Component {
               )}
             </div>
             <span
-              className="Font26 Gray mAll0 Bold pageTitle InlineBlock mLeft30 TxtMiddle"
+              className="Font26 textPrimary mAll0 Bold pageTitle InlineBlock mLeft30 TxtMiddle"
               style={{ WebkitBoxOrient: 'vertical' }}
             >
               {customizeName}

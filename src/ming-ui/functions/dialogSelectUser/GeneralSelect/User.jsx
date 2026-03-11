@@ -89,7 +89,7 @@ export default class User extends Component {
           <div className="GSelect-User__fullname">{_l('我自己')}</div>
         ) : (
           <div className="GSelect-User__fullname">
-            <span className="Gray">{user.fullname}</span>
+            <span className="textPrimary">{user.fullname}</span>
           </div>
         )}
 

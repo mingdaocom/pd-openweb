@@ -38,7 +38,7 @@ const ListWrap = styled.div`
   padding: 16px 16px 0;
   .tabWrap {
     height: 51px;
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     border-radius: 8px;
     align-items: center;
     padding: 2px;
@@ -47,9 +47,9 @@ const ListWrap = styled.div`
       border-radius: 6px;
       text-align: center;
       &.active {
-        color: #1677ff;
-        background: #ffffff;
-        box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.16);
+        color: var(--color-primary);
+        background: var(--color-background-card);
+        box-shadow: var(--shadow-md);
       }
     }
   }
@@ -176,8 +176,8 @@ export default function Process(props) {
               window.mobileNavigateTo(`/mobile/processMatters/${currentTab}`);
             }}
           >
-            <span className="Gray_75 mRight2 Font15 bold500">{_l('全部')}</span>
-            <i className="icon icon-navigate_next Gray_bd Font18" />
+            <span className="textSecondary mRight2 Font15 bold500">{_l('全部')}</span>
+            <i className="icon icon-navigate_next textDisabled Font18" />
           </div>
         </div>
         <div className="tabWrap flexRow">
@@ -247,8 +247,8 @@ export default function Process(props) {
             window.mobileNavigateTo('/mobile/processMatters/processed');
           }}
         >
-          <span className="Gray_75 Font15 bold500">{_l('已完成')}</span>
-          <i className="icon icon-navigate_next Gray_bd Font18" />
+          <span className="textSecondary Font15 bold500">{_l('已完成')}</span>
+          <i className="icon icon-navigate_next textDisabled Font18" />
         </div>
       </div>
       <div className="flexRow">

@@ -6,7 +6,7 @@ import { browserIsMobile } from 'src/utils/common';
 
 const RoleName = styled.span`
   &.disabled {
-    color: #757575 !important;
+    color: var(--color-text-secondary) !important;
     text-decoration: line-through !important;
   }
 `;

@@ -18,7 +18,7 @@ const UserInfoCon = styled.div`
   height: 100%;
   .worksheetInfoBox {
     height: 71px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 4px;
     display: flex;
     align-items: center;
@@ -27,9 +27,9 @@ const UserInfoCon = styled.div`
   .editBtn {
     width: 66px;
     height: 31px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     border-radius: 16px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     text-align: center;
     line-height: 31px;
     margin-left: auto;
@@ -43,11 +43,11 @@ const UserInfoCon = styled.div`
     padding: 0 16px;
     height: 36px;
     line-height: 36px;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     border-radius: 3px;
     width: fit-content;
     &:hover {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
   }
   .tagList {
@@ -58,8 +58,8 @@ const UserInfoCon = styled.div`
       height: 36px;
       line-height: 36px;
       .text {
-        background: #f5f5f5;
-        border: 1px solid #ddd;
+        background: var(--color-background-secondary);
+        border: 1px solid var(--color-border-primary);
         border-radius: 3px;
         padding: 0 15px;
       }
@@ -73,9 +73,9 @@ const UserInfoCon = styled.div`
         text-align: center;
         line-height: 36px;
         border-radius: 3px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--color-border-primary);
         &:hover {
-          border-color: #1677ff;
+          border-color: var(--color-primary);
         }
       }
     }
@@ -86,8 +86,8 @@ const Item = styled(MenuItem)`
   height: 36px;
   line-height: 36px;
   &.ming.MenuItem .Item-content:not(.disabled):hover {
-    background: #f7f7f7 !important;
-    color: #151515 !important;
+    background: var(--color-background-secondary) !important;
+    color: var(--color-text-title) !important;
   }
 `;
 
@@ -99,7 +99,7 @@ export default function UserExtendInfo(props) {
     ...data.optionalControls.filter(o => o.id !== 'currentworkshet'),
   ];
 
-  const maxCount = md.global.Config.IsLocal ? 5 : 3;
+  const maxCount = window.platformENV.isOverseas || window.platformENV.isLocal ? 5 : 3;
   const [checked, setChecked] = useState(extendAttrs || []);
   const [visible, setVisible] = useState(false);
   const [andChecked, setAndChecked] = useState(extendAndAttrs || []);
@@ -184,7 +184,7 @@ export default function UserExtendInfo(props) {
           overflow: { adjustX: true, adjustY: true },
         }}
       >
-        <div className="Font13 Bold ThemeColor selectBtn Hand mBottom32">{_l('+ 选择权限标签字段')}</div>
+        <div className="Font13 Bold colorPrimary selectBtn Hand mBottom32">{_l('+ 选择权限标签字段')}</div>
       </Trigger>
     );
   };
@@ -209,7 +209,7 @@ export default function UserExtendInfo(props) {
                 onChange={value => handleChange(item.id, value, isAnd)}
               />
               <span className="removeBtn Hand" onClick={() => onRemove(item.id, isAnd)}>
-                <Icon icon="trash" className="Gray_9d" />
+                <Icon icon="trash" className="textTertiary" />
               </span>
             </li>
           );
@@ -221,22 +221,26 @@ export default function UserExtendInfo(props) {
   return (
     <UserInfoCon>
       <h3 className="mTop35 Font17 Bold">{_l('用户扩展信息表')}</h3>
-      <div className="userExtendInfo-desc Gray_9e mTop13">
+      <div className="userExtendInfo-desc textTertiary mTop13">
         {_l(
           '通过工作表管理应用成员额外的扩展信息字段，在角色权限、筛选器中可以使用用户的扩展信息字段来作为动态筛选条件',
         )}
         <Support className="help" type={3} href="https://help.mingdao.com/role/extended-info" text={_l('帮助')} />
       </div>
       <div className="worksheetInfoBox mTop16">
-        <SvgIcon url={data.iconUrl} fill="#757575" className="mRight8" size={24} />
+        <SvgIcon url={data.iconUrl} fill="var(--color-text-secondary)" className="mRight8" size={24} />
         {data.worksheetName || ''}
-        <Icon icon="task-new-detail" className="mLeft8 Gray_75 pointer ThemeHoverColor3" onClick={openWorksheet} />
+        <Icon
+          icon="task-new-detail"
+          className="mLeft8 textSecondary pointer ThemeHoverColor3"
+          onClick={openWorksheet}
+        />
         <span className="editBtn pointer ThemeHoverColor3 ThemeHoverBorderColor3" onClick={() => onChangeStep(2)}>
           {_l('编辑')}
         </span>
       </div>
       <div className="mTop30 Font14 Bold">{_l('作为权限标签的扩展信息字段')}</div>
-      <div className="desc Gray_75 mBottom25 mTop16">
+      <div className="desc textSecondary mBottom25 mTop16">
         {_l(
           '选择扩展信息表中作为用户权限标签的字段，仅支持关联记录类型的字段（最多可设置%0个字段）。当其他工作表的记录也关联了和用户相同的标签时，可以在角色中设置为用户对此记录拥有权限',
           maxCount,
@@ -244,18 +248,18 @@ export default function UserExtendInfo(props) {
       </div>
       <div className="mBottom24">
         {!!_.difference(checked, andChecked).length && (
-          <div className="Font13 Gray mBottom15">{_l('当匹配标签时拥有权限')}</div>
+          <div className="Font13 textPrimary mBottom15">{_l('当匹配标签时拥有权限')}</div>
         )}
         {renderTagList(optionsControls.filter(l => checked.includes(l.id) && !andChecked.includes(l.id)))}
         {!!andChecked.length && (
-          <div className="Font13 Gray mBottom15 mTop32 valignWrapper">
+          <div className="Font13 textPrimary mBottom15 mTop32 valignWrapper">
             {_l('必须同时匹配标签时才能拥有权限')}
             <Tooltip
               title={_l(
                 '以下权限标签与其他权限的叠加方式为且。如设置权限标签【密级】，则表示必须密级同时也满足时才能拥有权限。当密级不匹配时，即使加入记录或满足其他标签时也没有权限。',
               )}
             >
-              <Icon icon="info" className="Gray_bd mLeft5 Font14" />
+              <Icon icon="info" className="textDisabled mLeft5 Font14" />
             </Tooltip>
           </div>
         )}

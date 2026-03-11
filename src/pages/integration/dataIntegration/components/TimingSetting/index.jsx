@@ -42,7 +42,7 @@ const SettingWrapper = styled.div`
       margin-bottom: 16px;
     }
     .tipsText {
-      color: #757575;
+      color: var(--color-text-secondary);
       margin-top: 8px;
     }
     .intervalInput {
@@ -56,15 +56,15 @@ const SettingWrapper = styled.div`
       width: 100px;
       height: 36px;
       border-radius: 4px;
-      border-color: #ddd;
+      border-color: var(--color-border-primary);
       margin-right: 8px;
       transition: unset;
       box-shadow: none;
       &:hover {
-        border-color: #1677ff;
+        border-color: var(--color-primary);
       }
       &.ant-picker-focused {
-        border-color: #1677ff;
+        border-color: var(--color-primary);
       }
     }
   }
@@ -75,7 +75,7 @@ const SettingWrapper = styled.div`
       line-height: 36px;
       padding: 0 12px;
       border-radius: 3px;
-      background: #f7f7f7;
+      background: var(--color-background-secondary);
       margin-bottom: 16px;
     }
   }
@@ -345,7 +345,7 @@ export default function TimingSetting(props) {
                     </React.Fragment>
                   }
                 >
-                  <Icon icon="info" className="mLeft8 Gray_bd Font16 pointer" />
+                  <Icon icon="info" className="mLeft8 textDisabled Font16 pointer" />
                 </Tooltip>
               )}
             </div>

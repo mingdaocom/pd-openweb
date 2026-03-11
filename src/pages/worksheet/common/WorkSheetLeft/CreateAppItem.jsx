@@ -110,7 +110,11 @@ export default function CreateAppItem(props) {
                       )}
                       <span className={item.className}>{item.text}</span>
                       {item.createType === 'chatbot' && (
-                        <Icon icon="auto_awesome" className="Font15 mLeft5" style={{ color: '#9709f2' }} />
+                        <Icon
+                          icon="auto_awesome"
+                          className="Font15 mLeft5"
+                          style={{ color: 'var(--color-mingo-light)' }}
+                        />
                       )}
                     </MenuItem>
                   </Fragment>

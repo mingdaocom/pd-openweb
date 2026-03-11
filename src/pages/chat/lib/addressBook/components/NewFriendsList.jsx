@@ -105,7 +105,7 @@ export default class NewFriendsList extends React.Component {
       <React.Fragment>
         <div className="list-header mBottom10">{_l('待验证的好友申请')}</div>
         <table className="list-content Font12">
-          <thead className="LineHeight30 Gray_6 TxtLeft">
+          <thead className="LineHeight30 textSecondary TxtLeft">
             <tr>
               <th>{_l('联系人')}</th>
               <th>{_l('备注')}</th>
@@ -115,7 +115,7 @@ export default class NewFriendsList extends React.Component {
               </th>
             </tr>
           </thead>
-          <tbody className="Gray_6">
+          <tbody className="textSecondary">
             {listData.length &&
               listData.map(item => {
                 return (
@@ -130,7 +130,7 @@ export default class NewFriendsList extends React.Component {
                       </a>
                       <a
                         href={'/user_' + item.createAccount.accountId}
-                        className="Bold Hand overflow_ellipsis Gray mLeft8"
+                        className="Bold Hand overflow_ellipsis textPrimary mLeft8"
                         title={item.createAccount.fullname}
                       >
                         {item.createAccount.fullname || ''}
@@ -153,7 +153,7 @@ export default class NewFriendsList extends React.Component {
                       </td>
                     ) : (
                       <td className="TxtCenter">
-                        <span className="Gray_6">{item.added ? _l('已添加') : _l('已拒绝')}</span>
+                        <span className="textSecondary">{item.added ? _l('已添加') : _l('已拒绝')}</span>
                       </td>
                     )}
                   </tr>

@@ -8,19 +8,20 @@ const GeneratingHeaderCon = styled.div`
   align-items: center;
   justify-content: center;
   height: 50px;
-  background-color: #ffffff;
+  background-color: var(--color-background-primary);
   .worksheetName {
     position: absolute;
     left: 0;
     top: 0;
     font-size: 17px;
     font-weight: bold;
-    color: #151515;
+    color: var(--color-text-title);
   }
   .fixedCon {
     position: fixed;
     top: 31px;
-    background: #fff;
+    border-radius: 20px;
+    background: var(--color-background-card);
   }
 `;
 
@@ -40,23 +41,28 @@ const StatusBar = styled.div`
   justify-content: center;
   height: 40px;
   border-radius: 20px;
-  border: 1px solid #e2e2e2;
+  border: 1px solid var(--color-border-primary);
   box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.16);
   font-size: 13px;
   font-weight: bold;
   padding: 0 25px;
-  color: #151515;
+  color: var(--color-text-title);
   .icon {
-    color: #6e09f9;
+    color: var(--color-mingo);
     margin-right: 5px;
     font-size: 18px;
   }
   .generated {
-    color: #4caf50;
+    color: var(--color-success);
   }
   &.unsaved {
-    background: linear-gradient(90deg, #6e09f9 10%, #e6e6e6 55%, #6e09f9 80%);
-    color: #0000;
+    background: linear-gradient(
+      90deg,
+      var(--color-mingo) 10%,
+      var(--color-border-secondary) 55%,
+      var(--color-mingo) 80%
+    );
+    color: var(--color-text-primary);
     background-repeat: repeat-x;
     background-size: 200% 100%;
     -webkit-background-clip: text;

@@ -14,15 +14,15 @@ const HomeEntry = styled.div`
   width: 28px;
   height: 28px;
   border-radius: 14px;
-  border: 1px solid #eaeaea;
+  border: 1px solid var(--color-border-secondary);
   margin: 0 12px 0 16px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   text-align: center;
   line-height: 29px;
   cursor: pointer;
   &:hover {
-    border-color: #ddd;
-    color: #1677ff;
+    border-color: var(--color-border-primary);
+    color: var(--color-primary);
   }
 `;
 
@@ -98,7 +98,7 @@ export default class GlobalSearchHeader extends Component {
         <div className="searchCon">
           <div className="search">
             <span className="searchIconCon" onClick={this.onSearch}>
-              <Icon icon="search" className="Font20" style={{ color: '#4a4a4a' }} />
+              <Icon icon="search" className="Font20" style={{ color: 'var(--color-text-title)' }} />
             </span>
             <Input
               className="flex borderNone"
@@ -111,7 +111,7 @@ export default class GlobalSearchHeader extends Component {
                 }
               }}
             />
-            {searchValue && <Icon icon="cancel" className="Gray_bd Font14" onClick={this.onClearSearch} />}
+            {searchValue && <Icon icon="cancel" className="textDisabled Font14" onClick={this.onClearSearch} />}
           </div>
         </div>
         <CommonUserHandle />

@@ -8,6 +8,7 @@ import { Checkbox, Icon, LoadDiv, PriceTip, ScrollView, Support, SvgIcon, Switch
 import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectIntegrationApi } from 'ming-ui/functions';
 import flowNode from '../../../api/flowNode';
+import process from '../../../api/process';
 import { openAgentPromptGenBot } from 'src/components/Mingo/modules/AgentPromptGenBot';
 import selectPBPDialog from '../../../components/selectPBPDialog';
 import { AGENT_TOOLS, APP_TYPE } from '../../enum';
@@ -23,12 +24,12 @@ import selectWorksheet from './selectWorksheet';
 import worksheetFilter from './worksheetFilter';
 
 const AI_HELP_BTN = styled.div`
-  color: #9709f2;
+  color: var(--color-mingo-light);
   font-size: 12px;
   cursor: pointer;
   font-weight: bold;
   &:hover {
-    color: #5b00a6;
+    color: var(--color-mingo-dark);
   }
 `;
 
@@ -48,7 +49,7 @@ const TABS_ITEM = styled.div`
       right: 0;
       content: '';
       height: 0;
-      border-bottom: 3px solid #1677ff;
+      border-bottom: 3px solid var(--color-primary);
     }
   }
 `;
@@ -58,7 +59,7 @@ const TOOLS_ITEM = styled.div`
   align-items: center;
   padding: 12px 16px;
   border-radius: 4px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   margin-top: 12px;
   &:hover {
     .icon-edit {
@@ -66,8 +67,8 @@ const TOOLS_ITEM = styled.div`
     }
   }
   .agentToolsIcon {
-    background: #f9e6ff;
-    color: #5b00a6;
+    background: #eee3ff;
+    color: var(--color-mingo-dark);
     font-size: 24px;
     width: 40px;
     height: 40px;
@@ -88,12 +89,12 @@ const TOOLS_ITEM = styled.div`
     display: none;
   }
   .red {
-    color: #f44336;
+    color: var(--color-error);
   }
 `;
 
 const MORE_TOOLS_LIST = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow: 0 3px 6px 1px rgba(0, 0, 0, 0.16);
   border-radius: 4px;
   width: 752px;
@@ -104,7 +105,7 @@ const MORE_TOOLS_LIST = styled.div`
     align-items: center;
     padding: 0 16px;
     font-size: 12px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   .listItem {
     display: flex;
@@ -113,11 +114,11 @@ const MORE_TOOLS_LIST = styled.div`
     padding: 0 16px;
     cursor: pointer;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
     .agentToolsIcon {
-      background: #f9e6ff;
-      color: #5b00a6;
+      background: #eee3ff;
+      color: var(--color-mingo-dark);
       font-size: 16px;
       width: 32px;
       height: 32px;
@@ -136,37 +137,54 @@ const SHEET_LIST = styled.div`
   margin-top: 12px;
   padding: 0 15px 0 12px;
   height: 48px;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   border-radius: 4px;
   font-size: 0;
   &.red {
-    color: #f44336;
+    color: var(--color-error);
   }
 `;
 
 const REQUIRED_TEXT = styled.span`
-  color: #f44336;
+  color: var(--color-error);
   position: absolute;
   top: 2px;
   left: -10px;
+`;
+
+const AI_ACTIONS_BOX = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  height: 40px;
+  border: 1px solid var(--color-border-primary);
+  border-top-width: 0;
+  border-radius: 0 0 4px 4px;
+  margin-right: 36px;
+  .ai_actions_checkbox {
+    margin-left: 10px;
+    height: 28px;
+    border-radius: 14px;
+    background-color: var(--color-background-secondary);
+    border: 1px solid var(--color-border-primary);
+    .Checkbox {
+      height: 100%;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 12px;
+    }
+  }
 `;
 
 export default class Agent extends Component {
   constructor(props) {
     super(props);
 
-    const { workflowDetail, flowInfo, selectNodeId } = props;
-    const hasInput =
-      flowInfo.startAppType === APP_TYPE.CHATBOT &&
-      workflowDetail.flowNodeMap[flowInfo.startNodeId].nextId === selectNodeId;
-
     this.state = {
       data: {},
       saveRequest: false,
-      hasInput,
       tabIndex: 1,
       selectToolId: '',
-      performance: [],
     };
   }
 
@@ -219,7 +237,7 @@ export default class Agent extends Component {
    * 保存
    */
   onSave = () => {
-    const { data, saveRequest, hasInput } = this.state;
+    const { data, saveRequest } = this.state;
     const {
       name,
       model,
@@ -233,6 +251,8 @@ export default class Agent extends Component {
       outputs,
       checkUserPermission,
       switchReplyPrompt,
+      switchDetail,
+      switchDiscussion,
     } = data;
     let hasError = false;
 
@@ -247,11 +267,6 @@ export default class Agent extends Component {
     }
     if (!prompt.trim()) {
       alert(_l('提示词不能为空'), 2);
-      return;
-    }
-
-    if (hasInput && !input.trim()) {
-      alert(_l('输入不能为空'), 2);
       return;
     }
 
@@ -277,8 +292,11 @@ export default class Agent extends Component {
         outputs,
         checkUserPermission,
         switchReplyPrompt: data.outputs.length ? false : switchReplyPrompt,
+        switchDetail,
+        switchDiscussion,
       })
       .then(result => {
+        location.href.includes('worksheet/formSet/edit') && this.publish();
         this.props.updateNodeData(result);
         this.props.closeDetail();
       });
@@ -287,27 +305,81 @@ export default class Agent extends Component {
   };
 
   /**
+   * 发布流程
+   */
+  publish = () => {
+    process.publish({ isPublish: true, processId: this.props.processId });
+  };
+
+  /**
    * 渲染内容
    */
   renderContent() {
-    const { hasInput, tabIndex, data } = this.state;
+    const { flowInfo, workflowDetail, selectNodeId, isAIActions } = this.props;
+    const { tabIndex, data } = this.state;
+    const isFirstAgent =
+      flowInfo.startAppType === APP_TYPE.CHATBOT &&
+      workflowDetail.flowNodeMap[flowInfo.startNodeId].nextId === selectNodeId;
     const TABS = [
       { text: _l('工具'), value: 1 },
       { text: _l('结构化输出'), value: 2 },
     ];
+
+    if (isAIActions) {
+      _.remove(TABS, item => item.value === 2);
+    }
 
     return (
       <Fragment>
         {this.renderModel()}
 
         {this.renderMessage('prompt')}
-        {hasInput && this.renderMessage('input')}
-        {this.renderMessage('file')}
 
-        {hasInput && (
+        {isFirstAgent && (
+          <AI_ACTIONS_BOX>
+            <div className="Font14 bold">{_l('向 Agent 提供')}</div>
+            <Tooltip title={_l('用户在对话中发送的消息和附件将作为上下文提供给 AI Agent')}>
+              <div className="ai_actions_checkbox pLeft12 pRight12 Font13 inlineFlexRow alignItemsCenter">
+                {_l('用户消息')}
+              </div>
+            </Tooltip>
+          </AI_ACTIONS_BOX>
+        )}
+
+        {isAIActions && (
+          <AI_ACTIONS_BOX>
+            <div className="Font14 bold">{_l('向 Agent 提供当前记录')}</div>
+            <Tooltip
+              title={_l('勾选后，将向 AI Agent 提供除附件外的所有字段信息。如需使用附件，请在动态值中手动添加。')}
+            >
+              <div className="ai_actions_checkbox">
+                <Checkbox
+                  size="small"
+                  text={_l('所有字段')}
+                  checked={data.switchDetail}
+                  onClick={checked => this.updateSource({ switchDetail: !checked })}
+                />
+              </div>
+            </Tooltip>
+            <Tooltip title={_l('勾选后，系统会将当前记录的最近50条讨论信息提供给 AI Agent')}>
+              <div className="ai_actions_checkbox">
+                <Checkbox
+                  size="small"
+                  text={_l('讨论信息')}
+                  checked={data.switchDiscussion}
+                  onClick={checked => this.updateSource({ switchDiscussion: !checked })}
+                />
+              </div>
+            </Tooltip>
+          </AI_ACTIONS_BOX>
+        )}
+
+        {!isFirstAgent && !isAIActions && this.renderMessage('file')}
+
+        {(isFirstAgent || isAIActions) && (
           <Fragment>
             <div className="Font13 bold mTop20">{_l('记忆轮次')}</div>
-            <div className="Font12 Gray_75 mTop5">
+            <div className="Font12 textSecondary mTop5">
               {_l(
                 'AI Agent 节点可参考的历史消息轮数。轮数越多，模型对上下文的理解能力越强，但同时会增加上下文处理负载与 Token 消耗',
               )}
@@ -322,7 +394,11 @@ export default class Agent extends Component {
                 updateSource={({ fieldValue }) => this.updateSource({ maxMessages: fieldValue })}
               />
             </div>
+          </Fragment>
+        )}
 
+        {isFirstAgent && (
+          <Fragment>
             <div className="Font13 bold mTop20">{_l('其他')}</div>
             <div className="flexRow mTop10 alignItemsCenter">
               <Switch
@@ -340,13 +416,13 @@ export default class Agent extends Component {
                     : _l('开启后，Agent 按系统预设的格式、语气与结构回复；关闭后，可在提示词中约束回复风格。')
                 }
               >
-                <Icon className="Font16 Gray_9e mLeft5" icon="info" />
+                <Icon className="Font16 textTertiary mLeft5" icon="info" />
               </Tooltip>
             </div>
           </Fragment>
         )}
 
-        <div className="mTop30" style={{ borderBottom: '1px solid #ddd' }}>
+        <div className="mTop30" style={{ borderBottom: '1px solid var(--color-border-primary)' }}>
           {TABS.map(item => {
             return (
               <TABS_ITEM
@@ -373,43 +449,32 @@ export default class Agent extends Component {
     return (
       <Fragment>
         <div className="Font13 bold">{_l('模型')}</div>
-        {md.global.Config.IsPlatformLocal ? (
-          <div className="Font13 Gray_75 mTop5">
+        {window.platformENV.isPlatform ? (
+          <div className="Font13 textSecondary mTop5">
             {_l('选择用于 AI Agent 的大语言模型。Token 消耗将从组织信用点扣除')}
             <Support type={3} text={_l('了解模型价格')} href={md.global.Config.WebUrl + 'billingrules'} />
           </div>
         ) : (
-          <div className="Font13 Gray_75 mTop5">{_l('选择用于 AI Agent 的大语言模型。')}</div>
+          <div className="Font13 textSecondary mTop5">{_l('选择用于 AI Agent 的大语言模型。')}</div>
         )}
-        <SelectAIModel
-          data={data}
-          showAutoModel
-          showModelSettings
-          updateSource={this.updateSource}
-          updatePerformance={performance => this.setState({ performance })}
-        />
+        <SelectAIModel data={data} showAutoModel showModelSettings updateSource={this.updateSource} />
       </Fragment>
     );
   }
 
-  // 渲染输入+提示词
+  // 渲染智能体信息
   renderMessage(key) {
-    const { flowInfo } = this.props;
-    const { data, performance } = this.state;
+    const { flowInfo, workflowDetail, selectNodeId, isAIActions } = this.props;
+    const { data } = this.state;
+    const isFirstAgent =
+      flowInfo.startAppType === APP_TYPE.CHATBOT &&
+      workflowDetail.flowNodeMap[flowInfo.startNodeId].nextId === selectNodeId;
     const MESSAGE_MAPS = {
-      input: {
-        title: _l('用户输入'),
-        info: _l('AI Agent 节点在每次执行时接收的原始输入内容，通常来源于用户消息或流程变量'),
-        required: true,
-      },
       file: {
-        title: _l('文件链接'),
+        title: _l('文件'),
         info: _l(
-          '附件可来自用户上传或工作表字段，Agent 会将附件内容作为上下文传递给模型。使用该功能可能产生较多费用。',
+          '非图片类附件会先进行文本解析（免费），解析结果将作为上下文发送给模型，可能增加 Token 消耗。图片附件将直接发送给模型处理，是否可识别取决于所选模型是否支持图片理解',
         ),
-        desc: !_.includes(performance, 1)
-          ? _l('仅支持文档类型的附件，如PDF、Word、Excel。如需使用图片，请选择支持图片识别的模型。')
-          : _l('支持的附件格式：PNG、JPG、JPEG、PDF、Word、Excel'),
       },
       prompt: {
         title: _l('提示词'),
@@ -432,12 +497,12 @@ export default class Agent extends Component {
         <div className="Font13 bold mTop20 relative">
           {source.required && <REQUIRED_TEXT>*</REQUIRED_TEXT>}
           {source.title}
-          <Tooltip title={!md.global.Config.IsLocal && key === 'file' ? <PriceTip text={source.info} /> : source.info}>
-            <Icon className="Font16 Gray_9e mLeft5" icon="info" />
+          <Tooltip title={source.info}>
+            <Icon className="Font16 textTertiary mLeft5" icon="info" />
           </Tooltip>
         </div>
         <div className="Font13 flexRow" style={{ alignItems: 'end' }}>
-          {source.desc && <div className="Gray_75">{source.desc}</div>}
+          {source.desc && <div className="textSecondary">{source.desc}</div>}
           <div className="flex" />
           {key === 'prompt' && !md.global?.SysSettings?.hideAIBasicFun && (
             <AI_HELP_BTN
@@ -458,7 +523,7 @@ export default class Agent extends Component {
           )}
         </div>
         <CustomTextarea
-          className={cx({ minH100: key === 'prompt' })}
+          className={cx({ minH100: key === 'prompt', clearBorderBottomRadius: isFirstAgent || isAIActions })}
           projectId={this.props.companyId}
           processId={this.props.processId}
           relationId={this.props.relationId}
@@ -481,34 +546,27 @@ export default class Agent extends Component {
     const { flowInfo } = this.props;
     const { data } = this.state;
     const isChatBot = flowInfo.startAppType === APP_TYPE.CHATBOT;
-    const MORE_TOOLS = [
-      { text: _l('查询记录'), type: 3 },
-      { text: _l('新增记录'), type: 1 },
-      { text: _l('更新记录'), type: 2 },
-      { text: _l('汇总'), type: 4 },
-      { text: _l('发送站内通知%03028'), type: 7 },
-      { text: _l('发送邮件'), type: 8 },
-      { text: _l('调用封装业务流程'), type: 6 },
-      { text: _l('调用已集成 API'), type: 5 },
-    ].filter(
-      o =>
-        !_.includes(
-          data.tools.filter(o => _.includes([1, 2, 3, 4, 7, 8], o.type) && o.enabled).map(o => o.type),
-          o.type,
-        ),
-    );
+    const MORE_TOOLS = [3, 1, 2, 4, 7, 8, 6, 5]
+      .map(key => ({ text: AGENT_TOOLS[key].displayName, type: key }))
+      .filter(
+        o =>
+          !_.includes(
+            data.tools.filter(o => _.includes([1, 2, 3, 4, 7, 8], o.type) && o.enabled).map(o => o.type),
+            o.type,
+          ),
+      );
     const worksheetTools = data.tools.filter(o => _.includes([1, 2, 3, 4], o.type) && o.enabled);
     const otherTools = data.tools.filter(o => !_.includes([1, 2, 3, 4], o.type));
 
     return (
       <Fragment>
-        <div className="Font12 Gray_75 mTop20">
+        <div className="Font12 textSecondary mTop20">
           {_l('在下方配置AI Agent可以使用的工具。AI Agent将尝试调用工具完成任务')}
         </div>
         {!!worksheetTools.length && (
           <Fragment>
             <div className="flexRow alignItemsCenter mTop20">
-              <div className="bold Font12 Gray_75 flex">{_l('数据处理')}</div>
+              <div className="bold Font12 textSecondary flex">{_l('数据处理')}</div>
               {isChatBot && (
                 <Fragment>
                   <Checkbox
@@ -523,7 +581,7 @@ export default class Agent extends Component {
                       '取消勾选后，工具执行时将忽略用户数据权限，Agent 可访问并返回超出用户权限范围的数据，谨慎操作。',
                     )}
                   >
-                    <i className="Font14 icon-help Gray_9e mLeft5" />
+                    <i className="Font14 icon-help textTertiary mLeft5" />
                   </Tooltip>
                 </Fragment>
               )}
@@ -534,7 +592,7 @@ export default class Agent extends Component {
 
         {!!otherTools.length && (
           <Fragment>
-            <div className="bold Font12 Gray_75 mTop20">{_l('更多工具')}</div>
+            <div className="bold Font12 textSecondary mTop20">{_l('更多工具')}</div>
             {otherTools.map(item => this.renderToolsList(item))}
           </Fragment>
         )}
@@ -624,7 +682,7 @@ export default class Agent extends Component {
               overflow: { adjustX: true, adjustY: true },
             }}
           >
-            <span className="pointer Gray_9e ThemeHoverColor3">+ {_l('添加工具')}</span>
+            <span className="pointer textTertiary ThemeHoverColor3">+ {_l('添加工具')}</span>
           </Trigger>
         </div>
       </Fragment>
@@ -638,12 +696,6 @@ export default class Agent extends Component {
     const isChatBot = flowInfo.startAppType === APP_TYPE.CHATBOT;
     const tool = AGENT_TOOLS[item.type];
     const isDelete = _.includes([5, 6], item.type) && !item.configs[0]?.appName;
-    const DEFAULT_TOOLS_NAMES = {
-      1: _l('新增记录'),
-      2: _l('更新记录'),
-      3: _l('查询记录'),
-      4: _l('汇总'),
-    };
 
     return (
       <TOOLS_ITEM key={item.toolId}>
@@ -678,14 +730,14 @@ export default class Agent extends Component {
                         ? _l('API已删除')
                         : _l('封装业务流程已删除')
                       : _.includes([1, 2, 3, 4], item.type)
-                        ? DEFAULT_TOOLS_NAMES[item.type]
+                        ? AGENT_TOOLS[item.type].displayName
                         : item.name}
                   </div>
                 )}
 
                 {item.type === 4 && (
                   <Tooltip title={_l('对工作表数据进行分组统计汇总，帮助 Agent 在流程中自动完成统计分析与结果判断')}>
-                    <Icon className="Font14 Gray_9e mLeft5" icon="info" />
+                    <Icon className="Font14 textTertiary mLeft5" icon="info" />
                   </Tooltip>
                 )}
 
@@ -730,7 +782,7 @@ export default class Agent extends Component {
 
                 {!tool.range && !selectToolId && !isDelete && (
                   <i
-                    className="Font16 Gray_75 ThemeHoverColor3 pointer icon-edit mLeft10"
+                    className="Font16 textSecondary ThemeHoverColor3 pointer icon-edit mLeft10"
                     onClick={() => this.setState({ selectToolId: item.toolId })}
                   />
                 )}
@@ -738,9 +790,11 @@ export default class Agent extends Component {
                 <div className="flex" />
               </div>
 
-              {tool.range && <div className="Font12 Gray_75">{item.auto ? tool.autoRange : tool.specificRange}</div>}
-              {tool.desc && md.global.Config.IsPlatformLocal && (
-                <div className="Font12 Gray_75">
+              {tool.range && (
+                <div className="Font12 textSecondary">{item.auto ? tool.autoRange : tool.specificRange}</div>
+              )}
+              {item.type === 8 && window.platformENV.isPlatform && (
+                <div className="Font12 textSecondary">
                   <PriceTip text={_l('邮件费用自动从组织信用点中扣除')} />
                 </div>
               )}
@@ -748,7 +802,7 @@ export default class Agent extends Component {
 
             <div className="mLeft12">
               <i
-                className="Font16 pointer Gray_9e ThemeHoverColor3 icon-trash"
+                className="Font16 pointer textTertiary ThemeHoverColor3 icon-trash"
                 onClick={() => {
                   if (_.includes([1, 2, 3, 4], item.type)) {
                     this.updateTool(item.toolId, { enabled: !item.enabled });
@@ -763,7 +817,7 @@ export default class Agent extends Component {
           {isChatBot && !_.includes([3, 4], item.type) && !isDelete && (
             <div className="mTop3">
               <Checkbox
-                className="Gray_75"
+                className="textSecondary"
                 text={_l('调用前需用户确认')}
                 checked={item.requireUserConfirmation}
                 onClick={checked => this.updateTool(item.toolId, { requireUserConfirmation: !checked })}
@@ -781,7 +835,7 @@ export default class Agent extends Component {
 
                 {_.includes([3, 4], item.type) && (
                   <i
-                    className="Font16 pointer Gray_9e ThemeHoverColor3 icon-settings mLeft15"
+                    className="Font16 pointer textTertiary ThemeHoverColor3 icon-settings mLeft15"
                     onClick={() =>
                       worksheetFilter({
                         ...this.props,
@@ -802,7 +856,7 @@ export default class Agent extends Component {
                 )}
 
                 <i
-                  className="Font16 pointer Gray_9e ThemeHoverColor3 icon-closeelement-bg-circle mLeft15"
+                  className="Font16 pointer textTertiary ThemeHoverColor3 icon-closeelement-bg-circle mLeft15"
                   onClick={() =>
                     this.updateTool(item.toolId, {
                       configs: item.configs.filter(info => info.appId !== o.appId),
@@ -837,7 +891,7 @@ export default class Agent extends Component {
 
     return (
       <Fragment>
-        <div className="Font12 Gray_75 mTop20">
+        <div className="Font12 textSecondary mTop20">
           {_l(
             '结构化输出用于定义 Agent 在执行后返回的字段与格式。你可以添加多个参数并为每个参数编写说明，Agent 将根据说明尝试生成结果，供后续流程引用。参数输出结果依赖大模型的理解能力，复杂场景下建议增加校验或人工复核。',
           )}
@@ -849,7 +903,7 @@ export default class Agent extends Component {
   }
 
   render() {
-    const { data, hasInput } = this.state;
+    const { data } = this.state;
 
     if (_.isEmpty(data)) {
       return <LoadDiv className="mTop15" />;
@@ -869,11 +923,7 @@ export default class Agent extends Component {
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>
         </div>
-        <DetailFooter
-          {...this.props}
-          isCorrect={data.prompt.trim() && (!hasInput || data.input.trim())}
-          onSave={this.onSave}
-        />
+        <DetailFooter {...this.props} isCorrect={data.prompt.trim()} onSave={this.onSave} />
       </Fragment>
     );
   }

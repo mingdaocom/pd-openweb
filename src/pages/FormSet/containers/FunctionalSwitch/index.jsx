@@ -223,7 +223,7 @@ function FunctionalSwitch(props) {
                 let noStatistics = statisticsNum <= 0;
                 return (
                   <React.Fragment>
-                    <h6 className="Font13 mTop24 Gray Bold">{o.txt}</h6>
+                    <h6 className="Font13 mTop24 textPrimary Bold">{o.txt}</h6>
                     <ul className="mTop12">
                       {o.list
                         .filter(it => !hideList.includes(it))
@@ -273,7 +273,7 @@ function FunctionalSwitch(props) {
                                 {listConfigStr[oo]}
                                 {oo === 21 && (
                                   <span
-                                    className="Gray_9e InlineBlock overflow_ellipsis WordBreak TxtMiddle"
+                                    className="textTertiary InlineBlock overflow_ellipsis WordBreak TxtMiddle"
                                     style={{ maxWidth: 330 }}
                                     title={_l('批量操作中的导出功能需额外设置')}
                                   >
@@ -282,18 +282,18 @@ function FunctionalSwitch(props) {
                                 )}
                                 {/* 批量操作显示数量 */}
                                 {[25].includes(oo) && !noBatch && (
-                                  <span className="mLeft5 Gray_9e">
+                                  <span className="mLeft5 textTertiary">
                                     {batchNum}/{batch.length}
                                   </span>
                                 )}
                                 {[statisticsConst].includes(oo) && !noStatistics && (
-                                  <span className="mLeft5 Gray_9e">
+                                  <span className="mLeft5 textTertiary">
                                     {statisticsNum}/{statistics.length}
                                   </span>
                                 )}
                                 {helpList.includes(oo) && (
                                   <Tooltip placement="bottom" title={tipStr[oo]}>
-                                    <Icon icon="help" className="Font14 Gray_9e mLeft4" />
+                                    <Icon icon="help" className="Font14 textTertiary mLeft4" />
                                   </Tooltip>
                                 )}
                                 {o.roleType === 100 && o.state && (
@@ -325,11 +325,11 @@ function FunctionalSwitch(props) {
                                 )}
                                 {/* 作用范围 */}
                                 {hasRangeList.includes(oo) && o.state && (
-                                  <Icon icon="navigate_next" className="Gray_c Right Hand Font20" />
+                                  <Icon icon="navigate_next" className="textPlaceholder Right Hand Font20" />
                                 )}
                                 {/* 25没有范围的操作 */}
                                 {o.state && !noRangeList.includes(oo) && (
-                                  <span className="Gray_bd Right text">
+                                  <span className="textDisabled Right text">
                                     {worksheetSwitch.includes(oo)
                                       ? o.roleType === 100
                                         ? _l('仅系统角色')
@@ -391,7 +391,7 @@ function FunctionalSwitch(props) {
             )}
             {!closeAutoID && (
               <React.Fragment>
-                <h6 className="Font13 mTop24 Gray Bold">{_l('其他')}</h6>
+                <h6 className="Font13 mTop24 textPrimary Bold">{_l('其他')}</h6>
                 <div className="">
                   <ul className="mTop12">
                     <li className="autoId pRight16">
@@ -407,7 +407,7 @@ function FunctionalSwitch(props) {
                             </span>
                           }
                         >
-                          <Icon icon="help" className="Font14 Gray_9e mLeft4" />
+                          <Icon icon="help" className="Font14 textTertiary mLeft4" />
                         </Tooltip>
                       </div>
                       <span

@@ -11,8 +11,8 @@ const Wrap = styled.div`
     resize: none;
     width: 432px;
     height: 360px;
-    background: #ffffff;
-    border: 1px solid #1677ff;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-primary);
     border-radius: 5px;
   }
 `;
@@ -38,7 +38,7 @@ function SearchTelsDialog(props) {
       }}
     >
       <Wrap>
-        <p className="Gray_9e pAll0 mBottom10">{_l('通过手机号批量搜索用户，每个手机号占一行')}</p>
+        <p className="textTertiary pAll0 mBottom10">{_l('通过手机号批量搜索用户，每个手机号占一行')}</p>
         <textarea onChange={e => onChange(e.target.value)} value={tels} />
       </Wrap>
     </Dialog>

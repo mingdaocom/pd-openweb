@@ -34,12 +34,12 @@ const Flex = styled.div`
 const EmbedAddRecord = styled.div`
   cursor: pointer;
   i {
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   &:hover {
-    color: #1677ff;
+    color: var(--color-primary);
     i {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
@@ -94,7 +94,7 @@ export default function Header(props) {
         {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && allowAdd && (
           <Icon
             icon="plus"
-            className="addRecord Font20 Gray_9e"
+            className="addRecord Font20 textTertiary"
             onClick={() => {
               const { appId, worksheetId } = worksheetInfo;
               const { viewId } = view;
@@ -136,7 +136,7 @@ export default function Header(props) {
           }}
         >
           <Tooltip placement="bottom" title={_l('查找')}>
-            <Icon icon="search" className="Gray_9e Font22 pointer ThemeHoverColor3 mTop2 mRight15" />
+            <Icon icon="search" className="textTertiary Font22 pointer ThemeHoverColor3 mTop2 mRight15" />
           </Tooltip>
         </SearchRecord>
       ) : (
@@ -153,7 +153,7 @@ export default function Header(props) {
       <Tooltip placement="bottom" title={_l('刷新')}>
         <Icon
           icon="task-later"
-          className="Gray_9e Font20 pointer mLeft2 mRight2"
+          className="textTertiary Font20 pointer mLeft2 mRight2"
           onClick={() => {
             refreshSheet(view, { isRefreshBtn: true });
           }}

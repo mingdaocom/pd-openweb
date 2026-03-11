@@ -38,7 +38,7 @@ export default function SelectProject(props) {
           text: (
             <Fragment key={item.projectId}>
               <span className="flex Bold ellipsis">{item.companyName}</span>
-              <div className={cx('Font12 mLeft10 Gray_9e Normal', { trial: isTrial, free: isFree })}>
+              <div className={cx('Font12 mLeft10 textTertiary Normal', { trial: isTrial, free: isFree })}>
                 {isFree ? _l('免费版') : isTrial ? _l('试用') : _.get(item, 'version.name')}
               </div>
             </Fragment>
@@ -70,8 +70,8 @@ export default function SelectProject(props) {
     <div className="flexRow valignWrapper pLeft16 pRight16 pTop10 pBottom10" onClick={handleSelectProject}>
       <div className="Font17 bold ellipsis">{currentProject.companyName}</div>
       <div className="flexColumn valignWrapper mLeft10">
-        <Icon className="Gray_9e Font14" icon="expand_less" style={{ lineHeight: '10px' }} />
-        <Icon className="Gray_9e Font14" icon="expand_more" style={{ lineHeight: '10px' }} />
+        <Icon className="textTertiary Font14" icon="expand_less" style={{ lineHeight: '10px' }} />
+        <Icon className="textTertiary Font14" icon="expand_more" style={{ lineHeight: '10px' }} />
       </div>
     </div>
   );

@@ -5,17 +5,51 @@ import { useClickAway } from 'react-use';
 import { find, findIndex, get, includes, isArray, isEmpty, isEqual, uniq, uniqBy } from 'lodash';
 import _ from 'lodash';
 import { arrayOf, bool, func, number, shape } from 'prop-types';
+import styled from 'styled-components';
 import { getSheetViewRows, getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
+import RowHeadColumn from 'worksheet/components/BaseColumnHead/RowHeadColumn';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
 import { RECORD_INFO_FROM, ROW_HEIGHT, WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import { emitter } from 'src/utils/common';
 import { addBehaviorLog } from 'src/utils/project';
+import { getRecordColorConfig } from 'src/utils/record';
 import * as actions from './redux/action';
 import ColumnHead from './RelateRecordTableColumnHead';
 import RowHead from './RelateRecordTableRowHead';
 import { getVisibleControls } from './utils';
+
+const ColumnPopupOperateCon = styled.div`
+  border-radius: 4px;
+  border: 1px solid var(--color-border-primary);
+  background-color: #fff;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  visibility: hidden;
+  .iconButton {
+    line-height: 26px;
+    cursor: pointer;
+    padding: 0 8px;
+    .icon {
+      font-size: 18px;
+      color: #9e9e9e;
+      cursor: pointer;
+      top: 2px;
+      position: relative;
+      &.delete {
+        color: var(--color-error);
+      }
+    }
+    &:hover {
+      background-color: #f8f8f8;
+    }
+  }
+`;
 
 function getCellWidths(control, controls) {
   let widths = [];
@@ -69,6 +103,7 @@ function getPageRecords({ records = [], pageSize = PAGE_SIZE, pageIndex = 1, isT
 
 function TableComp(props) {
   const {
+    view,
     iseditting,
     tableId,
     cache,
@@ -103,6 +138,7 @@ function TableComp(props) {
   const {
     isTab,
     from,
+    direction,
     initialCount,
     isTreeTableView,
     treeLayerControlId,
@@ -187,7 +223,7 @@ function TableComp(props) {
             type: 'text',
             value: _l('%0条记录已隐藏', initialCount - count),
             style: {
-              color: '#9e9e9e',
+              color: 'var(--color-text-tertiary)',
             },
           },
         });
@@ -206,13 +242,122 @@ function TableComp(props) {
   if (recordId && base.saveSync && rowCount > pageSize && !isTreeTableView) {
     rowCount = pageSize;
   }
+  const renderRowHead = ({ className, style, rowIndex, row, isColumnPopup = false }) => {
+    const isSavedRecord = !!find(originalRecords, { rowid: row.rowid });
+    const canRemoveRelation = allowRemoveRelation || !isSavedRecord;
+    return (
+      <RowHead
+        tableId={tableId}
+        isColumnPopup={isColumnPopup}
+        showNumber={showNumber && !isTreeTableView}
+        tableType={tableConfig.tableType}
+        isBatchEditing={isBatchEditing}
+        showQuickFromSetting={showQuickFromSetting}
+        selected={includes(selectedRowIds, row.rowid)}
+        allIsSelected={allIsSelected}
+        relateRecordControlId={control.controlId}
+        allowOpenRecord={allowOpenRecord}
+        className={className}
+        style={style}
+        rowIndex={rowIndex}
+        row={row}
+        layoutChangeVisible={isCharge && layoutChanged}
+        allowRemoveRelation={canRemoveRelation}
+        tableControls={controls}
+        sheetSwitchPermit={sheetSwitchPermit}
+        appId={relateWorksheetInfo.appId}
+        viewId={control.viewId}
+        worksheetId={relateWorksheetInfo.worksheetId}
+        relateRecordControlPermission={controlPermission}
+        allowAdd={addVisible}
+        allowDelete={allowDeleteFromSetting}
+        allowEdit={allowEdit && control.type !== 51 && !control.disabled}
+        pageIndex={pageIndex}
+        pageSize={pageSize}
+        recordId={recordId}
+        projectId={relateWorksheetInfo.projectId}
+        deleteRelateRow={handleRemoveRelation}
+        isDraft={isDraft}
+        from={from}
+        removeRecords={rows => {
+          deleteRecords(rows.map(r => r.rowid));
+        }}
+        openRecord={id => handleOpenRecordInfo({ recordId: id })}
+        addRecord={(record, afterRecordId) => {
+          updateTableState({
+            highlightRows: { [record.rowid]: true },
+          });
+          appendRecords([{ ...record, pid: row.pid }], { afterRecordId });
+        }}
+        saveSheetLayout={() => {
+          handleSaveSheetLayout({ updateWorksheetControls, columns, columnWidthsOfSetting });
+        }}
+        resetSheetLayout={() => {
+          updateTableState({
+            layoutChanged: false,
+            sheetHiddenColumnIds: [],
+            sortControl: undefined,
+            fixedColumnCount: 0,
+            sheetColumnWidths: {},
+          });
+        }}
+        onRecreate={() => {
+          handleRecreateRecord(row, {
+            openRecord: id => handleOpenRecordInfo({ recordId: id }),
+            isDraft,
+          });
+        }}
+        updateRows={newRow => {
+          updateRecord(newRow);
+        }}
+        onSelect={({ action } = {}) => {
+          let isSelect, selectRowIndex, selectedRecords;
+          switch (action) {
+            case 'toggleSelectRow':
+              selectRowIndex = findIndex(records, { rowid: row.rowid });
+              isSelect = !includes(selectedRowIds, row.rowid);
+              if (isSelect && cache.current.shiftActive && typeof cache.current.lastSelectRowIndex !== 'undefined') {
+                selectedRecords = records.slice(
+                  Math.min(cache.current.lastSelectRowIndex, selectRowIndex),
+                  Math.max(cache.current.lastSelectRowIndex, selectRowIndex) + 1,
+                );
+                updateTableState({
+                  selectedRowIds: uniq(selectedRowIds.concat(selectedRecords.map(r => r.rowid))),
+                });
+              } else {
+                updateTableState({
+                  selectedRowIds: isSelect
+                    ? selectedRowIds.concat(row.rowid)
+                    : selectedRowIds.filter(rowid => rowid !== row.rowid),
+                });
+              }
+              if (selectRowIndex >= 0) {
+                cache.current.lastSelectRowIndex = selectRowIndex;
+              }
+              break;
+            case 'selectAll':
+              updateTableState({
+                selectedRowIds: (recordId && !base.saveSync
+                  ? getPageRecords({ records, pageIndex, pageSize, isTreeTableView })
+                  : records
+                ).map(r => r.rowid),
+              });
+              break;
+            case 'clearSelectAll':
+              updateTableState({ selectedRowIds: [] });
+              break;
+          }
+        }}
+      />
+    );
+  };
   useClickAway({ current: get(worksheetTableRef, 'current.con') }, e => {
     if (window.activeTableId === tableId && !e.target.closest(`.sheetViewTable.id-${tableId}-id`)) {
       window.activeTableId = undefined;
     }
   });
   if (isEmpty(columns)) {
-    return <div className="TxtCenter Gray_9e mAll30">{_l('没有可见字段')}</div>;
+    return <div className="TxtCenter textTertiary mAll30">{_l('没有可见字段')}</div>;
   }
   return (
     <WorksheetTable
@@ -227,6 +372,8 @@ function TableComp(props) {
       isRelateRecordList
       wrapControlName={get(control, 'advancedSetting.titlewrap') === '1'}
       headTitleCenter={get(control, 'advancedSetting.rctitlestyle') === '1'}
+      direction={direction}
+      recordColorConfig={view ? getRecordColorConfig(view) : undefined}
       disablePanVertical
       {...tableConfig}
       ref={worksheetTableRef}
@@ -273,119 +420,12 @@ function TableComp(props) {
       columns={columns}
       sheetColumnWidths={{ ...columnWidthsOfSetting, ...sheetColumnWidths }}
       sheetViewHighlightRows={highlightRows}
-      renderRowHead={({ className, style, rowIndex, row }) => {
-        const isSavedRecord = !!find(originalRecords, { rowid: row.rowid });
-        const canRemoveRelation = allowRemoveRelation || !isSavedRecord;
-        return (
-          <RowHead
-            showNumber={showNumber && !isTreeTableView}
-            tableType={tableConfig.tableType}
-            isBatchEditing={isBatchEditing}
-            showQuickFromSetting={showQuickFromSetting}
-            selected={includes(selectedRowIds, row.rowid)}
-            allIsSelected={allIsSelected}
-            relateRecordControlId={control.controlId}
-            allowOpenRecord={allowOpenRecord}
-            className={className}
-            style={style}
-            rowIndex={rowIndex}
-            row={row}
-            layoutChangeVisible={isCharge && layoutChanged}
-            allowRemoveRelation={canRemoveRelation}
-            tableControls={controls}
-            sheetSwitchPermit={sheetSwitchPermit}
-            appId={relateWorksheetInfo.appId}
-            viewId={control.viewId}
-            worksheetId={relateWorksheetInfo.worksheetId}
-            relateRecordControlPermission={controlPermission}
-            allowAdd={addVisible}
-            allowDelete={allowDeleteFromSetting}
-            allowEdit={allowEdit && control.type !== 51 && !control.disabled}
-            pageIndex={pageIndex}
-            pageSize={pageSize}
-            recordId={recordId}
-            projectId={relateWorksheetInfo.projectId}
-            deleteRelateRow={handleRemoveRelation}
-            isDraft={isDraft}
-            from={from}
-            removeRecords={rows => {
-              deleteRecords(rows.map(r => r.rowid));
-            }}
-            openRecord={id => handleOpenRecordInfo({ recordId: id })}
-            addRecord={(record, afterRecordId) => {
-              updateTableState({
-                highlightRows: { [record.rowid]: true },
-              });
-              appendRecords([{ ...record, pid: row.pid }], { afterRecordId });
-            }}
-            saveSheetLayout={() => {
-              handleSaveSheetLayout({ updateWorksheetControls, columns, columnWidthsOfSetting });
-            }}
-            resetSheetLayout={() => {
-              updateTableState({
-                layoutChanged: false,
-                sheetHiddenColumnIds: [],
-                sortControl: undefined,
-                fixedColumnCount: 0,
-                sheetColumnWidths: {},
-              });
-            }}
-            onRecreate={() => {
-              handleRecreateRecord(row, {
-                openRecord: id => handleOpenRecordInfo({ recordId: id }),
-                isDraft,
-              });
-            }}
-            updateRows={newRow => {
-              updateRecord(newRow);
-            }}
-            onSelect={({ action } = {}) => {
-              let isSelect, selectRowIndex, selectedRecords;
-              switch (action) {
-                case 'toggleSelectRow':
-                  selectRowIndex = findIndex(records, { rowid: row.rowid });
-                  isSelect = !includes(selectedRowIds, row.rowid);
-                  if (
-                    isSelect &&
-                    cache.current.shiftActive &&
-                    typeof cache.current.lastSelectRowIndex !== 'undefined'
-                  ) {
-                    selectedRecords = records.slice(
-                      Math.min(cache.current.lastSelectRowIndex, selectRowIndex),
-                      Math.max(cache.current.lastSelectRowIndex, selectRowIndex) + 1,
-                    );
-                    updateTableState({
-                      selectedRowIds: uniq(selectedRowIds.concat(selectedRecords.map(r => r.rowid))),
-                    });
-                  } else {
-                    updateTableState({
-                      selectedRowIds: isSelect
-                        ? selectedRowIds.concat(row.rowid)
-                        : selectedRowIds.filter(rowid => rowid !== row.rowid),
-                    });
-                  }
-                  if (selectRowIndex >= 0) {
-                    cache.current.lastSelectRowIndex = selectRowIndex;
-                  }
-                  break;
-                case 'selectAll':
-                  updateTableState({
-                    selectedRowIds: (recordId && !base.saveSync
-                      ? getPageRecords({ records, pageIndex, pageSize, isTreeTableView })
-                      : records
-                    ).map(r => r.rowid),
-                  });
-                  break;
-                case 'clearSelectAll':
-                  updateTableState({ selectedRowIds: [] });
-                  break;
-              }
-            }}
-          />
-        );
-      }}
+      renderRowHead={renderRowHead}
       renderColumnHead={({ ...rest }) => {
         const { control } = rest;
+        if (direction === 'vertical') {
+          return <RowHeadColumn columnIndex={rest.rowIndex} control={control} showNumber={showNumber} {...rest} />;
+        }
         return (
           <ColumnHead
             {...rest}
@@ -498,6 +538,33 @@ function TableComp(props) {
             },
           });
         },
+      }}
+      renderCompInMainCenter={() => {
+        return (
+          <ColumnPopupOperateCon>
+            <span className="iconButton">
+              <i className="icon icon-worksheet_enlarge"></i>
+            </span>
+          </ColumnPopupOperateCon>
+        );
+      }}
+      cellProps={{
+        renderColumnPopupContent: args =>
+          renderRowHead({
+            ...args,
+            isColumnPopup: true,
+          }),
+      }}
+      onHoverColumnChange={columnIndex => {
+        console.log('onHoverColumnChange', columnIndex);
+        if (typeof columnIndex === 'undefined') {
+          emitter.emit('TRIGGER_CELL_POPUP_OPERATE_VISIBLE_' + tableId, { visible: false });
+        } else {
+          emitter.emit('TRIGGER_CELL_POPUP_OPERATE_VISIBLE_' + tableId, {
+            newHoverColumnIndex: columnIndex,
+            visible: true,
+          });
+        }
       }}
     />
   );

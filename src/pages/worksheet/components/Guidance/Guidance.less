@@ -5,7 +5,7 @@
   bottom: 24px;
   padding: 24px;
   border-radius: 8px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow: 0px 10px 20px 0px rgba(0, 0, 0, 0.16);
 
   .guideImg {
@@ -40,7 +40,7 @@
   .skip,
   .lastStep {
     &:hover {
-      color: #126cfc !important;
+      color: var(--color-link-hover) !important;
     }
   }
   .continue {
@@ -48,9 +48,9 @@
     line-height: 32px;
     min-height: 32px;
     border-radius: 16px;
-    background-color: #126cfc;
+    background-color: var(--color-link-hover);
     &:hover {
-      background-color: #126cfccc;
+      background-color: var(--color-link-hover) cc;
     }
   }
 }
@@ -59,7 +59,7 @@
   position: absolute;
   z-index: 20;
   border-radius: 20px;
-  border: 5px solid #126cfcff;
+  border: 5px solid var(--color-link-hover) ff;
   pointer-events: none;
   animation-name: scaleAnimate;
   animation-timing-function: cubic-bezier(0.16, 0.32, 0.62, 0.79);
@@ -98,12 +98,12 @@
   position: absolute;
   z-index: 20;
   width: max-content;
-  color: #fff;
+  color: var(--color-white);
   font-weight: 600;
   padding: 9px 14px;
   margin-top: 5px;
   border-radius: 0 16px 16px;
-  background-color: #126cfcff;
+  background-color: var(--color-link-hover) ff;
   box-shadow: 0px 3px 8px 0px rgba(0, 0, 0, 0.16);
   animation-name: translateXAnimate;
   animation-timing-function: cubic-bezier(0.16, 0.32, 0.62, 0.79);

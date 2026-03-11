@@ -41,7 +41,7 @@ const SettingModelWrap = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     line-height: 34px;
     padding: 0 12px;
     border-radius: 3px;
@@ -49,7 +49,7 @@ const SettingModelWrap = styled.div`
   .globalDetail {
     width: 100%;
     min-height: 36px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     line-height: 1.5;
     padding: 8px 12px;
   }
@@ -98,7 +98,7 @@ export default function SubListSetting(props) {
     if (dataSource && !dataSource.includes('-')) {
       window.clearLocalDataTime({
         requestData: { worksheetId: dataSource },
-        clearSpecificKey: 'Worksheet_GetWorksheetInfo',
+        clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetBaseInfo'],
       });
     }
   };
@@ -229,7 +229,12 @@ export default function SubListSetting(props) {
 
         // 子表工作表查询
         getQueryConfigs(res);
-        onChange(nextData);
+        onChange({
+          ...handleAdvancedSettingChange(data, {
+            controlssorts: JSON.stringify(nextData.showControls),
+          }),
+          ...nextData,
+        });
       })
       .finally(() => {
         setLoading(false);
@@ -253,7 +258,7 @@ export default function SubListSetting(props) {
           <div className="settingItemTitle">
             {_l('字段')}
             <Tooltip title={_l('最多添加100个字段')}>
-              <span className="mLeft12 Font12 Gray_9e">{_l('%0/100', filterSysRelate.length)}</span>
+              <span className="mLeft12 Font12 textTertiary">{_l('%0/100', filterSysRelate.length)}</span>
             </Tooltip>
           </div>
           {dataSource ? (
@@ -315,7 +320,7 @@ export default function SubListSetting(props) {
 
     if (isGlobal) {
       if (!textControls.length) {
-        return <span className="Gray_9e">{_l('未设置')}</span>;
+        return <span className="textTertiary">{_l('未设置')}</span>;
       } else {
         return <span className="breakAll">{textArr}</span>;
       }
@@ -324,7 +329,7 @@ export default function SubListSetting(props) {
     return (
       <div className="Dropdown--input Dropdown--border Hand">
         <span className="breakAll">{textArr}</span>
-        <div className="ming Icon icon icon-arrow-down-border mLeft8 Gray_9e" />
+        <div className="ming Icon icon icon-arrow-down-border mLeft8 textTertiary" />
       </div>
     );
   };
@@ -365,7 +370,7 @@ export default function SubListSetting(props) {
                 '以下字段在关联表中设为不允许重复。除了在本记录中不能重复输入外，也不能与关联表中的所有数据重复。',
               )}
             >
-              <i className="icon-help tipsIcon Gray_9e Font16 pointer" />
+              <i className="icon-help tipsIcon textTertiary Font16 pointer" />
             </Tooltip>
           </div>
           <div className="globalDetail">{renderUniqText(true)}</div>
@@ -375,7 +380,7 @@ export default function SubListSetting(props) {
         <div className="settingItemTitle Normal">
           {_l('本记录内不允许重复输入')}
           <Tooltip placement="bottom" title={_l('以下字段不允许在当前主记录内重复输入')}>
-            <i className="icon-help tipsIcon Gray_9e Font16 pointer" />
+            <i className="icon-help tipsIcon textTertiary Font16 pointer" />
           </Tooltip>
         </div>
         {renderUniqControls()}
@@ -385,7 +390,7 @@ export default function SubListSetting(props) {
         <SettingItem>
           <div className="settingItemTitle">{_l('排序')}</div>
           <EditInfo className="pointer subListSortInput" onClick={() => setConfig({ sortVisible: true })}>
-            <div className="overflow_ellipsis Gray">
+            <div className="overflow_ellipsis textPrimary">
               {sorts.length > 0
                 ? sorts.reduce((p, item) => {
                     const sortsRelationControls = relationControls

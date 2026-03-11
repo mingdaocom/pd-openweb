@@ -37,7 +37,7 @@ const CallBackRefresh = props => {
     return (
       <AddTagWrap>
         <div className="valignWrapper pLeft10 pRight10">
-          <Icon className="Gray_9e Font20" icon="search" />
+          <Icon className="textTertiary Font20" icon="search" />
           <Input
             autoFocus
             value={search}
@@ -96,7 +96,7 @@ const CallBackRefresh = props => {
     const name = _.get(object, 'name');
     return (
       <div key={item.objectId} className={cx('tag valignWrapper', { warning: !object })}>
-        <Icon className="Gray_75 Font17" icon={item.type === 1 ? 'worksheet_column_chart' : 'view_eye'} />
+        <Icon className="textSecondary Font17" icon={item.type === 1 ? 'worksheet_column_chart' : 'view_eye'} />
         {object ? (
           <Fragment>
             <span className="Font13 mLeft5 mRight5 ellipsis" title={name}>
@@ -107,7 +107,7 @@ const CallBackRefresh = props => {
           <span className="Font13 Red mLeft5 mRight5">{_l('该刷新对象已删除')}</span>
         )}
         <Icon
-          className="Gray_9e Font16 pointer"
+          className="textTertiary Font16 pointer"
           icon="close"
           onClick={() => {
             removeFilterObject(item.objectId);

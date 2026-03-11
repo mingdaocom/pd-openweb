@@ -10,9 +10,9 @@ import defaultProfile from './assets/profile.png';
 const Wrap = styled.div`
   width: 360px;
   padding: 17px;
-  border-left: 1px solid #e0e0e0;
+  border-left: 1px solid var(--color-border-secondary);
   .title {
-    color: var(--title-color);
+    color: var(--color-text-primary);
   }
   .editContent {
     overflow-y: auto;
@@ -22,27 +22,27 @@ const Wrap = styled.div`
   }
   .subTitle {
     font-size: 12px;
-    color: var(--sub-title-color);
+    color: var(--color-text-tertiary);
   }
   input,
   textarea {
     font-size: 13px !important;
-    color: var(--title-color);
-    background-color: var(--input-bg-color);
+    color: var(--color-text-primary);
+    background-color: var(--color-background-primary);
   }
   textarea {
     &:hover:not(:focus) {
-      border-color: #bbb !important;
+      border-color: var(--color-text-disabled) !important;
     }
     &:focus {
-      border-color: #1e88e5 !important;
+      border-color: var(--color-primary) !important;
     }
   }
   .avatar {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     position: relative;
     .avatarHover,
     img {
@@ -54,7 +54,7 @@ const Wrap = styled.div`
       display: flex;
     }
     .avatarHover {
-      color: #fff;
+      color: var(--color-white);
       position: absolute;
       top: 0;
       left: 0;
@@ -65,10 +65,10 @@ const Wrap = styled.div`
   .divider {
     width: 100%;
     height: 1px;
-    background: #ddd;
+    background: var(--color-border-primary);
   }
   .settingFlow {
-    color: #fff;
+    color: var(--color-white);
     min-height: 40px;
     border-radius: 4px;
     justify-content: center;
@@ -90,8 +90,9 @@ const Edit = props => {
     3: _l('查询记录'),
     4: _l('汇总'),
   };
-  const allowUploadImage = chatbotConfig.uploadPermission.split('')[0] === '1';
-  const allowUploadOffice = chatbotConfig.uploadPermission.split('')[1] === '1';
+  const uploadPermission = _.get(chatbotConfig, 'uploadPermission') || '00';
+  const allowUploadImage = uploadPermission.split('')[0] === '1';
+  const allowUploadOffice = uploadPermission.split('')[1] === '1';
 
   const handleSave = param => {
     processApi
@@ -118,7 +119,7 @@ const Edit = props => {
     <Wrap className="flexColumn">
       <div className="header flexRow alignItemsCenter mBottom20">
         <div className="title Font17 bold flex">{_l('编辑对话机器人')}</div>
-        <Icon icon="close" className="Gray_75 pointer Font20" onClick={onClose} />
+        <Icon icon="close" className="textSecondary pointer Font20" onClick={onClose} />
       </div>
       <div className="flex editContent">
         <div className="mBottom20">
@@ -229,7 +230,7 @@ const Edit = props => {
               size="small"
               checked={allowUploadImage}
               onClick={() => {
-                const res = chatbotConfig.uploadPermission
+                const res = uploadPermission
                   .split('')
                   .map((item, index) => (index === 0 ? (allowUploadImage ? '0' : '1') : item))
                   .join('');
@@ -245,7 +246,7 @@ const Edit = props => {
               size="small"
               checked={allowUploadOffice}
               onClick={() => {
-                const res = chatbotConfig.uploadPermission
+                const res = uploadPermission
                   .split('')
                   .map((item, index) => (index === 1 ? (allowUploadOffice ? '0' : '1') : item))
                   .join('');
@@ -278,12 +279,12 @@ const Edit = props => {
                 {chatbotConfig.agentNodes.length > 1 && <div className="title mBottom6 bold">{node.name}</div>}
                 {node.toolNodes.map(tool => (
                   <div key={tool.toolId} className="flexRow alignItemsCenter mBottom5">
-                    <i className={cx(AGENT_TOOLS[tool.type].icon, 'Gray_9e Font16')} />
+                    <i className={cx(AGENT_TOOLS[tool.type].icon, 'textTertiary Font16')} />
                     <div className="flex mLeft5">
                       <span className="mRight3">
                         {_.includes([1, 2, 3, 4], tool.type) ? DEFAULT_TOOLS_NAMES[tool.type] : tool.name}
                       </span>
-                      <span className="Gray_9e">
+                      <span className="textTertiary">
                         ({tool.apps.length ? tool.apps.map(app => app.name).join('、') : _l('全部')})
                       </span>
                     </div>

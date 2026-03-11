@@ -14,7 +14,7 @@ const Tabs = styled.div`
   height: 36px;
   padding: 4px;
   border-radius: 6px;
-  background-color: #eaeaea;
+  background-color: var(--color-border-secondary);
   box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.16);
 `;
 const Tab = styled.div`
@@ -26,11 +26,11 @@ const Tab = styled.div`
   line-height: 28px;
   text-align: center;
   font-size: 13px;
-  color: #757575;
+  color: var(--color-text-secondary);
   border-radius: 6px;
   &.active {
-    color: #151515;
-    background: #fff;
+    color: var(--color-text-title);
+    background: var(--color-background-primary);
   }
 `;
 const Search = styled.div`
@@ -51,7 +51,7 @@ const Search = styled.div`
 `;
 const Icon = styled.i`
   font-size: 20px;
-  color: #9d9d9d;
+  color: var(--color-text-tertiary);
 `;
 const Content = styled.div`
   flex: 1;

@@ -55,6 +55,7 @@ export const ACTION_ID = {
   CREATE_FILE: '4',
   CREATE_RECORD: '5',
   REFRESH_SINGLE_DATA: '6',
+  REFUND: '7',
   RELATION: '20',
   NUMBER_FORMULA: '100',
   DATE_FORMULA: '101',
@@ -142,6 +143,8 @@ export const APP_TYPE = {
   PLUGIN: 47,
   AGENT: 48,
   CHATBOT: 49,
+  INVOICE: 50,
+  REFUND: 51,
   SYSTEM: 100,
   VARIABLE: 101,
   PROCESS: 102,
@@ -180,6 +183,7 @@ export const OPERATION_TYPE = {
   ADD: 16,
   RETURN: 17,
   URGE: 18,
+  TASK_REVOKE: 19,
   BEFORE: 101,
   EMAIL: 102,
   GET_OPERATION: 103,
@@ -245,6 +249,7 @@ export const CONTROLS_NAME = {
   10000002: _l('人员'),
   10000003: _l('数组'),
   10000004: _l('Row ID'),
+  10000006: _l('对象'),
   10000007: _l('普通数组'),
   10000008: _l('对象数组'),
 };
@@ -476,7 +481,12 @@ export const SUPPORT_HREF = {
 
 export const RELATION_TYPE = {
   NETWORK: 0,
+  GOODS: 1,
   APP: 2,
+  PERSON: 3,
+  API_PKG: 4,
+  API: 5,
+  PLUGIN: 6,
 };
 
 export const CUSTOM_ACTION_TEXT = {
@@ -606,7 +616,7 @@ export const FORMAT_TEXT = {
   3: 'YYYY-MM-DD',
   4: 'YYYY-MM',
   5: 'YYYY',
-  6: 'YYYY-MM-DD HH:mm',
+  6: 'YYYY-MM-DD HH:mm:ss',
 };
 
 export const DATE_SHOW_TYPES = [
@@ -664,47 +674,54 @@ export const LANGUAGE_BCP47 = [
 export const AGENT_TOOLS = {
   1: {
     icon: 'icon-playlist_add',
+    name: 'create_record',
+    displayName: _l('新增记录'),
     range: true,
     autoRange: _l('为本应用工作表新增记录'),
     specificRange: _l('指定以下工作表新增记录'),
-    name: 'create_record',
   },
   2: {
     icon: 'icon-workflow_update',
+    name: 'update_record',
+    displayName: _l('更新记录'),
     range: true,
     autoRange: _l('为本应用工作表更新记录'),
     specificRange: _l('指定以下工作表更新记录'),
-    name: 'update_record',
   },
   3: {
     icon: 'icon-search',
+    name: 'get_record_list',
+    displayName: _l('查询记录'),
     range: true,
     autoRange: _l('查询本应用所有工作表'),
     specificRange: _l('查询以下指定工作表'),
-    name: 'get_record_list',
   },
   4: {
     icon: 'icon-task_functions',
+    name: 'get_record_pivot_data',
+    displayName: _l('汇总'),
     range: true,
     autoRange: _l('获取本应用工作表汇总数据'),
     specificRange: _l('指定以下工作表汇总数据'),
-    name: 'get_record_pivot_data',
   },
   5: {
     icon: 'icon-api',
     name: 'wf_api_',
+    displayName: _l('调用已集成 API'),
   },
   6: {
     icon: 'icon-pbc',
     name: 'wf_pbp_',
+    displayName: _l('调用封装业务流程'),
   },
   7: {
     icon: 'icon-notifications',
     name: 'wf_send_',
+    displayName: _l('发送站内通知%03028'),
   },
   8: {
     icon: 'icon-workflow_email',
-    desc: true,
     name: 'wf_email_',
+    displayName: _l('发送邮件'),
   },
 };

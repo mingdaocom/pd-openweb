@@ -22,12 +22,12 @@ const PathWrapper = styled.div`
   left: 45%;
   z-index: 2;
   border-radius: 4px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   .item {
-    color: #1677ff;
+    color: var(--color-primary);
     cursor: pointer;
     &:last-child {
-      color: #000;
+      color: var(--color-text-primary);
       cursor: inherit;
     }
   }
@@ -37,13 +37,13 @@ const ZoomWrapper = styled.div`
   width: 40px;
   height: 90px;
   border-radius: 4px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   position: absolute;
   bottom: 10px;
   right: 10px;
   z-index: 10;
   .icon:hover {
-    color: #1677ff !important;
+    color: var(--color-primary) !important;
   }
 `;
 
@@ -443,7 +443,7 @@ export class CountryLayer extends Component {
     const { country, displaySetup, map, yaxisList, summary, locationMap = {} } = reportData;
     const { colorRules } = displaySetup;
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light' } = customPageConfig;
-    const isDark = pageStyleType === 'dark' && isThumbnail;
+    const isDark = window.themeMode === 'dark' || (pageStyleType === 'dark' && isThumbnail);
     const styleConfig = reportData.style || {};
     const style =
       chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
@@ -528,7 +528,7 @@ export class CountryLayer extends Component {
       legend: false,
     };
 
-    if (md.global.Config.IsLocal) {
+    if (window.platformENV.isOverseas || window.platformENV.isLocal) {
       config.geoArea = {
         url: location.origin + '/staticfiles/choroplethData',
         type: 'topojson',
@@ -644,7 +644,7 @@ export class CountryLayer extends Component {
           {this.isLinkageData && _.isEmpty(path) && (
             <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
               <div className="flexRow valignWrapper">
-                <Icon icon="link1" className="mRight8 Gray_9e Font20 autoLinkageIcon" />
+                <Icon icon="link1" className="mRight8 textTertiary Font20 autoLinkageIcon" />
                 <span>{_l('联动')}</span>
               </div>
             </Menu.Item>
@@ -652,7 +652,7 @@ export class CountryLayer extends Component {
           {this.isViewOriginalData && (isThumbnail ? _.isEmpty(path) : true) && (
             <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
               <div className="flexRow valignWrapper">
-                <Icon icon="table" className="mRight8 Gray_9e Font18" />
+                <Icon icon="table" className="mRight8 textTertiary Font18" />
                 <span>{_l('查看原始数据')}</span>
               </div>
             </Menu.Item>
@@ -664,7 +664,7 @@ export class CountryLayer extends Component {
           !municipality.includes(drillDownCode) && (
             <Menu.Item onClick={this.handleDrillDownTriggerData} key="dataDrill">
               <div className="flexRow valignWrapper">
-                <Icon icon="drill_down" className="mRight8 Gray_9e Font20" />
+                <Icon icon="drill_down" className="mRight8 textTertiary Font20" />
                 <span>{_l('数据钻取')}</span>
                 {drillDownLoading && <LoadDiv size="small" />}
               </div>
@@ -700,7 +700,9 @@ export class CountryLayer extends Component {
         ) : null}
         {country.filterCode == '910000' || (chooserange && chooserange !== 'CN') ? (
           <Fragment>
-            <div className="flexRow valignWrapper h100 justifyContent Gray_75 Font16">{_l('海外地区暂不支持')}</div>
+            <div className="flexRow valignWrapper h100 justifyContent textSecondary Font16">
+              {_l('海外地区暂不支持')}
+            </div>
             <div className="hide" ref={el => (this.chartEl = el)} />
           </Fragment>
         ) : (
@@ -731,18 +733,22 @@ export class CountryLayer extends Component {
             )}
             <ZoomWrapper className="flexColumn alignItemsCenter justifyContentCenter card">
               <Tooltip title={_l('放大')}>
-                <Icon className="pointer Font20 Gray_75" icon="add" onClick={() => this.CountryLayerChart.zoomIn()} />
+                <Icon
+                  className="pointer Font20 textSecondary"
+                  icon="add"
+                  onClick={() => this.CountryLayerChart.zoomIn()}
+                />
               </Tooltip>
               <Tooltip title={_l('完整显示')}>
                 <Icon
-                  className="pointer Font17 Gray_75 mTop10 mBottom10"
+                  className="pointer Font17 textSecondary mTop10 mBottom10"
                   icon="gps_fixed"
                   onClick={() => this.resetChart()}
                 />
               </Tooltip>
               <Tooltip title={_l('缩小')}>
                 <Icon
-                  className="pointer Font20 Gray_75"
+                  className="pointer Font20 textSecondary"
                   icon="minus"
                   onClick={() => this.CountryLayerChart.zoomOut()}
                 />

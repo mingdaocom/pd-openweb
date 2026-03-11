@@ -4,7 +4,7 @@ import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Icon, ScrollView } from 'ming-ui';
+import { Icon, ScrollView, UserCard } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import copper_crown from 'statistics/assets/topChart/copper_crown.png';
 import copper_medal from 'statistics/assets/topChart/copper_medal.png';
@@ -52,7 +52,7 @@ const TopChartContent = styled.div`
     text-align: right;
   }
   .valueProgressWrap {
-    flex: 1;
+    flex: ${props => (props.yaxisListLength === 1 ? 2 : 1)}
     height: 12px;
     background-color: ${props => (props.isDark ? '#ffffff99' : '#efedee')}
     border-radius: 2px;
@@ -242,24 +242,24 @@ export default class extends Component {
       <Menu className="chartMenu" style={{ width: 160 }}>
         <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
           <div className="flexRow valignWrapper">
-            <Icon icon="link1" className="mRight8 Gray_9e Font20 autoLinkageIcon" />
+            <Icon icon="link1" className="mRight8 textTertiary Font20 autoLinkageIcon" />
             <span>{_l('联动')}</span>
           </div>
         </Menu.Item>
         <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
           <div className="flexRow valignWrapper">
-            <Icon icon="table" className="mRight8 Gray_9e Font18" />
+            <Icon icon="table" className="mRight8 textTertiary Font18" />
             <span>{_l('查看原始数据')}</span>
           </div>
         </Menu.Item>
       </Menu>
     );
   }
-  renderHeader(isDark) {
+  renderHeader() {
     const { xaxes, yaxisList, style = {} } = this.props.reportData;
     const { valueProgressVisible } = style;
     return (
-      <div className={cx('flexRow valignWrapper item', isDark ? 'White' : 'Gray_9e')}>
+      <div className={cx('flexRow valignWrapper item textTertiary')}>
         <div className="index alignItemsCenter justifyContentCenter flexRow">{_l('排行')}</div>
         <div className="name ellipsis mRight8" style={valueProgressVisible ? { width: '20%' } : { flex: 1 }}>
           {xaxes.rename || xaxes.controlName}
@@ -275,11 +275,42 @@ export default class extends Component {
       </div>
     );
   }
-  renderItem(data, index, maxValue, isDark) {
-    const { reportData, isViewOriginalData, isLinkageData } = this.props;
-    const { style = {}, yaxisList, displaySetup, sorts } = reportData;
+  renderItem(data, index, maxValue) {
+    const { projectId, reportData, isViewOriginalData, isLinkageData, isThumbnail, sourceType } = this.props;
+    const { style = {}, yaxisList, displaySetup, sorts, xaxes } = reportData;
     const sortId = sorts[0] ? Object.keys(sorts[0])[0] : null;
     const { valueProgressVisible } = style;
+    const isUserHead = xaxes.displayMode === 'fieldStyle' && data.name;
+    const renderName = () => {
+      const config = {
+        className: cx('name ellipsis mRight8 textPrimary'),
+        style: valueProgressVisible ? { width: '20%' } : { flex: 1 },
+      };
+      if (isUserHead) {
+        const { accountId, fullname, avatar } = window.safeParse(data.name);
+        return (
+          <div {...config} title={fullname}>
+            <div className="userWrap flexRow alignItemsCenter pointer">
+              <div className="userHead" style={{ width: '30px' }}>
+                <UserCard
+                  sourceId={accountId}
+                  projectId={projectId || localStorage.currentProjectId}
+                  newPageChat={!isThumbnail || sourceType === 2}
+                >
+                  <img className="circle w100" src={avatar} />
+                </UserCard>
+              </div>
+              <div className="mLeft6 flex ellipsis">{fullname}</div>
+            </div>
+          </div>
+        );
+      }
+      return (
+        <div {...config} title={data.name}>
+          {data.name}
+        </div>
+      );
+    };
     return (
       <div
         className="flexRow valignWrapper item"
@@ -290,20 +321,18 @@ export default class extends Component {
             isLinkageData &&
             !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0);
           if (this.isViewOriginalData || this.isLinkageData) {
+            if (isUserHead) {
+              const { fullname } = window.safeParse(data.name);
+              data.name = fullname;
+            }
             this.handleClick(event, data);
           }
         }}
       >
-        <div className={cx('index alignItemsCenter justifyContentCenter flexRow', isDark ? 'White' : 'Gray_75')}>
+        <div className={cx('index alignItemsCenter justifyContentCenter flexRow textSecondary')}>
           {this.renderIndex(index + 1)}
         </div>
-        <div
-          className={cx('name ellipsis mRight8', isDark ? 'White' : 'Gray')}
-          style={valueProgressVisible ? { width: '20%' } : { flex: 1 }}
-          title={data.name}
-        >
-          {data.name}
-        </div>
+        {renderName()}
         {valueProgressVisible && (
           <div className="valueProgressWrap">
             <div
@@ -319,7 +348,7 @@ export default class extends Component {
           {yaxisList.map(item => (
             <div
               key={item.controlId}
-              className={cx('value ellipsis', isDark ? 'White' : 'Gray')}
+              className={cx('value ellipsis textPrimary')}
               style={{ width: `${100 / yaxisList.length}%` }}
             >
               {formatrChartValue(data[item.controlId], false, yaxisList, item.controlId, false)}
@@ -332,12 +361,12 @@ export default class extends Component {
   renderTopChart() {
     const { customPageConfig = {}, reportData, isThumbnail } = this.props;
     const { pageStyleType = 'light' } = customPageConfig;
-    const isDark = pageStyleType === 'dark' && isThumbnail;
+    const isDark = window.themeMode === 'dark' || (pageStyleType === 'dark' && isThumbnail);
     const { map, yaxisList } = reportData;
     const data = formatTopChartData(map);
     const maxValue = _.max(data.map(data => data[_.get(yaxisList[0], 'controlId')]));
     return (
-      <TopChartContent className="h100 topChart" isDark={isDark}>
+      <TopChartContent className="h100 topChart" isDark={isDark} yaxisListLength={yaxisList.length}>
         <ScrollView>
           <Fragment>
             {yaxisList.length > 1 && this.renderHeader(isDark)}

@@ -10,7 +10,7 @@
 
   .howApply {
     display: inline-block;
-    color: #1677ff;
+    color: var(--color-primary);
     cursor: pointer;
     &:hover {
       text-decoration: underline !important;
@@ -28,7 +28,7 @@
     justify-content: flex-end;
     &:hover {
       .icon-arrow-right-border {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
   }
@@ -41,7 +41,7 @@
 
   .icon.icon-help {
     &:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
 
@@ -63,17 +63,17 @@
           top: 9px;
           z-index: 1;
           &:hover {
-            color: #1677ff !important;
+            color: var(--color-primary) !important;
           }
         }
         .inputBox {
           width: 100%;
           line-height: 36px;
           height: 36px;
-          background-color: #fff;
+          background-color: var(--color-background-primary);
           border-radius: 3px;
           padding-left: 10px;
-          border: 1px solid #ddd;
+          border: 1px solid var(--color-border-primary);
           padding-right: 40px;
           box-sizing: border-box;
         }
@@ -85,10 +85,10 @@
     width: 90px;
     height: 36px;
     border-radius: 2px;
-    background: #f0f0f0 !important;
-    color: #1677ff !important;
+    background: var(--color-background-disabled) !important;
+    color: var(--color-primary) !important;
     &:hover {
-      background: #e3e3e3 !important;
+      background: var(--color-border-secondary) !important;
     }
   }
 
@@ -96,14 +96,14 @@
     width: 90px;
     height: 36px;
     border-radius: 2px;
-    background: #1677ff !important;
+    background: var(--color-primary) !important;
     &:hover {
-      background: #2366bf !important;
+      background: var(--color-link-hover) !important;
     }
     &.ming.Button--disabled {
       cursor: default !important;
       opacity: 0.5 !important;
-      background: #1677ff !important;
+      background: var(--color-primary) !important;
     }
   }
 
@@ -117,9 +117,9 @@
       width: 90px;
       height: 36px;
       border-radius: 2px;
-      background: #1677ff !important;
+      background: var(--color-primary) !important;
       &:hover {
-        background: #2366bf !important;
+        background: var(--color-link-hover) !important;
       }
     }
 
@@ -129,7 +129,7 @@
 
       &:hover {
         opacity: 0.5;
-        background: #1677ff !important;
+        background: var(--color-primary) !important;
       }
     }
   }

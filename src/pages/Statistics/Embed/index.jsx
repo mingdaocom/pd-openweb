@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
 import homeAppApi from 'api/homeApp';
 import { LoadDiv } from 'ming-ui';
+import appManagementApi from 'src/api/appManagement';
 import MobileChart from 'mobile/CustomPage/ChartContent';
 import Chart from 'statistics/Card';
 import exportPivotTableSocket from 'statistics/components/socket';
@@ -31,11 +32,24 @@ export default class EmbedChart extends Component {
     customNotice();
   }
   componentDidMount() {
+    const { appId } = this;
     homeAppApi
       .getApp({
-        appId: this.appId,
+        appId,
+        getLang: true,
       })
-      .then(data => {
+      .then(async data => {
+        const { langInfo } = data;
+        window.appInfo = data;
+        if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
+          const lang = await appManagementApi.getAppLangDetail({
+            projectId: data.projectId,
+            appId,
+            appLangId: langInfo.appLangId,
+          });
+          window[`langData-${appId}`] = lang.items;
+          window[`langVersion-${appId}`] = langInfo.version;
+        }
         this.setState({
           appInfo: data,
           loading: false,

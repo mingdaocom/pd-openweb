@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { controlState } from 'src/components/Form/core/utils';
 import { fixedBottomWidgets } from 'src/pages/widgetConfig/util';
+import { controlState } from 'src/utils/control';
 
 export const THEME_COLOR_OPTIONS = [
   '#9A060C',

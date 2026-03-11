@@ -17,11 +17,11 @@ export default props => {
         <div className="Font13 bold">{_l('被以下工作流触发')}</div>
         <div className="Font13 mTop15 flexRow alignItemsCenter">
           <div className="ellipsis">
-            {data.triggerName || <span style={{ color: '#f44336' }}>{_l('流程已删除')}</span>}
+            {data.triggerName || <span style={{ color: 'var(--color-error)' }}>{_l('流程已删除')}</span>}
           </div>
           {data.triggerName && (
             <i
-              className="mLeft5 icon-task-new-detail Font12 ThemeColor3 ThemeHoverColor2 pointer"
+              className="mLeft5 icon-task-new-detail Font12 ThemeColor3 ThemeHoverColor2 pointer pointerEventsAuto"
               onClick={() => window.open(`/workflowedit/${data.triggerId}`)}
             />
           )}
@@ -30,7 +30,7 @@ export default props => {
 
         <div className="Font13 bold mTop20">{_l('发起审批的数据对象')}</div>
         <div className="workflowDetailDesc mTop10 subProcessDesc bold alignItemsCenter flexRow">
-          <i className="icon-worksheet Gray_75 mRight8 Font16" />
+          <i className="icon-worksheet textSecondary mRight8 Font16" />
           {_l('工作表“%0”', data.appName)}
         </div>
 

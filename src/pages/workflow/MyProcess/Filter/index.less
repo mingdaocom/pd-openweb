@@ -26,23 +26,23 @@
   }
   .wrapper {
     height: 100%;
-    background-color: #fff;
+    background-color: var(--color-background-card);
     border-radius: 3px;
-    box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.16);
+    box-shadow: var(--shadow-sm);
   }
   .header {
     height: 43px;
     padding: 0 16px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     .reset {
-      color: #1677ffe6;
+      color: var(--color-primary) e6;
       margin: 0 20px;
       &:hover {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
     .icon-close:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
   .filterContent {
@@ -64,16 +64,16 @@
   .itemWrapper {
     font-size: 13px;
     padding: 5px 10px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 4px;
     &.active {
-      border-color: #1677ff !important;
+      border-color: var(--color-primary) !important;
     }
   }
   .inputWrapper,
   .dateInput {
     input::placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
   }
   .inputWrapper {
@@ -81,10 +81,10 @@
       flex: 1;
       font-size: 13px;
       padding: 5px 45px 5px 10px;
-      border: 1px solid #ddd;
+      border: 1px solid var(--color-border-primary);
       border-radius: 4px;
       &:focus {
-        border-color: #1677ff;
+        border-color: var(--color-primary);
       }
     }
     .icon-close {
@@ -92,7 +92,7 @@
       right: 26px;
       top: 7px;
       &:hover {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
     .icon-search {
@@ -101,14 +101,14 @@
     }
   }
   .todoListFilter {
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-secondary);
     padding-top: 16px;
   }
   .selectWrapper {
     &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
     &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input)
       .ant-select-selector {
-      border-color: #1677ff !important;
+      border-color: var(--color-primary) !important;
     }
     .ant-select-selector {
       border-radius: 4px;
@@ -140,7 +140,7 @@
     }
     &.ant-input-affix-wrapper:hover,
     &:hover {
-      border-color: #1677ff !important;
+      border-color: var(--color-primary) !important;
     }
     &.ant-input-affix-wrapper,
     &.ant-input-affix-wrapper-focused,
@@ -154,8 +154,8 @@
       align-items: center;
       justify-content: center;
       border-radius: 0 4px 4px 0;
-      border-left: 1px solid #d9d9d9;
-      background-color: #fff;
+      border-left: 1px solid var(--color-border-primary);
+      background-color: var(--color-background-primary);
     }
     .icon-expand_less,
     .icon-expand_more {
@@ -172,7 +172,7 @@
       justify-content: center;
       align-items: center;
       &:hover {
-        background: #f7f7f7;
+        background: var(--color-background-hover);
       }
     }
     .appIcon {
@@ -190,10 +190,10 @@
       padding: 10px 8px;
       border-radius: 4px;
       &:hover {
-        background-color: #f7f7f7;
+        background-color: var(--color-background-hover);
       }
       &.active {
-        background-color: #2094f31a;
+        background-color: var(--color-primary-focus) 1a;
       }
     }
   }
@@ -202,10 +202,10 @@
     margin-left: 24px;
     border-radius: 4px;
     &:hover {
-      background-color: #f7f7f7;
+      background-color: var(--color-background-hover);
     }
     &.active {
-      background-color: #2094f31a;
+      background-color: var(--color-primary-focus) 1a;
     }
   }
 }
@@ -215,14 +215,14 @@
 
   &.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
     font-weight: unset;
-    color: #fff;
-    background-color: #1677ff;
+    color: var(--color-white);
+    background-color: var(--color-primary);
     .icon {
-      color: #fff !important;
+      color: var(--color-white) !important;
     }
   }
 }
 
 .processFilterTarget:hover {
-  color: #1677ff !important;
+  color: var(--color-primary) !important;
 }

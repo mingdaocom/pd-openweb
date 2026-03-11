@@ -95,14 +95,14 @@ export default class Card extends Component {
 
     if (!maxEndTimeConsuming) {
       const time = covertTime(maxTimeConsuming);
-      return time ? <span className="overflow_ellipsis Gray_9e mLeft10">{_l('耗时：%0', time)}</span> : null;
+      return time ? <span className="overflow_ellipsis textTertiary">{_l('耗时：%0', time)}</span> : null;
     }
 
     return (
       <span
         className="stepTimeConsuming flexRow"
         style={{
-          color: maxEndTimeConsuming > 0 ? '#F44336' : '#4CAF50',
+          color: maxEndTimeConsuming > 0 ? 'var(--color-error)' : 'var(--color-success)',
         }}
       >
         <Icon icon={maxEndTimeConsuming > 0 ? 'access_time' : 'task'} className="Font14 mRight2" />
@@ -128,7 +128,8 @@ export default class Card extends Component {
       <span
         className="stepTimeConsuming flexRow"
         style={{
-          color: time > 0 ? '#F44336' : currentAccountNotified ? '#FF9800' : '#1677ff',
+          color:
+            time > 0 ? 'var(--color-error)' : currentAccountNotified ? 'var(--color-warning)' : 'var(--color-primary)',
         }}
       >
         <Icon icon={time > 0 ? 'error1' : 'hourglass'} className="Font14 mRight2" />
@@ -138,7 +139,7 @@ export default class Card extends Component {
       </span>
     );
   }
-  renderTime() {
+  renderConsumeTime() {
     const { workItem = {} } = this.props.item;
     const consumingWorkItems = (workItem.workId ? [workItem] : []).filter(
       item => _.includes([3, 4], item.type) && item.operationTime,
@@ -154,13 +155,17 @@ export default class Card extends Component {
       return this.renderSurplusTime();
     }
 
-    return <div className="Gray_9e ellipsis time">{this.props.time}</div>;
+    return null;
+  }
+  renderPropsTime() {
+    return <div className="textTertiary ellipsis time">{this.props.time}</div>;
   }
   renderHeader() {
     const { currentTab, item } = this.props;
     const { flowNode } = item;
 
     let RenderState = null;
+    let RenderTime = this.renderPropsTime();
 
     if (currentTab == 'completeMySponsor') {
       RenderState = this.renderInstanceStatu();
@@ -169,16 +174,19 @@ export default class Card extends Component {
     } else {
       RenderState = (
         <div className="flowNode bold valignWrapper">
-          <div className="Font12 Gray_75">{flowNode.name}</div>
+          <div className="Font12 textSecondary">{flowNode.name}</div>
         </div>
       );
     }
 
     return (
-      <div className="mobileProcessCardHeader valignWrapper overflow_ellipsis">
-        <div className="stateWrapper valignWrapper flex">{RenderState}</div>
-        {this.renderTime()}
-      </div>
+      <Fragment>
+        <div className="mobileProcessCardHeader valignWrapper overflow_ellipsis">
+          <div className="stateWrapper valignWrapper flex">{RenderState}</div>
+          {RenderTime}
+        </div>
+        {currentTab == 'completeDispose' && <div className="mTop5">{this.renderConsumeTime()}</div>}
+      </Fragment>
     );
   }
   renderInfo() {
@@ -225,13 +233,13 @@ export default class Card extends Component {
       );
     }
     if (currentTab === 'mySponsor') {
-      return <div className="Font13 mLeft10 bold Gray_75">{_l('处理中…')}</div>;
+      return <div className="Font13 mLeft10 bold textSecondary">{_l('处理中…')}</div>;
     }
     if (['all', 'already', 'unread'].includes(currentTab)) {
       const { text, color } = FLOW_NODE_TYPE_STATUS[flowNodeType][operationType];
       const isAlready = flowNodeType === 5 && operationType === 1;
       return (
-        <div className="Font13 mLeft10 bold" style={{ color: isAlready ? '#9e9e9e' : color }}>
+        <div className="Font13 mLeft10 bold" style={{ color: isAlready ? 'var(--color-text-tertiary)' : color }}>
           {text}
         </div>
       );
@@ -277,7 +285,7 @@ export default class Card extends Component {
           <div className="appIcon" style={{ backgroundColor: app.iconColor }}>
             <SvgIcon url={app.iconUrl} fill="#fff" size={16} addClassName="mTop4" />
           </div>
-          <div className="flexRow Gray_75 flex valignWrapper">
+          <div className="flexRow textSecondary flex valignWrapper">
             <span className="appName overflow_ellipsis">{app.name}</span>
             <span className="processName overflow_ellipsis">
               <span className="dot"></span>
@@ -299,12 +307,12 @@ export default class Card extends Component {
           <span className="breakAll">{renderBodyTitle().replace(/(<([^>]+)>)/gi, '')}</span>
         </div>
         {this.processInformTabs.includes(currentTab) && (
-          <span className="Gray_9e Font13 mTop8 ellipsis">{item.workItem.opinion}</span>
+          <span className="textTertiary Font13 mTop8 ellipsis">{item.workItem.opinion}</span>
         )}
         <div className="flexColumn mTop10">
           {controls.map(item => (
             <div key={item.controlId} className="Font12 flexRow mTop4">
-              <div className="Gray_9e mRight10 overflow_ellipsis maxWidth80">{item.controlName}</div>
+              <div className="textTertiary mRight10 overflow_ellipsis maxWidth80">{item.controlName}</div>
               <div className="flex overflow_ellipsis_line3">{item.value || '--'}</div>
             </div>
           ))}

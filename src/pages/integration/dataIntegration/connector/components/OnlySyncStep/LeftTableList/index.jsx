@@ -41,15 +41,15 @@ const LeftListWrapper = styled.div`
           white-space: nowrap;
         }
         .repeatIcon {
-          color: #f44336;
+          color: var(--color-error);
           margin-right: 8px;
         }
         .deleteIcon {
           display: none;
           margin-right: 10px;
-          color: #bdbdbd;
+          color: var(--color-text-disabled);
           &:hover {
-            color: #1677ff;
+            color: var(--color-primary);
           }
           &.isActive {
             display: block;
@@ -58,18 +58,18 @@ const LeftListWrapper = styled.div`
       }
 
       &:hover {
-        background: #f5f5f5;
+        background: var(--color-background-secondary);
         .deleteIcon {
           display: block;
         }
       }
 
       &.isCur {
-        background: #edf7fe;
+        background: var(--color-primary-transparent);
         .listItem {
-          border-left: 3px solid #1677ff;
+          border-left: 3px solid var(--color-primary);
           span {
-            color: #1677ff;
+            color: var(--color-primary);
             font-weight: 600;
           }
         }
@@ -86,7 +86,7 @@ const AddDataObjButton = styled.div`
   padding-left: 12px;
   border: 0;
   border-radius: 4px;
-  color: #1677ff;
+  color: var(--color-primary);
   cursor: pointer;
 `;
 
@@ -142,7 +142,7 @@ export default function LeftTableList(props) {
                   <React.Fragment>
                     {item.workSheetName}
                     <Tooltip title={_l('名称包含特殊字符，无法同步')}>
-                      <Icon icon="info" className="Gray_bd mLeft5 pointer" />
+                      <Icon icon="info" className="textDisabled mLeft5 pointer" />
                     </Tooltip>
                   </React.Fragment>
                 ) : (
@@ -269,7 +269,7 @@ export default function LeftTableList(props) {
           const repeatInfoArr = getRepeatTableNameInfo();
           return (
             <div key={item.db}>
-              <div className="Gray_9e mTop16 mBottom10 mLeft15">{item.db}</div>
+              <div className="textTertiary mTop16 mBottom10 mLeft15">{item.db}</div>
               {item.tableList &&
                 item.tableList.map(table => {
                   const isRepeatDestName = !!repeatInfoArr.filter(r =>

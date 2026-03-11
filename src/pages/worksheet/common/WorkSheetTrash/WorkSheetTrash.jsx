@@ -9,7 +9,8 @@ import worksheetAjax from 'src/api/worksheet';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
 import { RowHead } from 'worksheet/components/WorksheetTable/components/';
 import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
-import { controlState } from 'src/components/Form/core/utils';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
+import { controlState } from 'src/utils/control';
 import Header from './Header';
 import TrashBatchOperate from './TrashBatchOperate';
 import ColumnHead from './TrashColumnHead';
@@ -30,13 +31,13 @@ const Body = styled.div`
 const SearchIcon = styled.div`
   width: 130px;
   height: 130px;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
   display: inline-block;
   border-radius: 130px;
   text-align: center;
   line-height: 130px;
   font-size: 80px;
-  color: #c2c3c3;
+  color: var(--color-text-placeholder);
   margin-bottom: 12px;
 `;
 
@@ -53,6 +54,8 @@ const trashReducer = (state, action) => {
       return update(state, { loading: { $set: action.loading } });
     case 'CLEAR':
       return { loading: false };
+    case 'UPDATE_ERROR_CODE':
+      return update(state, { errorCode: { $set: action.errorCode } });
     default:
       return state;
   }
@@ -107,6 +110,12 @@ const createActions = dispatch => ({
           searchText,
           loading: false,
         });
+      })
+      .catch(err => {
+        dispatch({ type: 'UPDATE_LOADING', loading: false });
+        if (err.errorCode === 300016) {
+          dispatch({ type: 'UPDATE_ERROR_CODE', errorCode: err.errorCode });
+        }
       });
   },
   deleteRecord: ids => {
@@ -158,6 +167,7 @@ export default function WorkSheetTrash(props) {
     records = [],
     filterControls,
     searchText = '',
+    errorCode,
   } = state;
   const lineNumberBegin = (pageIndex - 1) * pageSize;
   const hasAuthRows = selectRows.filter(item => item.allowedit || item.allowEdit);
@@ -288,12 +298,12 @@ export default function WorkSheetTrash(props) {
             onHardDelete={() => {
               VerifyPasswordConfirm.confirm({
                 title: (
-                  <div className="Bold" style={{ color: '#f44336', display: 'flex', alignItems: 'center' }}>
+                  <div className="Bold" style={{ color: 'var(--color-error)', display: 'flex', alignItems: 'center' }}>
                     <i className="icon-error error" style={{ fontSize: '28px', marginRight: '8px' }}></i>
                     {_l('彻底删除%0', worksheetInfo.entityName)}
                   </div>
                 ),
-                description: <div className="Font14 Gray_75">{_l('删除后无法恢复(物理删除)，请谨慎操作！')}</div>,
+                description: <div className="Font14 textSecondary">{_l('删除后无法恢复(物理删除)，请谨慎操作！')}</div>,
                 confirmType: 'danger',
                 allowNoVerify: false,
                 isRequired: false,
@@ -351,6 +361,7 @@ export default function WorkSheetTrash(props) {
             pageSize={pageSize}
             pageIndex={pageIndex}
             count={count}
+            errorCode={errorCode}
             onCancel={onCancel}
             loadRows={loadRows}
             onClear={() => actions.clear({ worksheetId, appId })}
@@ -359,119 +370,123 @@ export default function WorkSheetTrash(props) {
             changePageSize={newPageSize => loadRows({ pageSize: newPageSize, pageIndex: 1 })}
             changePageIndex={newPageIndex => loadRows({ pageIndex: newPageIndex })}
           />
-          <Body>
-            <WorksheetTable
-              isTrash
-              appId={appId}
-              loading={loading}
-              viewId={viewId}
-              projectId={projectId}
-              noRenderEmpty={!searchText}
-              lineNumberBegin={lineNumberBegin}
-              columns={controlsForShow}
-              rowHeight={34}
-              selectedIds={selected}
-              data={records}
-              renderColumnHead={({ control, ...rest }) => (
-                <ColumnHead
-                  {...rest}
-                  control={
-                    disableMaskDataControls[control.controlId]
-                      ? {
-                          ...control,
-                          advancedSetting: Object.assign({}, control.advancedSetting, {
-                            datamask: '0',
-                          }),
-                        }
-                      : control
-                  }
-                  worksheetId={worksheetId}
-                  type="trash"
-                  selected={!!selected.length}
-                  isAsc={control.controlId === (sortControl || {}).controlId ? (sortControl || {}).isAsc : undefined}
-                  changeSort={newIsAsc => {
-                    const newSortControl = _.isUndefined(newIsAsc)
-                      ? {}
-                      : {
-                          controlId: control.controlId,
-                          isAsc: newIsAsc,
-                        };
-                    setSortControl(newSortControl);
-                    loadRows({
-                      sortControls: _.isUndefined(newIsAsc)
-                        ? []
-                        : [
-                            {
-                              datatype: control.type,
-                              ...newSortControl,
-                            },
-                          ],
-                    });
-                  }}
-                  onShowFullValue={() => {
-                    setDisableMaskDataControls({ ...disableMaskDataControls, [control.controlId]: true });
-                  }}
-                />
-              )}
-              renderRowHead={({ className, style, rowIndex }) => (
-                <RowHead
-                  isTrash
-                  canSelectAll
-                  className={className}
-                  style={{ ...style, width: String(lineNumberBegin + rowIndex).length * 8 + 64 }}
-                  lineNumberBegin={lineNumberBegin}
-                  allWorksheetIsSelected={isAll}
-                  selectedIds={selected}
-                  onSelectAllWorksheet={() => {
-                    setIsAll(!isAll);
-                    setSelected([]);
-                    setSelectRows([]);
-                  }}
-                  onSelect={newSelected => {
-                    let newSelectRows = [];
-                    if (isAll) {
-                      newSelected.forEach(() => {
-                        newSelectRows = records.filter(r => _.find(newSelected, id => r.rowid !== id));
-                        newSelected = newSelectRows.map(r => r.rowid);
-                      });
-                      setIsAll(false);
-                    } else {
-                      newSelected.forEach(rowId => {
-                        const row = _.find(records, trashRow => trashRow.rowid === rowId);
-                        if (row && (row.allowedit || row.allowEdit)) {
-                          newSelectRows.push(row);
-                        }
-                      });
-                      setIsAll(false);
+          {errorCode === 300016 ? (
+            <RestrictAccessStatus />
+          ) : (
+            <Body>
+              <WorksheetTable
+                isTrash
+                appId={appId}
+                loading={loading}
+                viewId={viewId}
+                projectId={projectId}
+                noRenderEmpty={!searchText}
+                lineNumberBegin={lineNumberBegin}
+                columns={controlsForShow}
+                rowHeight={34}
+                selectedIds={selected}
+                data={records}
+                renderColumnHead={({ control, ...rest }) => (
+                  <ColumnHead
+                    {...rest}
+                    control={
+                      disableMaskDataControls[control.controlId]
+                        ? {
+                            ...control,
+                            advancedSetting: Object.assign({}, control.advancedSetting, {
+                              datamask: '0',
+                            }),
+                          }
+                        : control
                     }
-                    setSelected(newSelected);
-                    setSelectRows(newSelectRows);
-                  }}
-                  onReverseSelect={() => {
-                    if (isAll) {
-                      setIsAll(false);
+                    worksheetId={worksheetId}
+                    type="trash"
+                    selected={!!selected.length}
+                    isAsc={control.controlId === (sortControl || {}).controlId ? (sortControl || {}).isAsc : undefined}
+                    changeSort={newIsAsc => {
+                      const newSortControl = _.isUndefined(newIsAsc)
+                        ? {}
+                        : {
+                            controlId: control.controlId,
+                            isAsc: newIsAsc,
+                          };
+                      setSortControl(newSortControl);
+                      loadRows({
+                        sortControls: _.isUndefined(newIsAsc)
+                          ? []
+                          : [
+                              {
+                                datatype: control.type,
+                                ...newSortControl,
+                              },
+                            ],
+                      });
+                    }}
+                    onShowFullValue={() => {
+                      setDisableMaskDataControls({ ...disableMaskDataControls, [control.controlId]: true });
+                    }}
+                  />
+                )}
+                renderRowHead={({ className, style, rowIndex }) => (
+                  <RowHead
+                    isTrash
+                    canSelectAll
+                    className={className}
+                    style={{ ...style, width: String(lineNumberBegin + rowIndex).length * 8 + 64 }}
+                    lineNumberBegin={lineNumberBegin}
+                    allWorksheetIsSelected={isAll}
+                    selectedIds={selected}
+                    onSelectAllWorksheet={() => {
+                      setIsAll(!isAll);
                       setSelected([]);
                       setSelectRows([]);
-                    } else {
-                      const newSelectedRows = records
-                        .filter(r => !_.find(selected, selectedRowId => selectedRowId === r.rowid))
-                        .filter(_.identity);
-                      setSelectRows(newSelectedRows);
-                      setSelected(newSelectedRows.map(r => r.rowid));
-                    }
-                  }}
-                  rowIndex={rowIndex}
-                  data={records}
-                />
-              )}
-              emptyIcon={
-                <SearchIcon>
-                  <i className="icon icon-search" />
-                </SearchIcon>
-              }
-              emptyText={_l('没有搜索结果')}
-            />
-          </Body>
+                    }}
+                    onSelect={newSelected => {
+                      let newSelectRows = [];
+                      if (isAll) {
+                        newSelected.forEach(() => {
+                          newSelectRows = records.filter(r => _.find(newSelected, id => r.rowid !== id));
+                          newSelected = newSelectRows.map(r => r.rowid);
+                        });
+                        setIsAll(false);
+                      } else {
+                        newSelected.forEach(rowId => {
+                          const row = _.find(records, trashRow => trashRow.rowid === rowId);
+                          if (row && (row.allowedit || row.allowEdit)) {
+                            newSelectRows.push(row);
+                          }
+                        });
+                        setIsAll(false);
+                      }
+                      setSelected(newSelected);
+                      setSelectRows(newSelectRows);
+                    }}
+                    onReverseSelect={() => {
+                      if (isAll) {
+                        setIsAll(false);
+                        setSelected([]);
+                        setSelectRows([]);
+                      } else {
+                        const newSelectedRows = records
+                          .filter(r => !_.find(selected, selectedRowId => selectedRowId === r.rowid))
+                          .filter(_.identity);
+                        setSelectRows(newSelectedRows);
+                        setSelected(newSelectedRows.map(r => r.rowid));
+                      }
+                    }}
+                    rowIndex={rowIndex}
+                    data={records}
+                  />
+                )}
+                emptyIcon={
+                  <SearchIcon>
+                    <i className="icon icon-search" />
+                  </SearchIcon>
+                }
+                emptyText={_l('没有搜索结果')}
+              />
+            </Body>
+          )}
         </Con>
       </Modal>
     </BrowserRouter>

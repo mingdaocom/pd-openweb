@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Dropdown } from 'antd';
-import classNames from 'classnames';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Checkbox, Icon, LoadDiv } from 'ming-ui';
@@ -15,7 +14,13 @@ import {
   removeUserFromSet,
   updateUserOpList,
 } from '../../actions/current';
-import { loadAllUsers, loadApprovalUsers, loadInactiveUsers, loadUsers } from '../../actions/entities';
+import {
+  loadAllUsers,
+  loadApprovalUsers,
+  loadInactiveUsers,
+  loadUsers,
+  updateApplyDateOrderBy,
+} from '../../actions/entities';
 import EditUser from '../EditUser';
 import SortTopUp from '../SortTopUp';
 import UserItem from './userItem';
@@ -63,10 +68,206 @@ class UserTable extends React.Component {
       { value: 'applyDate', label: _l('申请时间'), checked: true, typeCursor: 3, width: 160 },
       { value: 'operator', label: _l('操作者'), checked: true, typeCursor: 3, width: 160 },
     ],
+    savedScrollLeft: 0, // 暂存移动位置
   };
+
+  get columns() {
+    const {
+      isThisPageCheck,
+      isSelectAll,
+      dispatch,
+      selectCount,
+      typeCursor,
+      usersCurrentPage = [],
+      searchId = [],
+      isSearch,
+      searchAccountIds,
+      applyDateOrderBy,
+      projectId,
+      isLoading,
+    } = this.props;
+    let { columnsInfo, dropDownVisible } = this.state;
+    let columnsInfoData = JSON.parse(localStorage.getItem('columnsInfoData')) || [];
+    let temp = (!_.isEmpty(columnsInfoData) && columnsInfoData) || columnsInfo;
+    let isCheck = isThisPageCheck || isSelectAll;
+    let checkedLength = temp.filter(
+      item => (!item['typeCursor'] || item.typeCursor === this.props.typeCursor) && item.checked,
+    ).length;
+    let isSetShowColumn = typeCursor === 3 ? checkedLength !== 11 : checkedLength !== 9;
+    let totalColWidth = 0;
+    temp.forEach(item => {
+      if (this.isHideCurrentColumn(item.value)) {
+        totalColWidth += item.width;
+      }
+    });
+    let setWidth = $('.listInfo') && totalColWidth > $('.listInfo').width();
+    let actWidth =
+      $('.listInfo').height() > 48 * usersCurrentPage.length || searchId.length || window.isFirefox ? 80 : 90;
+    const selectDatas =
+      isSearch && !!searchId[0] && searchAccountIds.length > 0
+        ? searchAccountIds.filter(user => user.accountId === searchId[0])
+        : usersCurrentPage;
+
+    const cols = [
+      {
+        dataIndex: 'checkBox',
+        label: '',
+        checked: true,
+        width: 44,
+        className: cx('checkBox', {
+          showCheckBox: isCheck || selectCount > 0,
+          hasSelectCount: selectCount > 0,
+        }),
+        renderHeader: () => {
+          return (
+            <Checkbox
+              ref="example"
+              className="TxtMiddle InlineBlock mRight0 checked_selected"
+              clearselected={selectCount > 0 && selectCount !== selectDatas.length && !isThisPageCheck}
+              checked={isCheck}
+              disabled={isLoading}
+              onClick={() => {
+                if (isLoading) return;
+                let accountIds = _.map(selectDatas, user => user.accountId);
+                if (!isCheck) {
+                  dispatch(addUserToSet(accountIds));
+                } else {
+                  dispatch(removeUserFromSet(accountIds));
+                }
+              }}
+            ></Checkbox>
+          );
+        },
+      },
+      {
+        dataIndex: 'name',
+        label: _l('姓名'),
+        checked: true,
+        width: 200,
+        className: cx('nameTh', { left0: typeCursor !== 0, pLeft12: typeCursor !== 0 }),
+        style: { width: setWidth ? 200 : 'unset' },
+      },
+      { dataIndex: 'department', label: _l('部门'), checked: true, width: 160, className: 'departmentTh' },
+      { dataIndex: 'role', label: _l('角色'), checked: true, width: 160, className: 'roleTh' },
+      { dataIndex: 'position', label: _l('职位'), checked: true, width: 160, className: 'jobTh' },
+      { dataIndex: 'phone', label: _l('手机'), checked: true, width: 160, className: 'mobileTh' },
+      { dataIndex: 'email', label: _l('邮箱'), checked: true, width: 180, className: 'emailTh' },
+      { dataIndex: 'jobNum', label: _l('工号'), checked: true, width: 120, className: 'jobNumberTh' },
+      { dataIndex: 'adress', label: _l('工作地点'), checked: true, width: 120, className: 'workSiteTh' },
+      {
+        dataIndex: 'joinDate',
+        label: _l('加入时间'),
+        checked: true,
+        typeCursor: 0,
+        width: 120,
+        className: 'joinDateTh',
+      },
+      {
+        dataIndex: 'applyDate',
+        label: _l('申请时间'),
+        checked: true,
+        typeCursor: 3,
+        width: 160,
+        className: 'dateTh',
+        renderHeader: () => {
+          return (
+            <div
+              className="flexRow alignItemsCenter Hand"
+              onClick={() => {
+                const currentScrollLeft = this.tbodyContainer ? this.tbodyContainer.scrollLeft : 0;
+                this.setState({ savedScrollLeft: currentScrollLeft });
+                dispatch(updateApplyDateOrderBy(applyDateOrderBy === 10 ? 11 : 10));
+                dispatch(loadApprovalUsers(projectId, 1));
+              }}
+            >
+              {_l('申请时间')}
+              <div className="sorter flexColumn mLeft3">
+                <Icon icon="arrow-up" className={cx({ colorPrimary: applyDateOrderBy === 10 })} />
+                <Icon
+                  icon="arrow-down"
+                  className={cx({ colorPrimary: applyDateOrderBy === 11 })}
+                  style={{ marginTop: -4 }}
+                />
+              </div>
+            </div>
+          );
+        },
+      },
+      { dataIndex: 'operator', label: _l('操作者'), checked: true, typeCursor: 3, width: 160, className: 'actMenTh' },
+      {
+        dataIndex: 'action',
+        label: '',
+        checked: true,
+        typeCursor: 3,
+        width: 80,
+        className: 'actTh',
+        style: { width: actWidth },
+        renderHeader: () => {
+          return (
+            <Dropdown
+              overlay={this.renderShowColumns}
+              trigger={['click']}
+              visible={dropDownVisible}
+              onVisibleChange={this.handleVisibleChange}
+              placement="bottomRight"
+            >
+              <Tooltip title={_l('自定义显示列')}>
+                <Icon
+                  icon="visibility"
+                  className="visibiliityIcon"
+                  style={isSetShowColumn ? { color: 'var(--color-primary)' } : {}}
+                />
+              </Tooltip>
+            </Dropdown>
+          );
+        },
+      },
+    ];
+
+    return cols;
+  }
 
   componentWillUnmount() {
     clearActiveDialog(this.props);
+  }
+
+  componentDidUpdate(prevProps) {
+    const { isLoading, typeCursor } = this.props;
+    const { savedScrollLeft } = this.state;
+
+    if (typeCursor !== 3) {
+      return;
+    }
+
+    if (isLoading && savedScrollLeft) {
+      if (this.tbodyContainer && this.tbodyContainer.scrollLeft !== savedScrollLeft) {
+        this.tbodyContainer.scrollLeft = savedScrollLeft;
+      }
+      if (this.headContainer && this.headContainer.scrollLeft !== savedScrollLeft) {
+        this.headContainer.scrollLeft = savedScrollLeft;
+      }
+    }
+
+    if (prevProps.isLoading && !isLoading && savedScrollLeft) {
+      requestAnimationFrame(() => {
+        if (this.tbodyContainer) {
+          this.tbodyContainer.scrollLeft = savedScrollLeft;
+        }
+        if (this.headContainer) {
+          this.headContainer.scrollLeft = savedScrollLeft;
+        }
+
+        requestAnimationFrame(() => {
+          if (this.tbodyContainer && this.tbodyContainer.scrollLeft !== savedScrollLeft) {
+            this.tbodyContainer.scrollLeft = savedScrollLeft;
+          }
+          if (this.headContainer && this.headContainer.scrollLeft !== savedScrollLeft) {
+            this.headContainer.scrollLeft = savedScrollLeft;
+          }
+          this.setState({ savedScrollLeft: 0 });
+        });
+      });
+    }
   }
 
   renderNullState() {
@@ -81,7 +282,7 @@ class UserTable extends React.Component {
             {typeCursor === 2 ? _l(`无未激活成员`) : typeCursor === 3 ? _l(`无待审核成员`) : ''}
           </h6>
           <p
-            className="Gray_75"
+            className="textSecondary"
             style={{
               maxWidth: '270px',
               margin: '10px auto',
@@ -184,105 +385,25 @@ class UserTable extends React.Component {
     this.setState({ dropDownVisible: flag });
   };
 
-  renderThead = props => {
-    let {
-      isThisPageCheck,
-      isSelectAll,
-      dispatch,
-      selectCount,
-      typeCursor,
-      usersCurrentPage = [],
-      searchId = [],
-      isSearch,
-      searchAccountIds,
-    } = props;
-    let { columnsInfo, dropDownVisible } = this.state;
-    let columnsInfoData = JSON.parse(localStorage.getItem('columnsInfoData')) || [];
-    let temp = (!_.isEmpty(columnsInfoData) && columnsInfoData) || columnsInfo;
-    let isCheck = isThisPageCheck || isSelectAll;
-    let checkedLength = temp.filter(
-      item => (!item['typeCursor'] || item.typeCursor === this.props.typeCursor) && item.checked,
-    ).length;
-    let isSetShowColumn = typeCursor === 3 ? checkedLength !== 11 : checkedLength !== 9;
-    let totalColWidth = 0;
-    temp.forEach(item => {
-      if (this.isHideCurrentColumn(item.value)) {
-        totalColWidth += item.width;
-      }
-    });
-    let setWidth = $('.listInfo') && totalColWidth > $('.listInfo').width();
-    let actWidth =
-      $('.listInfo').height() > 48 * usersCurrentPage.length || searchId.length || window.isFirefox ? 80 : 90;
-    const selectDatas =
-      isSearch && !!searchId[0] && searchAccountIds.length > 0
-        ? searchAccountIds.filter(user => user.accountId === searchId[0])
-        : usersCurrentPage;
+  renderThead = () => {
+    const { typeCursor } = this.props;
 
     return (
       <thead>
         <tr>
-          <th
-            className={classNames('checkBox', {
-              showCheckBox: isCheck || selectCount > 0,
-              hasSelectCount: selectCount > 0,
-            })}
-          >
-            <Checkbox
-              ref="example"
-              className="TxtMiddle InlineBlock mRight0 checked_selected"
-              clearselected={selectCount > 0 && selectCount !== selectDatas.length && !isThisPageCheck}
-              checked={isCheck}
-              onClick={() => {
-                let accountIds = _.map(selectDatas, user => user.accountId);
-                if (!isCheck) {
-                  dispatch(addUserToSet(accountIds));
-                } else {
-                  dispatch(removeUserFromSet(accountIds));
-                }
-              }}
-            ></Checkbox>
-          </th>
-          {this.isHideCurrentColumn('name') && (
-            <th
-              className={cx('TxtLeft nameTh', { left0: typeCursor !== 0, pLeft12: typeCursor !== 0 })}
-              style={{ width: setWidth ? 200 : 'unset' }}
-            >
-              {_l('姓名')}
-            </th>
-          )}
-          {this.isHideCurrentColumn('department') && <th className="departmentTh">{_l('部门')}</th>}
-          {this.isHideCurrentColumn('role') && <th className="roleTh">{_l('角色')}</th>}
-          {this.isHideCurrentColumn('position') && <th className="TxtLeft jobTh">{_l('职位')}</th>}
-          {this.isHideCurrentColumn('phone') && <th className="mobileTh">{_l('手机')}</th>}
-          {!this.state.isMinSc && this.isHideCurrentColumn('email') && <th className="emailTh">{_l('邮箱')}</th>}
-          {this.isHideCurrentColumn('jobNum') && <th className="jobNumberTh">{_l('工号')}</th>}
-          {this.isHideCurrentColumn('adress') && <th className="workSiteTh">{_l('工作地点')}</th>}
-          {this.isHideCurrentColumn('joinDate') && props.typeCursor === 0 && (
-            <th className="joinDateTh">{_l('加入时间')}</th>
-          )}
-          {!this.state.isMinSc && props.typeCursor === 3 && (
-            <React.Fragment>
-              {this.isHideCurrentColumn('applyDate') && <th className="dateTh">{_l('申请时间')}</th>}
-              {this.isHideCurrentColumn('operator') && <th className="actMenTh">{_l('操作者')}</th>}
-            </React.Fragment>
-          )}
-          <th width="80px" className="actTh" style={{ width: actWidth }}>
-            <Dropdown
-              overlay={this.renderShowColumns}
-              trigger={['click']}
-              visible={dropDownVisible}
-              onVisibleChange={this.handleVisibleChange}
-              placement="bottomRight"
-            >
-              <Tooltip title={_l('自定义显示列')}>
-                <Icon
-                  icon="visibility"
-                  className="visibiliityIcon"
-                  style={isSetShowColumn ? { color: '#1677ff' } : {}}
-                />
-              </Tooltip>
-            </Dropdown>
-          </th>
+          {this.columns.map(({ dataIndex, className, label, width, style, renderHeader }) => {
+            if (!this.isHideCurrentColumn(dataIndex) && !_.includes(['checkBox', 'action'], dataIndex)) return;
+
+            if (typeCursor !== 0 && dataIndex === 'joinDate') return;
+
+            if (typeCursor !== 3 && _.includes(['applyDate', 'operator'], dataIndex)) return;
+
+            return (
+              <th key={dataIndex} className={className} style={style ? style : { width }}>
+                {_.isFunction(renderHeader) ? renderHeader() : label}
+              </th>
+            );
+          })}
         </tr>
       </thead>
     );
@@ -319,6 +440,7 @@ class UserTable extends React.Component {
           columnsInfo={temp}
           dateNow={Date.now()}
           editCurrentUser={this.state.editCurrentUser}
+          isLastTopUp={_.findLastIndex(usersCurrentPage, user => user.displayOrder > 0) === index}
           clickRow={() => {
             this.setState({
               openChangeUserInfoDrawer: true,
@@ -339,6 +461,20 @@ class UserTable extends React.Component {
   };
 
   bodyScroll = () => {
+    const { savedScrollLeft } = this.state;
+    const { isLoading } = this.props;
+
+    // 如果正在加载且有保存的滚动位置，保持滚动位置不变
+    if (isLoading && savedScrollLeft !== null && savedScrollLeft !== 0) {
+      if (this.tbodyContainer && this.tbodyContainer.scrollLeft !== savedScrollLeft) {
+        this.tbodyContainer.scrollLeft = savedScrollLeft;
+      }
+      if (this.headContainer && this.headContainer.scrollLeft !== savedScrollLeft) {
+        this.headContainer.scrollLeft = savedScrollLeft;
+      }
+      return;
+    }
+
     let bodyScrollLeft = this.tbodyContainer && this.tbodyContainer.scrollLeft;
     if (this.headContainer) {
       this.headContainer.scrollLeft = bodyScrollLeft;
@@ -356,6 +492,20 @@ class UserTable extends React.Component {
     }
   };
   headScroll = () => {
+    const { savedScrollLeft } = this.state;
+    const { isLoading } = this.props;
+
+    // 如果正在加载且有保存的滚动位置，保持滚动位置不变
+    if (isLoading && savedScrollLeft !== null && savedScrollLeft !== 0) {
+      if (this.tbodyContainer && this.tbodyContainer.scrollLeft !== savedScrollLeft) {
+        this.tbodyContainer.scrollLeft = savedScrollLeft;
+      }
+      if (this.headContainer && this.headContainer.scrollLeft !== savedScrollLeft) {
+        this.headContainer.scrollLeft = savedScrollLeft;
+      }
+      return;
+    }
+
     let headScrollLeft = this.headContainer && this.headContainer.scrollLeft;
     if (this.headContainer) {
       this.tbodyContainer.scrollLeft = headScrollLeft;
@@ -384,19 +534,22 @@ class UserTable extends React.Component {
       departmentName,
     } = this.props;
     const { openChangeUserInfoDrawer, editCurrentUser = {}, openSortTopUpDialog } = this.state;
-    if (isLoading) return <LoadDiv />;
 
     return (
       <div className="tableContent">
         <div className="theadContainer" ref={node => (this.headContainer = node)} onScroll={this.headScroll}>
           <table className="usersTable overflowTable" cellSpacing="0">
-            {this.renderThead(this.props)}
+            {this.renderThead()}
           </table>
         </div>
         <div className="tbodyContainer" ref={node => (this.tbodyContainer = node)} onScroll={this.bodyScroll}>
-          <table className="usersTable overflowTable" cellSpacing="0">
-            <tbody>{this.renderCon()}</tbody>
-          </table>
+          {isLoading ? (
+            <LoadDiv size="small" className="mTop30" />
+          ) : (
+            <table className="usersTable overflowTable" cellSpacing="0">
+              <tbody>{this.renderCon()}</tbody>
+            </table>
+          )}
         </div>
         {openChangeUserInfoDrawer && (
           <EditUser
@@ -445,7 +598,7 @@ UserTable.propTypes = {};
 const mapStateToProp = state => {
   const {
     pagination: { userList = {} },
-    entities: { users, departments, searchUsers },
+    entities: { users, departments, searchUsers, applyDateOrderBy },
     current: { selectedAccountIds = [], activeAccountId, typeCursor, isSelectAll, departmentId },
     search: { showSeachResult = false },
   } = state;
@@ -470,12 +623,14 @@ const mapStateToProp = state => {
     isThisPageCheck,
     selectCount: selectedAccountIds.length,
     searchAccountIds: searchUsers,
-    isSearch: userList && userList.isSearchResult,
+    isSearch: userList?.isSearchResult,
     searchId,
     showSeachResult,
     departmentId,
     pageIndex,
     departmentName: departmentInfos ? departmentInfos.departmentName : '',
+    applyDateOrderBy,
+    isLoading: userList?.isLoading,
   };
 };
 

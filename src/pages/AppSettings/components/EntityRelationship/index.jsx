@@ -10,8 +10,8 @@ import { Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import sheetAjax from 'src/api/worksheet';
 import CreateNew from 'worksheet/common/WorkSheetLeft/CreateNew';
-import { getVisibleControls } from 'src/pages/Print/util';
 import { getTranslateInfo } from 'src/utils/app';
+import { controlState } from 'src/utils/control';
 import AppSettingHeader from '../AppSettingHeader';
 import CustomErNode from './component/CustomErNode';
 import Search from './component/Search';
@@ -425,9 +425,9 @@ function EntityRelationship(props) {
       worksheetId: res.workSheetId,
     });
 
-    const controls = getVisibleControls(_.get(newWorksheetInfo, 'template.controls')).filter(
-      l => l.controlId.length === 24,
-    );
+    const controls = _.get(newWorksheetInfo, 'template.controls')
+      .filter(c => controlState(c).visible)
+      .filter(l => l.controlId.length === 24);
     let info = {
       worksheetName: newWorksheetInfo.name,
       worksheetId: res.workSheetId,
@@ -524,10 +524,10 @@ function EntityRelationship(props) {
   const renderEmpty = () => {
     return (
       <div className="emptyWrap">
-        <span className="mBottom20 iconBox ThemeBG">
-          <Icon icon="circle_three" className="Gray_bd" />
+        <span className="mBottom20 iconBox bgTertiary">
+          <Icon icon="circle_three" className="textDisabled" />
         </span>
-        <div className="mBottom24 Gray_9e Font17">{_l('暂未添加工作表')}</div>
+        <div className="mBottom24 textTertiary Font17">{_l('暂未添加工作表')}</div>
         <Button onClick={() => setCreateNewVisible(true)}>{_l('新建工作表')}</Button>
       </div>
     );
@@ -579,25 +579,41 @@ function EntityRelationship(props) {
       )}
 
       <div className="quickActions-relationship">
-        <span className="Font13 Gray percent">{`${Math.round(percent * 100)}%`}</span>
-        <Icon icon="minus" className="Gray_75 Font19 Hand Hover_21 mRight20" onClick={() => setGraphZoom(false)} />
-        <Icon icon="add1" className="Gray_75 Font19 Hand mRight20 Hover_21 " onClick={() => setGraphZoom(true)} />
+        <span className="Font13 textPrimary percent">{`${Math.round(percent * 100)}%`}</span>
+        <Icon
+          icon="minus"
+          className="textSecondary Font19 Hand hoverColorPrimary mRight20"
+          onClick={() => setGraphZoom(false)}
+        />
+        <Icon
+          icon="add1"
+          className="textSecondary Font19 Hand mRight20 hoverColorPrimary "
+          onClick={() => setGraphZoom(true)}
+        />
         <Tooltip title={_l('适合画布(cmd+0)')}>
-          <Icon icon="full_screen" className="Gray_75 Font20 Hand mRight20 Hover_21" onClick={onFitRect} />
+          <Icon
+            icon="full_screen"
+            className="textSecondary Font20 Hand mRight20 hoverColorPrimary"
+            onClick={onFitRect}
+          />
         </Tooltip>
         <Tooltip title={_l('等比显示')}>
-          <Icon icon="enlarge" className="Gray_75 restore Hand Font20 Hover_21 mRight20" onClick={onRestore} />
+          <Icon
+            icon="enlarge"
+            className="textSecondary restore Hand Font20 hoverColorPrimary mRight20"
+            onClick={onRestore}
+          />
         </Tooltip>
         <Tooltip title={_l('显示全部字段')}>
           <Icon
             icon="expand_all"
-            className="Gray_75 restore Hand Font20 Hover_21"
+            className="textSecondary restore Hand Font20 hoverColorPrimary"
             onClick={showAllItemsForAllControls}
           />
         </Tooltip>
         <span className="splintLint"></span>
         <Tooltip title={_l('导出为图片')}>
-          <Icon icon="download" className="Gray_75 Font16 Hand Hover_21" onClick={onExport} />
+          <Icon icon="download" className="textSecondary Font16 Hand hoverColorPrimary" onClick={onExport} />
         </Tooltip>
       </div>
 
@@ -631,7 +647,7 @@ function EntityRelationship(props) {
                   </span>
                 }
               >
-                <Icon icon="info_outline" className="White Font16 mLeft6" />
+                <Icon icon="info_outline" className="textWhite Font16 mLeft6" />
               </Tooltip>
             </div>
           }

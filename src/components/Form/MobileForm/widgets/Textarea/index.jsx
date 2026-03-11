@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
+﻿import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -16,8 +16,14 @@ const TextareaWrap = styled.div`
   position: relative;
   width: ${props => (props.startTextScanCode ? 'calc(100% - 42px)' : '100%')};
   .customFormTextareaView {
-    ${props => props.hint && 'white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis;'}
     ${props => !(props.disabled || props.isMask || props.hint) && 'pointer-events: none;'}
+    span {
+      ${props =>
+        props.hint &&
+        (props.enumDefault === 1
+          ? 'display: -webkit-box;-webkit-line-clamp: 3;-webkit-box-orient: vertical;overflow: hidden;'
+          : 'display: inline-block;width: 100%;white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis;')}
+    }
     span a {
       pointer-events: all;
     }
@@ -196,6 +202,7 @@ const Textarea = props => {
         disabled={disabled}
         isMask={showMaskValue}
         hint={!value && hint}
+        enumDefault={enumDefault}
       >
         <div
           className={cx('customFormControlBox customFormTextareaView customFormFocusControl', {

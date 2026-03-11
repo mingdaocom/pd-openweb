@@ -186,7 +186,7 @@ class RoleList extends React.Component {
                   ) : (
                     <Fragment>
                       <div
-                        className="ThemeColor mTop16 InlineBlock Hand"
+                        className="colorPrimary mTop16 InlineBlock Hand"
                         onClick={() => this.setState({ showApplyRole: !showApplyRole })}
                       >
                         {_l('申请角色权限')}

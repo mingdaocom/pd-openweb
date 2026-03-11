@@ -33,24 +33,24 @@ const Wrap = styled.div`
       top: 0;
       right: 0;
       z-index: 1;
-      background: #fff;
+      background: var(--color-background-primary);
     }
   }
   .nodeL {
     height: 100%;
     width: 560px;
-    border-right: 1px solid #e8e8e8;
+    border-right: 1px solid var(--color-border-secondary);
     padding: 20px 24px;
     overflow: auto;
     .desCon {
       margin-top: 14px;
       font-weight: 400;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
     .nodeCard {
       // width: 224px;
       height: 72px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border-secondary);
       border-radius: 6px;
       padding: 16px 12px;
       .iconCon {
@@ -81,7 +81,7 @@ const Wrap = styled.div`
       .name {
         font-size: 12px;
         font-weight: 400;
-        color: #aaaaaa;
+        color: var(--color-text-tertiary);
         max-width: 150px;
       }
       .des {
@@ -100,50 +100,50 @@ const WrapR = styled.div`
 
   .headCon {
     .icon {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
   .editControl {
     padding: 6px 16px;
-    background: #1677ff;
+    background: var(--color-primary);
     border-radius: 4px;
-    color: #ffffff;
+    color: var(--color-white);
     font-weight: 400;
-    border: 1px solid #1677ff;
+    border: 1px solid var(--color-primary);
     .icon,
     .icon:hover {
-      color: #fff;
+      color: var(--color-white);
     }
     &.disable {
-      border: 1px solid #bdbdbd;
-      color: #bdbdbd;
-      background: #fff;
+      border: 1px solid var(--color-text-disabled);
+      color: var(--color-text-disabled);
+      background: var(--color-background-primary);
       .icon,
       .icon:hover {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
     }
   }
   .previewData {
     padding: 6px 16px;
-    background: #fff;
+    background: var(--color-background-primary);
     border-radius: 4px;
-    border: 1px solid #1677ff;
-    color: #1677ff;
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
     font-weight: 400;
     .icon {
-      color: #1677ff;
+      color: var(--color-primary);
     }
     &.disable {
-      border: 1px solid #bdbdbd;
-      color: #bdbdbd;
-      background: #fff;
+      border: 1px solid var(--color-text-disabled);
+      color: var(--color-text-disabled);
+      background: var(--color-background-primary);
       .icon,
       .icon:hover {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
     }
   }
@@ -158,7 +158,7 @@ const WrapR = styled.div`
       flex-grow: 0;
       flex-shrink: 0;
       width: 200px;
-      border-left: 1px solid #eaeaea;
+      border-left: 1px solid var(--color-border-secondary);
       padding: 0 16px;
       box-sizing: border-box;
       height: 35px;
@@ -174,12 +174,12 @@ const WrapR = styled.div`
       top: 0;
       z-index: 1;
       .itemCon {
-        background: #f5f5f5;
+        background: var(--color-background-secondary);
       }
     }
     .rowCon {
       .itemCon {
-        border-top: 1px solid #eaeaea;
+        border-top: 1px solid var(--color-border-secondary);
       }
     }
   }
@@ -347,9 +347,9 @@ export default class EditorCon extends Component {
         <div className="flex flexColumn justifyContentCenter mLeft8 overflowHidden">
           <div className="name Bold overflow_ellipsis WordBreak">{getNodeName(flowData, nodeData)}</div>
           {!isAct ? (
-            <Des nodeData={nodeData} className="Font14 Gray" />
+            <Des nodeData={nodeData} className="Font14 textPrimary" />
           ) : (
-            <div className={`des overflow_ellipsis WordBreak Font14 Gray`}>{_l('结果')}</div>
+            <div className={`des overflow_ellipsis WordBreak Font14 textPrimary`}>{_l('结果')}</div>
           )}
         </div>
       </div>
@@ -482,7 +482,7 @@ export default class EditorCon extends Component {
         return (
           <WrapR className={cx('flexColumn')}>
             <div className="headCon flexRow alignItemsCenter">
-              <span className="Gray_9e flex flexRow alignItemsCenter">
+              <span className="textTertiary flex flexRow alignItemsCenter">
                 {!['DEST_TABLE', 'JOIN'].includes(nodeType)
                   ? _l('仅预览前100行数据')
                   : _l('预览数据仅显示从数据源同步至当前节点时的前100行记录')}
@@ -490,7 +490,7 @@ export default class EditorCon extends Component {
                   <Tooltip
                     title={_l('由于预览数据基于流式实时传输，显示的数据可能与实际入库的数据部分不一致，仅供参考')}
                   >
-                    <Icon icon="info" className="Gray_bd mLeft5 Font18" />
+                    <Icon icon="info" className="textDisabled mLeft5 Font18" />
                   </Tooltip>
                 )}
               </span>

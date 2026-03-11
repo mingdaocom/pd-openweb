@@ -11,11 +11,11 @@ import { openManageOftenUserDialog } from '../dialogSelectUser/GeneralSelect/Man
 export const Con = styled.div`
   overflow: hidden;
   width: 360px;
-  background-color: #fff;
+  background-color: var(--color-background-card);
   border-radius: 4px;
-  box-shadow: 0px 3px 6px 1px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-lg);
   .moduleName {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     font-size: 13px;
     margin: 10px 16px;
   }
@@ -29,10 +29,10 @@ export const Content = styled.div`
   hr {
     margin: 12px 7px;
     border: none;
-    border-top: 1px solid #f0f0f0;
+    border-top: 1px solid --color-background-disabled;
   }
   .moreBtn {
-    color: #1677ff;
+    color: var(--color-primary);
     cursor: pointer;
     padding: 4px 0 0 16px;
   }
@@ -51,11 +51,11 @@ export const UserItemCon = styled.div`
     overflow: hidden;
   }
   .name {
-    color: #151515;
+    color: var(--color-text-title);
     font-size: 13px;
   }
   .description {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     font-size: 12px;
     .splitter {
       margin: 0 6px;
@@ -63,7 +63,7 @@ export const UserItemCon = styled.div`
   }
   &.focused,
   &:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
 `;
 
@@ -71,7 +71,7 @@ export const UserListCon = styled.div`
   .empty {
     margin: 100px auto;
     text-align: center;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
 `;
 
@@ -83,21 +83,21 @@ export const SearchUsers = styled.div`
   margin: 6px 0;
   .search {
     font-size: 18px;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
     margin-right: 4px;
   }
   .close {
     font-size: 16px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     margin: 0 4px;
     cursor: pointer;
   }
   .openAddress {
     font-size: 18px;
-    color: #757575;
+    color: var(--color-text-secondary);
     cursor: pointer;
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   input {
@@ -107,7 +107,7 @@ export const SearchUsers = styled.div`
     border: none;
     margin-right: 12px;
     &::placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
   }
 `;
@@ -157,7 +157,7 @@ export function UserItem(props) {
               ))}
         </div>
       </div>
-      {select && <Icon icon="done" className="Font12 Gray_9e" />}
+      {select && <Icon icon="done" className="Font12 textTertiary" />}
     </UserItemCon>
   );
 }
@@ -216,7 +216,7 @@ export function UserList(props) {
           {hasManageBtn && (
             <div>
               {_l('您也可以')}
-              <span className="ThemeColor Hand hoverColor mLeft4" onClick={openManageDialog}>
+              <span className="colorPrimary Hand hoverColor mLeft4" onClick={openManageDialog}>
                 {_l('管理最常协作人员')}
               </span>
             </div>
@@ -278,6 +278,7 @@ export function Search(props) {
               dialogSelectUser({
                 SelectUserSettings,
                 onCancel: onClose,
+                fromAdmin: parentProps.fromAdmin,
               });
               onClose(true);
             }}
@@ -290,8 +291,8 @@ export function Search(props) {
 
 const TabsCon = styled.div`
   display: flex;
-  background-color: #f0f0f0;
-  color: #757575;
+  background-color: var(--color-background-disabled);
+  color: var(--color-text-secondary);
   .tab {
     cursor: pointer;
     flex: 1;
@@ -299,11 +300,11 @@ const TabsCon = styled.div`
     line-height: 32px;
     font-weight: 500;
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
     &.active {
-      color: #1677ff;
-      background: #fff;
+      color: var(--color-primary);
+      background: var(--color-background-primary);
     }
   }
 `;

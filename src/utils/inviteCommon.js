@@ -26,7 +26,7 @@ export const existAccountHint = function (result) {
         let desc = accountArr.join(' / ') + (USER_STATUS[item.user] || '');
         message = item.fullname + (desc.length ? '：' + desc : '');
       }
-      noticeMessage += '<div class="Font12 Gray_c LineHeight25">' + message + '</div>';
+      noticeMessage += '<div class="Font12 textPlaceholder LineHeight25">' + message + '</div>';
     });
 
     return noticeMessage;

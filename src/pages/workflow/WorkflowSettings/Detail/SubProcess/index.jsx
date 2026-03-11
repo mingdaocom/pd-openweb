@@ -149,13 +149,13 @@ export default class SubProcess extends Component {
       },
     ];
     const clearSubProcess = data.subProcessId
-      ? [{ text: <span className="Gray_75">{_l('清除选择')}</span>, value: '' }]
+      ? [{ text: <span className="textSecondary">{_l('清除选择')}</span>, value: '' }]
       : [];
 
     return (
       <Fragment>
         <div className="Font13 bold">{_l('选择数据对象')}</div>
-        <div className="Font13 Gray_75 mTop10">{_l('当前流程中的节点对象，作为子流程数据源')}</div>
+        <div className="Font13 textSecondary mTop10">{_l('当前流程中的节点对象，作为子流程数据源')}</div>
         <SelectNodeObject
           appList={data.flowNodeList}
           selectNodeId={data.selectNodeId}
@@ -183,7 +183,7 @@ export default class SubProcess extends Component {
                       />
                     </div>
                     <div style={{ marginLeft: 26 }}>
-                      <div className="Font13 Gray_75">
+                      <div className="Font13 textSecondary">
                         {_l(
                           '勾选后，当子流程数据源为工作表多条数据对象时，所有符合筛选条件的记录都将进入子流程，并忽略数据对象节点配置的排序规则和限制数量',
                         )}
@@ -202,7 +202,7 @@ export default class SubProcess extends Component {
                                 updateSource={({ fieldValue }) => this.updateSource({ executeAllCount: fieldValue })}
                               />
                             </div>
-                            <div className="Gray_75 mLeft10">{_l('行（最大 100 万行）')}</div>
+                            <div className="textSecondary mLeft10">{_l('行（最大 100 万行）')}</div>
                           </div>
                         </Fragment>
                       )}
@@ -211,7 +211,9 @@ export default class SubProcess extends Component {
                 )}
 
               <div className="Font13 bold mTop20">{_l('多条数据执行方式')}</div>
-              <div className="Font13 Gray_75 mTop10">{_l('您选择了多条数据对象，将根据数据的条数执行多条子流程')}</div>
+              <div className="Font13 textSecondary mTop10">
+                {_l('您选择了多条数据对象，将根据数据的条数执行多条子流程')}
+              </div>
 
               {executeTypes.map((item, i) => {
                 return (
@@ -221,7 +223,7 @@ export default class SubProcess extends Component {
                       checked={data.executeType === item.value}
                       onClick={() => this.updateSource({ executeType: item.value })}
                     />
-                    <div className="mTop10 mLeft30 Gray_75">{item.desc}</div>
+                    <div className="mTop10 mLeft30 textSecondary">{item.desc}</div>
                   </div>
                 );
               })}
@@ -256,12 +258,12 @@ export default class SubProcess extends Component {
           <Fragment>
             <div className="workflowDetailDesc mTop10 flexRow" style={{ padding: '10px 12px' }}>
               {!data.subProcessId ? (
-                <div className="Gray_75 ellipsis">{_l('节点保存后，将自动创建一个新的子流程')}</div>
+                <div className="textSecondary ellipsis">{_l('节点保存后，将自动创建一个新的子流程')}</div>
               ) : (
                 <Fragment>
                   <div className="ellipsis">{data.subProcessName}</div>
                   {!data.subProcessEnabled && (
-                    <div className="flex" style={{ color: '#f44336' }}>
+                    <div className="flex" style={{ color: 'var(--color-error)' }}>
                       （{_l('未开启')}）
                     </div>
                   )}
@@ -276,7 +278,7 @@ export default class SubProcess extends Component {
                 onClick={checked => this.updateSource({ nextExecute: !checked })}
               />
             </div>
-            <div className="Font13 Gray_75" style={{ marginLeft: 26 }}>
+            <div className="Font13 textSecondary" style={{ marginLeft: 26 }}>
               {_l('勾选后，当子流程数据源为单条对象，之后节点可使用子流程中的参数')}
             </div>
 

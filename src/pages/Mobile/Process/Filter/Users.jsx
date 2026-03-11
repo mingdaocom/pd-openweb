@@ -12,22 +12,22 @@ const UsersCon = styled.div`
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     font-size: 22px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .rightArrow {
     position: absolute;
     right: 0;
     line-height: 26px;
     font-size: 16px;
-    color: #c7c7cc;
+    color: var(--color-text-placeholder);
   }
 `;
 
 const UserItem = styled.span`
   height: 32px;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   border-radius: 14px;
   margin: 0 8px 10px 0;
   padding-right: 12px;

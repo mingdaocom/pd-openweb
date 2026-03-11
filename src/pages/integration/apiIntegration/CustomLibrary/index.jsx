@@ -20,13 +20,13 @@ const ApplyBtn = styled.div`
   align-items: center;
   cursor: pointer;
   &:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
   .applyNumber {
     width: 20px;
     height: 20px;
-    background: #f8d4d3;
-    color: #f44336;
+    background: var(--color-error-bg);
+    color: var(--color-error);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -39,12 +39,9 @@ const SearchBox = styled.div`
   width: 220px;
   height: 36px;
   border-radius: 36px;
-  background-color: rgb(245, 245, 245);
+  background-color: var(--color-background-card);
   padding-left: 10px;
   overflow: hidden;
-  &:hover {
-    background-color: rgb(234, 234, 234);
-  }
   input {
     flex: 1;
     border: none;
@@ -58,7 +55,7 @@ const SearchBox = styled.div`
     border-radius: 28px;
     margin-right: 2px;
     &:hover {
-      background: rgb(245, 245, 245);
+      background: var(--color-background-hover);
     }
   }
 `;
@@ -72,7 +69,7 @@ const Content = styled.div`
     min-width: 325px;
     height: 220px;
     margin: 12px;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     border-radius: 8px;
     padding: 24px 24px 0;
     cursor: pointer;
@@ -80,7 +77,7 @@ const Content = styled.div`
       box-shadow: rgba(0, 0, 0, 0.16) 0 2px 5px;
     }
     &.null {
-      color: #e0e0e0;
+      color: var(--color-border-secondary);
       font-size: 60px;
     }
     .listItemHeader {
@@ -94,18 +91,18 @@ const Content = styled.div`
         border-radius: 50%;
         max-width: 100%;
         max-height: 100%;
-        background-color: #eaeaea;
+        background-color: var(--color-border-secondary);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
     }
     .listApplyBtn {
       min-width: 66px;
       height: 30px;
       padding: 0px 12px;
-      background: rgba(33, 150, 243, 0.08);
+      background: var(--color-primary-transparent);
       border-radius: 15px;
       color: rgb(33, 150, 243);
       line-height: 30px;
@@ -119,7 +116,7 @@ const Content = styled.div`
       overflow: hidden;
     }
     .listItemRemove {
-      color: #f44336;
+      color: var(--color-error);
       cursor: pointer;
     }
   }
@@ -135,9 +132,9 @@ const Content = styled.div`
       width: 130px;
       height: 130px;
       text-align: center;
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       border-radius: 50%;
-      color: #c2c3c3;
+      color: var(--color-text-placeholder);
       i {
         line-height: 130px;
       }
@@ -267,12 +264,12 @@ export default function CustomLibrary(props) {
         </div>
 
         <ApplyBtn onClick={() => setAuthListVisible(true)}>
-          <span className="Font14 Gray_75">{_l('申请使用')}</span>
+          <span className="Font14 textSecondary">{_l('申请使用')}</span>
           {!!applyCount && <div className="applyNumber">{applyCount}</div>}
         </ApplyBtn>
 
         <SearchBox className="flexRow alignItemsCenter mLeft20">
-          <Icon type="search" className="Font18 Gray_9d" />
+          <Icon type="search" className="Font18 textTertiary" />
           <input
             type="text"
             ref={keywordsRef}
@@ -288,7 +285,7 @@ export default function CustomLibrary(props) {
                 setKeywords('');
               }}
             >
-              <Icon type="cancel" className="Gray_9e Font16" />
+              <Icon type="cancel" className="textTertiary Font16" />
             </div>
           )}
         </SearchBox>
@@ -301,7 +298,7 @@ export default function CustomLibrary(props) {
             onClick={() => setAddAPIDialogVisible(true)}
           >
             <Icon type="task-add-member-circle" className="null" />
-            <div className="mTop25 Font13 Gray_75">{_l('添加组织下创建的连接至API库')}</div>
+            <div className="mTop25 Font13 textSecondary">{_l('添加组织下创建的连接至API库')}</div>
           </div>
         )}
 
@@ -310,7 +307,9 @@ export default function CustomLibrary(props) {
             <div className="iconCon">
               <Icon icon="connect" className="Font64" />
             </div>
-            <div className="mTop24 Font16 Gray_9e">{!keywords ? _l('组织下暂未开放可用API') : _l('暂无搜索结果')}</div>
+            <div className="mTop24 Font16 textTertiary">
+              {!keywords ? _l('组织下暂未开放可用API') : _l('暂无搜索结果')}
+            </div>
           </div>
         ) : (
           list.map(item => (
@@ -320,11 +319,11 @@ export default function CustomLibrary(props) {
                 <div className="listApplyBtn">{_l('申请使用')}</div>
               </div>
               <div className="bold Font20 ellipsis mTop20">{item.name}</div>
-              <div className="listItemDesc Gray_75 breakAll mTop20">{item.explain}</div>
+              <div className="listItemDesc textSecondary breakAll mTop20">{item.explain}</div>
               <div className="flexRow mTop20">
-                <span className="Gray_75">{_l('包含')}</span>
+                <span className="textSecondary">{_l('包含')}</span>
                 <span className="mLeft3 mRight3">{item.apiCount}</span>
-                <span className="Gray_75">API</span>
+                <span className="textSecondary">API</span>
                 <div className="flex" />
                 {hasManageAuth && (
                   <div

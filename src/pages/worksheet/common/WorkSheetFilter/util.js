@@ -6,6 +6,7 @@ import { browserIsMobile } from 'src/utils/common';
 import { renderText as renderCellText } from 'src/utils/control';
 import { isRelateRecordTableControl } from 'src/utils/control';
 import { checkCellIsEmpty, getSelectedOptions } from 'src/utils/control';
+import { dateServerZoneToAppZone } from 'src/utils/project';
 import {
   API_ENUM_TO_TYPE,
   CONTROL_FILTER_WHITELIST,
@@ -803,7 +804,7 @@ export function redefineComplexControl(control) {
 /**
  * 动态筛选值规则
  *  */
-export function relateDy(conditionType, controls, control, defaultValue) {
+export function relateDy(conditionType, controls, control, defaultValue, from) {
   if (
     defaultValue === FILTER_CONDITION_TYPE.ISNULL || // 为空
     defaultValue === FILTER_CONDITION_TYPE.HASVALUE || // 不为空
@@ -968,7 +969,10 @@ export function relateDy(conditionType, controls, control, defaultValue) {
         items =>
           _.includes(typeList, items.type) &&
           items.dataSource === control.dataSource &&
-          !(items.type === 29 && _.includes(['2', '5', '6'], _.get(items, 'advancedSetting.showtype'))),
+          !(
+            items.type === 29 &&
+            _.includes(_.includes(['rule'], from) ? ['2', '5', '6'] : ['6'], _.get(items, 'advancedSetting.showtype'))
+          ),
       );
     // 人员单选 人员多选
     case API_ENUM_TO_TYPE.USER_PICKER:
@@ -1014,7 +1018,7 @@ export function relateDy(conditionType, controls, control, defaultValue) {
   }
 }
 
-export function getFilter({ control, formData = [], filterKey = 'filters', ignoreEmptyRule = false }) {
+export function getFilter({ control, formData = [], filterKey = 'filters', ignoreEmptyRule = false, appId }) {
   if (
     !control ||
     _.isEmpty(control.advancedSetting) ||
@@ -1052,6 +1056,7 @@ export function getFilter({ control, formData = [], filterKey = 'filters', ignor
         condition,
         formData,
         relateControl: control,
+        appId,
         ignoreFilterControl: control.ignoreFilterControl,
         abortFilterWhenEmpty,
       });
@@ -1098,6 +1103,7 @@ export function fillConditionValue({
   condition,
   formData,
   relateControl,
+  appId,
   ignoreFilterControl = false,
   abortFilterWhenEmpty = false,
 }) {
@@ -1212,10 +1218,17 @@ export function fillConditionValue({
     condition.value = value;
   } else if (dataType === 15 || dataType === 16) {
     try {
-      condition.value = moment(value).format(
+      let tempValue = value;
+      if (dataType === 16 && tempValue) {
+        const appTimeZone = window[`timeZone_${appId}`];
+        if (!_.isUndefined(appTimeZone)) {
+          tempValue = dateServerZoneToAppZone(tempValue, appTimeZone);
+        }
+      }
+      condition.value = moment(tempValue).format(
         getDatePickerConfigs({
           ...dynamicControl,
-          value,
+          value: tempValue,
         }).formatMode,
       );
     } catch (err) {
@@ -1264,9 +1277,20 @@ export function fillConditionValue({
     }
   } else if (dataType === 29 || dataType === 35) {
     try {
-      condition.values = (_.isObject(value) ? value.records : JSON.parse(value))
-        .map(r => r.sid || r.rowid)
-        .filter(_.identity);
+      const store = dynamicControl.store;
+      const state = store && store.getState();
+      if (isRelateRecordTableControl(dynamicControl) && dynamicControl.rcValue) {
+        let rcValues = safeParse(dynamicControl.rcValue, 'array') || [];
+        const { addedRecordIds = [], deletedRecordIds = [] } = state?.changes || {};
+        rcValues = rcValues.concat(addedRecordIds).filter(r => !_.includes(deletedRecordIds, r));
+        condition.values = _.uniq(rcValues);
+      } else {
+        let relateValues = state ? state.records : _.isObject(value) ? value.records : JSON.parse(value);
+        if (!_.isArray(relateValues)) {
+          relateValues = [];
+        }
+        condition.values = relateValues.map(r => r.sid || r.rowid).filter(_.identity);
+      }
     } catch (err) {
       console.log(err);
       condition.values = [];
@@ -1326,6 +1350,16 @@ export function formatDateValue({ type, value }) {
       .format('YYYY-MM-DD HH:mm:ss');
   } else if (type === FILTER_CONDITION_TYPE.DATE_LT) {
     // 早于
+    return moment(value || undefined)
+      .startOf('day')
+      .format('YYYY-MM-DD HH:mm:ss');
+  } else if (type === FILTER_CONDITION_TYPE.DATE_LTE) {
+    // 早于等于
+    return moment(value || undefined)
+      .endOf('day')
+      .format('YYYY-MM-DD HH:mm:ss');
+  } else if (type === FILTER_CONDITION_TYPE.DATE_GTE) {
+    // 晚于等于
     return moment(value || undefined)
       .startOf('day')
       .format('YYYY-MM-DD HH:mm:ss');

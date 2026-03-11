@@ -108,9 +108,9 @@ export const CardItem = styled.div`
   display: flex;
   flex-direction: column;
   min-width: 0;
-  background: #fff;
+  background: var(--color-background-primary);
   padding-bottom: 12px;
-  box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
   border-radius: 8px;
   margin-bottom: 20px;
 
@@ -159,10 +159,10 @@ export const CardItem = styled.div`
       padding: 6px 4px 6px 10px;
       margin-top: -4px;
       border-radius: 4px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       cursor: pointer;
       &:hover {
-        background-color: #f8f8f8;
+        background-color: var(--color-background-hover);
       }
     }
   }
@@ -171,7 +171,7 @@ export const CardItem = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    color: #868686;
+    color: var(--color-text-secondary);
     font-size: 14px;
     margin-top: 36px;
     margin-bottom: 36px;
@@ -184,7 +184,7 @@ export const CardItem = styled.div`
       font-weight: bold;
       margin-left: 4px;
       margin-right: 4px;
-      color: #151515;
+      color: var(--color-text-title);
     }
   }
 `;

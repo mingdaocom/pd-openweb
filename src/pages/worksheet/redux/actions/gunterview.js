@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import moment from 'moment';
 import sheetAjax from 'src/api/worksheet';
-import { controlState, getDynamicValue } from 'src/components/Form/core/formUtils';
+import { getDynamicValue } from 'src/components/Form/core/formUtils';
 import { PERIOD_TYPE } from 'src/pages/worksheet/views/GunterView/config';
 import {
   changeViewConfig,
@@ -19,10 +19,10 @@ import {
   getWorkDays,
   getYears,
   groupingTimeBlock,
-  isTimeStyle,
   sortGrouping,
 } from 'src/pages/worksheet/views/GunterView/util';
 import { getFilledRequestParams } from 'src/utils/common';
+import { controlState, isTimeStyle } from 'src/utils/control';
 import { formatQuickFilter } from 'src/utils/filter';
 import { dateConvertToServerZone, dateConvertToUserZone } from 'src/utils/project';
 import { handleRecordError } from 'src/utils/record';
@@ -56,6 +56,8 @@ const getExportPeriodList = (type, { startTime, endTime }, viewConfig) => {
   }
 };
 
+let viewRequest = {};
+
 export const fetchRows = callBackFun => {
   return (dispatch, getState) => {
     const { base, controls, views, filters, quickFilter = [] } = getState().sheet;
@@ -67,95 +69,106 @@ export const fetchRows = callBackFun => {
 
     const view = base.viewId ? _.find(views, { viewId: base.viewId }) || views[0] : views[0];
     const selectControl = _.find(controls, item => item.controlId === (view || {}).viewControl);
+
     dispatch({ type: 'CHANGE_GUNTER_LOADINNG', data: true });
-    sheetAjax
-      .getFilterRows(
-        getFilledRequestParams({
-          appId: base.appId,
-          viewId: base.viewId,
-          worksheetId: base.worksheetId,
-          relationWorksheetId: selectControl && selectControl.type === 29 ? selectControl.dataSource : null,
-          ...filters,
-          fastFilters: formatQuickFilter(quickFilter),
-          langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
-        }),
-      )
-      .then(({ data }) => {
-        const isLocalhost = location.href.includes('localhost');
-        const isGunterExport = location.href.includes('gunterExport');
-        setTimeout(
-          () => {
-            const { gunterView } = getState().sheet;
-            const { colorId, startId, endId, startType, endType, showgroupcolor, startControl, endControl } =
-              gunterView.viewConfig;
-            const startFormat = startType === 16 ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD';
-            const endFormat = endType === 16 ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD';
-            const selectControlOptions = _.get(selectControl, 'options') || [];
-            const isStartTimeStyle = isTimeStyle(startControl);
-            const isEndTimeStyle = isTimeStyle(endControl);
-            const grouping = sortGrouping(
-              data.map(item => {
-                const rows = (item.rows || []).map(row => {
-                  const data = formatRecordTime(JSON.parse(row), gunterView.viewConfig);
-                  const startTime =
-                    data.startTime && isStartTimeStyle
-                      ? moment(dateConvertToUserZone(data.startTime)).format(startFormat)
-                      : data.startTime;
-                  const endTime =
-                    data.endTime && isEndTimeStyle
-                      ? moment(dateConvertToUserZone(data.endTime)).format(endFormat)
-                      : data.endTime;
-                  data.originalStartTime = data.startTime;
-                  data.originalEndTime = data.endTime;
-                  data[startId] = startTime;
-                  data[endId] = endTime;
-                  data.startTime = startTime;
-                  data.endTime = endTime;
-                  return {
-                    ...data,
-                    groupId: item.key,
-                  };
-                });
-                const times = getRowsTime(rows);
-                const key = `gunter-sub-visible-${item.key}`;
+
+    let request = viewRequest[base.viewId];
+
+    if (request && request.abort) {
+      request.abort();
+    }
+
+    viewRequest[base.viewId] = sheetAjax.getFilterRows(
+      getFilledRequestParams({
+        appId: base.appId,
+        viewId: base.viewId,
+        worksheetId: base.worksheetId,
+        relationWorksheetId: selectControl && selectControl.type === 29 ? selectControl.dataSource : null,
+        ...filters,
+        fastFilters: formatQuickFilter(quickFilter),
+        langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
+      }),
+    );
+    viewRequest[base.viewId].then(({ data }) => {
+      viewRequest[base.viewId] = undefined;
+      const isLocalhost = location.href.includes('localhost');
+      const isGunterExport = location.href.includes('gunterExport');
+      setTimeout(
+        () => {
+          const { gunterView } = getState().sheet;
+          const { viewId, colorId, startId, endId, startType, endType, showgroupcolor, startControl, endControl } =
+            gunterView.viewConfig;
+          const startFormat = startType === 16 ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD';
+          const endFormat = endType === 16 ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD';
+          const selectControlOptions = _.get(selectControl, 'options') || [];
+          const isStartTimeStyle = isTimeStyle(startControl);
+          const isEndTimeStyle = isTimeStyle(endControl);
+          const grouping = sortGrouping(
+            data.map(item => {
+              const rows = (item.rows || []).map(row => {
+                const data = formatRecordTime(JSON.parse(row), gunterView.viewConfig);
+                const startTime =
+                  data.startTime && isStartTimeStyle
+                    ? moment(dateConvertToUserZone(data.startTime)).format(startFormat)
+                    : data.startTime;
+                const endTime =
+                  data.endTime && isEndTimeStyle
+                    ? moment(dateConvertToUserZone(data.endTime)).format(endFormat)
+                    : data.endTime;
+                data.originalStartTime = data.startTime;
+                data.originalEndTime = data.endTime;
+                data[startId] = startTime;
+                data[endId] = endTime;
+                data.startTime = startTime;
+                data.endTime = endTime;
                 return {
-                  ...item,
-                  ...times,
-                  color:
-                    showgroupcolor === '1'
-                      ? _.get(_.find(selectControlOptions, { key: item.key }), 'color') || '#B1C4D5'
-                      : '#B1C4D5',
-                  rows,
-                  subVisible: localStorage.getItem(key) ? true : isGunterExport,
+                  ...data,
+                  groupId: item.key,
                 };
-              }),
-              view,
-              controls,
-            );
-            if (isGunterExport) {
-              const { calendartype } = view.advancedSetting;
-              const gunterViewType = localStorage.getItem('gunterViewType');
-              const type = gunterViewType
-                ? Number(gunterViewType)
-                : calendartype
-                  ? Number(calendartype)
-                  : PERIOD_TYPE.day;
-              dispatch({ type: 'CHANGE_GUNTER_PERIOD_TYPE', data: type });
-              dispatch({ type: 'CHANGE_GUNTER_VIEW_CONFIG', data: changeViewConfig(type, gunterView.viewConfig) });
-              const periodList = getExportPeriodList(type, getRowsTime(grouping), gunterView.viewConfig);
-              dispatch(updatePeriodList(periodList));
-              groupingTimeBlock(grouping, periodList.result, gunterView.viewConfig);
-            } else {
-              groupingTimeBlock(grouping, gunterView.periodList, gunterView.viewConfig);
-            }
-            dispatch(updateGroupingData(fillRecordsTimeBlockColor(grouping, _.find(controls, { controlId: colorId }))));
-            callBackFun && callBackFun(grouping);
-            dispatch({ type: 'CHANGE_GUNTER_LOADINNG', data: false });
-            gunterView.chartScroll.enable && gunterView.chartScroll.enable();
-          },
-          isLocalhost || isGunterExport ? 1000 : 0,
-        );
-      });
+              });
+              const times = getRowsTime(rows);
+              const key = `gunter-sub-visible-${item.key}`;
+              if (_.get(selectControl, 'options.length')) {
+                item.name = _.get(_.find(selectControl.options, { key: item.key }), 'value') || item.name;
+              }
+              return {
+                ...item,
+                ...times,
+                color:
+                  showgroupcolor === '1'
+                    ? _.get(_.find(selectControlOptions, { key: item.key }), 'color') || '#B1C4D5'
+                    : '#B1C4D5',
+                rows,
+                subVisible: localStorage.getItem(key) ? true : isGunterExport,
+              };
+            }),
+            view,
+            controls,
+          );
+          if (isGunterExport) {
+            const { calendartype } = view.advancedSetting;
+            const gunterViewType = localStorage.getItem(`gunterViewType-${viewId}`);
+            const type = gunterViewType
+              ? Number(gunterViewType)
+              : calendartype
+                ? Number(calendartype)
+                : PERIOD_TYPE.day;
+            dispatch({ type: 'CHANGE_GUNTER_PERIOD_TYPE', data: type });
+            dispatch({ type: 'CHANGE_GUNTER_VIEW_CONFIG', data: changeViewConfig(type, gunterView.viewConfig) });
+            const periodList = getExportPeriodList(type, getRowsTime(grouping), gunterView.viewConfig);
+            dispatch(updatePeriodList(periodList));
+            groupingTimeBlock(grouping, periodList.result, gunterView.viewConfig);
+          } else {
+            groupingTimeBlock(grouping, gunterView.periodList, gunterView.viewConfig);
+          }
+          dispatch(updateGroupingData(fillRecordsTimeBlockColor(grouping, _.find(controls, { controlId: colorId }))));
+          callBackFun && callBackFun(grouping);
+          dispatch({ type: 'CHANGE_GUNTER_LOADINNG', data: false });
+          gunterView.chartScroll.enable && gunterView.chartScroll.enable();
+        },
+        isLocalhost || isGunterExport ? 1000 : 0,
+      );
+    });
   };
 };
 
@@ -234,8 +247,9 @@ export const destroyGunterView = () => {
 
 export const refreshGunterView = time => {
   return (dispatch, getState) => {
-    const { gunterView } = getState().sheet;
-    dispatch(updataPeriodType(gunterView.periodType || PERIOD_TYPE.day, time));
+    const { base, gunterView } = getState().sheet;
+    const gunterViewType = localStorage.getItem(`gunterViewType-${base.viewId}`) || gunterView.periodType;
+    dispatch(updataPeriodType(Number(gunterViewType) || PERIOD_TYPE.day, time));
     dispatch({ type: 'CHANGE_GUNTER_IS_REFRESH', data: !gunterView.isRefresh });
   };
 };
@@ -265,11 +279,11 @@ export const zoomGunterView = () => {
 
 export const updataPeriodType = (value, time) => {
   return (dispatch, getState) => {
-    const { gunterView } = getState().sheet;
+    const { base, gunterView } = getState().sheet;
     const { viewConfig } = gunterView;
     dispatch({ type: 'CHANGE_GUNTER_PERIOD_TYPE', data: value });
     dispatch({ type: 'CHANGE_GUNTER_VIEW_CONFIG', data: changeViewConfig(value, viewConfig) });
-    safeLocalStorageSetItem('gunterViewType', value);
+    safeLocalStorageSetItem(`gunterViewType-${base.viewId}`, value);
     let data = {};
     if (value === PERIOD_TYPE.day) {
       const { onlyWorkDay } = viewConfig;

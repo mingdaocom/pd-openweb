@@ -5,12 +5,12 @@ import { Qr as QrComp } from 'ming-ui';
 
 const Con = styled.div(
   ({ width }) =>
-    `position: relative; z-index: 1; width: ${width}px; border-radius: 4px; background-color: #fff; padding: 10px; box-sizing: border-box; box-shadow: 0px 3px 8px #0000004D;`,
+    `position: relative; z-index: 1; width: ${width}px; border-radius: 4px; background-color: var(--color-background-primary); padding: 10px; box-sizing: border-box; box-shadow: 0px 3px 8px #0000004D;`,
 );
 const Tip = styled.div`
   text-align: center;
   font-size: 13px;
-  color: #151515;
+  color: var(--color-text-title);
   line-height: 1em;
   margin: 8px 0 -2px;
 `;
@@ -23,7 +23,7 @@ const Bulge = styled.span(
   width: 0px;
   height: 0px;
   border: ${width / 2}px solid transparent;
-  border-bottom-color: #fff;
+  border-bottom-color: var(--color-background-primary);
 `,
 );
 

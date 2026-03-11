@@ -20,7 +20,7 @@ const SelectToolsFields = props => {
   const toolTitle = item => {
     return (
       <div className="flexRow alignItemsCenter">
-        <span className={cx('Font16 Gray_9e', getIcons(item.nodeTypeId, item.appType, item.actionId))} />
+        <span className={cx('Font16 textTertiary', getIcons(item.nodeTypeId, item.appType, item.actionId))} />
         <span className="mLeft5">
           {item.nodeName}-{item.appName}
         </span>
@@ -30,7 +30,7 @@ const SelectToolsFields = props => {
   const fieldTitle = (item, showType = true) => {
     return (
       <div className="flexRow alignItemsCenter">
-        {showType && <span className="Gray_9e mRight5">[{getControlTypeName(item)}]</span>}
+        {showType && <span className="textTertiary mRight5">[{getControlTypeName(item)}]</span>}
         <span>{item.controlName}</span>
       </div>
     );
@@ -90,8 +90,8 @@ const SelectToolsFields = props => {
       {list === null && <LoadDiv />}
       {list && !list.length && (
         <NoData>
-          <div className="Font17 Gray_75">{_l('当前暂无可引用的字段')}</div>
-          <div className="flexRow alignItemsCenter mTop5 Gray_9e">
+          <div className="Font17 textSecondary">{_l('当前暂无可引用的字段')}</div>
+          <div className="flexRow alignItemsCenter mTop5 textTertiary">
             {_l('请前往目标节点配置后再试')}
             <Support
               className="mLeft3"

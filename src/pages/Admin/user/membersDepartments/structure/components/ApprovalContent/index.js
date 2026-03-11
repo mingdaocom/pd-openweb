@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { antNotification, Dialog, LoadDiv } from 'ming-ui';
+import { antNotification, Dialog } from 'ming-ui';
 import userAjax from 'src/api/user';
 import { checkCertification } from 'src/components/checkCertification';
 import { refuseUserJoinFunc } from '../refuseUserJoinDia';
@@ -10,14 +10,14 @@ import UserTable from '../userList/userTable';
 
 const TabWrap = styled.div`
   display: flex;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid var(--color-border-secondary);
   .item {
     width: 42px;
     text-align: center;
     padding: 10px 0;
     margin-right: 30px;
     &.active {
-      border-bottom: 2px solid #1677ff;
+      border-bottom: 2px solid var(--color-primary);
     }
   }
 `;
@@ -30,12 +30,12 @@ const tabs = [
 export default function ApprovalContent(props) {
   const {
     projectId,
-    isLoading,
     userStatus,
     selectedAccountIds,
     loadApprovalUsers = () => {},
     updateUserStatus = () => {},
     updateSelectedAccountIds = () => {},
+    updateApplyDateOrderBy = () => {},
   } = props;
 
   // 批准加入
@@ -44,9 +44,9 @@ export default function ApprovalContent(props) {
     Dialog.confirm({
       title: _l('批准用户加入'),
       description: (
-        <div className="Gray">
+        <div className="textPrimary">
           {_l('您共勾选了')}
-          <span className="ThemeColor"> {selectedAccountIds.length} </span>
+          <span className="colorPrimary"> {selectedAccountIds.length} </span>
           {_l('个用户')}
         </div>
       ),
@@ -103,6 +103,7 @@ export default function ApprovalContent(props) {
           <div
             className={cx('item Hand', { active: item.type === userStatus })}
             onClick={() => {
+              updateApplyDateOrderBy(11);
               updateSelectedAccountIds([]);
               updateUserStatus(item.type);
               loadApprovalUsers(projectId, 1);
@@ -125,13 +126,7 @@ export default function ApprovalContent(props) {
           </div>
         )}
       </div>
-      {isLoading ? (
-        <div>
-          <LoadDiv />
-        </div>
-      ) : (
-        <UserTable projectId={projectId} />
-      )}
+      <UserTable projectId={projectId} />
     </Fragment>
   );
 }

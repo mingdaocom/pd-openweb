@@ -16,9 +16,9 @@ const Header = styled.div`
 `;
 
 const PayChannelItem = styled.div`
-  background: #ffffff;
+  background: var(--color-background-primary);
   border-radius: 10px;
-  border: 1px solid #ededed;
+  border: 1px solid var(--color-border-secondary);
   margin: 0 120px;
   padding: 20px 24px;
   &:hover {
@@ -31,13 +31,13 @@ const PayChannelItem = styled.div`
     align-items: center;
     justify-content: center;
     border-radius: 6px;
-    color: #fff;
+    color: var(--color-white);
     margin-right: 10px;
     &.wechatBgColor {
-      background: #48b338;
+      background: var(--color-success);
     }
     &.aliBgColor {
-      background: #02a9f1;
+      background: var(--color-primary);
     }
   }
 `;
@@ -100,10 +100,12 @@ export default class CreateMerchant extends Component {
         </div>
         <div className="orgManagementContent">
           <div className="bold Font24 TxtCenter mBottom20">{_l('支付渠道')}</div>
-          <div className="Font18 TxtCenter Gray_9e mBottom50">
+          <div className="Font18 TxtCenter textTertiary mBottom50">
             {_l('根据业务需求平台提供不同的支付收款渠道，支持创建多个通道的商户')}
           </div>
-          {PAY_CHANNEL.filter(item => (md.global.Config.IsLocal ? item.value !== 0 : true)).map(item => {
+          {PAY_CHANNEL.filter(item =>
+            window.platformENV.isOverseas || window.platformENV.isLocal ? item.value !== 0 : true,
+          ).map(item => {
             return (
               <PayChannelItem
                 key={item.value}
@@ -128,7 +130,7 @@ export default class CreateMerchant extends Component {
                   </div>
                   <div className="bold Font17">{item.label}</div>
                 </div>
-                <div className="Font15 Gray_75">{item.desc}</div>
+                <div className="Font15 textSecondary">{item.desc}</div>
               </PayChannelItem>
             );
           })}

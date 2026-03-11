@@ -8,7 +8,7 @@ import paymentAjax from 'src/api/payment';
 import worksheetAjax from 'src/api/worksheet';
 import worksheetSettingAjax from 'src/api/worksheetSetting';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
-import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import ShowBtnFilterDialog from 'src/pages/worksheet/common/CreateCustomBtn/components/ShowBtnFilterDialog';
 import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
 import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
@@ -160,7 +160,7 @@ export default class PayConfig extends Component {
           label: shortName || merchantNo,
           value: merchantNo,
           subscribeMerchant,
-          disabled: md.global.Config.IsLocal ? false : !planExpiredTime,
+          disabled: window.platformENV.isOverseas || window.platformENV.isLocal ? false : !planExpiredTime,
           merchantPaymentChannel,
         }));
       const initSettings = {
@@ -482,13 +482,13 @@ export default class PayConfig extends Component {
 
                       <div className="mTop20 mBottom10 bold Font14">{_l('按钮显示条件')}</div>
                       <div className="flexRow mBottom10">
-                        <div className="Gray_75">
+                        <div className="textSecondary">
                           {_l('当支付内容、支付金额字段不为空时') + (hasFilters ? _l('，且满足以下条件：') : '')}
                         </div>
                         <div className="flex"></div>
                         {hasFilters && (
                           <div
-                            className="ThemeColor"
+                            className="colorPrimary"
                             onClick={() => this.setState({ [key]: { ...this.state[key], filter: [] } })}
                           >
                             {_l('清除条件')}
@@ -506,7 +506,7 @@ export default class PayConfig extends Component {
                         />
                       ) : (
                         <div
-                          className={cx('Hand Gray_75 ThemeHoverColor2', { mBottom30: key === 'internalUser' })}
+                          className={cx('Hand textSecondary ThemeHoverColor2', { mBottom30: key === 'internalUser' })}
                           onClick={() => this.setState({ showFilterDialog: true, filterType: key })}
                         >
                           <i className="icon icon-plus" />
@@ -639,7 +639,7 @@ export default class PayConfig extends Component {
                         />
                       )}
                     </div>
-                    <div className="Gray_9e flex">{item.text}</div>
+                    <div className="textTertiary flex">{item.text}</div>
                   </li>
                 );
               })}
@@ -661,7 +661,7 @@ export default class PayConfig extends Component {
                     value={mchid}
                     optionLabelProp="label"
                     optionFilterProp="label"
-                    suffixIcon={<i className="icon icon-arrow-down-border Gray_9e" />}
+                    suffixIcon={<i className="icon icon-arrow-down-border textTertiary" />}
                     onChange={value => this.setState({ mchid: _.isArray(value) ? value : [value] })}
                     tagRender={props => {
                       const { value, onClose, disabled } = props;
@@ -697,19 +697,21 @@ export default class PayConfig extends Component {
                           <div className="valignWrapper">
                             <span className="flex overflow_ellipsis">
                               {item.text}
-                              <span className={cx('mLeft10', { Gray_9e: !disabled, Gray_bd: disabled })}>
+                              <span className={cx('mLeft10', { textTertiary: !disabled, textDisabled: disabled })}>
                                 {PAYMENT_CHANNEL[item.merchantPaymentChannel]}
                               </span>
                             </span>
 
-                            {!item.subscribeMerchant && !md.global.Config.IsLocal && (
-                              <span
-                                className="Hand ThemeColor option"
-                                onClick={() => navigateTo(`/admin/merchant/${projectId}`)}
-                              >
-                                {_l('开通收款')}
-                              </span>
-                            )}
+                            {!item.subscribeMerchant &&
+                              !window.platformENV.isOverseas &&
+                              !window.platformENV.isLocal && (
+                                <span
+                                  className="Hand colorPrimary option"
+                                  onClick={() => navigateTo(`/admin/merchant/${projectId}`)}
+                                >
+                                  {_l('开通收款')}
+                                </span>
+                              )}
                           </div>
                         </Select.Option>
                       );
@@ -717,7 +719,7 @@ export default class PayConfig extends Component {
                   </Select>
                 )}
                 <div className="subTitle required">{_l('支付内容')}</div>
-                <div className="Gray_9e mBottom16">{_l('订单/支付页面显示的商品/产品简要描述')}</div>
+                <div className="textTertiary mBottom16">{_l('订单/支付页面显示的商品/产品简要描述')}</div>
                 <Dropdown
                   className={cx('w100', {
                     emptyDropdown: checkIsDeleted(payContentControlId, controls),
@@ -730,7 +732,7 @@ export default class PayConfig extends Component {
                   onChange={value => this.setState({ payContentControlId: value })}
                 />
                 <div className="subTitle required">{_l('支付金额')}</div>
-                <div className="Gray_9e mBottom16">
+                <div className="textTertiary mBottom16">
                   {_l(
                     '支持字段：金额（仅支持人民币）、数值、公式、汇总；限制在2位小数（超过只取前两位数值），可支付的金额范围：0.01~10000',
                   )}
@@ -767,8 +769,8 @@ export default class PayConfig extends Component {
                   />
                   {_l('设置交易有效期')}
                 </div>
-                <div className={cx('Gray_9e', { mBottom16: expireTime })}>
-                  {_l('开启后用户需要在系统设置的时间内完成交易，逾期平台将关闭交易，同时该记录将不再支持用户支付')}
+                <div className={cx('textTertiary', { mBottom16: expireTime })}>
+                  {_l('开启后用户需要在系统设置的时间内完成交易，逾期平台将关闭交易，后续需重新创建订单发起支付')}
                 </div>
                 {expireTime ? (
                   <Select
@@ -777,7 +779,7 @@ export default class PayConfig extends Component {
                     placeholder={_l('选择或填写时间')}
                     value={expireTime}
                     searchValue={searchValue}
-                    suffixIcon={<i className="icon icon-arrow-down-border Gray_9e" />}
+                    suffixIcon={<i className="icon icon-arrow-down-border textTertiary" />}
                     options={options}
                     onChange={value => {
                       this.setState({ expireTime: value, searchValue: undefined });
@@ -804,7 +806,7 @@ export default class PayConfig extends Component {
                     />
                     <span className="bold Font14">{_l('立即支付')}</span>
                   </div>
-                  <div className="Gray_9e mTop10 mBottom30">
+                  <div className="textTertiary mTop10 mBottom30">
                     {_l('开启后表单详情页点击付款或公开表单提交后不需要二次确认直接跳转到订单详情支付')}
                   </div>
                 </Fragment>
@@ -824,8 +826,10 @@ export default class PayConfig extends Component {
                       />
                       <span className="bold Font14">{_l('支付成功后提交表单')}</span>
                     </div>
-                    <div className="Gray_9e mTop10">{_l('开启后支付成功后自动提交表单数据，否则表单数据不提交；')}</div>
-                    <div className="Gray_9e mBottom30">
+                    <div className="textTertiary mTop10">
+                      {_l('开启后支付成功后自动提交表单数据，否则表单数据不提交；')}
+                    </div>
+                    <div className="textTertiary mBottom30">
                       {_l('开启此功能需满足的条件为：支付开启公开表单、支付金额字段选择金额/数值、设置交易有效期')}
                     </div>
                   </Fragment>
@@ -841,7 +845,7 @@ export default class PayConfig extends Component {
                       />
                       <span className="bold Font14">{_l('允许退款')}</span>
                     </div>
-                    <div className="Gray_9e mTop10 mBottom30">
+                    <div className="textTertiary mTop10 mBottom30">
                       {_l('开通后完成交易7天内的订单支持申请退款，目前仅付款人可申请退款')}
                     </div>
                   </Fragment>
@@ -863,7 +867,7 @@ export default class PayConfig extends Component {
                   changeViewRange={this.changeViewRange}
                 />
                 <div className="subTitle">{_l('字段映射')}</div>
-                <div className="Gray_9e mBottom16">{_l('将订单明细映射到当前记录')}</div>
+                <div className="textTertiary mBottom16">{_l('将订单明细映射到当前记录')}</div>
                 <div className="flexRow alignItemsCenter mBottom10">
                   <Switch
                     className="mRight8"

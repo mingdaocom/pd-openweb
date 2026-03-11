@@ -71,7 +71,7 @@ function ViewContent(props) {
   if (isClickSearch && !filtersGroup.length) {
     return (
       <div className="flexRow justifyContentCenter alignItemsCenter w100 h100">
-        <span className="Font15 bold Gray_9e">{_l('执行查询后显示结果')}</span>
+        <span className="Font15 bold textTertiary">{_l('执行查询后显示结果')}</span>
       </div>
     );
   }

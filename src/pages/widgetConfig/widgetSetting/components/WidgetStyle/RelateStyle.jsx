@@ -7,6 +7,7 @@ import { AnimationWrap, SettingItem } from 'src/pages/widgetConfig/styled';
 import { DISPLAY_FROZEN_LIST, DISPLAY_RC_TITLE_STYLE } from '../../../config/setting';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 import WidgetRowHeight from '../WidgetRowHeight';
+import ControlDirection from './ControlDirection';
 
 const DISPLAY_LIST = [
   {
@@ -30,6 +31,8 @@ export default function RelateStyle(props) {
     titlewrap,
     rctitlestyle = '0',
     hidenumber,
+    direction = '0',
+    querytype,
   } = getAdvanceSetting(data);
   const freezeIds = getAdvanceSetting(data, 'freezeids') || [];
   const tableControls = _.get(data, 'relationControls') || [];
@@ -45,7 +48,8 @@ export default function RelateStyle(props) {
 
   return (
     <Fragment>
-      <SettingItem>
+      <ControlDirection {...props} />
+      <SettingItem hidden={direction === '1'}>
         <div className="settingItemTitle">
           {_l('交互方式')}{' '}
           <Tooltip
@@ -58,7 +62,7 @@ export default function RelateStyle(props) {
               </span>
             }
           >
-            <i className="icon-help Gray_9e Font16"></i>
+            <i className="icon-help textTertiary Font16"></i>
           </Tooltip>
         </div>
         <RadioGroup
@@ -70,7 +74,7 @@ export default function RelateStyle(props) {
       </SettingItem>
       <WidgetRowHeight {...props} />
 
-      <SettingItem>
+      <SettingItem hidden={direction === '1'}>
         <div className="settingItemTitle">{_l('冻结列')}</div>
         <Dropdown
           border
@@ -83,7 +87,7 @@ export default function RelateStyle(props) {
         />
       </SettingItem>
 
-      {data.type === 29 && _.includes(['5', '6'], showtype) && (
+      {data.type === 29 && _.includes(['5', '6'], showtype) && direction !== '1' && (
         <SettingItem>
           <div className="settingItemTitle">
             {_l('树形表格')}
@@ -117,7 +121,7 @@ export default function RelateStyle(props) {
               )
             }
           />
-          <div className="mTop10 Gray_9e">
+          <div className="mTop10 textTertiary">
             {_l('选择一个一对多关系的本表关联字段，数据将按此字段的父级（单条）、子级（多条）关系构成树形表格')}
           </div>
         </SettingItem>
@@ -133,18 +137,20 @@ export default function RelateStyle(props) {
             onClick={checked => onChange(handleAdvancedSettingChange(data, { hidenumber: String(+checked) }))}
           />
         </div>
-        <div className="labelWrap">
-          <Checkbox
-            size="small"
-            checked={allowedit === '1'}
-            onClick={checked => onChange(handleAdvancedSettingChange(data, { allowedit: String(+!checked) }))}
-          >
-            <span style={{ marginRight: '4px' }}>{_l('允许行内编辑')}</span>
-            <Tooltip placement="bottom" title={_l('勾选后可以在单元格直接编辑 Excel')}>
-              <i className="icon-help Gray_9e Font16"></i>
-            </Tooltip>
-          </Checkbox>
-        </div>
+        {querytype !== '1' && (
+          <div className="labelWrap">
+            <Checkbox
+              size="small"
+              checked={allowedit === '1'}
+              onClick={checked => onChange(handleAdvancedSettingChange(data, { allowedit: String(+!checked) }))}
+            >
+              <span style={{ marginRight: '4px' }}>{_l('允许行内编辑')}</span>
+              <Tooltip placement="bottom" title={_l('勾选后可以在单元格直接编辑 Excel')}>
+                <i className="icon-help textTertiary Font16"></i>
+              </Tooltip>
+            </Checkbox>
+          </div>
+        )}
         <div className="labelWrap">
           <Checkbox
             size="small"
@@ -153,38 +159,40 @@ export default function RelateStyle(props) {
             onClick={checked => onChange(handleAdvancedSettingChange(data, { alternatecolor: String(+!checked) }))}
           />
         </div>
-        <div className="flexCenter" style={{ justifyContent: 'space-between' }}>
-          <div className="labelWrap LineHeight36 mTop0">
-            <Checkbox
-              size="small"
-              checked={titlewrap === '1'}
-              text={_l('标题行文字换行')}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { titlewrap: String(+!checked) }))}
-            />
+        {direction !== '1' && (
+          <div className="flexCenter" style={{ justifyContent: 'space-between' }}>
+            <div className="labelWrap LineHeight36 mTop0">
+              <Checkbox
+                size="small"
+                checked={titlewrap === '1'}
+                text={_l('标题行文字换行')}
+                onClick={checked => onChange(handleAdvancedSettingChange(data, { titlewrap: String(+!checked) }))}
+              />
+            </div>
+            {titlewrap === '1' && (
+              <AnimationWrap style={{ width: '112px' }}>
+                {DISPLAY_RC_TITLE_STYLE.map(({ icon, value, text }) => {
+                  return (
+                    <Tooltip title={text}>
+                      <div
+                        className={cx('animaItem', { active: rctitlestyle === value })}
+                        onClick={() => {
+                          onChange(
+                            handleAdvancedSettingChange(data, {
+                              rctitlestyle: value,
+                            }),
+                          );
+                        }}
+                      >
+                        <Icon icon={icon} className="Font18" />
+                      </div>
+                    </Tooltip>
+                  );
+                })}
+              </AnimationWrap>
+            )}
           </div>
-          {titlewrap === '1' && (
-            <AnimationWrap style={{ width: '112px' }}>
-              {DISPLAY_RC_TITLE_STYLE.map(({ icon, value, text }) => {
-                return (
-                  <Tooltip title={text}>
-                    <div
-                      className={cx('animaItem', { active: rctitlestyle === value })}
-                      onClick={() => {
-                        onChange(
-                          handleAdvancedSettingChange(data, {
-                            rctitlestyle: value,
-                          }),
-                        );
-                      }}
-                    >
-                      <Icon icon={icon} className="Font18" />
-                    </div>
-                  </Tooltip>
-                );
-              })}
-            </AnimationWrap>
-          )}
-        </div>
+        )}
       </SettingItem>
     </Fragment>
   );

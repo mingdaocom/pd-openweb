@@ -422,12 +422,14 @@ export function getRecordColor({ controlId, controls, colorItems, row }) {
   const activeOption = colorControl.options.find(
     c => c.key === activeKey && (colorItems === '' || _.includes(colorItems, c.key)),
   );
-  const lightColor = activeOption && activeOption.color && generate(activeOption.color)[0];
+  const lightColor = activeOption && activeOption.color && generate(activeOption.color)[5];
   return (
     activeOption &&
     activeOption.color && {
       color: activeOption.color,
-      lightColor: isLightColor(activeOption.color) ? lightColor : new TinyColor(lightColor).setAlpha(0.8).toRgbString(),
+      lightColor: isLightColor(activeOption.color)
+        ? new TinyColor(lightColor).setAlpha(0.08).toRgbString()
+        : new TinyColor(activeOption.color).setAlpha(0.08).toRgbString(),
     }
   );
 }
@@ -500,7 +502,7 @@ export function handleRecordError(resultCode, control, isNewRecord = false) {
 
 export function getSubListUniqueError({ store, control, badData = [] } = {}) {
   if (badData[0]) {
-    const [childTableControlId, controlId, value] = badData[0].split(':');
+    const [childTableControlId, controlId, value = ''] = badData[0].split(':');
     const state = store.getState();
     let rows = state.rows;
     if (get(state, 'base.isTreeTableView')) {
@@ -685,7 +687,7 @@ export async function handleRowData(props) {
       const index = _.findIndex(defcontrols, o => {
         return o.controlId == item.controlId;
       });
-      (defaultData[item.controlId] = undefined), index > -1 && (defcontrols[index] = item);
+      ((defaultData[item.controlId] = undefined), index > -1 && (defcontrols[index] = item));
     });
 
     return { defaultData, defcontrols };

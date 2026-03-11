@@ -2,15 +2,15 @@ import styled, { keyframes } from 'styled-components';
 
 // common
 const commonInput = `
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   border-radius: 3px;
-  background: #fff;
+  background: var(--color-background-primary);
   resize: none;
   width: 100%;
   padding: 10px;
   font-size: 13px;
   &::placeholder {
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
 `;
 
@@ -36,8 +36,8 @@ export const CustomButton = styled.div(
     height = 36,
     borderRadius = 3,
     padding = '0 16px',
-    bg = '#F8F8F8',
-    color = '#757575',
+    bg = 'var(--color-background-secondary)',
+    color = 'var(--color-text-secondary)',
     hoverBg,
     hoverColor,
   }) => `
@@ -58,10 +58,11 @@ export const CustomButton = styled.div(
 
 // html 元素
 export const Hr = styled.div(
-  ({ color = '#ddd', margin = '20px 0' }) => `border: none; border-top: 1px solid ${color}; margin: ${margin};`,
+  ({ color = 'var(--color-border-primary)', margin = '20px 0' }) =>
+    `border: none; border-top: 1px solid ${color}; margin: ${margin};`,
 );
 const H = styled.div`
-  color: #151515;
+  color: var(--color-text-title);
   font-weight: bold;
   vertical-align: middle;
   margin: 16px 0;
@@ -83,23 +84,23 @@ export const Bold600 = styled.div`
 
 // 组件
 export const Tip75 = styled.div`
-  color: #757575;
+  color: var(--color-text-secondary);
   font-size: 13px;
 `;
 export const Tip9e = styled.div`
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   font-size: 13px;
 `;
 export const Tip99 = styled.div`
-  color: #999999;
+  color: var(--color-text-tertiary);
   font-size: 13px;
 `;
 export const Tipbd = styled.div`
-  color: #bdbdbd;
+  color: var(--color-text-disabled);
   font-size: 13px;
 `;
 export const TipBlock = styled.div(
-  ({ color = '#9e9e9e', bgcolor = '#f5f5f5' }) => `
+  ({ color = 'var(--color-text-tertiary)', bgcolor = '#f5f5f5' }) => `
   color: ${color};
   font-size: 13px;
   background-color: ${bgcolor};
@@ -111,8 +112,8 @@ export const TextBlock = styled.div`
   border-radius: 3px;
   height: 36px;
   line-height: 36px;
-  background-color: #f1f1f1;
-  color: #151515;
+  background-color: var(--color-background-disabled);
+  color: var(--color-text-title);
   font-size: 14px;
   padding: 0 10px;
 `;
@@ -161,7 +162,7 @@ export const BlackBtn = styled.span`
   padding: 0 12px;
   height: 32px;
   line-height: 32px;
-  color: #fff;
+  color: var(--color-white);
   background-color: rgba(0, 0, 0, 0.2);
   .icon {
     position: relative;
@@ -209,19 +210,20 @@ export const CardButton = styled.span`
   height: 22px;
   font-size: 14px;
   border-radius: 22px;
-  background: #fff;
-  color: #757575;
+  background: var(--color-background-primary);
+  color: var(--color-text-secondary);
   box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.16);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #f5f5f5;
+  border: 1px solid var(--color-background-secondary);
   ${({ isMobile }) => (isMobile ? 'width: 32px;height: 32px;font-size: 18px;' : '')}
   &:hover {
-    ${({ isMobile }) => (!isMobile ? ' color: #151515; box-shadow: 0px 2px 8px 1px rgba(0, 0, 0, 0.16);' : '')}
+    ${({ isMobile }) =>
+      !isMobile ? ' color: var(--color-text-title); box-shadow: 0px 2px 8px 1px rgba(0, 0, 0, 0.16);' : ''}
   }
   &.red:hover {
-    color: #f44336;
+    color: var(--color-error);
   }
 `;
 

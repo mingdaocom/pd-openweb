@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import store from 'redux/configureStore';
 import DocumentTitle from 'react-document-title';
 import GridLayout from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
@@ -11,7 +10,7 @@ import { WaterMark } from 'ming-ui';
 import homeAppApi from 'src/api/homeApp';
 import customApi from 'statistics/api/custom';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
-import { getEmbedValue } from 'src/components/Form/core/formUtils';
+import { getEmbedValue } from 'src/components/Form/core/formUtils/helper';
 import { loadSDK } from 'src/components/Form/core/utils';
 import {
   getDefaultLayout,
@@ -19,9 +18,11 @@ import {
   isLightColor,
   reorderComponents,
   replaceColor,
+  syncThemeConfig,
 } from 'src/pages/customPage/util';
 import { insertPortal } from 'src/pages/customPage/util';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import store from 'src/redux/configureStore';
 import { getTranslateInfo } from 'src/utils/app';
 import { compatibleMDJS } from 'src/utils/project';
 import AppPermissions from '../components/AppPermissions';
@@ -47,14 +48,13 @@ const LayoutContent = styled.div`
     flex-direction: column;
     width: 100%;
     height: 100%;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     border-radius: 3px;
     overflow: auto;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
     &.haveTitle {
       height: calc(100% - 40px);
     }
-    &.filter,
     &.tabs {
       overflow: inherit;
       box-shadow: none;
@@ -80,12 +80,12 @@ const EmptyData = styled.div`
     height: 130px;
     border-radius: 50%;
     margin: 0 auto;
-    background-color: #e6e6e6;
+    background-color: var(--color-border-secondary);
     text-align: center;
     padding-top: 35px;
     i {
       font-size: 60px;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
   }
 `;
@@ -176,7 +176,7 @@ export default class CustomPage extends Component {
             pageComponents: newPageComponents,
             loading: false,
             pageName: result.name,
-            pageConfig: replaceColor(result.config || {}, _.get(result.apk, 'iconColor')),
+            pageConfig: replaceColor(syncThemeConfig(result.config || {}), _.get(result.apk, 'iconColor')),
           });
           store.dispatch(updateFilterComponents(newPageComponents.filter(item => item.value && item.type === 6)));
         });
@@ -214,7 +214,7 @@ export default class CustomPage extends Component {
           <div className="iconWrap">
             <i className="icon-widgets"></i>
           </div>
-          <p className="Gray_75 TxtCenter mTop16">{_l('没有内容')}</p>
+          <p className="textSecondary TxtCenter mTop16">{_l('没有内容')}</p>
         </EmptyData>
       </div>
     );
@@ -339,7 +339,7 @@ export default class CustomPage extends Component {
     const { pageComponents, loading, pageName, apk, urlTemplate } = this.state;
     return (
       <WaterMark projectId={apk.projectId}>
-        <div id="componentsWrap" className="h100 w100 GrayBG" style={{ overflowY: 'auto' }}>
+        <div id="componentsWrap" className="h100 w100 bgTertiary" style={{ overflowY: 'auto' }}>
           <DocumentTitle title={pageTitle || pageName || _l('自定义页面')} />
           {urlTemplate
             ? this.renderUrlTemplate()

@@ -40,13 +40,13 @@
         stroke: @trail-stroke;
       }
       .Progress--circle-path {
-        stroke: #ffc134;
+        stroke: var(--color-warning-border);
       }
       .Progress--circle-content {
-        color: #ffc134;
+        color: var(--color-warning-border);
       }
       .Progress--line-bg {
-        background-color: #ffc134;
+        background-color: var(--color-warning-border);
       }
     }
     &--danger {
@@ -68,7 +68,7 @@
 
 .Progress--circle {
   &-zero {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   &-inner {
     text-align: center;
@@ -101,7 +101,7 @@
     border-radius: 100px;
     height: 8px;
     line-height: 8px;
-    background-color: #e0e0e0;
+    background-color: var(--color-background-secondary);
   }
   &-bg {
     display: inline-block;

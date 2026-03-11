@@ -6,7 +6,7 @@ import { Icon, LoadDiv, QiniuUpload } from 'ming-ui';
 import groupAjax from 'src/api/group';
 
 const PopupWrap = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 4px;
   text-align: left;
   width: 400px;
@@ -17,7 +17,7 @@ const PopupWrap = styled.div`
   .settingPictureLayerTitle {
     font-size: 13px;
     padding: 12px 0 0 15px;
-    color: #999;
+    color: var(--color-text-tertiary);
   }
 
   .settingPictureLayerImg {
@@ -127,7 +127,7 @@ export default function SelectAvatarTrigger(props) {
         </QiniuUpload>
         <Icon
           icon="close"
-          className="Font20 pointer Gray_9e ThemeHoverColor3 closeIcon"
+          className="Font20 pointer textTertiary ThemeHoverColor3 closeIcon"
           onClick={() => setState({ visible: false })}
         />
       </PopupWrap>

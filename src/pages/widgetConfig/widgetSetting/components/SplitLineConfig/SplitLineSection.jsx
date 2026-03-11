@@ -5,6 +5,7 @@ import { Icon, SvgIcon } from 'ming-ui';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
 import WidgetStatus from 'src/pages/widgetConfig/widgetDisplay/components/WidgetStatus.jsx';
 import { browserIsMobile } from 'src/utils/common';
+import { isLightColor } from 'src/utils/control';
 import { getExpandWidgetIds } from './config';
 import { SectionItemWrap } from './style';
 
@@ -122,7 +123,7 @@ export default function SplitLineSection(props) {
   return (
     <SectionItemWrap
       theme={theme}
-      color={color}
+      color={window.themeMode === 'dark' && !isLightColor(color) ? 'var(--color-text-title)' : color}
       visible={visible}
       ref={$ref}
       sectionstyle={sectionstyle}

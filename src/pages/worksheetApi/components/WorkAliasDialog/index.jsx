@@ -5,7 +5,7 @@ import ajaxRequest from 'src/api/worksheet';
 
 const Wrap = styled.div`
   input {
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 3px;
     height: 36px;
     line-height: 36px;
@@ -13,7 +13,7 @@ const Wrap = styled.div`
     width: 100%;
     box-sizing: border-box;
     &:focus {
-      border: 1px solid #1677ff;
+      border: 1px solid var(--color-primary);
     }
   }
 `;

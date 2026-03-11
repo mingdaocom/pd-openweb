@@ -6,6 +6,7 @@ import {
   isTimeControl, // eslint-disable-next-line no-unused-vars
   timeParticleSizeDropdownData,
 } from 'statistics/common';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 
 /**
@@ -68,8 +69,11 @@ export const mergeTableCell = (list, pageSize, mergeCell) => {
 /**
  * 合并列
  */
-export const mergeColumnsCell = (data, columns) => {
-  data = _.cloneDeep(data);
+export const mergeColumnsCell = (data, columns, yaxisList) => {
+  data = _.cloneDeep(data).filter(item => {
+    const yaxis = _.find(yaxisList, { controlId: item.t_id });
+    return yaxis ? !yaxis.hide : true;
+  });
   const length = _.get(_.find(data, { summary_col: false }), ['y', 'length']) || 0;
   const result = [];
 
@@ -206,7 +210,13 @@ export const mergeLinesCell = (data, lines, valueMap, config) => {
     const defaultEmpty = item.xaxisEmptyType ? '--' : ' ';
     item.data = item.data.map(n => {
       if (_.isNull(n)) return n;
-      const valueKey = valueMap[item.key];
+      // 异化下，检查项不匹配 valueMap
+      const valueKey =
+        control.displayMode === 'fieldStyle' &&
+        control.controlType === WIDGETS_TO_API_TYPE_ENUM.SWITCH &&
+        advancedSetting.showtype === '0'
+          ? {}
+          : valueMap[item.key];
       if (_.isObject(n)) {
         const defaultValue = n.value.includes('subTotal') ? n.value : defaultEmpty;
         return {

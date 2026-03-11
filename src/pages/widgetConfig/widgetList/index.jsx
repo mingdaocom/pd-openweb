@@ -24,7 +24,7 @@ const WidgetList = styled.div`
   flex-direction: column;
   margin: 0;
   overflow: auto;
-  background-color: #ffffff;
+  background-color: var(--color-background-primary);
   .groupList {
     padding: 17px 16px 40px 16px;
     .addWidgetCon {
@@ -37,7 +37,7 @@ const WidgetList = styled.div`
       }
       .supportBox i {
         margin-left: 8px;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         font-size: 16px !important;
       }
     }
@@ -79,13 +79,13 @@ const WidgetList = styled.div`
     padding-right: 4px;
     list-style: none;
     position: relative;
-    background-color: #fff;
-    border: 1px solid #eaeaea;
+    background-color: var(--color-background-primary);
+    border: 1px solid var(--color-border-primary);
     border-radius: 4px;
     &:hover:not(.widgetCustom),
     &.active {
-      background: #f8f8f8;
-      border-color: #d5d5d5;
+      background: var(--color-background-secondary);
+      border-color: var(--color-border-primary);
     }
     .betaIcon {
       position: absolute;
@@ -93,7 +93,7 @@ const WidgetList = styled.div`
       font-size: 16px;
       top: -6px;
       right: -11px;
-      background: #fff;
+      background: var(--color-background-primary);
       font-weight: normal !important;
     }
     .widgetItem {
@@ -107,7 +107,7 @@ const WidgetList = styled.div`
         line-height: 12px;
         flex-grow: 0;
         word-break: break-word;
-        color: #757575;
+        color: var(--color-text-secondary);
         font-weight: bold;
       }
       i {
@@ -115,7 +115,7 @@ const WidgetList = styled.div`
         font-size: 16px;
         width: 25px;
         display: inline-block;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
     }
   }
@@ -133,7 +133,7 @@ export default function List(props) {
     listPanelVisible,
     setPanelVisible = () => {},
   } = props;
-  const { hideWorksheetControl = '' } = md.global.SysSettings;
+  const { hideWorksheetControl } = md.global.SysSettings;
 
   const handleAdd = (data, para = {}, callback) => {
     let sectionId = '';
@@ -158,6 +158,20 @@ export default function List(props) {
 
   const getFeatureType = featureId => {
     return getFeatureStatus(globalSheetInfo.projectId, featureId);
+  };
+
+  // 判断某个 widget 是否应该被显示
+  const shouldShowWidget = (key, widget) => {
+    const featureType = getFeatureType(widget['featureId']);
+    if (_.includes(['SEARCH_BTN', 'SEARCH'], key) && !featureType) return false;
+    // if (!md.global.SysSettings.enableMap && key === 'LOCATION') return;
+    if (
+      (key === 'SEARCH_BTN' && md.global.SysSettings.hideIntegration) ||
+      // (key === 'OCR' && md.global.SysSettings.hideOCR) ||
+      hideWorksheetControl?.includes(key)
+    )
+      return false;
+    return true;
   };
 
   const clearAndSetWidgetsFromEmitter = (data, para = {}, callback) => {
@@ -243,7 +257,7 @@ export default function List(props) {
       <ListItemLayer {..._.pick(props, ['listPanelVisible', 'setPanelVisible'])} containerRef={containerRef} />
       <ScrollView>
         <div className="groupList">
-          {!md.global.SysSettings.hideAIBasicFun && (
+          {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
             <Fragment>
               <div className="addWidgetCon">
                 <div className="flexCenter">
@@ -253,27 +267,31 @@ export default function List(props) {
                 <FixedIcon {...props} fixedKey="widgetPanelFixed" />
               </div>
               <div className="mTop12">
-                <span className="Gray_75">{_l('点击或拖拽添加')}</span>
+                <span className="textSecondary">{_l('点击或拖拽添加')}</span>
               </div>
             </Fragment>
           )}
 
           {_.keys(WIDGET_GROUP_TYPE).map((group, index) => {
             const { widgets, title } = WIDGET_GROUP_TYPE[group];
+            const visibleWidgets = _.keys(widgets).filter(key => shouldShowWidget(key, widgets[key]));
+            if (_.isEmpty(visibleWidgets)) return null;
             return (
               <div key={group} className={cx('group', !index ? 'mTop20' : '')}>
                 <div className="title">{title}</div>
                 <ul>
-                  {_.keys(widgets).map(key => {
+                  {visibleWidgets.map(key => {
                     const featureType = getFeatureType(widgets[key]['featureId']);
+
                     if (_.includes(['SEARCH_BTN', 'SEARCH'], key) && !featureType) return;
                     if (!md.global.SysSettings.enableMap && key === 'LOCATION') return;
                     if (
                       (key === 'SEARCH_BTN' && md.global.SysSettings.hideIntegration) ||
                       (key === 'OCR' && md.global.SysSettings.hideOCR) ||
-                      hideWorksheetControl.includes(key)
+                      hideWorksheetControl?.includes(key)
                     )
                       return;
+
                     return (
                       <DraggableItem
                         key={key}

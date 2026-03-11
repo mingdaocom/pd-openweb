@@ -8,16 +8,14 @@ import { Menu, MenuItem } from 'ming-ui';
 const ColumnListWrap = styled.div`
   position: absolute;
   width: 100%;
-  background: #fff;
+  background: var(--color-background-primary);
   z-index: 1;
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.13),
-    0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
   .header.search {
     padding: 0 20px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--color-border-primary);
     .icon {
-      color: #8c8c8c;
+      color: var(--color-text-secondary);
       font-size: 18px;
       margin: 10px 0;
     }
@@ -25,10 +23,10 @@ const ColumnListWrap = styled.div`
       height: 36px;
       border: none;
       &.active {
-        border-color: #ccc;
+        border-color: var(--color-border-tertiary);
       }
       &::placeholder {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
     }
   }
@@ -48,7 +46,7 @@ const ColumnListWrap = styled.div`
         .controlItem {
           .controlIcon,
           .controlValue {
-            color: #fff;
+            color: var(--color-white);
           }
         }
       }
@@ -56,14 +54,14 @@ const ColumnListWrap = styled.div`
         font-size: 14px;
         .controlIcon {
           font-size: 16px;
-          color: #9e9e9e;
+          color: var(--color-text-tertiary);
           margin-right: 12px;
         }
         .controlName {
           margin-right: 12px;
         }
         .controlValue {
-          color: #9e9e9e;
+          color: var(--color-text-tertiary);
         }
       }
       .MenuItem:hover {
@@ -73,14 +71,14 @@ const ColumnListWrap = styled.div`
       }
     }
     .emptyText {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       margin: 10px;
       font-size: 13px;
     }
   }
   .controlTextValue {
     margin-left: 10px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 `;
 

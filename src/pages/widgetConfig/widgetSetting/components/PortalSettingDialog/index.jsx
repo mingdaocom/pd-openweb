@@ -52,7 +52,7 @@ export default class PortalSettingDialog extends Component {
       <Dialog
         title={
           <div className="flexCenter">
-            <i className={cx('icon Font20 mRight10 Gray_75', `icon-${icon}`)} />
+            <i className={cx('icon Font20 mRight10 textSecondary', `icon-${icon}`)} />
             <span>{widgetName}</span>
           </div>
         }

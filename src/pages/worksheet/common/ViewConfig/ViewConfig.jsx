@@ -446,7 +446,7 @@ export default class ViewConfigCon extends Component {
                   ? VIEW_TYPE_ICON.find(o => o.id === VIEW_DISPLAY_TYPE[view.viewType]).txt
                   : data.name}
                 {isDevCustomView && ['ParameterSet'].includes(viewSetting) && (
-                  <div className="Gray_75 Font13 mTop4 Normal">{_l('插件发布后将作为使用者的视图配置')}</div>
+                  <div className="textSecondary Font13 mTop4 Normal">{_l('插件发布后将作为使用者的视图配置')}</div>
                 )}
               </div>
               {(view.viewType === 0 ||

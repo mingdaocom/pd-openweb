@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { reportTypes } from 'statistics/Charts/common';
 import { SYS_COLOR } from 'src/pages/Admin/settings/config';
+import { defaultTitleStyles } from 'src/pages/customPage/components/ConfigSideWrap/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
@@ -60,11 +61,11 @@ export const getDefaultLayout = ({
     if (['view', 'tabs'].includes(type)) {
       return { x: (components.length * 24) % 48, y: Infinity, w: 48, h: 10, minW: 2, minH: 6 };
     } else if (type === 'filter') {
-      return { x: (components.length * 24) % 48, y: Infinity, w: 48, h: 4, minW: 2, minH: 2 };
+      return { x: (components.length * 24) % 48, y: Infinity, w: 48, h: 4, minW: 2, minH: 3 };
     } else if (type === 'image') {
-      return { x: (components.length * 24) % 48, y: Infinity, w: 48, h: 10, minW: 2, minH: 2 };
+      return { x: (components.length * 24) % 48, y: Infinity, w: 48, h: 10, minW: 2, minH: 4 };
     } else {
-      return { x: (components.length * 24) % 48, y: Infinity, w: 24, h: 12, minW: 2, minH: 2 };
+      return { x: (components.length * 24) % 48, y: Infinity, w: 24, h: 12, minW: 2, minH: 4 };
     }
   }
   if (layoutType === 'mobile') {
@@ -75,7 +76,7 @@ export const getDefaultLayout = ({
     if (['view', 'tabs'].includes(enumType)) {
       return { x: 0, y: y + h, w: 4, h: titleVisible ? 9 : 8, minW, minH: 4 };
     } else if (enumType === 'filter') {
-      return { x: 0, y: y + h, w: 4, h: 1, minW, minH: 1 };
+      return { x: 0, y: y + h, w: 4, h: 2, minW, minH: 1 };
     } else if (enumType === 'image') {
       return { x: 0, y: y + h, w: 4, h: titleVisible ? 9 : 8, minW, minH: 2 };
     } else {
@@ -656,4 +657,46 @@ export const insertPortal = url => {
     }
   }
   return url;
+};
+
+export const syncThemeConfig = (config, themeMode = window.themeMode || 'light') => {
+  if (config.pageStyleType === themeMode) {
+    return config;
+  } else {
+    const { pivoTableColorIndex = 1, numberChartColorIndex = 1, titleStyles = defaultTitleStyles } = config;
+    if (themeMode === 'light') {
+      return {
+        ...config,
+        pageStyleType: themeMode,
+        pageBgColor: 'lightColor',
+        pivoTableColor: 'lightColor',
+        pivoTableColorIndex: pivoTableColorIndex + 1,
+        numberChartColor: 'iconColor',
+        numberChartColorIndex: numberChartColorIndex + 1,
+        titleStyles: {
+          ...titleStyles,
+          color: '#333',
+          index: Date.now(),
+        },
+      };
+    }
+    if (themeMode === 'dark') {
+      return {
+        ...config,
+        pageBgColor: 'iconColor10',
+        pageStyleType: themeMode,
+        pivoTableColor: 'iconColor',
+        pivoTableColorIndex: pivoTableColorIndex + 1,
+        numberChartColor: 'lightColor',
+        numberChartColorIndex: numberChartColorIndex + 1,
+        titleStyles: {
+          ...titleStyles,
+          color: '#fff',
+          isInitial: true,
+          index: Date.now(),
+        },
+      };
+    }
+    return config;
+  }
 };

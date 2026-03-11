@@ -1,4 +1,3 @@
-@delColor: #f44336;
 .verifyDelDialog {
   .mui-dialog-body {
     padding-bottom: 20px !important;
@@ -8,16 +7,16 @@
   }
   .title {
     font-size: 17px;
-    color: @delColor;
+    color: var(--color-error);
     font-weight: bold;
   }
   .hint {
     margin: 16px 0 24px 0;
     font-size: 14px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   .verifyCheckbox {
-    color: #757575;
+    color: var(--color-text-secondary);
     font-size: 14px;
     .Checkbox-box {
       margin-top: -2px !important;
@@ -32,7 +31,7 @@
       line-height: 36px;
       padding: 0;
       text-align: center;
-      background-color: #fff;
+      background-color: var(--color-background-primary);
       border-radius: 4px;
       border: none;
       outline: none;
@@ -41,23 +40,23 @@
     .btnCancel {
       background-color: transparent;
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     .btnOk {
-      color: #fff;
-      background-color: #bdbdbd;
+      color: var(--color-white);
+      background-color: var(--color-text-disabled);
     }
     .btnDel {
-      background-color: @delColor;
+      background-color: var(--color-error);
       &:hover {
-        background-color: darken(@delColor, 10%);
+        background-color: var(--color-error-hover);
       }
     }
   }
   .inputVerify {
     p {
-      color: #757575;
+      color: var(--color-text-secondary);
       margin: 0 0 8px 0;
     }
     input {

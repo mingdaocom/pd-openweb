@@ -3,6 +3,7 @@ import { Dropdown, Menu, Select } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
 import AppSettingHeader from '../AppSettingHeader';
@@ -12,24 +13,24 @@ import AddLangModal from './AddLangModal';
 const Wrap = styled.div`
   .header {
     padding: 10px 0;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid --color-background-disabled;
   }
   .item {
     cursor: pointer;
     padding: 20px 0;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid --color-background-disabled;
     &:hover {
       .langName {
-        color: #1677ff;
+        color: var(--color-primary);
       }
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
     }
   }
   .operate {
     width: 50px;
   }
   .icon-more_horiz:hover {
-    color: #1677ff !important;
+    color: var(--color-primary) !important;
   }
   .ant-select-selector {
     border-radius: 4px !important;
@@ -86,6 +87,22 @@ export default function LingualList(props) {
     return `${lang[currentLangKey]} (${lang.localLang})`;
   };
 
+  const asyncLangs = () => {
+    appManagementApi
+      .loadRelationLangData({
+        appId: app.id,
+        langIds: langs.map(o => o.id),
+      })
+      .then(res => {
+        if (res) {
+          alert(_l('同步中'));
+          onGetAppLangs();
+        } else {
+          alert(_l('同步失败'), 2);
+        }
+      });
+  };
+
   const selectAllLangList = allLangList.filter(item => !_.find(langs, { langCode: item.langCode }));
   const systemLangList = selectAllLangList.filter(data => data.isSystemLang);
   const portionLangList = selectAllLangList.filter(data => !data.isSystemLang);
@@ -96,6 +113,14 @@ export default function LingualList(props) {
         title={_l('语言')}
         addBtnName={_l('添加语言')}
         description={_l('设置用户在访问应用时可以使用的语言')}
+        extraElement={
+          <Tooltip title={_l('将引用的跨应用语言资源(如选项集、关联表)同步至本应用')}>
+            <div className="textSecondary ThemeHoverColor3 pointer flexRow alignItemsCenter" onClick={asyncLangs}>
+              <Icon icon="synchronization" className="Font18 mRight5" />
+              <span>{_l('同步引用语言')}</span>
+            </div>
+          </Tooltip>
+        }
         handleAdd={() => setVisible(true)}
       />
       <AddLangModal
@@ -108,7 +133,7 @@ export default function LingualList(props) {
         onCancel={() => setVisible(false)}
       />
       <div className="Font14 bold flexRow alignItemsCenter">{_l('基准语言')}</div>
-      <div className="Gray_75 TxtMiddle pTop10">
+      <div className="textSecondary TxtMiddle pTop10">
         {_l(
           '基准语言指搭建应用时使用的语言，eg:搭建应用时的文本语言(字段名称、标题等)为法语，则可以选择法语为您的基准语言。',
         )}
@@ -125,7 +150,7 @@ export default function LingualList(props) {
         }}
         value={originalLang || app.originalLang || null}
         placeholder={_l('未设置')}
-        suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" style={{ marginRight: -4 }} />}
+        suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" style={{ marginRight: -4 }} />}
         onChange={value => {
           handleSetOriginalLang(value || '');
         }}
@@ -138,7 +163,7 @@ export default function LingualList(props) {
       </Select>
       <div className="Font14 bold mTop10">{_l('其他语言')}</div>
       <div className="flex flexColumn">
-        <div className="header flexRow Font14 Gray_9e">
+        <div className="header flexRow Font14 textTertiary">
           <div className="flex pLeft10">{_l('语言')}</div>
           <div className="flex">{_l('创建人')}</div>
           <div className="flex">{_l('创建时间')}</div>
@@ -169,7 +194,7 @@ export default function LingualList(props) {
                       </Menu>
                     }
                   >
-                    <Icon className="Gray_75 Font20" icon="more_horiz" />
+                    <Icon className="textSecondary Font20" icon="more_horiz" />
                   </Dropdown>
                 </div>
               </div>
@@ -180,7 +205,7 @@ export default function LingualList(props) {
               radiusSize={130}
               iconClassName="Font50"
               emptyTxt={_l('暂无其他语言')}
-              emptyTxtClassName="Gray_9e Font17 mTop20"
+              emptyTxtClassName="textTertiary Font17 mTop20"
             />
           )}
         </div>

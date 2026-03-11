@@ -11,7 +11,7 @@ export const SwitchStyle = styled.div`
       color: #00c345;
     }
     &-ic_toggle_off {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
   }
   .w30 {
@@ -53,7 +53,7 @@ export const ShowChoose = styled.div`
       text-align: center;
       cursor: pointer;
       line-height: 36px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border-secondary);
       overflow: hidden;
       margin-right: -1px;
       position: relative;
@@ -66,16 +66,16 @@ export const ShowChoose = styled.div`
         overflow: hidden;
       }
       &.checked {
-        background: #1677ff;
-        color: #fff;
-        border-top: 1px solid #1677ff;
-        border-bottom: 1px solid #1677ff;
+        background: var(--color-primary);
+        color: var(--color-white);
+        border-top: 1px solid var(--color-primary);
+        border-bottom: 1px solid var(--color-primary);
         z-index: 1;
         &:last-child {
-          border-right: 1px solid #1677ff;
+          border-right: 1px solid var(--color-primary);
         }
         &:first-child {
-          border-left: 1px solid #1677ff;
+          border-left: 1px solid var(--color-primary);
         }
       }
     }
@@ -95,7 +95,7 @@ export const ViewSettingWrap = styled.div`
           color: #00c345;
         }
         &-ic_toggle_off {
-          color: #bdbdbd;
+          color: var(--color-text-disabled);
         }
       }
       .switchText {
@@ -112,7 +112,7 @@ export const ViewSettingWrap = styled.div`
     }
   }
   .subTitle {
-    color: #515151;
+    color: var(--color-text-title);
     &.withDisplayControl {
       display: flex;
       align-items: center;
@@ -123,9 +123,9 @@ export const ViewSettingWrap = styled.div`
     margin-top: 8px;
   }
   .Dropdown {
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     &.disabled {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-secondary);
     }
   }
 `;
@@ -133,7 +133,7 @@ export const ViewSettingWrap = styled.div`
 export const AnimationWrap = styled.div`
   display: flex;
   padding: 2px;
-  background: #f0f0f0;
+  background: var(--color-background-tertiary);
   border-radius: 3px;
   .animaItem {
     height: 32px;
@@ -143,30 +143,30 @@ export const AnimationWrap = styled.div`
     justify-content: center;
     cursor: pointer;
     font-weight: bold;
-    color: #757575;
+    color: var(--color-text-secondary);
     flex: 1;
     margin-left: 2px;
     &:first-child {
       margin-left: 0;
     }
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
       i {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     i {
-      color: #757575;
+      color: var(--color-text-secondary);
     }
     &.active {
-      background: #ffffff;
-      color: #1677ff;
+      background: var(--color-background-primary);
+      color: var(--color-primary);
       i {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     &.disabled {
-      color: #bdbdbd !important;
+      color: var(--color-text-disabled) !important;
       cursor: not-allowed;
     }
   }

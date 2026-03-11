@@ -97,7 +97,7 @@ class RoleManageContent extends Component {
       <Fragment>
         <div className="roleContentHeader Font17">
           <span className="Bold">{currentRole.organizeName}</span>
-          {allUserCount ? <span className="Gray_9e mLeft10">{allUserCount}</span> : ''}
+          {allUserCount ? <span className="textTertiary mLeft10">{allUserCount}</span> : ''}
         </div>
         <div className="actUserBox">
           <div className="actBtn addUser Hand" onClick={this.addUser}>

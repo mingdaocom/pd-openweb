@@ -164,7 +164,7 @@ export default class ExportApp extends React.Component {
                   overflow: { adjustX: true, adjustY: true },
                 }}
               >
-                <Icon icon="help" className="Gray_9e" />
+                <Icon icon="help" className="textTertiary" />
               </Tooltip>
             )}
           </div>
@@ -195,7 +195,7 @@ export default class ExportApp extends React.Component {
               </div>
               {canEdit && (
                 <span
-                  className="ThemeColor mRight15 Hand"
+                  className="colorPrimary mRight15 Hand"
                   onClick={() => {
                     const newPassword = generateRandomPassword(8);
                     this.setState({
@@ -210,7 +210,7 @@ export default class ExportApp extends React.Component {
               )}
               {!canEdit && (
                 <ClipboardButton
-                  className="adminHoverColor Hand Gray_9e copyIcon"
+                  className="adminHoverColor Hand textTertiary copyIcon"
                   component="span"
                   data-clipboard-text={this.state[password]}
                   onSuccess={() => alert(_l('复制成功'))}
@@ -240,8 +240,8 @@ export default class ExportApp extends React.Component {
     return (
       <Fragment>
         <div className="singleItemHeader mTop24">
-          <div className="Gray_75 singleItemLeft Bold">{_l('应用')}</div>
-          <div className="Gray_75 singleItemRight Bold">
+          <div className="textSecondary singleItemLeft Bold">{_l('应用')}</div>
+          <div className="textSecondary singleItemRight Bold">
             <span>{_l('导出示例数据')}</span>
           </div>
         </div>
@@ -279,7 +279,7 @@ export default class ExportApp extends React.Component {
       <Dialog {...options}>
         <div className="exportSingleAppContainer">
           <div className="pBottom8">
-            <span className="Gray_75">
+            <span className="textSecondary">
               {_l('将应用配置导出为文件，之后可以将此文件导入其他组织以实现应用迁移，可选择同时导出部分示例数据。')}
             </span>
             <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/application/import-export" />
@@ -294,7 +294,7 @@ export default class ExportApp extends React.Component {
           {this.renderPassword()}
           <div className="mTop32 mBottom20 clearfix selectAppOptionBtns">
             {(this.state.isNeed || this.state.locked) && (
-              <div className="LineHeight36 Gray_75 Left">{_l('请保存密码，或导出后在导出记录中查看')}</div>
+              <div className="LineHeight36 textSecondary Left">{_l('请保存密码，或导出后在导出记录中查看')}</div>
             )}
             <button
               type="button"
@@ -305,7 +305,10 @@ export default class ExportApp extends React.Component {
             >
               {_l('立即导出')}
             </button>
-            <div className="Right mRight40 Gray_9e Hover_49 Hand LineHeight36" onClick={() => this.props.closeDialog()}>
+            <div
+              className="Right mRight40 textTertiary hoverTextPrimaryLight Hand LineHeight36"
+              onClick={() => this.props.closeDialog()}
+            >
               {_l('取消')}
             </div>
           </div>

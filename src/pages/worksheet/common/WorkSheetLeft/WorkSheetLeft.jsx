@@ -133,7 +133,7 @@ class WorkSheetLeft extends Component {
             <Tooltip title={isUnfold ? _l('收起导航') : _l('展开导航')}>
               <Icon
                 icon={isUnfold ? 'menu_left' : 'menu_right'}
-                className="Font20 Gray_9e pointer unfoldIcon"
+                className="Font20 textTertiary pointer unfoldIcon"
                 onClick={() => {
                   safeLocalStorageSetItem('sheetListIsUnfold', !isUnfold);
                   sheetListActions.updateSheetListIsUnfold(!isUnfold);

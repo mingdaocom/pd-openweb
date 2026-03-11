@@ -1,5 +1,4 @@
 import React from 'react';
-import store from 'redux/configureStore';
 import { Checkbox, Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -7,6 +6,7 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { isLightColor } from 'src/pages/customPage/util';
+import store from 'src/redux/configureStore';
 import { defaultPivotTableStyle } from '../../../enum';
 
 const ColorBlock = styled.div`
@@ -100,7 +100,7 @@ const PreinstallStyle = props => {
       <div className="mBottom10">{_l('预设样式')}</div>
       <div className="chartTypeSelect flexRow valignWrapper">
         <div
-          className="flex centerAlign pointer Gray_75"
+          className="flex centerAlign pointer textSecondary"
           onClick={() => {
             const isLight = isLightColor(iconColor);
             handleChangePivotTableStyle({
@@ -117,7 +117,7 @@ const PreinstallStyle = props => {
         {styles.map(item => (
           <div
             key={item.value}
-            className="flex centerAlign pointer Gray_75"
+            className="flex centerAlign pointer textSecondary"
             onClick={() => {
               handleChangePivotTableStyle(item.config);
             }}
@@ -146,7 +146,7 @@ const PreinstallStyle = props => {
           placement="bottomRight"
           arrowPointAtCenter
         >
-          <Icon className="mLeft10 Gray_9e Font16 pointer" icon="info" />
+          <Icon className="mLeft10 textTertiary Font16 pointer" icon="info" />
         </Tooltip>
       </div>
       <div className="mBottom5">{_l('PC')}</div>
@@ -154,7 +154,7 @@ const PreinstallStyle = props => {
         {widthModels.map(item => (
           <div
             key={item.value}
-            className={cx('flex centerAlign pointer Gray_75', { active: pcWidthModel === item.value })}
+            className={cx('flex centerAlign pointer textSecondary', { active: pcWidthModel === item.value })}
             onClick={() => {
               onChangeStyle({ pcWidthModel: item.value }, true);
             }}
@@ -168,7 +168,7 @@ const PreinstallStyle = props => {
         {widthModels.map(item => (
           <div
             key={item.value}
-            className={cx('flex centerAlign pointer Gray_75', { active: mobileWidthModel === item.value })}
+            className={cx('flex centerAlign pointer textSecondary', { active: mobileWidthModel === item.value })}
             onClick={() => {
               onChangeStyle({ mobileWidthModel: item.value });
             }}
@@ -195,7 +195,7 @@ const PreinstallStyle = props => {
             style={{ width: 100 }}
             className="chartSelect"
             value={paginationSize}
-            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
               onChangeStyle({ paginationSize: value });
             }}

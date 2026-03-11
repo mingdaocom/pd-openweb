@@ -19,7 +19,7 @@ export default function CommonSwitch(props) {
       <span>{name}</span>
       {!!tip && (
         <Tooltip placement="bottom" title={typeof tip === 'string' ? tip : <span>{tip}</span>}>
-          <i className="icon icon-help Font16 Gray_9e mLeft10"></i>
+          <i className="icon icon-help Font16 textTertiary mLeft10"></i>
         </Tooltip>
       )}
     </CommonSwitchContainer>

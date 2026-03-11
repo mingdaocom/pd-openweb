@@ -8,13 +8,13 @@ import { SettingItem } from '../../../styled';
 
 const TimeFormatConfigWrap = styled.div`
   .intro {
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   .hint {
     margin-top: 12px;
-    color: #757575;
+    color: var(--color-text-secondary);
     &.invalid {
-      color: #f44336;
+      color: var(--color-error);
     }
   }
   .footerBtn {

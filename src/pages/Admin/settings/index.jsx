@@ -14,7 +14,7 @@ import CustomIcon from './components/CustomIcon';
 const ConfigItemWrap = styled.div`
   padding: 0 32px;
   &.hoverStyle:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
 `;
 
@@ -22,7 +22,7 @@ const Item = styled.div`
   display: flex;
   align-items: center;
   padding: 24px 24px 24px 0;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid var(--color-border-secondary);
 `;
 
 const CONFIGS = [
@@ -108,13 +108,13 @@ export default class GeneralSettings extends Component {
                       {title}
                       {key === 'customIcon' && featureType === '2' && <UpgradeIcon />}
                     </div>
-                    <div className="Gray_9e">{descrption}</div>
+                    <div className="textTertiary">{descrption}</div>
                   </div>
                   <div>
                     {clickFunc && (
                       <Icon
                         icon="arrow-right-border"
-                        className="Font18 Gray_9d Right Hand"
+                        className="Font18 textTertiary Right Hand"
                         onClick={() => this[clickFunc]()}
                       />
                     )}

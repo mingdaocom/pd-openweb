@@ -15,20 +15,20 @@ const Con = styled.div`
   }
   .grey,
   g {
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   .green {
-    color: #4caf50;
+    color: var(--color-success);
   }
   .control {
     display: inline-block;
     margin: 0 4px;
     height: 24px;
     line-height: 22px;
-    color: #3c6b90;
+    color: var(--color-link-hover);
     padding: 0 8px;
     border-radius: 24px;
-    border: 1px solid #bbd6ea;
+    border: 1px solid var(--color-primary-transparent);
     background: #d8eeff;
     font-weight: 500;
   }
@@ -44,14 +44,14 @@ const Con = styled.div`
 const Des = styled.div`
   margin-top: 4px;
   font-size: 12px;
-  color: #757575;
+  color: var(--color-text-secondary);
   bb {
     font-size: 14px !important;
   }
   bb,
   b {
     font-weight: 500;
-    color: #151515;
+    color: var(--color-text-title);
     margin: 6px 0 4px;
     display: inline-block;
   }

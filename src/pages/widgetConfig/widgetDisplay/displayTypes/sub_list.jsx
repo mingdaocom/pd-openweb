@@ -62,7 +62,7 @@ export default function SubList({ data }) {
                             type === 49 ||
                             type === 51 ||
                             (isSheetDisplay(currentControl) && (
-                              <span className="Gray_75 unSupport">{_l('不支持此类型字段')}</span>
+                              <span className="textSecondary unSupport">{_l('不支持此类型字段')}</span>
                             ))}
                         </td>
                       );
@@ -72,7 +72,7 @@ export default function SubList({ data }) {
               </table>
             </div>
           ) : (
-            <div className="addControl Gray_9e">{_l('请在右侧添加字段')}</div>
+            <div className="addControl textTertiary">{_l('请在右侧添加字段')}</div>
           )}
         </EditModelWrap>
       }

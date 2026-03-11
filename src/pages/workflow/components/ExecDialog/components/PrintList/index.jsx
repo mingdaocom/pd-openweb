@@ -3,27 +3,27 @@ import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, MenuItem } from 'ming-ui';
-import webCacheAjax from 'src/api/webCache';
 import sheetAjax from 'src/api/worksheet';
-import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
-import { VersionProductType } from 'src/utils/enum';
-import { getFeatureStatus } from 'src/utils/project';
+import {
+  handleSystemPrintRecord,
+  handleTemplateRecordPrint,
+} from 'worksheet/common/recordInfo/RecordForm/PrintList.jsx';
 
 const MenuBox = styled.div`
   max-width: 280px;
   padding: 5px 0;
   border-radius: 3px;
-  background: white;
+  background: var(--color-background-primary);
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.13),
     0 2px 6px rgba(0, 0, 0, 0.1);
   max-height: 500px;
   overflow-y: scroll;
   .icon-new_word {
-    color: #1677ff !important;
+    color: var(--color-primary) !important;
   }
   .icon-new_excel {
-    color: #4caf50 !important;
+    color: var(--color-success) !important;
   }
   .icon-doc {
     color: #465a65 !important;
@@ -34,7 +34,7 @@ const MenuBox = styled.div`
   .printListLine {
     width: 100%;
     height: 1px;
-    background: #e0e0e0;
+    background: var(--color-background-secondary);
     margin: 5px 0;
   }
 `;
@@ -43,27 +43,20 @@ const MenuBox = styled.div`
  * 系统打印
  */
 const systemPrint = props => {
-  const { projectId, id, workId, data, worksheetId, onClose } = props;
-  const printData = {
+  const { projectId, id, rowId, workId, data, worksheetId, onClose } = props;
+  const appId = data.app.id;
+  handleSystemPrintRecord({
     printId: '',
     isDefault: true, // 系统打印模板
     worksheetId,
     projectId,
-    id,
-    rowId: '',
+    recordId: rowId,
+    rowIds: [rowId],
     getType: 1,
-    viewId: '',
-    appId: data.app.id,
+    appId,
+    instanceId: id,
     workId,
-  };
-  const printKey = Math.random().toString(36).substring(2);
-
-  webCacheAjax.add({
-    key: `${printKey}`,
-    value: JSON.stringify(printData),
   });
-
-  window.open(`${window.subPath || ''}/printForm/${data.app.id}/flow/new/print/${printKey}`);
 
   onClose();
 };
@@ -72,36 +65,20 @@ const systemPrint = props => {
  * 模板打印
  */
 const templatePrint = (props, item) => {
-  const { projectId, data, worksheetId, onClose } = props;
-  const featureType = getFeatureStatus(projectId, VersionProductType.wordPrintTemplate);
+  const { projectId, data, worksheetId, viewId, rowId, onClose } = props;
+  const appId = data.app.id;
 
-  if (item.describe !== '0' && featureType === '2') {
-    buriedUpgradeVersionDialog(projectId, VersionProductType.wordPrintTemplate);
-    return;
-  }
-
-  const printData = {
-    printId: item.id,
+  handleTemplateRecordPrint({
     isDefault: item.describe === '0', // 系统打印模板
     worksheetId,
+    viewId,
+    rowIds: [rowId],
+    appId,
     projectId,
-    rowId: props.rowId,
+    template: item,
     getType: 1,
-    viewId: props.viewId,
-    appId: data.app.id,
     name: item.name,
-    fileTypeNum: parseInt(item.describe),
-    allowDownloadPermission: parseInt(item.entityName),
-    allowEditAfterPrint: item.allowEditAfterPrint,
-  };
-  const printKey = Math.random().toString(36).substring(2);
-
-  webCacheAjax.add({
-    key: `${printKey}`,
-    value: JSON.stringify(printData),
   });
-
-  window.open(`${window.subPath || ''}/printForm/${data.app.id}/worksheet/preview/print/${printKey}`);
 
   onClose();
 };
@@ -163,7 +140,7 @@ export default props => {
           {!!printList.length && !disabledPrint && <div className="printListLine" />}
           {!disabledPrint && (
             <Fragment>
-              <div className="mBottom5 mTop10 mLeft16 Gray_9 Font12">{_l('系统默认打印')}</div>
+              <div className="mBottom5 mTop10 mLeft16 textTertiary Font12">{_l('系统默认打印')}</div>
               <MenuItem onClick={() => systemPrint(props)}>{_l('打印记录')}</MenuItem>
             </Fragment>
           )}

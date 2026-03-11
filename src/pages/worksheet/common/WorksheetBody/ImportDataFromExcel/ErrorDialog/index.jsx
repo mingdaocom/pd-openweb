@@ -149,7 +149,7 @@ class ErrorDialog extends Component {
             placement="bottom"
           >
             <div className="successText">
-              <Icon icon="help" className="Font14 pointer Gray_9e mLeft5" />
+              <Icon icon="help" className="Font14 pointer textTertiary mLeft5" />
             </div>
           </Tooltip>
           <div className="flex" />
@@ -167,10 +167,10 @@ class ErrorDialog extends Component {
           {data.map((item, index) => {
             return (
               <div key={index} className="mBottom10 pLeft12 pRight12">
-                <span className={cx('mRight5', item.logLvl !== 1 ? 'Red' : 'Gray_9e')}>
+                <span className={cx('mRight5', item.logLvl !== 1 ? 'Red' : 'textTertiary')}>
                   ({_l('第%0行', item.rowNumber)})
                 </span>
-                <span className={cx('Bold mRight8', item.logLvl !== 1 ? 'Red' : 'Gray')}>{item.columnName}</span>
+                <span className={cx('Bold mRight8', item.logLvl !== 1 ? 'Red' : 'textPrimary')}>{item.columnName}</span>
                 <span className={item.logLvl !== 1 && 'Red'}>{item.describe}</span>
               </div>
             );

@@ -32,8 +32,8 @@ const Wrap = styled.div(
       z-index: 0;
     }
     &.defaultImg {
-      color: #fff;
-      // background: #dddddd;
+      color: var(--color-white);
+      // background: var(--color-border-primary);
       svg{
         width:28px;
         height:28px;
@@ -77,7 +77,7 @@ export default function Avator(props) {
           )}
         ></div>
       ) : (
-        <Icon className="Font28 Gray_75 flex flexColumn justifyContentCenter" type={defaultInfo.icon} />
+        <Icon className="Font28 textSecondary flex flexColumn justifyContentCenter" type={defaultInfo.icon} />
       )}
     </Wrap>
   ) : (
@@ -88,7 +88,7 @@ export default function Avator(props) {
         width: '58px',
         height: '100%',
         color: nodeData.color,
-        background: _.get(nodeData, ['nodeConfig', 'config', 'iconBgColor']) || '#dddddd',
+        background: _.get(nodeData, ['nodeConfig', 'config', 'iconBgColor']) || 'var(--color-border-primary)',
       }}
     >
       <div className="bg"></div>

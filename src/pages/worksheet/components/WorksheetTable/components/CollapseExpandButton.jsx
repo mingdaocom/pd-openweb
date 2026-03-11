@@ -7,15 +7,15 @@ const Con = styled.div`
   width: 16px;
   height: 16px;
   border-radius: 3px;
-  border: 1px solid #ddd;
-  background: #fff;
+  border: 1px solid var(--color-border-primary);
+  background: var(--color-background-primary);
   .line {
     position: absolute;
     left: 3px;
     top: 6.5px;
     height: 1px;
     width: 8px;
-    background: #757575;
+    background: var(--color-text-secondary);
   }
   .line-vertical {
     transform: rotate(${({ folded }) => (folded ? '90deg' : '0deg')});
@@ -24,9 +24,9 @@ const Con = styled.div`
     transform: rotate(${({ folded }) => (folded ? '180deg' : '0deg')});
   }
   &:hover {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
     .line {
-      background: #1677ff;
+      background: var(--color-primary);
       transition: transform 0.2s ease-in;
     }
   }

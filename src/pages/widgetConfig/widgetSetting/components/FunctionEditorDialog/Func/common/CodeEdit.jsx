@@ -16,7 +16,7 @@ const Con = styled.div`
   position: relative;
   .description {
     font-size: 12px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     font-weight: normal;
     margin-bottom: -10px;
     margin-top: 6px;
@@ -24,7 +24,7 @@ const Con = styled.div`
   .subListInfo {
     display: flex;
     align-items: center;
-    color: #999999;
+    color: var(--color-text-tertiary);
     .icon {
       font-size: 18px;
       margin-right: 2px;
@@ -50,7 +50,7 @@ const Title = styled.div`
   .equal {
     font-size: 20px;
     font-weight: bold;
-    color: #757575;
+    color: var(--color-text-secondary);
     margin: 0 6px;
     font-family: monospace;
   }
@@ -61,7 +61,7 @@ const PlaceHolder = styled.div`
   position: absolute;
   left: 10px;
   top: 9px;
-  color: #bdbdbd;
+  color: var(--color-text-disabled);
   font-size: 14px;
 `;
 
@@ -73,14 +73,14 @@ const TestButton = styled.div`
   width: 48px;
   height: 24px;
   line-height: 22px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   border-radius: 2px 2px 2px 2px;
-  border: 1px solid #1677ff;
+  border: 1px solid var(--color-primary);
   font-size: 12px;
-  color: #1677ff;
+  color: var(--color-primary);
   &:hover {
-    background: #1677ff;
-    color: #fff;
+    background: var(--color-primary);
+    color: var(--color-white);
   }
 `;
 
@@ -94,16 +94,16 @@ const Editor = styled.div`
     height: 100%;
     font-size: 14px;
     .cm-customFn {
-      color: #4caf50;
+      color: var(--color-success);
     }
     .cm-system {
-      color: #ffa100;
+      color: var(--color-warning);
     }
   }
 `;
 
 const Error = styled.div`
-  color: #f44336;
+  color: var(--color-error);
   font-size: 13px;
   font-weight: 600;
   padding: 8px 0;

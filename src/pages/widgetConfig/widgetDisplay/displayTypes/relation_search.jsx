@@ -78,7 +78,7 @@ export default function RelationSearch({ data = {}, fromType, isTab }) {
               </table>
             </div>
           ) : (
-            <div className="addControl Gray_9e">{_l('请从右侧选择要显示的字段')}</div>
+            <div className="addControl textTertiary">{_l('请从右侧选择要显示的字段')}</div>
           )}
         </EditModelWrap>
       );

@@ -21,7 +21,7 @@ const EmptyHint = styled.div`
   padding: 18px 12px;
   border-radius: 3px;
   width: 280px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   font-size: 13px;
 `;
 
@@ -40,7 +40,7 @@ const Wrap = styled.div`
     margin: 0 !important;
   }
   .ant-menu-item:hover {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-hover);
     color: rgba(0, 0, 0, 0.85) !important;
   }
 `;
@@ -66,9 +66,9 @@ const HierarchyViewSettingWrap = styled.div(
       line-height: 48px;
       width: 100%;
       padding: 4px 0;
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-secondary);
       &.borderBottomNone {
-        border-bottom: 1px solid #fff;
+        border-bottom: 1px solid var(--color-white);
       }
       &:hover {
         .delete {
@@ -84,15 +84,15 @@ const HierarchyViewSettingWrap = styled.div(
         .switchVisible {
           cursor: pointer;
           padding-left: 20px;
-          color: #757575;
+          color: var(--color-text-secondary);
           &:hover {
-            color: #1677ff;
+            color: var(--color-primary);
           }
         }
         .delete {
-          color: #757575;
+          color: var(--color-text-secondary);
           &:hover {
-            color: #f44336;
+            color: var(--color-error);
           }
         }
       }
@@ -126,7 +126,7 @@ const HierarchyViewSettingWrap = styled.div(
         display: block;
         margin-top: -4px;
         padding-bottom: 4px;
-        border-bottom: 1px solid #eaeaea;
+        border-bottom: 1px solid var(--color-border-secondary);
         .content {
           padding-top: 10px;
           padding-bottom: 24px;
@@ -141,7 +141,7 @@ const HierarchyViewSettingWrap = styled.div(
   }
   .controlName {
     margin: 0 4px 0 12px;
-    color: #151515;
+    color: var(--color-text-title);
   }
   .relateItem {
     display: flex;
@@ -156,7 +156,7 @@ const HierarchyViewSettingWrap = styled.div(
     .controlInfo {
       width: 260px;
       position: relative;
-      background-color: #f8f8f8;
+      background-color: var(--color-background-secondary);
       margin-left: 10px;
       border-radius: 3px;
     }
@@ -168,12 +168,12 @@ const HierarchyViewSettingWrap = styled.div(
     }
   }
   .addRelate {
-    color: #1677ff;
+    color: var(--color-primary);
     font-weight: bold;
     cursor: pointer;
     margin-top: 18px;
     &:hover {
-      color: #1565c0;
+      color: var(--color-link-hover);
     }
   }
 `,
@@ -242,7 +242,6 @@ export default function HierarchyViewSetting(props) {
       });
   };
   const addViewControl = item => {
-    const existSheet = viewControls.map(({ worksheetId }) => worksheetId); // 可选控件为关联表且关联他表
     worksheetAjax.getWorksheetInfo({ worksheetId: item.dataSource, getTemplate: true }).then(data => {
       const controls = data.template.controls;
       const coverControls = filterAndFormatterControls({
@@ -311,7 +310,7 @@ export default function HierarchyViewSetting(props) {
                 setSetting({ popupVisible: false });
               }}
             >
-              <i className="icon-link2 Gray_9e Font15"></i>
+              <i className="icon-link2 textTertiary Font15"></i>
               <span style={{ marginLeft: '6px' }} className="controlName Bold">
                 {controlName}
               </span>
@@ -335,9 +334,9 @@ export default function HierarchyViewSetting(props) {
               onClick={() => forCarSet && switchActive(index)}
             >
               <div className="info">
-                <i className="icon-view Font18 Gray_9e"></i>
+                <i className="icon-view Font18 textTertiary"></i>
                 <span className="controlName Font14 Bold overflow_ellipsis">{currentSheetInfo.name}</span>
-                <span className="Gray_9e pLeft3 pRight3">({_l('本表')})</span>
+                <span className="textTertiary pLeft3 pRight3">({_l('本表')})</span>
               </div>
               {forCarSet && (
                 <div className="handle">
@@ -345,7 +344,7 @@ export default function HierarchyViewSetting(props) {
                     <i
                       className={cx(
                         activeIndex === index ? 'icon-arrow-up-border' : 'icon-arrow-down-border',
-                        'Gray_9e',
+                        'textTertiary',
                       )}
                     ></i>
                   </div>
@@ -452,11 +451,13 @@ export default function HierarchyViewSetting(props) {
               onClick={() => forCarSet && switchActive(index)}
             >
               <div className="info">
-                <i className="icon-link2 Gray_9e Font18"></i>
+                <i className="icon-link2 textTertiary Font18"></i>
                 <div className="controlName overflow_ellipsis Font14 Bold">
                   {item.controlName || item.worksheetName}
                 </div>
-                <div className="sheetInfo Gray_9e overflow_ellipsis">{_l('( 工作表: %0 )', item.worksheetName)}</div>
+                <div className="sheetInfo textTertiary overflow_ellipsis">
+                  {_l('( 工作表: %0 )', item.worksheetName)}
+                </div>
               </div>
               <div className="handle">
                 {!forCarSet && (

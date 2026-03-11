@@ -25,15 +25,15 @@ const CalItem = styled.div`
     height: 28px;
     text-align: center;
     line-height: 26px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     border-radius: 3px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     cursor: pointer;
     &:last-child {
       margin-right: 0;
     }
     &:hover {
-      border: 1px solid #1677ff;
+      border: 1px solid var(--color-primary);
     }
   }
 `;

@@ -1,6 +1,6 @@
 .switchBox {
   margin: 0 40px;
-  background: #fff;
+  background: var(--color-background-primary);
   padding-bottom: 32px;
   position: relative;
   h5,
@@ -17,17 +17,17 @@
       font-weight: 500;
       font-size: 17px;
       letter-spacing: 0px;
-      color: #151515;
+      color: var(--color-text-title);
     }
     p {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       font-size: 13px;
       margin-top: 8px;
     }
     ul {
       display: block;
       max-width: 1000px;
-      background: #ffffff 0% 0% no-repeat padding-box;
+      background: var(--color-background-primary) 0% 0% no-repeat padding-box;
       li {
         display: flex;
         align-items: center;
@@ -35,11 +35,11 @@
         height: 48px;
         padding: 0 0 0 16px;
         line-height: 48px;
-        border-right: 1px solid #eaeaea;
-        border-left: 1px solid #eaeaea;
+        border-right: 1px solid var(--color-border-secondary);
+        border-left: 1px solid var(--color-border-secondary);
         &.current {
-          background: #1677ff0d !important;
-          border: 1px solid #1677ff !important;
+          background: var(--color-primary) 0d !important;
+          border: 1px solid var(--color-primary) !important;
           z-index: 1;
           position: relative;
           .con {
@@ -47,16 +47,16 @@
           }
         }
         &:hover {
-          background-color: #f7f7f7;
+          background-color: var(--color-background-hover);
           cursor: pointer;
         }
         &:first-child {
           border-radius: 5px 5px 0 0;
-          border-top: 1px solid #eaeaea;
+          border-top: 1px solid var(--color-border-secondary);
         }
         &:last-child {
           border-radius: 0 0 5px 5px;
-          border-bottom: 1px solid #eaeaea;
+          border-bottom: 1px solid var(--color-border-secondary);
           .con {
             border-bottom: 0px;
           }
@@ -68,14 +68,14 @@
             flex: 1;
           }
           .delBtn {
-            color: #1677ff;
+            color: var(--color-primary);
           }
         }
         .con {
           flex: 1;
           display: block;
           position: relative;
-          border-bottom: 1px solid #eaeaea;
+          border-bottom: 1px solid var(--color-border-secondary);
           padding-right: 16px;
           .rangeBox {
             position: absolute;
@@ -84,7 +84,7 @@
           }
         }
         .batchIsOpen {
-          color: #1677ff;
+          color: var(--color-primary);
         }
         .ming.Switch,
         .nullBox {
@@ -105,7 +105,7 @@
           }
         }
         .ming.icon-visibility_off {
-          color: #ee6f1f;
+          color: var(--color-warning);
           margin-left: 5px;
         }
         .ming.icon-navigate_next,

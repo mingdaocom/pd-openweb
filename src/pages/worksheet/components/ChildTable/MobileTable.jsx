@@ -7,13 +7,13 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import CellControl from 'worksheet/components/CellControls';
 import CustomFields from 'src/components/Form';
-import { updateRulesData } from 'src/components/Form/core/formUtils';
+import { updateRulesData } from 'src/components/Form/core/formUtils/updateRulesData';
 import { getAdvanceSetting } from 'src/utils/control';
 import { isRelateRecordTableControl } from 'src/utils/control';
 
 const MobileTableContent = styled.div`
   .mobileTableHeader {
-    background-color: #f7f7f7;
+    background-color: var(--color-background-secondary);
   }
   .tableIndex {
     width: 32px !important;
@@ -37,7 +37,7 @@ const MobileTableContent = styled.div`
     background-color: #00000003;
   }
   .showAll {
-    color: #1677ff;
+    color: var(--color-primary);
     padding: 10px 0;
     justify-content: center;
   }
@@ -49,12 +49,12 @@ const MobileTableContent = styled.div`
 
 const FlattenContent = styled.div`
   .childTableErrorMessage {
-    color: #f44336;
+    color: var(--color-error);
   }
   .rowHeader {
     height: 36px;
     line-height: 40px;
-    background-color: #f7f7f7;
+    background-color: var(--color-background-secondary);
     padding-left: 10px;
     border-radius: 3px;
     &.expandHeader {
@@ -66,10 +66,10 @@ const FlattenContent = styled.div`
       text-align: center;
     }
     .delete {
-      color: #f44336;
+      color: var(--color-error);
     }
     .edit {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .mobileChildTableFlatForm {
@@ -86,7 +86,7 @@ const FlattenContent = styled.div`
     }
   }
   .showAll {
-    color: #1677ff;
+    color: var(--color-primary);
     padding: 10px 0;
     justify-content: center;
   }
@@ -147,10 +147,10 @@ export default function MobileTable(props) {
       actions: [],
       extra: (
         <div className="flexColumn w100">
-          <div className="bold Gray Font17 pTop10">{_l('确定删除此记录 ?')}</div>
+          <div className="bold textPrimary Font17 pTop10">{_l('确定删除此记录 ?')}</div>
           <div className="valignWrapper flexRow confirm mTop24">
             <Button
-              className="flex mRight6 bold Gray_75 flex ellipsis Font13"
+              className="flex mRight6 bold textSecondary flex ellipsis Font13"
               onClick={() => deleteConformAction.close()}
             >
               {_l('取消')}
@@ -209,7 +209,7 @@ export default function MobileTable(props) {
 
   // 记录为空
   const showEmpty = () =>
-    !isEdit && _.isEmpty(rows) && <div className="Gray_9e mTop15 mLeft15 bold">{_l('暂无记录')}</div>;
+    !isEdit && _.isEmpty(rows) && <div className="textTertiary mTop15 mLeft15 bold">{_l('暂无记录')}</div>;
 
   // 平铺
   if (h5showtype === '2') {
@@ -407,7 +407,7 @@ export default function MobileTable(props) {
             })}
 
             <div className="flexRow valignWrapper">
-              <Icon className="Gray_9e" icon="arrow-right-tip" />
+              <Icon className="textTertiary" icon="arrow-right-tip" />
             </div>
           </div>
         );

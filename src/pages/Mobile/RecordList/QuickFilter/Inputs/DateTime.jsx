@@ -17,7 +17,7 @@ const InputCon = styled(Input)`
   width: 100%;
   border-radius: 18px !important;
   border: none !important;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
 `;
 
 const replaceTimeValue = value => (value.replace ? value.replace(/[\u4e00-\u9fa5]+/g, '-') : value);
@@ -49,12 +49,8 @@ export default function DateTime(props) {
   const [moreVisible, setMoreVisible] = useState(false);
   const [startDateVisible, setStartDateVisible] = useState(false);
   const [endDateVisible, setEndDateVisible] = useState(false);
-  let allowedDateRange = [];
-  try {
-    allowedDateRange = JSON.parse(advancedSetting.daterange);
-  } catch (err) {
-    console.log(err);
-  }
+  const allowedDateRange = advancedSetting?.daterange ? JSON.parse(advancedSetting.daterange) : [];
+
   if (dateRangeType) {
     control.advancedSetting.showtype = String(dateRangeType);
   }
@@ -105,7 +101,7 @@ export default function DateTime(props) {
           appId={appId}
           position={{
             position: 'unset',
-            color: '#9e9e9e ',
+            color: 'var(--color-text-tertiary) ',
             border: 'none',
             height: 'auto',
             lineHeight: 'unset',
@@ -130,7 +126,7 @@ export default function DateTime(props) {
                 customHeader={_l('开始时间')}
                 precision={precisionObj[showType]}
                 isOpen={startDateVisible}
-                value={startDateValue ? moment(replaceTimeValue(startDateValue)).toDate() : new Date()}
+                value={startDateValue ? moment(startDateValue) : ''}
                 onClose={() => {
                   setStartDateVisible(false);
                 }}
@@ -175,7 +171,7 @@ export default function DateTime(props) {
               <MobileDatePicker
                 customHeader={_l('结束时间')}
                 isOpen={endDateVisible}
-                value={endDateValue ? moment(replaceTimeValue(endDateValue)).toDate() : new Date()}
+                value={endDateValue ? moment(endDateValue) : ''}
                 min={moment(startDateValue).toDate()}
                 precision={precisionObj[showType]}
                 onClose={() => {
@@ -224,7 +220,7 @@ export default function DateTime(props) {
                 customHeader={_l('请选择日期')}
                 precision={precisionObj[showType]}
                 isOpen={startDateVisible}
-                value={value ? moment(replaceTimeValue(value)).toDate() : new Date()}
+                value={value ? replaceTimeValue(value) : ''}
                 onClose={() => {
                   setStartDateVisible(false);
                 }}
@@ -236,16 +232,14 @@ export default function DateTime(props) {
                   });
                   setStartDateVisible(false);
                 }}
-                onCancel={event => {
+                onCancel={() => {
                   setStartDateVisible(false);
-                  if (event) {
-                    onChange({
-                      dateRange: 18,
-                      filterType: filterType || FILTER_CONDITION_TYPE.DATEENUM,
-                      value: '',
-                    });
-                    onRemove();
-                  }
+                  onChange({
+                    dateRange: 18,
+                    filterType: filterType || FILTER_CONDITION_TYPE.DATEENUM,
+                    value: '',
+                  });
+                  onRemove();
                 }}
                 {...startDateExtraObj}
               />

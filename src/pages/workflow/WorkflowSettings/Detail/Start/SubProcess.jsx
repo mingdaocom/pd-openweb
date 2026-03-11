@@ -17,12 +17,12 @@ const List = styled.div`
   .fieldName {
     padding: 5px 12px;
     border-radius: 4px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     height: 36px;
     line-height: 36px;
     font-size: 13px;
     &:focus {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
   }
 `;
@@ -95,7 +95,7 @@ export default ({ data, updateSource }) => {
                     <div className="mLeft10 w30 flexRow mTop8 Font16 alignItemsCenter">
                       <Icon
                         icon={item.attribute === 1 ? 'ic_title' : 'title'}
-                        className={cx('Gray_75 ThemeHoverColor3 pointer', { ThemeColor3: item.attribute === 1 })}
+                        className={cx('textSecondary ThemeHoverColor3 pointer', { ThemeColor3: item.attribute === 1 })}
                         onClick={() => {
                           updateSource({
                             controls: data.controls.map(o => {
@@ -115,7 +115,7 @@ export default ({ data, updateSource }) => {
 
         <div className="Font13 bold mTop20">{_l('被以下工作流触发')}</div>
         {!data.processList.length && (
-          <div className="Font12 Gray_75 workflowDetailDesc mTop10 subProcessDesc">{_l('未被任何流程触发')}</div>
+          <div className="Font12 textSecondary workflowDetailDesc mTop10 subProcessDesc">{_l('未被任何流程触发')}</div>
         )}
 
         {data.processList.map((item, i) => {
@@ -123,16 +123,16 @@ export default ({ data, updateSource }) => {
             <div className="workflowDetailDesc mTop10 subProcessDesc" key={i}>
               <div className="Font13">
                 <span
-                  className="ThemeColor3 ThemeHoverColor2"
+                  className="ThemeColor3 ThemeHoverColor2 pointerEventsAuto"
                   onClick={() => window.open(`/workflowedit/${item.processId}`)}
                 >
                   {item.processName}
                 </span>
               </div>
               <div className="Font12">
-                <span className="Gray_75 mRight5">{_l('节点')}</span>
+                <span className="textSecondary mRight5">{_l('节点')}</span>
                 <span>{item.flowNodes.map(obj => `“${obj.name}”`).join('、')}</span>
-                <span className="Gray_75 mLeft5">{_l('触发')}</span>
+                <span className="textSecondary mLeft5">{_l('触发')}</span>
               </div>
             </div>
           );

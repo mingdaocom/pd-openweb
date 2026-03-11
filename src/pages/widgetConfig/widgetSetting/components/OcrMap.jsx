@@ -24,7 +24,7 @@ const ConfigRelation = styled.div`
       margin: 0;
     }
     .mapIcon {
-      color: #1677ff;
+      color: var(--color-primary);
     }
     .Dropdown,
     .ming.Menu {
@@ -35,7 +35,7 @@ const ConfigRelation = styled.div`
       width: 45%;
     }
     .item {
-      background-color: #f8f8f8;
+      background-color: var(--color-background-secondary);
       line-height: 36px;
       padding: 0 12px;
       border-radius: 4px;
@@ -106,13 +106,13 @@ function MapItem(props) {
 
   const renderControlItem = ({ id, name, controls }) => {
     if (!isHaveSelectableControls) {
-      return id === 'current' ? <div className="emptyText Gray_9e">{_l('无可选控件')}</div> : null;
+      return id === 'current' ? <div className="emptyText textTertiary">{_l('无可选控件')}</div> : null;
     }
     return controls.length > 0 ? (
       <ul key={id} className="relateSheetList">
         <li>
           {name && (
-            <div className="title Gray_75">
+            <div className="title textSecondary">
               <span>{name}</span>
             </div>
           )}
@@ -165,17 +165,17 @@ function MapItem(props) {
           <DropdownPlaceholder onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
             {isEmpty(info) ? (
               <div className="infoWrap">
-                <div className="name Gray_9e">{_l('请选择')}</div>
-                <i className={'Font14 icon-arrow-down-border Gray_9e'}></i>
+                <div className="name textTertiary">{_l('请选择')}</div>
+                <i className={'Font14 icon-arrow-down-border textTertiary'}></i>
               </div>
             ) : (
               <div className="infoWrap">
                 <div className="name">
-                  <i className={`Gray_9e Font14 icon-${getIconByType(info.type)}`}></i>
+                  <i className={`textTertiary Font14 icon-${getIconByType(info.type)}`}></i>
                   {info.controlName}
                 </div>
                 <i
-                  className={cx(`Font14 icon-${isHover ? 'cancel Gray_75' : 'arrow-down-border Gray_9e'} `)}
+                  className={cx(`Font14 icon-${isHover ? 'cancel textSecondary' : 'arrow-down-border textTertiary'} `)}
                   onClick={e => {
                     e.stopPropagation();
                     const index = ocrMap.findIndex(item => item.type === value);
@@ -203,7 +203,7 @@ export default function OcrMap({ data, onChange, onClose, ...rest }) {
     if (enumDefault === 3 && getAdvanceSetting(data, 'ocrmaptype') === 2 && withSubList) return null;
     return (
       <Fragment>
-        {title && <div className="title Gray_75">{title}</div>}
+        {title && <div className="title textSecondary">{title}</div>}
         {items.map(item => {
           return <MapItem {...rest} {...item} withSubList={withSubList} ocrMap={ocrMap} setMap={setMap} />;
         })}

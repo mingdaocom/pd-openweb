@@ -10,6 +10,7 @@ import EnabledWebProxy from '../components/EnabledWebProxy';
 import EnableScanLogin from '../components/EnableScanLogin';
 import IntegrationSetPassword from '../components/IntegrationSetPassword';
 import IntegrationSync from '../components/IntegrationSync';
+import SyncRootDepartment from '../components/SyncRootDepartment';
 import { checkClearIntergrationData, integrationFailed } from '../utils';
 import BuildAppNewRules from './BuildAppNewRules';
 import ChartSetting from './components/ChartSetting';
@@ -58,7 +59,7 @@ export default class Workwx extends React.Component {
       fieldRadio: null,
       isSetPassword: false,
       passwordError: false,
-      syncWXLabel: md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? 'job' : 'organize',
+      syncWXLabel: !window.platformENV.isPlatform ? 'job' : 'organize',
       qwQuickAprData: {},
       currentTab: 'base',
       isProxy: false, // 是否开启网络代理
@@ -75,11 +76,12 @@ export default class Workwx extends React.Component {
           corpId: '',
           agentId: '',
           secret: '',
-          status: md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? 1 : '',
+          status: !window.platformENV.isPlatform ? 1 : '',
         };
       }
       if (res) {
         this.setState({
+          ...res,
           hasApply: !!res,
           //"status: 集成状态，主要通过该值展现：1代表申请通过并提供了使用；0代表提交了申请；-1代表拒绝申请；2代表之前集成过但关闭了集成"
           isPassApply: res.status === 2 || res.status === 1,
@@ -228,7 +230,7 @@ export default class Workwx extends React.Component {
               </span>
             }
           >
-            <Icon icon="help" className="Font18 Gray_9e" />
+            <Icon icon="help" className="Font18 textTertiary" />
           </Popover>
         </div>
         <div className="Relative InlineBlock inputDiv clearfix">
@@ -257,7 +259,7 @@ export default class Workwx extends React.Component {
               />
               <Icon
                 icon={!this.state[`isShow${strId}`] ? 'public-folder-hidden' : 'visibility'}
-                className="Gray_9e Font18 isShowIcon"
+                className="textTertiary Font18 isShowIcon"
                 onClick={() => {
                   this.setState({
                     [`isShow${strId}`]: !this.state[`isShow${strId}`],
@@ -279,7 +281,7 @@ export default class Workwx extends React.Component {
       <div className="pBottom100">
         {intergrationType !== 2 && (
           <div className="stepItem Relative">
-            <h3 className="stepTitle Font16 Gray">{_l('1.获取对接信息')}</h3>
+            <h3 className="stepTitle Font16 textPrimary">{_l('1.获取对接信息')}</h3>
             {!this.state.show1 ? (
               <div
                 className="showDiv flexRow valignWrapper"
@@ -289,11 +291,13 @@ export default class Workwx extends React.Component {
                   });
                 }}
               >
-                <Icon icon="arrow-right-border" className="Font13 Gray_75 Right Hand" />
+                <Icon icon="arrow-right-border" className="Font13 textSecondary Right Hand" />
               </div>
             ) : (
               <React.Fragment>
-                <p className="mTop16 Font14 Gray_75">{_l('从企业微信后台获取对接信息，即可开始集成以及同步通讯录')}</p>
+                <p className="mTop16 Font14 textSecondary">
+                  {_l('从企业微信后台获取对接信息，即可开始集成以及同步通讯录')}
+                </p>
                 <MdLink to={`/wxappSyncCourse/${projectId}`} target="_blank" className="mTop16 Font14 howApply">
                   {_l('如何获取对接信息？')}
                 </MdLink>
@@ -302,7 +306,9 @@ export default class Workwx extends React.Component {
           </div>
         )}
         <div className="stepItem Relative">
-          <h3 className="stepTitle Font16 Gray">{intergrationType === 2 ? _l('1.对接信息') : _l('2.对接信息录入')}</h3>
+          <h3 className="stepTitle Font16 textPrimary">
+            {intergrationType === 2 ? _l('1.对接信息') : _l('2.对接信息录入')}
+          </h3>
           {!show2 && intergrationType !== 2 && (
             <div
               className="showDiv flexRow valignWrapper"
@@ -312,11 +318,11 @@ export default class Workwx extends React.Component {
                 });
               }}
             >
-              <Icon icon="arrow-right-border" className="Font13 Gray_75 Right Hand" />
+              <Icon icon="arrow-right-border" className="Font13 textSecondary Right Hand" />
             </div>
           )}
           {((isHasInfo && show2) || intergrationType === 2) && (
-            <span className="Font13 Gray_75 Right closeDing">
+            <span className="Font13 textSecondary Right closeDing">
               <Tooltip title={_l('关闭企业微信集成后，无法再从企业微信处进入应用')} placement="bottomLeft">
                 <span className="mLeft10 switchBtn">
                   <Switch
@@ -332,7 +338,7 @@ export default class Workwx extends React.Component {
           {((!isCloseDing && show2) || intergrationType === 2) && (
             <React.Fragment>
               {intergrationType !== 2 && (
-                <p className="mTop16 Font14 Gray_75">
+                <p className="mTop16 Font14 textSecondary">
                   {_l('完成步骤 1 后，填入CorpId、AgentId、Secret后可对接应用与同步通讯录')}
                 </p>
               )}
@@ -477,13 +483,14 @@ export default class Workwx extends React.Component {
       canEditInfo,
       isHasInfo,
       isCloseDing,
+      syncRootDepartment,
       customNameIcon = {},
     } = this.state;
 
     if (currentTab === 'base') {
       return (
         <Fragment>
-          {!CorpId && (!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal) && (status === 0 || !status) ? (
+          {!CorpId && window.platformENV.isPlatform && (status === 0 || !status) ? (
             <BuildAppNewRules
               projectId={projectId}
               editWXProjectSettingStatus={this.editWXProjectSettingStatus}
@@ -516,7 +523,8 @@ export default class Workwx extends React.Component {
                 customNameIcon={customNameIcon}
                 updateCustomNameIcon={customNameIcon => this.setState({ customNameIcon })}
               />
-              {md.global.Config.IsLocal && (
+
+              {(window.platformENV.isOverseas || window.platformENV.isLocal) && (
                 <IntegrationSetPassword
                   password={this.state.password}
                   isSetPassword={this.state.isSetPassword}
@@ -525,9 +533,9 @@ export default class Workwx extends React.Component {
               )}
               <div className="stepItem flexRow valignWrapper">
                 <div className="flexColumn flex">
-                  <h3 className="stepTitle Font16 Gray">{_l('企业微信字段同步')}</h3>
+                  <h3 className="stepTitle Font16 textPrimary">{_l('企业微信字段同步')}</h3>
                   <div className="mTop16 syncBox mBottom24">
-                    <span className="Font14 Gray_75">
+                    <span className="Font14 textSecondary">
                       {_l(
                         '完成通讯录同步的基础配置后，可将企业微信用户账号或者企业微信自定义信息字段同步到系统的工号字段',
                       )}
@@ -560,7 +568,7 @@ export default class Workwx extends React.Component {
                       {_l('同步企业微信用户账号 或 自定义信息字段 到工号字段')}
                     </Checkbox>
                   </div>
-                  <div className="Gray_9e mLeft32">
+                  <div className="textTertiary mLeft32">
                     {_l('企业微信用户账号和企业微信自定义字段只可选择一个同步到工号字段')}
                   </div>
                   {this.state.customMappingFieldEnabled && (
@@ -614,48 +622,12 @@ export default class Workwx extends React.Component {
                   )}
                 </div>
               </div>
-              {/* {md.global.Config.IsLocal && (
-                  <div className="stepItem">
-                    <div className="Font16 Gray mBottom16 bold">{_l('在企业微信中使用快速审批')}</div>
-                    <div className="Gray_9e exampleTxt mBottom24">
-                      {_l(
-                        '此功能需要配置企业微信中的应用接收回调消息服务。配置完成后，企业微信中的工作流审批消息卡片可以直接显示通过否决按钮，无需打开审批详情即可直接完成审批（注：需要审批节点启用了快速审批功能）。',
-                      )}
-                      <Popover title={null} arrowPointAtCenter={true} content={<img src={fucExampleImg} />}>
-                        <span className="Hand ThemeColor">{_l('示例')}</span>
-                      </Popover>
-                    </div>
-                    <Switch checked={this.state.openQuickApproval} onClick={this.handleChangeOpenQuickApproval} />
-                    <div className="Gray_9e mTop24">
-                      {_l('请将下面的字段内容完整准确的复制到企业微信-应用管理-接收消息-设置API接收对应的字段内。')}{' '}
-                      <Popover title={null} arrowPointAtCenter={true} content={<img src={setApiExampleImg} />}>
-                        <span className="Hand ThemeColor">{_l('示例')}</span>
-                      </Popover>
-                    </div>
-                    {this.state.openQuickApproval && (
-                      <Fragment>
-                        {quickAprData.map((it, index) => {
 
-                          return (
-                            <div
-                              className={cx('flexRow alignItemsCenter', { mTop24: index == 0, mTop32: index !== 0 })}
-                            >
-                              <div className="Font14 w166">{it.label}</div>
-                              <Input className="w418 Gray" disabled value={qwQuickAprData[it.key]} />
-                              <ClipboardButton
-                                component="span"
-                                data-clipboard-text={qwQuickAprData[it.key]}
-                                onSuccess={this.handleCopyTextSuccess}
-                              >
-                                <span className="mLeft16 Hand ThemeColor">{_l('复制')}</span>
-                              </ClipboardButton>
-                            </div>
-                          );
-                        })}
-                      </Fragment>
-                    )}
-                  </div>
-                )} */}
+              <SyncRootDepartment
+                projectId={projectId}
+                syncRootDepartment={syncRootDepartment}
+                updateSyncRootDepartment={syncRootDepartment => this.setState({ syncRootDepartment })}
+              />
             </div>
           </div>
         </Fragment>
@@ -675,9 +647,7 @@ export default class Workwx extends React.Component {
     }
     return (
       <div className="orgManagementWrap workwxMainContent platformIntegrationContent">
-        {!this.state.isPassApply &&
-        !(!this.state.CorpId && (!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal)) &&
-        intergrationType !== 2 ? (
+        {!this.state.isPassApply && !(!this.state.CorpId && window.platformENV.isPlatform) && intergrationType !== 2 ? (
           <div className="TxtMiddle">
             <div className="TxtCenter logoBox">
               {this.state.isReject ? (
@@ -687,17 +657,17 @@ export default class Workwx extends React.Component {
               ) : (
                 <React.Fragment>
                   <span className="mdIcon">
-                    <Icon icon="feed" className="Font40 White" />
+                    <Icon icon="feed" className="Font40 textWhite" />
                   </span>
-                  <Icon icon="swap_horiz" className="Font36 mLeft30 mRight30 Gray_bd" />
+                  <Icon icon="swap_horiz" className="Font36 mLeft30 mRight30 textDisabled" />
                   <Icon icon="invite-ding" className="TxtCenter" />
                 </React.Fragment>
               )}
             </div>
             {!this.state.hasApply ? (
               <div className="TxtCenter mTop50">
-                <h2 className="Font26 Gray">{_l('申请企业微信集成')}</h2>
-                <p className="mTop24 mBottom32 Font16 Gray_75">
+                <h2 className="Font26 textPrimary">{_l('申请企业微信集成')}</h2>
+                <p className="mTop24 mBottom32 Font16 textSecondary">
                   {_l('申请通过后，可将该系统应用安装到企业微信工作台！')}
                 </p>
                 <Button
@@ -719,13 +689,13 @@ export default class Workwx extends React.Component {
               <div className="TxtCenter mTop50">
                 {this.state.isReject ? (
                   <React.Fragment>
-                    <h2 className="Font18 Gray">{_l('试用已过期，请付费后继续使用')}</h2>
-                    <p className="mTop15 Font13 Gray_75">{_l('如有疑问，请联系您的专属顾问')}</p>
+                    <h2 className="Font18 textPrimary">{_l('试用已过期，请付费后继续使用')}</h2>
+                    <p className="mTop15 Font13 textSecondary">{_l('如有疑问，请联系您的专属顾问')}</p>
                   </React.Fragment>
                 ) : (
                   <React.Fragment>
-                    <h2 className="Font26 Gray">{_l('申请已提交')}</h2>
-                    <p className="mTop24 mBottom32 Font16 Gray_75">
+                    <h2 className="Font26 textPrimary">{_l('申请已提交')}</h2>
+                    <p className="mTop24 mBottom32 Font16 textSecondary">
                       {_l('预计两个工作日反馈信息，如有疑问，请联系您的专属顾问')}
                     </p>
                   </React.Fragment>
@@ -752,14 +722,20 @@ export default class Workwx extends React.Component {
                           ['fe288386-3d26-4eab-b5d2-51eeab82a7f9', 'faa2f6b1-f706-4084-9a8d-50616817f890'],
                           projectId,
                         ) ||
-                          md.global.Config.IsLocal)
+                          window.platformENV.isOverseas ||
+                          window.platformENV.isLocal)
                       )
                     )
                       return;
 
                     if (
                       key === 'interfaceLicense' &&
-                      !(!md.global.Config.IsLocal && intergrationType === 2 && this.state.status === 1)
+                      !(
+                        !window.platformENV.isOverseas &&
+                        !window.platformENV.isLocal &&
+                        intergrationType === 2 &&
+                        this.state.status === 1
+                      )
                     )
                       return;
 

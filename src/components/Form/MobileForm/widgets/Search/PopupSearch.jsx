@@ -30,7 +30,7 @@ const MobileSearch = props => {
     return _.get(searchInput.current || {}, 'value') && enumDefault === 1 && _.isEmpty(mobileSearchResult) ? (
       <div className="w100 h100 flexColumn alignItemsCenter justifyContentCenter">
         <Icon icon="h5_search" className="Font50" />
-        <div className="Gray_bd Font17 Bold mTop40">{_l('没有搜索结果')}</div>
+        <div className="textDisabled Font17 Bold mTop40">{_l('没有搜索结果')}</div>
       </div>
     ) : (
       <div className="flex searchResult">
@@ -80,7 +80,7 @@ const MobileSearch = props => {
         }}
       >
         <span className={cx('flex ellipsis', { customFormPlaceholder: !value })}>{value || hint || _l('请选择')}</span>
-        {(!disabled || !formDisabled) && <Icon icon="arrow-right-border" className="Font16 Gray_bd" />}
+        {(!disabled || !formDisabled) && <Icon icon="arrow-right-border" className="Font16 textDisabled" />}
       </div>
       <PopupWrapper
         bodyClassName="heightPopupBody40"
@@ -102,11 +102,11 @@ const MobileSearch = props => {
       >
         <div className="searchListModals">
           {enumDefault === 2 && clicksearch === '0' ? (
-            <div className="searchBox GrayBGF8 selectSearchBox">
+            <div className="searchBox bgTertiary selectSearchBox">
               <input
                 ref={searchInput}
                 type="text"
-                className="cursorText flex Gray"
+                className="cursorText flex textPrimary"
                 placeholder={hint || _l('请选择')}
               />
               <div
@@ -116,15 +116,15 @@ const MobileSearch = props => {
                   props.handleSearch(searchInput.current.value);
                 }}
               >
-                <Icon icon="search" className="Font18 Gray_75" />
+                <Icon icon="search" className="Font18 textSecondary" />
               </div>
             </div>
           ) : (
-            <div className="searchBox GrayBGF8">
-              <Icon icon="search" className="searchIcon Font20 Gray_75" />
+            <div className="searchBox bgTertiary">
+              <Icon icon="search" className="searchIcon Font20 textSecondary" />
               <input
                 type="text"
-                className="cursorText Gray"
+                className="cursorText textPrimary"
                 placeholder={hint || _l('请选择')}
                 ref={searchInput}
                 onChange={() => {

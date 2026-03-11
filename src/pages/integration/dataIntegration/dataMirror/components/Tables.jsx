@@ -12,7 +12,7 @@ import { emitter } from 'src/utils/common';
 
 const WrapPopup = styled.div`
   width: 620px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 2px 9px 1px rgba(0, 0, 0, 0.25);
   border-radius: 5px 5px 5px 5px;
   padding: 18px;
@@ -35,7 +35,7 @@ const WrapPopup = styled.div`
       content: ' ';
       width: 0px;
       height: 36px;
-      border-left: 1px solid #707070;
+      border-left: 1px solid var(--color-text-secondary);
       position: absolute;
       left: 7px;
       top: 0;
@@ -49,14 +49,14 @@ const WrapPopup = styled.div`
       content: ' ';
       width: 10px;
       height: 0;
-      border-top: 1px dashed #707070;
+      border-top: 1px dashed var(--color-text-secondary);
       position: absolute;
       top: 50%;
       left: 10px;
     }
   }
   .headerCon {
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
     padding-bottom: 5px;
   }
   .option {
@@ -81,16 +81,16 @@ const ListBox = styled.div`
       font-weight: 700;
     }
     &:hover {
-      background: rgba(247, 247, 247, 1);
+      background: var(--color-background-card);
       .titleText {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
   .optionTxt {
-    color: #1677ff;
+    color: var(--color-primary);
     &:hover {
-      color: #1565c0;
+      color: var(--color-link-hover);
     }
   }
 `;
@@ -111,10 +111,10 @@ const Wrap = styled.div`
     width: 200px;
   }
   .warn {
-    color: #ffbb00;
+    color: var(--color-warning-border);
   }
   .headerCon {
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
     padding-bottom: 10px;
   }
 `;
@@ -164,12 +164,12 @@ function Controls(props) {
           return (
             <div className="flexRow alignItemsCenter w100">
               <span title={item.wsFieldName} className={cx('titleText overflow_ellipsis wsFieldName', { isLast })}>
-                <Icon icon={getIconByType(item.wsControlType)} className="mRight3 Font16 Gray_75" />
+                <Icon icon={getIconByType(item.wsControlType)} className="mRight3 Font16 textSecondary" />
                 {item.wsFieldName}
               </span>
               {item.description && (
                 <Tooltip title={item.description} placement="topRight">
-                  <Icon icon="info" className="Gray_9e mLeft4 pointer" />
+                  <Icon icon="info" className="textTertiary mLeft4 pointer" />
                 </Tooltip>
               )}
             </div>
@@ -383,7 +383,7 @@ export default function Tables(props) {
               data={dateArr}
               value={dropType}
               renderTitle={() => (
-                <span className="Gray_75 bold TxtTop">
+                <span className="textSecondary bold TxtTop">
                   {_l('使用')}
                   {dateArr.find(o => o.value === dropType).text}
                 </span>
@@ -456,10 +456,12 @@ export default function Tables(props) {
                     <Icon icon="info" className="Font18 mRight3 warn" />
                   </Tooltip>
                 )}
-                <span className={cx('title ellipsis mRight3', item.isErr ? 'Gray_bd' : 'Gray')}>{item.tableName}</span>
+                <span className={cx('title ellipsis mRight3', item.isErr ? 'textDisabled' : 'textPrimary')}>
+                  {item.tableName}
+                </span>
                 <Icon
                   icon="edit"
-                  className={cx('Font18 Gray_75 mLeft5 ThemeHoverColor3 Hand')}
+                  className={cx('Font18 textSecondary mLeft5 ThemeHoverColor3 Hand')}
                   onClick={() => {
                     setState({
                       showInput: item.worksheetId,

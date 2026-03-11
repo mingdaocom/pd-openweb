@@ -252,7 +252,7 @@ export default class ChartSort extends Component {
     return (
       !_.isEmpty(sortData) && (
         <div key={item.controlId}>
-          <div className="flexRow valignWrapper Font13 Gray_75 mBottom16">
+          <div className="flexRow valignWrapper Font13 textSecondary mBottom16">
             {item.particleSizeType
               ? `${item.controlName}(${_.find(timeParticleSizeDropdownData, { value: item.particleSizeType }).text})`
               : item.controlName}
@@ -261,7 +261,7 @@ export default class ChartSort extends Component {
             {[defaultSort, ...sortData].map(data => (
               <div
                 key={data.value}
-                className={cx('item Font12 Gray', {
+                className={cx('item Font12 textPrimary', {
                   active: (_.isArray(value) ? customSort.value : value) === data.value,
                 })}
                 onClick={() => {

@@ -1,12 +1,12 @@
 .globalVarWrapper {
   height: 100%;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   display: flex;
   overflow: hidden;
 
   .globalVarLeft {
     width: 240px;
-    border-right: 1px solid #eaeaea;
+    border-right: 1px solid var(--color-border-secondary);
     display: flex;
     flex-direction: column;
     padding: 20px 0;
@@ -21,21 +21,21 @@
       .helpContent {
         display: flex;
         align-items: center;
-        color: #757575;
+        color: var(--color-text-secondary);
         cursor: pointer;
 
         &:hover {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }
     .searchCon {
       width: auto;
-      background: #fff;
+      background: var(--color-background-primary);
       border-radius: 0;
       box-sizing: content-box;
       padding: 10px;
-      border-top: 1px solid #eaeaea;
+      border-top: 1px solid var(--color-border-secondary);
       margin: 12px 20px 0px 20px;
     }
     .listItem {
@@ -48,7 +48,7 @@
       cursor: pointer;
 
       .icon-business {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         font-size: 16px;
         margin-right: 8px;
       }
@@ -67,10 +67,10 @@
       }
       &.isActive {
         background: rgba(33, 150, 243, 0.11);
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
         font-weight: 600;
         .icon-business {
-          color: #1677ff !important;
+          color: var(--color-primary) !important;
         }
       }
     }
@@ -94,9 +94,9 @@
         min-width: 104px;
         line-height: 30px;
         padding: 0 16px;
-        background: #1677ff;
+        background: var(--color-primary);
         border-radius: 44px;
-        color: #fff;
+        color: var(--color-white);
         text-align: center;
         cursor: pointer;
         .icon-add {
@@ -107,15 +107,15 @@
           font-weight: 600;
         }
         &:hover {
-          color: #fff;
-          background: #1565c0;
+          color: var(--color-white);
+          background: var(--color-link-hover);
         }
 
         &.needUpgrade {
-          background: #eee;
-          color: #151515;
+          background: var(--color-border-secondary);
+          color: var(--color-text-title);
           &:hover {
-            background: #dbdbdb;
+            background: var(--color-border-primary);
           }
         }
       }

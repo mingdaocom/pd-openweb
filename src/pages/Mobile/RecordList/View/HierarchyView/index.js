@@ -41,7 +41,7 @@ class MobileHierarchyView extends Component {
       !_.isEmpty(viewControls);
     // 视图配置错误
     if (!isHaveSelectControl) {
-      return <ViewErrorPage icon="hierarchy" viewName={_l('层级视图')} color="#9c27af" />;
+      return <ViewErrorPage icon="hierarchy" viewName={_l('层级视图')} color="var(--color-mingo)" />;
     }
 
     if (!Component) return null;

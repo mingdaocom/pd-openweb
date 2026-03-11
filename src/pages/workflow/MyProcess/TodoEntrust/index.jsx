@@ -14,7 +14,7 @@ const RedDot = styled.div`
   width: 6px;
   height: 6px;
   border-radius: 100%;
-  background-color: red;
+  background-color: var(--color-error);
 `;
 
 const IconWrapper = styled.div`
@@ -25,15 +25,15 @@ const IconWrapper = styled.div`
   .iconText {
     margin-left: 8px;
     font-size: 14px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
 
   &:hover {
     .iconText {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
     i {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
 `;
@@ -61,7 +61,7 @@ export default function TodoEntrust() {
       <Tooltip title={_l('待办委托')} popupPlacement="bottom">
         <IconWrapper onClick={onEntrustIconClick}>
           <div className="relative">
-            <Icon icon="lift" className="Font22 Gray_75" />
+            <Icon icon="lift" className="Font22 textSecondary" />
             {entrustCount > 0 && <RedDot />}
           </div>
           <div className="iconText nowrap">{_l('委托')}</div>

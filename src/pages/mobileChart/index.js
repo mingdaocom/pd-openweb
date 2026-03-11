@@ -2,8 +2,10 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { SpinLoading } from 'antd-mobile';
+import homeAppApi from 'api/homeApp';
 import _ from 'lodash';
 import styled from 'styled-components';
+import appManagementApi from 'src/api/appManagement';
 import ChartContent from 'mobile/CustomPage/ChartContent';
 import preall from 'src/common/preall';
 import { configureStore } from 'src/redux/configureStore';
@@ -17,10 +19,13 @@ const LayoutContent = styled.div`
   height: 100%;
   padding: 8px 15px;
   box-sizing: border-box;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
+  .g2-tooltip {
+    background-color: var(--color-background-card) !important;
+  }
 `;
 
-const { reportId, getFilters } = getRequest();
+const { appId, reportId, getFilters } = getRequest();
 
 class MobileChart extends React.Component {
   constructor(props) {
@@ -31,18 +36,44 @@ class MobileChart extends React.Component {
     };
   }
   componentDidMount() {
-    if (getFilters === 'true') {
-      mdAppResponse({ type: 'getFilters' }).then(data => {
-        const { value } = data;
+    const run = () => {
+      if (getFilters === 'true') {
+        mdAppResponse({ type: 'getFilters' }).then(data => {
+          const { value } = data;
+          this.setState({
+            loading: false,
+            filters: _.isArray(value) && value.length ? value : [],
+          });
+        });
+      } else {
         this.setState({
           loading: false,
-          filters: _.isArray(value) && value.length ? value : [],
         });
-      });
+      }
+    };
+
+    if (appId) {
+      homeAppApi
+        .getApp({
+          appId,
+          getLang: true,
+        })
+        .then(async data => {
+          const { langInfo } = data;
+          window.appInfo = data;
+          if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
+            const lang = await appManagementApi.getAppLangDetail({
+              projectId: data.projectId,
+              appId,
+              appLangId: langInfo.appLangId,
+            });
+            window[`langData-${appId}`] = lang.items;
+            window[`langVersion-${appId}`] = langInfo.version;
+          }
+          run();
+        });
     } else {
-      this.setState({
-        loading: false,
-      });
+      run();
     }
   }
   render() {

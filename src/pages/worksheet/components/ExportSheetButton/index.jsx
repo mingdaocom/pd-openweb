@@ -4,15 +4,16 @@ import styled from 'styled-components';
 import { Tooltip } from 'ming-ui/antd-components';
 
 const IconBtn = styled.span`
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   display: inline-block;
+  width: 28px;
   height: 28px;
+  text-align: center;
   font-size: 20px;
   line-height: 28px;
-  padding: 0 4px;
   border-radius: 5px;
   &:hover {
-    background: #f7f7f7;
+    background: var(--color-background-hover);
   }
 `;
 

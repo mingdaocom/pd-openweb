@@ -9,7 +9,7 @@
     padding: 0 15px;
     text-align: center;
     vertical-align: middle;
-    color: #757575;
+    color: var(--color-text-secondary);
     box-sizing: initial;
   }
   li {
@@ -19,19 +19,14 @@
     cursor: pointer;
     text-align: left;
     white-space: nowrap;
-    &:not(:hover) {
-      background-color: #fff !important;
-    }
-    &:hover,
-    &:hover .icon,
-    &:hover a {
-      color: #fff !important;
+    &:hover {
+      background-color: var(--color-background-hover) !important;
     }
   }
 
   .createInvite {
     margin-top: 5px;
     padding-top: 5px;
-    border-top: 1px #ccc solid;
+    border-top: 1px var(--color-border-tertiary) solid;
   }
 }

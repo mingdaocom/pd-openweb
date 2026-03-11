@@ -91,7 +91,7 @@ export default function (props) {
       {canChangeEmailOrTel && (
         <Icon
           type="swap_horiz"
-          className="Gray_9e Hand ThemeHoverColor3 changeEmailOrTel Font20"
+          className="textTertiary Hand ThemeHoverColor3 changeEmailOrTel Font20"
           onClick={() => {
             const { dialCode, mobilephone, email } = props;
             let mobile = mobilephone;

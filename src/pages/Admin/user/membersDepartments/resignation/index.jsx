@@ -15,14 +15,10 @@ import HandOver from './handOver';
 import SearchInput from './SearchInput';
 
 const KEYWORDS_TYPES = [
-  {
-    text: _l('姓名'),
-    value: 1,
-  },
-  {
-    text: _l('工号'),
-    value: 2,
-  },
+  { text: _l('姓名'), value: 1 },
+  { text: _l('工号'), value: 2 },
+  { text: _l('手机号'), value: 3 },
+  { text: _l('邮箱'), value: 4 },
 ];
 
 const TableWrap = styled(PageTableCon)`
@@ -48,16 +44,16 @@ const TableWrap = styled(PageTableCon)`
 const Wrap = styled.div`
   justify-content: space-between;
   .actionWrap {
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 4px;
   }
   .keywordsTypeOptions.ming.Dropdown {
-    border-right: 1px solid #ddd;
+    border-right: 1px solid var(--color-border-primary);
   }
   .resignationSearch {
-    background: #fff;
+    background: var(--color-background-primary);
     input {
-      background: #fff;
+      background: var(--color-background-primary);
     }
   }
 `;
@@ -95,7 +91,7 @@ export default class extends React.Component {
                   projectId={props.projectId}
                 />
                 <UserName
-                  className="Gray Font13 pLeft5 pRight10 pTop3 flex ellipsis"
+                  className="textPrimary Font13 pLeft5 pRight10 pTop3 flex ellipsis"
                   projectId={props.projectId}
                   user={{
                     userName: fullname,
@@ -164,6 +160,15 @@ export default class extends React.Component {
               </div>
             );
           },
+        },
+        {
+          title: _l('手机号'),
+          dataIndex: 'mobilePhone',
+        },
+        {
+          title: _l('邮箱'),
+          dataIndex: 'email',
+          width: 180,
         },
         {
           title: _l('工号'),
@@ -307,6 +312,7 @@ export default class extends React.Component {
       showWorkHandover,
       transferor,
       keywordsType,
+      keywords,
     } = this.state;
 
     return (
@@ -317,17 +323,19 @@ export default class extends React.Component {
               className="keywordsTypeOptions"
               value={keywordsType === 0 ? undefined : keywordsType}
               data={KEYWORDS_TYPES}
-              onChange={value => this.setState({ keywordsType: value })}
+              onChange={value => this.setState({ keywordsType: value, keywords: '' })}
             />
             <SearchInput
+              keywords={keywords}
               className="resignationSearch"
               placeholder={_l('搜索成员')}
               onSearch={val => this.setState({ keywords: val }, this.getData)}
+              onChange={val => this.setState({ keywords: val })}
             />
           </div>
 
           {hasPermission(authority, PERMISSION_ENUM.DEPUTE_HANDOVER_MANAGE) && (
-            <span className="ThemeColor Hand Font13 Normal" onClick={() => this.setState({ handoverVisible: true })}>
+            <span className="colorPrimary Hand Font13 Normal" onClick={() => this.setState({ handoverVisible: true })}>
               {_l('交接协作相关数据')}
             </span>
           )}

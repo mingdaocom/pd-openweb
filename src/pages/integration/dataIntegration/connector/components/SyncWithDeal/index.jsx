@@ -15,25 +15,25 @@ const SyncWithDealWrapper = styled.div`
   .arrowIcon {
     margin: 32px 0;
     text-align: center;
-    color: #1677ff;
+    color: var(--color-primary);
   }
 
   .sheetNameInput {
     width: 100%;
     .Input {
-      background: #f7f7f7;
-      border: 1px solid #f7f7f7 !important;
+      background: var(--color-background-secondary);
+      border: 1px solid var(--color-background-secondary) !important;
       border-radius: 4px;
       padding: 8px 12px 6px;
       font-size: 13px;
 
       :hover {
-        border-color: #f2f2f2 !important;
-        background: #f2f2f2;
+        border-color: var(--color-background-disabled) !important;
+        background: var(--color-background-disabled);
       }
       :focus {
-        border-color: #1677ff !important;
-        background: #fff;
+        border-color: var(--color-primary) !important;
+        background: var(--color-background-primary);
       }
     }
   }

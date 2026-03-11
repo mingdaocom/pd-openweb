@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { Checkbox, LoadDiv } from 'ming-ui';
+import { Checkbox, Icon, LoadDiv } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import { recordActionList, sheetActionList } from 'src/pages/Role/config.js';
@@ -19,7 +19,7 @@ const Wrap = styled.div`
   }
   .line {
     width: 100%;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     margin: 30px 0;
   }
   .OptionInfo .ming.Checkbox {
@@ -27,7 +27,7 @@ const Wrap = styled.div`
   }
   .optionTxt {
     font-size: 12px;
-    color: #919191;
+    color: var(--color-text-tertiary);
   }
 `;
 
@@ -93,7 +93,7 @@ export default function Set(props) {
                   </Checkbox>
                   {o.tips && (
                     <Tooltip title={o.tips}>
-                      <i className="icon-info_outline Font16 Gray_9e mLeft3 TxtMiddle" />
+                      <i className="icon-info_outline Font16 textTertiary mLeft3 TxtMiddle" />
                     </Tooltip>
                   )}
                 </div>
@@ -130,6 +130,10 @@ export default function Set(props) {
         <div className="OptionInfo">
           {actionList.length > 0 &&
             actionList.map(o => {
+              if (md.global.SysSettings.hideAIBasicFun && o.btnType === 1 && 'unableCustomButtons' === key) {
+                //过滤掉 Ai 动作
+                return null;
+              }
               return (
                 <div className="subCheckbox InlineBlock flexRow alignItemsCenter">
                   <Checkbox
@@ -156,10 +160,17 @@ export default function Set(props) {
                     ) : (
                       o.name
                     )}
+                    {o.btnType === 1 && 'unableCustomButtons' === key && (
+                      <Icon
+                        icon="auto_awesome"
+                        className="mLeft3 TxtMiddle"
+                        style={{ color: 'var(--color-mingo-light)' }}
+                      />
+                    )}
                   </Checkbox>
                   {o.tips && (
                     <Tooltip title={o.tips}>
-                      <i className="icon-info_outline Font16 Gray_9e mLeft3" />
+                      <i className="icon-info_outline Font16 textTertiary mLeft3" />
                     </Tooltip>
                   )}
                 </div>
@@ -219,12 +230,7 @@ export default function Set(props) {
           recordActionList.filter(o => (props.isForPortal ? !['recordShare', 'recordLogging'].includes(o.key) : true)),
         )}
         {(componentData.customeButtons || []).length > 0 &&
-          renderAcitionList(
-            _l('自定义动作'),
-            componentData.customeButtons,
-            sheet.unableCustomButtons,
-            'unableCustomButtons',
-          )}
+          renderAcitionList(_l('动作'), componentData.customeButtons, sheet.unableCustomButtons, 'unableCustomButtons')}
         {(componentData.printTempletes || []).length > 0 &&
           renderAcitionList(
             _l('打印模版'),

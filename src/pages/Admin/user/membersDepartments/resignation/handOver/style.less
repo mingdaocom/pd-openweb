@@ -3,19 +3,19 @@
     box-sizing: initial;
     text-align: left;
     th {
-      // background: #f0f0f0;
+      // background: var(--color-background-disabled);
       padding: 12px 16px;
       height: 48px;
-      color: #151515;
+      color: var(--color-text-title);
       font-weight: 600;
       box-sizing: border-box;
-      border-bottom: 1px solid #e7e7e7;
+      border-bottom: 1px solid var(--color-border-secondary);
     }
     tbody > tr:hover {
       cursor: pointer;
     }
     tbody > tr:hover > td {
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
     }
     td {
       padding-left: 24px;
@@ -78,7 +78,7 @@
 
   .detailHeader {
     align-items: center;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     .originalCharger {
       flex: 1 0 0%;
       align-items: center;
@@ -88,21 +88,21 @@
 
   .postBtn {
     border-radius: 16px;
-    background: #1e88e5 !important;
+    background: var(--color-primary) !important;
     &:hover {
-      background: #1665c0 !important;
+      background: var(--color-link-hover) !important;
     }
   }
 
   .transferTabList {
     margin-top: 30px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-primary);
     .tabList .listItem {
       float: left;
       text-align: center;
       padding-bottom: 16px;
       margin-right: 32px;
-      color: #757575;
+      color: var(--color-text-secondary);
       font-size: 14px;
       border-bottom: 2px solid transparent;
       cursor: pointer;
@@ -111,8 +111,8 @@
 
     .tabList .listItem {
       &.active {
-        color: #151515;
-        border-bottom-color: #1677ff;
+        color: var(--color-text-title);
+        border-bottom-color: var(--color-primary);
       }
     }
   }
@@ -120,7 +120,7 @@
 .oaFilterList {
   min-width: 120px;
   padding: 6px 0;
-  background-color: #ffffff;
+  background-color: var(--color-background-primary);
   box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.24);
   border-radius: 3px;
   position: absolute;
@@ -133,11 +133,11 @@
       padding: 0 24px;
       line-height: 36px;
       &:not(.active) {
-        color: #151515 !important;
+        color: var(--color-text-title) !important;
       }
       &:hover {
-        background-color: #1677ff !important;
-        color: #ffffff !important;
+        background-color: var(--color-primary) !important;
+        color: var(--color-white) !important;
       }
     }
   }
@@ -162,7 +162,7 @@
       height: 48px;
       line-height: 48px;
       font-weight: 600;
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-secondary);
     }
     .resignlistTable {
       flex: 1;

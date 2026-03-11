@@ -1,21 +1,40 @@
 import React, { Component, Fragment } from 'react';
-import { ActionSheet, Button, Toast } from 'antd-mobile';
+import { ActionSheet, Button } from 'antd-mobile';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
+import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import favoriteApi from 'src/api/favorite';
 import worksheetApi from 'src/api/worksheet';
 import sheetSetAjax from 'src/api/worksheetSetting';
 import { getDynamicValue } from 'src/components/Form/core/formUtils';
-import { getTitleTextFromControls } from 'src/components/Form/core/utils';
 import { SHARECARDTYPS, WX_ICON_LIST } from 'src/components/ShareCardConfig/config.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { getTitleTextFromControls } from 'src/utils/control';
 import { renderText } from 'src/utils/control';
 import { compatibleMDJS } from 'src/utils/project';
 import { replaceBtnsTranslateInfo } from 'src/utils/translate';
+import AiActionButtons from './RecordAction/AiActionButtons';
 import CustomButtons from './RecordAction/CustomButtons';
+
+const CustomBtnBox = styled.div`
+  ${({ load }) => !load && 'display: none !important;'}
+  flex: 1;
+  display: flex;
+  gap: 6px;
+  overflow: hidden;
+  .customBtnItem {
+    flex: 1;
+    flex-shrink: 0;
+    max-width: 100%;
+  }
+  .btn-full {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+`;
 
 export const getRecordUrl = ({ appId, worksheetId, recordId, viewId }) => {
   const shareUrl = `${location.origin}/mobile/record/${appId}/${worksheetId}/${viewId}/${recordId}`;
@@ -35,9 +54,8 @@ const updateWorksheetRowShareRange = ({ appId, worksheetId, rowId, viewId }) => 
   });
 };
 
-export const getWorksheetShareUrl = ({ appId, worksheetId, recordId, viewId, isPublic, isCharge }) => {
-  Toast.show({ icon: 'loading' });
-  worksheetApi
+export const getWorksheetShareUrl = ({ appId, worksheetId, recordId, viewId }) => {
+  return worksheetApi
     .getWorksheetShareUrl({
       appId,
       worksheetId,
@@ -46,16 +64,18 @@ export const getWorksheetShareUrl = ({ appId, worksheetId, recordId, viewId, isP
       objectType: 2,
     })
     .then(data => {
-      Toast.clear();
-
-      copy(data.shareLink);
-      alert(_l('复制成功'));
-
-      // 在H5上执行对外公开分享，默认需要打开PC对外公开分享的链接开关
-      if (!isPublic && isCharge) {
-        updateWorksheetRowShareRange({ appId, worksheetId, rowId: recordId, viewId, isPublic });
-      }
+      return data.shareLink;
     });
+};
+
+export const copyWorksheetShareUrl = ({ shareLink, isPublic, isCharge, appId, worksheetId, recordId, viewId }) => {
+  copy(shareLink);
+  alert(_l('复制成功'));
+
+  // 在H5上执行对外公开分享，默认需要打开PC对外公开分享的链接开关
+  if (!isPublic && isCharge) {
+    updateWorksheetRowShareRange({ appId, worksheetId, rowId: recordId, viewId, isPublic });
+  }
 };
 
 export default class RecordFooter extends Component {
@@ -69,6 +89,8 @@ export default class RecordFooter extends Component {
       isFavorite: false,
       RecordAction: null,
       shareCardSet: {},
+      aiActionBtns: [],
+      shareLink: '',
     };
   }
   recordRef = React.createRef();
@@ -109,19 +131,34 @@ export default class RecordFooter extends Component {
     const { recordBase } = this.props;
     const { appId, worksheetId, viewId, recordId } = recordBase;
 
-    worksheetApi
-      .getWorksheetBtns({
+    const promises = [
+      worksheetApi.getWorksheetBtns({
         appId,
         worksheetId,
         rowId: recordId,
         viewId: viewId === 'null' ? '' : viewId,
-      })
-      .then(data => {
-        this.setState({
-          customBtns: replaceBtnsTranslateInfo(appId, data),
+      }),
+      worksheetApi.getWorksheetBtns({
+        // appId,
+        worksheetId,
+        // rowId: recordId,
+        // viewId: viewId === 'null' ? '' : viewId,
+        btnType: 1,
+      }),
+    ];
+
+    Promise.all(promises).then(res => {
+      this.setState(
+        {
+          customBtns: replaceBtnsTranslateInfo(appId, res[0]),
+          aiActionBtns: replaceBtnsTranslateInfo(appId, res[1]),
           loading: false,
-        });
-      });
+        },
+        () => {
+          this.adjustButtons();
+        },
+      );
+    });
   };
 
   getShareCardSet = () => {
@@ -164,7 +201,7 @@ export default class RecordFooter extends Component {
         name: _l('内部成员访问'),
         info: _l('仅限内部成员登录系统后根据权限访问'),
         icon: 'share',
-        iconClass: 'Font18 Gray_9e',
+        iconClass: 'Font18 textTertiary',
         fn: () => (window.isMingDaoApp ? this.handleAPPShare(false) : getRecordUrl(recordBase)),
         className: 'mBottom10',
       },
@@ -177,7 +214,11 @@ export default class RecordFooter extends Component {
         fn: () =>
           window.isMingDaoApp
             ? this.handleAPPShare(true)
-            : getWorksheetShareUrl({ ...recordBase, isPublic: recordInfo.shareRange === 2 }),
+            : copyWorksheetShareUrl({
+                ...recordBase,
+                isPublic: recordInfo.shareRange === 2,
+                shareLink: this.state.shareLink,
+              }),
       },
     };
     return [publicShare ? shareObj.publicShare : undefined, innerShare ? shareObj.innerShare : undefined].filter(
@@ -186,8 +227,12 @@ export default class RecordFooter extends Component {
   };
 
   handleShare = () => {
-    const { formData } = this.props;
+    const { formData, recordBase, recordInfo } = this.props;
     const recordTitle = getTitleTextFromControls(formData);
+
+    getWorksheetShareUrl({ ...recordBase, isPublic: recordInfo.shareRange === 2 }).then(shareLink => {
+      this.setState({ shareLink });
+    });
 
     this.shareSheetHandler = ActionSheet.show({
       actions: this.getButtons().map(item => {
@@ -197,9 +242,9 @@ export default class RecordFooter extends Component {
             <div className={cx('flexRow valignWrapper w100', item.className)} onClick={item.fn}>
               <div className="flex flexColumn" style={{ lineHeight: '22px' }}>
                 <span className="Bold">{item.name}</span>
-                <span className="Font12 Gray_75">{item.info}</span>
+                <span className="Font12 textSecondary">{item.info}</span>
               </div>
-              <Icon className="Font18 Gray_9e" icon="arrow-right-border" />
+              <Icon className="Font18 textTertiary" icon="arrow-right-border" />
             </div>
           ),
         };
@@ -324,6 +369,63 @@ export default class RecordFooter extends Component {
     }
   };
 
+  adjustButtons = () => {
+    const { recordBase } = this.props;
+    const container = document.getElementById(`actionBar-${recordBase.recordId}`);
+    if (!container) return;
+
+    const buttons = container.querySelectorAll('[data-action-btn]');
+    if (buttons.length < 2) return;
+
+    const btn1 = buttons[0];
+    const btn2 = buttons[1];
+    const gap = 6;
+    const EPSILON = 2;
+
+    // 复位状态
+    btn1.style.flex = 'none';
+    btn2.style.flex = 'none';
+    btn2.style.display = 'inline-flex';
+    btn1.style.maxWidth = 'none';
+    btn2.style.maxWidth = 'none';
+
+    const containerWidth = Math.floor(container.getBoundingClientRect().width);
+    const btn1Width = Math.ceil(btn1.getBoundingClientRect().width);
+    const btn2Width = Math.ceil(btn2.getBoundingClientRect().width);
+
+    // 第一个按钮都放不下
+    if (btn1Width > containerWidth) {
+      btn2.style.display = 'none';
+      btn1.style.flex = '1 1 auto';
+      btn1.style.maxWidth = '100%';
+      return;
+    }
+
+    const halfContainer = (containerWidth - gap) / 2;
+
+    // 两个按钮都能放下 且 两个按钮 ≤ 一半 → 平分
+    if (btn1Width + gap + btn2Width <= containerWidth && btn1Width <= halfContainer && btn2Width <= halfContainer) {
+      btn1.style.flex = '1 1 0';
+      btn2.style.flex = '1 1 0';
+      return;
+    }
+
+    // -------- 自适应布局 ----------
+    const remainWidth = containerWidth - btn1Width - gap;
+
+    if (remainWidth + EPSILON < containerWidth / 3) {
+      // 第二个隐藏
+      btn2.style.display = 'none';
+      btn1.style.flex = '1 1 auto';
+      btn1.style.maxWidth = '100%';
+    } else {
+      // 第二个显示，但限制在剩余空间
+      btn1.style.flex = '1 1 auto';
+      btn1.style.maxWidth = '100%';
+      btn2.style.maxWidth = `${remainWidth}px`;
+    }
+  };
+
   renderContent() {
     const {
       editable,
@@ -336,9 +438,10 @@ export default class RecordFooter extends Component {
       isDraft,
       editLockedUser,
       isRecordLock,
+      worksheetInfo,
     } = this.props;
     const { onEditRecord, onSubmitRecord } = this.props;
-    const { loading, customBtns, printList = [] } = this.state;
+    const { loading, customBtns, aiActionBtns, printList = [] } = this.state;
     const allowEdit = recordInfo.allowEdit || editable;
     const allowDelete =
       (isOpenPermit(permitList.recordDelete, recordInfo.switchPermit, recordBase.viewId) && recordInfo.allowDelete) ||
@@ -367,13 +470,13 @@ export default class RecordFooter extends Component {
       <Fragment>
         {(allowEdit || isDraft) && !isRecordLock && (
           <Button
-            className={cx('mRight6 Font13', { flex: !customBtns.length })}
+            className={cx('mRight6 Font13 flex-shrink-0', { flex: !customBtns.length })}
             style={{ width: customBtns.length ? 100 : 'unset' }}
             onClick={onEditRecord}
             disabled={!!editLockedUser}
           >
-            <Icon icon="edit" className={`Font15 mRight6 ${!editLockedUser ? 'ThemeColor' : 'Gray_9e'}`} />
-            <span className={`bold ${!editLockedUser ? 'ThemeColor' : 'Gray_9e'}`}>{_l('编辑')}</span>
+            <Icon icon="edit" className={`Font15 mRight6 ${!editLockedUser ? 'colorPrimary' : 'textTertiary'}`} />
+            <span className={`bold ${!editLockedUser ? 'colorPrimary' : 'textTertiary'}`}>{_l('编辑')}</span>
           </Button>
         )}
         {isDraft && (
@@ -383,34 +486,51 @@ export default class RecordFooter extends Component {
         )}
         {!isDraft && !loading && (
           <Fragment>
-            <CustomButtons
-              classNames="flex flexShink flexRow ellipsis mLeft3 mRight3 justifyContentCenter"
-              customBtns={customBtns}
-              isSlice
-              btnDisable={this.state.btnDisable}
-              isEditLock={!!editLockedUser}
-              isRecordLock={isRecordLock}
-              entityName={recordInfo.entityName}
-              handleClick={btn => {
-                if (this.recordRef.current) {
-                  this.recordRef.current.handleTriggerCustomBtn(btn);
-                }
-              }}
-            />
+            <CustomBtnBox
+              load={customBtns.length > 0 || (aiActionBtns.length > 0 && !md.global.SysSettings.hideAIBasicFun)}
+              id={`actionBar-${recordBase.recordId}`}
+            >
+              <CustomButtons
+                classNames="customBtnItem flexRow ellipsis justifyContentCenter"
+                customBtns={customBtns}
+                isSlice
+                btnDisable={this.state.btnDisable}
+                isEditLock={!!editLockedUser}
+                isRecordLock={isRecordLock}
+                entityName={recordInfo.entityName}
+                viewId={recordBase.viewId}
+                handleClick={btn => {
+                  if (this.recordRef.current) {
+                    this.recordRef.current.handleTriggerCustomBtn(btn);
+                  }
+                }}
+              />
+              <AiActionButtons
+                appId={recordBase.appId}
+                customBtns={customBtns}
+                aiActionBtns={aiActionBtns}
+                isSlice
+                worksheetId={recordBase.worksheetId}
+                recordInfo={recordInfo}
+                worksheetInfo={worksheetInfo}
+              />
+            </CustomBtnBox>
             {(!getDataType || getDataType !== 21) &&
-              (allowDelete || allowShare || allowPrint) &&
-              !customBtns.length &&
-              !hideOtherOperate && (
-                <Button
-                  className="flex mLeft6 Font13"
-                  color="primary"
-                  onClick={() => this.setState({ recordActionVisible: true })}
-                >
-                  <span className="bold">{_l('更多操作')}</span>
-                </Button>
-              )}
+            (allowDelete || allowShare || allowPrint) &&
+            !customBtns.length &&
+            !hideOtherOperate ? (
+              <Button
+                className="flex mLeft6 Font13"
+                color="primary"
+                onClick={() => this.setState({ recordActionVisible: true })}
+              >
+                <span className="bold">{_l('更多操作')}</span>
+              </Button>
+            ) : (
+              ''
+            )}
             {!!customBtns.length && recordBase.appId && !isMobileOperate && (
-              <div className="moreOperation" onClick={() => this.setState({ recordActionVisible: true })}>
+              <div className="moreOperation flex-shrink-0" onClick={() => this.setState({ recordActionVisible: true })}>
                 <Icon icon="expand_less" className="Font20" />
               </div>
             )}
@@ -424,7 +544,7 @@ export default class RecordFooter extends Component {
     const { onCancelSave, onSaveRecord } = this.props;
     return (
       <Fragment>
-        <Button className="flex mLeft6 mRight6 Font13 bold Gray_75" onClick={onCancelSave}>
+        <Button className="flex mLeft6 mRight6 Font13 bold textSecondary" onClick={onCancelSave}>
           <span>{_l('取消')}</span>
         </Button>
         <Button className="flex mLeft6 mRight6 Font13 bold" color="primary" onClick={onSaveRecord}>
@@ -444,8 +564,9 @@ export default class RecordFooter extends Component {
       updateRecordLock,
       editLockedUser,
       onUpdate,
+      worksheetInfo,
     } = this.props;
-    const { recordActionVisible, customBtns, isFavorite, RecordAction } = this.state;
+    const { recordActionVisible, customBtns, isFavorite, RecordAction, aiActionBtns } = this.state;
 
     if (!RecordAction) return null;
 
@@ -457,6 +578,7 @@ export default class RecordFooter extends Component {
         rowId={recordBase.recordId}
         sheetRow={recordInfo}
         customBtns={customBtns}
+        aiActionBtns={aiActionBtns}
         switchPermit={recordInfo.switchPermit}
         loadRow={loadRecord}
         isFavorite={isFavorite}
@@ -478,6 +600,7 @@ export default class RecordFooter extends Component {
         isEditLock={!!editLockedUser}
         updatePrintList={list => this.setState({ printList: list })}
         onUpdate={onUpdate}
+        worksheetInfo={worksheetInfo}
       />
     );
   }
@@ -487,7 +610,7 @@ export default class RecordFooter extends Component {
 
     return (
       <Fragment>
-        <div className="flexRow alignItemsCenter WhiteBG pAll10 footer">
+        <div className="flexRow alignItemsCenter bgPrimary pAll10 footer">
           {isEditRecord ? this.renderEditContent() : this.renderContent()}
         </div>
         {this.renderRecordAction()}

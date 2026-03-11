@@ -139,7 +139,7 @@ export default function SideContent(props) {
           : !!group.length;
       }).length
     ) {
-      return <div className="TxtCenter mTop16 Gray_75">{_l('无搜索结果')}</div>;
+      return <div className="TxtCenter mTop16 textSecondary">{_l('无搜索结果')}</div>;
     }
 
     return (
@@ -199,7 +199,7 @@ export default function SideContent(props) {
             }}
           >
             <Icon icon={item.icon} className="Font20" style={{ color: item.color }} />
-            <div className="Gray_9e mTop5">{item.text}</div>
+            <div className="textTertiary mTop5">{item.text}</div>
           </div>
         ))}
       </div>

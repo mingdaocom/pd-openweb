@@ -10,9 +10,9 @@ const AiLoadingWrap = styled.div`
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: #fff;
+    color: var(--color-white);
     background: unset;
-    -webkit-text-fill-color: #fff;
+    -webkit-text-fill-color: var(--color-background-primary);
   }
   .box1 {
     margin-top: -30px;

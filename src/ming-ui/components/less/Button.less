@@ -7,7 +7,7 @@
     border: none;
     outline: none;
     border-radius: 3px;
-    color: white;
+    color: var(--color-white);
     vertical-align: middle;
     cursor: pointer;
     user-select: none;
@@ -23,26 +23,26 @@
     &--secondary {
       background: @grayLight;
       &:hover {
-        background: darken(@gray, 20%);
+        background: var(--color-border-secondary);
       }
     }
     &--danger-gray {
       color: @grayDarker;
       background: @grayLightest;
       &:hover {
-        background: #ffebeb;
+        background: var(--color-error-bg);
       }
     }
     &--success {
-      background: @successColor;
+      background: var(--color-success);
       &:hover {
-        background: darken(@successColor, 20%);
+        background: var(--color-success-hover);
       }
     }
     &--danger {
-      background: @dangerColor;
+      background: var(--color-error);
       &:hover {
-        background: darken(@dangerColor, 20%);
+        background: var(--color-error-hover);
       }
     }
     &--ghost {
@@ -51,26 +51,26 @@
       border: 1px solid var(--app-primary-color);
       line-height: 26px !important;
       &:hover {
-        color: white;
+        color: var(--color-white);
         background: var(--app-primary-color);
       }
     }
     &--ghostgray {
-      color: #757575;
+      color: var(--color-text-secondary);
       background: transparent;
-      border: 1px solid #ddd;
+      border: 1px solid var(--color-border-primary);
       line-height: 26px !important;
       &:not(.Button--disabled):hover {
-        border-color: #bdbdbd;
-        color: #1677ff;
-        background: #fff;
+        border-color: var(--color-text-disabled);
+        color: var(--color-primary);
+        background: var(--color-background-primary);
       }
       // status
       &.Button--disabled {
-        color: #bdbdbd;
-        background-color: #f5f5f5;
+        color: var(--color-text-disabled);
+        background-color: var(--color-background-secondary);
         &:hover {
-          background-color: #f5f5f5;
+          background-color: var(--color-background-hover);
         }
         cursor: not-allowed;
       }
@@ -143,7 +143,7 @@
     &--disabled {
       &,
       &:hover {
-        background: #bdbdbd;
+        background: var(--color-text-disabled);
       }
       cursor: not-allowed;
     }

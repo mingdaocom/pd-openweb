@@ -16,7 +16,7 @@ const FullCon = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: #fff;
+  background: var(--color-background-primary);
   .welcomeImg {
     height: 100px;
   }
@@ -24,7 +24,7 @@ const FullCon = styled.div`
     font-size: 32px;
   }
   & > p {
-    color: #151515;
+    color: var(--color-text-title);
   }
   .introWrap {
     display: flex;
@@ -35,7 +35,7 @@ const FullCon = styled.div`
     width: 250px;
     height: 266px;
     padding: 40px 32px 56px 32px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     border: 1px solid #eceef1;
     border-radius: 8px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
@@ -55,11 +55,11 @@ const FullCon = styled.div`
       margin-top: 8px;
       font-size: 18px;
       font-weight: 600;
-      color: #151515;
+      color: var(--color-text-title);
     }
     .desc {
       margin-top: 8px;
-      color: #757575;
+      color: var(--color-text-secondary);
     }
   }
 `;
@@ -72,14 +72,14 @@ export default function CreateFirstApp(props) {
     {
       type: 'create',
       icon: 'addapplication2',
-      iconColor: '#1677ff',
+      iconColor: 'var(--color-primary)',
       title: _l('创建空白应用'),
       desc: _l('从头开始创造您自己的应用'),
       key: 'addAppIcon',
     },
     {
       icon: 'custom_store',
-      iconColor: '#FAAF55',
+      iconColor: 'var(--color-warning)',
       title: _l('从应用库安装'),
       desc: _l('安装应用库中现成的开箱模板，您可以直接使用，也可以继续按需修改'),
       href: `/app/lib?projectId=${projectId}`,
@@ -88,7 +88,7 @@ export default function CreateFirstApp(props) {
     {
       type: 'excel_create',
       icon: 'new_excel',
-      iconColor: '#78B84C',
+      iconColor: 'var(--color-success)',
       title: _l('从Excel创建应用'),
       desc: _l('上传Excel文件创建您的应用'),
       // href: '#',

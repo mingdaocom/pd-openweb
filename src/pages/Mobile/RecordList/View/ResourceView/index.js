@@ -11,7 +11,7 @@ import ViewErrorPage from '../components/ViewErrorPage';
 const ResourceViewWrap = styled.div`
   flex: 1;
   margin-top: 10px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   min-height: 0;
 `;
 
@@ -41,7 +41,7 @@ function MobileResourceView(props) {
   }, []);
 
   if (!viewControlInfo.controlId) {
-    return <ViewErrorPage icon="arrows_square" viewName={view.name + _l('视图')} color="#4caf50" />;
+    return <ViewErrorPage icon="arrows_square" viewName={view.name + _l('视图')} color="var(--color-success)" />;
   }
 
   if (!Component) return;

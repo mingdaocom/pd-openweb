@@ -13,6 +13,7 @@ import { GlobalStoreProvider } from 'src/common/GlobalStore';
 import ErrorState from 'src/components/errorPage/errorState';
 import { navigateTo } from 'src/router/navigateTo';
 import { emitter, updateGlobalStoreForMingo } from 'src/utils/common';
+import { dateConvertToUserZone } from 'src/utils/project';
 import { WHOLE_SIZE } from './config/Drag';
 import Content from './content';
 import Header from './Header';
@@ -52,7 +53,7 @@ const WidgetConfig = styled.div`
     left: 0;
     bottom: 0;
     right: 0;
-    background: rgba(255, 255, 255, 0.5);
+    background: var(--color-background-overlay-white);
     z-index: 9;
   }
 `;
@@ -303,7 +304,7 @@ export default function Container({ isDialog, ...props }) {
     );
   }, [globalInfo]);
 
-  const saveControls = ({ actualWidgets, callback } = {}) => {
+  const saveControls = ({ actualWidgets, callback, newVersion } = {}) => {
     const saveControls = genControlsByWidgets(actualWidgets || widgets);
     if (!saveControls.some(item => item.attribute === 1)) {
       setStatus({ noTitleControl: true });
@@ -322,25 +323,30 @@ export default function Container({ isDialog, ...props }) {
     // 清除不走缓存
     window.clearLocalDataTime({
       requestData: { worksheetId: sourceId },
-      clearSpecificKey: 'Worksheet_GetQueryBySheetId',
+      clearSpecificKeys: ['Worksheet_GetQueryBySheetId'],
     });
 
     if (activeWidget && activeWidget.type === 34) {
       // 清除不走缓存
       window.clearLocalDataTime({
         requestData: { worksheetId: activeWidget.dataSource },
-        clearSpecificKey: 'Worksheet_GetWorksheetInfo',
+        clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetBaseInfo'],
       });
     }
 
     setLoading({ saveLoading: true });
     worksheetAjax
       .saveWorksheetControls({
-        version,
+        version: newVersion || version,
         sourceId,
         controls: formatControlsData(saveControls),
       })
       .then(({ data, code }) => {
+        // 多窗口编辑冲突
+        if (code === 10) {
+          updateConflictDialog(data);
+          return;
+        }
         let error = getMsgByCode({ code, data, controls: saveControls });
         if (error) return;
         const { controls, version } = data;
@@ -371,6 +377,24 @@ export default function Container({ isDialog, ...props }) {
       .finally(() => {
         setLoading({ saveLoading: false });
       });
+  };
+
+  const updateConflictDialog = data => {
+    const { version, fullname, updateTime } = safeParse(data || '{}');
+    const timeAgo = window.createTimeSpan(dateConvertToUserZone(updateTime));
+    Dialog.confirm({
+      title: _l('发现更新冲突，是否覆盖 ？'),
+      description: _l('在你编辑期间，当前表单已被更新（%0, %1）。现在保存将会覆盖此更新。', fullname, timeAgo),
+      okText: _l('放弃保存'),
+      cancelText: _l('保存并覆盖'),
+      cancelType: 'danger',
+      buttonType: 'ghost',
+      onlyClose: true,
+      onOk: () => {},
+      onCancel: () => {
+        saveControls({ newVersion: version });
+      },
+    });
   };
 
   const saveStyleInfo = () => {
@@ -499,7 +523,17 @@ export default function Container({ isDialog, ...props }) {
     // 全局表信息
     globalSheetInfo: assign(
       {},
-      pick(globalInfo, ['appId', 'projectId', 'worksheetId', 'name', 'desc', 'groupId', 'roleType', 'appName']),
+      pick(globalInfo, [
+        'appId',
+        'projectId',
+        'worksheetId',
+        'name',
+        'desc',
+        'groupId',
+        'roleType',
+        'appName',
+        'switches',
+      ]),
       worksheetName ? { name: worksheetName } : {},
     ),
   };
@@ -570,7 +604,7 @@ export default function Container({ isDialog, ...props }) {
           <LoadDiv className="mTop20" />
         </div>
       ) : noAuth ? (
-        <div className="w100 WhiteBG Absolute" style={{ top: 0, bottom: 0 }}>
+        <div className="w100 bgPrimary Absolute" style={{ top: 0, bottom: 0 }}>
           <ErrorState
             text={_l('权限不足，无法编辑')}
             showBtn

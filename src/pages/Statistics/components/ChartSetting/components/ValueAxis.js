@@ -36,7 +36,10 @@ export default class ValueAxis extends Component {
               .filter(n => ![5, 6].includes(n.value))
               .map(item => (
                 <Menu.Item
-                  style={{ width: 120, color: item.value === valueAxis.normType ? '#1e88e5' : null }}
+                  style={{
+                    width: 120,
+                    color: item.value === valueAxis.normType ? 'var(--color-primary) !important' : null,
+                  }}
                   key={item.value}
                   onClick={() => {
                     this.props.changeValueAxis({ normType: item.value });
@@ -60,7 +63,10 @@ export default class ValueAxis extends Component {
               },
             ].map(item => (
               <Menu.Item
-                style={{ width: 120, color: item.value === valueAxis.normType ? '#1e88e5' : null }}
+                style={{
+                  width: 120,
+                  color: item.value === valueAxis.normType ? 'var(--color-primary) !important' : null,
+                }}
                 key={item.value}
                 onClick={() => {
                   this.props.changeValueAxis({ normType: item.value });
@@ -84,7 +90,7 @@ export default class ValueAxis extends Component {
       <div className="flexRow valignWrapper fidldItem">
         {axis ? (
           <Tooltip title={tip}>
-            <span className="Gray flex ellipsis">
+            <span className="textPrimary flex ellipsis">
               {isNumber && `${_.find(normTypes, { value: valueAxis.normType }).text}: `}
               {axis.controlName}
             </span>
@@ -98,10 +104,10 @@ export default class ValueAxis extends Component {
         )}
         {isNumber && (
           <Dropdown overlay={this.renderOverlay(axis)} trigger={['click']} placement="bottomRight">
-            <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
+            <Icon className="textTertiary Font18 pointer" icon="arrow-down-border" />
           </Dropdown>
         )}
-        <Icon className="Gray_9e Font18 pointer mLeft10" icon="close" onClick={this.props.removeValueAxis} />
+        <Icon className="textTertiary Font18 pointer mLeft10" icon="close" onClick={this.props.removeValueAxis} />
       </div>
     );
   }

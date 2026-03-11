@@ -11,13 +11,14 @@ import worksheetApi from 'src/api/worksheet';
 import ChatCount from 'mobile/components/ChatCount';
 import * as actions from 'mobile/RelationRow/redux/actions';
 import RelationAction from 'mobile/RelationRow/RelationAction';
-import MobileRecordRecoverConfirm from 'worksheet/common/newRecord/MobileRecordRecoverConfirm';
+import MobileRecordRecoverConfirm from 'worksheet/common/newRecord/MobileNewRecord/components/RecordRecoverConfirm';
 import { handleSubmitDraft, loadRecord, updateRecord } from 'worksheet/common/recordInfo/crtl';
 import { updateRecordLockStatus } from 'worksheet/common/recordInfo/crtl';
 import RecordEditLock from 'worksheet/common/recordInfo/RecordEditLock';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import { checkRuleLocked } from 'src/components/Form/core/formUtils';
 import { isPublicLink } from 'src/components/Form/core/utils';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import ShareCardConfig from 'src/components/ShareCardConfig';
 import { SHARECARDTYPS } from 'src/components/ShareCardConfig/config';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -64,6 +65,7 @@ export default class RecordInfo extends Component {
       currentRecordIndex: 0, //  当前记录在列表中第几条
       isRecordLock: false, // 记录是否锁定
       editLockedUser: null,
+      landPageWorksheetInfo: {},
     };
     this.submitType = '';
     this.refreshEvents = {};
@@ -97,6 +99,11 @@ export default class RecordInfo extends Component {
     emitter.addListener('MOBILE_RELOAD_RECORD_INFO', this.debounceRefresh);
     this.loadRecord();
     this.getPayConfig();
+    if (this.props.isLandPage) {
+      worksheetApi.getWorksheetInfo({ worksheetId: this.props.worksheetId }).then(res => {
+        this.setState({ landPageWorksheetInfo: res });
+      });
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -722,9 +729,18 @@ export default class RecordInfo extends Component {
       from,
       instanceId,
       workId,
+      isLandPage,
     } = this.props;
-    const { formChanged, isEditRecord, recordInfo, recordBase, isRecordLock, editLockedUser, tempFormData } =
-      this.state;
+    const {
+      formChanged,
+      isEditRecord,
+      recordInfo,
+      recordBase,
+      isRecordLock,
+      editLockedUser,
+      tempFormData,
+      landPageWorksheetInfo,
+    } = this.state;
 
     return (
       <RecordFooter
@@ -738,7 +754,7 @@ export default class RecordInfo extends Component {
         workId={workId}
         instanceId={instanceId}
         formData={tempFormData}
-        worksheetInfo={worksheetInfo}
+        worksheetInfo={isLandPage ? landPageWorksheetInfo : worksheetInfo}
         loadRecord={() => {
           this.loadRecord();
           this.getPayConfig();
@@ -773,11 +789,13 @@ export default class RecordInfo extends Component {
               actions: [],
               extra: (
                 <div className="flexColumn w100">
-                  <div className="Font17 Gray bold pTop10 mBottom10 TxtLeft breakAll">{doubleConfirm.confirmMsg}</div>
-                  <div className="Gray_9e breakAll">{doubleConfirm.confirmContent}</div>
+                  <div className="Font17 textPrimary bold pTop10 mBottom10 TxtLeft breakAll">
+                    {doubleConfirm.confirmMsg}
+                  </div>
+                  <div className="textTertiary breakAll">{doubleConfirm.confirmContent}</div>
                   <div className="valignWrapper flexRow confirm mTop15">
                     <Button
-                      className="flex mLeft6 mRight6 Font13 bold Gray_75 flex ellipsis"
+                      className="flex mLeft6 mRight6 Font13 bold textSecondary flex ellipsis"
                       onClick={() => {
                         actionHandler.close();
                       }}
@@ -809,9 +827,12 @@ export default class RecordInfo extends Component {
               actions: [],
               extra: (
                 <div className="flexColumn w100">
-                  <div className="bold Gray Font17 pTop10">{_l('是否保存修改的记录 ?')}</div>
+                  <div className="bold textPrimary Font17 pTop10">{_l('是否保存修改的记录 ?')}</div>
                   <div className="valignWrapper flexRow confirm mTop24">
-                    <Button className="flex mRight6 bold Gray_75 flex ellipsis Font13" onClick={this.handleCancelSave}>
+                    <Button
+                      className="flex mRight6 bold textSecondary flex ellipsis Font13"
+                      onClick={this.handleCancelSave}
+                    >
                       {_l('放弃')}
                     </Button>
                     <Button
@@ -871,7 +892,7 @@ export default class RecordInfo extends Component {
 
     if (_.isFunction(this.props.renderFooter)) {
       return (
-        <div className="flexRow alignItemsCenter WhiteBG pAll10 footer">
+        <div className="flexRow alignItemsCenter bgPrimary pAll10 footer">
           {this.props.renderFooter({ onSubmit: this.handleSubmit })}
         </div>
       );
@@ -902,7 +923,15 @@ export default class RecordInfo extends Component {
   }
   renderChatCount() {
     const { isEditRecord, currentTab, externalPortalConfig, recordBase, recordInfo, tempFormData } = this.state;
-    const { getDataType, isModal, isSubList, chartEntryStyle = {}, canLoadSwitchRecord, workId } = this.props;
+    const {
+      getDataType,
+      isModal,
+      isSubList,
+      chartEntryStyle = {},
+      canLoadSwitchRecord,
+      workId,
+      instanceId,
+    } = this.props;
     const { allowExAccountDiscuss, exAccountDiscussEnum } = externalPortalConfig;
     const { appId, worksheetId, viewId, recordId } = recordBase;
     const { switchPermit } = recordInfo;
@@ -947,6 +976,8 @@ export default class RecordInfo extends Component {
                 autoOpenDiscuss={!isModal && location.search.includes('viewDiscuss')}
                 originalData={recordInfo.formData}
                 projectId={recordInfo.projectId}
+                workId={workId}
+                instanceId={instanceId}
               />
             </div>
           )}
@@ -1048,8 +1079,20 @@ export default class RecordInfo extends Component {
     );
   };
   render() {
-    const { recordId, isModal, getDataType, onClose, renderAbnormal, header, workflow, view, worksheetInfo, isDraft } =
-      this.props;
+    const {
+      recordId,
+      isModal,
+      getDataType,
+      onClose,
+      renderAbnormal,
+      header,
+      workflow,
+      view,
+      worksheetInfo,
+      isDraft,
+      filledByAiMap,
+      recordTitle,
+    } = this.props;
     const {
       random,
       isEditRecord,
@@ -1074,7 +1117,9 @@ export default class RecordInfo extends Component {
     }
 
     if (abnormal) {
-      if (renderAbnormal && recordInfo.resultCode === 7) {
+      if (recordInfo.errorCode === 300016) {
+        return <RestrictAccessStatus />;
+      } else if (renderAbnormal && recordInfo.resultCode === 7) {
         return renderAbnormal(recordInfo);
       } else {
         const { resultCode, entityName } = recordInfo;
@@ -1153,6 +1198,8 @@ export default class RecordInfo extends Component {
             onClose={onClose}
             isRecordLock={isRecordLock}
             updateRecordLock={this.updateRecordLock}
+            filledByAiMap={filledByAiMap}
+            recordTitle={recordTitle}
           />
           {this.renderFooter()}
           {this.renderChatCount()}

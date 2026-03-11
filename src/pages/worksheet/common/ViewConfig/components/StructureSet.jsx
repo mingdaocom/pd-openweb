@@ -6,7 +6,8 @@ import { Dropdown as MingDropdown, RadioGroup } from 'ming-ui';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting.js';
 import DynamicDefaultValue from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/index.jsx';
-import { FilterDialog, FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import FilterDialog from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterDialog';
+import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import {
   CONNECT_LINE_TYPE,
   HIERARCHY_MIX_LEVEL,
@@ -23,7 +24,7 @@ const Wrap = styled.div`
     width: 100%;
   }
   .line {
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     width: 100%;
     height: 0;
   }
@@ -258,6 +259,7 @@ export default function StructureSet(props) {
                   multiple={true}
                   hideSearchAndFun={true}
                   propFiledVisible={true}
+                  globalSheetInfo={{ worksheetId, appId, projectId }}
                   onChange={newData => {
                     const defSource = getAdvanceSetting(newData, 'defsource') || [];
                     const tempTopFilters = [];

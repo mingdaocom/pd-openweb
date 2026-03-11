@@ -9,7 +9,7 @@ import { browserIsMobile } from 'src/utils/common';
 import { htmlDecodeReg, htmlEncodeReg } from 'src/utils/common';
 
 const Wrapper = styled.div`
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow:
     0 3px 6px -4px rgb(0 0 0 / 12%),
     0 6px 16px 0 rgb(0 0 0 / 8%),
@@ -30,27 +30,27 @@ const Wrapper = styled.div`
     font-weight: initial !important;
   }
   .highlig {
-    color: #1677ff;
+    color: var(--color-primary);
   }
 `;
 
 const InputWrapper = styled.div`
   padding: 10px 15px;
-  background-color: #fff;
-  border-bottom: 1px solid #f2f2f2;
+  background-color: var(--color-background-primary);
+  border-bottom: 1px solid var(--color-background-disabled);
   border-radius: 4px;
   input {
     border: 0;
     padding: 0 0 0 5px;
     width: 100%;
     &::placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
   }
   .line {
     width: 1px;
     height: 15px;
-    background: #bdbdbd;
+    background: var(--color-text-disabled);
   }
   .cursorInitial {
     cursor: initial;
@@ -133,7 +133,7 @@ const SearchRecord = props => {
           open={open}
         >
           <InputWrapper className="flexRow valignWrapper">
-            <Icon className="Gray_9e Font18" icon="search" />
+            <Icon className="textTertiary Font18" icon="search" />
             <div className="flex">
               <input
                 autoFocus
@@ -155,7 +155,7 @@ const SearchRecord = props => {
               />
             </div>
             {!_.isEmpty(value) && (
-              <span className="Gray_9e">
+              <span className="textTertiary">
                 {activeRecord ? activeIndex + 1 : activeIndex}/{options.length}
               </span>
             )}
@@ -163,7 +163,7 @@ const SearchRecord = props => {
             <Tooltip title={disable || isMobile ? null : _l('上一条')} placement="top">
               <div>
                 <Icon
-                  className={cx('Gray_9e Font18', { Gray_bd: disable, cursorInitial: disable })}
+                  className={cx('textTertiary Font18', { textDisabled: disable, cursorInitial: disable })}
                   icon="expand_less"
                   onClick={() => {
                     if (disable) return;
@@ -178,7 +178,10 @@ const SearchRecord = props => {
             <Tooltip title={disable || isMobile ? null : _l('下一条')} placement="top">
               <div>
                 <Icon
-                  className={cx('Gray_9e Font18 mLeft8 mRight12', { Gray_bd: disable, cursorInitial: disable })}
+                  className={cx('textTertiary Font18 mLeft8 mRight12', {
+                    textDisabled: disable,
+                    cursorInitial: disable,
+                  })}
                   icon="expand_more"
                   onClick={() => {
                     if (disable) return;
@@ -191,7 +194,7 @@ const SearchRecord = props => {
               </div>
             </Tooltip>
             <Icon
-              className="Gray_75 Font18 pointer"
+              className="textSecondary Font18 pointer"
               icon="close"
               onClick={() => {
                 setVisible(false);

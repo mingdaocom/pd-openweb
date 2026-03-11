@@ -17,7 +17,7 @@ import {
 import { batchCopyWidgets, batchShiftWidgets, deleteSection, handleAddWidgets } from '../util/data';
 import { batchRemoveItems, insertNewLine, insertToCol, insertToRowEnd, isFullLineDragItem } from '../util/drag';
 import { getVerifyInfo, handleAdvancedSettingChange } from '../util/setting';
-import { getPathById, isFullLineControl } from '../util/widgets';
+import { changeWidgetSize, getPathById, isFullLineControl } from '../util/widgets';
 import WidgetOperation from './components/WidgetOperation';
 import WidgetDisplay from './widgetDisplay';
 
@@ -39,7 +39,7 @@ const DisplayItemWrap = styled.div`
   &.isActive,
   &:hover {
     box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.15);
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     border-radius: 5px;
     & > div:nth-child(1) > .operationWrap {
       visibility: visible;
@@ -49,16 +49,16 @@ const DisplayItemWrap = styled.div`
     box-shadow: 0 0 0 2px rgba(33, 150, 243, 1);
   }
   &.isBatchActive {
-    box-shadow: 0 0 0 2px #3c3c3c !important;
+    box-shadow: 0 0 0 2px var(--color-white) !important;
   }
   &.isDragging {
     opacity: 0.4;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
   .verticalDragDir {
     position: absolute;
     height: 4px;
-    background: #1677ff;
+    background: var(--color-primary);
   }
   .drag-top,
   .drag-view_top {
@@ -72,7 +72,7 @@ const DisplayItemWrap = styled.div`
     top: 0;
     width: 4px;
     height: 100%;
-    background: #1677ff;
+    background: var(--color-primary);
   }
   .drag-left {
     left: -2px;
@@ -82,7 +82,7 @@ const DisplayItemWrap = styled.div`
   }
   .verifyInfo {
     margin-top: 8px;
-    color: #fb0038;
+    color: var(--color-error);
   }
 `;
 
@@ -463,6 +463,11 @@ export default function DisplayItem(props) {
         setBatchActive([data]);
       }
       setStyleInfo({ activeStatus: false });
+    }
+
+    if (mode === 'width') {
+      setWidgets(changeWidgetSize(widgets, { controlId, size: option.size }));
+      setActiveWidget({ ...data, size: option.size });
     }
   };
 

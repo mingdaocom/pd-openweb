@@ -1,22 +1,22 @@
 .taskComment {
   width: 100%;
   padding: 10px 10px 10px 21px;
-  background: #fff;
+  background: var(--color-background-primary);
   box-sizing: border-box;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--color-border-tertiary);
   .avatarBox {
     float: left;
     padding-right: 10px;
   }
   .commenterBox {
-    border-color: #ddd !important;
+    border-color: var(--color-border-primary) !important;
     margin-left: 42px;
     margin-right: 42px;
     .commentBox:not(.autoHeight) {
-      background-color: #f8f8f8 !important;
+      background-color: var(--color-background-secondary) !important;
       .txtComment {
-        background-color: #f8f8f8 !important;
-        color: #9e9e9e;
+        background-color: var(--color-background-secondary) !important;
+        color: var(--color-text-tertiary);
       }
     }
     .uploadAttaachmentsContainer {
@@ -31,6 +31,6 @@
   .taskTopicCount {
     display: block;
     padding-top: 8px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 }

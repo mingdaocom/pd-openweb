@@ -1,5 +1,5 @@
 div.SessionList-item.topBGColor {
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
 }
 
 .SessionList-item {
@@ -34,7 +34,7 @@ div.SessionList-item.topBGColor {
     -webkit-transform: translateY(-50%);
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
-    background: #1677ff;
+    background: var(--color-primary);
   }
   .chat_calendar:before {
     top: 2px;
@@ -55,14 +55,14 @@ div.SessionList-item.topBGColor {
     }
   }
   .unread {
-    color: #fff;
+    color: var(--color-white);
     position: absolute;
     right: -6px;
     top: -4px;
     border-radius: 16px;
     text-align: center;
     min-width: 18px;
-    background-color: red;
+    background-color: var(--color-error);
     z-index: 1;
     font-size: 12px;
     font-weight: bold;
@@ -131,10 +131,10 @@ div.SessionList-item.topBGColor {
       max-width: 100px;
     }
     &-at {
-      color: red;
+      color: var(--color-error);
     }
     &-draft {
-      color: #1e88e5;
+      color: var(--color-primary);
     }
     &-unread {
       color: inherit;
@@ -151,8 +151,8 @@ div.SessionList-item.topBGColor {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  color: #fff;
-  background-color: #1e88e5;
+  color: var(--color-white);
+  background-color: var(--color-primary);
   i {
     transform: scale(0.7);
     position: relative;

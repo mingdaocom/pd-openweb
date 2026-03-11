@@ -99,7 +99,7 @@ function FilterDefaultValue(props) {
         }}
       />
       {/*
-      <div className={cx({ WhiteBG: direction != 1 })}>
+      <div className={cx({ bgPrimary: direction != 1 })}>
         <Inputs
           projectId={projectId}
           appId={id}

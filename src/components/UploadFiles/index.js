@@ -688,7 +688,7 @@ export default class UploadFiles extends Component {
                     projectId,
                     isFree: licenseType === 0,
                     hint: _l('应用附件上传量已到最大值'),
-                    removeFooter: md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal, // 私有部署&非平台版隐藏购买扩展包入口
+                    removeFooter: !window.platformENV.isPlatform,
                     okText: _l('购买上传量扩展包'),
                     onOk: () => window.open(`/admin/expansionservice/${projectId}/storage`),
                   });
@@ -847,7 +847,7 @@ export default class UploadFiles extends Component {
           }}
           onError={(uploader, error) => {
             _this.onRemoveAll(uploader);
-            if (md.global.Config.IsLocal && error.response) {
+            if ((window.platformENV.isOverseas || window.platformENV.isLocal) && error.response) {
               try {
                 const res = JSON.parse(error.response);
                 if (res.code === 50001) {
@@ -875,7 +875,7 @@ export default class UploadFiles extends Component {
               this.nativeFile = nativeFile;
             }}
           >
-            <i className="icon icon-file_upload Gray_9e Font19" />
+            <i className="icon icon-file_upload textSecondary Font19" />
             <span>{_l('本地')}</span>
           </div>
         </QiniuUpload>
@@ -887,6 +887,7 @@ export default class UploadFiles extends Component {
       advancedSetting,
       controlId,
       worksheetId,
+      worksheetIdForScan,
       viewId,
       isUpload,
       arrowLeft,
@@ -930,19 +931,19 @@ export default class UploadFiles extends Component {
                 !_.get(window, 'shareState.isPublicFormPreview') &&
                 !_.get(window, 'shareState.isPublicWorkflowRecord') && (
                   <div className="flexRow valignWrapper" onClick={this.onOpenFolderSelectDialog.bind(this)}>
-                    <i className="icon icon-folder Gray_9e Font18" />
+                    <i className="icon icon-folder textSecondary Font18" />
                     <span>{_l('知识')}</span>
                   </div>
                 )}
               {canAddLink && (
                 <div className="flexRow valignWrapper" onClick={this.openLinkDialog.bind(this)}>
-                  <i className="icon icon-link2 Gray_9e Font19" />
+                  <i className="icon icon-link2 textSecondary Font19" />
                   <span>{_l('链接文件')}</span>
                 </div>
               )}
               {allowUploadFileFromMobile && allowappupload && (
                 <GenScanUploadQr
-                  worksheetId={worksheetId}
+                  worksheetId={worksheetIdForScan || worksheetId}
                   viewId={viewId}
                   from={callFrom}
                   controlId={controlId}
@@ -968,7 +969,7 @@ export default class UploadFiles extends Component {
                   }}
                 >
                   <div className="flexRow valignWrapper">
-                    <i className="icon icon-zendeskHelp-qrcode Gray_9e Font19" />
+                    <i className="icon icon-zendeskHelp-qrcode textSecondary Font19" />
                     <span>{_l('扫码上传')}</span>
                   </div>
                 </GenScanUploadQr>

@@ -11,7 +11,7 @@ import mingoCreateIcon from 'src/components/Mingo/assets/ai_create_date.svg';
 import { MINGO_TASK_TYPE } from 'src/components/Mingo/ChatBot/enum';
 import WorksheetDraft from 'src/pages/worksheet/common/WorksheetDraft';
 import { browserIsMobile } from 'src/utils/common';
-import { removeTempRecordValueFromLocal } from 'src/utils/common';
+import { getLatestCreateTimestampOfWithSaveShortcut, removeTempRecordValueFromLocal } from 'src/utils/common';
 import { emitter } from 'src/utils/common';
 import AdvancedSettingHandler from './AdvancedSettingHandler';
 import NewRecordContent from './NewRecordContent';
@@ -25,7 +25,7 @@ const HeaderComp = styled.div`
   justify-content: space-between;
   height: 50px;
   width: 100%;
-  background: #fff;
+  background: var(--color-background-primary);
   .title {
     font-size: 20px;
     font-weight: bold;
@@ -37,7 +37,7 @@ function NewRecord(props) {
     visible,
     isMingoCreate,
     noDisableClick,
-    allowShowMingoCreate,
+    allowShowMingoCreate = true,
     appId,
     worksheetId,
     title,
@@ -55,7 +55,7 @@ function NewRecord(props) {
     worksheetInfo,
     isCharge,
   } = props;
-
+  const didMountTimestamp = useRef(props.didMountTimestamp || Date.now());
   const newRecordContent = useRef(null);
   const cache = useRef({});
   const scrollViewRef = useRef(null);
@@ -79,6 +79,7 @@ function NewRecord(props) {
     (advancedSetting.closedrafts !== '1' || _.get(worksheetInfo, 'advancedSetting.closedrafts') !== '1');
   const showDraftList = !window.isPublicApp && !_.isEmpty(worksheetInfo);
   const showMingoCreate =
+    window.isWorksheet &&
     allowShowMingoCreate &&
     !isMingoCreate &&
     !window.isPublicApp &&
@@ -134,7 +135,7 @@ function NewRecord(props) {
   };
 
   const content = abnormal ? (
-    <div className="Gray_9e TxtCenter mTop80 pTop100">{_l('该表已删除或没有权限')}</div>
+    <div className="textTertiary TxtCenter mTop80 pTop100">{_l('该表已删除或没有权限')}</div>
   ) : (
     <NewRecordContent
       {...props}
@@ -204,7 +205,7 @@ function NewRecord(props) {
           <LoadDiv size="big" />
         </div>
       )}
-      <span className="continue TxtMiddle clearfix InlineBlock Left Gray_9e">
+      <span className="continue TxtMiddle clearfix InlineBlock Left textTertiary">
         {continueAddVisible &&
           showFillNext &&
           advancedSetting.autoreserve !== '1' &&
@@ -266,7 +267,18 @@ function NewRecord(props) {
           iconComponent={<img src={mingoCreateIcon} />}
           onClick={() => {
             hideNewRecord();
-            window.mingoPendingStartTask = { type: MINGO_TASK_TYPE.CREATE_RECORD_ASSIGNMENT };
+            window.mingoPendingStartTask = {
+              type: MINGO_TASK_TYPE.CREATE_RECORD_ASSIGNMENT,
+              base: {
+                appId,
+                worksheetId,
+                projectId: worksheetInfo.projectId,
+                worksheetInfo,
+                defaultFormData: _.get(props, 'defaultFormData', {}),
+                defaultFormDataEditable: _.get(props, 'defaultFormDataEditable', false),
+                onAdd: props.onAdd,
+              },
+            };
             emitter.emit('SET_MINGO_VISIBLE');
           }}
         />
@@ -312,6 +324,7 @@ function NewRecord(props) {
     ),
     closeStyle: { marginTop: 5 },
     className: cx('workSheetNewRecord', className, modalClassName),
+    wrapClassName: 'workSheetNewRecordWrap withSaveShortcut' + ` createTimestamp-${didMountTimestamp.current}`,
     type: 'fixed',
     verticalAlign: 'bottom',
     width: browserIsMobile() ? window.innerWidth - 20 : 960,
@@ -330,7 +343,7 @@ function NewRecord(props) {
             <div className="mui-dialog-footer flexRow">
               <div className="LineHeight36">
                 <Checkbox
-                  className="Gray_75 Hover_21"
+                  className="textSecondary hoverColorPrimary"
                   value={promptCancelAddRecord}
                   text={_l('不再提示')}
                   onClick={checked => {
@@ -386,11 +399,15 @@ function NewRecord(props) {
       return (window.isMacOs ? e.metaKey : e.ctrlKey) && ['s', 'S'].includes(e.key);
     },
     e => {
-      if (window.disableShortcutsSaveRecord) {
+      if (window.richTextDialogIsActive) {
         return;
       }
       e.preventDefault();
-      !abnormal && setTimeout(() => submitRecord(), 50);
+      e.stopPropagation();
+      const latestCreateTimestamp = getLatestCreateTimestampOfWithSaveShortcut();
+      if (latestCreateTimestamp === didMountTimestamp.current) {
+        !abnormal && setTimeout(() => submitRecord(), 50);
+      }
     },
     { event: 'keydown' },
     [abnormal],

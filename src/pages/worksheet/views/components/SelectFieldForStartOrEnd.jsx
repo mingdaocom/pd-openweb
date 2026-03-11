@@ -5,8 +5,8 @@ import styled from 'styled-components';
 import SelectStartOrEnd from 'src/pages/worksheet/common/ViewConfig/components/SelectStartOrEndControl/SelectStartOrEnd';
 import SelectStartOrEndGroups from 'src/pages/worksheet/common/ViewConfig/components/SelectStartOrEndControl/SelectStartOrEndGroups';
 import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util.js';
-import { isIllegal, isIllegalFormat, isTimeStyle } from 'src/pages/worksheet/views/CalendarView/util';
-import { getAdvanceSetting } from 'src/utils/control';
+import { isIllegal, isIllegalFormat } from 'src/pages/worksheet/views/CalendarView/util';
+import { getAdvanceSetting, isTimeStyle } from 'src/utils/control';
 import { getTimeControls } from '../CalendarView/util';
 
 const BtnForSure = styled.div`
@@ -14,8 +14,8 @@ const BtnForSure = styled.div`
     padding: 0 32px;
     line-height: 36px;
     height: 36px;
-    color: #fff;
-    background-color: #1677ff;
+    color: var(--color-white);
+    background-color: var(--color-primary);
     border-radius: 4px;
     outline: none;
     cursor: pointer;
@@ -24,7 +24,7 @@ const BtnForSure = styled.div`
     box-sizing: border-box;
     display: inline-block;
     &.isUnAb {
-      background-color: #8fcaf9;
+      background-color: var(--color-primary-light);
       cursor: not-allowed;
     }
   }

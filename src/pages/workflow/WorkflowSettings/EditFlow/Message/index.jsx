@@ -30,13 +30,13 @@ export default class Message extends Component {
     return (
       <div className="pLeft8 pRight8">
         <div className="pTop5">
-          <span className="Gray_75">{_l('发送给:')}</span>
+          <span className="textSecondary">{_l('发送给:')}</span>
           <MembersName {...this.props} accounts={item.accounts} />
         </div>
         <div className="pBottom5 mTop4">
           {item.templateStatus === 0 && <span className="yellow">{_l('模板审核中...')}</span>}
           {item.templateStatus === 2 && <span className="red">{_l('模板审核失败！')}</span>}
-          <span className={cx({ Gray_75: item.templateStatus !== 1 })}>
+          <span className={cx({ textSecondary: item.templateStatus !== 1 })}>
             【{item.companySignature}】{replaceField(item.smsContent, item.formulaMap)}
           </span>
         </div>
@@ -64,7 +64,11 @@ export default class Message extends Component {
             </div>
             <NodeOperate nodeClassName="BGBlue" {...this.props} />
             <div className="workflowContent Font13">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? (
+                <span className="pLeft8 pRight8 textSecondary">{_l('加载中...')}</span>
+              ) : (
+                this.renderContent()
+              )}
             </div>
           </div>
           <CreateNode {...this.props} />

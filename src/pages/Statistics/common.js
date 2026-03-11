@@ -405,6 +405,7 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
       result.pivotTable.lines = currentReport.xaxes.controlId ? [currentReport.xaxes] : [];
       result.pivotTable.columns = currentReport.split.controlId ? [currentReport.split] : [];
       result.split = {};
+      result.xaxes = {};
     }
     if (reportTypes.CountryLayer === reportType) {
       const areaAxisControls = axisControls.filter(item => isAreaControl(item.type));
@@ -1168,6 +1169,40 @@ export const isOptionControl = type => {
 };
 
 /**
+ * 是否支持按照字段样式显示
+ */
+export const isDisplayModes = type => {
+  return (
+    isOptionControl(type) ||
+    type === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT ||
+    type === WIDGETS_TO_API_TYPE_ENUM.USER_PICKER ||
+    type === WIDGETS_TO_API_TYPE_ENUM.SWITCH
+  );
+};
+
+/**
+ * 渲染字段样式内容
+ */
+export const renderFieldStyleValue = (controlType, controlValue) => {
+  if (controlType === 29) {
+    return _l('关联表');
+  }
+  if (controlType === WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT) {
+    const { departmentName } = window.safeParse(controlValue);
+    return departmentName || controlValue;
+  }
+  if (controlType === WIDGETS_TO_API_TYPE_ENUM.USER_PICKER) {
+    const { fullname } = window.safeParse(controlValue);
+    return fullname || controlValue;
+  }
+  if (isOptionControl(controlType)) {
+    const { value } = window.safeParse(controlValue);
+    return value || controlValue;
+  }
+  return controlValue;
+};
+
+/**
  * 获取图表 axis 文案
  */
 export const getAxisText = (reportType, showChartType) => {
@@ -1437,12 +1472,12 @@ export const fillMapKey = result => {
  * 把 valueMap 的 key 填充到 map 和 contrastMap
  */
 export const fillValueMap = (result, pageId) => {
-  const { valueMap = {}, reportType, xaxes, split, rightY, status } = fillTranslate(result, pageId);
-  const splitId = split ? split.controlId : '';
-
-  if (status <= 0) {
+  if (result.status <= 0) {
     return result;
   }
+
+  const { valueMap = {}, reportType, xaxes, split, rightY } = fillTranslate(result, pageId);
+  const splitId = split ? split.controlId : '';
 
   if (_.isNull(result.style)) {
     result.style = {};
@@ -1553,18 +1588,29 @@ const fillTranslate = (result, pageId) => {
       return result.appId;
     }
   };
-  const translateValueMap = (dataSource, controlId) => {
+  const translateValueMap = (dataSource, controlId, displayMode) => {
+    const isFieldStyle = displayMode === 'fieldStyle';
     const valueMapTranslateInfo = getTranslateInfo(appId, null, dataSource);
     if (!_.isEmpty(valueMapTranslateInfo)) {
       const map = result.valueMap[controlId] || {};
       for (let key in map) {
         if (map[key] && valueMapTranslateInfo[key]) {
-          map[key] = valueMapTranslateInfo[key];
+          if (isFieldStyle) {
+            const object = window.safeParse(map[key]);
+            map[key] = JSON.stringify({
+              ...object,
+              value: valueMapTranslateInfo[key],
+            });
+          } else {
+            map[key] = valueMapTranslateInfo[key];
+          }
         }
       }
     }
   };
+  const chartTranslateInfo = getTranslateInfo(appId, parentId, result.reportId);
   if (result.xaxes && result.xaxes.controlId) {
+    result.xaxes.rename = chartTranslateInfo[`xaxes-${result.xaxes.controlId}-name`] || result.xaxes.rename;
     result.xaxes.controlName =
       getTranslateInfo(appId, parentId, result.xaxes.controlId).name || result.xaxes.controlName;
     if (result.map && result.map.length) {
@@ -1580,16 +1626,29 @@ const fillTranslate = (result, pageId) => {
   }
   if (result.yaxisList && result.yaxisList.length) {
     result.yaxisList.forEach(item => {
+      item.rename = chartTranslateInfo[`yaxis-${item.controlId}-name`] || item.rename;
       item.controlName = getTranslateInfo(appId, getParentId(item), item.controlId).name || item.controlName;
     });
   }
   if (result.rightY && _.get(result.rightY, 'yaxisList.length')) {
     result.rightY.yaxisList.forEach(item => {
+      item.rename = chartTranslateInfo[`rightYaxis-${item.controlId}-name`] || item.rename;
       item.controlName = getTranslateInfo(appId, getParentId(item), item.controlId).name || item.controlName;
     });
+    if (result.rightY.summary) {
+      result.rightY.summary.name = chartTranslateInfo.rightYSummaryName || result.rightY.summary.name;
+      (result.rightY.summary.controlList || []).forEach(item => {
+        item.name = chartTranslateInfo[`rightYSummaryControl-${item.controlId}-name`] || item.name;
+      });
+    }
+    if (result.rightY.display) {
+      result.rightY.display.ydisplay.title =
+        chartTranslateInfo.rightYdisplayTitle || result.rightY.display.ydisplay.title;
+    }
   }
   if (result.lines && result.lines.length) {
     result.lines.forEach(item => {
+      item.rename = chartTranslateInfo[`line-${item.controlId}-name`] || item.rename;
       if (item.fields) {
         item.fields = item.fields.map(f => {
           return {
@@ -1599,15 +1658,24 @@ const fillTranslate = (result, pageId) => {
         });
       }
       if (item.dataSource) {
-        translateValueMap(item.dataSource, item.controlId);
+        translateValueMap(
+          item.dataSource,
+          item.controlId,
+          isOptionControl(item.controlType) ? item.displayMode : undefined,
+        );
         item.controlName = getTranslateInfo(appId, null, item.dataSource).name || item.controlName;
       } else {
         item.controlName = getTranslateInfo(appId, null, item.controlId).name || item.controlName;
       }
     });
+    result.lineSummary.rename = chartTranslateInfo.lineSummaryName || result.lineSummary.rename;
+    (result.lineSummary.controlList || []).forEach(item => {
+      item.name = chartTranslateInfo[`lineSummaryControl-${item.controlId}-name`] || item.name;
+    });
   }
   if (result.columns && result.columns.length) {
     result.columns.forEach(item => {
+      item.rename = chartTranslateInfo[`column-${item.controlId}-name`] || item.rename;
       if (item.dataSource) {
         translateValueMap(item.dataSource, item.controlId);
         item.controlName = getTranslateInfo(appId, null, item.dataSource).name || item.controlName;
@@ -1615,12 +1683,39 @@ const fillTranslate = (result, pageId) => {
         item.controlName = getTranslateInfo(appId, null, item.controlId).name || item.controlName;
       }
     });
+    result.columnSummary.rename = chartTranslateInfo.columnSummaryName || result.columnSummary.rename;
+    (result.columnSummary.controlList || []).forEach(item => {
+      item.name = chartTranslateInfo[`columnSummaryControl-${item.controlId}-name`] || item.name;
+    });
   }
   if (result.name) {
-    result.name = getTranslateInfo(appId, parentId, result.reportId).name || result.name;
+    result.name = chartTranslateInfo.name || result.name;
   }
   if (result.desc) {
-    result.desc = getTranslateInfo(appId, parentId, result.reportId).description || result.desc;
+    result.desc = chartTranslateInfo.description || result.desc;
+  }
+  if (result.summary) {
+    result.summary.name = chartTranslateInfo.summaryName || result.summary.name;
+    (result.summary.controlList || []).forEach(item => {
+      item.name = chartTranslateInfo[`summaryControl-${item.controlId}-name`] || item.name;
+    });
+  }
+  if (result.displaySetup.ydisplay) {
+    result.displaySetup.ydisplay.title = chartTranslateInfo.ydisplayTitle || result.displaySetup.ydisplay.title;
+  }
+  if (result.reportType === reportTypes.ScatterChart && result.style.quadrant) {
+    const quadrant = result.style.quadrant;
+    quadrant.topRightText = chartTranslateInfo.quadrantTopRightText || quadrant.topRightText;
+    quadrant.topLeftText = chartTranslateInfo.quadrantTopLeftText || quadrant.topLeftText;
+    quadrant.bottomLeftText = chartTranslateInfo.quadrantBottomLeftText || quadrant.bottomLeftText;
+    quadrant.bottomRightText = chartTranslateInfo.quadrantBottomRightText || quadrant.bottomRightText;
+  }
+  if (result.reportType === reportTypes.FunnelChart) {
+    result.style.funnelConversionText = chartTranslateInfo.funnelConversionText || result.style.funnelConversionText;
+  }
+  if (result.reportType === reportTypes.ProgressChart) {
+    result.style.currentValueName = chartTranslateInfo.currentValueName || result.style.currentValueName;
+    result.style.targetValueName = chartTranslateInfo.targetValueName || result.style.targetValueName;
   }
   if (_.get(result, 'split.dataSource')) {
     const splitId = result.split.controlId;
@@ -2113,6 +2208,17 @@ export const xaxisEmptyShowTypes = [
   {
     text: _l('显示为 --'),
     value: 1,
+  },
+];
+
+export const displayModes = [
+  {
+    value: 'text',
+    text: _l('文本'),
+  },
+  {
+    value: 'fieldStyle',
+    text: _l('按字段样式显示'),
   },
 ];
 

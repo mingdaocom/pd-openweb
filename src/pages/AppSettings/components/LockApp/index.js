@@ -11,7 +11,7 @@ const Wrap = styled.div`
     width: 783px;
     height: 33px;
     line-height: 33px;
-    background: #fbefe0;
+    background: var(--color-warning-bg);
     border-radius: 4px 4px 4px 4px;
     padding-left: 14px;
     margin-bottom: 16px;
@@ -54,7 +54,7 @@ export default function LockAppCom(props) {
             </Button>
             {isOwner && (
               <span
-                className="ThemeColor Hand mLeft20"
+                className="colorPrimary Hand mLeft20"
                 onClick={() =>
                   modifyAppLockPassword({
                     appId,
@@ -94,7 +94,7 @@ export default function LockAppCom(props) {
             }
           }}
         />
-        {isRecovery && <span className="Gray_9e mLeft15 TxtMiddle">{_l('开启')}</span>}
+        {isRecovery && <span className="textTertiary mLeft15 TxtMiddle">{_l('开启')}</span>}
       </div>
       {isRecovery && recoveryLock()}
     </Wrap>

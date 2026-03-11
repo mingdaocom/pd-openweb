@@ -11,7 +11,7 @@ const LinkParamSettings = styled.div`
   width: 324px;
   padding: 19px 20px;
   box-sizing: border-box;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow: 0px 3px 12px 1px rgba(0, 0, 0, 0.16);
 `;
 
@@ -27,10 +27,10 @@ const AppLinkWrap = styled.div`
   .url {
     height: 36px;
     line-height: 36px;
-    background-color: #f8f8f8;
+    background-color: var(--color-background-secondary);
     border-radius: 3px;
     padding: 0 10px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
   }
   .linkParams,
   .copy {
@@ -38,11 +38,11 @@ const AppLinkWrap = styled.div`
     line-height: 36px;
     border-radius: 3px;
     padding: 0 17px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     margin-left: 8px;
     &:hover {
-      color: #1677ff;
-      border: 1px solid #1677ff;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
     }
   }
 `;
@@ -73,7 +73,7 @@ export default function AppLinkParamsSettings(props) {
             {appLinkUrl}
           </div>
           <Tooltip placement="bottom" title={_l('新窗口打开')}>
-            <span className="Font14 Gray_9d mLeft6 hoverText" onClick={() => window.open(appLinkUrl)}>
+            <span className="Font14 textTertiary mLeft6 hoverText" onClick={() => window.open(appLinkUrl)}>
               <i className="icon icon-task-new-detail" />
             </span>
           </Tooltip>
@@ -117,7 +117,7 @@ export default function AppLinkParamsSettings(props) {
         </div>
       </AppLinkWrap>
       {!_.isEmpty(hideCon) && (
-        <div className="Gray_75 mTop10">
+        <div className="textSecondary mTop10">
           {_l('已隐藏：')}
           {hideCon.join('、')}
         </div>

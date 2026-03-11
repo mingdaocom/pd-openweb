@@ -11,7 +11,7 @@ const CardPlaceholder = styled.div`
   min-width: 130px;
   height: 130px;
   border-radius: 3px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-secondary);
   color: var(--color-text-primary);
   font-size: 12px;
   background-color: var(--color-background-secondary);
@@ -25,7 +25,7 @@ const CardPlaceholder = styled.div`
     width: 18px;
     height: 18px;
     font-size: 16px;
-    color: var(--color-text-inverse);
+    color: var(--color-white);
     border-radius: 50%;
     background-color: var(--color-border-hover);
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);
@@ -55,7 +55,7 @@ const ListPlaceholder = styled.div`
   .placeholder {
     width: 56px;
     height: 56px;
-    background-color: #e0e0e0;
+    background-color: var(--color-background-secondary);
   }
   .fileName {
     padding: 0 10px;
@@ -66,7 +66,7 @@ const ListPlaceholder = styled.div`
   }
   .closeIcon {
     font-size: 19px;
-    color: #9e9e9e !important;
+    color: var(--color-text-tertiary) !important;
   }
 `;
 

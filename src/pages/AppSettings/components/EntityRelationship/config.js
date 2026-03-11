@@ -13,22 +13,22 @@ export const stylesheet_er = `
 }
 .customErNode {
   box-sizing: border-box;
-  background: #ffffff;
+  background: var(--color-background-primary);
   border-radius: 4px;
-  color: #151515;
+  color: var(--color-text-title);
   height: 100%;
   padding: 6px 0;
-  border: 1px solid #dddddd;
+  border: 1px solid var(--color-border-primary);
   .count {
     padding: 0 16px;
   }
 }
 .x6-graph-svg {
-  background: #f0f0f0;
+  background: var(--color-background-disabled);
 }
 .splitLint {
   height: 1px;
-  background: #dddddd;
+  background: var(--color-border-primary);
   border: none;
   margin: 2px 12px 6px 12px;
 }
@@ -66,8 +66,8 @@ export const stylesheet_er = `
 .icon {
   width: 16px;
   height: 16px;
-  fill: #757575;
-  color: #757575;
+  fill: var(--color-text-secondary);
+  color: var(--color-text-secondary);
 }
 .valignWrapper {
   display: -webkit-box;
@@ -89,8 +89,8 @@ export const stylesheet_er = `
 .Bold {
   font-weight: bold !important;
 }
-.Gray_9e {
-  color: #9e9e9e !important;
+.textTertiary {
+  color: var(--color-text-tertiary) !important;
 }
 `;
 

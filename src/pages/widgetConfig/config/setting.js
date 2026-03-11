@@ -317,3 +317,8 @@ export const AREA_INTERNATION_DISPLAY_OPTION = [
   { value: 2, text: _l('省/州') },
   { value: 3, text: _l('市/郡') },
 ];
+
+export const COVER_FILL_TYPES = [
+  { text: _l('填满'), value: '0' },
+  { text: _l('完整显示'), value: '1' },
+];

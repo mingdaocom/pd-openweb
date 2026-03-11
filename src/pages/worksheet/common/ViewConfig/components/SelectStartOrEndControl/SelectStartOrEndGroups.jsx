@@ -21,25 +21,25 @@ const WrapFragment = styled.div`
     margin-left: 10px;
   }
   .addMarkInput {
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-secondary);
     opacity: 1;
     border-radius: 3px;
     padding: 0 12px;
     &:focus {
-      border: 1px solid #1677ff;
+      border: 1px solid var(--color-primary);
     }
   }
   .addMark {
     &:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
   .addCalendarcids {
     &:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
       i {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
   }
@@ -60,9 +60,9 @@ const WrapCon = styled.div`
     &.option0 {
       opacity: 0 !important;
     }
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     &:hover {
-      color: #f44336;
+      color: var(--color-error);
     }
   }
   &:hover {
@@ -75,9 +75,9 @@ const Wrap = styled.div`
   max-height: 300px;
   overflow-y: auto;
   width: 200px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   padding: 6px 0;
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.24);
+  box-shadow: var(--shadow-lg);
   border-radius: 2px;
   div {
     height: 36px;
@@ -87,10 +87,10 @@ const Wrap = styled.div`
       vertical-align: middle;
     }
     &:hover {
-      background: #1677ff;
-      color: #fff !important;
+      background: var(--color-primary);
+      color: var(--color-white) !important;
       i {
-        color: #fff !important;
+        color: var(--color-white) !important;
       }
     }
   }
@@ -238,7 +238,7 @@ export default function SelectStartOrEndGroups(props) {
               />
             ) : (
               <span
-                className="addMark Hand Gray_75 InlineFlex flex-shrink-0 alignItemsCenter"
+                className="addMark Hand textSecondary InlineFlex flex-shrink-0 alignItemsCenter"
                 onClick={() => {
                   setShowInput(i);
                   setTimeout(() => {
@@ -294,7 +294,7 @@ export default function SelectStartOrEndGroups(props) {
                         setVisible(false);
                       }}
                     >
-                      <i className={cx('icon Gray_9e mRight12 Font16', 'icon-' + getIconByType(o.type))}></i>
+                      <i className={cx('icon textTertiary mRight12 Font16', 'icon-' + getIconByType(o.type))}></i>
                       {o.controlName}
                     </div>
                   );
@@ -321,7 +321,7 @@ export default function SelectStartOrEndGroups(props) {
             },
           }}
         >
-          <span className="addCalendarcids Hand Gray_75 pBottom5 mTop24 InlineBlock bold">
+          <span className="addCalendarcids Hand textSecondary pBottom5 mTop24 InlineBlock bold">
             <i className="icon icon-add Font16 mRight5"></i>
             {_l('添加一组日期字段')}
           </span>

@@ -16,12 +16,12 @@ const ErrorWrap = styled.div`
     height: 94px;
     border-radius: 50%;
     justify-content: center;
-    background-color: var(--color-background-tertiary);
+    background-color: var(--color-background-secondary);
   }
 `;
 
 const QrInputWrap = styled.div`
-  color: var(--color-background-primary);
+  color: var(--color-white);
   width: auto;
   height: 36px;
   padding: 0 24px;
@@ -49,13 +49,13 @@ const ShadeRegion = styled.div`
 
   .horizontalBoundary {
     position: absolute;
-    background-color: rgb(255, 255, 255);
+    background-color: var(--color-background-primary);
     width: 40px;
     height: 5px;
   }
   .verticalBoundary {
     position: absolute;
-    background-color: rgb(255, 255, 255);
+    background-color: var(--color-background-primary);
     width: 5px;
     height: 45px;
   }
@@ -186,8 +186,15 @@ export default class Widgets extends Component {
         this.props.onScanQRCodeResult(res.result);
       },
       fail: res => {
-        const { errMsg } = res;
-        if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
+        const { errMsg, errString } = res;
+        if (
+          !(
+            errMsg.includes('cancel') ||
+            errMsg.includes('canceled') ||
+            errString.includes('cancel') ||
+            errString.includes('canceled')
+          )
+        ) {
           window.nativeAlert(JSON.stringify(res));
         }
       },
@@ -750,14 +757,17 @@ export default class Widgets extends Component {
           {children}
         </div>
         <Popup visible={visible} onClose={this.handleClose} className="mobileModal full">
-          <div className="valignWrapper h100" style={{ backgroundColor: isError ? '#fff' : '#000' }}>
+          <div
+            className="valignWrapper h100"
+            style={{ backgroundColor: isError ? 'var(--color-background-primary)' : 'var(--color-background-inverse)' }}
+          >
             <div className="flexColumn w100">
               {isError ? (
                 <ErrorWrap className="flexColumn valignWrapper h100">
                   <div className="iconWrap valignWrapper mBottom24">
-                    <Icon className="Gray_75 Font38" icon="camera_alt" />
+                    <Icon className="textSecondary Font38" icon="camera_alt" />
                   </div>
-                  <div className="Font16 bold Gray">{_l('无法识别您的摄像头')}</div>
+                  <div className="Font16 bold textPrimary">{_l('无法识别您的摄像头')}</div>
                 </ErrorWrap>
               ) : (
                 <Fragment>
@@ -790,24 +800,24 @@ export default class Widgets extends Component {
               {!isError && scantype === '0' && (
                 <Fragment>
                   <div className="Absolute" style={{ left: '5%', top: '5%' }} onClick={this.handleChangeCamera}>
-                    <Icon className="Font28 White" icon="switch_camera" />
+                    <Icon className="Font28 textWhite" icon="switch_camera" />
                   </div>
                   <div className="Absolute" style={{ left: '15%', top: '5%' }} onClick={this.handleChangeSize}>
                     <Icon
-                      className={cx('Font28', uploadFile ? 'Gray_9e' : 'White')}
+                      className={cx('Font28', uploadFile ? 'textTertiary' : 'textWhite')}
                       icon={scanShape === 'square' ? 'get_bigger' : 'put_away'}
                     />
                   </div>
                   {!disablePhoto && (
-                    <div className="Absolute" style={{ left: '25%', top: '5.5%' }} onClick={this.handleOpenUploadFile}>
-                      <Icon className="Font26 White" icon="insert_photo_21" />
+                    <div className="Absolute" style={{ left: '25%', top: '5.2%' }} onClick={this.handleOpenUploadFile}>
+                      <Icon className="Font26 textWhite" icon="insert_photo_21" />
                     </div>
                   )}
                 </Fragment>
               )}
               {/* 关闭扫码 */}
               <div className="Absolute" style={{ right: '5%', top: '5%' }} onClick={this.handleClose}>
-                <Icon className={cx('Font28', isError ? 'Gray_9e' : 'White')} icon="cancel" />
+                <Icon className={cx('Font28', isError ? 'textTertiary' : 'textWhite')} icon="cancel" />
               </div>
               {/* 上传图片 */}
               {scantype === '0' && uploadFile && (

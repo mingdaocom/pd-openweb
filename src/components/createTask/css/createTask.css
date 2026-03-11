@@ -21,7 +21,7 @@
   display: inline-block;
   cursor: pointer;
   padding-left: 25px;
-  color: #aaa;
+  color: var(--color-text-tertiary);
   background-position: 0 1px;
   background-size: 16px;
 }
@@ -32,7 +32,7 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13);
 }
 .createTaskLabel {
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   font-size: 14px;
   text-align: right;
   position: absolute;
@@ -63,7 +63,7 @@
 .createTaskNetwork .icon-arrow-down-border {
   display: inline-block;
   font-size: 12px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   vertical-align: top;
   margin-left: 5px;
   margin-top: 5px;
@@ -72,7 +72,8 @@
   position: absolute;
   top: 22px;
   left: 116px;
-  background: #fff;
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-lg);
   max-height: 165px;
   overflow-y: auto;
   overflow-x: hidden;
@@ -98,10 +99,10 @@
   margin-top: 10px;
 }
 .createTaskNetworkList li:not(:hover) {
-  background-color: #fff !important;
+  background-color: var(--color-background-primary) !important;
 }
 .createTaskNetworkList li:hover {
-  color: #fff;
+  color: var(--color-white);
 }
 .createTaskNetworkList li:first-child {
   border-top-left-radius: 3px;
@@ -136,7 +137,7 @@
   max-width: 330px;
 }
 .createTaskFolderColor {
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
 }
 .createTaskFolderName {
   width: 181px;
@@ -160,7 +161,7 @@
 .linkageFolder {
   position: absolute;
   width: 260px;
-  background-color: #fff;
+  background-color: var(--color-background-card);
   left: 42px;
   top: 40px;
   z-index: 10;
@@ -185,11 +186,11 @@
 }
 .linkageFolder li.hover,
 .linkageFolder .nullFolder:hover {
-  color: #fff;
+  color: var(--color-white);
 }
 .linkageFolder li:not(.hover),
 .linkageFolder .nullFolder:not(:hover) {
-  background-color: #fff !important;
+  background-color: var(--color-background-primary) !important;
 }
 .linkageFolder .chargeUser {
   width: 26px;
@@ -224,19 +225,19 @@
   top: 0;
   line-height: 40px;
   font-size: 14px;
-  color: #999;
+  color: var(--color-text-tertiary);
 }
 .linkageFolder li.hover .ThemeColor8 {
-  color: #fff !important;
+  color: var(--color-white) !important;
 }
 .linkageFolder li.hover .folderMemberCount {
-  color: #fff;
+  color: var(--color-white);
 }
 .linkageFolder .nullFolder {
   padding-left: 10px;
   line-height: 42px;
   height: 42px;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid var(--color-border-primary);
   cursor: pointer;
 }
 .linkageFolder .nullFolder.clearBorder {
@@ -259,11 +260,11 @@
 }
 #txtTaskName:not(:focus),
 #txtDescriptionbox:not(:focus) {
-  border-color: #bdbdbd !important;
+  border-color: var(--color-text-disabled) !important;
 }
 #txtTaskName:hover:not(:focus),
 #txtDescriptionbox:hover:not(:focus) {
-  border-color: #9e9e9e !important;
+  border-color: var(--color-text-tertiary) !important;
 }
 .createTaskTitle .createTaskLabel {
   top: 9px;
@@ -290,19 +291,19 @@
   font-size: 32px;
 }
 .taskUpdateCharge:not(:hover) .ThemeColor3 {
-  color: #151515 !important;
+  color: var(--color-text-title) !important;
 }
 .taskTabs {
   margin-top: 20px;
 }
 .taskTabs span {
-  border-bottom: 1px solid #9e9e9e;
+  border-bottom: 1px solid var(--color-text-tertiary);
   margin-right: 36px;
   cursor: pointer;
 }
 .taskTabs span:not(:hover) {
-  border-color: #9e9e9e !important;
-  color: #9e9e9e !important;
+  border-color: var(--color-text-tertiary) !important;
+  color: var(--color-text-tertiary) !important;
 }
 #createTaskDesc {
   margin-top: 20px;
@@ -312,7 +313,7 @@
 }
 .txtDescriptionbox {
   width: 100%;
-  border: 1px solid #9e9e9e;
+  border: 1px solid var(--color-text-tertiary);
   padding: 7px;
   line-height: 24px;
   resize: none;
@@ -353,11 +354,11 @@
   vertical-align: top;
   width: 32px;
   height: 32px;
-  background-color: #666;
+  background-color: var(--color-text-secondary);
   position: absolute;
   margin-right: -32px;
   text-align: center;
-  color: #fff;
+  color: var(--color-white);
   font-size: 16px;
   opacity: 0.7;
 }
@@ -380,7 +381,7 @@
 }
 .taskUpdateCharge:not(:hover),
 .createTaskAddMember:not(:hover) {
-  color: #9e9e9e !important;
+  color: var(--color-text-tertiary) !important;
 }
 #createTaskDate {
   margin-top: 18px;
@@ -398,10 +399,10 @@
   cursor: pointer;
 }
 #txtLastDate span {
-  color: #151515 !important;
+  color: var(--color-text-title) !important;
 }
 #txtLastDate:not(:hover) {
-  border-color: #949494 !important;
+  border-color: var(--color-text-tertiary) !important;
 }
 #createTaskStage {
   margin-top: 16px;
@@ -417,7 +418,7 @@
   box-sizing: border-box;
   height: 40px !important;
   line-height: 40px !important;
-  border-color: #9e9e9e;
+  border-color: var(--color-text-tertiary);
   padding-right: 30px;
 }
 #createTaskStage .spanShow .txtBox {
@@ -425,7 +426,7 @@
   line-height: 38px !important;
 }
 #createTaskStage .spanShow:hover {
-  border-color: #9e9e9e;
+  border-color: var(--color-text-tertiary);
 }
 #createTaskStage .spanShow .icon-arrow-down-border {
   position: absolute;
@@ -446,7 +447,7 @@
 .createTaskOperator {
   margin-top: 40px;
   font-size: 13px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   padding-top: 11px;
   height: 30px;
 }
@@ -482,7 +483,7 @@
   line-height: 40px;
   font-size: 15px;
   padding: 0 35px;
-  color: #fff;
+  color: var(--color-white);
   cursor: pointer;
 }
 
@@ -496,9 +497,9 @@
 
 #folderStageBox .Dropdown--border {
   height: 38px;
-  border-color: #bdbdbd;
+  border-color: var(--color-text-disabled);
 }
 
 #folderStageBox .Dropdown--border:hover {
-  border-color: #1e88e5;
+  border-color: var(--color-primary);
 }

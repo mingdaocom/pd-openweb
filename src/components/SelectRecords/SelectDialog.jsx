@@ -3,6 +3,7 @@ import { useKeyPressEvent } from 'react-use';
 import cx from 'classnames';
 import {
   debounce,
+  filter,
   find,
   findIndex,
   get,
@@ -31,6 +32,7 @@ import {
 import ColumnHead from 'worksheet/components/BaseColumnHead';
 import Pagination from 'worksheet/components/Pagination';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import 'src/pages/worksheet/components/WorksheetTable/components/ColumnHead/ColumnHead.less';
 import { checkIsTextControl, isRelateRecordTableControl } from 'src/utils/control';
 import { addBehaviorLog } from 'src/utils/project';
@@ -60,7 +62,7 @@ const Table = styled.div`
   flex: 1;
   margin: 17px 0;
   position: relative;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-secondary);
   border-radius: 4px;
   overflow: hidden;
   min-height: 90px;
@@ -115,13 +117,13 @@ const Footer = styled.div`
 const SearchIcon = styled.div`
   width: 130px;
   height: 130px;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
   display: inline-block;
   border-radius: 130px;
   text-align: center;
   line-height: 130px;
   font-size: 80px;
-  color: #c2c3c3;
+  color: var(--color-text-placeholder);
   margin-bottom: 12px;
   flex-shrink: 0;
 `;
@@ -129,7 +131,7 @@ const SearchIcon = styled.div`
 const RefreshBtn = styled.div`
   position: absolute;
   font-size: 22px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   width: 32px;
   height: 40px;
   right: 40px;
@@ -164,6 +166,7 @@ export default function SelectDialog({ ...args }) {
     maxCount,
     filterRowIds = [],
     ignoreRowIds = [],
+    needHideRowIds = [],
     onClose,
     onOk,
   } = args;
@@ -302,11 +305,11 @@ export default function SelectDialog({ ...args }) {
       } else {
         const toggleRow = find(records.concat(values(recordsCache.current)), record => record.rowid === toggleRowId);
         setSelectedRowIds([toggleRowId]);
-        onOk([toggleRow]);
+        onOk([toggleRow], worksheetInfo);
         onClose();
       }
     },
-    [multiple, selectedCount, maxCount, records],
+    [multiple, selectedCount, maxCount, records, worksheetInfo],
   );
 
   const width = window.innerWidth - 32 * 2 > 1600 ? 1600 : window.innerWidth - 32 * 2;
@@ -526,255 +529,263 @@ export default function SelectDialog({ ...args }) {
           }}
           onKeyDown={handleInputKeyDown}
         />
-        {showFilterControls && (
-          <QuickFilterCon className={cx({ filtersVisible })}>
-            <QuickFilter
-              showTextAdvanced
-              {...param}
-              controls={controls}
-              updateQuickFilter={newFilters => {
-                handleUpdateQuickFilters(newFilters);
-                setIsFiltered(true);
-                if (isEmpty(newFilters)) {
-                  setIsFiltered(false);
-                }
-              }}
-              resetQuickFilter={() => {
-                handleUpdateQuickFilters([]);
-                setIsFiltered(false);
-              }}
-              onFilterClick={() => {}}
-            />
-          </QuickFilterCon>
-        )}
-        {showTable && (
+        {error === 300016 ? (
+          <RestrictAccessStatus />
+        ) : (
           <Fragment>
-            {loading ? (
-              <Loading />
-            ) : (
-              <Table id="selectRecordsTableCon">
-                <WorksheetTable
-                  hightLightRowWhenClick={false}
-                  watchHeight
-                  ref={tableRef}
-                  enableRules={false}
-                  triggerClickImmediate
-                  rowHeadWidth={66}
-                  appId={appId}
-                  worksheetId={worksheetId}
-                  loading={recordsLoading}
-                  viewId={viewId}
-                  projectId={projectId}
-                  showSearchEmpty={!records.length && !loading && !recordsLoading}
-                  keyWords={error ? '' : keyWords}
-                  lineNumberBegin={lineNumberBegin}
-                  fixedColumnCount={fixedColumnCount}
-                  sheetColumnWidths={Object.assign(
-                    sheetStyles ? sheetStyles.sheetColumnWidths : {},
-                    tempSheetColumnWidths,
-                    tempSheetColumnWidths,
-                  )}
-                  onColumnWidthChange={(controlId, value) => {
-                    setTempSheetColumnWidths(prev => ({ ...prev, [controlId]: value }));
+            {showFilterControls && (
+              <QuickFilterCon className={cx({ filtersVisible })}>
+                <QuickFilter
+                  showTextAdvanced
+                  {...param}
+                  controls={controls}
+                  updateQuickFilter={newFilters => {
+                    handleUpdateQuickFilters(newFilters);
+                    setIsFiltered(true);
+                    if (isEmpty(newFilters)) {
+                      setIsFiltered(false);
+                    }
                   }}
-                  columnStyles={sheetStyles ? sheetStyles.columnStyles : {}}
-                  columns={tableConfig.visibleControls.map(c =>
-                    disableMaskDataControls[c.controlId]
-                      ? {
-                          ...c,
-                          advancedSetting: Object.assign({}, c.advancedSetting, {
-                            datamask: '0',
-                          }),
-                        }
-                      : c,
-                  )}
-                  rowHeight={!isRelateRecordTableControl(control) && coverControl ? 88 : 34}
-                  data={records}
-                  sheetViewHighlightRows={
-                    activeRowIndex > -1 && records[activeRowIndex] ? { [records[activeRowIndex].rowid]: true } : {}
-                  }
-                  onCellClick={(clickedControl, clickedRow, rowIndex) => {
-                    handleToggleSelect(clickedRow.rowid, rowIndex);
+                  resetQuickFilter={() => {
+                    handleUpdateQuickFilters([]);
+                    setIsFiltered(false);
                   }}
-                  renderColumnHead={({ control, ...rest }) => {
-                    const { columnIndex } = rest;
-                    const showFrozen = columnIndex < 11 && !control.hideFrozen && fixedColumnCount !== columnIndex;
-                    const showUnFrozen = columnIndex === fixedColumnCount && !control.hideFrozen;
-                    const maskData =
-                      get(control, 'advancedSetting.datamask') === '1' &&
-                      get(control, 'advancedSetting.isdecrypt') === '1';
-                    const showRemoveMask = maskData && !get(window, 'shareState.shareId');
-                    const showDropdown = showFrozen || showUnFrozen || showRemoveMask;
-                    return (
-                      <ColumnHead
-                        {...rest}
-                        control={control}
-                        worksheetId={worksheetId}
-                        showDropdown={showDropdown}
-                        renderPopup={({ closeMenu }) => (
-                          <Menu className="worksheetColumnHeadMenu" style={{ width: 180 }} onClickAway={closeMenu}>
-                            {showFrozen && (
-                              <MenuItem
-                                onClick={() => {
-                                  if (window.isPublicApp) {
-                                    alert(_l('预览模式下，不能操作'), 3);
-                                    return;
-                                  }
-                                  setFixedColumnCount(columnIndex);
-                                  closeMenu();
-                                }}
-                              >
-                                <i className="icon icon-lock"></i>
-                                {_l('冻结')}
-                              </MenuItem>
-                            )}
-                            {showUnFrozen && (
-                              <MenuItem
-                                onClick={() => {
-                                  setFixedColumnCount(0);
-                                  closeMenu();
-                                }}
-                              >
-                                <i className="icon icon-task-new-no-locked"></i>
-                                {_l('解冻')}
-                              </MenuItem>
-                            )}
-                            {showRemoveMask && (
-                              <MenuItem
-                                onClick={() => {
-                                  addBehaviorLog('worksheetBatchDecode', worksheetId, {
-                                    controlId: control.controlId,
-                                  });
-                                  setDisableMaskDataControls(prev => ({ ...prev, [control.controlId]: true }));
-                                  closeMenu();
-                                }}
-                              >
-                                <i className="icon icon-eye_off"></i>
-                                {_l('解码')}
-                              </MenuItem>
-                            )}
-                          </Menu>
-                        )}
-                        selected={!!selectedRowIds.length}
-                        isAsc={
-                          control.controlId === (sortControl || {}).controlId ? (sortControl || {}).isAsc : undefined
-                        }
-                        changeSort={newIsAsc => {
-                          const newSortControl = isUndefined(newIsAsc)
-                            ? {}
-                            : {
-                                controlId: control.controlId,
-                                isAsc: newIsAsc,
-                              };
-                          setActiveRowIndex(undefined);
-                          handleUpdateSortControl(newSortControl);
-                        }}
-                      />
-                    );
-                  }}
-                  renderRowHead={({ className, style, rowIndex, row }) => (
-                    <RowHead
-                      className={className}
-                      style={style}
-                      rowIndex={rowIndex}
-                      data={records}
-                      type={multiple ? 0 : 1}
-                      selectedRowIds={selectedRowIds}
-                      onToggleSelect={handleToggleSelect}
-                      onUpdateSelectedRowIds={setSelectedRowIds}
-                      onOpenRecord={() => {
-                        openRecordInfo({
-                          appId,
-                          worksheetId,
-                          viewId,
-                          projectId,
-                          recordId: row.rowid,
-                        });
-                      }}
-                    />
-                  )}
-                  emptyIcon={
-                    <SearchIcon>
-                      <i className="iconBox" />
-                    </SearchIcon>
-                  }
-                  emptyText={
-                    <div>
-                      {getEmptyText({ keyWords, error })}
-                      {allowShowIgnoreAllFilters && (
-                        <div
-                          className="ignoreAllFilters ThemeColor3 Font14 mTop10 Hand"
-                          onClick={() => setIgnoreAllFilters(true)}
-                        >
-                          {_l('查看全部记录')}
-                        </div>
-                      )}
-                    </div>
-                  }
+                  onFilterClick={() => {}}
                 />
-              </Table>
+              </QuickFilterCon>
             )}
+            {showTable && (
+              <Fragment>
+                {loading ? (
+                  <Loading />
+                ) : (
+                  <Table id="selectRecordsTableCon">
+                    <WorksheetTable
+                      hightLightRowWhenClick={false}
+                      watchHeight
+                      ref={tableRef}
+                      enableRules={false}
+                      triggerClickImmediate
+                      rowHeadWidth={66}
+                      appId={appId}
+                      worksheetId={worksheetId}
+                      loading={recordsLoading}
+                      viewId={viewId}
+                      projectId={projectId}
+                      showSearchEmpty={!records.length && !loading && !recordsLoading}
+                      keyWords={error ? '' : keyWords}
+                      lineNumberBegin={lineNumberBegin}
+                      fixedColumnCount={fixedColumnCount}
+                      sheetColumnWidths={Object.assign(
+                        sheetStyles ? sheetStyles.sheetColumnWidths : {},
+                        tempSheetColumnWidths,
+                        tempSheetColumnWidths,
+                      )}
+                      onColumnWidthChange={(controlId, value) => {
+                        setTempSheetColumnWidths(prev => ({ ...prev, [controlId]: value }));
+                      }}
+                      columnStyles={sheetStyles ? sheetStyles.columnStyles : {}}
+                      columns={tableConfig.visibleControls.map(c =>
+                        disableMaskDataControls[c.controlId]
+                          ? {
+                              ...c,
+                              advancedSetting: Object.assign({}, c.advancedSetting, {
+                                datamask: '0',
+                              }),
+                            }
+                          : c,
+                      )}
+                      rowHeight={!isRelateRecordTableControl(control) && coverControl ? 88 : 34}
+                      data={records.filter(r => !needHideRowIds.includes(r.rowid))}
+                      sheetViewHighlightRows={
+                        activeRowIndex > -1 && records[activeRowIndex] ? { [records[activeRowIndex].rowid]: true } : {}
+                      }
+                      onCellClick={(clickedControl, clickedRow, rowIndex) => {
+                        handleToggleSelect(clickedRow.rowid, rowIndex);
+                      }}
+                      renderColumnHead={({ control, ...rest }) => {
+                        const { columnIndex } = rest;
+                        const showFrozen = columnIndex < 11 && !control.hideFrozen && fixedColumnCount !== columnIndex;
+                        const showUnFrozen = columnIndex === fixedColumnCount && !control.hideFrozen;
+                        const maskData =
+                          get(control, 'advancedSetting.datamask') === '1' &&
+                          get(control, 'advancedSetting.isdecrypt') === '1';
+                        const showRemoveMask = maskData && !get(window, 'shareState.shareId');
+                        const showDropdown = showFrozen || showUnFrozen || showRemoveMask;
+                        return (
+                          <ColumnHead
+                            {...rest}
+                            control={control}
+                            worksheetId={worksheetId}
+                            showDropdown={showDropdown}
+                            renderPopup={({ closeMenu }) => (
+                              <Menu className="worksheetColumnHeadMenu" style={{ width: 180 }} onClickAway={closeMenu}>
+                                {showFrozen && (
+                                  <MenuItem
+                                    onClick={() => {
+                                      if (window.isPublicApp) {
+                                        alert(_l('预览模式下，不能操作'), 3);
+                                        return;
+                                      }
+                                      setFixedColumnCount(columnIndex);
+                                      closeMenu();
+                                    }}
+                                  >
+                                    <i className="icon icon-lock"></i>
+                                    {_l('冻结')}
+                                  </MenuItem>
+                                )}
+                                {showUnFrozen && (
+                                  <MenuItem
+                                    onClick={() => {
+                                      setFixedColumnCount(0);
+                                      closeMenu();
+                                    }}
+                                  >
+                                    <i className="icon icon-task-new-no-locked"></i>
+                                    {_l('解冻')}
+                                  </MenuItem>
+                                )}
+                                {showRemoveMask && (
+                                  <MenuItem
+                                    onClick={() => {
+                                      addBehaviorLog('worksheetBatchDecode', worksheetId, {
+                                        controlId: control.controlId,
+                                      });
+                                      setDisableMaskDataControls(prev => ({ ...prev, [control.controlId]: true }));
+                                      closeMenu();
+                                    }}
+                                  >
+                                    <i className="icon icon-eye_off"></i>
+                                    {_l('解码')}
+                                  </MenuItem>
+                                )}
+                              </Menu>
+                            )}
+                            selected={!!selectedRowIds.length}
+                            isAsc={
+                              control.controlId === (sortControl || {}).controlId
+                                ? (sortControl || {}).isAsc
+                                : undefined
+                            }
+                            changeSort={newIsAsc => {
+                              const newSortControl = isUndefined(newIsAsc)
+                                ? {}
+                                : {
+                                    controlId: control.controlId,
+                                    isAsc: newIsAsc,
+                                  };
+                              setActiveRowIndex(undefined);
+                              handleUpdateSortControl(newSortControl);
+                            }}
+                          />
+                        );
+                      }}
+                      renderRowHead={({ className, style, rowIndex, row }) => (
+                        <RowHead
+                          className={className}
+                          style={style}
+                          rowIndex={rowIndex}
+                          data={records.filter(r => !needHideRowIds.includes(r.rowid))}
+                          type={multiple ? 0 : 1}
+                          selectedRowIds={selectedRowIds}
+                          onToggleSelect={handleToggleSelect}
+                          onUpdateSelectedRowIds={setSelectedRowIds}
+                          onOpenRecord={() => {
+                            openRecordInfo({
+                              appId,
+                              worksheetId,
+                              viewId,
+                              projectId,
+                              recordId: row.rowid,
+                            });
+                          }}
+                        />
+                      )}
+                      emptyIcon={
+                        <SearchIcon>
+                          <i className="iconBox" />
+                        </SearchIcon>
+                      }
+                      emptyText={
+                        <div>
+                          {getEmptyText({ keyWords, error })}
+                          {allowShowIgnoreAllFilters && (
+                            <div
+                              className="ignoreAllFilters ThemeColor3 Font14 mTop10 Hand"
+                              onClick={() => setIgnoreAllFilters(true)}
+                            >
+                              {_l('查看全部记录')}
+                            </div>
+                          )}
+                        </div>
+                      }
+                    />
+                  </Table>
+                )}
+              </Fragment>
+            )}
+            {isWaitToClickSearch && (
+              <AbnormalTableCon>
+                <div className="abnormalTableConTitle Font16 textTertiary">
+                  {_l('输入%0进行查询', get(searchConfig, 'searchControl.controlName', _l('关键字')))}
+                </div>
+              </AbnormalTableCon>
+            )}
+            <Footer>
+              <div className="flex">
+                {multiple && selectedRowIds.length > 0 && (
+                  <SelectedInfo
+                    selectedRowIds={selectedRowIds}
+                    records={unionBy(records.concat(values(recordsCache.current)), 'rowid')}
+                    summaryControls={summaryControls}
+                  />
+                )}
+              </div>
+              {!!total && (
+                <Pagination
+                  disabled={loading || recordsLoading}
+                  appendToBody
+                  pageIndex={pageIndex}
+                  pageSize={pageSize}
+                  allCount={total - filter(records, record => needHideRowIds.includes(record.rowid)).length}
+                  changePageSize={newPageSize => {
+                    localStorage.setItem('selectRecordsPageSize', newPageSize);
+                    changePageSize(newPageSize);
+                    changePageIndex(1);
+                  }}
+                  changePageIndex={changePageIndex}
+                  onPrev={() => {
+                    changePageIndex(pageIndex - 1);
+                  }}
+                  onNext={() => {
+                    changePageIndex(pageIndex + 1);
+                  }}
+                />
+              )}
+              {multiple && (
+                <Fragment>
+                  <Button
+                    type="link"
+                    onClick={() => {
+                      setSelectedRowIds([]);
+                      onClose();
+                    }}
+                  >
+                    {_l('取消')}
+                  </Button>
+                  <Tooltip title={_l('确定')} shortcut={window.isMacOs ? '⌘↵' : 'Ctrl + ↵'}>
+                    <div>
+                      <Button type="primary" disabled={!selectedRowIds.length} onClick={handleConfirm}>
+                        {_l('确定')}
+                      </Button>
+                    </div>
+                  </Tooltip>
+                </Fragment>
+              )}
+            </Footer>
           </Fragment>
         )}
-        {isWaitToClickSearch && (
-          <AbnormalTableCon>
-            <div className="abnormalTableConTitle Font16 Gray_9e">
-              {_l('输入%0进行查询', get(searchConfig, 'searchControl.controlName', _l('关键字')))}
-            </div>
-          </AbnormalTableCon>
-        )}
-        <Footer>
-          <div className="flex">
-            {multiple && selectedRowIds.length > 0 && (
-              <SelectedInfo
-                selectedRowIds={selectedRowIds}
-                records={unionBy(records.concat(values(recordsCache.current)), 'rowid')}
-                summaryControls={summaryControls}
-              />
-            )}
-          </div>
-          {!!total && (
-            <Pagination
-              disabled={loading || recordsLoading}
-              appendToBody
-              pageIndex={pageIndex}
-              pageSize={pageSize}
-              allCount={total}
-              changePageSize={newPageSize => {
-                localStorage.setItem('selectRecordsPageSize', newPageSize);
-                changePageSize(newPageSize);
-                changePageIndex(1);
-              }}
-              changePageIndex={changePageIndex}
-              onPrev={() => {
-                changePageIndex(pageIndex - 1);
-              }}
-              onNext={() => {
-                changePageIndex(pageIndex + 1);
-              }}
-            />
-          )}
-          {multiple && (
-            <Fragment>
-              <Button
-                type="link"
-                onClick={() => {
-                  setSelectedRowIds([]);
-                  onClose();
-                }}
-              >
-                {_l('取消')}
-              </Button>
-              <Tooltip title={_l('确定')} shortcut={window.isMacOs ? '⌘↵' : 'Ctrl + ↵'}>
-                <div>
-                  <Button type="primary" disabled={!selectedRowIds.length} onClick={handleConfirm}>
-                    {_l('确定')}
-                  </Button>
-                </div>
-              </Tooltip>
-            </Fragment>
-          )}
-        </Footer>
       </Con>
     </Modal>
   );

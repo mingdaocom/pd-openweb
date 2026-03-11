@@ -8,21 +8,21 @@ const KeywordInput = styled.textarea`
   padding: 10px 12px;
   height: 158px;
   overflow-y: auto;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   border-radius: 3px;
   resize: none;
   &:focus {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
   }
   &::placeholder {
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
 `;
 
 const Tip = styled.div`
   margin-bottom: -10px;
   text-align: right;
-  color: #151515;
+  color: var(--color-text-title);
 `;
 
 function cutStringByLine(str, length = 500) {

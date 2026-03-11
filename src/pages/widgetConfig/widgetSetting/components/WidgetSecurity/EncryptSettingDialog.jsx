@@ -19,12 +19,12 @@ export default function EncryptSettingDialog(props) {
   });
 
   const EmptyContent = (
-    <span className="Gray_75">
+    <span className="textSecondary">
       {_l('无可用加密规则，请')}
       <Support
         type={3}
         text={_l('前往组织后台')}
-        href={`${location.origin}/admin/settings/${projectId}/isShowEncryptRules`}
+        href={`${location.origin}/admin/data/${projectId}/isShowEncryptRules`}
       />
       {_l('进行配置')}
     </span>

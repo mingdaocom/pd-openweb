@@ -77,7 +77,7 @@ const Time = props => {
         <span className={cx('flex ellipsis', { customFormPlaceholder: !currentValue })}>
           {currentValue && currentValue.format ? currentValue.format(formatMode) : _l('请选择时间')}
         </span>
-        {(!disabled || !formDisabled) && <Icon icon="arrow-right-border" className="Font16 Gray_bd" />}
+        {(!disabled || !formDisabled) && <Icon icon="arrow-right-border" className="Font16 textDisabled" />}
       </div>
       {showTimePicker && (
         <MobileDatePicker

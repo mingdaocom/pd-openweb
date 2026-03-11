@@ -28,7 +28,7 @@ export default function ShowTypeCom(props) {
               // disabled={data.key === 'direction' && Number(advancedSetting.allowitem) === 1 && o.value === 1} // 平铺类型只支持多选
             >
               {o.text}
-              {o.txt && <span className="Gray_75">{o.txt}</span>}
+              {o.txt && <span className="textSecondary">{o.txt}</span>}
             </Radio>
           );
         })}

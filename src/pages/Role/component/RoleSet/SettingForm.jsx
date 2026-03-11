@@ -15,20 +15,20 @@ const WrapCon = styled.div`
   min-height: 0;
   .optionTxt {
     font-size: 12px;
-    color: #919191;
+    color: var(--color-text-tertiary);
   }
   .toUser {
-    color: #5a5a5a;
+    color: var(--color-text-title);
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .ming.Input {
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
   }
   .ming.Dropdown .Dropdown--border,
   .dropdownTrigger .Dropdown--border {
-    border-color: #ddd;
+    border-color: var(--color-border-primary);
   }
   .flexShrink {
     flex-shrink: 0;
@@ -43,7 +43,7 @@ const WrapCon = styled.div`
       height: 24px;
       margin: 0 25px 0 0;
       &:focus {
-        border-bottom: 1px solid #ccc;
+        border-bottom: 1px solid var(--color-border-tertiary);
         border-radius: 0;
       }
     }
@@ -230,7 +230,7 @@ export default class extends PureComponent {
                 />
                 <span className="mLeft10"> {_l('下属加入/拥有的记录')}</span>
                 <Tooltip title={_l('在组织管理【汇报关系】中管理用户的下属')}>
-                  <i className="icon-info_outline Font16 Gray_9e mLeft3 TxtMiddle" />
+                  <i className="icon-info_outline Font16 textTertiary mLeft3 TxtMiddle" />
                 </Tooltip>
               </div>
             ) : null}
@@ -253,7 +253,7 @@ export default class extends PureComponent {
                     <span className="mLeft10">{_l('匹配用户权限标签的记录')}</span>
                     {!isForPortal && (
                       <Tooltip title={_l('在本应用【用户-扩展】中管理用户的权限标签')}>
-                        <Icon icon="info_outline" className="Font16 Gray_9e mLeft3 TxtMiddle" />
+                        <Icon icon="info_outline" className="Font16 textTertiary mLeft3 TxtMiddle" />
                       </Tooltip>
                     )}
                   </span>
@@ -333,7 +333,7 @@ export default class extends PureComponent {
                                 </span>
                               }
                             >
-                              <i className="icon-info_outline Font16 Gray_9e mLeft3 TxtMiddle" />
+                              <i className="icon-info_outline Font16 textTertiary mLeft3 TxtMiddle" />
                             </Tooltip>
                           )}
                         </Checkbox>
@@ -382,7 +382,7 @@ export default class extends PureComponent {
       );
     return (
       <Fragment>
-        <div className="Font14 mTop32 Gray_75">{_l('可以访问的视图和数据操作权限')}</div>
+        <div className="Font14 mTop32 textSecondary">{_l('可以访问的视图和数据操作权限')}</div>
         <div className={cx('authTable mTop12')}>
           <div className={'tableHeader flexRow Bold'}>
             <div className="flexRow flex flex-shrink-0">
@@ -442,7 +442,7 @@ export default class extends PureComponent {
               </span>
               <Tooltip title={_l('批量编辑')}>
                 <i
-                  className={cx('icon-align_setting Font20 Gray_75 mLeft8 mRight8 TxtMiddle', {
+                  className={cx('icon-align_setting Font20 textSecondary mLeft8 mRight8 TxtMiddle', {
                     'Hand ThemeHoverColor3': sheets.length > 0,
                   })}
                   onClick={() => {
@@ -609,7 +609,7 @@ export default class extends PureComponent {
                 {!!roleId && !isForPortal && (
                   <span className="Font14 toUser Hand flexRow alignItemsCenter mLeft30">
                     <Checkbox
-                      className="Gray"
+                      className="textPrimary"
                       size="small"
                       checked={hideAppForMembers}
                       onClick={() => {
@@ -624,7 +624,7 @@ export default class extends PureComponent {
                         '对当前角色下的用户仅授予权限，但不显示应用入口。通常用于跨应用关联数据或引用视图时，只需要用户从另一个应用中进行操作的场景。',
                       )}
                     >
-                      <i className="icon-info_outline Font16 Gray_bd mLeft7" />
+                      <i className="icon-info_outline Font16 textDisabled mLeft7" />
                     </Tooltip>
                   </span>
                 )}

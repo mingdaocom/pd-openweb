@@ -16,13 +16,13 @@ const ContentWrap = styled.ul`
     margin-bottom: 20px;
     padding: 16px 20px;
     border-radius: 6px 6px 6px 6px;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     cursor: pointer;
   }
   > li.active,
   > li:hover {
     background: rgba(33, 150, 243, 0.11);
-    border: 1px solid #1677ff;
+    border: 1px solid var(--color-primary);
   }
   .emptyWrap {
     margin-top: 94px;
@@ -78,7 +78,7 @@ function MoveWorkflowDialog(props) {
             <div className="Font15 bold mBottom12">{item.name}</div>
             <div className="Font13 flexRow">
               <Status value={item.status} className="mRight12" />
-              <span className="Gray_75">{`${item.specification.concurrency}${_l('并发数')} | ${_l(
+              <span className="textSecondary">{`${item.specification.concurrency}${_l('并发数')} | ${_l(
                 '%0核',
                 item.specification.core,
               )} | ${item.specification.memory / 1024}GiB`}</span>

@@ -16,11 +16,11 @@ const Wrap = styled.div`
     padding: 10px 16px;
     line-height: 16px;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
     &.hs {
-      background: #f5f5f5;
-      color: #1677ff;
+      background: var(--color-background-secondary);
+      color: var(--color-primary);
     }
     svg {
       margin-top: 2px;
@@ -31,12 +31,12 @@ const WrapCon = styled.div`
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
   padding: 5px 0;
   border-radius: 3px;
-  background: white;
+  background: var(--color-background-primary);
   height: 320px;
   overflow-y: auto;
   .lineLeft {
     width: 0;
-    border-left: 1px solid #dddddd;
+    border-left: 1px solid var(--color-border-primary);
   }
 `;
 
@@ -45,7 +45,7 @@ function ChooseWorksheet(props) {
   const renderDrop = () => {
     return (
       <React.Fragment>
-        <div className="title Bold Gray_75 Font13">{_l('工作表')}</div>
+        <div className="title Bold textSecondary Font13">{_l('工作表')}</div>
         <div className="mTop6">
           {worksheets
             .filter(o => !o.isDelete)
@@ -61,15 +61,17 @@ function ChooseWorksheet(props) {
                   <div className={cx('flex flexRow alignItemsCenter Hand')}>
                     <SvgIcon
                       url={o.iconUrl ? o.iconUrl : `${md.global.FileStoreConfig.pubHost}/customIcon/${o.icon}.svg`}
-                      fill={hs ? '#1677ff' : '#757575'}
+                      fill={hs ? 'var(--color-primary)' : 'var(--color-text-secondary)'}
                       size={16}
                     />
-                    <div className={cx('flex mLeft5 overflow_ellipsis WordBreak Bold', hs ? 'ThemeColor3' : 'Gray')}>
+                    <div
+                      className={cx('flex mLeft5 overflow_ellipsis WordBreak Bold', hs ? 'ThemeColor3' : 'textPrimary')}
+                    >
                       {o.tableName}
                     </div>
                   </div>
 
-                  <Icon icon={'arrow-right-tip'} className={cx('Hand mLeft10 Gray_9e')} />
+                  <Icon icon={'arrow-right-tip'} className={cx('Hand mLeft10 textTertiary')} />
                 </div>
               );
             })}

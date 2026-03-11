@@ -15,7 +15,7 @@ const Wrap = styled.div`
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
 `;
 
 const AutoLinkagePopover = styled.div`
@@ -29,7 +29,7 @@ const AutoLinkagePopover = styled.div`
     padding: 5px 8px;
     border-radius: 4px;
     &:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
     }
   }
 `;
@@ -55,9 +55,9 @@ const LinkageBtn = props => {
     return (
       <AutoLinkagePopover>
         <div className="valignWrapper" style={{ padding: '0 4px 0 9px' }}>
-          <div className="Font17 bold Gray flex">{_l('联动筛选')}</div>
+          <div className="Font17 bold textPrimary flex">{_l('联动筛选')}</div>
           <Icon
-            className="Font24 Gray_9e pointer"
+            className="Font24 textTertiary pointer"
             icon="close"
             onClick={() => document.querySelector('.autoLinkageTrigger').click()}
           />
@@ -69,12 +69,12 @@ const LinkageBtn = props => {
                 <div className="linkageFilter mTop10" key={item.reportId}>
                   <div className="flexRow alignItemsCenter mBottom2">
                     <Icon
-                      className="Font16 mRight5 ThemeColor"
+                      className="Font16 mRight5 colorPrimary"
                       icon={_.find(chartNav, { type: item.reportType }).icon}
                     />
                     <div className="flex ellipsis bold">{item.reportName}</div>
                     <Icon
-                      className="Font17 Gray_9e pointer"
+                      className="Font17 textTertiary pointer"
                       icon="trash"
                       onClick={() => deleteLinkageFiltersGroup(item.key)}
                     />
@@ -97,7 +97,7 @@ const LinkageBtn = props => {
               ))}
             </div>
             <div
-              className="pointer ThemeColor mTop10 TxtRight"
+              className="pointer colorPrimary mTop10 TxtRight"
               onClick={() => {
                 deleteAllLinkageFiltersGroup();
                 document.querySelector('.autoLinkageTrigger').click();
@@ -108,8 +108,8 @@ const LinkageBtn = props => {
           </Fragment>
         ) : (
           <div className="flexColumn alignItemsCenter justifyContentCenter mTop20 mBottom20">
-            <Icon className="Font64 Gray_df" icon="linkage_filter" />
-            <div className="Gray_9e mTop5 Font14">{_l('未发起联动筛选')}</div>
+            <Icon className="Font64 textPlaceholder" icon="linkage_filter" />
+            <div className="textTertiary mTop5 Font14">{_l('未发起联动筛选')}</div>
           </div>
         )}
       </AutoLinkagePopover>
@@ -124,7 +124,7 @@ const LinkageBtn = props => {
       content={renderLinkageFiltersPopover()}
     >
       <Wrap className="flexRow alignItemsCenter justifyContentCenter card autoLinkageTrigger">
-        <Icon icon="linkage_filter" className="Font22 ThemeColor" />
+        <Icon icon="linkage_filter" className="Font22 colorPrimary" />
       </Wrap>
     </Popover>
   );

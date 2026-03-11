@@ -23,7 +23,7 @@ const MingoContentWrap = styled.div`
     font-weight: bold;
     margin: 26px 0 6px;
     font-size: 15px;
-    color: #151515;
+    color: var(--color-text-title);
   }
   .sendCon {
     position: relative;

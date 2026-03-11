@@ -159,7 +159,7 @@ export default class CalendarRemind extends Component {
             )}
             <Dropdown {...dropDownProps} className="InlineBlock" />
             {remindType === REMINDTYPE.NONE ? null : (
-              <span className="mLeft50 Gray_9e InlineBlock">
+              <span className="mLeft50 textTertiary InlineBlock">
                 <Checkbox
                   className="Font12 InlineBlock TxtMiddle"
                   size="small"

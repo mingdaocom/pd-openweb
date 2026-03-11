@@ -3,9 +3,9 @@
   overflow: auto;
   max-width: 380px;
   max-height: 460px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.148438);
+  box-shadow: var(--shadow-lg);
   padding: 4px 0;
-  background-color: #fff;
+  background-color: var(--color-background-card);
 
   .mentionItem {
     display: flex;
@@ -20,7 +20,7 @@
     position: relative;
     box-sizing: initial;
     height: 50px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     .fullname b {
       background: #ff9;
       font-weight: 400;
@@ -31,8 +31,8 @@
       border-radius: 50%;
     }
     .addressBookSelect {
-      color: #fff;
-      background-color: #47b14b;
+      color: var(--color-white);
+      background-color: var(--color-success);
     }
     &.chatItem {
       height: 42px;
@@ -42,13 +42,13 @@
     }
     &.active,
     &:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
     }
   }
   .divider {
     width: 100%;
     height: 1px;
-    background-color: #eaeaea;
+    background-color: var(--color-border-secondary);
   }
   .mentionNoData {
     margin: 70px 0;

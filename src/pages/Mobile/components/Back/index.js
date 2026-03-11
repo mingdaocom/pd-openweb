@@ -6,11 +6,11 @@ import { getRequest } from 'src/utils/common';
 
 const Content = styled.div`
   display: flex;
-  color: #1677ff;
+  color: var(--color-primary);
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   position: fixed;
   right: 20px;
   bottom: 20px;

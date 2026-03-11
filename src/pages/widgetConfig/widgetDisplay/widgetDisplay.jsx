@@ -76,7 +76,7 @@ export default function WidgetDisplay(props) {
         })}
       >
         {controlName}
-        {showIcon && <span className="icon-refresh Gray_9e mLeft6"></span>}
+        {showIcon && <span className="icon-refresh textTertiary mLeft6"></span>}
       </div>
     );
 

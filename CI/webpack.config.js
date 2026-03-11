@@ -300,6 +300,7 @@ module.exports = function (alonePath = '') {
         }),
         ...(alonePath ? [] : [new CssMinimizerPlugin()]),
       ],
+      runtimeChunk: 'single',
       splitChunks: getSplitChunksConfig(alonePath),
     },
     devtool: alonePath ? undefined : ENV.isProduction ? 'source-map' : 'eval',

@@ -22,7 +22,7 @@ const WrapCon = styled.div`
   padding: 12px 16px;
 `;
 const Wrap = styled.div`
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.08);
   border-radius: 8px;
   padding: 20px;
@@ -40,22 +40,22 @@ const Wrap = styled.div`
   .status {
     padding: 6px 10px;
     border-radius: 3px;
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
   }
   .success {
-    color: #4caf50;
+    color: var(--color-success);
   }
   .err {
-    color: #f44336;
+    color: var(--color-error);
   }
   .wait {
-    color: #1677ff;
+    color: var(--color-primary);
   }
   .war {
-    color: #ff9d00;
+    color: var(--color-warning);
   }
   .cancel {
-    color: #757575;
+    color: var(--color-text-secondary);
   }
 
   .refundBtn,
@@ -75,11 +75,11 @@ const Wrap = styled.div`
     }
 
     &.invoiceBtn {
-      background: #fff !important;
-      border: 1px solid #e0e0e0;
+      background: var(--color-background-primary) !important;
+      border: 1px solid var(--color-border-secondary);
       &:hover {
-        border-color: #1677ff;
-        color: #1677ff;
+        border-color: var(--color-primary);
+        color: var(--color-primary);
       }
     }
     &.cancelRefundBtn {
@@ -96,7 +96,7 @@ const Wrap = styled.div`
     }
     &.disable {
       cursor: not-allowed;
-      background: #f5f5f5 !important;
+      background: var(--color-background-secondary) !important;
     }
   }
   .gap10 {
@@ -110,7 +110,7 @@ const EmptyWrap = styled.div`
     width: 80px;
     height: 80px;
     border-radius: 80%;
-    background-color: #e0e0e0;
+    background-color: var(--color-background-secondary);
   }
 `;
 
@@ -118,29 +118,29 @@ const Btn = styled.div`
   flex: 1;
   height: 36px;
   border-radius: 3px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-secondary);
   font-weight: bold;
   text-align: center;
   cursor: pointer;
   &:hover {
-    color: #1677ff;
-    border: 1px solid #1677ff;
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
   }
 `;
 
 const SelectPayStatusWrap = styled.span`
   display: flex;
   align-items: center;
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   width: fit-content;
   padding: 8px 12px;
   margin-bottom: 16px;
   border-radius: 3px;
   cursor: pointer;
-  color: #757575;
+  color: var(--color-text-secondary);
   .icon.icon-arrow-down {
-    color: #757575;
+    color: var(--color-text-secondary);
     font-size: 8px;
     width: 18px;
     display: inline-block;
@@ -153,7 +153,7 @@ const SelectPayStatusWrap = styled.span`
 const PopupWrap = styled.div`
   width: 220px;
   padding: 6px 0;
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow: 0 4px 16px 1px rgba(0, 0, 0, 0.24);
   .popupItem {
     height: 40px;
@@ -161,7 +161,7 @@ const PopupWrap = styled.div`
     padding: 0 20px;
     cursor: pointer;
     &:hover {
-      background: #f8f8f8;
+      background: var(--color-background-hover);
     }
   }
 `;
@@ -172,31 +172,31 @@ const More = styled.div`
   text-align: center;
   margin-left: 6px;
   border-radius: 3px;
-  color: #9e9e9e;
-  border: 1px solid #e0e0e0;
+  color: var(--color-text-tertiary);
+  border: 1px solid var(--color-border-secondary);
   &:hover {
-    color: #1677ff;
+    color: var(--color-primary);
   }
   &.mobileMore {
     width: 32px;
     height: 32px;
     line-height: 32px;
     border: none;
-    background-color: #f6f6f6;
-    color: #9d9d9d;
+    background-color: var(--color-background-secondary);
+    color: var(--color-text-tertiary);
     &:hover {
-      color: #9d9d9d;
+      color: var(--color-text-tertiary);
     }
   }
 `;
 
 const MobileBtn = styled(Button)`
-  border: 1px solid #eee !important;
-  background-color: #fff !important;
+  border: 1px solid var(--color-border-secondary) !important;
+  background-color: var(--color-background-primary) !important;
   &.delete {
-    background-color: #f44336 !important;
-    border: 1px solid #f44336;
-    color: #fff;
+    background-color: var(--color-error) !important;
+    border: 1px solid var(--color-error);
+    color: var(--color-white);
   }
 `;
 
@@ -319,9 +319,9 @@ export default function PayLog(props) {
     return (
       <EmptyWrap className="flexColumn valignWrapper h100">
         <div className="iconWrap flexRow justifyContentCenter alignItemsCenter">
-          <i className="icon icon-sp_account_balance_wallet_white Font50 White" />
+          <i className="icon icon-sp_account_balance_wallet_white Font50 textWhite" />
         </div>
-        <div className="Font15 Gray_bd mTop20 bold">{isMobile ? _l('暂无付款') : _l('暂无订单')}</div>
+        <div className="Font15 textDisabled mTop20 bold">{isMobile ? _l('暂无付款') : _l('暂无订单')}</div>
       </EmptyWrap>
     );
   };
@@ -434,12 +434,12 @@ export default function PayLog(props) {
     return (
       <Wrap className={cx('Font13', isMobile ? 'mTop10' : 'mTop20')}>
         <div className="flexRow alignItemsCenter mBottom16">
-          <span className="topTitle overflow_ellipsis flex Bold Gray Font15">{o.description}</span>
+          <span className="topTitle overflow_ellipsis flex Bold textPrimary Font15">{o.description}</span>
           {![3].includes(o.status) && (
             <span
               className={cx(
                 'status mLeft30 Bold',
-                [5].includes(o.status) ? 'Gray_75' : [4, 1].includes(o.status) ? 'err' : 'war',
+                [5].includes(o.status) ? 'textSecondary' : [4, 1].includes(o.status) ? 'err' : 'war',
               )}
             >
               {text}
@@ -456,8 +456,8 @@ export default function PayLog(props) {
           }
           return (
             <div className={cx('flexRow alignItemsCenter', { mBottom12: i < refundInfoKeys.length - 1 })}>
-              <span className={cx('payTitle Gray_75 Bold')}>{a.txt}</span>
-              <span className={cx('con mLeft15 WordBreak Gray')}>
+              <span className={cx('payTitle textSecondary Bold')}>{a.txt}</span>
+              <span className={cx('con mLeft15 WordBreak textPrimary')}>
                 {['createTime', 'refundTime'].includes(a.key)
                   ? moment(o[a.key]).format('YYYY-MM-DD HH:mm:ss')
                   : ['payAccountInfo', 'operatorAccountInfo'].includes(a.key)
@@ -517,7 +517,7 @@ export default function PayLog(props) {
       return (
         <Wrap key={payOrder.orderId} className={cx('Font13 mBottom14')}>
           <div className="flexRow alignItemsCenter mBottom16">
-            <span className="topTitle overflow_ellipsis flex Bold Gray Font15">{payOrder.description}</span>
+            <span className="topTitle overflow_ellipsis flex Bold textPrimary Font15">{payOrder.description}</span>
             <span className={cx('status mLeft30 Bold', data.type)}>{data.text}</span>
             {isMobile && data.key === 0 && (
               <More
@@ -536,8 +536,8 @@ export default function PayLog(props) {
               (!payOrder[o.key] && payOrder[o.key] !== 0); //已支付/已退款/部分退款直接显示结算金额和手续费
             return (
               <div className={cx('flexRow alignItemsCenter', { mBottom12: i < list.length - 1 })}>
-                <span className={cx('payTitle Gray_75 Bold')}>{o.txt}</span>
-                <span className={cx('con mLeft15 WordBreak Gray')}>
+                <span className={cx('payTitle textSecondary Bold')}>{o.txt}</span>
+                <span className={cx('con mLeft15 WordBreak textPrimary')}>
                   {o.key === 'sourceType'
                     ? sourceTypeInfo[payOrder[o.key]]
                     : o.key === 'payOrderType'
@@ -619,7 +619,7 @@ export default function PayLog(props) {
                       }}
                     >
                       <MenuItem>
-                        <span className="icon icon-cancel Gray_9e mRight6 Font16 TxtMiddle" />
+                        <span className="icon icon-cancel textTertiary mRight6 Font16 TxtMiddle" />
                         <span className="TxtMiddle">{_l('取消订单')}</span>
                       </MenuItem>
                     </PopupWrap>
@@ -688,7 +688,7 @@ export default function PayLog(props) {
         onMaskClick={() => setState({ showCancelOrder: false })}
       >
         <div className="flexRow header LineHeight24">
-          <div className="Gray_9e">{_l('订单操作')}</div>
+          <div className="textTertiary">{_l('订单操作')}</div>
           <div className="closeIcon TxtCenter" onClick={() => setState({ showCancelOrder: false })}>
             <icon className="icon icon-close" />
           </div>
@@ -697,17 +697,17 @@ export default function PayLog(props) {
           className="Font15 bold pLeft15 pBottom20"
           onClick={() => setState({ showCancelOrder: false, showConfirmCancelOrderDialog: true })}
         >
-          <span className="icon icon-cancel Gray_9e mRight10 Font16 TxtMiddle" />
+          <span className="icon icon-cancel textTertiary mRight10 Font16 TxtMiddle" />
           <span className="TxtMiddle">{_l('取消订单')}</span>
         </div>
       </Popup>
 
       <Popup position="bottom" className="mobileModal topRadius" visible={showConfirmCancelOrderDialog}>
-        <div className="Font16 bold header Gray LineHeight24">{_l('取消后无法恢复，是否确认取消？')}</div>
+        <div className="Font16 bold header textPrimary LineHeight24">{_l('取消后无法恢复，是否确认取消？')}</div>
         <div className="flexRow mBottom10 pLeft15 pRight15">
           <MobileBtn
             radius
-            className="flex mRight6 bold Gray_75 Font13"
+            className="flex mRight6 bold textSecondary Font13"
             onClick={() => setState({ showConfirmCancelOrderDialog: false })}
           >
             {_l('取消')}

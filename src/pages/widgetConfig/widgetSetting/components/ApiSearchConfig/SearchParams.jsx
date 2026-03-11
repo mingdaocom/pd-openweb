@@ -14,13 +14,13 @@ const ControlWrap = styled.div`
     &.isChild {
       margin-top: 8px;
       padding: 8px 0 8px 20px;
-      border-left: 3px solid #f2f2f2;
+      border-left: 3px solid var(--color-background-disabled);
     }
     .settingItemTitle {
       display: none;
     }
     .CodeMirror-placeholder {
-      color: #ccc;
+      color: var(--color-text-placeholder);
       font-size: 14px;
       line-height: 27px;
       margin-left: 3px;
@@ -55,13 +55,13 @@ export default function SearchParams(props) {
           {item.required && (
             <div
               className="Absolute"
-              style={{ left: `${isChild ? '12px' : '-6px'}`, marginTop: '1px', color: '#f44336' }}
+              style={{ left: `${isChild ? '12px' : '-6px'}`, marginTop: '1px', color: 'var(--color-error)' }}
             >
               *
             </div>
           )}
           {item.controlName}
-          {item.alias && <span className="Gray_9e">（{item.alias}）</span>}
+          {item.alias && <span className="textTertiary">（{item.alias}）</span>}
         </div>
         <DynamicDefaultValue
           from={data.type === 43 ? 3 : 2} // 为了异化默认值其他字段配置
@@ -90,7 +90,7 @@ export default function SearchParams(props) {
             );
           }}
         />
-        {item.desc && <span className="Gray_9e Font12 mTop5 InlineBlock WordBreak">{item.desc}</span>}
+        {item.desc && <span className="textTertiary Font12 mTop5 InlineBlock WordBreak">{item.desc}</span>}
       </div>
     );
   };

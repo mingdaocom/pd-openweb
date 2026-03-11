@@ -25,7 +25,7 @@ const relateItem = [
     text: (
       <div className="relateItem">
         <span>{_l('关联到其他工作表')}</span>
-        <span className="Font14 Gray_9e icon-arrow-right-border"></span>
+        <span className="Font14 textTertiary icon-arrow-right-border"></span>
       </div>
     ),
     value: 'next',

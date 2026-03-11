@@ -66,7 +66,7 @@ export default function DropCom(props) {
         isAppendToBody
       />
       {!!conData.encryId && (
-        <span className="Gray_75 mTop8 Block">
+        <span className="textSecondary mTop8 Block">
           {_l('当前字段已加密，只支持按照')}
           {(data.types.find(o => o.value === FILTER_CONDITION_TYPE.EQ) || {}).text}
         </span>

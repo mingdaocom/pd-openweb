@@ -77,6 +77,8 @@ export default class ImportDataFromExcel extends Component {
     appId: PropTypes.string,
     worksheetId: PropTypes.string,
     worksheetName: PropTypes.string,
+    hideControlIds: PropTypes.array,
+    extendOptions: PropTypes.object,
   };
   constructor(props) {
     super(props);
@@ -94,17 +96,18 @@ export default class ImportDataFromExcel extends Component {
   }
 
   render() {
-    const { isCharge, appId, worksheetId, worksheetName, hideImportDataFromExcel } = this.props;
     const {
-      showImportConfigDialog,
-      showConfigControl,
-      importExcelInfo,
-      fileList,
-      fileInfo,
-      fileKey,
-      importSheetInfo,
-      selectRow,
-    } = this.state;
+      isCharge,
+      isFromRelateRecord = false,
+      appId,
+      worksheetId,
+      worksheetName,
+      hideImportDataFromExcel,
+      hideControlIds = [],
+      extendOptions = {},
+    } = this.props;
+    const { showImportConfigDialog, showConfigControl, fileList, fileInfo, fileKey, importSheetInfo, selectRow } =
+      this.state;
     if (showImportConfigDialog) {
       return (
         <ImportConfig
@@ -120,12 +123,12 @@ export default class ImportDataFromExcel extends Component {
       return (
         <ConfigControl
           isCharge={isCharge}
+          isFromRelateRecord={isFromRelateRecord}
           appId={appId}
           worksheetId={worksheetId}
           filePath={fileInfo.filePath}
           fileId={fileInfo.fileId}
           fileKey={fileKey}
-          importExcelInfo={importExcelInfo}
           onSave={key => {
             antNotification.info({
               key,
@@ -137,6 +140,8 @@ export default class ImportDataFromExcel extends Component {
           onCancel={hideImportDataFromExcel}
           selectRow={selectRow}
           importSheetInfo={importSheetInfo}
+          hideControlIds={hideControlIds}
+          extendOptions={extendOptions}
           onPrevious={() => {
             this.setState({ showConfigControl: false, showImportConfigDialog: true });
           }}

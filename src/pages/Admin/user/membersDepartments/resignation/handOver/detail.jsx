@@ -346,10 +346,10 @@ export default class Detail extends React.Component {
               {user.isRelationShip ? <span className="boderRadAll_3 TxtCenter otherRelationShip">协</span> : null}
             </a>
           </UserCard>
-          <span className="overflow_ellipsis Gray_bd wMax100" title={user.department}>
+          <span className="overflow_ellipsis textDisabled wMax100" title={user.department}>
             {user.department}
           </span>
-          <span className="overflow_ellipsis Gray_bd wMax100" title={user.job}>
+          <span className="overflow_ellipsis textDisabled wMax100" title={user.job}>
             {user.job}
           </span>
         </span>
@@ -522,7 +522,7 @@ export default class Detail extends React.Component {
     if (isLoading || list === null) {
       return (
         <tr className="TxtCenter">
-          <td colSpan="5" className="pTop100 Gray_bd">
+          <td colSpan="5" className="pTop100 textDisabled">
             <LoadDiv />
           </td>
         </tr>

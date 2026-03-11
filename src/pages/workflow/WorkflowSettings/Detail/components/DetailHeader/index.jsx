@@ -36,7 +36,6 @@ export default function DetailHeader({
   updateSource,
   closeDetail,
   selectNodeType,
-  isIntegration,
   removeNodeName,
   customNodeName,
   isPlugin,
@@ -46,11 +45,11 @@ export default function DetailHeader({
   const href = SUPPORT_HREF[type];
   let disabled = false;
 
-  if (isIntegration) {
+  if (customNodeName) {
     return (
       <div className="workflowDetailHeader flexRow">
-        <span className="icon-backspace Font26 mRight10 Gray ThemeHoverColor3 pointer" onClick={closeDetail} />
-        <div className="flex Font20 Gray bold">{customNodeName || name}</div>
+        <span className="icon-backspace Font26 mRight10 textPrimary ThemeHoverColor3 pointer" onClick={closeDetail} />
+        <div className="flex Font20 textPrimary bold">{customNodeName}</div>
       </div>
     );
   }
@@ -65,7 +64,7 @@ export default function DetailHeader({
   return (
     <div
       className={cx('workflowDetailHeader flexRow', bg)}
-      style={appType === APP_TYPE.PLUGIN ? { background: app.iconColor || '#1677ff' } : {}}
+      style={appType === APP_TYPE.PLUGIN ? { background: app.iconColor || 'var(--color-primary)' } : {}}
     >
       {removeNodeName ? (
         <div className="flex" />

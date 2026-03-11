@@ -9,19 +9,19 @@ const Box = styled.div`
     align-items: center;
   }
   .iconCon {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .txt {
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   &:hover {
     .iconCon {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
     .Dropdown--input {
       .txt,
       .icon-arrow-down-border {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
   }

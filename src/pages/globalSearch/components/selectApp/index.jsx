@@ -43,7 +43,7 @@ export default function SelectApp(props) {
       popup={
         <div className="appDrowSelectCon">
           <div className="appSearchCon">
-            <Icon icon="search Font16 Gray_9d" />
+            <Icon icon="search Font16 textTertiary" />
             <Input placeholder={_l('搜索')} className="flex" value={search} onChange={searchHandle} />
           </div>
           <ul className="appList">
@@ -74,9 +74,11 @@ export default function SelectApp(props) {
             <SvgIcon url={value.iconUrl} fill="#FFF" size={10} />
           </span>
         ) : (
-          <Icon icon="widgets" className={`${value ? 'color_light' : 'Gray_9e'}`} />
+          <Icon icon="widgets" className={`${value ? 'color_light' : 'textTertiary'}`} />
         )}
-        <span className={`mLeft6 ${value ? 'color_light Bold' : 'Gray_9e'}`}>{value ? value.name : _l('按应用')}</span>
+        <span className={`mLeft6 ${value ? 'color_light Bold' : 'textTertiary'}`}>
+          {value ? value.name : _l('按应用')}
+        </span>
         {value && <Icon icon="clear_bold" className="Font12 color_light lineHeight13 mLeft8" onClick={clearValue} />}
       </span>
     </Trigger>

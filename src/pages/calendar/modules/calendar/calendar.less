@@ -4,11 +4,11 @@
   }
 
   .fc-toolbar {
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     height: 45px;
     padding: 0 20px;
     position: relative;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+    box-shadow: var(--shadow-sm);
   }
 
   .fc-toolbar .fc-center {
@@ -30,7 +30,7 @@
   }
 
   .fc-toolbar .fc-center .fc-state-active {
-    color: #fff;
+    color: var(--color-white);
   }
 
   .fc-toolbar .fc-button-group {
@@ -46,13 +46,13 @@
     height: 30px;
     line-height: 30px;
     width: 50px;
-    color: #666;
+    color: var(--color-text-secondary);
     text-align: center;
-    background: #fff;
+    background: var(--color-background-primary);
     outline: none;
     margin-right: 1px !important;
     border: 0;
-    border-right: 1px solid #e8e8e8;
+    border-right: 1px solid var(--color-border-secondary);
     box-shadow: none;
   }
 
@@ -64,11 +64,11 @@
     width: 46px;
     height: 30px;
     line-height: 30px;
-    background: #fff;
+    background: var(--color-background-primary);
     border: 0;
     padding: 0;
     margin-top: 8px;
-    color: #151515;
+    color: var(--color-text-title);
     text-align: center;
     box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
     -moz-box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
@@ -78,27 +78,27 @@
   }
 
   .fc-left .fc-today-button:hover {
-    color: #fff;
+    color: var(--color-white);
   }
 
   .fc-left .fc-state-disabled {
     opacity: 1;
     cursor: default;
-    background: #fff !important;
+    background: var(--color-background-primary) !important;
   }
 
   .fc-left .fc-state-disabled:hover {
-    background: #fff;
-    color: #666;
+    background: var(--color-background-primary);
+    color: var(--color-text-secondary);
   }
 
   .fc-toolbar .fc-left .fc-button {
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     box-shadow: none;
     border-left: 0;
   }
   .fc-toolbar .fc-left .fc-button:first-child {
-    border-left: 1px solid #ddd;
+    border-left: 1px solid var(--color-border-primary);
   }
 
   .fc-toolbar .fc-center .fc-button-group {
@@ -119,12 +119,9 @@
     transition: border-color 0.3s ease-in-out;
   }
 
-  .fc-toolbar
-    .fc-center
-    .fc-button-group
-    button:not(.fc-state-active):not(:hover) {
+  .fc-toolbar .fc-center .fc-button-group button:not(.fc-state-active):not(:hover) {
     border-bottom: 3px solid transparent !important;
-    color: #666 !important;
+    color: var(--color-text-secondary) !important;
   }
 
   .fc-left .fc-prev-button,
@@ -132,15 +129,15 @@
     width: 30px;
     height: 30px;
     line-height: 30px;
-    background: #fff;
+    background: var(--color-background-primary);
     border: 0;
-    border-right: 1px solid #e8e8e8;
+    border-right: 1px solid var(--color-border-secondary);
     padding: 0;
-    color: #666;
+    color: var(--color-text-secondary);
     text-align: center;
     box-shadow: none;
     outline: none;
-    color: #b1b1b1;
+    color: var(--color-text-disabled);
     box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
     -moz-box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
     -webkit-box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
@@ -157,7 +154,7 @@
 
   .fc-left .fc-prev-button:hover,
   .fc-left .fc-next-button:hover {
-    color: #fff;
+    color: var(--color-white);
   }
 
   .fcOld button .fc-icon {
@@ -178,7 +175,10 @@
     -webkit-border-radius: 3px;
     border-radius: 3px;
     .fc-view {
-      background: #fff;
+      background: var(--color-background-primary);
+      &.fc-agendaDay-view > table > tbody > tr > td.fc-widget-content {
+        border-top: none;
+      }
     }
   }
 
@@ -200,11 +200,11 @@
   }
 
   .fc-widget-header .fc-day-header:first-child {
-    border-left: 1px solid #ddd;
+    border-left: 1px solid var(--color-border-primary);
   }
 
   .fc-ltr .fc-basic-view .fc-day-number {
-    color: #999;
+    color: var(--color-text-tertiary);
     padding-right: 5px;
   }
 
@@ -238,13 +238,13 @@
 
   .fc-event {
     border: 0;
-    color: #000;
+    color: var(--color-text-primary);
     cursor: pointer;
     overflow: hidden !important;
   }
 
   .fc-event:hover {
-    color: #444;
+    color: var(--color-text-title);
   }
 
   .fc-agendaDay-view .fc-event {
@@ -253,8 +253,8 @@
   }
 
   .fc-content-skeleton .fc-event {
-    border: 1px solid #fff;
-    border-color: #fff !important;
+    border: 1px solid var(--color-border-primary);
+    border-color: var(--color-border-primary) !important;
   }
 
   .fc-agendaDay-view .fc-content-skeleton .fc-event {
@@ -268,7 +268,7 @@
   }
 
   .fc-more-popover .fc-widget-content {
-    background: #fff;
+    background: var(--color-background-primary);
     border-radius: 3px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
@@ -288,9 +288,9 @@
 
   .fc-unthemed .fc-popover {
     border-style: none;
-    box-shadow: 0 0 10px #ccc;
-    -moz-box-shadow: 0 0 10px #ccc;
-    -webkit-box-shadow: 0 0 10px #ccc;
+    box-shadow: 0 0 10px var(--color-border-tertiary);
+    -moz-box-shadow: 0 0 10px var(--color-border-tertiary);
+    -webkit-box-shadow: 0 0 10px var(--color-border-tertiary);
   }
 
   .fc-popover {
@@ -336,7 +336,7 @@
     left: 270px;
     right: 19px;
     z-index: 11;
-    background: #fff;
+    background: var(--color-background-primary);
   }
 
   #calendar .fc-month-view > table > tbody > tr > .fc-widget-content {
@@ -420,7 +420,7 @@
 
   .fc-widget-content .fc-widget-header,
   .fc-widget-content {
-    border: 1px solid #d8d8d8;
+    border: 1px solid var(--color-border-primary);
     padding: 0;
   }
 
@@ -444,7 +444,7 @@
   }
 
   .fc-agenda-allday .fc-day-content {
-    border-bottom: 2px #d8d8d8 solid;
+    border-bottom: 2px var(--color-border-primary) solid;
   }
 
   .fc-agenda-days tbody .fc-agenda-gutter {
@@ -464,7 +464,7 @@
   .rect {
     width: 7px;
     height: 7px;
-    background-color: red;
+    background-color: var(--color-error);
     border-radius: 50%;
     -moz-border-radius: 50%;
     -webkit-border-radius: 50%;
@@ -479,7 +479,7 @@
   }
 
   .fc-slats .fc-axis {
-    color: #999;
+    color: var(--color-text-tertiary);
   }
 
   .fc-unthemed .fc-today {
@@ -496,7 +496,7 @@
 
   .fc-view > table > tbody,
   .fc-row {
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
 
   .fcOld .fc-view-container .fc-axis {
@@ -517,12 +517,12 @@
   }
 
   .fc-ltr .fc-axis {
-    border-color: #fff;
+    border-color: var(--color-background-primary);
     text-align: left;
   }
 
   .fc-view-container .fc-time-grid-event .fc-resizer:after {
-    content: "";
+    content: '';
   }
 
   .fc-widget-content .fc-more-popover .fc-widget-header {
@@ -548,7 +548,7 @@
 
   .jsEventSelectmy .fc-time,
   .jsEventSelectmy .fc-title {
-    color: #000;
+    color: var(--color-text-primary);
   }
 
   .fc-agendaDay-view thead {
@@ -556,7 +556,7 @@
   }
 
   .fc-content-skeleton .fc-more {
-    color: #999;
+    color: var(--color-text-tertiary);
     font-size: 12px;
   }
 
@@ -582,8 +582,8 @@
   }
 
   .fc-helper {
-    background: #ebf8fb;
-    color: #151515 !important;
+    background: var(--color-cyan-blue);
+    color: var(--color-text-title) !important;
     border: 0 !important;
   }
 
@@ -593,7 +593,7 @@
     height: 32px;
     line-height: 32px;
     margin-top: 7px;
-    color: #fff;
+    color: var(--color-white);
     padding: 0 18px 0 14px;
     border-radius: 18px;
     .icon-plus {
@@ -606,19 +606,19 @@
   }
 
   .hoverContentColor .notAllDayMark {
-    background: #fff !important;
+    background: var(--color-white) !important;
   }
 
   .hoverContentColor {
-    color: #fff !important;
+    color: var(--color-white) !important;
   }
 
   .hoverTitleMessage,
   .showActiveTitleMessage {
     position: absolute;
-    color: Background #666;
-    background: #f7faff;
-    border: 1px solid #ddd;
+    color: var(--color-white);
+    background: var(--color-background-inverse);
+    box-shadow: var(--shadow-sm);
     height: 25px;
     line-height: 25px;
     border-radius: 5px;
@@ -645,7 +645,7 @@
   .calendarListHeader {
     height: 46px;
     line-height: 46px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-primary);
     font-weight: bold;
   }
 
@@ -680,16 +680,16 @@
 
   .calendarListModel {
     width: 100%;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-secondary);
   }
 
   .calendarListModel li {
     height: 52px;
     line-height: 52px;
-    border-bottom: 1px dotted #ddd;
+    border-bottom: 1px dotted var(--color-border-secondary);
     display: -webkit-flex;
     display: flex;
-    background: #fff;
+    background: var(--color-background-primary);
   }
 
   .calendarListModel li:last-child {
@@ -697,7 +697,7 @@
   }
 
   .calendarListModel li:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
 
   .calendarListModel .calendarListColor {
@@ -730,7 +730,7 @@
   }
 
   .calendarListModel .calendarListColor .calendarListColorRed {
-    background: #f44336;
+    background: var(--color-error);
   }
 
   .calendarListModel .calendarListColor .calendarListColorViolet {
@@ -742,23 +742,23 @@
   }
 
   .calendarListModel .calendarListColor .calendarListColorOrange {
-    background: #ff9800;
+    background: var(--color-warning);
   }
 
   .calendarListModel .calendarListColor .calendarListColorBlue {
-    background: #1e88e5;
+    background: var(--color-primary);
   }
 
   .calendarListModel .calendarListColor .calendarListColorGreen {
-    background: #4caf50;
+    background: var(--color-success);
   }
 
   .calendarListModel .calendarListColor .calendarListColorYellow {
-    background: #ffeb3b;
+    background: var(--color-yellow);
   }
 
   .calendarListModel .calendarListColor .calendarListColorGrey {
-    background: #e0e0e0;
+    background: var(--color-border-secondary);
   }
 
   .calendarListModel .calendarListDate {
@@ -803,7 +803,7 @@
 
   .calendarNoList {
     text-align: center;
-    color: #9a9a9a;
+    color: var(--color-text-tertiary);
     font-size: 16px;
     line-height: 30px;
     padding-top: 140px;
@@ -813,7 +813,7 @@
   }
 
   .calendarNoList .calendarNoListC {
-    border: 1px solid #9a9a9a;
+    border: 1px solid var(--color-text-tertiary);
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     -ms-border-radius: 3px;
@@ -843,6 +843,6 @@
   }
 
   .calendarNoList .calendarNoListBtn:hover {
-    color: #0066cc;
+    color: var(--color-link-hover);
   }
 }

@@ -145,7 +145,7 @@ export default class GroupsList extends Component {
           );
           return (
             <Dropdown overlay={menu} trigger={['click']} placement="topLeft" autoAdjustOverflow>
-              <span className="icon-moreop Font18 pointer Gray_9e"></span>
+              <span className="icon-moreop Font18 pointer textTertiary"></span>
             </Dropdown>
           );
         },
@@ -210,6 +210,7 @@ export default class GroupsList extends Component {
     dialogSelectDept({
       projectId: Config.projectId,
       unique: true,
+      fromAdmin: true,
       selectFn: data => {
         _this.updateDeptMappingGroup(record.groupId, true, data && !_.isEmpty(data) ? data[0].departmentId : '');
       },
@@ -231,6 +232,7 @@ export default class GroupsList extends Component {
 
     dialogSelectDept({
       projectId: Config.projectId,
+      fromAdmin: true,
       selectFn: function (data) {
         _this.updateDeptMappingGroup(record.groupId, true, data && !_.isEmpty(data) ? data[0].departmentId : '');
       },

@@ -38,8 +38,8 @@ export default class WebHookCheatSheet extends Component {
           <div className="header">
             <div className="title Font22">{_l('触发Webhook')}</div>
             <div className="source">
-              <div className="flow Font15 Gray_75">{_l('流程: %0', process.name)}</div>
-              <div className="sheet Font15 Gray_75">{_l('工作表: %0', app.name)}</div>
+              <div className="flow Font15 textSecondary">{_l('流程: %0', process.name)}</div>
+              <div className="sheet Font15 textSecondary">{_l('工作表: %0', app.name)}</div>
             </div>
           </div>
           <ScrollView style={{ height: 750 }}>

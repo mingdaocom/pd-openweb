@@ -25,8 +25,8 @@ function User(props) {
       </div>
       {subTotalCount && subTotalCount > 0 ? (
         <div className="subordinateCount">
-          <span className="icon-charger Gray_a TxtMiddle Font14" />
-          <span className="TxtMiddle Gray mLeft5">{subTotalCount}</span>
+          <span className="icon-charger textTertiary TxtMiddle Font14" />
+          <span className="TxtMiddle textPrimary mLeft5">{subTotalCount}</span>
         </div>
       ) : props.status !== 1 ? (
         <span className="resignedTag">{_l('已离职')}</span>

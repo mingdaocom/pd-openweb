@@ -12,9 +12,9 @@ import { dataIntegrationList, list } from './config';
 const Wrap = styled.div`
   width: 241px;
   height: 100%;
-  background: #ffffff;
+  background: var(--color-background-primary);
   border-radius: 0px 0px 0px 0px;
-  border-right: 1px solid #ededed;
+  border-right: 1px solid var(--color-border-secondary);
   .pLeft18 {
     padding-left: 18px;
   }
@@ -30,25 +30,25 @@ const Wrap = styled.div`
       align-items: center;
       width: 100%;
       line-height: 44px;
-      color: #151515;
+      color: var(--color-text-primary);
       i {
-        color: #757575;
+        color: var(--color-text-secondary);
       }
     }
     &.cur {
-      background: #e3f2fe;
+      background: var(--color-primary-transparent);
       a {
-        color: #1677ff;
+        color: var(--color-primary);
         i {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
       &:hover {
-        background: #e3f2fe;
+        background: var(--color-primary-transparent);
       }
     }
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
 `;
@@ -71,7 +71,7 @@ class Sidenav extends React.Component {
 
     return (
       <Wrap>
-        <div className="Gray_75 pTop28 pLeft18">{_l('API 集成')}</div>
+        <div className="textSecondary pTop28 pLeft18">{_l('API 集成')}</div>
         <ul className="mTop12">
           {list.map((o, index) => {
             return (
@@ -88,7 +88,7 @@ class Sidenav extends React.Component {
         </ul>
         {hasDataIntegrationAuth && (
           <React.Fragment>
-            <div className="Gray_75 pTop28 pLeft18">
+            <div className="textSecondary pTop28 pLeft18">
               <span>{_l('数据集成')}</span>
             </div>
             <ul className="mTop12">

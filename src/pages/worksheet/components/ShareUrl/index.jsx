@@ -24,7 +24,7 @@ const Url = styled(TextBlock)`
   }
   .icon-refresh {
     &:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
 `;
@@ -33,31 +33,31 @@ const Icon = styled(TextBlock)`
   cursor: pointer;
   padding: 0;
   width: 36px;
-  color: #757575;
+  color: var(--color-text-secondary);
   font-size: 18px;
   text-align: center;
   margin-left: 6px;
   :hover {
-    color: #1677ff;
+    color: var(--color-primary);
   }
   ${({ theme }) =>
     theme === 'light' &&
     `
-    background: #fff;
-    border: 1px solid #ddd;
+    background: var(--color-background-card);
+    border: 1px solid var(--color-border-primary);
     :hover {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
   `}
 `;
 
 const InputIcon = styled.span`
   cursor: pointer;
-  color: #9d9d9d;
+  color: var(--color-text-tertiary);
   font-size: 14px;
   margin-left: 6px;
   :hover {
-    color: #1677ff;
+    color: var(--color-primary);
   }
 `;
 
@@ -66,20 +66,20 @@ const TextIcon = styled(TextBlock)`
   line-height: 36px;
   display: inline-block;
   padding: 0 20px;
-  color: #151515;
+  color: var(--color-text-title);
   font-size: 13px;
   font-weight: 500;
   margin-left: 6px;
   :hover {
-    color: #1677ff;
+    color: var(--color-primary);
   }
   ${({ theme }) =>
     theme === 'light' &&
     `
-    background: #fff;
-    border: 1px solid #ddd;
+    background: var(--color-background-card);
+    border: 1px solid var(--color-border-primary);
     :hover {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
   `}
 `;
@@ -92,33 +92,33 @@ const SeparateDisplayButton = styled(TextBlock)`
   justify-content: space-around;
   align-items: center;
   padding: 0 5px;
-  color: #151515;
+  color: var(--color-text-title);
   font-size: 13px;
   font-weight: 500;
   i {
-    color: #757575;
+    color: var(--color-text-secondary);
     font-size: 18px;
   }
 
   :hover {
-    color: #1677ff;
+    color: var(--color-primary);
     i {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   ${({ theme }) =>
     theme === 'light' &&
     `
-    background: #fff;
-    border: 1px solid #ddd;
+    background: var(--color-background-card);
+    border: 1px solid var(--color-border-primary);
     :hover {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
   `}
 `;
 
 const Danger = styled.span`
-  color: #f44336;
+  color: var(--color-error);
 `;
 
 export default class ShareUrl extends React.Component {
@@ -252,7 +252,7 @@ export default class ShareUrl extends React.Component {
                 {refreshShareUrl && (
                   <Tooltip placement="bottom" title={_l('重新生成链接')}>
                     <i
-                      className="icon-refresh Font18 InlineBlock Hand Gray_9e LineHeight36 mLeft10"
+                      className="icon-refresh Font18 InlineBlock Hand textTertiary LineHeight36 mLeft10"
                       onClick={() => this.handleRefreshShareUrl()}
                     ></i>
                   </Tooltip>
@@ -260,7 +260,7 @@ export default class ShareUrl extends React.Component {
                 {editUrl && (
                   <Tooltip placement="bottom" title={editTip}>
                     <i
-                      className="icon-edit Font18 InlineBlock Hand Gray_9e LineHeight36"
+                      className="icon-edit Font18 InlineBlock Hand textTertiary LineHeight36"
                       onClick={e => {
                         e.stopPropagation();
                         editUrl();
@@ -340,14 +340,14 @@ export default class ShareUrl extends React.Component {
             {allowSendToChat && !md.global.SysSettings.forbidSuites.includes('6') && (
               <Tooltip placement="bottom" title={_l('发消息')}>
                 <Icon
-                  style={chatVisible ? { borderColor: '#1677ff' } : {}}
+                  style={chatVisible ? { borderColor: 'var(--color-primary)' } : {}}
                   theme={theme}
                   onClick={() => {
                     this.setState({ chatVisible: !chatVisible });
                   }}
                 >
                   <i
-                    style={chatVisible ? { color: '#1677ff' } : { color: '#F79104' }}
+                    style={chatVisible ? { color: 'var(--color-primary)' } : { color: 'var(--color-warning)' }}
                     className={`icon-${chatVisible ? 'arrow-up-border' : 'replyto'}`}
                   ></i>
                 </Icon>

@@ -25,7 +25,7 @@ const EditUserExtendInfoCon = styled.div`
     border: none;
     height: 36px;
     padding: 0 30px;
-    color: #fff;
+    color: var(--color-white);
     line-height: 36px;
     border-radius: 4px;
     font-size: 14px;
@@ -38,28 +38,28 @@ const EditUserExtendInfoCon = styled.div`
       color ease-in 0.2s,
       border-color ease-in 0.2s,
       background-color ease-in 0;
-    background: #1e88e5;
+    background: var(--color-primary);
     cursor: pointer;
   }
   .saveBtn:hover {
-    background: #1565c0;
+    background: var(--color-link-hover);
   }
   .clearBtn {
-    background: #fff;
-    color: #151515;
+    background: var(--color-background-primary);
+    color: var(--color-text-title);
     font-weight: 400;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
   }
   .clearBtn:hover {
-    border: 1px solid #ccc;
-    background: #fff !important;
+    border: 1px solid var(--color-border-tertiary);
+    background: var(--color-background-primary) !important;
   }
   .cancelBtn {
     float: right;
     cursor: pointer;
-    color: #f44336;
-    background: #fff;
-    border: 1px solid #f44336;
+    color: var(--color-error);
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-error);
   }
   .cancelBtn:hover {
     background: rgba(244, 67, 54, 0.05);
@@ -155,7 +155,7 @@ export default function EditUserExtendInfo(props) {
   return (
     <EditUserExtendInfoCon>
       <h2 className="mTop35 Font17 mBottom0">{_l('%0用户扩展信息表', step === 1 ? '建立' : '编辑')}</h2>
-      <div className="userExtendInfo-desc Gray_9e mTop13">
+      <div className="userExtendInfo-desc textTertiary mTop13">
         {_l(
           '通过工作表管理应用成员额外的扩展信息字段，在角色权限、筛选器中可以使用用户的扩展信息字段来作为动态筛选条件',
         )}
@@ -190,7 +190,7 @@ export default function EditUserExtendInfo(props) {
       <div className="selectTitle Bold valignWrapper mTop20">
         {_l('选择工作表')}
         <Tooltip title={_l('选择或新建的工作表字段中，必须包含“成员”字段')}>
-          <Icon icon="info_outline" className="mLeft6 Gray_bd Font17" />
+          <Icon icon="info_outline" className="mLeft6 textDisabled Font17" />
         </Tooltip>
       </div>
       <Select
@@ -221,7 +221,7 @@ export default function EditUserExtendInfo(props) {
       <div className="selectTitle Bold valignWrapper mTop20">
         {_l('用户映射')}
         <Tooltip title={_l('选择一个“成员”字段，用于标识匹配系统登陆的用户，进而读取用户关联的扩展属性')}>
-          <Icon icon="info_outline" className="mLeft6 Gray_bd Font17" />
+          <Icon icon="info_outline" className="mLeft6 textDisabled Font17" />
         </Tooltip>
       </div>
       <Select
@@ -264,7 +264,7 @@ export default function EditUserExtendInfo(props) {
         <Modal
           className="cancelUserExtendInfo"
           width={494}
-          title={<span style={{ color: '#f44336', fontWeight: 600 }}>{_l('停用用户扩展信息表')}</span>}
+          title={<span style={{ color: 'var(--color-error)', fontWeight: 600 }}>{_l('停用用户扩展信息表')}</span>}
           visible={dialogVisible}
           okText={_l('停用')}
           cancelText={_l('取消')}

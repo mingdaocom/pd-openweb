@@ -134,6 +134,7 @@ export default class BaseColumnHead extends React.Component {
       className,
       style,
       showDropdown,
+      isLast,
       isAsc,
       showRequired,
       renderPopup,
@@ -158,7 +159,7 @@ export default class BaseColumnHead extends React.Component {
       sustractWidth += 21;
     }
     const head = (
-      <div className={cx('baseColumnHead columnHead allowOutClick', className)} style={style}>
+      <div className={cx('baseColumnHead columnHead allowOutClick', className, { isLast })} style={style}>
         <div className="inner allowOutClick">
           <div
             className={cx('controlName allowOutClick', { 'ThemeHoverColor3 Hand': canSort })}
@@ -192,7 +193,9 @@ export default class BaseColumnHead extends React.Component {
             </span>
           )}
         </div>
-        {!disabled && canDrag && <span ref={drag => (this.drag = drag)} className="resizeDrag Hand"></span>}
+        {!disabled && canDrag && (
+          <span ref={drag => (this.drag = drag)} title={_l('双击自适应宽度')} className="resizeDrag Hand"></span>
+        )}
       </div>
     );
     return showDropdown && !disabled ? (

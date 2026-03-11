@@ -52,7 +52,9 @@ export default function CustomPageFilter(props) {
   }
 
   if (!list.length) {
-    return <div className="flexRow alignItemsCenter justifyContentCenter h100 Gray_9e Font14">{_l('没有筛选器')}</div>;
+    return (
+      <div className="flexRow alignItemsCenter justifyContentCenter h100 textTertiary Font14">{_l('没有筛选器')}</div>
+    );
   }
 
   const handlePositionReport = item => {

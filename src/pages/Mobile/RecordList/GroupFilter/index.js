@@ -133,7 +133,7 @@ const GroupFilter = props => {
                   setDrawerVisible(false);
                 }}
               >
-                <Icon icon="arrow-left-border" className="mRight2 Gray_75 TxtMiddle" />
+                <Icon icon="arrow-left-border" className="mRight2 textSecondary TxtMiddle" />
                 <span className="Font15 flex ellipsis">{currentGroup.txt}</span>
               </div>
             )}

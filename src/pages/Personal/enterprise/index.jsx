@@ -145,10 +145,7 @@ export default class AccountChart extends React.Component {
 
   //创建
   handleCreate() {
-    if (
-      md.global.Account.superAdmin ||
-      (md.global.Config.IsPlatformLocal && md.global.SysSettings.enableCreateProject)
-    ) {
+    if (md.global.Account.superAdmin || (window.platformENV.isPlatform && md.global.SysSettings.enableCreateProject)) {
       window.open('/enterpriseRegister?type=create');
     } else {
       alert(_l('权限不足，无法创建组织'), 3);
@@ -157,22 +154,22 @@ export default class AccountChart extends React.Component {
 
   renderContent() {
     const { authCount, unAuthList, closeProject, expandCloseProject } = this.state;
+    const canCreateProject = md.global.Account.superAdmin || md.global.SysSettings.enableCreateProject;
+
     if (getRequest().type === 'enterprise') {
       return (
         <div className="enterpriceContainer">
           <div className="enterpriseHeader">
-            <div className="Gray Font17 Bold">{_l('我的组织')}</div>
+            <div className="textPrimary Font17 Bold">{_l('我的组织')}</div>
             <div className="flexRow">
               <div
-                className="Gray_75 Font14 Hand Relative LineHeight32 mRight40"
+                className="textSecondary Font14 Hand Relative LineHeight32 mRight40"
                 onClick={() => this.handleInvitation()}
               >
                 <span className="hover_blue">{_l('我的受邀信息')}</span>
                 <span className={cx('invitationNew', { Hidden: !authCount })}>{authCount}</span>
               </div>
-              {(!md.global.Config.IsLocal ||
-                md.global.Account.superAdmin ||
-                md.global.SysSettings.enableCreateProject) && (
+              {canCreateProject && (
                 <div className="Font14 Hand itemCreat" onClick={() => this.handleCreate()}>
                   {_l('创建组织')}
                 </div>
@@ -200,7 +197,7 @@ export default class AccountChart extends React.Component {
             {!_.isEmpty(closeProject) && (
               <Fragment>
                 <div
-                  className="Gray_75 Font14 Hand mBottom13 Hover_21"
+                  className="textSecondary Font14 Hand mBottom13 hoverColorPrimary"
                   onClick={() => this.setState({ expandCloseProject: !expandCloseProject })}
                 >
                   {_l('已关闭 %0', closeProject.allCount)}
@@ -227,6 +224,7 @@ export default class AccountChart extends React.Component {
 
   render() {
     const { loading, isEnterprise, authCount, dialog } = this.state;
+    const canCreateProject = md.global.Account.superAdmin || md.global.SysSettings.enableCreateProject;
     if (loading) {
       return <LoadDiv className="mTop40" />;
     }
@@ -237,10 +235,10 @@ export default class AccountChart extends React.Component {
         ) : (
           <div className="noEnterpriceContainer">
             <div className="withoutEnterpriseHeader">
-              <span className="Font17 Gray Bold">{_l('我的组织')}</span>
-              <span>
+              <span className="Font17 textPrimary Bold flex">{_l('我的组织')}</span>
+              <span className="flexRow alignItemsCenter">
                 <span
-                  className="Hand MyInvitation Relative LineHeight30 Fong14"
+                  className="Hand MyInvitation Relative LineHeight30 Fong14 mRight40"
                   onClick={() => this.handleInvitation()}
                 >
                   {_l('我的受邀信息')}
@@ -248,12 +246,11 @@ export default class AccountChart extends React.Component {
                     {authCount > 99 ? '99+' : authCount}
                   </span>
                 </span>
-                <span
-                  className="Font14 Hand mLeft40 mRight30 itemCreat InlineBlock"
-                  onClick={() => this.handleCreate()}
-                >
-                  {_l('创建组织')}
-                </span>
+                {canCreateProject && (
+                  <div className="Font14 Hand itemCreat mRight30" onClick={() => this.handleCreate()}>
+                    {_l('创建组织')}
+                  </div>
+                )}
                 <span className="addBtn Hand" onClick={() => this.handleAdd()}>
                   {_l('加入组织')}
                 </span>
@@ -263,10 +260,14 @@ export default class AccountChart extends React.Component {
               <span className="icon-business mBottom40 Font56"></span>
               <span>
                 {_l('您还没有加入任何组织，请')}
-                <span className="Hand mLeft5 mRight5 highLight InlineBlock" onClick={() => this.handleCreate()}>
-                  {_l('创建')}
-                </span>
-                {_l('或')}
+                {canCreateProject && (
+                  <>
+                    <span className="Hand mLeft5 mRight5 highLight InlineBlock" onClick={() => this.handleCreate()}>
+                      {_l('创建')}
+                    </span>
+                    {_l('或')}
+                  </>
+                )}
                 <span className="Hand mLeft5 highLight InlineBlock" onClick={() => this.handleAdd()}>
                   {_l('加入组织')}
                 </span>

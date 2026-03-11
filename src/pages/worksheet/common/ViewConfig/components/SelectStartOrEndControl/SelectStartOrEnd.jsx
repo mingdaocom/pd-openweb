@@ -3,8 +3,9 @@ import { Select } from 'antd';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import { isIllegal, isTimeStyle } from 'src/pages/worksheet/views/CalendarView/util';
+import { isIllegal } from 'src/pages/worksheet/views/CalendarView/util';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+import { isTimeStyle } from 'src/utils/control';
 import { SYS } from '../../../../../widgetConfig/config/widget';
 import AddControlDiaLog from './AddControlDiaLog';
 import './SelectStartOrEnd.less';
@@ -21,7 +22,7 @@ const TimeSelect = ({
 }) => {
   const renderOptionLabel = item => (
     <div className="flexRow alignItemsCenter">
-      <i className={cx('icon Gray_9e mRight12 Font16', 'icon-' + getIconByType(item.type))} />
+      <i className={cx('icon textTertiary mRight12 Font16', 'icon-' + getIconByType(item.type))} />
       <span className="flex WordBreak overflow_ellipsis">{item.controlName}</span>
     </div>
   );
@@ -207,7 +208,7 @@ export default function SelectStartOrEnd(props) {
           endData.controlName && (
             <div className="endCom">
               <Icon className="Font18 error" icon="info" />
-              <p className="pLeft12 Gray_75">
+              <p className="pLeft12 textSecondary">
                 {_l(
                   '当前视图使用的"%0"和"%1"的字段类型不同，视图将使用日期时间的字段类型绘制。建议使用两个同为日期类型或同为日期时间类型的字段。',
                   startData.controlName,

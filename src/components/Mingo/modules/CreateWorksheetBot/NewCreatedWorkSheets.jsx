@@ -19,7 +19,7 @@ const EditWorkSheetItem = styled.div`
   margin-bottom: 8px;
   .name {
     font-size: 14px;
-    color: #151515;
+    color: var(--color-text-title);
     line-clamp: 1;
   }
   .description {

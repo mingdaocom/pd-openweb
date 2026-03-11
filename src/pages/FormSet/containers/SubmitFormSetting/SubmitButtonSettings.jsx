@@ -78,7 +78,7 @@ export default function SubmitButtonSettings(props) {
             </Trigger>
           </div>
           <span className="after flex">
-            <span className="Gray_75 TxtMiddle">{_l('提交后：')}</span>
+            <span className="textSecondary TxtMiddle">{_l('提交后：')}</span>
             <Dropdown
               menuStyle={{ minWidth: 150, width: 'auto' }}
               currentItemClass="currentMenu"
@@ -104,7 +104,7 @@ export default function SubmitButtonSettings(props) {
             />
             {_.get(advancedSetting, data[0]) === '3' && (
               <span className="viewCon mLeft25">
-                <span className="Gray_75 TxtMiddle">{_l('视图：')}</span>
+                <span className="textSecondary TxtMiddle">{_l('视图：')}</span>
                 <Dropdown
                   menuStyle={{ width: 150 }}
                   currentItemClass="currentMenu"

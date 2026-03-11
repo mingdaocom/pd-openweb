@@ -8,6 +8,7 @@ import { DISPLAY_FROZEN_LIST, DISPLAY_RC_TITLE_STYLE } from '../../../config/set
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 import AttachmentConfig from '../AttachmentConfig';
 import WidgetRowHeight from '../WidgetRowHeight';
+import ControlDirection from './ControlDirection';
 
 const DISPLAY_LIST = [
   {
@@ -31,6 +32,7 @@ export default function SubListStyle(props) {
     layercontrolid,
     detailworksheettype,
     rctitlestyle = '0',
+    direction = '0',
   } = getAdvanceSetting(data);
   const freezeIds = getAdvanceSetting(data, 'freezeids') || [];
 
@@ -50,8 +52,9 @@ export default function SubListStyle(props) {
 
   return (
     <Fragment>
+      <ControlDirection {...props} />
       <WidgetRowHeight {...props} />
-      <SettingItem>
+      <SettingItem hidden={direction === '1'}>
         <div className="settingItemTitle">{_l('冻结列')}</div>
         <Dropdown
           border
@@ -63,7 +66,7 @@ export default function SubListStyle(props) {
           }}
         />
       </SettingItem>
-      {isRelateTable && (
+      {isRelateTable && direction !== '1' && (
         <SettingItem>
           <div className="settingItemTitle">
             {_l('树形表格')}
@@ -97,12 +100,12 @@ export default function SubListStyle(props) {
               )
             }
           />
-          <div className="mTop10 Gray_9e">
+          <div className="mTop10 textTertiary">
             {_l('选择一个一对多关系的本表关联字段，数据将按此字段的父级（单条）、子级（多条）关系构成树形表格')}
           </div>
         </SettingItem>
       )}
-      <SettingItem>
+      <SettingItem hidden={direction === '1'}>
         <div className="settingItemTitle">{_l('显示方式')}</div>
         <AnimationWrap>
           {DISPLAY_LIST.map(({ text, value }) => {
@@ -124,14 +127,14 @@ export default function SubListStyle(props) {
           })}
         </AnimationWrap>
       </SettingItem>
-      <SettingItem>
+      <SettingItem hidden={direction === '1'}>
         <div className="settingItemTitle">
           {_l('默认空行')}
           <Tooltip
             placement="bottom"
             title={_l('开启后无论子表中是否存在记录，都会显示固定数量的行数。当子表没有记录时，将显示空白行。')}
           >
-            <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
+            <i className="icon-help tipsIcon textTertiary Font16 pointer"></i>
           </Tooltip>
         </div>
         <div className="flexCenter">
@@ -151,7 +154,7 @@ export default function SubListStyle(props) {
           <span className="mLeft12">{_l('行')}</span>
         </div>
       </SettingItem>
-      <SettingItem>
+      <SettingItem hidden={direction === '1'}>
         <div className="settingItemTitle">
           {showtype === '1' ? _l('最大高度（滚动方式）') : _l('最大高度（每页行数）')}
         </div>
@@ -187,38 +190,40 @@ export default function SubListStyle(props) {
             }}
           />
         </div>
-        <div className="flexCenter" style={{ justifyContent: 'space-between' }}>
-          <div className="labelWrap LineHeight36 mTop0">
-            <Checkbox
-              size="small"
-              checked={titlewrap === '1'}
-              text={_l('标题行文字换行')}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { titlewrap: String(+!checked) }))}
-            />
+        {direction !== '1' && (
+          <div className="flexCenter" style={{ justifyContent: 'space-between' }}>
+            <div className="labelWrap LineHeight36 mTop0">
+              <Checkbox
+                size="small"
+                checked={titlewrap === '1'}
+                text={_l('标题行文字换行')}
+                onClick={checked => onChange(handleAdvancedSettingChange(data, { titlewrap: String(+!checked) }))}
+              />
+            </div>
+            {titlewrap === '1' && (
+              <AnimationWrap style={{ width: '112px' }}>
+                {DISPLAY_RC_TITLE_STYLE.map(({ icon, text, value }) => {
+                  return (
+                    <Tooltip title={text}>
+                      <div
+                        className={cx('animaItem', { active: rctitlestyle === value })}
+                        onClick={() => {
+                          onChange(
+                            handleAdvancedSettingChange(data, {
+                              rctitlestyle: value,
+                            }),
+                          );
+                        }}
+                      >
+                        <Icon icon={icon} className="Font18" />
+                      </div>
+                    </Tooltip>
+                  );
+                })}
+              </AnimationWrap>
+            )}
           </div>
-          {titlewrap === '1' && (
-            <AnimationWrap style={{ width: '112px' }}>
-              {DISPLAY_RC_TITLE_STYLE.map(({ icon, text, value }) => {
-                return (
-                  <Tooltip title={text}>
-                    <div
-                      className={cx('animaItem', { active: rctitlestyle === value })}
-                      onClick={() => {
-                        onChange(
-                          handleAdvancedSettingChange(data, {
-                            rctitlestyle: value,
-                          }),
-                        );
-                      }}
-                    >
-                      <Icon icon={icon} className="Font18" />
-                    </div>
-                  </Tooltip>
-                );
-              })}
-            </AnimationWrap>
-          )}
-        </div>
+        )}
       </SettingItem>
     </Fragment>
   );

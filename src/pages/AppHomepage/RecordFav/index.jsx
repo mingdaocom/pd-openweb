@@ -21,7 +21,7 @@ const BaseBtnCon = styled.div`
   border-radius: 32px;
   z-index: 2;
   &:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
 `;
 const Con = styled.div`
@@ -32,7 +32,6 @@ const Con = styled.div`
   ${({ forCard }) => !forCard && 'padding: 24px 0;'}
   width: 100%;
   height: 100%;
-  background: #ffffff;
   .openNavIcon {
     position: absolute;
     left: 24px;
@@ -67,7 +66,7 @@ const Con = styled.div`
     }
     .nullCon {
       font-weight: 400;
-      color: #757575;
+      color: var(--color-text-secondary);
       line-height: 20px;
       &.empty {
         text-align: center;
@@ -81,7 +80,7 @@ const Con = styled.div`
   }
   .rowDivider {
     height: 1px;
-    background: #ddd;
+    background: var(--color-border-primary);
     margin: 16px 0;
   }
 `;
@@ -108,7 +107,7 @@ const NavCon = styled.div`
     padding: 0 14px;
     &.isCur,
     &:hover {
-      background: #eaf4fe;
+      background: var(--color-primary-transparent);
       border-radius: 5px 5px 5px 5px;
     }
     .itemIcon {
@@ -128,7 +127,7 @@ const Cell = styled.div`
   ${({ width }) => (width ? `width: ${width}px;` : 'width: 100%;')}
   height:   ${({ height }) => (height ? `${height}px;` : '17px')};
   border-radius: ${({ height }) => (!height ? `17px;` : '3px')};
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
   margin: ${({ forCard }) => (forCard ? `16px 0` : '25px 0 0 0')};
 `;
 
@@ -231,7 +230,7 @@ function RecordFav(props) {
             className={cx('itemIcon flexRow alignItemsCenter justifyContentCenter', {
               isA: o.appId === appId,
             })}
-            style={{ backgroundColor: o.appId === 'all' ? '#151515' : o.appColor }}
+            style={{ backgroundColor: o.appId === 'all' ? 'var(--color-background-inverse)' : o.appColor }}
           >
             <SvgIcon
               url={o.appId === 'all' ? 'https://fp1.mingdaoyun.cn/customIcon/sys_10_5_star.svg' : o.appIconUrl}
@@ -252,7 +251,7 @@ function RecordFav(props) {
               setState({ openNav: true });
             }}
           >
-            <Icon className="Font20 Gray_75 Hand " icon="menu" />
+            <Icon className="Font20 textSecondary Hand " icon="menu" />
           </BaseBtnCon>
         </div>
         <NavCon className={cx('navCon', { closeCon: !openNav })}>
@@ -270,7 +269,7 @@ function RecordFav(props) {
                         setState({ openNav: false });
                       }}
                     >
-                      <Icon className="Font20 Gray_75 Hand" icon="menu_left" />
+                      <Icon className="Font20 textSecondary Hand" icon="menu_left" />
                     </BaseBtnCon>
                   </div>
                   <div className="mTop20">{renderNavItem({ appId: 'all' })}</div>
@@ -434,7 +433,7 @@ function RecordFav(props) {
                     onRefresh();
                   }}
                 >
-                  <Icon className="Font20 Gray_9e Hand" icon="refresh1" />
+                  <Icon className="Font20 textTertiary Hand" icon="refresh1" />
                 </BaseBtnCon>
               </div>
               <ScrollView className="flex">{loading ? renderSkeleton(50) : list}</ScrollView>

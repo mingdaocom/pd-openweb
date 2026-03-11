@@ -19,7 +19,7 @@ export default function Section(props) {
 
   return (
     <SectionWrap id="widgetSection">
-      {data.desc && <div className="Gray_9e WordBreak pLeft12 pRight12">{data.desc}</div>}
+      {data.desc && <div className="textTertiary WordBreak pLeft12 pRight12">{data.desc}</div>}
       {relationControls.map((childRow = [], index = 0) => {
         const id = childRow.reduce((p, c) => p + c.controlId, '');
         return (

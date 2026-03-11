@@ -26,7 +26,7 @@ export default class Write extends Component {
     if (isPush) {
       return (
         <div className="pLeft8 pRight8 ellipsis">
-          <span className="Gray_75">{_l('推送地址：')}</span>
+          <span className="textSecondary">{_l('推送地址：')}</span>
           {item.webhookUrl}
         </div>
       );
@@ -42,19 +42,19 @@ export default class Write extends Component {
     }
 
     if (_.includes([APP_TYPE.SHEET, APP_TYPE.EVENT_PUSH], item.appType)) {
-      return <div className="pLeft8 pRight8 ellipsis Gray_75">{_l('发送指定数据对象')}</div>;
+      return <div className="pLeft8 pRight8 ellipsis textSecondary">{_l('发送指定数据对象')}</div>;
     }
 
     if (item.count) {
       return (
-        <div className="pLeft8 pRight8 ellipsis Gray_75">
-          <span className="Gray_75">{_l('已配置：')}</span>
+        <div className="pLeft8 pRight8 ellipsis textSecondary">
+          <span className="textSecondary">{_l('已配置：')}</span>
           {_l('%0个返回值', item.count)}
         </div>
       );
     }
 
-    return <div className="pLeft8 pRight8 ellipsis Gray_75">{_l('发送自定义请求')}</div>;
+    return <div className="pLeft8 pRight8 ellipsis textSecondary">{_l('发送自定义请求')}</div>;
   }
 
   render() {
@@ -84,7 +84,11 @@ export default class Write extends Component {
             </div>
             <NodeOperate nodeClassName="BGBlueAsh" {...this.props} noDelete={isPush} noCopy={isPush} />
             <div className="workflowContent Font13">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? (
+                <span className="pLeft8 pRight8 textSecondary">{_l('加载中...')}</span>
+              ) : (
+                this.renderContent()
+              )}
             </div>
           </div>
           <CreateNode {...this.props} disabled={isPush} />

@@ -31,7 +31,7 @@ const CoverImageWrap = styled.div`
     align-items: center;
     justify-content: center;
     border-radius: 3px 3px 0 0;
-    background: #fff;
+    background: var(--color-background-primary);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -136,7 +136,7 @@ const CoverImageWrap = styled.div`
     padding: 0 10px;
     line-height: 20px;
     text-align: center;
-    color: #fff;
+    color: var(--color-white);
     border-radius: 12px;
     background-color: rgba(33, 33, 33, 0.24);
   }

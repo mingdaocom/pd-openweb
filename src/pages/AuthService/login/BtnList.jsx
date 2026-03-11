@@ -11,6 +11,7 @@ const integrationInto = {
   3: { iconClassName: 'workWeixinIcon', text: _l('企业微信登录') },
   6: { iconClassName: 'feishuIcon', text: _l('飞书登录') },
   lark: { iconClassName: 'feishuIcon', text: _l('Lark登录') },
+  7: { iconClassName: 'microsoftIcon', text: _l('Microsoft登录') },
 };
 export default function (props) {
   const {
@@ -39,7 +40,7 @@ export default function (props) {
   const isCanWeixin = !isNetwork && !isMobile;
   const isCanQQ = !isNetwork;
   const canChangeSysOrLDAP = openLDAP && isOpenSystemLogin && isNetwork;
-  const isWeiXin = window.isWeiXin && !window.isWxWork && !md.global.Config.IsLocal;
+  const isWeiXin = window.isWeiXin && !window.isWxWork && !window.platformENV.isOverseas && !window.platformENV.isLocal;
   //ldap || 平台
   const renderSysOrLDAPBtn = () => {
     const hasIcon = modeType === 1 && ldapIcon;
@@ -57,9 +58,9 @@ export default function (props) {
         className="WordBreak overflow_ellipsis pLeft10 pRight10 flexRow alignItemsCenter"
       >
         {!hasIcon ? (
-          <Icon icon={modeType === 1 ? 'lock' : 'account_circle'} className="mRight5 Gray_75 Font20" />
+          <Icon icon={modeType === 1 ? 'lock' : 'account_circle'} className="mRight5 textSecondary Font20" />
         ) : (
-          <span className="btnIcon mRight5 Gray_75" style={{ backgroundImage: `url(${ldapIcon})` }}></span>
+          <span className="btnIcon mRight5 textSecondary" style={{ backgroundImage: `url(${ldapIcon})` }}></span>
         )}
         <span className="txt">{modeType === 1 ? ldapName || _l('LDAP登录') : _l('平台账号登录')}</span>
       </a>
@@ -70,9 +71,9 @@ export default function (props) {
     return (
       <a href={isMobile ? ssoAppUrl : ssoWebUrl} className="flexRow alignItemsCenter">
         {ssoIconUrl ? (
-          <span className="btnIcon mRight5 Gray_75" style={{ backgroundImage: `url(${ssoIconUrl})` }}></span>
+          <span className="btnIcon mRight5 textSecondary" style={{ backgroundImage: `url(${ssoIconUrl})` }}></span>
         ) : (
-          <Icon icon={'tab_move'} className="mRight5 Gray_75 Font20" />
+          <Icon icon={'tab_move'} className="mRight5 textSecondary Font20" />
         )}
         <span className="txt">{ssoName || _l('SSO登录')}</span>
       </a>
@@ -81,17 +82,19 @@ export default function (props) {
   //第三方集成登录
   const renderIntegrationBtn = () => {
     let style = {};
-    if (customNameIcon.iconUrl) {
+    if (customNameIcon?.iconUrl) {
       style = { backgroundImage: `url(${customNameIcon.iconUrl})` };
     }
     return (
       <a
         onClick={() => {
-          if (_.includes([1, 6], projectIntergrationType)) {
-            location.href =
-              projectIntergrationType === 1
-                ? `${md.global.Config.IsLocal ? md.global.Config.WebUrl : location.origin + '/'}auth/dingding?p=${projectId}`
-                : `${md.global.Config.IsLocal ? md.global.Config.WebUrl : location.origin + '/'}auth/feishu?p=${projectId}`;
+          if (_.includes([1, 6, 7], projectIntergrationType)) {
+            const url =
+              window.platformENV.isOverseas || window.platformENV.isLocal
+                ? md.global.Config.WebUrl
+                : location.origin + '/';
+            const authPathMap = { 1: 'dingding', 6: 'feishu', 7: 'microsoft' };
+            location.href = `${url}auth/${authPathMap[projectIntergrationType]}?p=${projectId}`;
           } else {
             const request = getRequest();
             getWorkWeiXinCorpInfoByApp(projectId, request.ReturnUrl);
@@ -100,20 +103,24 @@ export default function (props) {
       >
         <i className={`${integrationInto[projectIntergrationType].iconClassName} mRight8`} style={style} />
         <span className="txt">
-          {customNameIcon.name ||
+          {customNameIcon?.name ||
             integrationInto[projectIntergrationType === 6 && isLark ? 'lark' : projectIntergrationType].text}
         </span>
       </a>
     );
   };
 
+  const isMicrosoft = projectIntergrationType === 7;
+  const shouldRenderIntegrationBtn = intergrationScanEnabled || isMicrosoft;
+
   return (
     <React.Fragment>
       {/* 手机号邮箱时 可切换验证方式 */}
       {modeType === 1 &&
         isOpenSystemLogin &&
-        (!md.global.Config.IsLocal ||
-          (md.global.Config.IsLocal && md.global.SysSettings.enableVerificationCodeLogin)) && (
+        ((!window.platformENV.isOverseas && !window.platformENV.isLocal) ||
+          ((window.platformENV.isOverseas || window.platformENV.isLocal) &&
+            md.global.SysSettings.enableVerificationCodeLogin)) && (
           <div
             className="Hand ThemeColor3 ThemeHoverColor3 mTop25 TxtCenter Bold"
             onClick={() => {
@@ -132,12 +139,12 @@ export default function (props) {
           {/* 开启了ldap或系统登录,并且存在其他登录方式 */}
           {(openLDAP || isOpenSystemLogin) &&
             modeType &&
-            (canChangeSysOrLDAP || intergrationScanEnabled || isOpenSso || isCanWeixin || isCanQQ) && (
+            (canChangeSysOrLDAP || shouldRenderIntegrationBtn || isOpenSso || isCanWeixin || isCanQQ) && (
               <div className="title Font14">{_l('或通过以下方式')}</div>
             )}
           {canChangeSysOrLDAP && renderSysOrLDAPBtn()}
           {isOpenSso && renderSsoBtn()}
-          {intergrationScanEnabled && renderIntegrationBtn()}
+          {shouldRenderIntegrationBtn && renderIntegrationBtn()}
           {isCanWeixin &&
             (isWeiXin ? (
               <a href="weixin://dl/business/?appid=wx83ed6195301ec2d8&path=pages/login/index">

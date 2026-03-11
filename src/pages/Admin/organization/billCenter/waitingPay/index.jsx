@@ -117,7 +117,10 @@ export default class WaitingPay extends Component {
       if (it.id === 'balancePay' && (_.includes([ReCharge, Ultimate, Enterprise], recordType) || !hasFinanceAuth)) {
         //充值、升级没有余额支付
         return false;
-      } else if (price === 0 || ([25, 26].includes(recordType) && md.global.Config.IsLocal)) {
+      } else if (
+        price === 0 ||
+        ([25, 26].includes(recordType) && (!window.platformENV.isOverseas || window.platformENV.isLocal))
+      ) {
         // 免费试用支付订单只保留余额支付
         return !_.includes(['aliPay', 'wechartPay', 'bankPay'], it.id);
       }
@@ -359,7 +362,7 @@ export default class WaitingPay extends Component {
             <div className="payItemResult Font24 Bold color_b">
               ￥{Math.abs(currRecordObj.price)}
               {payStyle === 'balancePay' && (
-                <span className="mLeft10 Gray_9 bold Font13">
+                <span className="mLeft10 textTertiary bold Font13">
                   {_l('现有 %0 信用点，需扣减 %1 信用点', balance, Math.abs(currRecordObj.price))}
                 </span>
               )}
@@ -374,16 +377,18 @@ export default class WaitingPay extends Component {
             >
               {payStyle === 'bankPay' ? _l('保存付款信息') : _l('立即支付')}
             </Button>
-            {!md.global.Config.IsLocal && _.includes(['bankPay', 'balancePay'], payStyle) && (
-              <div className="warpSendBankInfoEmail mLeft20">
-                <Checkbox onChange={this.handleCheckBox.bind(this)} checked={needEmail}>
-                  {_l('同时邮件给我')}
-                </Checkbox>
-              </div>
-            )}
+            {!window.platformENV.isOverseas &&
+              !window.platformENV.isLocal &&
+              _.includes(['bankPay', 'balancePay'], payStyle) && (
+                <div className="warpSendBankInfoEmail mLeft20">
+                  <Checkbox onChange={this.handleCheckBox.bind(this)} checked={needEmail}>
+                    {_l('同时邮件给我')}
+                  </Checkbox>
+                </div>
+              )}
           </div>
-          {!md.global.Config.IsLocal && (
-            <div className="Gray_9 mTop24">
+          {!window.platformENV.isOverseas && window.platformENV.isPlatform && (
+            <div className="textTertiary mTop24">
               <div>{_l('我们将在收到款项后的15分钟内为您完成服务')}</div>
               {_l('如有疑问，')}
               <span className="ThemeColor3 Hand" onClick={this.handleHelp.bind(this)}>

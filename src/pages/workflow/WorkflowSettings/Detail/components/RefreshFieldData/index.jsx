@@ -57,7 +57,7 @@ export default ({ isSingle = false, controls, fields, updateSource }) => {
         key={i}
         text={
           <span>
-            <i className={`icon-${getIconByType(c.type)} Gray_9e Font16 mRight8`}></i>
+            <i className={`icon-${getIconByType(c.type)} textTertiary Font16 mRight8`}></i>
             {c.controlName}
           </span>
         }
@@ -82,7 +82,7 @@ export default ({ isSingle = false, controls, fields, updateSource }) => {
             {item.title}
             {!item.hasChildren && (
               <span
-                className="mLeft14 Gray_75 Normal Hand"
+                className="mLeft14 textSecondary Normal Hand"
                 onClick={() => handleAllChecked(item.controls, !getIsSelectAll(item.controls))}
               >
                 {getIsSelectAll(item.controls) ? _l('取消全选') : _l('全选')}
@@ -94,10 +94,10 @@ export default ({ isSingle = false, controls, fields, updateSource }) => {
                 return (
                   <Fragment key={`relation-${l.controlId}`}>
                     <div className="mTop10">
-                      <i className={`icon-${getIconByType(l.type)} Gray_9e Font16 mRight8`}></i>
+                      <i className={`icon-${getIconByType(l.type)} textTertiary Font16 mRight8`}></i>
                       {l.controlName}
                       <span
-                        className="mLeft14 Gray_75 Normal Hand"
+                        className="mLeft14 textSecondary Normal Hand"
                         onClick={() => handleAllChecked(l.children, !getIsSelectAll(l.children))}
                       >
                         {getIsSelectAll(l.children) ? _l('取消全选') : _l('全选')}

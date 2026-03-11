@@ -1,19 +1,19 @@
 import styled from 'styled-components';
 
 export const WrapCon = styled.div`
-  background: #ffffff;
+  background: var(--color-background-primary);
   flex: 1;
   .pLeft26 {
     padding-left: 26px;
   }
 `;
 export const WrapHeader = styled.div`
-  border-bottom: 1px solid #dddddd;
+  border-bottom: 1px solid var(--color-border-primary);
   display: flex;
   .tabCon {
     flex: 1;
     .tab {
-      color: #151515;
+      color: var(--color-text-title);
       display: inline-block;
       margin-right: 20px;
       padding: 0 12px;
@@ -21,8 +21,8 @@ export const WrapHeader = styled.div`
       border-bottom: 3px solid transparent;
       border-top: 3px solid transparent;
       &.cur {
-        color: #1677ff;
-        border-bottom: 3px solid #1677ff;
+        color: var(--color-primary);
+        border-bottom: 3px solid var(--color-primary);
       }
     }
   }
@@ -32,9 +32,9 @@ export const WrapHeader = styled.div`
     }
   }
   .moreop {
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
@@ -45,7 +45,7 @@ export const WrapContext = styled.div`
   }
 `;
 export const WrapNav = styled.div`
-  border-right: 1px solid #dddddd;
+  border-right: 1px solid var(--color-border-primary);
   min-width: 240px;
   max-width: 240px;
   min-height: 100%;
@@ -54,10 +54,10 @@ export const WrapNav = styled.div`
     margin: 4px 12px;
     padding: 8px;
     border-radius: 24px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     &:hover {
-      color: #1677ff;
-      border: 1px solid #1677ff;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
     }
   }
   .search {
@@ -70,31 +70,31 @@ export const WrapNav = styled.div`
     }
     li {
       .moreop {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
         &:hover {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
       cursor: pointer;
       padding: 0 8px 0 18px;
       height: 36px;
       .Icon {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
       &.cur {
-        color: #1677ff;
-        background: #f3faff !important;
+        color: var(--color-primary);
+        background: var(--color-primary-transparent) !important;
         border-radius: 3px 3px 3px 3px;
         font-weight: bold !important;
         position: relative;
         .Icon {
-          color: #1677ff;
+          color: var(--color-primary);
         }
         &::before {
           content: ' ';
           width: 3px;
           height: 14px;
-          background: #1677ff;
+          background: var(--color-primary);
           display: inline-block;
           position: absolute;
           left: 0;
@@ -103,11 +103,11 @@ export const WrapNav = styled.div`
         }
       }
       &:hover {
-        background: #fafafa;
+        background: var(--color-background-hover);
       }
       .num {
         font-weight: 400;
-        color: #b9b9b9;
+        color: var(--color-text-disabled);
         margin-left: 3px;
         width: 24px;
         text-align: center;
@@ -117,19 +117,19 @@ export const WrapNav = styled.div`
       padding: 10px 18px;
     }
     &.bTBorder {
-      border-bottom: 1px solid #f0f0f0;
+      border-bottom: 1px solid --color-background-disabled;
     }
     &.roleSet {
       overflow: auto;
       li {
-        color: #151515;
+        color: var(--color-text-title);
         padding-left: 0;
         .icon {
-          color: #9e9e9e;
+          color: var(--color-text-tertiary);
         }
         .tag {
           padding: 0 6px;
-          color: #1677ff;
+          color: var(--color-primary);
           background: rgba(33, 150, 243, 0.1);
           border-radius: 11px;
           line-height: 22px;
@@ -137,17 +137,17 @@ export const WrapNav = styled.div`
           font-size: 13px;
         }
         &:hover {
-          background: #fafafa;
+          background: var(--color-background-hover);
         }
         &.cur {
-          color: #1677ff !important;
+          color: var(--color-primary) !important;
           .roleIcon {
-            color: #1677ff;
+            color: var(--color-primary);
           }
           .icon-drag {
-            color: #9e9e9e !important;
+            color: var(--color-text-tertiary) !important;
             &:hover {
-              color: #1677ff !important;
+              color: var(--color-primary) !important;
             }
           }
           font-weight: bold !important;
@@ -163,7 +163,7 @@ export const WrapNav = styled.div`
           .moreop {
             opacity: 1;
             &:hover {
-              color: #1677ff;
+              color: var(--color-primary);
             }
           }
         }
@@ -178,14 +178,14 @@ export const WrapTableCon = styled.div`
     .toOthers,
     .del {
       font-weight: 400;
-      color: #1677ff;
+      color: var(--color-primary);
       line-height: 37px;
       height: 37px;
-      background: #f3faff;
+      background: var(--color-primary-transparent);
       padding: 0 20px;
       border-radius: 3px;
       &:hover {
-        background: #ebf6fe;
+        background: var(--color-primary-transparent);
       }
     }
   }
@@ -195,7 +195,7 @@ export const WrapFooter = styled.div`
   .saveBtn {
     height: 36px;
     padding: 0 30px;
-    color: #fff;
+    color: var(--color-white);
     line-height: 36px;
     border-radius: 4px 4px 4px 4px;
     font-size: 14px;
@@ -204,17 +204,13 @@ export const WrapFooter = styled.div`
       color ease-in 0.2s,
       border-color ease-in 0.2s,
       background-color ease-in 0;
-    background: #1e88e5;
-    &:hover {
-      background: #1565c0;
+    background: var(--color-primary);
+    &:not(.disabled):hover {
+      background: var(--color-link-hover);
     }
     &.disabled {
-      color: #fff;
-      background: #b2dbff;
+      opacity: 0.6;
       cursor: not-allowed;
-      &:hover {
-        background: #b2dbff;
-      }
     }
   }
   .delBtn {
@@ -224,58 +220,55 @@ export const WrapFooter = styled.div`
     border-radius: 4px 4px 4px 4px;
     font-size: 14px;
     opacity: 1;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     margin-left: 23px;
     font-weight: 400;
     transition:
       color ease-in 0.2s,
       border-color ease-in 0.2s,
       background-color ease-in 0;
-    &:hover {
-      border: 1px solid #ccc;
+    &:not(.disabled):hover {
+      border: 1px solid var(--color-border-tertiary);
     }
     &.disabled {
-      color: #eaeaea;
+      opacity: 0.6;
       cursor: not-allowed;
-      &:hover {
-        border: 1px solid #eaeaea;
-      }
     }
   }
   .toUser {
-    color: #151515;
+    color: var(--color-text-title);
     height: 36px;
     padding: 0 30px;
     line-height: 36px;
     border-radius: 4px 4px 4px 4px;
     font-size: 14px;
     opacity: 1;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     font-weight: 400;
     transition:
       color ease-in 0.2s,
       border-color ease-in 0.2s,
       background-color ease-in 0;
     &:hover {
-      border: 1px solid #1677ff;
-      color: #1677ff;
+      border: 1px solid var(--color-primary);
+      color: var(--color-primary);
     }
   }
   .line {
     height: 24px;
     width: 0;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     margin: 0 30px;
   }
 `;
 export const AddWrap = styled.div`
   font-size: 13px;
   font-weight: 400;
-  color: #a2a2a2;
+  color: var(--color-text-tertiary);
   padding: 0 12px;
   line-height: 36px;
   border-radius: 3px 3px 3px 3px;
   &:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
 `;

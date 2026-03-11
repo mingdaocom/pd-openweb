@@ -12,18 +12,18 @@ import { formatFilters } from './util';
 const Wrap = styled.div`
   display: flex;
   flex: 1;
-  background-color: #eaeaea;
+  background-color: var(--color-border-secondary);
   padding: 11px 24px;
   min-width: 0;
 
   .addFilterItem {
     height: 36px;
     padding: 0 15px;
-    color: #40a9ff;
+    color: var(--color-primary-light);
     border: none;
     border-radius: 24px;
     &:hover {
-      color: #1079cc;
+      color: var(--color-link-hover);
     }
   }
 
@@ -35,7 +35,7 @@ const Wrap = styled.div`
     box-shadow: 0px 1px 4px #00000029;
     padding: 10px;
     overflow: auto;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
 
     .container {
       display: block;
@@ -51,11 +51,11 @@ const Wrap = styled.div`
       .innerGridItem {
         width: 100%;
         height: 100%;
-        background: #fff;
-        border: 1px solid #efefef;
+        background: var(--color-background-primary);
+        border: 1px solid var(--color-border-secondary);
       }
       .active {
-        border-color: #1677ff;
+        border-color: var(--color-primary);
       }
     }
   }
@@ -67,7 +67,7 @@ const Wrap = styled.div`
     }
     .disable {
       .content > div {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-secondary);
       }
     }
     .buttons {
@@ -110,7 +110,7 @@ export default function Preview(props) {
     <Wrap className="flexColumn">
       <div className="flexRow valignWrapper header">
         <div className="flex valignWrapper">
-          <div className="Font13 Gray_9e">{_l('选择下方预览卡片中的筛选器进行设置')}</div>
+          <div className="Font13 textTertiary">{_l('选择下方预览卡片中的筛选器进行设置')}</div>
         </div>
         <Button className="addFilterItem" onClick={add}>
           <Icon icon="add" />

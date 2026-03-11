@@ -16,9 +16,9 @@ const PaySuccessWrap = styled.div`
     padding: 50px 20px;
     box-shadow: 0 2px 6px 0px rgba(0, 0, 0, 0.15);
     .okIcon {
-      border: 2px solid #39c028;
-      color: #fff;
-      background: #39c028;
+      border: 2px solid var(--color-success);
+      color: var(--color-white);
+      background: var(--color-success);
       font-size: 30px;
       width: 45px;
       height: 45px;
@@ -33,13 +33,13 @@ const PaySuccessWrap = styled.div`
       height: 38px;
       line-height: 38px;
       text-align: center;
-      background-color: #1e88e5;
+      background-color: var(--color-primary);
       transition: all 0.35s ease-in;
-      color: #fff;
+      color: var(--color-white);
       margin: 0 auto 50px;
       border-radius: 3px;
       &:hover {
-        background-color: #1565c0;
+        background-color: var(--color-link-hover);
       }
     }
     .orderTitle {
@@ -150,7 +150,7 @@ function PaySuccess() {
           <span className="orderTitle">{_l('支付金额')}</span>
           <span className="mLeft20">{_l('%0元（人民币）', totalPrice)}</span>
         </div>
-        <p className="LineHeight30 Gray_8 pTop20">
+        <p className="LineHeight30 textSecondary pTop20">
           {_l(
             '如需发票，请拨打 %0 联系顾问，为您开具发票；您也可以前往组织管理 - > 账务，进行申请',
             md.global.Config.ServiceTel,

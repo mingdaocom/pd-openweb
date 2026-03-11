@@ -14,7 +14,7 @@ import './AppGroups.less';
 const Con = styled.div`
   display: flex;
   flex: 1;
-  background: #fff;
+  background: var(--color-background-primary);
 `;
 
 function AppGroups(props) {

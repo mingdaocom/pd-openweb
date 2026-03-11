@@ -4,10 +4,10 @@ import _, { get, identity } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Tooltip } from 'ming-ui/antd-components';
-import { getTitleControlId, getTitleTextFromRelateControl } from 'src/components/Form/core/utils';
-import { previewQiniuUrl } from 'src/components/previewAttachments';
+import { getTitleControlId } from 'src/components/Form/core/utils';
+import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
 import { browserIsMobile } from 'src/utils/common';
-import { getRecordCardStyle } from 'src/utils/control';
+import { getRecordCardStyle, getTitleTextFromRelateControl } from 'src/utils/control';
 import { CardButton } from '../Basics';
 import CardCellControls from './CardCellControls';
 
@@ -15,8 +15,8 @@ const Con = styled.div`
   ${({ isMobile }) => (isMobile ? 'margin-bottom:10px' : 'display: inline-flex;')}
   position: relative;
   border-radius: 3px;
-  background-color: #fff;
-  border: 1px solid #eaeaea;
+  background-color: var(--color-background-primary);
+  border: 1px solid var(--color-border-secondary);
   width: 100%;
   .operateButton {
     position: absolute;
@@ -64,7 +64,7 @@ const Title = styled.div`
   font-weight: bold;
   font-size: 14px;
   line-height: 20px;
-  color: #151515;
+  color: var(--color-text-title);
   width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -88,7 +88,7 @@ const ControlCon = styled.div`
     box-sizing: content-box;
     border-radius: 3px;
     object-fit: contain;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     ${({ small }) => (small ? 'margin-bottom: 15px' : 'margin-right: 15px')};
   }
 `;
@@ -156,10 +156,12 @@ export default function RecordCoverCard(props) {
       src={cover}
       onClick={e => {
         e.stopPropagation();
-        previewQiniuUrl(cover.replace(/imageView2\/2\/w\/200\|/, ''), {
-          disableDownload: true,
-          ext: (cover.match(/\.(jpg|jpeg|png|gif|bmp)(\?|$)/i) || '')[1] || 'png',
-        });
+        previewAttachments(
+          transformQiniuUrl(cover.replace(/imageView2\/2\/w\/200\|/, ''), {
+            disableDownload: true,
+            ext: (cover.match(/\.(jpg|jpeg|png|gif|bmp)(\?|$)/i) || '')[1] || 'png',
+          }),
+        );
       }}
     />
   );
@@ -168,8 +170,8 @@ export default function RecordCoverCard(props) {
       onClick={onClick}
       style={{
         ...style,
-        backgroundColor: get(recordCardStyle, 'cardStyle.backgroundColor') || '#fff',
-        borderColor: get(recordCardStyle, 'cardStyle.borderColor') || '#eaeaea',
+        backgroundColor: get(recordCardStyle, 'cardStyle.backgroundColor') || 'var(--color-background-card)',
+        borderColor: get(recordCardStyle, 'cardStyle.borderColor') || 'var(--color-border-secondary)',
         ...(fullShowCard ? { width: '100%' } : {}),
       }}
       className={cx(className, allowlink !== '0' && 'Hand')}
@@ -209,7 +211,7 @@ export default function RecordCoverCard(props) {
         {coverComp}
         {DragHandle && (
           <DragHandle>
-            <i className="icon icon-drag dragger hoverShow Gray_9e Font16 ThemeHoverColor3"></i>
+            <i className="icon icon-drag dragger hoverShow textTertiary Font16 ThemeHoverColor3"></i>
           </DragHandle>
         )}
         <Content>
@@ -228,7 +230,7 @@ export default function RecordCoverCard(props) {
               {title}
               {titleMasked && !forceShowFullValue && (
                 <i
-                  className="icon icon-eye_off ThemeHoverColor3 Hand maskData Font16 Gray_9e mLeft4 mTop4 hoverShow"
+                  className="icon icon-eye_off ThemeHoverColor3 Hand maskData Font16 textTertiary mLeft4 mTop4 hoverShow"
                   style={{ verticalAlign: 'middle' }}
                   onClick={e => {
                     e.stopPropagation();

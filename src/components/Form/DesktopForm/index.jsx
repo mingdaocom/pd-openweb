@@ -3,9 +3,10 @@ import { createPortal } from 'react-dom';
 import cx from 'classnames';
 import _ from 'lodash';
 import { LoadDiv } from 'ming-ui';
+import { controlState } from 'src/utils/control';
 import { FROM } from '../core/config';
 import { desktopFormPropTypes } from '../core/formPropTypes';
-import { controlState, getControlsByTab, getWidgetDisplayRow } from '../core/utils';
+import { getControlsByTab, getWidgetDisplayRow } from '../core/utils';
 import DeskFormWidget from './components/DeskFormWidget';
 import FormLabel from './components/FormLabel';
 import WidgetSection from './components/WidgetSection';
@@ -82,7 +83,7 @@ const DesktopForm = props => {
               <div
                 className="Absolute"
                 style={{
-                  background: 'var(--color-background-tertiary)',
+                  background: 'var(--color-background-secondary)',
                   height: 10,
                   left: -1000,
                   right: -1000,

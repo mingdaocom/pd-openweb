@@ -10,13 +10,13 @@ const Tab = styled.div`
   cursor: pointer;
   font-weight: 500;
   font-size: 14px !important;
-  color: ${({ active }) => (active ? '#1677ff' : '#757575')};
+  color: ${({ active }) => (active ? 'var(--color-primary)' : 'var(--color-text-secondary)')};
   padding: 0 30px;
   line-height: 50px;
   display: inline-block;
   text-decoration: none;
   :hover {
-    color: #1677ff;
+    color: var(--color-primary);
   }
   ::after {
     content: ' ';
@@ -25,7 +25,7 @@ const Tab = styled.div`
     right: 18px;
     bottom: 0px;
     height: 3px;
-    background-color: ${({ active }) => (active ? '#1677ff' : 'transparent')};
+    background-color: ${({ active }) => (active ? 'var(--color-primary)' : 'transparent')};
   }
 `;
 

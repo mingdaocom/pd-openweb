@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import { useKey } from 'react-use';
 import { Skeleton } from 'antd';
 import cx from 'classnames';
-import { get, isFunction, isUndefined } from 'lodash';
+import { find, get, isFunction, isUndefined } from 'lodash';
 import { arrayOf, bool, func, shape, string } from 'prop-types';
 import styled from 'styled-components';
 import { v4 } from 'uuid';
@@ -28,8 +28,8 @@ const ErrorStatus = styled.div`
   justify-content: center;
   align-items: center;
   height: 120px;
-  background-color: #f7f7f7;
-  color: #9e9e9e;
+  background-color: var(--color-background-secondary);
+  color: var(--color-text-tertiary);
   font-size: 13px;
 `;
 
@@ -51,14 +51,14 @@ function RelateRecordTable(props) {
   const { updateWorksheetControls } = props;
   const { updateRecord, deleteRecords, refresh, updateBase, updateTableConfigByControl } = props;
   const { isInForm, allowEdit, controlPermission, relateWorksheetInfo } = base;
-
+  const view = find(relateWorksheetInfo?.views, { viewId: control.viewId });
   const isTab = [String(RELATE_RECORD_SHOW_TYPE.LIST), String(RELATE_RECORD_SHOW_TYPE.TAB_TABLE)].includes(
     get(control, 'advancedSetting.showtype'),
   );
   const tableCache = useRef({});
   const tableConRef = useRef();
   const [tableId] = useState(v4());
-  const { width, recordbase = {}, iseditting } = useContext(RecordFormContext) || {};
+  const { width, recordbase = {}, iseditting, isMingoCreate } = useContext(RecordFormContext) || {};
   const { recordTitle } = recordbase;
   const smallMode = width < 500;
   tableCache.current.refresh = refresh;
@@ -163,6 +163,8 @@ function RelateRecordTable(props) {
     <Fragment>
       {
         <Operate
+          view={view}
+          isMingoCreate={isMingoCreate}
           tableId={tableId}
           isDraft={isDraft}
           mode={mode}
@@ -187,6 +189,7 @@ function RelateRecordTable(props) {
         ref={tableConRef}
       >
         <TableComp
+          view={view}
           iseditting={iseditting}
           tableId={tableId}
           control={control}

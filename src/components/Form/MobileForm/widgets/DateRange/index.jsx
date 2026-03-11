@@ -79,7 +79,7 @@ export default class Widgets extends Component {
         onClear={() => this.onChange('')}
       >
         <div className={cx('customFormControlBox customFormButton flexRow', { controlDisabled: disabled })}>
-          <span className={cx('flex mRight20 ellipsis', { Gray_bd: !start })}>
+          <span className={cx('flex mRight20 ellipsis', { textDisabled: !start })}>
             {start && end ? `${start.format(formatText)} ~ ${end.format(formatText)}` : _l('请选择日期')}
             {durationText && <span className="mLeft5">{durationText}</span>}
           </span>
@@ -87,7 +87,7 @@ export default class Widgets extends Component {
           {!disabled && (
             <Icon
               icon={_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) ? 'arrow-right-border' : 'bellSchedule'}
-              className="Font16 Gray_bd"
+              className="Font16 textDisabled"
             />
           )}
         </div>

@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Checkbox, Dropdown, LoadDiv, Radio, ScrollView } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import homeApp from 'src/api/homeApp';
-import { ACTION_ID, APP_TYPE, PUSH_LIST, PUSH_TYPE } from '../../enum';
+import { ACTION_ID, APP_TYPE, PUSH_LIST, PUSH_TYPE, RELATION_TYPE } from '../../enum';
 import {
   CustomTextarea,
   DetailFooter,
@@ -23,7 +23,7 @@ const MsgTypeBtn = styled.div`
   align-items: center;
   justify-content: center;
   height: 36px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   opacity: 1;
   border-radius: 3px;
   padding: 0 20px 0 15px;
@@ -31,14 +31,14 @@ const MsgTypeBtn = styled.div`
   cursor: pointer;
   &.active {
     position: relative;
-    border-color: #1677ff;
+    border-color: var(--color-primary);
     &::before {
       position: absolute;
       right: -8px;
       top: -8px;
       border-style: solid;
       border-width: 8px;
-      border-color: #1677ff transparent transparent transparent;
+      border-color: var(--color-primary) transparent transparent transparent;
       content: '';
       transform: rotateZ(-135deg);
     }
@@ -51,7 +51,7 @@ const MsgTypeBtn = styled.div`
 
 const BtnContent = styled.div`
   margin-top: 30px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   border-radius: 4px;
   padding: 20px;
   position: relative;
@@ -59,20 +59,20 @@ const BtnContent = styled.div`
     position: absolute;
     top: -10px;
     left: 18px;
-    background: #fff;
+    background: var(--color-background-primary);
     padding: 0 3px;
   }
   .workflowMessageDelete {
     position: absolute;
     top: -9px;
     right: 18px;
-    background: #fff;
+    background: var(--color-background-primary);
     padding: 0 3px;
     font-size: 16px;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
     cursor: pointer;
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .Font13.bold {
@@ -300,7 +300,7 @@ export default class Push extends Component {
             return (
               <li key={i} onClick={() => this.updateSource({ pushType: item.value })}>
                 <Radio className="Font16" text={item.text} />
-                <div className="Gray_75 Font13 mLeft30 mTop5">{item.desc}</div>
+                <div className="textSecondary Font13 mLeft30 mTop5">{item.desc}</div>
               </li>
             );
           })}
@@ -337,7 +337,7 @@ export default class Push extends Component {
 
     return (
       <Fragment>
-        <div className="Font14 Gray_75 workflowDetailDesc">
+        <div className="Font14 textSecondary workflowDetailDesc">
           {flowInfo.startAppType === APP_TYPE.PBC &&
             !flowInfo.child &&
             _l('仅通过自定义页面上的按钮调用的PBP支持界面推送功能（通过API和工作流调用时此节点无法生效）。')}
@@ -377,7 +377,7 @@ export default class Push extends Component {
               <Fragment>
                 <Member
                   companyId={this.props.companyId}
-                  appId={this.props.relationType === 2 ? this.props.relationId : ''}
+                  appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
                   accounts={data.accounts}
                   updateSource={this.updateSource}
                 />
@@ -388,7 +388,7 @@ export default class Push extends Component {
                   <i className="Font28 icon-task-add-member-circle mRight10" />
                   {_l('添加推送人')}
                   <SelectUserDropDown
-                    appId={this.props.relationType === 2 ? this.props.relationId : ''}
+                    appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
                     visible={showSelectUserDialog}
                     companyId={this.props.companyId}
                     processId={this.props.processId}
@@ -606,10 +606,10 @@ export default class Push extends Component {
   renderMessageType() {
     const { data } = this.state;
     const list = [
-      { text: _l('成功'), value: 1, color: '#4CAF50', icon: 'icon-check_circle' },
-      { text: _l('失败'), value: 2, color: '#F44336', icon: 'icon-cancel' },
-      { text: _l('警告'), value: 3, color: '#FFBA00', icon: 'icon-error1' },
-      { text: _l('通知'), value: 4, color: '#1677ff', icon: 'icon-info' },
+      { text: _l('成功'), value: 1, color: 'var(--color-success)', icon: 'icon-check_circle' },
+      { text: _l('失败'), value: 2, color: 'var(--color-error)', icon: 'icon-cancel' },
+      { text: _l('警告'), value: 3, color: 'var(--color-warning)', icon: 'icon-error1' },
+      { text: _l('通知'), value: 4, color: 'var(--color-primary)', icon: 'icon-info' },
     ];
 
     return (

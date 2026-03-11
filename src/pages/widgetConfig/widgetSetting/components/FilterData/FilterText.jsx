@@ -6,8 +6,8 @@ import { getAdvanceSetting } from '../../../util/setting';
 const FilterTextWrap = styled.div`
   display: flex;
   margin-top: 10px;
-  background: #f1f2f3;
-  border: 1px solid #ccc;
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-border-tertiary);
   border-radius: 4px;
   padding: 5px 10px;
   position: relative;

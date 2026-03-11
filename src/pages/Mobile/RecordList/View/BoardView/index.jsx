@@ -20,7 +20,7 @@ const Container = styled.div`
   position: relative;
   flex: 1;
   min-height: 0;
-  background-color: #f2f2f3;
+  background-color: var(--color-background-secondary);
 
   .mobileCommonBoardWrap {
     .scaleContainer {
@@ -54,8 +54,8 @@ const Container = styled.div`
     border-radius: 50%;
     font-size: 26px;
     color: var(--color-text-tertiary);
-    background-color: var(--color-background-primary);
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 4px 12px;
+    background-color: var(--color-background-card);
+    box-shadow: var(--shadow-md);
   }
 `;
 
@@ -196,7 +196,8 @@ const MobileBoardView = props => {
     return <LoadDiv />;
   }
 
-  if (!firstGroupControl) return <ViewErrorPage icon={'kanban'} viewName={_l('看板视图')} color="#4CAF50" />;
+  if (!firstGroupControl)
+    return <ViewErrorPage icon={'kanban'} viewName={_l('看板视图')} color="var(--color-success)" />;
 
   if (_.every(Object.values(boardViewRecordCount), val => !val)) {
     return <ViewEmpty />;

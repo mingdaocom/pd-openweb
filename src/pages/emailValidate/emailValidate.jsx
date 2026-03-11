@@ -42,7 +42,7 @@ function Comp() {
         return (
           <div>
             <div class="Font17 mTop40 mBottom40">{_l('此链接已失效')}</div>
-            <div class="Font12 Gray_9e mBottom40">
+            <div class="Font12 textTertiary mBottom40">
               {_l('链接已过期或邮箱邮箱已被其他账号绑定，请进入个人账户安全设置')}
             </div>
           </div>

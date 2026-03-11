@@ -97,6 +97,8 @@ export default class Date extends React.Component {
       onClick,
       fromEmbed,
       ignoreErrorMessage,
+      appId,
+      masterAppId,
     } = this.props;
     const { value } = this.state;
     let cellPopupContainer = popupContainer;
@@ -134,15 +136,15 @@ export default class Date extends React.Component {
             {!!value && (
               <div
                 className={cx('worksheetCellPureString userSelectNone ellipsis', { linelimit: needLineLimit })}
-                title={renderText({ ...cell, value })}
+                title={renderText({ ...cell, value }, { appId: masterAppId || appId })}
               >
-                {renderText({ ...cell, value })}
+                {renderText({ ...cell, value }, { appId: masterAppId || appId })}
               </div>
             )}
             {isediting && error && (
               <CellErrorTips
                 error={error}
-                color={ignoreErrorMessage ? '#ff933e' : undefined}
+                color={ignoreErrorMessage ? 'var(--color-warning)' : undefined}
                 pos={rowIndex === 0 ? 'bottom' : 'top'}
               />
             )}
@@ -172,11 +174,13 @@ export default class Date extends React.Component {
                   {...cell}
                   {...(tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ? { value } : {})}
                   formData={_.isFunction(rowFormData) ? rowFormData() : rowFormData}
+                  appId={masterAppId || appId}
                   masterData={masterData()}
                   dropdownClassName="scrollInTable"
                   onChange={this.handleChange}
                   compProps={{
                     showDatePicker: isediting,
+                    isCell: true,
                     getPopupContainer: () => document.body,
                   }}
                 />

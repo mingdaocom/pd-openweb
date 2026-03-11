@@ -13,7 +13,7 @@ const Wrapper = styled.div`
   .sectionItem {
     flex: 1 1 0;
     min-width: 0;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
     border-radius: 4px;
     height: 500px;
     padding: 16px;
@@ -22,11 +22,11 @@ const Wrapper = styled.div`
   .viewWrapper {
     flex: 1 1 0;
     min-width: 0;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
     .selectWrapper {
       padding: 6px 16px;
       margin-bottom: 10px;
-      border-bottom: 1px solid #f3f3f3;
+      border-bottom: 1px solid var(--color-background-disabled);
       border-radius: 4px;
     }
     .jsonViewWrapper {
@@ -101,7 +101,7 @@ export default function FiltersGenerate(props) {
 
   return (
     <React.Fragment>
-      <div className="filterBtn Hand Gray_75" onClick={() => setVisible(true)}>
+      <div className="filterBtn Hand textSecondary" onClick={() => setVisible(true)}>
         <Icon icon="worksheet_filter" className="mRight8 Font18" />
         <span className="Font14">{_l('筛选条件生成器')}</span>
       </div>
@@ -149,7 +149,7 @@ export default function FiltersGenerate(props) {
                 <Select
                   value={apiVersion}
                   onChange={value => setApiVersion(value)}
-                  style={{ width: 80, backgroundColor: '#F5F5F5' }}
+                  style={{ width: 80, backgroundColor: 'var(--color-background-secondary)' }}
                   bordered={false}
                   size="small"
                 >

@@ -34,8 +34,8 @@ export default function BothWayRelate(props) {
   return (
     <Fragment>
       {_.isEmpty(data.sourceControl) ? (
-        <div className="Gray_9e">
-          <span className="Gray">{_l('未添加')}</span>（
+        <div className="textTertiary">
+          <span className="textPrimary">{_l('未添加')}</span>（
           <span
             className="ThemeColor3 ThemeHoverColor3 pointer mRight5 mLeft5"
             onClick={() => {
@@ -59,7 +59,7 @@ export default function BothWayRelate(props) {
               </span>
             }
           >
-            <Icon icon="help" className="Font16 Gray_bd mLeft4" />
+            <Icon icon="help" className="Font16 textDisabled mLeft4" />
           </Tooltip>
         </div>
       ) : (

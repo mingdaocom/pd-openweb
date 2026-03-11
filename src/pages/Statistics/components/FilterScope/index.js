@@ -27,7 +27,7 @@ import { filterData } from 'src/pages/FormSet/components/columnRules/config';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import { formatNumberFromInput } from 'src/utils/control';
 import './index.less';
 
@@ -130,7 +130,7 @@ export default class extends Component {
             <Select
               className="chartSelect w100"
               value={dropdownScopeValue}
-              suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+              suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
               onChange={this.handleUpdateScope}
             >
               {dropdownScopeData
@@ -148,7 +148,7 @@ export default class extends Component {
             <Select
               className="chartSelect w100 mTop10"
               value={Number(dropdownDayValue)}
-              suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+              suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
               onChange={this.handleUpdateDay}
             >
               {dropdownDayData.map(item => (
@@ -313,7 +313,7 @@ export default class extends Component {
           <Select
             className="chartSelect flex"
             value={dynamicFilter.startType}
-            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
               changeDynamicFilter({ startType: value });
             }}
@@ -337,7 +337,7 @@ export default class extends Component {
               <Select
                 className="chartSelect flex"
                 value={dynamicFilter.startUnit}
-                suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                 onChange={value => {
                   changeDynamicFilter({ startUnit: value });
                 }}
@@ -356,7 +356,7 @@ export default class extends Component {
           <Select
             className="chartSelect flex"
             value={dynamicFilter.endType}
-            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
               changeDynamicFilter({
                 endType: value,
@@ -383,7 +383,7 @@ export default class extends Component {
               <Select
                 className="chartSelect flex"
                 value={dynamicFilter.endUnit}
-                suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                 onChange={value => {
                   changeDynamicFilter({
                     endUnit: unitValues.includes(value) ? value : dynamicFilter.endUnit,
@@ -423,7 +423,7 @@ export default class extends Component {
         <Select
           className="chartSelect w100"
           value={xaxes.particleSizeType}
-          suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+          suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           onChange={value => {
             this.props.changeCurrentReport(
               {
@@ -504,12 +504,15 @@ export default class extends Component {
                 </Fragment>
               )}
               {xAxisisTime && this.renderGroup()}
-              <div className="Font12 Bold mBottom10 mTop20 pTop10 flexRow" style={{ borderTop: '1px solid #E0E0E0' }}>
+              <div
+                className="Font12 Bold mBottom10 mTop20 pTop10 flexRow"
+                style={{ borderTop: '1px solid var(--color-border-secondary)' }}
+              >
                 <span className="flex">{_l('筛选')}</span>
               </div>
               {showFilterConditions.length ? (
                 <FilterItemTexts
-                  className="WhiteBG"
+                  className="bgPrimary"
                   loading={false}
                   filterItemTexts={filterData(worksheetInfo.columns, showFilterConditions)}
                   onClear={() => {
@@ -532,7 +535,7 @@ export default class extends Component {
                 />
               ) : (
                 <div
-                  className="filterWrapper flexRow alignItemsCenter Gray_bd Font13 Hover_21"
+                  className="filterWrapper flexRow alignItemsCenter textDisabled Font13 hoverColorPrimary"
                   onClick={() => this.setState({ visible: true })}
                 >
                   {_l('添加筛选字段')}

@@ -363,7 +363,7 @@ export default class extends Component {
     if (!data.length && typeof appRoleType !== 'number') return null;
     const { appId } = this.ids;
     const throttledEnsurePointerStatus = this.throttleFunc(this.ensurePointerStatus);
-    const isOnlyDefaultGroup = data.length === 1 && !data[0].name;
+    const isOnlyDefaultGroup = data.length === 1 && !data[0].name && appStatus !== 300016;
     const renderedData =
       data.length === 1
         ? data.filter(({ name }) => !!name)
@@ -468,11 +468,15 @@ export default class extends Component {
               <div className={cx('leftPointer appItemPointer', { disable: disabledPointer === 'left' })} />
               <div className={cx('rightPointer appItemPointer', { disable: disabledPointer === 'right' })} />
             </div>
-            {td && !md.global.Account.isPortal && !window.isPublicApp && appPkg.appStatus !== 4 && (
-              <div className="appExtensionWrap">
-                <MyProcessEntry type="appPkg" renderContent={renderContent} />
-              </div>
-            )}
+            {td &&
+              !md.global.Account.isPortal &&
+              !window.isPublicApp &&
+              appPkg.appStatus !== 4 &&
+              appStatus !== 300016 && (
+                <div className="appExtensionWrap">
+                  <MyProcessEntry type="appPkg" renderContent={renderContent} />
+                </div>
+              )}
             {_.includes([1, 5], appStatus) && !md.global.Account.isPortal && (
               <AppExtension
                 appId={appId}

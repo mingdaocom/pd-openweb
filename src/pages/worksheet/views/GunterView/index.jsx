@@ -23,7 +23,7 @@ const Drag = styled.div(
   height: 100%;
   cursor: ew-resize;
   &:hover {
-    border-left: 1px solid #ddd;
+    border-left: 1px solid var(--color-border-primary);
   }
 `,
 );
@@ -55,7 +55,7 @@ export default class Gunter extends Component {
     if (isGunterExport) {
       this.props.fetchRows();
     } else {
-      const gunterViewType = localStorage.getItem('gunterViewType');
+      const gunterViewType = localStorage.getItem(`gunterViewType-${view.viewId}`);
       const periodType = gunterViewType
         ? Number(gunterViewType)
         : calendartype
@@ -81,6 +81,7 @@ export default class Gunter extends Component {
   componentWillReceiveProps({ view }) {
     if (view.viewId !== this.props.view.viewId) {
       this.handleInitGroupingVisible(view.viewId);
+      this.props.updateViewConfig();
       this.props.resetLoadGunterView();
       this.setState({
         directoryWidth: this.getDirectoryWidth(view.viewId),

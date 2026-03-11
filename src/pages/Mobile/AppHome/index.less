@@ -1,8 +1,8 @@
 .appHomeMobile {
-  background: #fff;
+  background: var(--color-background-primary);
 
   #containerBg {
-    background: #fff;
+    background: var(--color-background-primary);
   }
 
   .guideWrapper {
@@ -43,7 +43,7 @@
     .ok2 {
       padding: 5px 10px;
       border-radius: 25px;
-      border: 1px solid #fff;
+      border: 1px solid var(--color-white);
       background-color: rgba(255, 255, 255, 0.3);
     }
     .ok {
@@ -71,7 +71,7 @@
   }
 
   body {
-    background: #fff;
+    background: var(--color-background-primary);
 
     #app {
       .listConBox {
@@ -81,12 +81,12 @@
           flex: 1;
           overflow-y: auto;
           padding-bottom: 24px;
-          background-color: #fff;
+          background-color: var(--color-background-primary);
           .appGroupEntry {
             height: 56px;
             align-items: center;
             justify-content: space-between;
-            background-color: #fff;
+            background-color: var(--color-background-primary);
             padding: 0 16px 0 0;
             .icon {
               line-height: 50px;
@@ -116,15 +116,15 @@
           line-height: 28px;
           text-align: center;
           font-size: 12px;
-          background-color: #f5f5f5;
+          background-color: var(--color-background-secondary);
 
           span {
-            color: #757575;
+            color: var(--color-text-secondary);
             margin-left: 4px;
           }
 
           .purchase {
-            color: #1677ff;
+            color: var(--color-primary);
             cursor: pointer;
           }
         }
@@ -132,12 +132,12 @@
           height: 36px;
           line-height: 36px;
           border-radius: 36px;
-          background-color: #f5f5f5;
+          background-color: var(--color-background-secondary);
           padding: 11px 13px;
           height: 36px;
           line-height: 36px;
           border-radius: 36px;
-          background-color: #f5f5f5;
+          background-color: var(--color-background-secondary);
           padding: 0px 13px;
           display: flex;
           font-size: 14px;
@@ -145,21 +145,26 @@
           .icon {
             line-height: 36px;
             &.searchIcon {
-              color: #616161;
+              color: var(--color-text-secondary);
             }
           }
           input {
-            background-color: #f5f5f5;
+            background-color: var(--color-background-secondary);
           }
         }
         .textScanQRCodeWrap {
           width: 36px;
           height: 36px;
-          background: #f5f5f5;
+          background: var(--color-background-secondary);
           border-radius: 50%;
           margin-right: 16px;
           position: relative;
           > div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
             border: none;
           }
         }
@@ -181,24 +186,24 @@
             border-radius: 4px;
             border: none;
             cursor: pointer;
-            color: #fff;
+            color: var(--color-white);
             font-size: 14px;
           }
           .createNetwork {
             border-width: 1px;
             border-style: solid;
             &:not(:hover) {
-              background: #fff !important;
+              background: var(--color-background-primary) !important;
             }
             &:hover {
-              color: #fff !important;
+              color: var(--color-white) !important;
             }
           }
           .ThemeColor3 {
-            color: #1677ff;
+            color: var(--color-primary);
           }
           .ThemeBGColor3 {
-            background-color: #1677ff;
+            background-color: var(--color-primary);
           }
         }
       }
@@ -209,7 +214,7 @@
       padding-bottom: 5px;
       margin-top: 10px;
       border-radius: 25px;
-      background-color: #1677ff;
+      background-color: var(--color-primary);
     }
 
     .createInfoModal {
@@ -228,14 +233,14 @@
   .spaceBottom {
     height: 10px;
     min-height: 10px;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
   }
   .content {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
     padding-bottom: 16px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
   .groupHeader {
     display: flex;
@@ -271,7 +276,7 @@
 
   .chartItemWrap {
     height: 300px;
-    border-bottom: 1px solid #f5f5f5;
+    border-bottom: 1px solid var(--color-background-secondary);
     padding: 16px 0 15px;
     box-sizing: content-box;
   }

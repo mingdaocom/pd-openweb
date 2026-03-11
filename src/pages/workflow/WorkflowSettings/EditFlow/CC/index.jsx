@@ -31,7 +31,7 @@ export default class CC extends Component {
     return (
       <Fragment>
         <div className="pLeft8 pRight8 pTop5 pBottom5">
-          <span className="Gray_75">{_l('通知人：')}</span>
+          <span className="textSecondary">{_l('通知人：')}</span>
           <MembersName {...this.props} accounts={item.accounts} />
         </div>
         {item.isException && (
@@ -70,7 +70,11 @@ export default class CC extends Component {
             </div>
             <NodeOperate nodeClassName="BGBlue" {...this.props} />
             <div className="workflowContent">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? (
+                <span className="pLeft8 pRight8 textSecondary">{_l('加载中...')}</span>
+              ) : (
+                this.renderContent()
+              )}
             </div>
           </div>
           <CreateNode {...this.props} />

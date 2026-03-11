@@ -74,7 +74,7 @@ export default class Dropdown extends Component {
                   key={index}
                   className={cx(
                     { ThemeColor3: value === selectedValue && !_.includes(specialStyleExpect, value) },
-                    'ThemeHoverBGColor3 HoverWhite',
+                    'ThemeHoverBGColor3 hoverTextWhite',
                   )}
                   onClick={() => this.handleChange(value)}
                 >

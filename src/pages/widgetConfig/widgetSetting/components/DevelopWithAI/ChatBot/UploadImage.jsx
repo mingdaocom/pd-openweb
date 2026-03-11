@@ -11,12 +11,12 @@ const Con = styled.div`
   display: flex;
   align-items: center;
   .icon {
-    color: #757575;
+    color: var(--color-text-secondary);
     font-size: 16px;
   }
   .hint {
     font-size: 12px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     margin-left: 6px;
   }
   .delete {
@@ -30,7 +30,7 @@ const Con = styled.div`
   }
   &.uploaded {
     .hint {
-      color: #333;
+      color: var(--color-text-primary);
     }
   }
   &.uploading {
@@ -51,9 +51,9 @@ const ImagePreview = styled.div`
   position: absolute;
   left: 22px;
   bottom: 22px;
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 4px 4px 4px 4px;
-  border: 2px solid #e1e1e1;
+  border: 2px solid var(--color-border-secondary);
   display: flex;
   justify-content: center;
   align-items: center;

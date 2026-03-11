@@ -14,7 +14,7 @@ const DropWrap = styled.ul`
     height: 28px;
     padding: 8px;
     &:hover {
-      background: #f5fafd;
+      background: var(--color-primary-focus-outer);
     }
     .point {
       width: 10px;
@@ -32,7 +32,7 @@ const EmptyDrop = styled.div`
 
 const Tag = styled.div`
   font-size: 12px;
-  background-color: #f2f2f2;
+  background-color: var(--color-background-disabled);
   padding: 0 10px;
   border-radius: 12px;
   max-width: 360px;
@@ -153,7 +153,7 @@ function SelectTag(props) {
     return (
       <DropWrap className="taskTagList">
         {searchValue && (
-          <EmptyDrop className="ThemeColor Font13 Hand" onClick={() => handleChange()}>
+          <EmptyDrop className="colorPrimary Font13 Hand" onClick={() => handleChange()}>
             {_l('创建标签')}“{searchValue}”
           </EmptyDrop>
         )}
@@ -180,7 +180,7 @@ function SelectTag(props) {
         <span className="ellipsis">{item.tagName}</span>
         <Icon
           icon="clear"
-          className="removeIcon Gray_9e Hand"
+          className="removeIcon textTertiary Hand"
           onClick={e => {
             e.preventDefault();
             e.stopPropagation();

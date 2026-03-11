@@ -334,6 +334,7 @@ class EditFlow extends Component {
         isSimple,
         isPlugin,
         workflowTestRunning,
+        moduleType: flowInfo.moduleType,
         renderNode: this.renderNode,
         selectAddNodeId: this.selectAddNodeId,
         selectCopy: this.selectCopy,
@@ -545,7 +546,10 @@ class EditFlow extends Component {
               <SvgIcon url={flowInfo.iconName} fill="#fff" size={22} />
             </span>
           ) : (
-            <i className="workflowAvatar icon-workflow" style={{ background: flowInfo.iconColor || '#1677ff' }} />
+            <i
+              className="workflowAvatar icon-workflow"
+              style={{ background: flowInfo.iconColor || 'var(--color-primary)' }}
+            />
           )
         }
         nodeName={flowInfo.name}
@@ -586,6 +590,7 @@ class EditFlow extends Component {
       debugEvents: instanceId ? [-1] : flowInfo.debugEvents,
       isIntegration: location.href.indexOf('integration') > -1,
       isPlugin,
+      isAIActions: flowInfo.moduleType === 1,
       closeDetail: this.closeDetail,
       haveChange: this.haveChange,
       deleteNode: this.deleteNode,
@@ -685,7 +690,7 @@ class EditFlow extends Component {
 
         {startNodeError && (
           <div className="Font15 workflowWarning workflowError">
-            <i className="icon-error1 mRight10 Gray_9e" />
+            <i className="icon-error1 mRight10 textTertiary" />
             {_l('触发流程的数据对象已删除。必须重新设置触发方式后，才能配置其他节点')}
           </div>
         )}

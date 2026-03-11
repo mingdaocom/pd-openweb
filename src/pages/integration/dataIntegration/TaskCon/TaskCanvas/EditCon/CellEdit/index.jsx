@@ -43,20 +43,20 @@ const Wrap = styled.div`
     &.isMaxC {
       width: 1000px;
     }
-    background: #ffffff;
+    background: var(--color-background-primary);
     box-shadow: 0px 10px 24px rgba(0, 0, 0, 0.24);
     height: 100%;
     right: 0;
     position: absolute;
     .headCon {
-      border: 1px solid #eaeaea;
+      border: 1px solid var(--color-border-secondary);
       height: 55px;
       line-height: 55px;
       padding: 0 24px;
       .icon {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         &:hover {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
       .tabItem {
@@ -66,23 +66,23 @@ const Wrap = styled.div`
     .footerCon {
       padding: 12px 24px;
       height: 60px;
-      background: #ffffff;
+      background: var(--color-background-primary);
       bottom: 0;
       .btnCon {
-        background: #1677ff;
-        color: #fff;
+        background: var(--color-primary);
+        color: var(--color-white);
         height: 36px;
         line-height: 36px;
-        border: 1px solid #1677ff;
+        border: 1px solid var(--color-primary);
         border-radius: 3px;
         padding: 0 36px;
         &.cancleBtn {
-          background: #fff;
-          color: #1677ff;
+          background: var(--color-background-primary);
+          color: var(--color-primary);
         }
         &.disabled {
-          border: 1px solid #bdbdbd;
-          background: #bdbdbd;
+          border: 1px solid var(--color-text-disabled);
+          background: var(--color-text-disabled);
         }
       }
     }

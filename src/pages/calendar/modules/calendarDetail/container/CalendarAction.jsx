@@ -48,7 +48,7 @@ export default class CalendarAction extends Component {
               case 'update':
                 return (
                   <div className="Right">
-                    <Button type="link" size="small" className="White mRight15" onClick={cancel}>
+                    <Button type="link" size="small" className="textWhite mRight15" onClick={cancel}>
                       {_l('取消')}
                     </Button>
                     <Button type="ghost" size="small" className="mRight20 ghostBtn" onClick={save}>
@@ -59,7 +59,7 @@ export default class CalendarAction extends Component {
               case 'confirm':
                 return (
                   <div className="Right">
-                    <Button className="White mRight15" size="small" type="link" onClick={refuse}>
+                    <Button className="textWhite mRight15" size="small" type="link" onClick={refuse}>
                       {_l('不能参加')}
                     </Button>
                     <Button type="ghost" size="small" className="mRight20 ghostBtn" onClick={confirm}>

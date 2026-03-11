@@ -2,16 +2,17 @@ import React, { Fragment, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
-import { Dialog, Icon, Input, QiniuUpload } from 'ming-ui';
+import { Button, Dialog, Icon, Input, QiniuUpload } from 'ming-ui';
 import { formatResponseData } from 'src/components/UploadFiles/utils';
+import Oauth2Ajax from 'src/pages/workflow/apiV2/oauth2';
 import RegExpValidator from 'src/utils/expression';
 import { ACTION_ID } from '../../../enum';
 import SelectAuthAccount from '../SelectAuthAccount';
 
 const PreviewBox = styled.div`
   padding: 10px;
-  background: #f8f8f8;
-  border: 1px solid #ddd;
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-border-primary);
   border-radius: 3px;
 `;
 
@@ -34,6 +35,7 @@ export default ({
   const [cacheTestMap, setTestMap] = useState(testMap);
   const [isUploadingIndex, setUploadingIndex] = useState('');
   const [auth2Id, setAuth2Id] = useState(authId);
+  let pollingTimer = null;
   const parseId = key => {
     return key
       .replace(/\$/g, '')
@@ -88,6 +90,16 @@ export default ({
           ) : (
             renderFile(key, index)
           )}
+
+          {(formulaMap[nodeId] || {}).actionId === ACTION_ID.CREDENTIALS && controlId === 'code' && (
+            <Button
+              className="mLeft10"
+              type="ghost"
+              onClick={() => getOpenUrl(value => setTestMap(Object.assign({}, cacheTestMap, { [key]: value })))}
+            >
+              {_l('获取 code')}
+            </Button>
+          )}
         </div>
       );
     });
@@ -99,7 +111,7 @@ export default ({
       <div className="flexRow alignItemsCenter" style={{ height: 20 }}>
         {cacheTestMap[key] ? (
           <Fragment>
-            <Icon icon="attachment" className="Font16 mRight10 Gray_75" />
+            <Icon icon="attachment" className="Font16 mRight10 textSecondary" />
             <span className="ellipsis InlineBlock ThemeColor3" style={{ maxWidth: 200 }}>
               {JSON.parse(cacheTestMap[key]).originalFileName || JSON.parse(cacheTestMap[key]).originalFilename}
             </span>
@@ -137,7 +149,7 @@ export default ({
               alert(errTip, 2);
             }}
           >
-            <div className="Gray_75 ThemeHoverColor3 pointer flexRow alignItemsCenter" style={{ height: 20 }}>
+            <div className="textSecondary ThemeHoverColor3 pointer flexRow alignItemsCenter" style={{ height: 20 }}>
               <Icon icon="attachment" className="Font16 mRight10" />
               {isUploadingIndex === index ? _l('上传中...') : _l('添加附件')}
             </div>
@@ -153,14 +165,40 @@ export default ({
       content = content.replace(
         new RegExp(key.replace(/\$/g, '\\$'), 'g'),
         cacheTestMap[key]
-          ? `#{<span style="background: #ffa340">${cacheTestMap[key]}</span>}`
-          : `#{${formulaMap[nodeId].name}-${formulaMap[`${nodeId}-${controlId}`].name}}`,
+          ? `#{<span style="background: var(--color-warning)">${cacheTestMap[key]}</span>}`
+          : `#{${formulaMap[nodeId]?.name}-${formulaMap[`${nodeId}-${controlId}`]?.name}}`,
       );
     });
 
     return filterXSS(content, {
       whiteList: Object.assign({}, whiteList, { span: ['style'] }),
     });
+  };
+  const getOpenUrl = callback => {
+    Oauth2Ajax.authorize({ id: connectId, debugger: true }, { isIntegration: true }).then(res => {
+      window.open(res.oauth2Url, '_blank', 'width=800,height=600');
+      clearInterval(pollingTimer);
+      pollingCodeFunc(res.state, callback);
+    });
+  };
+  const pollingCodeFunc = (state, callback) => {
+    let pollingCount = 0;
+
+    pollingTimer = setInterval(() => {
+      if (pollingCount >= 50) {
+        clearInterval(pollingTimer);
+        alert(_l('获取超时，请重新获取'), 3);
+        return;
+      }
+
+      pollingCount++;
+      Oauth2Ajax.getCodeByState({ id: connectId, state }, { isIntegration: true }).then(res => {
+        if (res.code) {
+          clearInterval(pollingTimer);
+          callback(res.code);
+        }
+      });
+    }, 6000);
   };
 
   return (
@@ -205,7 +243,7 @@ export default ({
       )}
 
       {getFilterTestMap.length + fileArray.length > 0 && (
-        <div className="flexRow alignItemsCenter Height36 Gray_75">
+        <div className="flexRow alignItemsCenter Height36 textSecondary">
           <div className="Width190 mRight10 ellipsis">{_l('参数名称')}</div>
           <div className="flex">{_l('参数值')}</div>
         </div>

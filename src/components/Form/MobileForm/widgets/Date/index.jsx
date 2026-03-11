@@ -4,7 +4,13 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import { Icon, MobileDatePicker } from 'ming-ui';
 import { getDatePickerConfigs, getDateToEn, getShowFormat } from 'src/pages/widgetConfig/util/setting';
-import { dateConvertToServerZone, dateConvertToUserZone } from 'src/utils/project';
+import { getTimeZoneText } from 'src/utils/control';
+import {
+  dateAppZoneToServerZone,
+  dateConvertToServerZone,
+  dateConvertToUserZone,
+  dateServerZoneToAppZone,
+} from 'src/utils/project';
 import { getDynamicValue } from '../../../core/formUtils';
 
 const DateWidget = props => {
@@ -20,9 +26,13 @@ const DateWidget = props => {
     hideIcon,
     advancedSetting = {},
     hint,
+    appId,
   } = props;
   const showformat = getShowFormat(props);
   const timeInterval = parseInt(advancedSetting.timeinterval || '1');
+  const appTimeZone = window[`timeZone_${appId}`];
+  const timeZoneText = advancedSetting.showtimezone === '1' ? getTimeZoneText(props, appId) : '';
+
   const [dateProps, setDateProps] = useState(getDatePickerConfigs(props));
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [minDate, setMinDate] = useState(null);
@@ -46,7 +56,9 @@ const DateWidget = props => {
           ? date.format('YYYY-MM-DD')
           : notConvertZone
             ? date.format('YYYY-MM-DD HH:mm:ss')
-            : dateConvertToServerZone(date);
+            : advancedSetting.timezonetype === '1'
+              ? dateAppZoneToServerZone(date, appTimeZone)
+              : dateConvertToServerZone(date);
     }
 
     props.onChange(value);
@@ -65,8 +77,14 @@ const DateWidget = props => {
     const adjustedMinute = isLocationBegin ? baseMinute + timeInterval : baseMinute;
 
     const defaultValue = timeInterval === 1 ? defaultDate.toDate() : defaultDate.clone().minute(adjustedMinute);
+    const _dateTime = _value
+      ? type === 15 || notConvertZone
+        ? _value
+        : advancedSetting.timezonetype === '1'
+          ? dateServerZoneToAppZone(_value, appTimeZone)
+          : dateConvertToUserZone(_value)
+      : defaultValue;
 
-    const _dateTime = _value ? (type === 15 || notConvertZone ? _value : dateConvertToUserZone(_value)) : defaultValue;
     setDateTime(_dateTime);
   }, [value, type, notConvertZone, minDate, advancedSetting.timeinterval, advancedSetting.locationbegin]);
 
@@ -111,8 +129,11 @@ const DateWidget = props => {
       >
         <span className={cx('flex ellipsis', { customFormPlaceholder: !value })}>
           {value ? getDateToEn(showformat, dateTime, advancedSetting.showformat) : hint}
+          {value && timeZoneText && <span className="mLeft8">{timeZoneText}</span>}
         </span>
-        {(!disabled || !formDisabled) && !hideIcon && <Icon icon="arrow-right-border" className="Font16 Gray_bd" />}
+        {(!disabled || !formDisabled) && !hideIcon && (
+          <Icon icon="arrow-right-border" className="Font16 textDisabled" />
+        )}
       </div>
       {showDatePicker && (
         <MobileDatePicker

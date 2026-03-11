@@ -78,7 +78,7 @@ class PostOperator extends React.Component {
             onClick={this.toggleOperateList}
             className={cx(
               'postOperatorListBtn icon-more_horiz Hand',
-              this.state.showOperateList ? 'Gray_75' : 'Gray_9',
+              this.state.showOperateList ? 'textSecondary' : 'textTertiary',
             )}
           />
           {this.state.showOperateList ? (

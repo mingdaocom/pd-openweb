@@ -1,13 +1,13 @@
 ﻿.workSheetUploadExcel {
   height: 560px !important;
-  .useHelp{
+  .useHelp {
     position: absolute;
     top: 58px;
     right: 24px;
   }
   .uploadExcel {
     width: 100%;
-    color: #666;
+    color: var(--color-text-secondary);
     min-width: auto;
     overflow: auto;
     .optionContent {
@@ -30,7 +30,7 @@
       margin-top: -36px;
     }
     .chooseBtn {
-      color: white;
+      color: var(--color-white);
       background: blue;
       display: inline-block;
       border-radius: 3px;
@@ -42,13 +42,13 @@
       font-size: 14px;
     }
     .fgSuccess {
-      color: #5cb85c;
+      color: var(--color-success);
     }
     .fgError {
-      color: red;
+      color: var(--color-error);
     }
     .bgSuccess {
-      background: #5cb85c;
+      background: var(--color-success);
     }
     .bgError {
       background: red;
@@ -60,7 +60,7 @@
         display: flex;
         height: 45px;
         line-height: 45px;
-        border-bottom: 1px solid #ddd;
+        border-bottom: 1px solid var(--color-border-primary);
       }
       .fileListItem > div {
         vertical-align: middle;
@@ -106,7 +106,7 @@
           height: 4px;
           width: 170px;
           margin-top: 15px;
-          background: #ddd;
+          background: var(--color-border-primary);
           float: left;
         }
         .uploadPercentageText {
@@ -129,7 +129,7 @@
         .fileListActionBtn {
           user-select: none;
           font-size: 18px;
-          color: #aaa;
+          color: var(--color-text-tertiary);
         }
         .textIcon {
           font-size: 26px;
@@ -140,7 +140,7 @@
     .fileList.fileListHeader {
       font-size: 14px;
       margin-top: 12px;
-      border-top: 1px solid #ddd;
+      border-top: 1px solid var(--color-border-primary);
     }
     .fileList.fileListBody {
       height: 90px;

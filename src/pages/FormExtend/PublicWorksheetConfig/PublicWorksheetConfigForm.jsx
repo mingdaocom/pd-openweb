@@ -23,7 +23,7 @@ import FormPreview from './FormPreview';
 const TopBar = styled.div(
   ({ color }) => `
   height: 10px;
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 3px 3px 0 0;
   .topBar{
     width: 100%;

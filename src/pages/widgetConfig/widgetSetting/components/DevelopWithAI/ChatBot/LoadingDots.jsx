@@ -19,7 +19,7 @@ const LoadingDots = ({ className, dotNumber = 6 }) => {
           style={{
             width: '4px',
             height: '4px',
-            backgroundColor: '#9e9e9e',
+            backgroundColor: 'var(--color-text-tertiary)',
             borderRadius: '50%',
             display: 'inline-block',
             transition: 'opacity 0.3s ease-in-out',

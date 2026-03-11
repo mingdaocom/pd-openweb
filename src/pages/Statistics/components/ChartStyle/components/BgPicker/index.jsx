@@ -10,7 +10,7 @@ import Gradient from './Gradient';
 import Image, { images } from './Image';
 
 const Wrap = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 8px;
   width: 485px;
   box-shadow:
@@ -25,7 +25,7 @@ const Wrap = styled.div`
       font-weight: bold;
     }
     .ant-tabs-tab-btn {
-      color: #757575;
+      color: var(--color-text-secondary);
     }
     .ant-tabs-tab {
       padding: 9px 0;
@@ -43,11 +43,11 @@ const ClearWrap = styled.div`
   width: 28px;
   height: 28px;
   border-radius: 3px;
-  border: 1px solid #dddddd;
-  background-color: #fff;
+  border: 1px solid var(--color-border-primary);
+  background-color: var(--color-background-primary);
   position: relative;
   &:hover {
-    border-color: #bdbdbd;
+    border-color: var(--color-text-disabled);
   }
   &::before {
     content: '';
@@ -56,7 +56,7 @@ const ClearWrap = styled.div`
     left: 0;
     width: 100%;
     height: 1px;
-    background-color: red;
+    background-color: var(--color-error);
     transform: rotateZ(-45deg) scale(1.35);
   }
 `;
@@ -106,7 +106,7 @@ export default function BgPicker(props) {
       const previewUrl = displaySetup.previewUrl || displaySetup.imageUrl;
       return { backgroundImage: `url(${previewUrl})`, backgroundSize: 'cover' };
     }
-    return { backgroundColor: '#fff' };
+    return { backgroundColor: 'var(--color-background-primary)' };
   };
 
   return (

@@ -57,7 +57,7 @@ export default class Merchant extends Component {
             <div className="flexRow alignItemsCenter">
               <Icon
                 icon="task-later"
-                className="Gray_9 hoverText Font17"
+                className="textTertiary hoverText Font17"
                 onClick={() => {
                   if (this.com) {
                     if (currentTab === 'transaction') {

@@ -32,21 +32,23 @@ export default props => {
 
         <div className="Font13 bold mTop30">{_l('在本组织下，正在被以下事件调用')}</div>
         {!data.processList.length && (
-          <div className="Font12 Gray_75 workflowDetailDesc mTop10 subProcessDesc">{_l('未被任何流程或按钮调用')}</div>
+          <div className="Font12 textSecondary workflowDetailDesc mTop10 subProcessDesc">
+            {_l('未被任何流程或按钮调用')}
+          </div>
         )}
         {data.processList.map((item, i) => {
           return (
             <div className="workflowDetailDesc mTop10 subProcessDesc" key={i}>
               <div className="Font13">
                 <span
-                  className="ThemeColor3 ThemeHoverColor2 pointer"
+                  className="ThemeColor3 ThemeHoverColor2 pointer pointerEventsAuto"
                   onClick={() => window.open(`/workflowedit/${item.processId}`)}
                 >
                   {_l('工作流：') + item.processName}
                 </span>
               </div>
               <div className="Font12">
-                <span className="Gray_75">{_l('节点：')}</span>
+                <span className="textSecondary">{_l('节点：')}</span>
                 <span>{item.flowNodes.map(obj => `${obj.name}`).join('、')}</span>
               </div>
             </div>

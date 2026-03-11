@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { arrayOf, bool, func, shape } from 'prop-types';
 import worksheetAjax from 'src/api/worksheet';
 import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
-import { getTitleTextFromControls } from 'src/components/Form/core/utils';
+import { getTitleTextFromControls } from 'src/utils/control';
 import { Option } from './Options';
 
 const useCompare = value => {
@@ -30,6 +30,7 @@ export default function RelateRecordOptions(props) {
     staticRecords = [],
     formData,
     parentWorksheetId,
+    parentAppId,
   } = props;
   const { navshow } = advancedSetting;
   const [records, setRecords] = useState(staticRecords);
@@ -42,7 +43,7 @@ export default function RelateRecordOptions(props) {
     }
     let filterControls;
     if (control && control.advancedSetting.filters) {
-      filterControls = getFilter({ control, formData });
+      filterControls = getFilter({ control, formData, appId: parentAppId });
     }
 
     const args = {
@@ -88,6 +89,7 @@ export default function RelateRecordOptions(props) {
                 if (_.find(selected, { rowid: record.rowid })) {
                   onChange(selected.filter(r => r.rowid !== record.rowid));
                 } else {
+                  record.name = title;
                   onChange(multiple ? _.uniqBy(selected.concat(record)) : [record]);
                 }
               }}

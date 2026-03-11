@@ -26,7 +26,7 @@ export default props => {
             style={{ width: 180 }}
           >
             {showContainer && (
-              <Menu.Item key="tabLabel" disabled={true} className="pLeft16 Gray_9e cursorDefault">
+              <Menu.Item key="tabLabel" disabled={true} className="pLeft16 textTertiary cursorDefault">
                 {_l('移入容器')}
               </Menu.Item>
             )}
@@ -36,7 +36,7 @@ export default props => {
                 style={{ width: 180 }}
                 popupClassName="chartMenu"
                 title={_.get(c, 'componentConfig.name')}
-                icon={<Icon className="Gray_9e Font18 mRight5" icon="tab_page" />}
+                icon={<Icon className="textTertiary Font18 mRight5" icon="tab_page" />}
                 popupOffset={[0, 0]}
               >
                 {_.get(c, 'componentConfig.tabs').map(tab => (
@@ -55,8 +55,8 @@ export default props => {
                     }}
                   >
                     <div className="flexRow valignWrapper">
-                      <span className={cx('flex', { ThemeColor: tab.id === widget.tabId })}>{tab.name}</span>
-                      {tab.id === widget.tabId && <Icon icon="done" className="Font20 ThemeColor" />}
+                      <span className={cx('flex', { colorPrimary: tab.id === widget.tabId })}>{tab.name}</span>
+                      {tab.id === widget.tabId && <Icon icon="done" className="Font20 colorPrimary" />}
                     </div>
                   </Menu.Item>
                 ))}
@@ -78,15 +78,15 @@ export default props => {
                   <Icon
                     className={cx(
                       'Font18 mRight5',
-                      _.get(c, 'config.objectId') === widget.sectionId ? 'ThemeColor' : 'Gray_9e',
+                      _.get(c, 'config.objectId') === widget.sectionId ? 'colorPrimary' : 'textTertiary',
                     )}
                     icon="page_card"
                   />
-                  <span className={cx('flex', { ThemeColor: _.get(c, 'config.objectId') === widget.sectionId })}>
+                  <span className={cx('flex', { colorPrimary: _.get(c, 'config.objectId') === widget.sectionId })}>
                     {_.get(c, 'componentConfig.name')}
                   </span>
                   {_.get(c, 'config.objectId') === widget.sectionId && (
-                    <Icon icon="done" className="Font20 ThemeColor" />
+                    <Icon icon="done" className="Font20 colorPrimary" />
                   )}
                 </div>
               </Menu.Item>
@@ -111,7 +111,7 @@ export default props => {
                 }}
               >
                 <div className="flexRow valignWrapper">
-                  <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="move_out" />
+                  <Icon className="textTertiary Font18 mLeft5 mRight5" icon="move_out" />
                   <span>{_l('移出容器')}</span>
                 </div>
               </Menu.Item>
@@ -127,7 +127,7 @@ export default props => {
                 }}
               >
                 <div className="flexRow valignWrapper">
-                  <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="swap_horiz" />
+                  <Icon className="textTertiary Font18 mLeft5 mRight5" icon="swap_horiz" />
                   <span>{_l('移入其他页面')}</span>
                 </div>
               </Menu.Item>

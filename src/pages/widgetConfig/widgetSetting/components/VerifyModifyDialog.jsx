@@ -6,7 +6,7 @@ import { Button, Dialog } from 'ming-ui';
 
 const VerifyModifyDialogWrap = styled.div`
   p {
-    color: #757575;
+    color: var(--color-text-secondary);
     margin: 0;
   }
   .btns {
@@ -23,12 +23,7 @@ const VerifyModifyDialogWrap = styled.div`
 
 export default function VerifyModifyDialog({ desc, cancelText, onClose, onOk, onCancel }) {
   return (
-    <Dialog
-      visible
-      footer={null}
-      onCancel={onCancel}
-      title={<span style={{ color: '#000' }}>{_l('您是否保存此次更改')}</span>}
-    >
+    <Dialog visible footer={null} onCancel={onCancel} title={<span>{_l('您是否保存此次更改')}</span>}>
       <VerifyModifyDialogWrap>
         <p>{desc || _l('当前有尚未保存的更改，您在离开当前页面前是否需要保存这些更改。')}</p>
         <div className="btns">

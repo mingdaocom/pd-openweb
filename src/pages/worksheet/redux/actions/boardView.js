@@ -161,12 +161,20 @@ function getBoardViewDataFillPage({ para, dispatch, view, controls }) {
     }
     const translateInfo = getTranslateInfo(para.appId, para.worksheetId, view.viewControl);
     const formatData = sortDataByCustomItems(data, view, controls);
+    const groupControl = _.find(controls, { controlId: view.viewControl });
     dispatch(
       changeBoardViewData(
         formatData.map(data => {
+          const name = translateInfo[data.key] || data.name;
+          if (_.get(groupControl, 'options.length')) {
+            return {
+              ...data,
+              name: _.get(_.find(groupControl.options, { key: data.key }), 'value') || name,
+            };
+          }
           return {
             ...data,
-            name: translateInfo[data.key] || data.name,
+            name,
           };
         }),
       ),

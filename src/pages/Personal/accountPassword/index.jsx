@@ -9,8 +9,8 @@ import account from 'src/api/account';
 import accountController from 'src/api/account';
 import accountGuideController from 'src/api/accountGuide';
 import accountSetting from 'src/api/accountSetting';
+import microsoftImg from 'src/pages/Admin/integration/platformIntegration/images/microsoft.png';
 import workwxImg from 'src/pages/Admin/integration/platformIntegration/images/workwx.png';
-import microsoftImg from 'src/pages/AuthService/login/img/microsoft.png';
 import { encrypt } from 'src/utils/common';
 import common from '../common';
 import { initBindAcoount } from '../components/InitBindAccountDialog';
@@ -19,29 +19,39 @@ import googleImg from '../images/google.png';
 import EditPassword from './EditPassword';
 import './index.less';
 
-let accountList = [
-  { key: 'weiXinBind', icon: 'wechat', color: 'weiBindColor', label: _l('微信') },
-  { key: 'qqBind', icon: 'qq', color: 'qqBindColor', label: _l('QQ') },
-  {
-    key: 'workBind',
-    iconIsImage: true,
-    color: 'workBindColor',
-    label: _l('企业微信'),
-    needHide: true,
-  },
-  {
-    key: 'googleBind',
-    iconIsImage: true,
-    color: 'googleBindColor',
-    label: _l('谷歌'),
-  },
-  {
-    key: 'microsoftBind',
-    iconIsImage: true,
-    color: 'microsoftBindColor',
-    label: _l('微软'),
-  },
-];
+let accountList =
+  window.platformENV.isOverseas || window.platformENV.isLocal
+    ? [
+        { key: 'weiXinBind', icon: 'wechat', color: 'weiBindColor', label: _l('微信') },
+        { key: 'qqBind', icon: 'qq', color: 'qqBindColor', label: _l('QQ') },
+        {
+          key: 'workBind',
+          iconIsImage: true,
+          color: 'workBindColor',
+          label: _l('企业微信'),
+          needHide: true,
+          img: workwxImg,
+        },
+        {
+          key: 'googleBind',
+          iconIsImage: true,
+          color: 'googleBindColor',
+          label: _l('谷歌'),
+          img: googleImg,
+        },
+        {
+          key: 'microsoftBind',
+          iconIsImage: true,
+          color: 'microsoftBindColor',
+          label: _l('微软'),
+          img: microsoftImg,
+        },
+      ]
+    : [
+        { key: 'weiXinBind', icon: 'wechat', color: 'weiBindColor', label: _l('微信') },
+        { key: 'qqBind', icon: 'qq', color: 'qqBindColor', label: _l('QQ') },
+        { key: 'workBind', iconIsImage: true, label: _l('企业微信'), needHide: true, img: workwxImg },
+      ];
 
 const tipsConfig = {
   mobilePhone: _l(
@@ -76,6 +86,8 @@ const WORKBINDOPTION = state => {
     case 5:
     case 6:
       return { icon: 'feishu', label: _l('飞书'), iconIsImage: false };
+    case 7:
+      return { label: _l('Microsoft'), img: microsoftImg, iconIsImage: true };
   }
 };
 export default class AccountChart extends React.Component {
@@ -294,7 +306,7 @@ export default class AccountChart extends React.Component {
     return (
       <Fragment>
         <div className="LineHeight36 accountJoinFrirndBox">
-          <span className="InlineBlock accountLabel Gray_75">{_l('添加我为好友的认证方式')}</span>
+          <span className="InlineBlock accountLabel textSecondary">{_l('添加我为好友的认证方式')}</span>
           <Select
             value={this.state.joinFriendMode}
             onChange={joinFriendMode =>
@@ -309,10 +321,10 @@ export default class AccountChart extends React.Component {
           </Select>
         </div>
         <div className="mTop16 flexRow">
-          <span className="InlineBlock accountLabel Gray_75">{_l('手机和邮箱')}</span>
+          <span className="InlineBlock accountLabel textSecondary">{_l('手机和邮箱')}</span>
           <span className="flexColumn">
             <Checkbox
-              className="Gray"
+              className="textPrimary"
               checked={this.state.isPrivateMobile}
               onChange={e => {
                 const isPrivateMobile = e.target.checked;
@@ -324,7 +336,7 @@ export default class AccountChart extends React.Component {
               {_l('手机号仅自己可见')}
             </Checkbox>
             <Checkbox
-              className="Gray"
+              className="textPrimary"
               checked={this.state.isPrivateEmail}
               onChange={e => {
                 const isPrivateEmail = e.target.checked;
@@ -396,7 +408,7 @@ export default class AccountChart extends React.Component {
   renderTips = key => {
     return (
       <Tooltip placement="top" title={tipsConfig[key]}>
-        <span className="icon-help Gray_bd Hand mLeft5 Font15"></span>
+        <span className="icon-help textDisabled Hand mLeft5 Font15"></span>
       </Tooltip>
     );
   };
@@ -404,7 +416,7 @@ export default class AccountChart extends React.Component {
   renderRedDot = (isShow, key) => {
     return (
       <span
-        className={cx('Right Gray_9e Hover_49 Hand redDot', { Hidden: !isShow })}
+        className={cx('Right textTertiary hoverTextPrimaryLight Hand redDot', { Hidden: !isShow })}
         onClick={() => this.handleCancelRed(key)}
       >
         {_l('取消红点提示')}
@@ -449,19 +461,20 @@ export default class AccountChart extends React.Component {
     }
     return (
       <div className="accountChartContainer">
-        <div className="Font17 Bold Gray mBottom6">{_l('账户与隐私')}</div>
+        <div className="Font17 Bold textPrimary mBottom6">{_l('账户与隐私')}</div>
         {this.renderWarning()}
         <div className="accountRowItem clearfix">
-          <div className="accountLabel Gray_75">
+          <div className="accountLabel textSecondary">
             {_l('手机')}
             {!mobilePhone && this.renderTips('mobilePhone')}
           </div>
           <span>
-            <span className="Gray Relative">
+            <span className="textPrimary Relative">
               {mobilePhone || _l('未绑定')}
               {mobilePhoneWarnLight && <span className="warnLight warnLightMEPosition warnLightPhone" />}
             </span>
-            {md.global.SysSettings.enableEditAccountInfo && (
+            {(md.global.SysSettings.enableEditAccountInfo ||
+              (!window.platformENV.isOverseas && !window.platformENV.isLocal)) && (
               <Fragment>
                 {mobilePhone ? (
                   <Fragment>
@@ -501,22 +514,28 @@ export default class AccountChart extends React.Component {
         {needInit && isNullCredential ? null : (
           <Fragment>
             <div className="accountRowItem clearfix">
-              <div className="accountLabel Gray_75">{_l('邮箱')}</div>
+              <div className="accountLabel textSecondary">{_l('邮箱')}</div>
               <span>
-                <span className="Gray Relative">
+                <span className="textPrimary Relative">
                   {email ? (
                     <span>
-                      <span className={cx(isVerify ? '' : 'Gray_9e mRight12')}>{email}</span>
-                      {!isVerify && md.global.SysSettings.enableEditAccountInfo && <span>{_l('未验证')}</span>}
+                      <span className={cx(isVerify ? '' : 'textTertiary mRight12')}>{email}</span>
+                      {!isVerify &&
+                        (md.global.SysSettings.enableEditAccountInfo ||
+                          (!window.platformENV.isOverseas && !window.platformENV.isLocal)) && (
+                          <span>{_l('未验证')}</span>
+                        )}
                     </span>
-                  ) : md.global.SysSettings.enableEditAccountInfo ? (
+                  ) : md.global.SysSettings.enableEditAccountInfo ||
+                    (!window.platformENV.isOverseas && !window.platformENV.isLocal) ? (
                     _l('未绑定')
                   ) : (
                     ''
                   )}
                   {emailWarnLight ? <span className="warnLight warnLightMEPosition warnLightEmail" /> : null}
                 </span>
-                {md.global.SysSettings.enableEditAccountInfo && (
+                {(md.global.SysSettings.enableEditAccountInfo ||
+                  (!window.platformENV.isOverseas && !window.platformENV.isLocal)) && (
                   <Fragment>
                     {email ? (
                       <Fragment>
@@ -550,29 +569,31 @@ export default class AccountChart extends React.Component {
               {this.renderRedDot(emailWarnLight, 'accountEmail')}
             </div>
             <div className="accountRowItem">
-              <div className="accountLabel Gray_75">{_l('密码')}</div>
-              <span className="Hand ThemeColor3 Hover_49" onClick={() => this.setState({ editPasswordVisible: true })}>
+              <div className="accountLabel textSecondary">{_l('密码')}</div>
+              <span
+                className="Hand ThemeColor3 hoverTextPrimaryLight"
+                onClick={() => this.setState({ editPasswordVisible: true })}
+              >
                 {isNullCredential ? _l('设置') : _l('修改')}
               </span>
             </div>
           </Fragment>
         )}
-
-        {md.global.Config.IsPlatformLocal && (
+        {window.platformENV.isPlatform && (
           <div className="accountRowItem">
-            <div className="accountLabel Gray_75">{_l('账户注销')}</div>
+            <div className="accountLabel textSecondary">{_l('账户注销')}</div>
             <div className="logout Hand" onClick={this.dealLoagout}>
               {_l('注销')}
             </div>
           </div>
         )}
 
-        {
+        {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
           <Fragment>
-            <div className="Font17 Bold Gray mBottom4 mTop20">{_l('第三方账户')}</div>
-            <div className="Gray_75 mBottom20">{_l('绑定后，可通过第三方应用快速登录')}</div>
+            <div className="Font17 Bold textPrimary mBottom4 mTop20">{_l('第三方账户')}</div>
+            <div className="textSecondary mBottom20">{_l('绑定后，可通过第三方应用快速登录')}</div>
             <div className="bindingWrap mBottom24">
-              {accountList.map(({ key, label, color, icon, needHide = false, iconIsImage = false }) => {
+              {accountList.map(({ key, label, color, icon, needHide = false, iconIsImage = false, img }) => {
                 const data = this.state[key];
 
                 if (!data || (needHide && !data.isBind)) return null;
@@ -580,10 +601,7 @@ export default class AccountChart extends React.Component {
                 return (
                   <span className="bingingItem" key={`bingingItem-${key}`}>
                     {iconIsImage ? (
-                      <img
-                        src={key === 'googleBind' ? googleImg : key === 'microsoftBind' ? microsoftImg : workwxImg}
-                        className={cx('mRight8 iconImg', { googleImg: ['microsoftBind', 'googleBind'].includes(key) })}
-                      />
+                      <img src={img} className="mRight8 iconImg" />
                     ) : (
                       <Icon icon={icon} className={cx(color, 'Font18 mRight8')} />
                     )}
@@ -595,7 +613,10 @@ export default class AccountChart extends React.Component {
                     </Tooltip>
                     {!needHide && (
                       <span
-                        className={cx(data.isBind ? 'Gray_6 Hover_red' : 'ThemeColor3 Hover_49', 'Hand')}
+                        className={cx(
+                          data.isBind ? 'textSecondary Hover_red' : 'ThemeColor3 hoverTextPrimaryLight',
+                          'Hand',
+                        )}
                         onClick={() => this.handleBind(key)}
                       >
                         {data.isBind ? _l('解绑') : _l('绑定')}
@@ -607,8 +628,8 @@ export default class AccountChart extends React.Component {
             </div>
             <div className="splitLine"></div>
           </Fragment>
-        }
-        <div className="Font17 Bold Gray mBottom16 mTop20">{_l('隐私')}</div>
+        )}
+        <div className="Font17 Bold textPrimary mBottom16 mTop20">{_l('隐私')}</div>
         {this.joinFriend()}
         <Dialog
           title={isNullCredential ? _l('设置密码') : _l('修改密码')}

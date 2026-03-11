@@ -117,7 +117,7 @@ export default class Cancellation extends Component {
       <Fragment>
         <div className={cx('privacyContent', { mLeft24: isMobile, mRight16: isMobile })}>
           <div className="termsDiv">
-            <RichText data={summary || ``} className={''} disabled={true} backGroundColor={'#fff'} />
+            <RichText data={summary || ''} disabled={true} backGroundColor={'#fff'} />
           </div>
         </div>
         <div className="protocol TxtLeft flexRow alignItemsCenter mTop24">

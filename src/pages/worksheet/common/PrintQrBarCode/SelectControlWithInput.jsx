@@ -12,15 +12,15 @@ import ControlSelect from 'worksheet/components/ControlSelect';
 
 const Title = styled.div`
   font-size: 13px;
-  color: #222;
+  color: var(--color-white);
   margin: 14px 0 10px;
   .compressWidth {
     float: right;
     font-size: 18px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     cursor: pointer;
     &.on {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
@@ -41,7 +41,7 @@ const Content = styled(VerticalMiddle)`
   display: flex;
   flex: 1;
   padding: 0 8px;
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--color-border-primary);
   border-radius: 3px 0 0 3px;
   input {
     width: 100%;
@@ -52,7 +52,7 @@ const Content = styled(VerticalMiddle)`
     cursor: pointer;
     font-size: 20px;
     margin-right: 10px;
-    color: #9d9d9d;
+    color: var(--color-text-tertiary);
   }
   .hoverShow {
     display: none;
@@ -68,29 +68,33 @@ const Content = styled(VerticalMiddle)`
 `;
 
 const Tag = styled.div`
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   max-width: 100%;
   margin-right: 6px;
   border-radius: 12px;
   background: #d8eeff;
-  color: #174c76;
-  border: 1px solid #bbd6ea;
+  color: var(--color-link-hover);
+  border: 1px solid var(--color-primary-transparent);
   padding: 0 8px 0 12px;
   font-size: 12px;
   box-sizing: border-box;
   height: 24px;
   line-height: 22px;
   max-width: 100%;
+  .controlName {
+    max-width: 150px;
+  }
   .close {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     margin-left: 4px;
     cursor: pointer;
   }
 `;
 
 const Selected = styled.div`
-  width: 100%;
   flex: 1;
+  overflow: hidden;
   .staticValue {
     width: 100%;
   }
@@ -99,10 +103,10 @@ const Selected = styled.div`
 const DropdownBtn = styled(FlexCenter)`
   cursor: pointer;
   font-size: 22px;
-  color: #bdbdbd;
+  color: var(--color-text-disabled);
   width: 36px;
   height: 100%;
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--color-border-primary);
   border-left: none;
   border-radius: 0 3px 3px 0;
 `;
@@ -220,7 +224,9 @@ export default function SelectControlWithInput(props) {
             <Selected>
               {type === 1 && sourceControl && (
                 <Tag>
-                  {name || sourceControl.controlName}
+                  <div className="controlName ellipsis" title={name || sourceControl.controlName}>
+                    {name || sourceControl.controlName}
+                  </div>
                   <i
                     className="icon-close close"
                     onClick={e => {

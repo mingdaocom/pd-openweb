@@ -13,6 +13,7 @@ import integrationAjax from 'src/pages/integration/api/syncTask';
 import processAjax from 'src/pages/workflow/api/process';
 import { SHARE_STATE, ShareState, VerificationPass } from 'worksheet/components/ShareState';
 import preall from 'src/common/preall';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import AliasDialog from 'src/pages/FormSet/components/AliasDialog';
 import { FIELD_TYPE_LIST } from 'src/pages/workflow/WorkflowSettings/enum';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
@@ -253,45 +254,49 @@ class WorksheetApi extends Component {
         worksheetId,
         getTemplate: true,
       }),
-    ]).then(result => {
-      let [data = [], list = {}] = result;
-      const isDataPipeline = selectId.includes('dataPipeline');
+    ])
+      .then(result => {
+        let [data = [], list = {}] = result;
+        const isDataPipeline = selectId.includes('dataPipeline');
 
-      if (list.alias) {
-        data = data.map(o => {
-          return { ...o, alias: list.alias };
-        });
-      }
+        if (list.alias) {
+          data = data.map(o => {
+            return { ...o, alias: list.alias };
+          });
+        }
 
-      if (!isDataPipeline) {
-        this.MENU_LIST.forEach(item => {
-          if (item.id === 'List') {
-            item.data.forEach(obj => {
-              if (obj.name === 'viewId') {
-                obj.desc = data[0].views.map(o => {
-                  return {
-                    [o.name]: o.viewId,
-                  };
-                });
-              }
-            });
-          }
-        });
-      }
+        if (!isDataPipeline) {
+          this.MENU_LIST.forEach(item => {
+            if (item.id === 'List') {
+              item.data.forEach(obj => {
+                if (obj.name === 'viewId') {
+                  obj.desc = data[0].views.map(o => {
+                    return {
+                      [o.name]: o.viewId,
+                    };
+                  });
+                }
+              });
+            }
+          });
+        }
 
-      this.setState(
-        {
-          [isDataPipeline ? 'dataPipelineData' : 'data']: data,
-          templateControls: list.template.controls || [],
-          sheetSwitchPermit: list.switches,
-          loading: false,
-          alias: list.alias,
-        },
-        () => {
-          this.scrollToFixedPosition();
-        },
-      );
-    });
+        this.setState(
+          {
+            [isDataPipeline ? 'dataPipelineData' : 'data']: data,
+            templateControls: list.template.controls || [],
+            sheetSwitchPermit: list.switches,
+            loading: false,
+            alias: list.alias,
+          },
+          () => {
+            this.scrollToFixedPosition();
+          },
+        );
+      })
+      .catch(err => {
+        this.setState({ loading: false, errorCode: err.errorCode });
+      });
   };
 
   // 获取工作流信息
@@ -406,7 +411,7 @@ class WorksheetApi extends Component {
                   });
             }}
           >
-            <i className={cx('mRight5 Gray_9e', isSelect ? 'icon-arrow-down' : 'icon-arrow-right-tip')} />
+            <i className={cx('mRight5 textTertiary', isSelect ? 'icon-arrow-down' : 'icon-arrow-right-tip')} />
             {item.workSheetName || item.name}
           </div>
           {isSelect
@@ -450,7 +455,7 @@ class WorksheetApi extends Component {
                 });
           }}
         >
-          <i className={cx('mRight5 Gray_9e', isOpen ? 'icon-arrow-down' : 'icon-arrow-right-tip')} />
+          <i className={cx('mRight5 textTertiary', isOpen ? 'icon-arrow-down' : 'icon-arrow-right-tip')} />
           {_l('工作表')}
         </div>
         {isOpen && (
@@ -496,7 +501,7 @@ class WorksheetApi extends Component {
               : this.setSelectId({ selectId: 'dataPipeline', expandIds: ['dataPipeline'] })
           }
         >
-          <i className={cx('mRight5 Gray_9e', isOpen ? 'icon-arrow-down' : 'icon-arrow-right-tip')} />
+          <i className={cx('mRight5 textTertiary', isOpen ? 'icon-arrow-down' : 'icon-arrow-right-tip')} />
           {_l('聚合表')}
         </div>
         {dataPipelineLoading && <LoadDiv />}
@@ -530,7 +535,7 @@ class WorksheetApi extends Component {
                 });
           }}
         >
-          <i className={cx('mRight5 Gray_9e', isOpen ? 'icon-arrow-down' : 'icon-arrow-right-tip')} />
+          <i className={cx('mRight5 textTertiary', isOpen ? 'icon-arrow-down' : 'icon-arrow-right-tip')} />
           {title}
         </div>
         {isOpen &&
@@ -566,7 +571,7 @@ class WorksheetApi extends Component {
               : this.setSelectId({ expandIds: ['workflow'], selectId: 'workflow' });
           }}
         >
-          <i className={cx('mRight5 Gray_9e', isOpen ? 'icon-arrow-down' : 'icon-arrow-right-tip')} />
+          <i className={cx('mRight5 textTertiary', isOpen ? 'icon-arrow-down' : 'icon-arrow-right-tip')} />
           {_l('工作流')}
         </div>
         {isOpen && (
@@ -614,7 +619,7 @@ class WorksheetApi extends Component {
             isOpen ? this.setState({ expandIds: [] }) : this.setSelectId({ selectId: id, expandIds: [id] });
           }}
         >
-          <i className={cx('mRight5 Gray_9e', isOpen ? 'icon-arrow-down' : 'icon-arrow-right-tip')} />
+          <i className={cx('mRight5 textTertiary', isOpen ? 'icon-arrow-down' : 'icon-arrow-right-tip')} />
           {title}
         </div>
         {isOpen
@@ -966,18 +971,18 @@ class WorksheetApi extends Component {
         <div className="worksheetApiContent1">
           <div className="Font22 bold">{workflowInfo.name + ' POST'}</div>
           {/* <div className="Font14 bold mTop20">
-            <span className="mRight20 Gray_75">
+            <span className="mRight20 textSecondary">
               {_l('流程ID：')}
               {workflowInfo.processId}
             </span>
-            <span className="Gray_75">
+            <span className="textSecondary">
               {_l('流程别名：')}
               {workflowAlias}
             </span>
             {tabIndex === TAB_TYPE.APPLICATION && (
               <span
                 className="Hand Font13 mLeft20"
-                style={{ color: '#1677ff' }}
+                style={{ color: 'var(--color-primary)' }}
                 onClick={() => this.setState({ workflowAliasDialog: true })}
               >
                 {_l('设置')}
@@ -990,7 +995,7 @@ class WorksheetApi extends Component {
           <div className="valignWrapper justifyContentBetween Font17 bold mTop30">
             <span>{_l('请求参数')}</span>
             {/* {tabIndex === TAB_TYPE.APPLICATION && (
-              <span className="Hand Font13 mLeft20" style={{ color: '#1677ff' }}>
+              <span className="Hand Font13 mLeft20" style={{ color: 'var(--color-primary)' }}>
                 {_l('设置参数别名')}
               </span>
             )} */}
@@ -1186,7 +1191,7 @@ class WorksheetApi extends Component {
                 })
               ) : o.id === 'AreaInfo' ? (
                 <div className="worksheetApiContent2">
-                  <div className="Font14 mTop20 White mBottom6">{_l('获取地区信息')}</div>
+                  <div className="Font14 mTop20 textWhite mBottom6">{_l('获取地区信息')}</div>
                   <JsonView
                     src={o.cityData}
                     theme="brewer"
@@ -1240,12 +1245,12 @@ class WorksheetApi extends Component {
                 )}
               </div>
               <div className="Font14 bold mTop20 mBottom40">
-                <span className="mRight20 Gray_75">{_l('工作表ID：') + item.worksheetId}</span>
-                <span className="Gray_75">{_l('工作表别名：') + (alias || '')}</span>
+                <span className="mRight20 textSecondary">{_l('工作表ID：') + item.worksheetId}</span>
+                <span className="textSecondary">{_l('工作表别名：') + (alias || '')}</span>
                 {!isSharePage && (
                   <span
                     className="Hand Font13 mLeft20"
-                    style={{ color: '#1677ff' }}
+                    style={{ color: 'var(--color-primary)' }}
                     onClick={() => this.setState({ showWorksheetAliasDialog: true, dialogType: type })}
                   >
                     {_l('设置')}
@@ -1260,7 +1265,7 @@ class WorksheetApi extends Component {
             {!isSharePage && (
               <span
                 className="Right Hand Font13"
-                style={{ color: '#1677ff' }}
+                style={{ color: 'var(--color-primary)' }}
                 onClick={() => {
                   this.setState({ aliasDialog: { visible: true, type: this.MENU_LIST[i].type }, dialogType: type });
                 }}
@@ -1368,7 +1373,7 @@ class WorksheetApi extends Component {
           <Tooltip title={visible ? _l('隐藏') : _l('显示')}>
             <Icon
               icon={visible ? 'visibility_off' : 'eye_off'}
-              className="Font16 pointer Gray_75 ThemeHoverColor2"
+              className="Font16 pointer textSecondary ThemeHoverColor2"
               onClick={() => {
                 this.setState({
                   [visibleState]: visible
@@ -1381,7 +1386,7 @@ class WorksheetApi extends Component {
           <Tooltip title={_l('复制')}>
             <Icon
               icon="copy"
-              className="Font16 pointer Gray_75 ThemeHoverColor2 mLeft8"
+              className="Font16 pointer textSecondary ThemeHoverColor2 mLeft8"
               onClick={() => this.onCopy(text)}
             />
           </Tooltip>
@@ -1409,7 +1414,7 @@ class WorksheetApi extends Component {
                 <div className="w14">{o.name}</div>
                 <div className="mLeft10 w12">
                   {visibleAppKeys.includes(o.appKey) && <div>{o.appKey}</div>}
-                  <div className="Gray_9e">{o.remark}</div>
+                  <div className="textTertiary">{o.remark}</div>
                   {renderIconRow('visibleAppKeys', o.appKey)}
                 </div>
                 <div className="mLeft10 w26">
@@ -1649,7 +1654,7 @@ class WorksheetApi extends Component {
   renderRightContent({ data, successData, errorData, outputData, enableClipboard = false }) {
     return (
       <div className="worksheetApiContent2">
-        <div className="mBottom16 Font14 Gray_bd">{_l('提交数据提示')}</div>
+        <div className="mBottom16 Font14 textDisabled">{_l('提交数据提示')}</div>
 
         {enableClipboard ? (
           <JsonView
@@ -1677,7 +1682,7 @@ class WorksheetApi extends Component {
 
         {successData ? (
           <Fragment>
-            <div className="mTop16 mBottom16 Font14 Gray_bd">{_l('返回数据示例')}</div>
+            <div className="mTop16 mBottom16 Font14 textDisabled">{_l('返回数据示例')}</div>
             {successData && (
               <JsonView
                 src={successData}
@@ -1699,7 +1704,7 @@ class WorksheetApi extends Component {
 
         {!!outputData && (
           <Fragment>
-            <div className="mTop16 mBottom16 Font14 Gray_bd">{_l('返回数据示例')}</div>{' '}
+            <div className="mTop16 mBottom16 Font14 textDisabled">{_l('返回数据示例')}</div>{' '}
             <JsonView src={outputData} theme="brewer" displayDataTypes={false} displayObjectSize={false} name={null} />
           </Fragment>
         )}
@@ -1949,6 +1954,7 @@ class WorksheetApi extends Component {
     const appId = this.getId();
     const sidebarList = SIDEBAR_LIST_MAP[tabIndex] || [];
     const lang = window.getCurrentLang();
+    const theme = document.body.getAttribute('data-theme') || 'light';
 
     if (errorCode === 2) {
       return (
@@ -1961,6 +1967,10 @@ class WorksheetApi extends Component {
           </div>
         </div>
       );
+    }
+
+    if (errorCode === 300016) {
+      return <RestrictAccessStatus />;
     }
 
     if (loading) {
@@ -1979,7 +1989,7 @@ class WorksheetApi extends Component {
           updateTabIndex={this.updateTabIndex}
           getId={this.handleGetId}
         />
-        <div className="flex flexRow minHeight0 WhiteBG">
+        <div className="flex flexRow minHeight0 bgPrimary">
           {tabIndex === TAB_TYPE.API_V3 ? (
             <iframe
               width="100%"
@@ -1987,7 +1997,7 @@ class WorksheetApi extends Component {
               style={{ border: 'none' }}
               allowTransparency={true}
               allowFullScreen
-              src={`${md.global.Config.OpenApiDocUrl}/${lang === 'zh-Hans' ? 'zh-Hans' : 'en'}/?ts=${Date.now()}`}
+              src={`${md.global.Config.OpenApiDocUrl}/${lang === 'zh-Hans' ? 'zh-Hans' : 'en'}?ts=${Date.now()}&theme=${theme}`}
             />
           ) : (
             <Fragment>

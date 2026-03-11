@@ -22,7 +22,11 @@ function AttachmentAction(props) {
   } = props;
   const [showSavePreviewService, setShowSavePreviewService] = useState(false);
   const isMobile = browserIsMobile();
-  const showWpsPreview = !md.global.Config.IsLocal && cauUseWpsPreview && !md.global.Config.EnableWpsDocPreview;
+  const showWpsPreview =
+    !window.platformENV.isOverseas &&
+    !window.platformENV.isLocal &&
+    cauUseWpsPreview &&
+    !md.global.Config.EnableWpsDocPreview;
 
   return (
     <div className={cx('flexRow flex justifyContentCenter', { mobileAttachmentAction: isMobile })}>
@@ -60,7 +64,7 @@ function AttachmentAction(props) {
             >
               <div className="setWPSPreview usingWPS" onClick={() => setShowSavePreviewService(true)}>
                 <span className="bold">{_l('正在使用WPS服务预览')}</span>
-                <i className="icon icon-arrow-down White mLeft5"></i>
+                <i className="icon icon-arrow-down textWhite mLeft5"></i>
               </div>
             </Trigger>
           )}
@@ -137,7 +141,10 @@ export default function CommonHeader(props) {
         isMobile,
         Relative: !showEdit && !isMobile,
         disabledWpsPreview:
-          isMobile && ((!attachmentActionInfo.cauUseWpsPreview && !showEdit) || md.global.Config.IsLocal),
+          isMobile &&
+          ((!attachmentActionInfo.cauUseWpsPreview && !showEdit) ||
+            window.platformENV.isOverseas ||
+            window.platformENV.isLocal),
       })}
     >
       <div className="flexRow">
@@ -305,9 +312,10 @@ export default function CommonHeader(props) {
           </div>
         )}
       </div>
-      {isMobile && !md.global.Config.IsLocal && (attachmentActionInfo.cauUseWpsPreview || showEdit) && (
-        <AttachmentAction {...attachmentActionInfo} />
-      )}
+      {isMobile &&
+        !window.platformENV.isOverseas &&
+        !window.platformENV.isLocal &&
+        (attachmentActionInfo.cauUseWpsPreview || showEdit) && <AttachmentAction {...attachmentActionInfo} />}
     </div>
   );
 }

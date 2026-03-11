@@ -10,7 +10,7 @@ import PointImg from '../images/point.png';
 
 const TableWrap = styled.div`
   td.ant-table-column-sort {
-    background: #fff;
+    background: var(--color-background-primary);
   }
   .pointImg {
     width: 39px;
@@ -232,7 +232,7 @@ function DeputeTable(props) {
               overflow: { adjustX: true, adjustY: true },
             }}
           >
-            <Icon icon="moreop" className="Gray_bd Font18 Hover_49 Hand TxtMiddle actionIcon" />
+            <Icon icon="moreop" className="textDisabled Font18 hoverTextPrimaryLight Hand TxtMiddle actionIcon" />
           </Trigger>
         )}
       />

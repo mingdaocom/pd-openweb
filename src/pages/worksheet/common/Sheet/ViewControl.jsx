@@ -9,7 +9,7 @@ import { Slider } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { copyViewConfig } from 'worksheet/common/CopyViewConfig';
 import CreateCustomBtn from 'worksheet/common/CreateCustomBtn';
-import { exportSheet } from 'worksheet/common/ExportSheet';
+import exportSheet from 'worksheet/common/ExportSheet';
 import ViewConfig from 'worksheet/common/ViewConfig';
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import Pagination from 'worksheet/components/Pagination';
@@ -54,12 +54,12 @@ const Con = styled.div`
   flex-shrink: 0;
   height: 37px;
   padding: 0 20px 0 20px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--color-border-secondary);
 
   .detailAllCount {
     padding-left: 16px;
     font-size: 14px;
-    color: #888;
+    color: var(--color-text-secondary);
   }
 `;
 
@@ -324,13 +324,13 @@ function ViewControl(props) {
             }}
           >
             <Tooltip placement="bottom" title={_l('查找')}>
-              <i className={cx('icon icon-search Gray_9e Font18 pointer ThemeHoverColor3 mTop2 mRight15')} />
+              <i className={cx('icon icon-search textTertiary Font18 pointer ThemeHoverColor3 mTop2 mRight15')} />
             </Tooltip>
           </SearchRecord>
         )}
       <Tooltip placement="bottom" title={_l('刷新视图')}>
         <i
-          className={cx('icon icon-task-later refresh Gray_9e Font18 pointer ThemeHoverColor3 mTop2')}
+          className={cx('icon icon-task-later refresh textTertiary Font18 pointer ThemeHoverColor3 mTop2')}
           onClick={() => {
             if (cache.current.isRefreshing) {
               alert(_l('刷新过于频繁，请稍后再试'), 3);
@@ -364,7 +364,7 @@ function ViewControl(props) {
             max={view.displayControls.length}
             step={1}
             itemnames={''}
-            itemcolor={{ type: 1, color: '#9e9e9e' }}
+            itemcolor={{ type: 1, color: 'var(--color-text-tertiary)' }}
             onChange={value => {
               updateViewShowcount(value);
             }}
@@ -526,6 +526,7 @@ function ViewControl(props) {
           currentSheetInfo={worksheetInfo}
           view={view}
           worksheetControls={controls}
+          saveViewSetLoading={props.saveViewSetLoading}
           onClickAwayExceptions={[
             '.addControlDrop',
             '.scrollViewContainer',

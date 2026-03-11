@@ -21,7 +21,7 @@ const NotifierCon = styled.div`
 const NotifierItem = styled.div`
   display: flex;
   align-items: center;
-  background: #f7f7f7;
+  background: var(--color-background-secondary);
   padding-right: 10px;
   border-radius: 24px;
   max-width: 200px;
@@ -32,13 +32,13 @@ const AddNotifierBtn = styled.div`
   height: 28px;
   text-align: center;
   line-height: 28px;
-  background: #ffffff;
-  border: 1px solid #e0e0e0;
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border-secondary);
   border-radius: 50%;
-  color: #757575;
+  color: var(--color-text-secondary);
   &:hover {
-    border: 1px solid #1677ff;
-    color: #1677ff;
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
   }
 `;
 
@@ -153,12 +153,13 @@ class EarlyWarningDialog extends Component {
         <div className="mBottom12">
           {_l('通知方式')}
           <Tooltip placement="bottom" title={_l('默认通过系统消息向通知人发送提醒。您可设置更多提醒方式。')}>
-            <Icon icon="info" className="Gray_bd mLeft8 Font16" />
+            <Icon icon="info" className="textDisabled mLeft8 Font16" />
           </Tooltip>
         </div>
         <div className="methods">
           {NOTICE_METHOD_OPTIONS.filter(v =>
-            _.get(md, 'global.Config.IsLocal') && !_.get(md, 'global.SysSettings.enableSmsCustomContent')
+            (window.platformENV.isOverseas || window.platformENV.isLocal) &&
+            !_.get(md, 'global.SysSettings.enableSmsCustomContent')
               ? v.value !== '2'
               : true,
           ).map((item, index) => (
@@ -192,7 +193,7 @@ class EarlyWarningDialog extends Component {
                   '设置后，在扣款时若组织账户信用点低于预警值则会发送预警给通知人（每天仅发送 1 次预警，若重置预警值则会再次发送）',
                 )}
               >
-                <i className="icon icon-info Gray_bd mLeft8" />
+                <i className="icon icon-info textDisabled mLeft8" />
               </Tooltip>
             </div>
           ) : (
@@ -258,7 +259,7 @@ class EarlyWarningDialog extends Component {
                   <div className="userName flexRow pLeft5">
                     <span className="ellipsis flex">{it.fullname}</span>
                     <i
-                      className="ming Icon icon-default icon icon-close Font16 mLeft8 Gray_75 Hand"
+                      className="ming Icon icon-default icon icon-close Font16 mLeft8 textSecondary Hand"
                       onClick={() => this.deleteNotifier(it.accountId)}
                     />
                   </div>

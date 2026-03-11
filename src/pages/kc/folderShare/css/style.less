@@ -1,4 +1,3 @@
-@themeColor: #1677ff;
 html,
 body {
   * {
@@ -13,11 +12,11 @@ body {
   flex-direction: column;
   height: 100%;
   font-size: 15px;
-  color: #151515;
+  color: var(--color-text-title);
   .header {
     height: 50px;
-    background-color: #fff;
-    border-bottom: 1px solid #e0e0e0;
+    background-color: var(--color-background-primary);
+    border-bottom: 1px solid var(--color-border-secondary);
     .logo img {
       height: 30px;
       margin: 7px 16px;
@@ -27,8 +26,8 @@ body {
       cursor: pointer;
       width: 72px;
       height: 30px;
-      background-color: @themeColor;
-      color: #fff;
+      background-color: var(--color-primary);
+      color: var(--color-white);
       font-size: 12px;
       text-align: center;
       line-height: 30px;
@@ -52,7 +51,7 @@ body {
         cursor: pointer;
         margin-left: 20px;
         font-size: 15px;
-        color: #808080;
+        color: var(--color-text-secondary);
         justify-content: center;
         align-items: center;
         i {
@@ -67,8 +66,8 @@ body {
     height: 46px;
     line-height: 46px;
     font-size: 17px;
-    color: #151515;
-    border-bottom: 1px solid #e0e0e0;
+    color: var(--color-text-title);
+    border-bottom: 1px solid var(--color-border-secondary);
     a {
       color: inherit;
       text-decoration: none;
@@ -96,8 +95,8 @@ body {
         height: 52px;
         line-height: 26px;
         font-size: 14px;
-        color: #151515;
-        border-bottom: 1px solid #e0e0e0;
+        color: var(--color-text-title);
+        border-bottom: 1px solid var(--color-border-secondary);
         .fileIcon,
         .filePreview {
           position: absolute;
@@ -111,7 +110,7 @@ body {
           max-width: 100%;
         }
         &:active {
-          background-color: #f9f9f9;
+          background-color: var(--color-background-secondary);
         }
       }
     }
@@ -119,7 +118,7 @@ body {
       text-align: center;
       p {
         font-size: 14px;
-        color: #a2a2a2;
+        color: var(--color-text-tertiary);
         margin: 5px 0;
       }
       .icon {
@@ -143,11 +142,11 @@ body {
   .footer {
     padding: 10px;
     height: 118px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     text-align: center;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--color-border-secondary);
     a {
-      color: @themeColor;
+      color: var(--color-primary);
     }
     .operate {
       padding: 0px 16px 20px;
@@ -157,8 +156,8 @@ body {
         line-height: 45px;
         font-size: 15px;
         border-radius: 4px;
-        color: #fff;
-        background: @themeColor;
+        color: var(--color-white);
+        background: var(--color-primary);
       }
     }
     &.pc {
@@ -188,7 +187,7 @@ body {
         .fileItem {
           cursor: pointer;
           &:hover {
-            background-color: #f9f9f9;
+            background-color: var(--color-background-hover);
           }
         }
       }
@@ -197,7 +196,7 @@ body {
 }
 
 #previewCon {
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   position: absolute;
   top: 0;
   bottom: 0;
@@ -216,7 +215,7 @@ body {
     display: inline-block;
     padding: 8px 20px;
     background-color: rgba(0, 0, 0, 0.6);
-    color: #fff;
+    color: var(--color-white);
     border-radius: 50px;
     font-size: 13px;
   }

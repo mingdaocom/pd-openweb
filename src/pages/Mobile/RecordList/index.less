@@ -1,17 +1,21 @@
 @import url('../Discuss/index.less');
 
 .mobileView {
-  background-color: #f2f2f3;
+  background-color: var(--color-background-secondary);
   min-height: 0;
 }
 
 .viewTabs {
   --active-line-height: 3px;
-  color: #757575;
-  background-color: #fff;
+  color: var(--color-text-secondary);
+  background-color: var(--color-background-primary);
   height: 42px;
+  box-shadow: var(--shadow-md);
   &.isPortal {
     margin-top: -10px;
+  }
+  .adm-tabs-header {
+    border-bottom: none;
   }
 }
 .addRecordBtn {
@@ -48,7 +52,7 @@
   height: 42px;
   line-height: 42px;
   padding: 0 15px;
-  background-color: #fff;
+  background-color: var(--color-background-card);
   border-radius: 0 0 8px 8px;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
 }

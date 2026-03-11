@@ -12,7 +12,7 @@ const ApprovalProcessBox = styled.div`
   border-radius: 24px 24px 24px 24px;
   padding: 0 12px;
   &:not(.foldCurrentNode) {
-    background: #ededf4;
+    background: var(--color-border-secondary);
   }
   &.foldCurrentNode {
     margin-bottom: -20px;
@@ -32,23 +32,23 @@ const ApprovalProcessBox = styled.div`
       margin: auto;
       width: 1px;
       height: 100%;
-      background-color: #ccc;
+      background-color: var(--color-text-placeholder);
     }
   }
   .workflowBranch {
-    background: #ededf4 !important;
+    background: var(--color-border-secondary) !important;
     > .flexColumn {
       .clearLeftBorder::before,
       .clearLeftBorder::after,
       .clearRightBorder::before,
       .clearRightBorder::after {
-        background: #ededf4 !important;
+        background: var(--color-border-secondary) !important;
       }
     }
   }
   .workflowBranchBtn,
   .icon-custom_add_circle {
-    background: #ededf4 !important;
+    background: var(--color-border-secondary) !important;
   }
   .Menu.List {
     margin-top: -6px !important;
@@ -57,16 +57,16 @@ const ApprovalProcessBox = styled.div`
 
 const Box = styled.div`
   .foldNode {
-    color: #fff;
-    background: #2747f9;
+    color: var(--color-white);
+    background: var(--color-link-hover);
     .approvalIcon {
-      background: #fff;
-      color: #2747f9;
+      background: var(--color-background-primary);
+      color: var(--color-link-hover);
     }
     .workflowOperate {
       color: rgba(255, 255, 255, 0.8);
       &:hover {
-        color: #fff;
+        color: var(--color-white);
       }
     }
   }
@@ -82,7 +82,7 @@ const Box = styled.div`
   }
   .approvalIcon {
     cursor: pointer;
-    background: #2747f9;
+    background: #4158db;
     &:hover {
       background-color: #122ec9;
     }
@@ -153,7 +153,7 @@ export default props => {
             <Tooltip
               title={() => (
                 <span
-                  className="workflowBranchBtnSmall Gray_75 ThemeHoverColor3 mTop7"
+                  className="workflowBranchBtnSmall textSecondary ThemeHoverColor3 mTop7"
                   onMouseDown={() => {
                     nodeNameRef && nodeNameRef.current && nodeNameRef.current.blur();
                     changeShrink();
@@ -188,7 +188,7 @@ export default props => {
           )}
 
           {!startEventId && (
-            <div className="Font14 Bold" style={{ color: '#f44336', marginTop: 14, marginBottom: 48 }}>
+            <div className="Font14 Bold" style={{ color: 'var(--color-error)', marginTop: 14, marginBottom: 48 }}>
               {_l('审批流程异常，请删除后重新配置')}
             </div>
           )}

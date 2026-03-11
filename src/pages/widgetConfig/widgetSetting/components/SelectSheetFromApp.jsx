@@ -17,10 +17,10 @@ const SelectItem = styled.div`
   .ming.Menu {
     width: 100%;
     &.disabled {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-secondary);
       .Dropdown--input {
         &:hover {
-          border-color: #ccc;
+          border-color: var(--color-border-tertiary);
         }
       }
     }

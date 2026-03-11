@@ -207,13 +207,13 @@ class ChatPanelHeader extends Component {
     return (
       <div className="ChatPanel-addToolbar-menu">
         {isSet ? (
-          <div className="menuItem ThemeBGColor3" onClick={this.handleStick.bind(this)}>
+          <div className="menuItem" onClick={this.handleStick.bind(this)}>
             <i className="icon-set_top" />
             <div className="menuItem-text overflow_ellipsis">{isTop ? _l('取消置顶') : _l('置顶')}</div>
           </div>
         ) : undefined}
         {isGroup ? (
-          <div className="menuItem ThemeBGColor3" onClick={this.handleUpdateGroupPushNotice.bind(this)}>
+          <div className="menuItem" onClick={this.handleUpdateGroupPushNotice.bind(this)}>
             {session.isGroup ? this.renderIcon() : undefined}
             <div className="menuItem-text overflow_ellipsis">
               {session.isPushNotice ? _l('消息免打扰') : _l('允许提醒')}
@@ -221,7 +221,7 @@ class ChatPanelHeader extends Component {
           </div>
         ) : undefined}
         {!hideChat && isGroup ? (
-          <div className="menuItem ThemeBGColor3" onClick={this.handleSettingGroup}>
+          <div className="menuItem" onClick={this.handleSettingGroup}>
             <i className="icon-group" />
             <div className="menuItem-text overflow_ellipsis">{session.isPost ? _l('群组设置') : _l('聊天设置')}</div>
           </div>
@@ -255,12 +255,12 @@ class ChatPanelHeader extends Component {
     return (
       <div className="pTop5 pBottom5">
         <div>
-          <span className="Gray_75">{_l('所属组织：')}</span>
+          <span className="textSecondary">{_l('所属组织：')}</span>
           {session.project.companyName}
         </div>
         {session.mapDepartmentName && (
           <div className="mTop5">
-            <span className="Gray_75">{_l('关联部门：')}</span>
+            <span className="textSecondary">{_l('关联部门：')}</span>
             {session.mapDepartmentName}
           </div>
         )}
@@ -283,7 +283,7 @@ class ChatPanelHeader extends Component {
           <Tooltip placement="bottomLeft" type="white" title={this.getGroupMessage()}>
             <i
               className={cx('mRight10 Font20', session.project ? 'icon-business' : 'icon-person_new')}
-              style={{ color: session.project ? '#1677ff' : '#ff7f00' }}
+              style={{ color: session.project ? 'var(--color-primary)' : 'var(--color-warning)' }}
             />
           </Tooltip>
         )}

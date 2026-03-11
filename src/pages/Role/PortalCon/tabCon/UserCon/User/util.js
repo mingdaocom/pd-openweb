@@ -37,7 +37,7 @@ const renderControl = (text, data) => {
   let portal_status = safeParse(data.portal_status, 'array')[0];
   //正常、未激活（添加用户后用户未注册）停用
   if (portal_status === '5') {
-    return <span className="Gray_9e">{_l('未激活')}</span>;
+    return <span className="textTertiary">{_l('未激活')}</span>;
   }
   return (userStatusList.filter(o => o.value + '' !== '5').find(o => o.value === portal_status) || {}).text;
 };
@@ -170,7 +170,7 @@ export const getColumnsShowControls = ({
               text: _l('取消邀请并移除'),
             },
           ];
-          if (md.global.Config.IsLocal) {
+          if (window.platformENV.isOverseas || window.platformENV.isLocal) {
             dataList = [{ value: '1', text: _l('激活') }, ...dataList];
           }
         } else {

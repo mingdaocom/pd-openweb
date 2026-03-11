@@ -178,7 +178,7 @@ class EditBox extends React.Component {
           {renderField()}
           <Icon
             icon="trash"
-            className="Gray_9e deleteBtn Hand"
+            className="textTertiary deleteBtn Hand"
             onClick={() => {
               ruleItems.splice(actionIndex, 1);
               updateSelectRule('ruleItems', ruleItems);
@@ -202,7 +202,7 @@ class EditBox extends React.Component {
                 </div>
                 <Icon
                   icon="trash"
-                  className="Gray_9e deleteBtn Hand"
+                  className="textTertiary deleteBtn Hand"
                   onClick={() => {
                     const newActionData = {
                       ...currentActionData,
@@ -339,7 +339,7 @@ class EditBox extends React.Component {
                   )}
                   <Icon
                     icon="trash"
-                    className="Gray_9e deleteBtn Hand"
+                    className="textTertiary deleteBtn Hand"
                     onClick={() => {
                       ruleItems.splice(actionIndex, 1);
                       updateSelectRule('ruleItems', ruleItems);
@@ -371,7 +371,7 @@ class EditBox extends React.Component {
                   {i.label}
                   {i.warnText && (
                     <Tooltip placement="bottom" title={i.warnText}>
-                      <i className="icon-info_outline Gray_9e Font16"></i>
+                      <i className="icon-info_outline textTertiary Font16"></i>
                     </Tooltip>
                   )}
                 </div>
@@ -458,7 +458,7 @@ class EditBox extends React.Component {
                     '勾选后，在条件字段输入和失焦时实时提示错误。取消勾选后，只会在最后点击提交按钮时提示错误。',
                   )}
                 >
-                  <i className="icon-help Gray_9e Font16 Hand mLeft6"></i>
+                  <i className="icon-help textTertiary Font16 Hand mLeft6"></i>
                 </Tooltip>
               </span>
             }
@@ -490,7 +490,7 @@ class EditBox extends React.Component {
                       </span>
                     }
                   >
-                    <i className="icon-help Gray_9e Font16 Hand mLeft6"></i>
+                    <i className="icon-help textTertiary Font16 Hand mLeft6"></i>
                   </Tooltip>
                 </span>
               }

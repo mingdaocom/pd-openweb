@@ -167,6 +167,19 @@ function pagination(state = { pageIndex: 1, pageSize: 20, count: 0 }, action) {
   }
 }
 
+function sortConfig(state = null, action) {
+  switch (action.type) {
+    case 'UPDATE_SORT_CONFIG':
+      return action.sortConfig;
+    case 'RESET':
+    case 'LOAD_ROWS':
+    case 'CLEAR_AND_SET_ROWS':
+      return null;
+    default:
+      return state;
+  }
+}
+
 export default combineReducers({
   cellErrors,
   baseLoading,
@@ -178,4 +191,5 @@ export default combineReducers({
   rows,
   changes,
   pagination,
+  sortConfig,
 });

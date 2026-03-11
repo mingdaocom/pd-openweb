@@ -23,13 +23,13 @@ const EditableCardWrap = styled.div`
     visibility: hidden;
     text-align: center;
     line-height: 24px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     cursor: pointer;
     i {
       vertical-align: text-top;
     }
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;

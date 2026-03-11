@@ -16,9 +16,9 @@ import 'rc-trigger/assets/index.css';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
 const Box = styled.span`
-  color: ${props => (props.isBranch ? '#757575' : 'rgba(255, 255, 255, 0.8)')};
+  color: ${props => (props.isBranch ? 'var(--color-text-secondary)' : 'rgba(255, 255, 255, 0.8)')};
   &:hover {
-    color: ${props => (props.isBranch ? '#1677ff' : '#fff')};
+    color: ${props => (props.isBranch ? 'var(--color-primary)' : '#fff')};
   }
 `;
 
@@ -36,22 +36,22 @@ const TestResultBox = styled.div`
   cursor: pointer;
   &:hover {
     .icon-wysiwyg {
-      color: #2196f3;
+      color: var(--color-link-hover);
     }
   }
   .icon-loading_button {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     display: inline-block;
     animation: rotate 1.2s linear infinite;
   }
   .icon-ok {
-    color: #01ca83;
+    color: var(--color-task);
   }
   .icon-error {
-    color: #f44336;
+    color: var(--color-error);
   }
   .icon-wysiwyg {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     display: none;
   }
 `;
@@ -165,8 +165,8 @@ export default class NodeOperate extends Component {
       width: 540,
       description: (
         <Fragment>
-          <div className="Gray">{_l('别名')}</div>
-          <div className="mTop5 Gray_75 Font12">
+          <div className="textPrimary">{_l('别名')}</div>
+          <div className="mTop5 textSecondary Font12">
             {_l(
               '用于在邮件节点中插入动态值时指代当前节点，比使用节点ID更有辨识度。节点别名仅允许使用字母（不区分大小写）、数字和下划线组合，且必须以字母开头，不可重复。',
             )}
@@ -194,10 +194,10 @@ export default class NodeOperate extends Component {
             />
           </div>
 
-          <div className="Gray mTop15">{_l('说明')}</div>
+          <div className="textPrimary mTop15">{_l('说明')}</div>
           <textarea
             id="workflowNodeNotes"
-            className="boderRadAll_4 pAll10 Gray mTop10"
+            className="boderRadAll_4 pAll10 textPrimary mTop10"
             placeholder={_l('请输入节点说明')}
             defaultValue={item.desc}
           />
@@ -350,7 +350,7 @@ export default class NodeOperate extends Component {
         </ul>
         {item.typeId === NODE_TYPE.BRANCH_ITEM && (
           <Fragment>
-            <div className="Gray_75 flowNodeOperateMove">{_l('移动')}</div>
+            <div className="textSecondary flowNodeOperateMove">{_l('移动')}</div>
             <div className="flowNodeOperateMoveBtn flexRow">
               <div className={cx('pAll3 flexRow', { disabled: branchItemIndex === 0 })}>
                 <Tooltip placement="bottom" title={branchItemIndex === 0 ? '' : _l('移至最左')}>

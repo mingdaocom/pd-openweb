@@ -1,5 +1,11 @@
 import { VersionProductType } from 'src/utils/enum';
 
+export const tabData = [
+  { key: 'list', label: _l('应用') },
+  { key: 'export', label: _l('导出记录') },
+  { key: 'upgrade', label: _l('升级记录') },
+];
+
 export const optionData = [
   {
     label: _l('导出应用'),
@@ -31,11 +37,18 @@ export const optionData = [
   },
 ];
 
-export const dialogHeader = {
-  selectAppVisible: _l('选择要导出的应用'),
-  singleAppVisible: _l('导出应用'),
-  uploadVisible: _l('导入应用'),
-};
+export const importAppMode = [
+  {
+    label: _l('普通模式'),
+    value: 0,
+    description: _l('选择生成新应用，或指定同源应用进行升级'),
+  },
+  {
+    label: _l('迁移模式'),
+    value: 1,
+    description: _l('根据 ID 自动匹配应用(全平台唯一)，不存在则生成新应用，存在则全量覆盖更新'),
+  },
+];
 
 export const DataDBInstances = [
   { label: _l('全部数据库'), value: 'all', status: 1 },

@@ -45,7 +45,7 @@ const Wrap = styled.div(
     }
   }
   .headTr {
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   .lisCon {
     overflow: auto;
@@ -62,14 +62,14 @@ const Wrap = styled.div(
       width: 130px;
       height: 130px;
       line-height: 130px;
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       border-radius: 50%;
       margin: 0 auto;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
   }
   .Green_fr{
-    color:#4caf50
+    color:var(--color-success)
   }
 `,
 );
@@ -189,7 +189,7 @@ function APITable(props) {
               <span className="iconCon InlineBlock TxtCenter ">
                 <i className={`icon-${noDataIcon || 'workflow_webhook'} Font64 TxtMiddle`} />
               </span>
-              <p className="Gray_9e mTop20 mBottom0">{props.noDataTxt || _l('无相关数据')}</p>
+              <p className="textTertiary mTop20 mBottom0">{props.noDataTxt || _l('无相关数据')}</p>
             </div>
           )}
         </div>

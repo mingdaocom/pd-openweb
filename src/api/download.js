@@ -91,6 +91,25 @@ export default {
     return mdyAPI('Download', 'ExportProjectUserList', args, options);
   },
   /**
+  * 导出 不活跃成员
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织 Id
+  * @param {integer} args.dayRange 天数范围 
+            0 = 最近7天，
+            1 = 最近一个月，
+            2 = 最近一个季度，
+            3 = 最近半年，
+            4 = 最近一年
+  * @param {integer} args.orderBy 排序 MD.Entity.Mongo.Apk.InactiveUserSort
+  * @param {array} args.userIds 导出 指定用户
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+  exportInactiveUsers: function (args, options = {}) {
+    return mdyAPI('Download', 'ExportInactiveUsers', args, options);
+  },
+  /**
    * 导出导入用户错误列表
    * @param {Object} args 请求参数
    * @param {string} args.projectId 网络id
@@ -181,6 +200,7 @@ export default {
    * @param {boolean} args.isLine 线性图标或者面性图标 true表示线性，false表示面性，默认值为true
    * @param {boolean} args.iconType 图标类型 true-表示系统图标 false-自定义图标
    * @param {array} args.categories 分类数组
+   * @param {string} args.keyword 搜索关键字
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

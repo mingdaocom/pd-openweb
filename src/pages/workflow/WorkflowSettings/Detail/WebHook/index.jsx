@@ -24,10 +24,10 @@ const GenerateJSONBox = styled.textarea`
   height: 340px;
   overflow: auto;
   width: 100%;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   resize: none;
   &:focus {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
   }
 `;
 
@@ -152,6 +152,7 @@ export default class WebHook extends Component {
       executeType,
       authId,
       ignoreValueEmpty,
+      disabledCode,
     } = data;
     const handleFormControls = formControls
       .filter(item => item.name)
@@ -218,6 +219,7 @@ export default class WebHook extends Component {
           executeType,
           authId,
           ignoreValueEmpty,
+          disabledCode,
         },
         { isIntegration: this.props.isIntegration },
       )
@@ -238,7 +240,7 @@ export default class WebHook extends Component {
     return (
       <Fragment>
         <div className="Font13 bold">{_l('数据对象')}</div>
-        <div className="Font13 Gray_75 mTop10">{_l('当前流程中的节点对象')}</div>
+        <div className="Font13 textSecondary mTop10">{_l('当前流程中的节点对象')}</div>
 
         <SelectNodeObject
           appList={data.appList}
@@ -250,7 +252,7 @@ export default class WebHook extends Component {
         <div className="mTop20">{this.renderUrl()}</div>
         {this.renderHeaders()}
 
-        <div className="Gray_75 mTop15 flexRow alignItemsCenter">
+        <div className="textSecondary mTop15 flexRow alignItemsCenter">
           <i className="icon-info_outline mRight5 Font16" />
           {_l('查看发送数据的')}
           <a className="mLeft5" onClick={this.openChecksheet}>
@@ -274,10 +276,10 @@ export default class WebHook extends Component {
         {this.renderHeaders()}
         {!_.includes([1, 4, 5], data.method) && this.renderBody()}
 
-        {data.realIp && (
+        {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
           <Fragment>
             <div className="Font13 bold mTop20">{_l('可信 IP 地址')}</div>
-            <div className="mTop10 Gray_75">
+            <div className="mTop10 textSecondary">
               {_l('某些第三方平台需要设置白名单 IP 才能调用API，以下是系统使用的 IP 地址')}
             </div>
             <div className="mTop10">{data.realIp}</div>
@@ -287,7 +289,7 @@ export default class WebHook extends Component {
         {this.renderCustomErrorMessage()}
 
         <div className="Font13 bold mTop20">{_l('返回参数列表')}</div>
-        <div className="mTop10 Gray_75">{_l('向URL发送请求测试获取参数列表；请求中的动态参数将取测试值')}</div>
+        <div className="mTop10 textSecondary">{_l('向URL发送请求测试获取参数列表；请求中的动态参数将取测试值')}</div>
         <div className="mTop15 webhookBtn InlineBlock" onClick={this.test}>
           {_l('测试 API')}
         </div>
@@ -295,7 +297,7 @@ export default class WebHook extends Component {
         {!!(data.controls || []).length && (
           <Fragment>
             {data.requestDate && (
-              <div className="mTop25 Gray_75">
+              <div className="mTop25 textSecondary">
                 {_l('请求时间 %0, 状态码 %1，耗时 %2 秒', data.requestDate, data.statusCode, data.requestTime / 1000)}
               </div>
             )}
@@ -394,7 +396,7 @@ export default class WebHook extends Component {
         </div>
 
         {_.includes([4, 5], data.contentType) && (
-          <div className="Gray_75 mTop5">{_l('此模式下允许发送10M以内附件')}</div>
+          <div className="textSecondary mTop5">{_l('此模式下允许发送10M以内附件')}</div>
         )}
 
         {_.includes([1, 4, 5], data.contentType) && (
@@ -447,7 +449,7 @@ export default class WebHook extends Component {
     return (
       <Fragment>
         <div className="Font13 bold">{_l('API URL （必填）')}</div>
-        <div className="mTop10 Gray_75 flexRow">
+        <div className="mTop10 textSecondary flexRow">
           <div className="flex">{_l('将向对应的HTTP地址发送请求；URL后面可以拼接参数')} </div>
           <Checkbox
             className="flexRow"
@@ -458,7 +460,7 @@ export default class WebHook extends Component {
             }
           />
           <Tooltip title={_l('需要管理员在「组织管理-安全-数据」中配置')}>
-            <Icon icon="info_outline" className="Gray_75 mTop3 mLeft10 mRight20" />
+            <Icon icon="info_outline" className="textSecondary mTop3 mLeft10 mRight20" />
           </Tooltip>
           <Checkbox
             className="flexRow"
@@ -562,7 +564,18 @@ export default class WebHook extends Component {
   send = (testMap = {}, { json, authId } = {}) => {
     const { processId, selectNodeId, isIntegration } = this.props;
     const { data, sendRequest } = this.state;
-    const { headers, body, sendContent, method, formControls, contentType, settings, ignoreValueEmpty } = data;
+    const {
+      headers,
+      body,
+      sendContent,
+      method,
+      formControls,
+      contentType,
+      settings,
+      ignoreValueEmpty,
+      successCode,
+      disabledCode,
+    } = data;
 
     this.setState({ showTestDialog: false });
 
@@ -598,6 +611,8 @@ export default class WebHook extends Component {
           json,
           authId,
           ignoreValueEmpty,
+          successCode,
+          disabledCode,
         },
         { isIntegration },
       )
@@ -631,10 +646,9 @@ export default class WebHook extends Component {
 
     return (
       <Fragment>
-        <div className="Font13 bold mTop20">{_l('请求失败设置')}</div>
-
         {isIntegration && (
           <Fragment>
+            <div className="Font13 bold mTop20">{_l('请求失败设置')}</div>
             <div className="Font13 mTop15">{_l('请求时长')}</div>
             <div className="mTop10 flexRow alignItemsCenter">
               <div style={{ width: 120 }}>
@@ -674,67 +688,79 @@ export default class WebHook extends Component {
           </Fragment>
         )}
 
-        <div className="Font13 mTop15">{_l('请求成功的 HTTP 状态码')}</div>
-        <div className="flexRow mTop10">
-          <input
-            type="text"
-            className="flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
-            placeholder={_l('示例：200,201（多个状态码用英文逗号隔开）')}
-            value={data.successCode}
-            onChange={e => this.updateSource({ successCode: e.target.value.replace(/[^0-9,]/g, '') })}
+        <div className="Font13 bold mTop20">{_l('响应结果设置')}</div>
+        <div className="mTop10">
+          <Checkbox
+            text={_l('自定义成功/失败状态码（不勾选时，所有状态都视为成功）')}
+            checked={!data.disabledCode}
+            onClick={() => this.updateSource({ disabledCode: !data.disabledCode })}
           />
         </div>
-
-        <div className="Font13 mTop15">{_l('指定 HTTP 状态码错误消息')}</div>
-        {errorMsgArray.map((item, i) => {
-          return (
-            <div className="flexRow mTop10 alignItemsCenter" key={i}>
+        {!data.disabledCode && (
+          <Fragment>
+            <div className="Font13 mTop15">{_l('请求成功的 HTTP 状态码')}</div>
+            <div className="flexRow mTop10">
               <input
                 type="text"
-                style={{ width: 100 }}
-                className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
-                placeholder={_l('示例：500')}
-                value={item.key}
-                onChange={e => this.updateErrorMsg('key', e.target.value.replace(/[^0-9]/g, ''), i)}
-              />
-
-              <input
-                type="text"
-                className="flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 mLeft10"
-                placeholder={_l('请输入错误消息')}
-                value={item.value}
-                onChange={e => this.updateErrorMsg('value', e.target.value, i)}
-                onBlur={e => this.updateErrorMsg('value', e.target.value.trim(), i)}
-              />
-
-              <i
-                className="icon-trash Font16 ThemeHoverColor3 pointer Gray_bd mLeft8"
-                onClick={() => this.deleteErrorMsg(i)}
+                className="flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+                placeholder={_l('示例：200,201（多个状态码用英文逗号隔开）')}
+                value={data.successCode}
+                onChange={e => this.updateSource({ successCode: e.target.value.replace(/[^0-9,]/g, '') })}
               />
             </div>
-          );
-        })}
 
-        <div className="mTop10">
-          <span
-            className="ThemeHoverColor3 pointer Gray_75"
-            onClick={() => this.setState({ errorMsgArray: errorMsgArray.concat({ key: '', value: '' }) })}
-          >
-            + {_l('状态码')}
-          </span>
-        </div>
+            <div className="Font13 mTop15">{_l('指定 HTTP 状态码错误消息')}</div>
+            {errorMsgArray.map((item, i) => {
+              return (
+                <div className="flexRow mTop10 alignItemsCenter" key={i}>
+                  <input
+                    type="text"
+                    style={{ width: 100 }}
+                    className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+                    placeholder={_l('示例：500')}
+                    value={item.key}
+                    onChange={e => this.updateErrorMsg('key', e.target.value.replace(/[^0-9]/g, ''), i)}
+                  />
 
-        <div className="Font13 mTop15">{_l('返回其他 HTTP 状态码时的默认错误消息')}</div>
-        <div className="flexRow mTop10">
-          <input
-            type="text"
-            className="flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
-            placeholder={_l('请输入错误消息')}
-            value={data.errorMsg}
-            onChange={e => this.updateSource({ errorMsg: e.target.value })}
-            onBlur={e => this.updateSource({ errorMsg: e.target.value.trim() })}
-          />
-        </div>
+                  <input
+                    type="text"
+                    className="flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 mLeft10"
+                    placeholder={_l('请输入错误消息')}
+                    value={item.value}
+                    onChange={e => this.updateErrorMsg('value', e.target.value, i)}
+                    onBlur={e => this.updateErrorMsg('value', e.target.value.trim(), i)}
+                  />
+
+                  <i
+                    className="icon-trash Font16 ThemeHoverColor3 pointer textDisabled mLeft8"
+                    onClick={() => this.deleteErrorMsg(i)}
+                  />
+                </div>
+              );
+            })}
+
+            <div className="mTop10">
+              <span
+                className="ThemeHoverColor3 pointer textSecondary"
+                onClick={() => this.setState({ errorMsgArray: errorMsgArray.concat({ key: '', value: '' }) })}
+              >
+                + {_l('状态码')}
+              </span>
+            </div>
+
+            <div className="Font13 mTop15">{_l('返回其他 HTTP 状态码时的默认错误消息')}</div>
+            <div className="flexRow mTop10">
+              <input
+                type="text"
+                className="flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+                placeholder={_l('请输入错误消息')}
+                value={data.errorMsg}
+                onChange={e => this.updateSource({ errorMsg: e.target.value })}
+                onBlur={e => this.updateSource({ errorMsg: e.target.value.trim() })}
+              />
+            </div>
+          </Fragment>
+        )}
       </Fragment>
     );
   }
@@ -795,7 +821,7 @@ export default class WebHook extends Component {
     return (
       <Fragment>
         <div className="Font13">
-          <span className="Gray_75">
+          <span className="textSecondary">
             {_l('用于接收事件推送消息，格式如下：必须为HTTP/HTTPS支持POST请求的公网可访问的地址，不能携带任何参数。')}
           </span>
           <a onClick={this.openChecksheet}>{_l('查看推送数据结构')}</a>

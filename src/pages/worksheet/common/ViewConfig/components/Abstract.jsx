@@ -40,7 +40,7 @@ export default class Abstract extends React.Component {
       <React.Fragment>
         <div className="title Font13 bold">{_l('摘要')}</div>
         <div className="settingContent">
-          <p className="mTop6 mBottom8 Gray_75 viewSetText Font13">{_l('用于显示长文本，最多可显示5行')}</p>
+          <p className="mTop6 mBottom8 textSecondary viewSetText Font13">{_l('用于显示长文本，最多可显示5行')}</p>
           <Dropdown
             className={cx('dropAbstract', { placeholder: !abstract || !isExistAbstract })}
             data={abstractControls}

@@ -153,6 +153,7 @@ window._l = function (key, ...args) {
     '/auth/chatTools',
     '/auth/welink',
     '/auth/feishu',
+    '/auth/microsoft',
     '/sso/dingding',
     '/sso/sso',
     '/sso/workweixin',
@@ -213,7 +214,6 @@ window.md = {
     },
     Config: {
       DefaultLang: 'zh-Hans',
-      IsLocal: true,
       ServiceTel: '400-665-6655',
       DefaultConfig: {
         initialCountry: 'cn',
@@ -250,6 +250,15 @@ window.md = {
       footerThemeColor: '', //登录页底部颜色
     },
   },
+};
+
+/**
+ * 平台环境
+ */
+window.platformENV = {
+  isOverseas: false, // 是否海外
+  isLocal: false, // 是否私有部署
+  isPlatform: false, // 是否平台
 };
 
 /**
@@ -512,7 +521,7 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
   // 应用库
   if (window.publicAppAuthorization) {
     if (
-      _.get(md.global.Config, 'IsLocal') &&
+      (window.platformENV.isOverseas || window.platformENV.isLocal) &&
       !/#isPrivateBuild/.test(location.hash) &&
       _.get(md.global.SysSettings, 'templateLibraryTypes') !== '2'
     ) {
@@ -552,6 +561,23 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
  */
 const generateLocalizationParams = (requestData = {}) => {
   const lang = _.get(md, 'global.Account.lang');
+  const worksheetInfoParams = {
+    sourceId: `${requestData.worksheetId}_${lang}`,
+    clearInterface: [
+      'Worksheet_SaveWorksheetView',
+      'Worksheet_DeleteWorksheetView',
+      'Worksheet_SaveWorksheetControls',
+      'AppManagement_EditWorkSheetInfoForApp',
+      'Worksheet_SortWorksheetViews',
+      'Worksheet_EditWorksheetControls',
+      'WorksheetSetting_SavPaymentSetting',
+      'Worksheet_UpdateEntityName',
+      'Login_LoginOut',
+      'Worksheet_UpdateWorksheetRow',
+      'Worksheet_AddWorksheetRow',
+      'Worksheet_RestoreWorksheetView',
+    ],
+  };
 
   return {
     AppManagement_GetAppLangDetail: {
@@ -566,26 +592,16 @@ const generateLocalizationParams = (requestData = {}) => {
     },
     Worksheet_GetWorksheetInfo: {
       moduleType: 3,
-      sourceId: `${requestData.worksheetId}_${lang}`,
-      clearInterface: [
-        'Worksheet_SaveWorksheetView',
-        'Worksheet_DeleteWorksheetView',
-        'Worksheet_SaveWorksheetControls',
-        'AppManagement_EditWorkSheetInfoForApp',
-        'Worksheet_SortWorksheetViews',
-        'Worksheet_EditWorksheetControls',
-        'WorksheetSetting_SavPaymentSetting',
-        'Worksheet_UpdateEntityName',
-        'Login_LoginOut',
-        'Worksheet_UpdateWorksheetRow',
-        'Worksheet_AddWorksheetRow',
-        'Worksheet_RestoreWorksheetView',
-      ],
+      ...worksheetInfoParams,
     },
     Worksheet_GetQueryBySheetId: {
       moduleType: 4,
       sourceId: `${requestData.worksheetId}`,
       clearInterface: [],
+    },
+    Worksheet_GetWorksheetBaseInfo: {
+      moduleType: 5,
+      ...worksheetInfoParams,
     },
     AppManagement_GetProjectLangs: {
       moduleType: 20,
@@ -630,26 +646,28 @@ const insertLocalData = ({ key, moduleType, sourceId, version, data }) => {
 /**
  * 指定接口编辑后，需清理缓存时间
  */
-window.clearLocalDataTime = ({ controllerName, actionName, requestData = {}, clearSpecificKey }) => {
+window.clearLocalDataTime = ({ controllerName, actionName, requestData = {}, clearSpecificKeys = [] }) => {
   const key = `${controllerName}_${actionName}`;
   const CACHE_PARAMS = generateLocalizationParams({
-    ..._.pick(requestData, ['appId', 'projectId', 'correlationIds']),
+    ...requestData,
     appLangId: requestData.langId || requestData.targetLangId,
-    type: 20,
     worksheetId: requestData.worksheetId || requestData.workSheetId || requestData.sourceId,
   });
-  let localKey;
+  const localKeys = [];
 
   Object.keys(CACHE_PARAMS).forEach(currentKey => {
-    if (CACHE_PARAMS[currentKey].clearInterface.includes(key) || currentKey === clearSpecificKey) {
-      localKey = `${currentKey}_${CACHE_PARAMS[currentKey].sourceId}`;
+    if (CACHE_PARAMS[currentKey].clearInterface.includes(key) || _.includes(clearSpecificKeys, currentKey)) {
+      localKeys.push(`${currentKey}_${CACHE_PARAMS[currentKey].sourceId}`);
     }
   });
 
-  if (!localKey) return;
+  if (!localKeys.length) return;
 
-  localForage.getItem(localKey).then(localSource => {
-    localSource && localForage.setItem(localKey, { version: localSource.version, data: localSource.data, time: null });
+  localKeys.forEach(localKey => {
+    localForage.getItem(localKey).then(localSource => {
+      localSource &&
+        localForage.setItem(localKey, { version: localSource.version, data: localSource.data, time: null });
+    });
   });
 };
 
@@ -732,7 +750,11 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
   });
 
   // 私有部署 非主站接口 5分钟自动延期登录状态
-  if (_.get(md.global.Config, 'IsLocal') && url.indexOf('wwwapi') === -1 && _.get(md, 'global.Account.accountId')) {
+  if (
+    (window.platformENV.isOverseas || window.platformENV.isLocal) &&
+    url.indexOf('wwwapi') === -1 &&
+    _.get(md, 'global.Account.accountId')
+  ) {
     throttledCheckLogin();
   }
 
@@ -818,7 +840,7 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
         const responseData = response.data || { state: -1, exception: _l('解析返回结果错误') };
 
         if (responseData.exception) {
-          !options.silent && alert(responseData.exception, 2);
+          responseData?.state !== 300016 && !options.silent && alert(responseData.exception, 2);
           reject({ errorCode: responseData.state, errorMessage: responseData.exception, errorData: responseData });
         } else {
           const { data } = interfaceDataDecryption(responseData, actionName);

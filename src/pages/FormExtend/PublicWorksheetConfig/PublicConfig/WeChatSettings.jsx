@@ -12,19 +12,19 @@ const BindingTip = styled.div`
   width: 410px;
   padding: 16px;
   margin: 16px 0;
-  background: #f8f8f8;
+  background: var(--color-background-secondary);
   border-radius: 6px;
   .bindText {
-    color: #4caf50;
+    color: var(--color-success);
   }
 `;
 
 const AddControl = styled.div`
   :hover {
-    color: #fff !important;
+    color: var(--color-white) !important;
   }
   :hover .icon {
-    color: #fff !important;
+    color: var(--color-white) !important;
   }
 `;
 
@@ -70,7 +70,7 @@ export default function WeChatSettings(props) {
       hasClear
         ? [
             {
-              style: { color: '#757575' },
+              style: { color: 'var(--color-text-secondary)' },
               text: (
                 <div>
                   <Icon icon="trash" />
@@ -86,7 +86,7 @@ export default function WeChatSettings(props) {
       .concat(
         key !== WECHAT_FIELD_KEY.HEAD_IMG_URL
           ? {
-              style: { borderTop: '1px solid #ddd', paddingTop: '4px', height: '36px' },
+              style: { borderTop: '1px solid var(--color-border-primary)', paddingTop: '4px', height: '36px' },
               text: (
                 <AddControl className="hand ThemeColor3" onClick={() => setAddControl({ visible: true, key })}>
                   <i className="icon icon-plus mRight5 ThemeColor3"></i>
@@ -150,11 +150,11 @@ export default function WeChatSettings(props) {
                   {weChatSetting.collectChannel === 2 &&
                     (!weChatBind.isBind ? (
                       <BindingTip>
-                        <span className="Gray_9e">{_l('暂未绑定认证的服务号, 请前往')}</span>
-                        <a className="ThemeColor pointer" href={`/admin/weixin/${projectId}`} target="_blank">
+                        <span className="textTertiary">{_l('暂未绑定认证的服务号, 请前往')}</span>
+                        <a className="colorPrimary pointer" href={`/admin/weixin/${projectId}`} target="_blank">
                           {_l('组织后台')}
                         </a>
-                        <span className="Gray_9e">{_l('添加微信服务号')}</span>
+                        <span className="textTertiary">{_l('添加微信服务号')}</span>
                       </BindingTip>
                     ) : (
                       <BindingTip>
@@ -192,7 +192,7 @@ export default function WeChatSettings(props) {
                             </div>
                           </div>
 
-                          <Icon icon="arrow_forward" className="Font16 ThemeColor mLeft16 mRight16" />
+                          <Icon icon="arrow_forward" className="Font16 colorPrimary mLeft16 mRight16" />
                           <Dropdown
                             border
                             isAppendToBody
@@ -209,11 +209,11 @@ export default function WeChatSettings(props) {
                             renderTitle={() => {
                               return currentData ? (
                                 <Fragment>
-                                  <Icon icon={getIconByType(currentData.type, false)} className="Gray_9e Font14" />
+                                  <Icon icon={getIconByType(currentData.type, false)} className="textTertiary Font14" />
                                   <span className="mLeft10">{currentData.controlName}</span>
                                 </Fragment>
                               ) : (
-                                <span className="Gray_bd">{_l('请选择')}</span>
+                                <span className="textDisabled">{_l('请选择')}</span>
                               );
                             }}
                           />

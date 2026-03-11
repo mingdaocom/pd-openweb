@@ -22,20 +22,20 @@ import { COMPUTING_INSTANCE_STATUS, TYPE_LIST } from '../config';
 import '../index.less';
 
 const ActionOpWrap = styled.ul`
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
   border-radius: 3px 3px 3px 3px;
   width: 160px;
   font-size: 13px;
-  color: #151515;
+  color: var(--color-text-title);
   padding: 4px 0;
   li {
     line-height: 36px;
     padding: 0 24px;
     cursor: pointer;
     &:hover {
-      background-color: #1677ff;
-      color: #fff;
+      background-color: var(--color-primary);
+      color: var(--color-white);
     }
   }
 `;
@@ -209,7 +209,7 @@ function ExplanDetail(props) {
       width: 300,
       render: (value, record) => {
         return (
-          <div className="flexRow Gray_75">
+          <div className="flexRow textSecondary">
             <UserHead
               size={28}
               user={{ userHead: record.createBy.avatar, accountId: record.createBy.accountId }}
@@ -255,7 +255,7 @@ function ExplanDetail(props) {
             }
             popupAlign={{ points: ['tr', 'bc'], offset: [15, 0] }}
           >
-            <Icon icon="moreop" className="Font18 Gray_9e Hover_49 Hand" />
+            <Icon icon="moreop" className="Font18 textTertiary hoverTextPrimaryLight Hand" />
           </Trigger>
         );
       },
@@ -267,12 +267,12 @@ function ExplanDetail(props) {
       <div className="exclusiveCompHeader explanDetailHeader">
         <span className="icon-backspace Font22 ThemeHoverColor3" onClick={() => history.go(-1)}></span>
         <span className="explanDetailLabel">{_l('管理算力')}</span>
-        <span className="explanDetailName Gray_75">
+        <span className="explanDetailName textSecondary">
           {explanInfo && `${explanInfo.name}（${explanInfo.resourceId}）`}
         </span>
         <span className="flex"></span>
         {explanInfo && moment(explanInfo.expirationDatetime).add(1, 'd').isBefore(new Date()) && (
-          <span className="" style={{ color: '#f51744' }}>
+          <span className="" style={{ color: 'var(--color-error)' }}>
             {_l('服务已过期')}
           </span>
         )}
@@ -292,7 +292,7 @@ function ExplanDetail(props) {
                 .indexOf(inputValue.toLowerCase()) > -1
             }
             suffixIcon={<Icon icon="arrow-down-border Font14" />}
-            notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
+            notFoundContent={<span className="textTertiary">{_l('无搜索结果')}</span>}
             onSearch={_.debounce(val => this.setState({ keyword: val }, () => getAppList()), 500)}
             onChange={value =>
               setFilters({

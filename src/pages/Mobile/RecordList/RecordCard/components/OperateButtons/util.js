@@ -30,18 +30,18 @@ export const setAttrToButtons = ({
   buttons,
   row = {},
   operatesButtonsStyle,
-  context,
+  context = {},
   onDeleteSuccess,
   disableCustomButton,
 }) => {
   const { style, showIcon, primaryNum } = operatesButtonsStyle;
   const { view, controls, base, sheetSwitchPermit, worksheetInfo } = context;
-  const { appId, viewId, worksheetId } = base;
+  const { appId, viewId, worksheetId } = base || {};
   const recordId = row.rowid;
   return buttons.map((button, index) => ({
     ...button,
     icon: button.icon || (style === 'icon' ? 'custom_actions' : ''),
-    color: button.color === 'transparent' ? '#1677ff' : button.color,
+    color: button.color === 'transparent' ? 'var(--color-primary)' : button.color,
     style,
     showIcon,
     showAsPrimary: style === 'standard' && index < primaryNum,

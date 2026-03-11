@@ -81,7 +81,7 @@ export default function DynamicInput({
   return (
     <DynamicInputStyle onClick={onTriggerClick}>
       <div className={`text ${dynamicData && dynamicData.status === -1 ? 'error' : ''}`}>
-        {current.icon && <i className={`${current.icon} Font16 mRight10 Gray_75`} />}
+        {current.icon && <i className={`${current.icon} Font16 mRight10 textSecondary`} />}
         <span className="Bold flex overflow_ellipsis">
           {current.text}
           {defaultType === 'dynamicsrc' && <span dangerouslySetInnerHTML={{ __html: sourceName }}></span>}

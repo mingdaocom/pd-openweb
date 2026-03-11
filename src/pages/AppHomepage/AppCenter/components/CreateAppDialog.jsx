@@ -10,7 +10,7 @@ const Wrapper = styled.div`
   input,
   textarea {
     &::placeholder {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
   }
   .ming.Textarea {
@@ -23,21 +23,21 @@ const Wrapper = styled.div`
     border-radius: 3px;
   }
   .withdraw:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
   .active {
     cursor: pointer;
-    color: #9709f2;
+    color: var(--color-mingo-light);
     &:hover {
       background: #9709f20f;
     }
   }
   .error {
     .ming.Textarea {
-      border-color: red !important;
+      border-color: var(--color-error) !important;
     }
     .TxtRight {
-      color: red;
+      color: var(--color-error);
     }
   }
 `;
@@ -85,7 +85,7 @@ const CreateAppDialog = props => {
     if (appInfo.shortdesc && appInfo.sourceAi && !loading) {
       return (
         <div
-          className="flexRow alignItemsCenter Gray_9e withdraw pointer"
+          className="flexRow alignItemsCenter textTertiary withdraw pointer"
           onClick={() => {
             setAppInfo(values => ({ ...values, sourceAi: undefined, shortdesc: appInfo.lastShortdesc || '' }));
           }}
@@ -98,7 +98,7 @@ const CreateAppDialog = props => {
     if (!appInfo.name) return null;
     return (
       <div
-        className={cx('flexRow alignItemsCenter', { active: appInfo.name, Gray_9e: !appInfo.name })}
+        className={cx('flexRow alignItemsCenter', { active: appInfo.name, textTertiary: !appInfo.name })}
         onClick={appInfo.name && handleCreateAi}
       >
         <span className="mRight4 bold">{_l('AI 生成')}</span>
@@ -155,7 +155,7 @@ const CreateAppDialog = props => {
                   '用于概括应用的主要用途和业务定位，便于 AI 正确理解并运用表中的信息。该描述不会直接展示给普通用户。',
                 )}
               >
-                <Icon icon="info_outline" className="Gray_9e Font15 pointer mLeft5" />
+                <Icon icon="info_outline" className="textTertiary Font15 pointer mLeft5" />
               </Tooltip>
             </div>
             {!md.global.SysSettings.hideAIBasicFun && renderState()}

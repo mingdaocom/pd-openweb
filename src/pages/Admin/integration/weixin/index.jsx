@@ -72,7 +72,8 @@ export default class WeiXin extends Component {
   componentDidMount() {
     Config.setPageTitle(_l('微信服务号'));
     const { state, auth_code } = getRequest();
-    if (md.global.Config.IsPlatformLocal && auth_code) {
+
+    if (!window.platformENV.isOverseas && !window.platformENV.isLocal && auth_code) {
       this.setState({ loading: true });
       projectAjax.callBackWeiXinBinding({ state, authCode: auth_code, projectId: Config.projectId }).then(res => {
         this.setState({ loading: false });
@@ -158,7 +159,7 @@ export default class WeiXin extends Component {
           <ul>
             {AUTH_OPTIONS.map(item => {
               return (
-                <li className={cx('mTop10 Gray', { Hidden: !_.includes(data.funcInfo || [], item.value) })}>
+                <li className={cx('mTop10 textPrimary', { Hidden: !_.includes(data.funcInfo || [], item.value) })}>
                   {item.text}
                 </li>
               );
@@ -235,7 +236,7 @@ export default class WeiXin extends Component {
     });
   };
   renderApplyContent = () => {
-    const isPlatformLocal = md.global.Config.IsPlatformLocal;
+    const isPlatformLocal = window.platformENV.isPlatform;
     return (
       <Fragment>
         <span className="icon-wechat icon" />
@@ -355,7 +356,7 @@ export default class WeiXin extends Component {
     );
   };
   renderSuccessContent = () => {
-    if (md.global.Config.IsPlatformLocal) {
+    if (window.platformENV.isPlatform) {
       return this.renderPlatformContent();
     }
     return (

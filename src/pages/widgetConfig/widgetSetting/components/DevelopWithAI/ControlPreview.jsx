@@ -11,12 +11,12 @@ const Con = styled.div`
   flex-direction: column;
   .controlName {
     font-size: 13px;
-    color: #151515;
+    color: var(--color-text-title);
     margin-bottom: 6px;
     font-weight: bold;
   }
   .emptyHolder {
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     height: 36px;
   }
 `;

@@ -1,6 +1,6 @@
 .workSheetChangeColumn {
   &.advance {
-    padding: 0 6px;
+    padding: 0 6px 6px;
     .columnCheckList {
       max-height: 362px;
     }
@@ -8,10 +8,10 @@
   .selectedStatus {
     padding: 0 12px;
     font-size: 13px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     height: 36px;
     line-height: 36px;
-    border-bottom: 1px solid #e9e9e9;
+    border-bottom: 1px solid var(--color-border-secondary);
   }
   .columnCheckList {
     .tabColumn {
@@ -23,7 +23,7 @@
         top: 0;
         padding: 5px;
         &:hover {
-          background: #e9e9e9;
+          background: var(--color-border-secondary);
         }
       }
       .subColumns {
@@ -31,16 +31,16 @@
         left: 26px;
         width: calc(~'100% - 26px');
         .showControlsColumnCheckItem span::selection {
-          color: #151515;
-          background: #fff;
+          color: var(--color-text-title);
+          background: var(--color-background-primary);
         }
       }
       .subColumns::before {
         content: '';
         width: 9px;
         height: calc(~'100% - 15px');
-        border-left: 1px solid #eaeaea;
-        border-bottom: 1px solid #eaeaea;
+        border-left: 1px solid var(--color-border-secondary);
+        border-bottom: 1px solid var(--color-border-secondary);
         left: -5px;
         top: 0;
         position: absolute;
@@ -54,14 +54,14 @@
       cursor: text;
     }
     .dragListEmptyTip {
-      color: #9f9f9f;
+      color: var(--color-text-tertiary);
       margin-bottom: 33px;
     }
     margin-top: 6px;
     max-height: 238px;
   }
   .segmentationLine {
-    border-top: 1px solid #ddd;
+    border-top: 1px solid var(--color-border-primary);
     margin-top: 5px;
     padding-top: 5px !important;
   }
@@ -73,21 +73,20 @@
   }
   .emptyTip {
     margin: 20px 0 30px;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
   .searchBar {
     height: 38px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     .icon {
       line-height: 37px;
       font-size: 20px;
-      color: #bdbdbd;
     }
     .Input {
       border: none;
       padding-left: 6px;
       &:placeholder {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
     }
   }
@@ -106,11 +105,11 @@
       text-align: center;
       line-height: 32px;
       height: 28px;
-      color: #757575;
-      background-color: #f5f5f5;
+      color: var(--color-text-secondary);
+      background-color: var(--color-background-secondary);
       &:hover {
-        color: #151515;
-        background-color: #f0f0f0;
+        color: var(--color-text-title);
+        background-color: var(--color-background-hover);
       }
       &.iconButton {
         padding: 0 8px;
@@ -130,7 +129,7 @@
 
 .showControlsColumnDrageble {
   &.active {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
     z-index: 1000;
     .dragHandle {
       visibility: visible;
@@ -140,7 +139,7 @@
       visibility: visible !important;
     }
     .showControlsColumnCheckItem {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-secondary);
     }
   }
 }
@@ -151,7 +150,6 @@
   height: 32px;
   line-height: 32px;
   z-index: 13;
-  background: #fff;
   > span {
     flex: 1;
   }
@@ -168,16 +166,16 @@
       color: #00c345;
     }
     &-ic_toggle_off {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
     &-backspace {
       transform: rotate(180deg);
-      color: #1e88e5 !important;
+      color: var(--color-primary) !important;
     }
   }
   &:hover,
   &.active {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-hover);
     .dragHandle {
       visibility: visible;
     }
@@ -186,7 +184,7 @@
       visibility: visible !important;
     }
     .showControlsColumnCheckItem {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-secondary);
     }
   }
   .switchIcon {
@@ -198,9 +196,9 @@
     }
   }
   &.focusColumnItem {
-    background-color: #f2f9ff;
+    background-color: var(--color-primary-transparent);
     .focusColor {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
     .dragHandle {
       visibility: visible;
@@ -210,7 +208,7 @@
       visibility: visible !important;
     }
     .showControlsColumnCheckItem {
-      background-color: #f2f9ff;
+      background-color: var(--color-primary-transparent);
     }
   }
 }

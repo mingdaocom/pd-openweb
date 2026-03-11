@@ -3,23 +3,23 @@
     overflow: hidden;
   }
   .empty .value {
-    color: #999;
+    color: var(--color-text-tertiary);
   }
 
   .target {
     padding: 3px 8px;
     margin: 0 5px;
     border-radius: 4px;
-    background: #eaeaea;
+    background: var(--color-border-secondary);
   }
   .groupingWrap {
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     border-radius: 4px;
     padding: 10px;
     height: 400px;
     .searchWrap {
       padding: 0 5px;
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-secondary);
       input {
         border: none;
       }
@@ -28,8 +28,8 @@
       height: 33px;
       padding: 0 10px 0 8px;
       &.active {
-        color: #1677ff;
-        background-color: #e5f3fe;
+        color: var(--color-primary);
+        background-color: var(--color-primary-transparent);
         .ellipsis {
           font-weight: 600;
         }

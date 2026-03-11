@@ -128,7 +128,7 @@ function ContainerCon(props) {
         <div>
           <div>
             {baseSetInfo.logoImageUrl ? <img src={baseSetInfo.logoImageUrl} height={40} className="mRight20" /> : ''}
-            <p className="Font26 Gray mAll0 Bold" style={{ WebkitBoxOrient: 'vertical' }}>
+            <p className="Font26 textPrimary mAll0 Bold" style={{ WebkitBoxOrient: 'vertical' }}>
               {baseSetInfo.pageTitle}
             </p>
           </div>
@@ -154,7 +154,7 @@ function ContainerCon(props) {
             </FixedContent>
           ) : (
             <React.Fragment>
-              <p className="Font26 Gray mAll0 mTop20 Bold pageTitle" style={{ WebkitBoxOrient: 'vertical' }}>
+              <p className="Font26 textPrimary mAll0 mTop20 Bold pageTitle" style={{ WebkitBoxOrient: 'vertical' }}>
                 {_l('重置密码')}
               </p>
               <div

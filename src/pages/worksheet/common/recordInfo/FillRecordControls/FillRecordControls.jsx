@@ -326,7 +326,7 @@ class FillRecordControls extends React.Component {
       >
         <div className="newRecordTitle ellipsis Font19 mBottom10">{title}</div>
         {isBatchRecordLock && (
-          <div className="Gray_9e mBottom10">
+          <div className="textTertiary mBottom10">
             {_l('未填写时不会清空字段值。一次最多处理1000条未锁定且有编辑权限的记录。')}
           </div>
         )}

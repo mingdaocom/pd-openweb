@@ -8,7 +8,7 @@ import { addBehaviorLog } from 'src/utils/project';
 const RecordItem = styled.div`
   margin-top: 12px;
   border-radius: 3px;
-  border: 1px solid #e2e2e2;
+  border: 1px solid var(--color-border-secondary);
   position: relative;
   &:hover {
     .icon-drag {
@@ -29,10 +29,10 @@ const RecordItem = styled.div`
       display: block !important;
     }
     &.forCard {
-      background: #f8f8f8;
+      background: var(--color-background-hover);
     }
     &:not(.forCard) {
-      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.04);
+      box-shadow: var(--shadow-lg);
     }
   }
 
@@ -56,7 +56,7 @@ const RecordItem = styled.div`
         height: 30px;
         line-height: 30px;
         &:hover {
-          background: #fff;
+          background: var(--color-background-hover);
         }
       }
     }
@@ -96,17 +96,17 @@ const RecordItem = styled.div`
       text-align: center;
       border-radius: 4px;
       &:hover {
-        background: #f5f5f5;
+        background: var(--color-background-hover);
       }
       i {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         vertical-align: middle;
       }
     }
     .divider {
       width: 1px;
       height: 16px;
-      background: #ddd;
+      background: var(--color-border-primary);
     }
   }
   .appName {
@@ -123,9 +123,9 @@ const RecordItem = styled.div`
     top: 50%;
     transform: translateY(-50%);
     display: none;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
     &:hover {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
   }
 `;
@@ -155,14 +155,14 @@ export default function Item(props) {
       </div>
       <div className="rightContent flexRow alignItemsCenter">
         {!forCard && (
-          <div className="appName mLeft10 overflow_ellipsis TxtRight Gray_9e mRight20 flex">
+          <div className="appName mLeft10 overflow_ellipsis TxtRight textTertiary mRight20 flex">
             {props.appName}.{props.workSheetName}
           </div>
         )}
         <div className="options flexRow alignItemsCenter">
           {!forCard && (
             <React.Fragment>
-              <span className="flex Gray_9e TxtRight">{createTimeSpan(props.createTime)}</span>
+              <span className="flex textTertiary TxtRight">{createTimeSpan(props.createTime)}</span>
               <div className="divider mLeft16 mRight5" />
             </React.Fragment>
           )}

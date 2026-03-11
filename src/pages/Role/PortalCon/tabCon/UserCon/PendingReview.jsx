@@ -38,16 +38,16 @@ const Wrap = styled.div`
       height: 32px;
       background: rgba(0, 0, 0, 0.05);
       border-radius: 3px;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       line-height: 32px;
       text-align: center;
     }
     .pass {
       &.isAct {
-        background: #f3faff;
-        color: #1677ff;
+        background: var(--color-primary-transparent);
+        color: var(--color-primary);
         &:hover {
-          background: #ebf6fe;
+          background: var(--color-primary-transparent);
         }
       }
     }
@@ -56,32 +56,32 @@ const Wrap = styled.div`
         background: rgba(244, 67, 54, 0.1);
         color: rgba(244, 67, 54, 1);
         &:hover {
-          background: #fee6e5;
+          background: var(--color-error-bg);
         }
       }
     }
     .setList {
       height: 32px;
-      color: #1677ff;
+      color: var(--color-primary);
       vertical-align: middle;
       line-height: 32px;
       padding: 0 12px;
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       border-radius: 3px;
       &:hover {
-        color: #1e88e5;
+        color: var(--color-primary);
       }
       &.isOpen {
-        background: #ffffff;
-        border: 1px solid #1677ff;
+        background: var(--color-background-primary);
+        border: 1px solid var(--color-primary);
       }
     }
   }
 `;
 const WrapRejectBtn = styled.div`
-  color: red;
+  color: var(--color-error);
   &:hover {
-    color: red;
+    color: var(--color-error);
   }
 `;
 function PendingReview(props) {

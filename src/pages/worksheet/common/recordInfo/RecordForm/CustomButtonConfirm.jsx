@@ -9,7 +9,7 @@ import verifyPassword from 'src/components/verifyPassword';
 
 const SectionName = styled.div`
   font-size: 13px;
-  color: #151515;
+  color: var(--color-text-title);
   font-weight: 500;
   margin: 18px 0 8px;
   position: relative;
@@ -18,27 +18,27 @@ const SectionName = styled.div`
       position: absolute;
       left: -10px;
       top: 3px;
-      color: red;
+      color: var(--color-error);
       content: '*';
     }
   }
 `;
 const RemarkTextArea = styled(Textarea)`
   &::placeholder {
-    color: #bfbfbf;
+    color: var(--color-text-disabled);
   }
 `;
 const SelectBox = styled(Select)`
   width: 100%;
   &.ant-select-focused {
     .ant-select-selector {
-      border-color: #1e88e5 !important;
+      border-color: var(--color-primary) !important;
       box-shadow: none !important;
     }
   }
   .ant-select-selector {
     height: 36px !important;
-    border-color: #ccc !important;
+    border-color: var(--color-border-tertiary) !important;
     border-radius: 4px !important;
     padding: 3px 10px !important;
     transition: none !important;
@@ -148,7 +148,7 @@ export default function CustomButtonConfirm(props) {
         showSearch
         allowClear
         suffixIcon={<Icon icon="arrow-down-border Font14" />}
-        notFoundContent={<span className="Gray_9e">{_l('无匹配结果')}</span>}
+        notFoundContent={<span className="textTertiary">{_l('无匹配结果')}</span>}
         dropdownClassName="templateListSelect"
         onChange={value => setState({ remark: value })}
         onClear={() => setState({ remark: '' })}
@@ -215,7 +215,7 @@ export default function CustomButtonConfirm(props) {
       onCancel={onClose}
     >
       {description && (
-        <div className="Font14 Gray_75 mBottom10" style={{ marginTop: -10 }}>
+        <div className="Font14 textSecondary mBottom10" style={{ marginTop: -10 }}>
           {description}
         </div>
       )}

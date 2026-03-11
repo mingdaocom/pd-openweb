@@ -19,7 +19,9 @@
   overflow: hidden;
 }
 .mdLeftNav .folderProjectItem .Item {
-  transition: height 0.6s, opacity 0.6s;
+  transition:
+    height 0.6s,
+    opacity 0.6s;
 }
 .mdLeftNav .folderProjectTitle {
   height: 40px;
@@ -117,12 +119,12 @@
   padding: 0;
   height: 0;
   border: none;
-  border-top: 1px solid #fff;
+  border-top: 1px solid var(--color-border-secondary);
 }
 .mdLeftNav .panelHead {
   height: 32px;
   line-height: 32px;
-  color: #fff;
+  color: var(--color-white);
   padding-left: 15px;
   width: 100%;
   box-sizing: border-box;
@@ -134,7 +136,7 @@
   margin-left: auto;
 }
 .mdLeftNav .panelHead .panelIcon:hover {
-  color: white;
+  color: var(--color-white);
 }
 
 .mdLeftNav .nullData {

@@ -134,9 +134,9 @@ export default class Condition extends Component {
   renderTitle(item) {
     return (
       <Fragment>
-        <span className="Gray_75 mRight5">[{getControlTypeName(item)}]</span>
+        <span className="textSecondary mRight5">[{getControlTypeName(item)}]</span>
         <Tooltip title={item.controlName ? null : `ID：${item.controlId}`}>
-          <span style={{ color: item.controlName ? '#151515' : '#f44336' }}>
+          <span style={{ color: item.controlName ? 'var(--color-text-title)' : 'var(--color-error)' }}>
             {item.controlName || _l('字段已删除')}
           </span>
         </Tooltip>
@@ -316,7 +316,7 @@ export default class Condition extends Component {
             )}
           </div>
         ) : (
-          <div className="Font13 Gray_75 mTop15">{_l('且')}</div>
+          <div className="Font13 textSecondary mTop15">{_l('且')}</div>
         )}
 
         {hasAnd && !hasOr && !openNewFilter && (
@@ -359,10 +359,10 @@ export default class Condition extends Component {
                     actualityValue={item.fromValue}
                   />
                 ) : (
-                  <div className="Gray_75">{_l('请选择')}</div>
+                  <div className="textSecondary">{_l('请选择')}</div>
                 )}
               </span>
-              <i className="ming Icon icon-default icon icon-arrow-down-border mLeft8 Gray_75" />
+              <i className="ming Icon icon-default icon icon-arrow-down-border mLeft8 textSecondary" />
             </div>
           </div>
         ) : (
@@ -550,7 +550,7 @@ export default class Condition extends Component {
               />
             )}
             {this.renderOtherFields(item, i, j)}
-            {controlNumber > 1 && <div className="Font13 mLeft10 Gray_75 LineHeight36">{_l('至')}</div>}
+            {controlNumber > 1 && <div className="Font13 mLeft10 textSecondary LineHeight36">{_l('至')}</div>}
           </div>
 
           {controlNumber > 1 && (
@@ -697,7 +697,7 @@ export default class Condition extends Component {
                   border
                   renderTitle={
                     !conditionValues[0] || conditionValues[0].type === undefined
-                      ? () => <span className="Gray_75">{_l('请选择')}</span>
+                      ? () => <span className="textSecondary">{_l('请选择')}</span>
                       : () => (
                           <span>
                             {(DATE_LIST.find(o => o.value === (conditionValues[0].type || execType)) || {}).text}
@@ -732,7 +732,7 @@ export default class Condition extends Component {
                   {conditionValues[0] && conditionValues[0].value
                     ? moment(conditionValues[0].value).format(formatString)
                     : ''}
-                  <i className="icon-bellSchedule Font14 Gray_75" />
+                  <i className="icon-bellSchedule Font14 textSecondary" />
                 </DateTime>
               </div>
             )}
@@ -760,12 +760,12 @@ export default class Condition extends Component {
                   {conditionValues[0] && conditionValues[0].value
                     ? moment(conditionValues[0].value).format(formatString)
                     : ''}
-                  <i className="icon-bellSchedule Font14 Gray_75" />
+                  <i className="icon-bellSchedule Font14 textSecondary" />
                 </DateTime>
               </div>
             )}
             {this.renderOtherFields(item, i, j)}
-            {controlNumber > 1 && <div className="Font13 mLeft10 Gray_75 LineHeight36">{_l('至')}</div>}
+            {controlNumber > 1 && <div className="Font13 mLeft10 textSecondary LineHeight36">{_l('至')}</div>}
           </div>
 
           {controlNumber > 1 && (
@@ -787,7 +787,7 @@ export default class Condition extends Component {
                     {conditionValues[1] && conditionValues[1].value
                       ? moment(conditionValues[1].value).format(formatString)
                       : ''}
-                    <i className="icon-bellSchedule Font14 Gray_75" />
+                    <i className="icon-bellSchedule Font14 textSecondary" />
                   </DateTime>
                 </div>
               )}
@@ -909,7 +909,7 @@ export default class Condition extends Component {
               }}
             >
               {!conditionValues.length ? (
-                <div className="Gray_bd pLeft10 pRight10">
+                <div className="textDisabled pLeft10 pRight10">
                   {_.includes([26, 10000001], filedTypeId)
                     ? _l('请选择人员')
                     : filedTypeId === 27
@@ -962,7 +962,7 @@ export default class Condition extends Component {
                   showNow={false}
                   bordered={false}
                   allowClear={false}
-                  suffixIcon={<i className="icon-access_time Font14 Gray_75" />}
+                  suffixIcon={<i className="icon-access_time Font14 textSecondary" />}
                   inputReadOnly
                   placeholder=""
                   format={timeFormat}
@@ -974,7 +974,7 @@ export default class Condition extends Component {
               </div>
             )}
             {this.renderOtherFields(item, i, j)}
-            {controlNumber > 1 && <div className="Font13 mLeft10 Gray_75 LineHeight36">{_l('至')}</div>}
+            {controlNumber > 1 && <div className="Font13 mLeft10 textSecondary LineHeight36">{_l('至')}</div>}
           </div>
 
           {controlNumber > 1 && (
@@ -988,7 +988,7 @@ export default class Condition extends Component {
                     showNow={false}
                     bordered={false}
                     allowClear={false}
-                    suffixIcon={<i className="icon-access_time Font14 Gray_75" />}
+                    suffixIcon={<i className="icon-access_time Font14 textSecondary" />}
                     inputReadOnly
                     placeholder=""
                     format={timeFormat}
@@ -1044,7 +1044,7 @@ export default class Condition extends Component {
     return (
       <div className="flex triggerConditionNum triggerConditionDropdown">
         {!conditionValues.length ? (
-          <div className="Gray_bd pLeft10 pRight10">{_l('请选择')}</div>
+          <div className="textDisabled pLeft10 pRight10">{_l('请选择')}</div>
         ) : (
           <ul className="pLeft6 tagWrap">
             {conditionValues.map((list, index) => {

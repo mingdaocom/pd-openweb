@@ -89,18 +89,18 @@ export default class CloseNet extends Component {
                   {_l('关闭组织：%0', currentProject.companyName)}
                 </div>
                 <div className="mTop22 Font14">
-                  <span className="Gray_15">{_l('组织关闭后，所有人将无法访问组织和应用。')}</span>
-                  <span className="Gray_15 Bold">
+                  <span className="textPrimary">{_l('组织关闭后，所有人将无法访问组织和应用。')}</span>
+                  <span className="textPrimary Bold">
                     {_l('90天后组织内所有应用将自动进入回收站，进入回收站60天后将被彻底物理删除，')}
                   </span>
                   <span className="Red_e828 Bold">{_l('请谨慎操作！')}</span>
                 </div>
-                <div className="Font14 Gray_15">
+                <div className="Font14 textPrimary">
                   {_l('若想恢复组织，请到个人账户 - 我的组织 找到已关闭的组织列表进行恢复')}
                 </div>
 
-                <div className="projectInfoCard mTop28 Font14 Gray_15">
-                  <div className="mBottom20 Gray_75">{_l('包含以下数据：')}</div>
+                <div className="projectInfoCard mTop28 Font14 textPrimary">
+                  <div className="mBottom20 textSecondary">{_l('包含以下数据：')}</div>
                   <div className="mBottom8">{_l('应用：%0个', this.getFormatText(effectiveApkCount))}</div>
                   <div className="mBottom8">{_l('工作表：%0个', this.getFormatText(effectiveWorksheetCount))}</div>
                   <div>{_l('行记录：%0行', this.getFormatText(effectiveWorksheetRowCount))}</div>

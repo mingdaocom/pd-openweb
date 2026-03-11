@@ -14,17 +14,17 @@ const OperateWrap = styled(Menu)`
     width: 160px !important;
   }
   .ming.MenuItem .Item-content:not(.disabled):hover {
-    color: #151515 !important;
-    background-color: #f5f5f5 !important;
+    color: var(--color-text-title) !important;
+    background-color: var(--color-background-secondary) !important;
   }
   .ming.Item .Item-content:not(.disabled):hover .icon {
-    color: #9e9e9e !important;
+    color: var(--color-text-tertiary) !important;
   }
   .del,
   .del .icon,
   .del.MenuItem .Item-content:not(.disabled):hover,
   .del.Item .Item-content:not(.disabled):hover .icon {
-    color: #f44336 !important;
+    color: var(--color-error) !important;
   }
 `;
 
@@ -59,12 +59,14 @@ export default function OperateList(props) {
     if (_.isEmpty(data)) {
       Dialog.confirm({
         title: (
-          <span className="Bold" style={{ color: '#f44336', wordBreak: 'break-all' }}>
+          <span className="Bold" style={{ color: 'var(--color-error)', wordBreak: 'break-all' }}>
             {_l('删除选项集 “%0”', name)}
           </span>
         ),
         buttonType: 'danger',
-        description: <span className="Gray">{_l('此选项集未被任何选项字段引用，删除后不可恢复、不可再被引用。')}</span>,
+        description: (
+          <span className="textPrimary">{_l('此选项集未被任何选项字段引用，删除后不可恢复、不可再被引用。')}</span>
+        ),
         onOk: () => {
           deleteOptions({
             status: 999,
@@ -193,7 +195,7 @@ export default function OperateList(props) {
       >
         <Icon
           icon="more_horiz"
-          className="Gray_9e ThemeHoverColor3 Font16 pointer mLeft16"
+          className="textTertiary ThemeHoverColor3 Font16 pointer mLeft16"
           onClick={e => e.stopPropagation()}
         />
       </Trigger>
@@ -213,7 +215,7 @@ export default function OperateList(props) {
           visible
           title={_l('移动至其他应用')}
           description={
-            <span className="Gray_75">
+            <span className="textSecondary">
               {_l('将选项集移动至其他应用。移动后，目标应用的管理员和开发者可以管理、引用选项集。')}
             </span>
           }

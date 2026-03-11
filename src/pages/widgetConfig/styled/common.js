@@ -3,19 +3,19 @@ import styled from 'styled-components';
 export const Button = styled.div`
   line-height: 36px;
   text-align: center;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   cursor: pointer;
   border-radius: 4px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-primary);
   transition: all 0.25s;
   i {
     margin-right: 4px;
     &.active {
-      color: #4caf50;
+      color: var(--color-success);
     }
   }
   &:hover {
-    background-color: #f8f8f8;
+    background-color: var(--color-background-hover);
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.01);
   }
 `;
@@ -24,7 +24,7 @@ export const DropdownOverlay = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   min-height: 36px;
   overflow: auto;
   border-radius: 3px;
@@ -37,7 +37,7 @@ export const DropdownOverlay = styled.div`
     width: 100%;
     padding: 0 16px;
     margin-bottom: 6px;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid --color-background-disabled;
     input {
       line-height: 36px;
       border: none;
@@ -53,7 +53,7 @@ export const DropdownOverlay = styled.div`
     .emptyText {
       margin: 0 auto;
       line-height: 38px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       font-size: 13px;
       text-align: center;
     }
@@ -66,42 +66,42 @@ export const DropdownOverlay = styled.div`
       transition: background-color color 0.25s;
       i {
         margin-right: 8px;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
       .text {
         margin-right: 6px;
       }
       &.invalid {
-        color: #f44336;
+        color: var(--color-error);
         i {
-          color: #f44336;
+          color: var(--color-error);
         }
         &:not(disabled):hover {
-          background-color: #f44336;
-          color: #ffffff;
+          background-color: var(--color-error);
+          color: var(--color-white);
           i {
-            color: #ffffff;
+            color: var(--color-white);
           }
         }
       }
       &.delete {
         &:not(disabled):hover {
           background-color: rgba(251, 0, 56, 0.08);
-          color: #fb0038;
+          color: var(--color-error);
           i {
-            color: #fb0038;
+            color: var(--color-error);
           }
         }
       }
       &.disabled {
         cursor: not-allowed;
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
       &:not(disabled):hover {
-        background-color: #1677ff;
-        color: #ffffff;
+        background-color: var(--color-primary);
+        color: var(--color-white);
         i {
-          color: #ffffff;
+          color: var(--color-white);
         }
       }
     }

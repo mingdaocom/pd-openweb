@@ -283,13 +283,13 @@ class GDMap extends Component {
     return (
       <Fragment>
         <div className={cx('mLeft16 mRight16 relative', { mTop16: !isMobile, mTop10: isMobile })}>
-          <Icon icon="search" className="Gray_9e Font16 Absolute" style={{ left: 12, top: 10 }} />
+          <Icon icon="search" className="textTertiary Font16 Absolute" style={{ left: 12, top: 10 }} />
           <form action="#" className="flex" onSubmit={event => event.preventDefault()}>
             <input
               type={isMobile ? 'search' : 'text'}
               ref={con => (this.searchRef = con)}
               placeholder={_l('搜索地点')}
-              className="MDMapInput Gray"
+              className="MDMapInput textPrimary"
               onKeyUp={e => e.keyCode === 13 && this.handleChange()}
               onChange={_.debounce(() => this.handleChange(), 500)}
             />
@@ -297,7 +297,7 @@ class GDMap extends Component {
         </div>
         {!!distance && (
           <div className="distanceInfo">
-            <div className="Font12" style={{ color: '#4CAF50' }}>
+            <div className="Font12" style={{ color: 'var(--color-success)' }}>
               <Icon icon="error1" className="Font14 mRight5" />
               {_l('仅能定位周边%0米以内的地点', distance)}
             </div>
@@ -326,11 +326,11 @@ class GDMap extends Component {
                 })
               }
             >
-              <div className="ellipsis bold Gray">
+              <div className="ellipsis bold textPrimary">
                 {_l('(当前位置)')}
                 {(currentLocation.addressComponent || {}).building}
               </div>
-              <div className="ellipsis Gray_9e">
+              <div className="ellipsis textTertiary">
                 {currentLocation.formattedAddress ||
                   _l('经度%0,纬度%1', currentLocation.position.lng, currentLocation.position.lat)}
               </div>
@@ -356,13 +356,13 @@ class GDMap extends Component {
                     });
                   }}
                 >
-                  <div className="ellipsis bold Gray">{item.name}</div>
-                  <div className="ellipsis Gray_9e">{item.address}</div>
+                  <div className="ellipsis bold textPrimary">{item.name}</div>
+                  <div className="ellipsis textTertiary">{item.address}</div>
                 </div>
                 <Tooltip title={_l('定位')}>
                   <Icon
                     icon="location"
-                    className="Font20 Gray_9e ThemeHoverColor3 pointer"
+                    className="Font20 textTertiary ThemeHoverColor3 pointer"
                     onClick={() => this.handleClearAndSet(item)}
                   />
                 </Tooltip>
@@ -424,22 +424,24 @@ class GDMap extends Component {
           <Popup className="mobileModal mobileMap topRadius" visible={locationFailedDialogVisible}>
             <div className="flexColumn h100 pTop20 pBottom7 pLeft20 pRight20 pLeft16 pRight16">
               <div className="Font17 bold mBottom8">{_l('未能获取精确位置')}</div>
-              <div className="Font15 mBottom8 Gray_75 bold">
+              <div className="Font15 mBottom8 textSecondary bold">
                 {distance
                   ? _l('为提升定位准确性，可尝试：')
                   : _l('当前可能无法获取高精度坐标，定位结果可能仅为城市或区域范围。为提升定位准确性，可尝试：')}
               </div>
-              <div className="Gray_75 LineHeight22">
+              <div className="textSecondary LineHeight22">
                 <div>{_l('· 确认已开启系统定位服务及应用定位权限')}</div>
                 <div>{_l('· 建议开启 Wi-Fi，可提升室内定位效果')}</div>
                 <div>{_l('· 若正在使用 VPN / 代理，尝试关闭后再试')}</div>
               </div>
-              {!distance && <div className="Gray bold mTop16">{_l('您仍可以继续尝试定位，但结果可能存在偏差。')}</div>}
+              {!distance && (
+                <div className="textPrimary bold mTop16">{_l('您仍可以继续尝试定位，但结果可能存在偏差。')}</div>
+              )}
 
               <div className="flexRow justifyCenter mTop28">
                 {!distance && (
                   <Button
-                    className="flex mRight6 Font13 bold Gray_75"
+                    className="flex mRight6 Font13 bold textSecondary"
                     onClick={() => this.setState({ locationFailedDialogVisible: false }, onClose)}
                   >
                     {_l('取消')}
@@ -487,17 +489,19 @@ class GDMap extends Component {
           title={_l('未能获取精确位置')}
           description={
             <Fragment>
-              <div className="Font15 mBottom8 Gray_75 bold">
+              <div className="Font15 mBottom8 textSecondary bold">
                 {distance
                   ? _l('为提升定位准确性，可尝试：')
                   : _l('当前可能无法获取高精度坐标，定位结果可能仅为城市或区域范围。为提升定位准确性，可尝试：')}
               </div>
-              <div className="Gray_75 LineHeight22">
+              <div className="textSecondary LineHeight22">
                 <div>{_l('· 确认已开启系统定位服务及应用定位权限')}</div>
                 <div>{_l('· 建议开启 Wi-Fi，可提升室内定位效果')}</div>
                 <div>{_l('· 若正在使用 VPN / 代理，尝试关闭后再试')}</div>
               </div>
-              {!distance && <div className="Gray bold mTop16">{_l('您仍可以继续尝试定位，但结果可能存在偏差。')}</div>}
+              {!distance && (
+                <div className="textPrimary bold mTop16">{_l('您仍可以继续尝试定位，但结果可能存在偏差。')}</div>
+              )}
             </Fragment>
           }
           okText={distance ? _l('我已知晓') : _l('仍要定位')}

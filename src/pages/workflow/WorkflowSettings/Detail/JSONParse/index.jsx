@@ -22,7 +22,7 @@ import {
 
 const List = styled.div(
   ({ isHeader }) => `
-  border-bottom: 1px solid #e7e7e7;
+  border-bottom: 1px solid var(--color-border-tertiary);
   height: 36px;
   align-items: center;
   ${
@@ -30,7 +30,7 @@ const List = styled.div(
       ? 'font-weight: bold;'
       : `
         &:hover {
-          background: #f5f5f5;
+          background: var(--color-background-secondary);
           .hideOperation {
             visibility: visible;
           }
@@ -38,7 +38,7 @@ const List = styled.div(
       `
   }
   &.active {
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     .hideOperation {
       visibility: visible;
     }
@@ -220,14 +220,14 @@ export default class JSONParse extends Component {
       <Fragment>
         {!isIntegration ? (
           <Fragment>
-            <div className="Font14 Gray_75 workflowDetailDesc">
+            <div className="Font14 textSecondary workflowDetailDesc">
               {_l(
                 'JSON 解析器可以把 发送 API 请求 节点或者 代码块 节点中输出的 JSON 对象解析为后续节点可直接使用的变量和数组参数。',
               )}
             </div>
 
             <div className="mTop20 bold">{_l('获取 JSON 对象')}</div>
-            <div className="Gray_75 mTop10">{_l('当前流程中的节点对象')}</div>
+            <div className="textSecondary mTop10">{_l('当前流程中的节点对象')}</div>
           </Fragment>
         ) : (
           <div className="bold">{_l('选择 JSON 来源')}</div>
@@ -250,7 +250,7 @@ export default class JSONParse extends Component {
             <OutputList outputType={1} data={data} isIntegration={isIntegration} updateSource={this.updateSource} />
 
             <div className="mTop20 bold">{_l('定义错误消息')}</div>
-            <div className="Gray_75 mTop10">
+            <div className="textSecondary mTop10">
               {_l('当返回匹配错误结果的 JSON 时，可以自定义中止输出参数时的错误消息')}
             </div>
 
@@ -270,7 +270,7 @@ export default class JSONParse extends Component {
 
             {!!data.conditions.length && (
               <Fragment>
-                <div className="mTop10 mLeft30 Gray_75">{_l('当参数返回值满足以下条件时触发错误')}</div>
+                <div className="mTop10 mLeft30 textSecondary">{_l('当参数返回值满足以下条件时触发错误')}</div>
                 <div className="mLeft30">
                   <TriggerCondition
                     processId={this.props.processId}
@@ -416,7 +416,7 @@ export default class JSONParse extends Component {
               <div className="width24">
                 <Icon
                   type={_.includes(foldIds, item.jsonPath) ? 'arrow-right-tip' : 'arrow-down'}
-                  className="Gray_75 Font14"
+                  className="textSecondary Font14"
                 />
               </div>
             )}
@@ -431,11 +431,11 @@ export default class JSONParse extends Component {
           </div>
           <div className="width190 mRight10 ellipsis">{item.jsonPath}</div>
           <div className="width150 relative hideOperation">
-            <Icon type="output" className="Gray_75" />
+            <Icon type="output" className="textSecondary" />
             <span className="mLeft5 ThemeHoverColor3 pointer" onClick={() => this.onGenerationParameters(item)}>
               {_l('生成参数')}
             </span>
-            <Icon type="copy" className="Gray_75 mLeft15" />
+            <Icon type="copy" className="textSecondary mLeft15" />
             <span
               className="mLeft5 ThemeHoverColor3 pointer"
               onClick={() => {
@@ -463,7 +463,7 @@ export default class JSONParse extends Component {
                   >
                     <div className="flexRow">
                       <div className="flex ellipsis mRight15"> {o.text} </div>
-                      <div className="Gray_75"> {o.desc} </div>
+                      <div className="textSecondary"> {o.desc} </div>
                     </div>
                   </MenuItem>
                 ))}
@@ -482,7 +482,7 @@ export default class JSONParse extends Component {
 
     return (
       <Fragment>
-        <span className="Gray_75">
+        <span className="textSecondary">
           {showDialog
             ? _l(
                 '我们根据获取的 JSON 为您解析了对应的 JSON Path，您也可以学习 JSON Path 的规则来更灵活的获取需要的数据',

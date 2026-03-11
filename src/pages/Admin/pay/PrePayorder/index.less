@@ -15,33 +15,33 @@
     height: 44px;
     line-height: 44px;
     border-radius: 3px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
     padding: 0 24px;
     font-weight: 600;
     margin-right: 16px;
     &:hover {
-      border: 1px solid #1677ff;
-      color: #1677ff;
+      border: 1px solid var(--color-primary);
+      color: var(--color-primary);
     }
   }
 
   .okPay {
     height: 44px;
     line-height: 44px;
-    background-color: #1677ff;
+    background-color: var(--color-primary);
     &:hover {
-      background-color: #1e88e5;
+      background-color: var(--color-primary);
     }
     &.mTop106 {
       margin-top: 106px;
     }
     &.invoiceBtn {
-      background-color: #fff;
-      border: 1px solid #e0e0e0;
-      color: #333;
+      background-color: var(--color-background-primary);
+      border: 1px solid var(--color-border-secondary);
+      color: var(--color-text-primary);
       &:hover {
-        border-color: #1677ff;
-        color: #1677ff;
+        border-color: var(--color-primary);
+        color: var(--color-primary);
       }
     }
   }
@@ -65,7 +65,7 @@
   }
   .orderPayCon {
     height: 230px;
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     border-radius: 3px;
     .amountWrap {
       padding-top: 70px;
@@ -77,18 +77,18 @@
     padding: 12px 10px 0;
     border-radius: 8px;
     margin: 0 32px auto;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
   }
   .weChatColor {
-    color: #28c445;
+    color: var(--color-success);
   }
   .aliColor {
-    color: #1296db;
+    color: var(--color-primary);
   }
   .payStatusWrap {
     padding: 88px 0 50px;
     .okIcon {
-      color: #fff;
+      color: var(--color-white);
       font-size: 30px;
       width: 44px;
       height: 44px;
@@ -98,7 +98,7 @@
       margin-bottom: 12px;
     }
     .overTimeIcon {
-      color: #ff9d00;
+      color: var(--color-warning);
       font-size: 70px;
       margin-bottom: 12px;
       transform: rotate(180deg);
@@ -118,14 +118,14 @@
       height: 32px;
       padding: 0 16px;
       border-radius: 3px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border-secondary);
       margin-left: 10px;
       &:first-child {
         margin-left: 0;
       }
       &.activePayChannel,
       &:hover {
-        border: 1px solid #1677ff;
+        border: 1px solid var(--color-primary);
       }
     }
     .channelIcon {
@@ -135,13 +135,13 @@
       align-items: center;
       justify-content: center;
       border-radius: 6px;
-      color: #fff;
+      color: var(--color-white);
       margin-right: 8px;
       &.wechatBgColor {
-        color: #48b338;
+        color: var(--color-success);
       }
       &.aliBgColor {
-        color: #1296db;
+        color: var(--color-primary);
       }
     }
   }
@@ -173,12 +173,12 @@
   .mobileOkPay {
     height: 44px;
     line-height: 44px;
-    background-color: #1677ff;
+    background-color: var(--color-primary);
     border-radius: 22px;
     font-size: 15px;
   }
   .cancelPay {
-    border: 1px solid #eee;
+    border: 1px solid var(--color-border-secondary);
     border-radius: 22px;
     line-height: 44px;
     font-weight: 600;
@@ -198,7 +198,7 @@
   }
   .line {
     height: 1px;
-    border: 1px solid #f0f0f0;
+    border: 1px solid var(--color-background-disabled);
     margin: 32px 0;
   }
   .mobilePayChannel {
@@ -212,13 +212,13 @@
       align-items: center;
       justify-content: center;
       border-radius: 6px;
-      color: #fff;
+      color: var(--color-white);
       margin-right: 8px;
       &.wechatBgColor {
-        background-color: #48b338;
+        background-color: var(--color-success);
       }
       &.aliBgColor {
-        background-color: #1296db;
+        background-color: var(--color-primary);
       }
     }
   }
@@ -230,7 +230,7 @@
     padding: 0;
   }
   .mui-dialog-mask {
-    background: #fff !important;
+    background: var(--color-background-primary) !important;
   }
   .payOrderDialog {
     box-shadow: none !important;
@@ -247,6 +247,6 @@
 }
 
 .cancelPayBtn {
-  border: 1px solid #eee !important;
-  background-color: #fff !important;
+  border: 1px solid var(--color-border-secondary) !important;
+  background-color: var(--color-background-primary) !important;
 }

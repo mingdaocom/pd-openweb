@@ -5,7 +5,8 @@ import { SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { isEmptyValue } from 'src/utils/control';
-import { getAttachmentData, getDynamicValue } from './formUtils';
+import { getDynamicValue } from './formUtils';
+import { getAttachmentData } from './formUtils/helper';
 
 const getRelateValue = control => {
   const value = safeParse(control.value || '[]');
@@ -17,10 +18,8 @@ const getRelateValue = control => {
 
 const getValue = (control = {}, type) => {
   if (!control.value) return '';
-  if (control.type === 30) {
-    control.type = control.sourceControlType;
-  }
-  switch (control.type) {
+  const effectiveType = control.type === 30 ? control.sourceControlType : control.type;
+  switch (effectiveType) {
     case 2:
       if (type === 10000007) {
         return (control.value || '').replace(/，/g, ',').split(',');

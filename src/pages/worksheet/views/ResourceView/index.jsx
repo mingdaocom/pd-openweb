@@ -13,6 +13,7 @@ import * as baseAction from 'src/pages/worksheet/redux/actions';
 import * as viewAction from 'src/pages/worksheet/redux/actions/resourceview.js';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 import SelectField from 'src/pages/worksheet/views/components/SelectField.jsx';
+import 'src/pages/worksheet/views/ResourceView/index.less';
 import { isRelateRecordTableControl } from 'src/utils/control';
 import Resource from './Resource.jsx';
 
@@ -28,15 +29,15 @@ const Wrap = styled.div`
     top: 0;
     box-sizing: border-box;
     overflow: hidden;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
   }
 `;
 const BtnForSure = styled.div`
   padding: 0 32px;
   line-height: 36px;
   height: 36px;
-  color: #fff;
-  background-color: #1677ff;
+  color: var(--color-white);
+  background-color: var(--color-primary);
   border-radius: 4px;
   outline: none;
   cursor: pointer;
@@ -45,7 +46,7 @@ const BtnForSure = styled.div`
   box-sizing: border-box;
   display: inline-block;
   &.isUnAb {
-    background-color: #8fcaf9;
+    background-color: var(--color-primary-light);
     cursor: not-allowed;
   }
 `;

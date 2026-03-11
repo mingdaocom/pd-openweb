@@ -12,7 +12,7 @@ import Config from '../../config';
 import UploadFile from '../UploadFile';
 
 const ImportWrap = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 4px;
   width: 100%;
   height: 100%;
@@ -27,7 +27,7 @@ const ImportWrap = styled.div`
     font-weight: 600;
     font-size: 17px;
     padding-left: 24px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     .icon {
       margin-right: 18px;
       cursor: pointer;
@@ -44,29 +44,29 @@ const ImportWrap = styled.div`
         font-size: 14px;
         font-family: FZLanTingHeiS;
         font-weight: 600;
-        color: #151515;
+        color: var(--color-text-title);
         margin-bottom: 17px;
       }
       .color_b {
-        color: #151515;
+        color: var(--color-text-title);
       }
       .color_gr {
-        color: #1bb954;
+        color: var(--color-success);
       }
       .color_g {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
       .color_d {
-        color: #d9d9d9;
+        color: var(--color-border-primary);
       }
       .color_dd {
-        color: #757575;
+        color: var(--color-text-secondary);
       }
       .color_r {
-        color: #f51744;
+        color: var(--color-error);
       }
       .color_blue {
-        color: #1677ff;
+        color: var(--color-primary);
       }
       .importUploadModule {
         display: flex;
@@ -74,7 +74,7 @@ const ImportWrap = styled.div`
         justify-content: space-between;
         height: 56px;
         padding: 0 25px;
-        border: 1px solid rgba(227, 227, 227, 1);
+        border: 1px solid var(--color-border-primary);
         box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.12);
         border-radius: 3px;
         box-sizing: border-box;
@@ -92,12 +92,12 @@ const ImportWrap = styled.div`
           text-align: center;
           border: none;
           border-radius: 32px;
-          background-color: #fff;
+          background-color: var(--color-background-primary);
         }
       }
       .importExcelBox {
         height: 271px;
-        border: 3px dashed #eaeaea;
+        border: 3px dashed var(--color-border-secondary);
         border-radius: 3px;
         display: flex;
         flex-direction: column;
@@ -111,9 +111,9 @@ const ImportWrap = styled.div`
           width: 108px;
           height: 32px;
           border-radius: 32px;
-          border: 1px solid #1677ff;
-          background-color: #ffffff;
-          color: #1677ff;
+          border: 1px solid var(--color-primary);
+          background-color: var(--color-background-primary);
+          color: var(--color-primary);
         }
       }
       .importBtn {
@@ -122,12 +122,12 @@ const ImportWrap = styled.div`
         margin: 44px auto 0;
         text-align: center;
         line-height: 34px;
-        background: #219dff;
+        background: var(--color-link-hover);
         border-radius: 32px;
         font-size: 14px;
         font-family: FZLanTingHeiS;
         font-weight: 600;
-        color: #ffffff;
+        color: var(--color-white);
       }
       .colErrorInfo {
         display: flex;
@@ -146,10 +146,10 @@ const ColErrorInfo = styled.div`
     font-size: 24px;
     font-family: FZLanTingHeiS;
     font-weight: 600;
-    color: #292929;
+    color: var(--color-white);
     .errorIcon {
       font-size: 44px;
-      color: #f51744;
+      color: var(--color-error);
       vertical-align: middle;
       margin-right: 19px;
     }
@@ -162,10 +162,10 @@ const ColErrorInfo = styled.div`
     height: 34px;
     line-height: 34px;
     text-align: center;
-    background: #219dff;
+    background: var(--color-link-hover);
     border-radius: 32px;
     margin-top: 50px;
-    color: #fff;
+    color: var(--color-white);
     font-size: 14px;
     font-weight: 600;
   }
@@ -176,7 +176,7 @@ const ListErrorInfo = styled.div`
   font-size: 24px;
   font-family: FZLanTingHeiS;
   font-weight: 600;
-  color: #292929;
+  color: var(--color-white);
   overflow-y: auto;
   .listErrorInfo {
     display: flex;
@@ -184,15 +184,12 @@ const ListErrorInfo = styled.div`
     .errorIcon {
       font-size: 44px;
       line-height: 57px;
-      color: #f51744;
+      color: var(--color-error);
       vertical-align: middle;
       margin-right: 19px;
     }
-    .Gray_89 {
-      color: #898989;
-    }
     .primaryColor {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .errorList {
@@ -200,9 +197,9 @@ const ListErrorInfo = styled.div`
     .ant-table-thead {
       tr {
         th {
-          background-color: #fff;
+          background-color: var(--color-background-primary);
           padding: 14px 10px;
-          color: #757575;
+          color: var(--color-text-secondary);
           font-weight: 400;
           .ant-checkbox-wrapper {
             .ant-checkbox {
@@ -222,8 +219,8 @@ const ListErrorInfo = styled.div`
         .ant-table-cell {
           padding: 18px 10px;
           border: none;
-          color: #151515;
-          border-bottom: 1px solid #eaeaea;
+          color: var(--color-text-title);
+          border-bottom: 1px solid var(--color-border-secondary);
           .avatar {
             width: 32px;
             height: 32px;
@@ -247,12 +244,12 @@ const ListErrorInfo = styled.div`
         }
         &.ant-table-row-selected {
           .ant-table-cell {
-            background: #fff;
+            background: var(--color-background-primary);
           }
         }
         &.ant-table-row-selected:hover {
           .ant-table-cell {
-            background: #f5f5f5;
+            background: var(--color-background-secondary);
           }
         }
       }
@@ -272,7 +269,7 @@ const SuccessInfo = styled.div`
   font-size: 24px;
   font-family: FZLanTingHeiS;
   font-weight: 600;
-  color: #292929;
+  color: var(--color-white);
   .successIcon {
     font-size: 44px;
     vertical-align: middle;
@@ -284,10 +281,10 @@ const SuccessInfo = styled.div`
     height: 34px;
     line-height: 34px;
     text-align: center;
-    background: #219dff;
+    background: var(--color-link-hover);
     border-radius: 32px;
     margin-top: 50px;
-    color: #fff;
+    color: var(--color-white);
     font-size: 14px;
     font-weight: 600;
   }
@@ -456,7 +453,7 @@ export default class ImportDeptAndRole extends Component {
             <Icon icon="cancel" className="errorIcon" />
             <div>
               <div>{_l('导入错误，请检查！')}</div>
-              <div className="Gray_89 Font14">
+              <div className="textSecondary Font14">
                 {_l('请调整后，')}
                 <a className="Hand primaryColor" onClick={this.backAct}>
                   {_l('重新上传')}

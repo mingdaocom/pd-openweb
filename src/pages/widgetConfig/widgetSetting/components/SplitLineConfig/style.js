@@ -8,8 +8,8 @@ export const SelectColorWrap = styled.div(
     box-sizing: border-box;
     width: 350px;
     padding: 10px;
-    border: 1px solid #ddd;
-    background-color: #fff;
+    border: 1px solid var(--color-border-primary);
+    background-color: var(--color-background-primary);
     ul {
       display: flex;
       flex-wrap: wrap;
@@ -29,7 +29,7 @@ export const SelectColorWrap = styled.div(
       &.active {
         .colorItemCheck {
           display: block;
-          color: #fff;
+          color: var(--color-white);
           position: absolute;
           border-radius: 50%;
           z-index: 1;
@@ -37,7 +37,7 @@ export const SelectColorWrap = styled.div(
       }
       &.addActive {
         .colorItem {
-          border: 1px solid #bdbdbd;
+          border: 1px solid var(--color-text-disabled);
           padding: 2px;
           box-sizing: border-box;
         }
@@ -82,7 +82,7 @@ export const SectionItem = styled.div`
     display: inline-block;
     width: 60px;
     text-align: left;
-    color: #757575;
+    color: var(--color-text-secondary);
     &.Width100 {
       width: 100px;
     }
@@ -91,7 +91,7 @@ export const SectionItem = styled.div`
     flex: 1;
     display: flex;
     padding: 2px;
-    background: #f5f6f7;
+    background: var(--color-background-secondary);
     border-radius: 3px;
     .animaItem {
       height: 32px;
@@ -100,14 +100,14 @@ export const SectionItem = styled.div`
       text-align: center;
       cursor: pointer;
       font-weight: bold;
-      color: #757575;
+      color: var(--color-text-secondary);
       flex: 1;
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
       &.active {
-        background: #ffffff;
-        color: #1677ff;
+        background: var(--color-background-primary);
+        color: var(--color-primary);
       }
     }
   }
@@ -117,7 +117,7 @@ export const DefaultEmpty = styled.div`
   width: 129px;
   height: 8px;
   margin: 10px 0;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   border-radius: 2px;
 `;
 
@@ -128,11 +128,11 @@ export const EmptyControl = styled.div`
   align-items: center;
   justify-content: center;
   position: relative;
-  border: 1px dashed #e6e6e6;
+  border: 1px dashed var(--color-border-secondary);
   border-radius: 4px;
   padding-top: 8px;
   .emptyText {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .mingoGenWidgets {
     margin: 20px 0;
@@ -141,10 +141,10 @@ export const EmptyControl = styled.div`
 
 export const SectionItemWrap = styled.div`
   width: 100%;
-  background: #fff;
+  background: var(--color-background-primary);
   padding: 4px 0;
   display: flex;
-  border-bottom: 1px solid #cccccc;
+  border-bottom: 1px solid var(--color-text-placeholder);
   .titleBox {
     flex: 1;
     display: flex;
@@ -198,7 +198,7 @@ export const SectionItemWrap = styled.div`
       ${props => (props.visible ? 'transform: rotate(180deg); transition: transform 0.2s ease-in-out;' : '')};
     }
     i {
-      color: #000000;
+      color: var(--color-text-primary);
     }
     &:hover {
       background: rgba(0, 0, 0, 0.06);
@@ -237,7 +237,7 @@ export const SectionItemWrap = styled.div`
       line-height: unset;
       margin-left: 12px;
       i {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
       &:hover {
         background: unset;

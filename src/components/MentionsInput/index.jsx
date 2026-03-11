@@ -482,38 +482,6 @@ const MentionsInput = props => {
       return;
     }
 
-    // 大于 15 位成员时，只显示参与者
-    if (recordAtdatas.length > 15 && props.forReacordDiscussion) {
-      let responseData = {};
-      responseData.accounts = [
-        {
-          isAll: true,
-          avatarMiddle: '/staticfiles/images/atAllUser.png',
-          id: 'atAll',
-          fullname: AT_ALL_TEXT[sourceType],
-          type: 'user',
-        },
-      ];
-      if (isAddressBookSelect) {
-        responseData.accounts = responseData.accounts.concat(addressBookSelectConfig);
-      }
-      responseData.accounts = responseData.accounts.concat(recordAtdatas);
-      responseData.accounts = responseData.accounts
-        .filter(item => {
-          return item.fullname.includes(query);
-        })
-        .map((item, index) => {
-          return {
-            ...item,
-            type: 'user',
-            atDataIndex: index === (isAddressBookSelect ? 2 : 1) ? index : undefined,
-            showFullname: highlightTerm(htmlEncodeReg(item.fullname), query),
-          };
-        });
-      setTriggerPopupVisible(true);
-      return populateDropdown(query, responseData);
-    }
-
     let data = [];
     if (!query) {
       var additionalTerm = null;
@@ -699,13 +667,13 @@ const MentionsInput = props => {
               {item.atDataIndex === index && (
                 <Fragment>
                   <div className="divider mTop4 mBottom4" />
-                  <div className="pLeft10 mTop6 Bold Gray_9e Font12">{_l('参与者')}</div>
+                  <div className="pLeft10 mTop6 Bold textTertiary Font12">{_l('参与者')}</div>
                 </Fragment>
               )}
               {item.userIndex === index && (
                 <Fragment>
                   <div className="divider mTop4 mBottom4" />
-                  <div className="pLeft10 mTop6 Bold Gray_9e Font12">{_l('最常协作')}</div>
+                  <div className="pLeft10 mTop6 Bold textTertiary Font12">{_l('最常协作')}</div>
                 </Fragment>
               )}
               <div
@@ -725,7 +693,7 @@ const MentionsInput = props => {
                 <div className="flex mLeft10 overflowHidden">
                   <div className="flexRow">
                     <div
-                      className="fullname Gray ellipsis"
+                      className="fullname textPrimary ellipsis"
                       dangerouslySetInnerHTML={{
                         __html: item.showFullname || item.fullname,
                       }}
@@ -735,7 +703,7 @@ const MentionsInput = props => {
                     ) : null}
                   </div>
                   {sourceType !== SOURCE_TYPE.CHAT && (
-                    <div className="Gray_9e ellipsis">
+                    <div className="textTertiary ellipsis">
                       {!item.department && !item.job ? (
                         <Fragment>
                           {item.profession}
@@ -752,13 +720,15 @@ const MentionsInput = props => {
                     </div>
                   )}
                   {item.isAll && (
-                    <div className="Gray_9e ellipsis">
+                    <div className="textTertiary ellipsis">
                       {sourceType === SOURCE_TYPE.WORKSHEETROW
                         ? _l('所有记录成员与参与讨论的人')
                         : _l('所有成员与参与讨论的人')}
                     </div>
                   )}
-                  {item.id === 'addressBookSelect' && <div className="Gray_9e ellipsis">{_l('从联系人中选择')}</div>}
+                  {item.id === 'addressBookSelect' && (
+                    <div className="textTertiary ellipsis">{_l('从联系人中选择')}</div>
+                  )}
                 </div>
               </div>
             </Fragment>
@@ -766,7 +736,7 @@ const MentionsInput = props => {
           {!!groups.length && (
             <Fragment>
               {!!accounts.length && <div className="divider mTop4 mBottom4" />}
-              <div className="pLeft10 mTop6 Bold Gray_9e">{_l('群组')}</div>
+              <div className="pLeft10 mTop6 Bold textTertiary">{_l('群组')}</div>
             </Fragment>
           )}
           {groups.map(item => (
@@ -774,18 +744,18 @@ const MentionsInput = props => {
               <img className="avatar" src={item.avatar} />
               <div className="flex mLeft10 overflowHidden">
                 <div
-                  className="fullname Gray ellipsis"
+                  className="fullname textPrimary ellipsis"
                   dangerouslySetInnerHTML={{ __html: item.showFullname || item.fullname }}
                 ></div>
-                <div className="Gray_a ellipsis">{_.get(item, 'project.companyName')}</div>
+                <div className="textTertiary ellipsis">{_.get(item, 'project.companyName')}</div>
               </div>
             </div>
           ))}
           {!(accounts.length + groups.length + categorys.length) && (
             <div className="mentionNoData flexColumn alignItemsCenter">
-              {!isCategory && <Icon icon="invite" className="Gray_9e" />}
+              {!isCategory && <Icon icon="invite" className="textTertiary" />}
               <p
-                className="mTop20 Gray_9e"
+                className="mTop20 textTertiary"
                 dangerouslySetInnerHTML={{
                   __html:
                     md.global.Account.isPortal || isCategory
@@ -813,7 +783,7 @@ const MentionsInput = props => {
             >
               <div className="flex overflowHidden">
                 <div
-                  className="fullname Gray ellipsis"
+                  className="fullname textPrimary ellipsis"
                   dangerouslySetInnerHTML={{ __html: item.showFullname || item.value }}
                 ></div>
               </div>

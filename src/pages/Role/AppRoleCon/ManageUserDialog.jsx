@@ -20,7 +20,7 @@ const Wrapper = styled.div`
   .iconBG {
     width: 32px;
     height: 32px;
-    background: #1677ff;
+    background: var(--color-primary);
     border-radius: 20px;
   }
   .wrapTr:not(.checkBoxTr):not(.optionWrapTr) {
@@ -43,16 +43,16 @@ const Wrapper = styled.div`
   }
   .memberTag {
     font-size: 12px;
-    color: #1677ff;
+    color: var(--color-primary);
     padding: 2px 6px;
     border-radius: 12px;
-    background: #f3faff;
+    background: var(--color-primary-transparent);
     display: inline-block;
     flex-shrink: 0;
   }
   .ownerTag {
-    color: #fff;
-    background: #1677ff;
+    color: var(--color-white);
+    background: var(--color-primary);
     font-weight: bold;
     padding: 2px 6px;
     font-size: 12px;

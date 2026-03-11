@@ -20,13 +20,13 @@ import {
   sortByControl,
   updateColumnStyles,
 } from 'worksheet/redux/actions/sheetview';
-import { controlState } from 'src/components/Form/core/utils';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 import { isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import { showTypeData } from 'src/pages/worksheet/common/ViewConfig/components/BatchSet';
 import { COVER_DISPLAY_FILL } from 'src/pages/worksheet/common/ViewConfig/config.js';
 import { emitter } from 'src/utils/common';
 import { saveLRUWorksheetConfig } from 'src/utils/common';
+import { controlState } from 'src/utils/control';
 import { checkIsTextControl, controlIsNumber, fieldCanSort, getSortData } from 'src/utils/control';
 import { WIDGETS_TO_API_TYPE_ENUM } from '../../../../../widgetConfig/config/widget';
 import './ColumnHead.less';
@@ -51,7 +51,7 @@ class ColumnHead extends Component {
     readonly: PropTypes.bool,
     disabledFunctions: PropTypes.arrayOf(PropTypes.string),
     sortControls: PropTypes.arrayOf(PropTypes.shape({})),
-    sheetHiddenColumns: PropTypes.arrayOf(PropTypes.string),
+    sheetHiddenColumns: PropTypes.arrayOf(PropTypes.string), // 外部传入的视图配置中的隐藏列
     control: PropTypes.shape({}),
     className: PropTypes.string,
     controlId: PropTypes.string,
@@ -60,12 +60,16 @@ class ColumnHead extends Component {
     columnIndex: PropTypes.number,
     fixedColumnCount: PropTypes.number,
     sourceControlType: PropTypes.number,
-    hideColumn: PropTypes.func,
-    clearHiddenColumn: PropTypes.func,
+    hideColumn: PropTypes.func, // 外部传入的隐藏列方法
+    clearHiddenColumn: PropTypes.func, // 外部传入的清除隐藏列方法
     frozenColumn: PropTypes.func,
     updateSheetColumnWidths: PropTypes.func,
     onBatchEdit: PropTypes.func,
     sortByControl: PropTypes.func,
+    // Redux 中的方法（重命名避免冲突）
+    reduxHideColumn: PropTypes.func,
+    reduxClearHiddenColumn: PropTypes.func,
+    reduxSheetHiddenColumns: PropTypes.arrayOf(PropTypes.string),
   };
 
   get isAsc() {
@@ -169,9 +173,9 @@ class ColumnHead extends Component {
       rowIsSelected,
       columnIndex,
       fixedColumnCount,
-      sheetHiddenColumns,
-      hideColumn,
-      clearHiddenColumn,
+      sheetHiddenColumns = [], // 外部传入的视图配置中的隐藏列
+      hideColumn, // 外部传入的隐藏列方法
+      clearHiddenColumn, // 外部传入的清除隐藏列方法
       onBatchEdit,
       canBatchEdit = true,
       columnStyles = {},
@@ -181,7 +185,18 @@ class ColumnHead extends Component {
       onShowFullValue = () => {},
       onBatchSetColumns = () => {},
       scrollToLeftStart = () => {},
+      // Redux 中的方法
+      reduxHideColumn = () => {},
+      reduxClearHiddenColumn = () => {},
+      reduxSheetHiddenColumns = [],
     } = this.props;
+
+    // 判断是否是对外分享状态
+
+    // 如果是分享模式，强制使用 redux 中的方法和数据  否则，优先使用外部传入的方法，没有则使用 redux 中的方法
+    const finalHideColumn = hideColumn || reduxHideColumn;
+    const finalClearHiddenColumn = clearHiddenColumn || reduxClearHiddenColumn;
+    const finalSheetHiddenColumns = hideColumn && clearHiddenColumn ? sheetHiddenColumns : reduxSheetHiddenColumns;
     const hideColumnFilter = _.get(this.context, 'config.hideColumnFilter');
     let control = { ...this.props.control };
     const columnStyle = get(columnStyles, control.controlId, {});
@@ -304,17 +319,17 @@ class ColumnHead extends Component {
                   alert(_l('预览模式下，不能操作'), 3);
                   return;
                 }
-                hideColumn(control.controlId);
+                finalHideColumn(control.controlId);
                 closeMenu();
               }}
             >
               <i className="icon icon-visibility_off"></i>
               {_l('隐藏')}
             </MenuItem>
-            {!!sheetHiddenColumns.length && (
+            {!!finalSheetHiddenColumns?.length && (
               <MenuItem
                 onClick={() => {
-                  clearHiddenColumn();
+                  finalClearHiddenColumn();
                   closeMenu();
                 }}
               >
@@ -655,7 +670,7 @@ class ColumnHead extends Component {
 }
 
 const mapStateToProps = state => ({
-  sheetHiddenColumns: state.sheet.sheetview.sheetViewConfig.sheetHiddenColumns,
+  reduxSheetHiddenColumns: state.sheet.sheetview.sheetViewConfig.sheetHiddenColumns,
   sortControls: state.sheet.sheetview.sheetFetchParams.sortControls,
   allWorksheetIsSelected: state.sheet.sheetview.sheetViewConfig.allWorksheetIsSelected,
   sheetSelectedRows: state.sheet.sheetview.sheetViewConfig.sheetSelectedRows,
@@ -667,8 +682,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      hideColumn,
-      clearHiddenColumn,
+      reduxHideColumn: hideColumn,
+      reduxClearHiddenColumn: clearHiddenColumn,
       frozenColumn,
       sortByControl,
       updateColumnStyles,

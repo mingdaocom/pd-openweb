@@ -1,6 +1,9 @@
 ﻿.postCard {
+  --card-bg-color: var(--color-background-primary);
+  --card-reply-bg-color: var(--color-background-tertiary);
   font-size: 14px;
-  color: #151515;
+  color: var(--color-text-primary);
+  background-color: var(--card-bg-color);
   padding: 0;
   margin: 14px 0 14px 0 !important;
   overflow: visible !important;
@@ -93,14 +96,14 @@
 .postCard .postContent .hideMore {
   display: block;
   width: 100%;
-  background: white;
+  background: var(--card-bg-color);
 }
 
 .commentContainer .hideMore,
 .commentContainer .showMore,
 .rPostItem .hideMore,
 .rPostItem .showMore {
-  background: #f5f5f5 !important;
+  background: var(--color-background-secondary) !important;
 }
 
 .postCard .postContent .showMore {
@@ -114,15 +117,15 @@
   height: 0;
   border-style: solid;
   border-width: 10px 10px 0 10px;
-  border-color: white transparent transparent transparent;
+  border-color: var(--card-bg-color) transparent transparent transparent;
   margin-top: -35px;
   padding-bottom: 20px;
 }
 
 .postCard .rPostItem {
   margin: 15px 0 10px 0;
-  background: #f5f5f5;
   padding: 35px 0 15px 20px;
+  background: var(--color-background-tertiary);
 }
 
 .postCard .rPostItem .userNameGroup,
@@ -172,7 +175,7 @@
 }
 
 .postOperatorListBtn:hover {
-  color: #757575;
+  color: var(--color-text-secondary);
 }
 
 .postOperatorListContainer {
@@ -189,19 +192,19 @@
   /*width: auto;*/
   width: 180px;
   right: 20px;
-  background: white;
+  background: var(--color-background-primary);
   z-index: 100;
   border-radius: 3px;
   padding: 6px 0;
 }
 
 .postOperatorListContainer:hover .postOperatorListBtn {
-  color: #aaa !important;
+  color: var(--color-text-tertiary) !important;
 }
 
 .postOperatorList li {
   cursor: pointer;
-  background: white;
+  background: var(--color-background-primary);
   padding: 0px 12px;
   height: 32px;
   line-height: 32px;
@@ -263,7 +266,7 @@
   font-size: 12px;
   vertical-align: middle;
   margin-left: 7px;
-  /*color: #aaa;*/
+  /*color: var(--color-text-tertiary);*/
 }
 
 /*加入 任务  日程*/
@@ -274,8 +277,8 @@
   z-index: 20;
   zoom: 1;
   padding: 5px 0;
-  background-color: #fff;
-  border: 1px solid #ccc;
+  background-color: var(--color-background-primary);
+  border: 1px solid var(--color-border-tertiary);
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   -khtml-border-radius: 5px;
@@ -296,11 +299,11 @@
 .postFooter .postLocation .icon {
   margin: 0 2px;
   font-size: 16px;
-  color: #9f9f9f;
+  color: var(--color-text-tertiary);
 }
 
 .moreOperateDiv ul li a:hover {
-  color: #fff;
+  color: var(--color-white);
 }
 
 .moreOperateDiv a {
@@ -310,7 +313,7 @@
   overflow: hidden;
   text-align: left;
   padding: 0 12px;
-  color: #151515;
+  color: var(--color-text-title);
   font-size: 12px;
   text-decoration: none;
 }
@@ -327,8 +330,8 @@
 }
 
 .moreOperateDiv_child {
-  background-color: #fff;
-  border: 1px solid #d5d5d5;
+  background-color: var(--color-background-primary);
+  border: 1px solid var(--color-border-primary);
   position: absolute;
   width: 100px;
   display: block;
@@ -347,7 +350,7 @@
 }
 
 .postCard .postCommentBox {
-  background: #f5f5f5;
+  background: var(--card-reply-bg-color);
   margin: 0 -20px 0 -15px;
   padding: 20px 20px 20px 22px;
   border-radius: 0 0 4px 4px;
@@ -357,20 +360,15 @@
 }
 
 .replyFrame {
-  /*width: 95%;*/
   height: 100%;
-  /*border: 1px solid red;*/
-  /*margin-left: 40px;*/
-  background-color: white;
-  /*border-color: #66bdf2;*/
-  border: 1px solid #ddd;
+  background-color: var(--color-background-card);
+  border: 1px solid var(--color-border-primary);
   border-radius: 4px;
 }
 
 .replyFrameFocus {
-  /*margin-left: 40px;*/
-  box-shadow: 0 0 5px #a7d8f5;
-  border-color: #66bdf2 !important;
+  box-shadow: 0 0 5px var(--color-primary-transparent);
+  border-color: var(--color-primary-focus-outer) !important;
 }
 
 .replyButton {
@@ -387,7 +385,7 @@
   /*margin-left: 58px;
   line-height: 24px;*/
   /*margin-top: 5px;*/
-  border-top: 1px #ccc solid;
+  border-top: 1px var(--color-border-tertiary) solid;
   margin: 0 5px;
   padding-top: 8px;
   padding-bottom: 10px;
@@ -433,7 +431,7 @@
 
 .postCard .postCommentBox .textareaContainer {
   padding: 3px;
-  background-color: white;
+  background-color: var(--color-background-card);
   min-height: 26px;
   border-radius: 4px;
 }
@@ -443,7 +441,7 @@
   width: 99%;
   /*font-size: 14px;*/
   resize: none;
-  background-color: white;
+  background-color: var(--color-background-card);
   border: 0px;
   height: 28px;
   line-height: 24px;
@@ -452,7 +450,7 @@
 }
 
 .postCard .postCommentBox .commentUploadAttachment {
-  color: #ccc;
+  color: var(--color-text-placeholder);
   line-height: 30px;
   height: 30px;
   width: 20px;
@@ -461,7 +459,7 @@
 }
 
 .postCard .postCommentBox .faceBtn:not(:hover) {
-  color: #ccc !important;
+  color: var(--color-text-placeholder) !important;
 }
 
 .postCard .postCommentBox .relayBtn {
@@ -470,7 +468,7 @@
 }
 
 .postCard .postCommentBox .hoverRelayBtn:not(:hover) {
-  color: #ccc !important;
+  color: var(--color-text-placeholder) !important;
 }
 
 .postCard .postCommentBox .faceBtn {
@@ -496,14 +494,14 @@
   height: 0;
   border-style: solid;
   border-width: 0 10px 10px 10px;
-  border-color: transparent transparent #f5f5f5 transparent;
+  border-color: transparent transparent var(--card-reply-bg-color) transparent;
   position: absolute;
   top: 30px;
 }
 
 .postCard .commentListContainer {
   margin: 0 -20px 0 -15px;
-  background: #f5f5f5;
+  background: var(--card-reply-bg-color);
   padding: 0 20px 0 71px;
   font-size: 12px;
   border-radius: 0 0 4px 4px;
@@ -528,7 +526,7 @@
   margin: 0 auto;
   padding-top: 5px;
   padding-bottom: 20px;
-  background: #f5f5f5;
+  background: var(--card-reply-bg-color);
 }
 
 .postCard .commentList {
@@ -564,7 +562,7 @@
 .postCard .commentList .commentSpliter {
   height: 0;
   border: none;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-border-primary);
   margin-left: 50px;
 }
 
@@ -585,7 +583,7 @@
 .topPostPager li {
   cursor: pointer;
   margin-left: 12px;
-  color: #999;
+  color: var(--color-text-tertiary);
   user-select: none;
 }
 
@@ -598,15 +596,15 @@
 }
 
 .postMoreIndicator {
-  background: #f3f9ff !important;
+  background: var(--color-primary-transparent-light) !important;
 }
 
 .postMoreIndicator:hover {
-  background: #e7f3ff !important;
+  background: var(--color-primary-transparent) !important;
 }
 
 .postMoreIndicator:active {
-  background: #d9ecff !important;
+  background: var(--color-primary-transparent) !important;
 }
 
 .postNewIndicator {

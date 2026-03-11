@@ -27,15 +27,15 @@ const Wrap = styled.div`
     width: 77px;
     height: 36px;
     line-height: 36px;
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     border-radius: 3px;
-    color: #1677ff;
+    color: var(--color-primary);
     i {
-      color: #1677ff;
+      color: var(--color-primary);
       line-height: 36px;
     }
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
   .row {
@@ -44,8 +44,8 @@ const Wrap = styled.div`
     .rowTel {
       width: 200px;
       height: 36px;
-      background: #ffffff;
-      border: 1px solid #e0e0e0;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-secondary);
       opacity: 1;
       border-radius: 3px;
       &.err {
@@ -54,8 +54,8 @@ const Wrap = styled.div`
     }
     .name {
       height: 36px;
-      background: #ffffff;
-      border: 1px solid #e0e0e0;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-secondary);
       opacity: 1;
       border-radius: 3px;
       flex: 1;
@@ -65,8 +65,8 @@ const Wrap = styled.div`
     .role {
       width: 90px;
       height: 36px;
-      background: #ffffff;
-      border: 1px solid #e0e0e0;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-secondary);
       opacity: 1;
       border-radius: 3px;
       .Dropdown--input {
@@ -178,10 +178,12 @@ function AddUserByTelDialog(props) {
             />
           );
         })}
-        {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && (
+        {window.platformENV.isPlatform && (
           <p className="mTop16">
             <PriceTip text={_l('发送邀请的费用自动从组织信用点中扣除')} />
-            {!_.get(md, 'global.Config.IsLocal') && <span className="mLeft5">{_l('目前仅支持中国大陆手机号。')}</span>}
+            {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
+              <span className="mLeft5">{_l('目前仅支持中国大陆手机号。')}</span>
+            )}
           </p>
         )}
         <div className="list">
@@ -296,7 +298,7 @@ function AddUserByTelDialog(props) {
           {_l('添加')}
         </span>
         <Checkbox
-          className="TxtCenter InlineBlock Hand Gray_75 sendMes"
+          className="TxtCenter InlineBlock Hand textSecondary sendMes"
           text={type === 0 ? _l('发送短信通知') : _l('发送邮件通知')}
           checked={isSendMsgs}
           onClick={() => {

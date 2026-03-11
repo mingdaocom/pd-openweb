@@ -212,7 +212,7 @@ export default class MoreOverlay extends Component {
             }}
           >
             <div className="flexRow valignWrapper">
-              <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="settings" />
+              <Icon className="textTertiary Font18 mLeft5 mRight5" icon="settings" />
               <span>{_l('设置')}</span>
             </div>
           </Menu.Item>
@@ -230,7 +230,7 @@ export default class MoreOverlay extends Component {
               <Icon
                 className="Font18 mLeft5 mRight5"
                 icon={favorite ? 'task-star' : 'star-hollow'}
-                style={{ color: favorite ? '#ffc402' : '#9e9e9e' }}
+                style={{ color: favorite ? 'var(--color-yellow)' : 'var(--color-text-tertiary)' }}
               />
               <span>{favorite ? _l('取消收藏') : _l('收藏')}</span>
             </div>
@@ -246,7 +246,7 @@ export default class MoreOverlay extends Component {
             }}
           >
             <div className="flexRow valignWrapper">
-              <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="table" />
+              <Icon className="textTertiary Font18 mLeft5 mRight5" icon="table" />
               <span>{_l('以表格显示')}</span>
             </div>
           </Menu.Item>
@@ -265,7 +265,7 @@ export default class MoreOverlay extends Component {
               }}
             >
               <div className="flexRow valignWrapper">
-                <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="share" />
+                <Icon className="textTertiary Font18 mLeft5 mRight5" icon="share" />
                 <span>{_l('分享')}</span>
               </div>
             </Menu.Item>
@@ -278,7 +278,7 @@ export default class MoreOverlay extends Component {
               data-event="export"
               popupClassName="chartMenu chartSubOperate_export"
               title={_l('导出Excel%06002')}
-              icon={<Icon className="Gray_9e Font18 mRight5" icon="download" />}
+              icon={<Icon className="textTertiary Font18 mRight5" icon="download" />}
               popupOffset={[0, 0]}
             >
               <Menu.Item
@@ -316,7 +316,7 @@ export default class MoreOverlay extends Component {
             }}
           >
             <div className="flexRow valignWrapper">
-              <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="print" />
+              <Icon className="textTertiary Font18 mLeft5 mRight5" icon="print" />
               <span>{_l('打印')}</span>
             </div>
           </Menu.Item>
@@ -326,7 +326,10 @@ export default class MoreOverlay extends Component {
             <Divider className="mTop5 mBottom5" />
             <Menu.Item data-event="publicTransform" className="pLeft10" onClick={this.handleUpdateOwnerId}>
               <div className="flexRow valignWrapper">
-                <Icon className="Gray_9e Font18 mLeft5 mRight5" icon={ownerId ? 'worksheet_public' : 'minus-square'} />
+                <Icon
+                  className="textTertiary Font18 mLeft5 mRight5"
+                  icon={ownerId ? 'worksheet_public' : 'minus-square'}
+                />
                 <span>{ownerId ? _l('转为公共图表') : _l('从公共中移出')}</span>
               </div>
             </Menu.Item>
@@ -334,7 +337,7 @@ export default class MoreOverlay extends Component {
               data-event="copy"
               popupClassName="chartMenu chartSubOperate_copy"
               title={_l('复制到')}
-              icon={<Icon className="Gray_9e Font18 mRight5" icon="content-copy" />}
+              icon={<Icon className="textTertiary Font18 mRight5" icon="content-copy" />}
               popupOffset={[0, 0]}
             >
               <Menu.Item data-event="curStatistic" style={{ width: 180 }} className="pLeft20" onClick={this.handleCopy}>
@@ -361,7 +364,7 @@ export default class MoreOverlay extends Component {
             <Divider className="mTop5 mBottom5" />
             <Menu.Item data-event="delete" className="pLeft10" onClick={this.handleDelete}>
               <div className="flexRow valignWrapper">
-                <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="trash" />
+                <Icon className="textTertiary Font18 mLeft5 mRight5" icon="trash" />
                 <span>{_l('删除')}</span>
               </div>
             </Menu.Item>

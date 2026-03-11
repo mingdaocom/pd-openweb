@@ -222,7 +222,7 @@ class EditCon extends React.Component {
         </span>
         {type === ruleItemType.self && depOrRoleIndex !== -1 && (
           <div className="whitelist">
-            <div className="Gray_9e mBottom15">{_l('白名单')}</div>
+            <div className="textTertiary mBottom15">{_l('白名单')}</div>
             {this.renderRuleItem(whiteDataList, ruleItemType.whiteList)}
             <span
               className="addBtn Font13 Hand"

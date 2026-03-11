@@ -12,8 +12,8 @@ import { getCoverUrl } from 'src/utils/view.js';
 const CardWrapper = styled.div`
   width: 300px;
   max-height: 480px;
-  background-color: #fff;
-  border-color: #eaeaea;
+  background-color: var(--color-background-primary);
+  border-color: var(--color-border-secondary);
   overflow: hidden auto;
   box-shadow:
     0 3px 6px -4px rgba(0, 0, 0, 0.12),

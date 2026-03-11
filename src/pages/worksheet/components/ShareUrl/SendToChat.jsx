@@ -4,7 +4,9 @@ import { debounce } from 'lodash';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Button, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import { Button, Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
+import { dialogSelectUser } from 'ming-ui/functions';
 import chatAjax from 'src/api/chat';
 import { Bold600, BorderBox, commonShadow, Textarea, Tip9e, Tipbd } from 'worksheet/components/Basics';
 
@@ -17,14 +19,14 @@ const SelectedUser = styled(BorderBox)`
   align-items: center;
   padding: 0 10px;
   cursor: pointer;
-  ${({ active }) => (active ? 'border-color: #1677ff;' : '')}
+  ${({ active }) => (active ? 'border-color: var(--color-primary);' : '')}
   > .con {
     flex: 1;
     overflow: hidden;
   }
   i.arrow {
     font-size: 14px;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
 `;
 
@@ -35,7 +37,7 @@ const Description = styled(Textarea)`
 
 const ChatList = styled.div`
   width: 280px;
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 3px;
   ${commonShadow}
   .header {
@@ -65,8 +67,8 @@ const AccountItem = styled.div`
   align-items: center;
   &:hover,
   &.active {
-    background: #1677ff;
-    color: #fff;
+    background: var(--color-primary);
+    color: var(--color-white);
   }
 `;
 
@@ -121,6 +123,30 @@ export default function SendToChat(props) {
         }
       });
   }
+  function handleDialogSelectUser() {
+    setListActive(false);
+    setActiveIndex(null);
+    dialogSelectUser({
+      showMoreInvite: false,
+      overlayClosable: false,
+      SelectUserSettings: {
+        projectId: localStorage.currentProjectId || undefined,
+        selectedAccountIds: [],
+        filterAccountIds: [md.global.Account.accountId],
+        includeMySelf: false,
+        unique: true,
+        callback: users => {
+          const user = users[0];
+          setSelectedUser({
+            name: user.fullname,
+            value: user.accountId,
+            logo: user.avatar,
+            type: 1,
+          });
+        },
+      },
+    });
+  }
 
   const debounceLoadChat = useCallback(debounce(loadChat, 300), []);
   const chatListComp = (
@@ -130,7 +156,14 @@ export default function SendToChat(props) {
       ) : (
         <Fragment>
           <div className="header">
-            <Tip9e>{_l('最近聊天')}</Tip9e>
+            <Tip9e className="flex">{_l('最近聊天')}</Tip9e>
+            <Tooltip title={_l('从通讯录中选择')}>
+              <Icon
+                icon="topbar-addressList"
+                className="Font15 textSecondary hoverColorPrimary pointer"
+                onClick={handleDialogSelectUser}
+              />
+            </Tooltip>
           </div>
           <div className="list flexColumn">
             {loading && <LoadDiv size="small" />}

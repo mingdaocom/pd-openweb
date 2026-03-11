@@ -296,7 +296,7 @@ class Dropdown extends Component {
             <Fragment key={index}>
               {item.title ? (
                 <li className="ming MenuItem ming Item title">
-                  <div className="pLeft16 pRight16 Gray_9e ellipsis">{item.title}</div>
+                  <div className="pLeft16 pRight16 textTertiary ellipsis">{item.title}</div>
                 </li>
               ) : null}
               {item.isTip ? (
@@ -390,11 +390,11 @@ class Dropdown extends Component {
                 padding: '0 16px 0 14px',
                 height: 36,
                 alignItems: 'center',
-                borderBottom: '1px solid #e0e0e0',
+                borderBottom: '1px solid var(--color-border-tertiary)',
                 marginBottom: 5,
               }}
             >
-              <i className="icon-search Gray_75 Font14" />
+              <i className="icon-search textSecondary Font14" />
               <input
                 type="text"
                 ref={search => {
@@ -467,13 +467,13 @@ class Dropdown extends Component {
                       )}
               </span>
             ) : (
-              <span className="Dropdown--placeholder Gray_bd ellipsis InlineBlock">{placeholder}</span>
+              <span className="Dropdown--placeholder textDisabled ellipsis InlineBlock">{placeholder}</span>
             )}
             {cancelAble && value != undefined ? (
               <Fragment>
                 <Icon
                   icon="cancel"
-                  className="Gray_9e mLeft8 clearIcon"
+                  className="textTertiary mLeft8 clearIcon"
                   onClick={e => {
                     e.stopPropagation();
                     if (value != undefined) {
@@ -492,10 +492,10 @@ class Dropdown extends Component {
                     }
                   }}
                 />
-                <Icon icon={dropIcon || 'arrow-down-border'} className="Gray_9e mLeft8 dropArrow" />
+                <Icon icon={dropIcon || 'arrow-down-border'} className="textTertiary mLeft8 dropArrow" />
               </Fragment>
             ) : (
-              <Icon icon={dropIcon || 'arrow-down-border'} className="mLeft8 Gray_9e" />
+              <Icon icon={dropIcon || 'arrow-down-border'} className="mLeft8 textTertiary" />
             )}
           </React.Fragment>
         )}

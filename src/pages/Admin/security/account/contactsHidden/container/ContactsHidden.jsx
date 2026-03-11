@@ -120,8 +120,8 @@ class ContactsHidden extends React.Component {
       if (item.type === 'hiddeRules') return;
       return (
         <div className="ruleItem">
-          <h6 className="Gray Font15">{item.title}</h6>
-          <p className={cx('Gray_9e Font13 mTop12', { mBottom10: data.length > 0 })}>{item.description}</p>
+          <h6 className="textPrimary Font15">{item.title}</h6>
+          <p className={cx('textTertiary Font13 mTop12', { mBottom10: data.length > 0 })}>{item.description}</p>
           {this.renderList(item.type, item.ruleType)}
           <span
             className="addBtn Font13 Hand mTop24"
@@ -200,7 +200,7 @@ class ContactsHidden extends React.Component {
             <div className="headerCon orgManagementHeader">
               <h5 className="Font17">
                 <Icon
-                  className="Font20 mRight5 Gray Hand"
+                  className="Font20 mRight5 textPrimary Hand"
                   icon="backspace"
                   onClick={() => {
                     this.refreshFn();
@@ -208,7 +208,7 @@ class ContactsHidden extends React.Component {
                 />
                 {currentEditRule.title}
               </h5>
-              <span className="Right Gray_75 Font13">{currentEditRule.editDescription}</span>
+              <span className="Right textSecondary Font13">{currentEditRule.editDescription}</span>
             </div>
             <div className="orgManagementContent">
               <EditCon

@@ -31,7 +31,7 @@ const OwnerOptionPopup = styled(Popup)`
         width: 24px;
         height: 24px;
         border-radius: 50%;
-        background-color: var(--color-background-tertiary);
+        background-color: var(--color-background-secondary);
         color: var(--color-text-tertiary);
         font-size: 13px;
       }

@@ -16,7 +16,7 @@ const LayerContainer = styled.div`
     position: absolute;
     z-index: 9999;
     pointer-events: none;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
     border-radius: 3px;
     display: block;

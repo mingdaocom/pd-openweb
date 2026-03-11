@@ -16,7 +16,7 @@ const InputWrap = styled.div`
   width: 100%;
   margin-bottom: 12px;
   padding-right: 10px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid --color-background-disabled;
   input {
     line-height: 36px;
     flex: 1;
@@ -161,14 +161,14 @@ export default function ConfigRelate(props) {
               {_l('添加关联当前')}
               <span className="Bold mLeft5 mRight5">{sourceName}</span>
               {_l('的')}
-              <span className="Gray_9e">
+              <span className="textTertiary">
                 （{_l('建立')}
                 <Support type={3} text={_l('双向关联')} href="https://help.mingdao.com/worksheet/associations" />
                 {_l('同步数据')}）
               </span>
             </div>
             <InputWrap>
-              <i className="icon-search Gray_75 Font16"></i>
+              <i className="icon-search textSecondary Font16"></i>
               <input
                 autoFocus
                 value={searchValue}
@@ -177,7 +177,9 @@ export default function ConfigRelate(props) {
                   setSearchValue(e.target.value);
                 }}
               />
-              {searchValue && <i className="icon-cancel Gray_9e Font16 pointer" onClick={() => setSearchValue('')}></i>}
+              {searchValue && (
+                <i className="icon-cancel textTertiary Font16 pointer" onClick={() => setSearchValue('')}></i>
+              )}
             </InputWrap>
 
             {_.isEmpty(filterData) ? (
@@ -195,9 +197,14 @@ export default function ConfigRelate(props) {
                         setSelectedId({ sheetId: item.dataSource, sheetName: item.controlName });
                       }}
                     >
-                      <SvgIcon url={item.iconUrl} fill="#999999" size={18} className="InlineBlock Width18" />
+                      <SvgIcon
+                        url={item.iconUrl}
+                        fill="var(--color-text-tertiary)"
+                        size={18}
+                        className="InlineBlock Width18"
+                      />
                       <span className="Bold mLeft10">{item.sourceEntityName}</span>
-                      <span className="Gray_9e mLeft4 Font14">
+                      <span className="textTertiary mLeft4 Font14">
                         {` - ${_.get(DEFAULT_CONFIG[enumWidgetType[type]], 'widgetName')}：${controlName}`}
                       </span>
                     </li>

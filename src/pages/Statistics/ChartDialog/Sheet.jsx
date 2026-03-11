@@ -6,6 +6,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import { renderFieldStyleValue } from 'statistics/common';
 import * as actions from 'statistics/redux/actions';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -25,15 +26,15 @@ const Con = styled.div`
   }
   .hoverHighlight {
     &:hover {
-      color: #1677ff !important;
-      border-color: #1677ff;
+      color: var(--color-primary) !important;
+      border-color: var(--color-primary);
     }
   }
   .chartSheetHeader + div {
     display: none;
   }
   .chartSheetHeader .dataTitle {
-    border-bottom: 3px solid #1677ff;
+    border-bottom: 3px solid var(--color-primary);
   }
   .searchInputComp + div {
     display: flex;
@@ -47,7 +48,7 @@ const Con = styled.div`
     height: 14px;
     width: 1px;
     margin-left: 5px;
-    background-color: #bdbdbd;
+    background-color: var(--color-text-disabled);
   }
   &.small {
     .searchInputComp + div span:first-child {
@@ -118,10 +119,7 @@ export default class ChartSheet extends Component {
       .map(item => {
         const map = valueMap[item.cid] || {};
         const key = match[item.cid];
-        if (item.controlType === 29) {
-          return _l('关联表');
-        }
-        return map[key] || key;
+        return renderFieldStyleValue(item.controlType, map[key] || key);
       })
       .filter(_ => _);
 
@@ -129,7 +127,7 @@ export default class ChartSheet extends Component {
       .map(item => {
         const map = valueMap[item.cid] || {};
         const key = match[item.cid];
-        return map[key] || key;
+        return renderFieldStyleValue(item.controlType, map[key] || key);
       })
       .filter(_ => _);
 
@@ -158,13 +156,13 @@ export default class ChartSheet extends Component {
         <div className="flex valignWrapper ellipsis chartSheetHeader">
           {beforeVisible && (
             <div
-              className="valignWrapper hoverHighlight Font15 Gray bold pointer mRight20 mBottom3"
+              className="valignWrapper hoverHighlight Font15 textPrimary bold pointer mRight20 mBottom3"
               onClick={this.handleCloseReportSingleCacheId}
             >
               {_l('以表格显示')}
             </div>
           )}
-          <div className="Font15 Gray bold ellipsis dataTitle">
+          <div className="Font15 textPrimary bold ellipsis dataTitle">
             {_l('原始数据')}
             {title && `：${title}`}
           </div>
@@ -185,7 +183,11 @@ export default class ChartSheet extends Component {
         {base.reportSingleCacheId && <div className="actionDivider" />}
         {base.reportSingleCacheId && view && !view.viewType && !md.global.Account.isPortal && (
           <Tooltip title={_l('前往视图查看')}>
-            <Icon className="Font20 Gray_9e pointer hoverHighlight mLeft12" icon="launch" onClick={this.handleToView} />
+            <Icon
+              className="Font20 textTertiary pointer hoverHighlight mLeft12"
+              icon="launch"
+              onClick={this.handleToView}
+            />
           </Tooltip>
         )}
         {appType === 1 &&
@@ -195,7 +197,7 @@ export default class ChartSheet extends Component {
           !window.publicAppAuthorization && (
             <Icon
               icon="download"
-              className="Font22 Gray_9e pointer mLeft12 hoverHighlight"
+              className="Font22 textTertiary pointer mLeft12 hoverHighlight"
               onClick={() => {
                 emitter.emit('EXPORT_CURRENT_VIEW_AS_EXCEL', { allowExportStatistics: false });
               }}
@@ -203,7 +205,7 @@ export default class ChartSheet extends Component {
           )}
         <Icon
           icon="close"
-          className="Font22 Gray_9e pointer mLeft12 hoverHighlight"
+          className="Font22 textTertiary pointer mLeft12 hoverHighlight"
           onClick={() => {
             this.handleCloseReportSingleCacheId();
             onClose();

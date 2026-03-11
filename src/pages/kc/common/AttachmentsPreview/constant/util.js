@@ -149,10 +149,10 @@ export function getDownloadUrl(attachment, extra) {
       const url = urlAddParams(viewUrl, { attname: encodeURIComponent(fileName) });
       return viewUrl ? downloadFile(url + logExtend) : url + logExtend;
     } else if (canDownload(attachment)) {
-      return downloadFile(attachment.sourceNode.downloadUrl + logExtend);
+      return attachment.sourceNode.downloadUrl ? downloadFile(attachment.sourceNode.downloadUrl + logExtend) : '';
     }
   }
-  return downloadFile(result + logExtend);
+  return result ? downloadFile(result + logExtend) : '';
 }
 
 /**

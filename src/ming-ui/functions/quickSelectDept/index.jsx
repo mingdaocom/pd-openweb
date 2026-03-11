@@ -17,14 +17,14 @@ const PAGE_SIZE = 100;
 const DeptSelectWrap = styled.div`
   overflow: hidden;
   width: 360px;
-  background-color: #fff;
+  background-color: var(--color-background-card);
   border-radius: 4px;
-  box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px 1px;
+  box-shadow: var(--shadow-lg);
   .searchRoleWrap {
     padding: 0 16px;
     line-height: 40px;
     height: 40px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     overflow: hidden;
     input {
       outline: none;
@@ -58,7 +58,7 @@ const DeptSelectWrap = styled.div`
         margin-right: 2px;
         border-radius: 3px;
         &:hover {
-          background: #f5f5f5;
+          background: var(--color-background-hover);
         }
         &.transparent {
           opacity: 0;
@@ -68,7 +68,7 @@ const DeptSelectWrap = styled.div`
         height: 100%;
         border-radius: 3px;
         &:hover {
-          background: #f5f5f5;
+          background: var(--color-background-hover);
         }
       }
     }
@@ -570,7 +570,7 @@ export function DeptSelect(props) {
                     >
                       <Icon
                         icon="task_custom_btn_unfold"
-                        className={cx('Gray_9e Hand Font12', { rotateDept: !item.open })}
+                        className={cx('textTertiary Hand Font12', { rotateDept: !item.open })}
                       />
                     </span>
                   </div>
@@ -582,7 +582,7 @@ export function DeptSelect(props) {
                   <div className={cx('quick-department__name mLeft4 overflow_ellipsis w100')}>
                     {item.departmentName}
                   </div>
-                  {checked && <Icon icon="done" className="ThemeColor Font13 mRight13" />}
+                  {checked && <Icon icon="done" className="colorPrimary Font13 mRight13" />}
                 </div>
               </div>
               {!item.haveSubDepartment || !item.open ? null : (
@@ -626,7 +626,7 @@ export function DeptSelect(props) {
   return (
     <DeptSelectWrap id="quickSelectDept" ref={conRef}>
       <div className="searchRoleWrap valignWrapper">
-        <Icon icon="search" className="searchIcon Gray_9e mRight8 Font18" />
+        <Icon icon="search" className="searchIcon textTertiary mRight8 Font18" />
         <input
           type="text"
           className="flex"
@@ -636,10 +636,10 @@ export function DeptSelect(props) {
           onChange={handleSearch}
         />
         {keywords && (
-          <Icon icon="cancel" className="Font16 mLeft4 Gray_9e hand" onClick={() => setState({ keywords: '' })} />
+          <Icon icon="cancel" className="Font16 mLeft4 textTertiary hand" onClick={() => setState({ keywords: '' })} />
         )}
         {departrangetype === '0' && (
-          <Icon icon="department" className="Hand Gray_75 Hover_21 Font18" onClick={openDialog} />
+          <Icon icon="department" className="Hand textSecondary hoverColorPrimary Font18" onClick={openDialog} />
         )}
       </div>
       <ScrollView className="quickDeptContent" style={{ height: minHeight }}>

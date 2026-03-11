@@ -710,7 +710,7 @@ class TaskList extends Component {
             <span class="Font14">${_l('或使用右上角 + 号创建任务')}</span>
           </span>
         </div>
-        <div class="ThemeBG taskGroundGlass"></div>
+        <div class="bgTertiary taskGroundGlass"></div>
       </div>`;
 
     // 优先级 4分类

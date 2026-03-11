@@ -71,8 +71,8 @@ export default class InvitationList extends Component {
     const { list = [] } = this.props;
     return (
       <div className="overflowHidden pAll10">
-        <span className="Normal Gray14 Left Width250">{_l('组织')}</span>
-        <span className="Normal Gray14 Left mLeft20">{_l('操作')}</span>
+        <span className="Normal textPrimary Font14 Left Width250">{_l('组织')}</span>
+        <span className="Normal textPrimary Font14 Left mLeft20">{_l('操作')}</span>
         <div className="Clear"></div>
         <ul className="pTop10">
           {list.length ? (

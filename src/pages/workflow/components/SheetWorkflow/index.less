@@ -5,7 +5,7 @@
     padding: 20px;
     box-shadow: 0px 1px 2px 0px #0000000f;
     transition: box-shadow 0.2s;
-    background: #ffffff;
+    background: var(--color-background-primary);
     position: relative;
     overflow: hidden;
     &:hover {
@@ -16,13 +16,13 @@
       width: auto;
       height: 1px;
       margin: 10px -20px 0;
-      background-color: #f1f1f1;
+      background-color: var(--color-background-disabled);
     }
     .branchWrap {
       margin: 0 -20px;
       padding: 15px 20px;
       &.hover:hover {
-        background-color: #fafafa;
+        background-color: var(--color-background-secondary);
       }
       &:last-child {
         margin-bottom: -20px;
@@ -32,7 +32,7 @@
     .branchWrapLine {
       width: 100%;
       height: 1px;
-      background-color: #ebeaea;
+      background-color: var(--color-border-secondary);
     }
     .itemWrapper {
       > div:last-child {
@@ -47,12 +47,12 @@
       justify-content: center;
     }
     .myAvatar {
-      color: #fff;
-      background-color: #1677ff;
+      color: var(--color-white);
+      background-color: var(--color-primary);
     }
     .hideAvatar {
-      color: #757575;
-      background-color: #f5f5f5;
+      color: var(--color-text-secondary);
+      background-color: var(--color-background-secondary);
     }
     .approveState {
       position: absolute;
@@ -61,13 +61,13 @@
       padding: 1px;
       border-radius: 50%;
       &.pass {
-        background-color: #4caf50;
+        background-color: var(--color-success);
       }
       &.overrule {
-        background-color: #f44336;
+        background-color: var(--color-error);
       }
       .icon {
-        color: #fff;
+        color: var(--color-white);
       }
     }
     .flowNodeName {
@@ -82,16 +82,16 @@
       flex-wrap: wrap;
     }
     .state {
-      color: #fff;
+      color: var(--color-white);
       padding: 1px 11px;
       border-radius: 25px;
-      background-color: #ebebeb;
+      background-color: var(--color-border-secondary);
     }
   }
   .withoutData {
     justify-content: center;
     .icon {
-      color: #e0e0e0;
+      color: var(--color-border-secondary);
       font-size: 80px;
     }
   }
@@ -102,7 +102,7 @@
     box-shadow: none !important;
   }
   .ant-drawer-content {
-    background-color: #f8f8f8;
+    background-color: var(--color-background-secondary);
   }
   .ant-drawer-body {
     height: 100%;
@@ -112,33 +112,33 @@
     justify-content: flex-end;
   }
   .viewExecDialog {
-    color: #1677ff;
+    color: var(--color-primary);
     &:hover {
-      color: #1e88e5;
+      color: var(--color-primary);
     }
   }
   .workflowStep {
     padding: 0 28px 0 20px;
   }
   .workflowStep .stepContentWrap {
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
   .workflowStepFooter {
     height: 80px;
     padding: 0 20px;
-    border-top: 1px solid #eaeaea;
-    background-color: #fff;
+    border-top: 1px solid var(--color-border-secondary);
+    background-color: var(--color-background-primary);
   }
   .icon-arrow-left-border:hover {
-    color: #1677ff !important;
+    color: var(--color-primary) !important;
   }
 }
 
 .sheetWorkflowWrapper,
 .sheetWorkflowDrawer {
   .branchNode {
-    color: #fff;
-    background-color: #0097ef;
+    color: var(--color-white);
+    background-color: var(--color-primary);
     border-radius: 20px;
     width: max-content;
     padding: 2px 7px;

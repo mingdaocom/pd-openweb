@@ -179,7 +179,7 @@ export default function NavigationConfig(props) {
                     arrowPointAtCenter={true}
                     placement="bottom"
                   >
-                    <Icon className="Font16 Gray_9e pointer" icon="info_outline" />
+                    <Icon className="Font16 textTertiary pointer" icon="info_outline" />
                   </Tooltip>
                 </div>
               )}
@@ -201,7 +201,7 @@ export default function NavigationConfig(props) {
             arrowPointAtCenter={true}
             placement="topRight"
           >
-            <Icon className="Font16 Gray_9e pointer" icon="info_outline" />
+            <Icon className="Font16 textTertiary pointer" icon="info_outline" />
           </Tooltip>
         </div>
         <div className="content">
@@ -270,7 +270,7 @@ export default function NavigationConfig(props) {
     <div className="navigationConfig">
       <div className="flexRow alignItemsCenter title">
         <div className="flex Font17 bold">{_l('导航设置')}</div>
-        <Icon icon="close" className="Font20 Gray_9e pointer" onClick={onClose} />
+        <Icon icon="close" className="Font20 textTertiary pointer" onClick={onClose} />
       </div>
       <Tabs defaultActiveKey="pc">
         <Tabs.TabPane tab={_l('PC端')} key="pc">

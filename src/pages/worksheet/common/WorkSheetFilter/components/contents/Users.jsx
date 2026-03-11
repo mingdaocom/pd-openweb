@@ -213,7 +213,7 @@ export default class Users extends Component {
           ) : (
             <Fragment>
               <span className="placeholder">{_l('请选择')}</span>
-              <i className="icon icon-arrow-down-border Font15 Gray_9e Right mTop5"></i>
+              <i className="icon icon-arrow-down-border Font15 textTertiary Right mTop5"></i>
             </Fragment>
           )}
         </div>

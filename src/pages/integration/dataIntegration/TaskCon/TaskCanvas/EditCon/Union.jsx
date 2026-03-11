@@ -9,8 +9,8 @@ import { WrapL } from './style';
 
 const PopupWrap = styled.div`
   border-radius: 6px;
-  background: #ffffff;
-  box-shadow: 0px 3px 6px 1px rgba(0, 0, 0, 0.16);
+  background: var(--color-background-primary);
+  box-shadow: var(--shadow-lg);
   padding: 16px 24px;
   position: relative;
   .triangle {
@@ -18,7 +18,7 @@ const PopupWrap = styled.div`
     height: 0;
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
-    border-bottom: 10px solid #fff;
+    border-bottom: 10px solid var(--color-white);
     transform: rotate(180deg);
     position: absolute;
     bottom: -6px;
@@ -46,8 +46,8 @@ export default function Union(props) {
   const renderPopup = o => {
     return (
       <PopupWrap class="toolTipCon">
-        <div className="Bold TxtLeft Gray Font13 titleTips">{o.txt}</div>
-        <div className="Bold TxtLeft Gray_75 Font12 titleTips">{o.tips}</div>
+        <div className="Bold TxtLeft textPrimary Font13 titleTips">{o.txt}</div>
+        <div className="Bold TxtLeft textSecondary Font12 titleTips">{o.tips}</div>
         <div className={cx(`iconImg bgImg${o.tipImg} mTop10`)} style={{ width: 489, height: o.h }}></div>
         <div className="triangle"></div>
       </PopupWrap>

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { LoadDiv } from 'ming-ui';
+import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
 import preall from 'src/common/preall';
 import UnusualContent from 'src/components/UnusualContent';
@@ -32,7 +33,18 @@ export default class EmbedPage extends Component {
     homeAppApi
       .checkApp({ appId })
       .then(status => {
-        homeAppApi.getApp({ appId }).then(data => {
+        homeAppApi.getApp({ appId, getLang: true }).then(async data => {
+          const { langInfo } = data;
+          window.appInfo = data;
+          if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
+            const lang = await appManagementApi.getAppLangDetail({
+              projectId: data.projectId,
+              appId,
+              appLangId: langInfo.appLangId,
+            });
+            window[`langData-${appId}`] = lang.items;
+            window[`langVersion-${appId}`] = langInfo.version;
+          }
           this.setState({ loading: false, status });
           window[`timeZone_${this.appId}`] = data.timeZone;
           document.body.style.setProperty('--app-primary-color', data.iconColor);
@@ -57,7 +69,7 @@ export default class EmbedPage extends Component {
       };
       return <MobileCustomPage match={{ params, path: location.pathname }} />;
     } else {
-      return <CustomPageContent ids={{ appId: this.appId }} id={this.pageId} />;
+      return <CustomPageContent ids={{ appId: this.appId, worksheetId: this.pageId }} id={this.pageId} />;
     }
   }
   render() {

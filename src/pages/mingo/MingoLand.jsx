@@ -12,7 +12,7 @@ import Side from './common/Side';
 const Con = styled.div`
   width: 100%;
   height: 100%;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
 `;
 
 const hideHeader = window.hideHeader || new URL(location.href).searchParams.get('header') === '0';

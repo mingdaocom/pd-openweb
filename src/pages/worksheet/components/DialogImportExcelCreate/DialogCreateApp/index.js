@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import { Button, Dialog, Icon, LoadDiv, Support, SvgIcon } from 'ming-ui';
-import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon/index.jsx';
+import { dialogSelectIcon } from 'ming-ui/functions';
 import { navigateTo } from 'src/router/navigateTo';
 import congratulationImg from '../images/congratulation.png';
 import successImg from '../images/succuss.png';
@@ -94,7 +93,7 @@ export default class DialogCreateApp extends Component {
                 type={2}
                 text={_l('帮助')}
                 href="https://help.mingdao.com/worksheet/import-excel-create"
-                className="Gray_bd mRight30"
+                className="textDisabled mRight30"
               />
               <Button type="link" className="mRight15 stepLast" onClick={this.props.handleLast}>
                 {_l('上一步')}
@@ -130,29 +129,21 @@ export default class DialogCreateApp extends Component {
               />
 
               {!createAppStatus && !createAppLoading && (
-                <div className="editIcon Hand Hover_49">
-                  <Trigger
-                    action={['click']}
-                    zIndex={1000}
-                    popupClassName="myAppItemOperatorTriggerWrap"
-                    popup={
-                      <SelectIcon
-                        projectId={projectId}
-                        icon={appInfo.icon}
-                        name={appInfo.appName}
-                        iconColor={appInfo.iconColor}
-                        onModify={this.handleModify}
-                        hideInput={true}
-                      />
-                    }
-                    popupAlign={{
-                      points: ['tl', 'bl'],
-                      offset: [-350, 5],
-                      overflow: { adjustX: true },
+                <div className="editIcon Hand hoverTextPrimaryLight">
+                  <Icon
+                    icon="edit Hand"
+                    className="textDisabled editApp"
+                    onClick={() => {
+                      dialogSelectIcon({
+                        projectId,
+                        icon: appInfo.icon,
+                        name: appInfo.appName,
+                        iconColor: appInfo.iconColor,
+                        onModify: this.handleModify,
+                        hideInput: true,
+                      });
                     }}
-                  >
-                    <Icon icon="edit Hand" className="Gray_bd editApp" />
-                  </Trigger>
+                  />
                 </div>
               )}
             </div>
@@ -194,7 +185,7 @@ export default class DialogCreateApp extends Component {
             </div>
           </div>
           {!createAppStatus && !createAppLoading && (
-            <div className="Gray_76 TxtCenter mBottom40">
+            <div className="textSecondary TxtCenter mBottom40">
               {_l('包含 %0 张工作表，导入 %1 行数据', importSheets.length, totalRows)}
             </div>
           )}
@@ -221,14 +212,14 @@ export default class DialogCreateApp extends Component {
                         <span className="InlineBlock ellipsis sheetName">{item.sheetName}</span>
                         <Icon
                           icon="edit"
-                          className="Gray_bd mLeft5 Hand"
+                          className="textDisabled mLeft5 Hand"
                           onClick={() => {
                             this.changeEditSheetName(item);
                           }}
                         />
                       </div>
                     )}
-                    <div className="Gray_9e width94 pLeft10">
+                    <div className="textTertiary width94 pLeft10">
                       {_l('%0行', item.total ? item.total - item.rowNum : 0)}
                     </div>
                   </div>
@@ -251,7 +242,9 @@ export default class DialogCreateApp extends Component {
               <div className="Font28 bold mBottom12">
                 {_l('应用创建成功')} <img src={congratulationImg} className="congratulationImg" />
               </div>
-              <div className=" Gray_9e mBottom50 Font15">{_l('离开当前页面不会影响数据导入，导入完成后会通知您')}</div>
+              <div className=" textTertiary mBottom50 Font15">
+                {_l('离开当前页面不会影响数据导入，导入完成后会通知您')}
+              </div>
               <Button
                 type="primary"
                 className="checkAppBtn bold"

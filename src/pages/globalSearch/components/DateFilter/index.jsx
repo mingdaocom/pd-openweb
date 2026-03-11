@@ -88,7 +88,7 @@ export default function DateFilter(props) {
         </ul>
       }
     >
-      <span className="globalSearchDateFilter Gray_9e valignWrapper">
+      <span className="globalSearchDateFilter textTertiary valignWrapper">
         <Icon icon="event" className="mRight5 Font14" />
         {value.key === 'clear'
           ? _l('按更新时间')

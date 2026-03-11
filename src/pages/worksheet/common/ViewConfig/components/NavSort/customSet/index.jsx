@@ -23,28 +23,28 @@ const Wrap = styled.div`
     padding: 6px 12px;
     border-radius: 3px;
     display: inline-block;
-    color: #757575;
+    color: var(--color-text-secondary);
     &:hover {
-      background: #f8f8f8;
-      // background: #f5f5f5;
-      color: #1677ff;
+      background: var(--color-background-secondary);
+      // background: var(--color-background-secondary);
+      color: var(--color-primary);
       &.clearBtn {
-        color: red;
+        color: var(--color-error);
       }
     }
   }
   .add {
     padding: 6px 16px;
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     border-radius: 3px;
     min-width: 100px;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
     &.disable {
       cursor: not-allowed;
       &:hover {
-        background: #f8f8f8;
+        background: var(--color-background-hover);
       }
     }
   }
@@ -309,7 +309,7 @@ export default function (props) {
           <span
             className={cx(
               'add InlineBlock mTop6 Bold TxtCenter',
-              setting.filter(o => o !== 'add').length >= maxCount ? 'disable Gray_9e' : 'Hand ThemeColor3',
+              setting.filter(o => o !== 'add').length >= maxCount ? 'disable textTertiary' : 'Hand ThemeColor3',
             )}
             onClick={e => {
               if (setting.filter(o => o !== 'add').length >= maxCount) {

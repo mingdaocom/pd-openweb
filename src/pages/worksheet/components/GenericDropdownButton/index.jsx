@@ -25,8 +25,8 @@ export const Button = styled.div`
   cursor: pointer;
   height: 36px;
   line-height: 36px;
-  color: #151515;
-  border: 1px solid #dddddd;
+  color: var(--color-text-title);
+  border: 1px solid var(--color-border-primary);
   font-size: 13px;
   .content {
     padding: 0 16px;
@@ -34,13 +34,13 @@ export const Button = styled.div`
     align-items: center;
     font-weight: bold;
     > .icon {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       font-weight: normal;
     }
   }
   &:not(.disabled) {
     .content:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
     }
   }
   &.disabled {
@@ -56,10 +56,10 @@ const DropIcon = styled.span`
   width: 36px;
   text-align: center;
   cursor: pointer;
-  color: #151515;
+  color: var(--color-text-title);
   height: 34px;
   &:hover {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-hover);
   }
   &:before {
     position: absolute;
@@ -68,7 +68,7 @@ const DropIcon = styled.span`
     height: 16px;
     top: 10px;
     left: -0.5px;
-    background-color: #ddd;
+    background-color: var(--color-border-primary);
   }
 `;
 

@@ -9,13 +9,13 @@ const SelectWrapper = styled.div`
     .ant-select-selector {
       min-height: 36px;
       padding: 2px 11px !important;
-      border: 1px solid #ccc !important;
+      border: 1px solid var(--color-border-tertiary) !important;
       border-radius: 3px !important;
       box-shadow: none !important;
     }
     &.ant-select-focused {
       .ant-select-selector {
-        border-color: #1e88e5 !important;
+        border-color: var(--color-primary) !important;
       }
     }
     &.disabled {

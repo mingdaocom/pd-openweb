@@ -17,18 +17,18 @@ const Wrap = styled.div`
     width: 92px;
     height: 36px;
     line-height: 36px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     border-radius: 3px 3px 3px 3px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     i {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
     &:hover,
     &.has {
-      border: 1px solid #1677ff;
-      color: #1677ff;
+      border: 1px solid var(--color-primary);
+      color: var(--color-primary);
       i {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
@@ -49,7 +49,7 @@ export default function (props) {
   const canSort = !isSameType([26, 27, 48], viewControlData);
   return (
     <React.Fragment>
-      <div className="title mTop30 Gray Bold">{_l('排序')}</div>
+      <div className="title mTop30 textPrimary Bold">{_l('排序')}</div>
       <Wrap className="flexRow alignItemsCenter mTop10">
         {/* 人员不支持字段排序 */}
         {canSort &&

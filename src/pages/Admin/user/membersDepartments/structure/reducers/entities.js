@@ -17,6 +17,7 @@ const initialState = {
   importExportType: '',
   importExportResult: {},
   showDisabledDepartment: localStorage.getItem('showDisabledDepartment') === 'false' ? false : true,
+  applyDateOrderBy: 11,
 };
 
 const mergeDepartmentUsers = (department, payload) => {
@@ -114,7 +115,12 @@ const entities = (state = initialState, action) => {
     newDepartments = [],
     showDisabledDepartment,
     searchUsers,
+    applyDateOrderBy,
   } = action;
+
+  if (type === 'UPDATE_APPLY_DATE_ORDER_BY') {
+    return { ...state, applyDateOrderBy };
+  }
   if (type === 'UPDATE_SHOW_DISABLED_DEPARTMENT') {
     return { ...state, showDisabledDepartment };
   }

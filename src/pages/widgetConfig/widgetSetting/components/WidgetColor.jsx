@@ -32,7 +32,7 @@ const SelectIcon = styled.div`
     font-size: 16px;
   }
   .text {
-    color: ${props => (props.textColor >= 192 ? '#151515' : '#fff')};
+    color: ${props => (props.textColor >= 192 ? 'var(--color-text-title)' : '#fff')};
   }
   &:hover {
     .text {
@@ -45,7 +45,7 @@ const SelectIcon = styled.div`
       background: rgba(0, 0, 0, 0.1);
       text-align: center;
       line-height: 32px;
-      color: #fff;
+      color: var(--color-white);
       z-index: 1;
     }
   }
@@ -60,8 +60,8 @@ const NormalIconStyle = styled.div`
   align-items: center;
   justify-content: center;
   line-height: 34px;
-  border: 1px solid #e0e0e0;
-  background: #fff;
+  border: 1px solid var(--color-border-primary);
+  background: var(--color-background-primary);
   & > div {
     position: relative;
     width: 24px;
@@ -73,7 +73,7 @@ const NormalIconStyle = styled.div`
       position: absolute;
       width: 135%;
       height: 1px;
-      background: #ff0000;
+      background: var(--color-error);
       transform: rotate(45deg);
       transform-origin: left;
     }

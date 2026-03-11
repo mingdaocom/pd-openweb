@@ -10,8 +10,8 @@ const CopyDialogWrap = styled.div`
   }
   input {
     height: 36px;
-    background: #ffffff;
-    border: 1px solid #e6e6e6;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-secondary);
     padding: 6px;
   }
 `;
@@ -58,9 +58,9 @@ export default function CopyRoleDialog(props) {
       updateTrigger="fasle"
     >
       <CopyDialogWrap>
-        <p className="Gray_75">{_l('将复制目标角色的权限设置和描述。角色下的成员不会被复制')}</p>
+        <p className="textSecondary">{_l('将复制目标角色的权限设置和描述。角色下的成员不会被复制')}</p>
         <div className="roleInput flexRow">
-          <span className="title Gray_75">{_l('角色')}</span>
+          <span className="title textSecondary">{_l('角色')}</span>
           <input
             className="flex mLeft16"
             value={roleName}

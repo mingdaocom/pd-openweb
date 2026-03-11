@@ -79,7 +79,7 @@ class ContractCom extends Component {
       canvas.height = height * scaleBy;
       context.scale(scaleBy, scaleBy);
       html2canvas($wrap, {
-        backgroundColor: '#fff',
+        backgroundColor: 'var(--color-background-primary)',
         allowTaint: true,
         tainttest: false,
         scale: scaleBy,

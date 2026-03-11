@@ -27,11 +27,38 @@ const previewAttachments = function (options, extra) {
         }}
       />,
     );
-
-    // $(document).on('click', '.attachmentsPreview', function (e) {
-    //   e.stopPropagation();
-    // });
   });
 };
 
 export default previewAttachments;
+
+export const transformQiniuUrl = (file, options = {}) => {
+  options = {
+    index: 0,
+    attachments: [],
+    showThumbnail: true,
+    hideFunctions: options.disableDownload ? ['editFileName', 'download', 'share', 'saveToKnowlege'] : ['editFileName'],
+    ...options,
+  };
+
+  if (typeof file === 'string') {
+    options.attachments = [
+      {
+        previewAttachmentType: 'QINIU',
+        name: options.name || _l('图片预览'),
+        path: file,
+        privateDownloadUrl: file,
+        ext: options.ext || (file.match(/\.(\w+)$/) || '')[1],
+      },
+    ];
+  } else if (typeof file === 'object' && file.length) {
+    options.attachments = file.map(f => ({
+      previewAttachmentType: 'QINIU',
+      name: _l('图片预览') + ((f.match(/\.(\w+)$/) || '')[1] || ''),
+      path: f,
+      ext: options.ext || (f.match(/\.(\w+)$/) || '')[1],
+    }));
+  }
+
+  return options;
+};

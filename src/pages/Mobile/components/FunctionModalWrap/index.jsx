@@ -14,7 +14,7 @@ class ModalWrap extends Component {
           <div className="flex">content</div>
           <div className="btnsWrapper valignWrapper flexRow">
             <div className="flex mLeft6 mRight6">
-              <Button className="Font12 Gray_75 bold" onClick={onClose}>
+              <Button className="Font12 textSecondary bold" onClick={onClose}>
                 {_l('自由输入')}
               </Button>
             </div>

@@ -17,16 +17,16 @@ const Wrap = styled.div`
   .add {
     line-height: 36px;
     padding: 0 16px;
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     border-radius: 3px;
-    color: #1677ff;
+    color: var(--color-primary);
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
     &.disable {
       cursor: not-allowed;
       &:hover {
-        background: #f8f8f8;
+        background: var(--color-background-hover);
       }
     }
   }
@@ -38,9 +38,9 @@ const Wrap = styled.div`
     &:hover {
       .delete {
         opacity: 1;
-        color: #757575;
+        color: var(--color-text-secondary);
         &:hover {
-          color: red;
+          color: var(--color-error);
         }
       }
     }

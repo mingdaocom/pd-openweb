@@ -12,7 +12,7 @@ import variableApi from 'src/api/variable';
 import DatePickSelect from 'worksheet/components/DatePickerSelect';
 
 const LogDrawer = styled(Drawer)`
-  color: #151515;
+  color: var(--color-text-title);
   .ant-drawer-mask {
     background-color: transparent;
   }
@@ -48,10 +48,10 @@ const LogDrawer = styled(Drawer)`
 
       .icon {
         font-size: 16px;
-        color: #757575;
+        color: var(--color-text-secondary);
       }
       .icon.icon-arrow-down {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         font-size: 8px;
         width: 16px;
         display: inline-block;
@@ -64,14 +64,14 @@ const LogDrawer = styled(Drawer)`
       .selectUser,
       .selectDate {
         padding: 10px;
-        background: #fff;
+        background: var(--color-background-primary);
         display: flex;
         align-items: center;
         width: fit-content;
         cursor: pointer;
         border-radius: 3px;
         box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-        border: 1px solid #f5f5f5;
+        border: 1px solid var(--color-background-secondary);
         &:hover {
           box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2);
           .icon-cancel {
@@ -84,22 +84,22 @@ const LogDrawer = styled(Drawer)`
       }
       .selectConText {
         margin: 0 4px;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
       .selectLight {
-        color: #1677ff;
+        color: var(--color-primary);
         .icon {
-          color: #1677ff;
+          color: var(--color-primary);
         }
         .selectConText {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }
     .emptyText {
       margin-top: 100px;
       font-size: 13px;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       text-align: center;
     }
   }
@@ -110,13 +110,13 @@ const LogItem = styled.div`
   justify-content: space-between;
   padding: 16px 20px;
   margin: 0 10px;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid var(--color-border-secondary);
 
   .logContent {
     font-size: 12px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     a {
-      color: #151515;
+      color: var(--color-text-title);
     }
   }
   .operatorAvatar {
@@ -180,6 +180,7 @@ export default function VarLog(props) {
   const pickUser = () => {
     const filterIds = ['user-sub', 'user-undefined'];
     quickSelectUser(selectUserRef.current, {
+      fromAdmin: true,
       hidePortalCurrentUser: true,
       selectRangeOptions: false,
       includeSystemField: true,
@@ -307,7 +308,7 @@ export default function VarLog(props) {
                     dangerouslySetInnerHTML={{ __html: filterXSS(item.opeartContent) }}
                   ></span>
                 </div>
-                <div className="Font12 Gray_9e nowrap pTop2">{item.operationDatetime}</div>
+                <div className="Font12 textTertiary nowrap pTop2">{item.operationDatetime}</div>
               </LogItem>
             );
           })}

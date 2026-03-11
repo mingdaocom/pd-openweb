@@ -109,6 +109,7 @@ function WorksheetRecordLogSelectTags(props) {
         return showMaskData && _.indexOf(maskList, text) < 0 ? dealMaskValue({ ...control, value: _value }) : _value;
       }
       if (type === 35) {
+        if (item === _l('未命名')) return item;
         const titleControl = control.relationControls.find(l => l.controlId === control.sourceTitleControlId);
         return titleControl ? renderTextCell({ ...titleControl, value: item }) || text : text;
       }

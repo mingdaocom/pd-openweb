@@ -174,7 +174,7 @@ export default class ChecklistItem extends Component {
         <div
           style={{
             height: config.height + 'px',
-            backgroundColor: '#e0e0e0',
+            backgroundColor: 'var(--color-border-secondary)',
             marginTop: '6px',
           }}
         />

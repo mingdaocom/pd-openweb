@@ -60,7 +60,7 @@ export default function Control(props) {
         key={c.controlId}
         onClick={() => handlePositionControl(c)}
       >
-        <Icon icon={getIconByType(c.type)} className="Gray_9e Font16" />
+        <Icon icon={getIconByType(c.type)} className="textTertiary Font16" />
         <span className="mLeft5 Font13 ellipsis">{translateInfo.name || c.controlName}</span>
       </div>
     );
@@ -70,7 +70,7 @@ export default function Control(props) {
     <div className="flexRow pAll10 h100">
       <div className="nav flexColumn">
         <div className="searchWrap flexRow alignItemsCenter mBottom10">
-          <Icon className="Gray_9e Font20 mRight5" icon="search" />
+          <Icon className="textTertiary Font20 mRight5" icon="search" />
           <input
             placeholder={_l('字段')}
             className="flex"
@@ -79,7 +79,9 @@ export default function Control(props) {
               setSearchValue(e.target.value);
             }}
           />
-          {searchValue && <Icon className="Gray_9e pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />}
+          {searchValue && (
+            <Icon className="textTertiary pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />
+          )}
         </div>
         <ScrollView className="flex">
           {controls.filter(c => c.controlName.includes(searchValue)).map(c => renderControlNav(c))}

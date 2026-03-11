@@ -61,13 +61,19 @@ export default class Header extends Component {
           <div className="nameWrapper valignWrapper flex">
             {(window.shareState.shareId ? displaySetup.showTitle : true) && (
               <Fragment>
-                <span className="ellipsis" style={{ ...replaceTitleStyle(newTitleStyles, themeColor) }}>
+                <span
+                  className="ellipsis"
+                  style={{
+                    ...replaceTitleStyle(newTitleStyles, themeColor),
+                    color: 'var(--color-text-primary)',
+                  }}
+                >
                   {translateInfo.name || currentReport.name}
                 </span>
                 {permissions && (
                   <Icon
                     icon="workflow_write"
-                    className="Font18 pointer Gray_9e mLeft7"
+                    className="Font18 pointer textTertiary mLeft7"
                     onClick={() => {
                       this.setState({
                         isEdit: true,
@@ -107,7 +113,7 @@ export default class Header extends Component {
                     >
                       <Icon
                         icon="info"
-                        className={cx('Font18 pointer Gray_9e mLeft7', {
+                        className={cx('Font18 pointer textTertiary mLeft7', {
                           hideDesc: !editDescVisible && _.isEmpty(currentReport.desc),
                         })}
                       />

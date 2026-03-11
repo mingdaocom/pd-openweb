@@ -4,8 +4,10 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import customApi from 'statistics/api/custom';
+import report from 'statistics/api/report';
 import { getTranslateInfo } from 'src/utils/app';
 import { LANG_DATA_TYPE } from '../config';
+import BaseChart from './components/BaseChart';
 import EditInput from './EditInput';
 
 export default function CustomPageChart(props) {
@@ -23,8 +25,22 @@ export default function CustomPageChart(props) {
       })
       .then(data => {
         const { components } = data;
-        setLoading(false);
-        setList(components.filter(c => c.type === 1));
+        const chartComponents = components.filter(c => c.type === 1);
+        report
+          .getReports({
+            reportIds: chartComponents.map(item => item.value),
+          })
+          .then(reportInfo => {
+            setLoading(false);
+            setList(
+              chartComponents.map(item => {
+                return {
+                  ...item,
+                  reportInfo: _.find(reportInfo, { id: item.value }),
+                };
+              }),
+            );
+          });
       });
   }, [selectNode.key]);
 
@@ -38,7 +54,7 @@ export default function CustomPageChart(props) {
 
   if (!list.length) {
     return (
-      <div className="flexRow alignItemsCenter justifyContentCenter h100 Gray_9e Font14">{_l('没有统计图表')}</div>
+      <div className="flexRow alignItemsCenter justifyContentCenter h100 textTertiary Font14">{_l('没有统计图表')}</div>
     );
   }
 
@@ -116,6 +132,7 @@ export default function CustomPageChart(props) {
             onChange={value => handleSave({ description: value })}
           />
         </div>
+        <BaseChart comparisonLangId={comparisonLangId} translateInfo={translateInfo} item={item} onSave={handleSave} />
         {item.title && (
           <div className="flexRow alignItemsCenter nodeItem">
             <div className="Font13 mRight20 label">{_l('标题行')}</div>
@@ -150,7 +167,7 @@ export default function CustomPageChart(props) {
     <div className="flexRow pAll10 h100">
       <div className="nav flexColumn">
         <div className="searchWrap flexRow alignItemsCenter mBottom10">
-          <Icon className="Gray_9e Font20 mRight5" icon="search" />
+          <Icon className="textTertiary Font20 mRight5" icon="search" />
           <input
             placeholder={_l('统计图')}
             className="flex"
@@ -159,7 +176,9 @@ export default function CustomPageChart(props) {
               setSearchValue(e.target.value);
             }}
           />
-          {searchValue && <Icon className="Gray_9e pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />}
+          {searchValue && (
+            <Icon className="textTertiary pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />
+          )}
         </div>
         <ScrollView className="h100">
           {list.filter(item => item.name.includes(searchValue)).map(item => renderNav(item))}

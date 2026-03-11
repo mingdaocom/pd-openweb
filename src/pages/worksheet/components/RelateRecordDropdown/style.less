@@ -1,22 +1,30 @@
 .RelateRecordDropdown {
+  --selected-item-bg: rgba(0, 100, 240, 0.08);
+  [data-theme='dark'] & {
+    --selected-item-bg: rgba(22, 119, 255, 0.08);
+  }
   &-selected {
     position: relative;
     cursor: pointer;
     min-height: 36px;
-    background: #f7f7f7;
+    background: var(--color-background-secondary);
     border-radius: 4px;
     padding-right: 30px;
     border: 1px solid transparent;
     display: flex;
     flex-wrap: wrap;
     .clearIcon,
+    .selectDialogIcon,
     .dropIcon {
       position: absolute;
       right: 0;
       top: 0;
       font-size: 14px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       margin: 11px;
+    }
+    .selectDialogIcon.clearVisible {
+      right: 20px;
     }
     .clearIcon {
       display: none;
@@ -27,7 +35,7 @@
       // max-width: 100%;
       // display: inline-block;
       // line-height: 34px;
-      // color: #151515;
+      // color: var(--color-text-title);
     }
     .normalSelectedItem {
       padding-left: 10px;
@@ -35,7 +43,7 @@
       display: inline-block;
       // max-width: calc(~'100% - 30px');
       line-height: 34px;
-      color: #151515;
+      color: var(--color-text-primary);
       &.active {
         padding-right: 30px !important;
       }
@@ -63,8 +71,8 @@
       margin: 6px 0 0 6px;
       line-height: 24px;
       padding: 0 10px;
-      background-color: rgba(0, 100, 240, 0.08);
-      color: #151515;
+      background-color: var(--selected-item-bg);
+      color: var(--color-text-title);
       border-radius: 3px;
       .name {
         max-width: 100%;
@@ -73,7 +81,7 @@
         padding-right: 24px !important;
       }
       &.active {
-        background-color: #e8e8e8;
+        background-color: var(--color-border-secondary);
       }
     }
     .normalSelectedItem,
@@ -84,10 +92,10 @@
         position: absolute;
         right: 4px;
         top: 4px;
-        color: #9d9d9d;
+        color: var(--color-text-tertiary);
         font-size: 16px;
         &:hover {
-          color: #757575;
+          color: var(--color-text-secondary);
         }
       }
     }
@@ -98,7 +106,7 @@
       text-align: center;
       .icon {
         font-size: 14px;
-        color: #757575;
+        color: var(--color-text-secondary);
       }
     }
     &.readonly {
@@ -111,14 +119,14 @@
       .normalSelectedItem,
       .activeSelectedItem {
         cursor: pointer;
-        color: #003980;
+        color: var(--color-link);
         &:hover {
-          color: #1677ff;
+          color: var(--color-link-hover);
         }
       }
     }
     &.free {
-      background-color: #fff !important;
+      background-color: var(--color-background-primary) !important;
     }
     &.sheetview:not(.active) {
       padding-left: 0px;
@@ -141,7 +149,7 @@
       &:not(.active) .normalSelectedItem,
       .activeSelectedItem {
         line-height: 21px;
-        background-color: rgba(0, 100, 240, 0.08);
+        background-color: var(--selected-item-bg);
         border-radius: 3px;
         padding: 0 10px;
         margin: 6px 0 0 6px;
@@ -161,7 +169,7 @@
         .activeSelectedItem:not(.addBtn) {
           cursor: pointer;
           &:hover {
-            color: #1677ff;
+            color: var(--color-primary);
             background-color: rgba(33, 150, 243, 0.16);
           }
         }
@@ -171,12 +179,12 @@
       .dropIcon {
         margin-right: 8px !important;
         font-size: 16px;
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
     }
     &.active {
-      border-color: #1677ff;
-      background-color: #fff !important;
+      border-color: var(--color-primary);
+      background-color: var(--color-background-primary) !important;
       .dropIcon {
         display: none !important;
       }
@@ -184,7 +192,7 @@
         display: inline-block !important;
       }
       .placeholder {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
     }
     &:not(.sheetview).emptyRecord {
@@ -200,13 +208,16 @@
         display: inline-block !important;
       }
     }
+    &.showDialogSelect:not(.emptyRecord) {
+      padding-right: 50px;
+    }
   }
 }
 
 .RelateRecordList {
   border-radius: 3px;
-  background-color: #fff;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.24);
+  background-color: var(--color-background-primary);
+  box-shadow: var(--shadow-lg);
   div.listCon {
     padding: 6px 0;
   }
@@ -219,7 +230,7 @@
       padding: 0 6px !important;
     }
     .icon {
-      color: #757575;
+      color: var(--color-text-secondary);
       margin: 9px 0;
       font-size: 20px;
     }
@@ -234,7 +245,7 @@
     padding: 0 12px;
     margin: 6px 0;
     font-size: 14px;
-    color: #1677ff;
+    color: var(--color-primary);
     line-height: 36px;
     display: flex;
     align-items: center;
@@ -243,10 +254,10 @@
       font-size: 14px;
     }
     &.active {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-secondary);
     }
     &:hover {
-      color: #1565c0;
+      color: var(--color-link-hover);
     }
   }
 }
@@ -264,28 +275,28 @@
       right: 0px;
       height: 0px;
       bottom: -7px;
-      border-bottom: 1px solid #ddd;
+      border-bottom: 1px solid var(--color-border-primary);
     }
   }
   &.big {
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   }
   &.selected {
-    background-color: #e3f3ff;
+    background-color: var(--color-primary-transparent);
   }
   &.hover,
   &:hover {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-hover);
   }
   &-control {
     display: inline-block;
     height: 1.2em !important;
     line-height: 1em;
-    color: #757575;
+    color: var(--color-text-secondary);
     padding: 0px 7px;
     word-break: break-all;
     &:not(:last-child) {
-      border-right: 1px solid #9e9e9e;
+      border-right: 1px solid var(--color-text-tertiary);
     }
   }
   &-selectedIcon {
@@ -297,7 +308,7 @@
     width: 20px;
     display: flex;
     align-items: center;
-    color: #1677ff;
+    color: var(--color-primary);
   }
   .title {
     word-break: break-word;

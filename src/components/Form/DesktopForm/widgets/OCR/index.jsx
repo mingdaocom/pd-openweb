@@ -246,7 +246,7 @@ const OCR = props => {
           </span>
         ) : (
           <Fragment>
-            <Icon icon={TYPES[enumDefault].icon} className="Font20 mRight5 Gray_9e" />
+            <Icon icon={TYPES[enumDefault].icon} className="Font20 mRight5 textTertiary" />
             <span className="overflow_ellipsis Bold">
               {advancedSetting.ocrapitype === '1' ? hint || _l('识别文字') : hint || TYPES[enumDefault].text}
             </span>

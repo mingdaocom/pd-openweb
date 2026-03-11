@@ -10,7 +10,6 @@ import fixedDataController from 'src/api/fixedData';
 import sheetAjax from 'src/api/worksheet';
 import { RecordInfoModal } from 'mobile/Record';
 import * as actions from 'mobile/RecordList/redux/actions';
-import { getTitleTextFromControls } from 'src/components/Form/core/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { AREA, TYPES } from 'src/pages/worksheet/common/Sheet/GroupFilter/constants';
@@ -29,6 +28,7 @@ import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilte
 import * as worksheetActions from 'src/pages/worksheet/redux/actions';
 import * as navFilterActions from 'src/pages/worksheet/redux/actions/navFilter';
 import { getFilledRequestParams } from 'src/utils/common';
+import { getTitleTextFromControls } from 'src/utils/control';
 import { getAdvanceSetting } from 'src/utils/control';
 import { handlePushState, handleReplaceState } from 'src/utils/project';
 import './index.less';
@@ -634,7 +634,7 @@ const GroupFilterList = props => {
           <React.Fragment key={item.value}>
             <div
               className={cx('flexRow listItem flex borderBottom', {
-                pLeft8: appnavtype === '1' || view.viewType !== 0,
+                pLeft8: !appnavtype || _.includes(['1', '2'], appnavtype) || view.viewType !== 0,
                 active: currentGroup.value === item.value,
                 pRight0: appnavtype === '3',
               })}
@@ -677,7 +677,7 @@ const GroupFilterList = props => {
     }
     if (_.isEmpty(navGroupData) && _.isEmpty(searchRecordList) && keywords) {
       return (
-        <div className="mobileSearchNoData noData mTop35 TxtCenter Gray_9e">
+        <div className="mobileSearchNoData noData mTop35 TxtCenter textTertiary">
           <div className="iconBox">
             <Icon icon="search" className="Font64 searchIcon" />
           </div>
@@ -693,10 +693,10 @@ const GroupFilterList = props => {
         className="flex"
         style={appnavtype !== '3' ? { maxHeight: `calc(100% - 56px - ${breadNavHeight}px)` } : {}}
       >
-        {keywords && <div className="pLeft16 mBottom6 Font13 Bold Gray_75">{_l('分组')}</div>}
+        {keywords && <div className="pLeft16 mBottom6 Font13 Bold textSecondary">{_l('分组')}</div>}
         <div className="listBox">{renderContent(navData)}</div>
         {appnavtype === '1' && keywords && (
-          <div className="mTop16 pLeft16 mBottom6 Font13 Bold Gray_75">{_l('记录')}</div>
+          <div className="mTop16 pLeft16 mBottom6 Font13 Bold textSecondary">{_l('记录')}</div>
         )}
         {keywords && (
           <div className="searchRecordResult">

@@ -4,8 +4,8 @@
     box-sizing: border-box;
     width: 100%;
     position: relative;
-    border: 1px solid #e0e0e0;
-    background: #fff;
+    border: 1px solid var(--color-border-secondary);
+    background: var(--color-background-primary);
     border-radius: 5px;
     margin-top: 10px;
     .subTasksStatusWidth {
@@ -17,17 +17,17 @@
       top: 13px;
       left: 12px;
       font-size: 16px;
-      color: #8f9093;
+      color: var(--color-text-secondary);
     }
     .subTaskHeader {
       height: 40px;
       line-height: 40px;
       .subTaskComplete,
       .subTaskSum {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
       .subTaskMessage {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         &:after {
           width: 250px;
           word-wrap: break-word;
@@ -39,7 +39,7 @@
         margin-top: 12px;
         font-size: 16px;
         &:not(:hover) {
-          color: #9e9e9e !important;
+          color: var(--color-text-tertiary) !important;
         }
       }
     }
@@ -54,7 +54,7 @@
           margin-top: 0;
         }
         &:hover {
-          background: #f6f6f6;
+          background: var(--color-background-secondary);
           .subTaskLink {
             visibility: visible;
           }
@@ -145,7 +145,7 @@
       margin-left: 6px;
       margin-top: 10px;
       &:not(:hover) {
-        color: #9e9e9e !important;
+        color: var(--color-text-tertiary) !important;
       }
       i {
         font-size: 14px;

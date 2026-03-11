@@ -13,7 +13,7 @@ export const TabsSettingPopover = styled.div`
     border-radius: 3px;
     width: max-content;
     padding: 3px;
-    background-color: #eff0f0;
+    background-color: var(--color-background-tertiary);
     > div {
       height: 25px;
       line-height: 25px;
@@ -23,13 +23,13 @@ export const TabsSettingPopover = styled.div`
       justify-content: center;
     }
     .active {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
       border-radius: 3px;
       font-weight: bold;
-      background-color: #fff;
+      background-color: var(--color-background-card);
     }
   }
   .icon-trash:hover {
-    color: #f44336 !important;
+    color: var(--color-error) !important;
   }
 `;

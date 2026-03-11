@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import { LoadDiv, ScrollView } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
-import { OPERATION_TYPE } from '../../enum';
+import { OPERATION_TYPE, RELATION_TYPE } from '../../enum';
 import { clearFlowNodeMapParameter } from '../../utils';
 import {
   CustomTextarea,
@@ -126,11 +126,11 @@ export default class Notice extends Component {
         />
 
         <div className="Font13 bold mTop20">{_l('通知人')}</div>
-        <div className="Font13 Gray_75 mTop10">{_l('将通过系统消息发送')}</div>
+        <div className="Font13 textSecondary mTop10">{_l('将通过系统消息发送')}</div>
 
         <Member
           companyId={this.props.companyId}
-          appId={this.props.relationType === 2 ? this.props.relationId : ''}
+          appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
           accounts={data.accounts}
           updateSource={this.updateSource}
         />
@@ -141,7 +141,7 @@ export default class Notice extends Component {
           <i className="Font28 icon-task-add-member-circle mRight10" />
           {_l('添加通知人')}
           <SelectUserDropDown
-            appId={this.props.relationType === 2 ? this.props.relationId : ''}
+            appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
             visible={showSelectUserDialog}
             companyId={this.props.companyId}
             processId={this.props.processId}

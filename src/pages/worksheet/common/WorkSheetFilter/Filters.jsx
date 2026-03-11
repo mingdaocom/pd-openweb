@@ -1,7 +1,7 @@
 import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import _, { get, includes } from 'lodash';
 import styled from 'styled-components';
-import { Skeleton } from 'ming-ui';
+import { Dropdown, Skeleton } from 'ming-ui';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
@@ -16,16 +16,36 @@ import { filterUnavailableConditions, getDefaultCondition, redefineComplexContro
 const Con = styled.div`
   width: 480px;
   border-radius: 4px;
-  background: #ffffff;
+  background: var(--color-background-card);
   box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
   padding: 16px 0 0;
+  .queryTypeSelectWrapper {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    padding: 0 25px;
+    .label {
+      font-size: 13px;
+      color: var(--color-text-tertiary);
+    }
+    .Dropdown {
+      margin-top: -1px;
+      .Dropdown--input {
+        padding-left: 8px;
+      }
+    }
+    .clearButton {
+      font-size: 13px;
+      cursor: pointer;
+    }
+  }
 `;
 
 const SwitchTab = styled.div`
   margin-bottom: 28px;
   padding: 4px;
   font-weight: bold;
-  background: #ebebeb;
+  background: var(--color-border-secondary);
   margin: 0 auto;
   border-radius: 32px;
   width: 187px;
@@ -34,19 +54,24 @@ const SwitchTab = styled.div`
     height: 24px;
     line-height: 24px;
     border-radius: 24px;
-    color: #757575;
+    color: var(--color-text-secondary);
     width: 50%;
     text-align: center;
     display: inline-block;
     &.active {
-      color: #1677ff;
-      background: #ffffff;
+      color: var(--color-primary);
+      background: var(--color-background-primary);
     }
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
+
+const NEW_FILTER_QUERY_TYPE = {
+  IMMEDIATELY: 1,
+  CLICK: 2,
+};
 
 const tabs = [
   {
@@ -110,6 +135,9 @@ function Filters(props, ref) {
       return newType === '2' && showSavedFilters ? 2 : 1;
     })(),
   );
+  const [queryType, setQueryType] = useState(NEW_FILTER_QUERY_TYPE.IMMEDIATELY);
+  const [queryFlag, setQueryFlag] = useState();
+  const [queryButtonDisabled, setQueryButtonDisabled] = useState(false);
   const isSavedEditing = !!editingFilter && !/^new/.test(editingFilter.id);
   const isNewEditing = !!editingFilter && /^new/.test(editingFilter.id);
   const conditionsIsEmpty =
@@ -134,12 +162,16 @@ function Filters(props, ref) {
     );
   }
   function filterWorksheet(filter) {
-    const filterControls = formatForSave(filter);
-    const isClear = _.isEmpty(filter.conditionsGroups.filter(g => g.conditions.length));
+    const filterControls = filter && formatForSave(filter);
+    const isClear = !filter || _.isEmpty(filter.conditionsGroups.filter(g => g.conditions.length));
     if ((filterControls && !_.isEmpty(filterControls)) || isClear) {
       onChange({
         filterControls,
       });
+      setQueryButtonDisabled(true);
+    }
+    if (filter.id.startsWith('new')) {
+      setActiveFilter();
     }
   }
   function handleTriggerFilter(filter) {
@@ -165,9 +197,16 @@ function Filters(props, ref) {
     });
   }, []);
   useEffect(() => {
-    if (state.editingFilter) {
+    if (
+      state.editingFilter &&
+      (queryType !== NEW_FILTER_QUERY_TYPE.CLICK || cache.current.queryFlag !== queryFlag || conditionsIsEmpty)
+    ) {
       filterWorksheet(state.editingFilter);
+      cache.current.queryFlag = queryFlag;
     }
+  }, [state.editingFilterVersion, queryFlag]);
+  useEffect(() => {
+    setQueryButtonDisabled(false);
   }, [state.editingFilterVersion]);
   useEffect(() => {
     if (
@@ -249,11 +288,41 @@ function Filters(props, ref) {
         <Fragment>
           {activeTab === 1 && (
             <Fragment>
+              {conditionsIsEmpty === false && (
+                <div className="queryTypeSelectWrapper">
+                  <div className="label">{_l('筛选模式:')}</div>
+                  <Dropdown
+                    value={queryType}
+                    data={[
+                      {
+                        text: _l('即时生效'),
+                        value: NEW_FILTER_QUERY_TYPE.IMMEDIATELY,
+                      },
+                      {
+                        text: _l('点击查询后生效'),
+                        value: NEW_FILTER_QUERY_TYPE.CLICK,
+                      },
+                    ]}
+                    onChange={value => {
+                      setQueryType(value);
+                      if (value === NEW_FILTER_QUERY_TYPE.IMMEDIATELY) {
+                        filterWorksheet(state.editingFilter);
+                      }
+                    }}
+                  />
+                  <div className="flex"></div>
+                  <div className="clearButton ThemeColor3" onClick={() => actions.clearConditions()}>
+                    {_l('清空')}
+                  </div>
+                </div>
+              )}
               {isNewEditing && !conditionsIsEmpty && (
                 <FilterDetail
                   maxHeight={maxHeight}
                   canEdit
                   supportGroup
+                  showQueryButton={queryType === NEW_FILTER_QUERY_TYPE.CLICK}
+                  queryButtonDisabled={queryButtonDisabled || conditionsIsEmpty}
                   hideSave={!formatForSave(editingFilter).length || !showSavedFilters}
                   base={base}
                   filter={editingFilter}
@@ -267,6 +336,7 @@ function Filters(props, ref) {
                   handleTriggerFilter={handleTriggerFilter}
                   filterResigned={filterResigned}
                   filterAddConditionControls={filterAddConditionControls}
+                  onQuery={() => setQueryFlag(Math.random())}
                 />
               )}
               {(!editingFilter || conditionsIsEmpty) && (
@@ -315,7 +385,12 @@ function Filters(props, ref) {
                     }
                   }}
                   onCopy={filter => copyFilter({ appId, worksheetId, filter, isCharge })}
-                  onDelete={filter => deleteFilter({ appId, filter })}
+                  onDelete={filter => {
+                    deleteFilter({ appId, filter });
+                    if (activeFilter && activeFilter.id === filter.id) {
+                      handleTriggerFilter(undefined);
+                    }
+                  }}
                   onToggleFilterType={filter => toggleFilterType({ appId, worksheetId, filter, isCharge })}
                   onHideFilterPopup={onHideFilterPopup}
                   onSortEnd={sortedIds => {

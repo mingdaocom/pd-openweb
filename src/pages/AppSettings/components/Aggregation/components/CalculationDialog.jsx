@@ -18,10 +18,10 @@ const Wrap = styled.div`
     width: 330px;
   }
   .settingItemTitle {
-    color: #151515;
+    color: var(--color-text-title);
   }
   .customTip {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .ant-input {
     border-radius: 3px 0 0 3px;
@@ -30,7 +30,7 @@ const Wrap = styled.div`
     border-radius: 0 0 3px 0;
     &:hover {
       i {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }

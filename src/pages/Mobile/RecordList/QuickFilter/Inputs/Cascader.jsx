@@ -17,25 +17,25 @@ const CascaderCon = styled.div`
     width: 26px;
     height: 26px;
     border-radius: 50%;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     text-align: center;
     line-height: 26px;
     font-size: 16px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .rightArrow {
     position: absolute;
     right: 0;
     line-height: 26px;
     font-size: 16px;
-    color: #c7c7cc;
+    color: var(--color-text-placeholder);
   }
 `;
 const CascaderItem = styled.span`
   display: inline-block;
   max-width: 100%;
   height: 28px;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   border-radius: 14px;
   margin: 0 8px 10px 0;
   padding-right: 12px;
@@ -202,7 +202,7 @@ export default class Cascader extends Component {
         )}
         <div className="flex" />
         <div
-          className="ellipsis Gray"
+          className="ellipsis textPrimary"
           style={{ position: 'absolute', left: '50%', marginLeft: -65, width: 130, textAlign: 'center' }}
         >
           {(layersName || [])[operatePath.length] || _l('%0级', nzh.cn.encodeS(operatePath.length + 1))}
@@ -293,7 +293,7 @@ export default class Cascader extends Component {
           {keywords ? this.formatSearchData(item, keywords) : item.label}
         </div>
         {!item.isLeaf && (
-          <div className="pLeft10 Font16 Gray_9e">
+          <div className="pLeft10 Font16 textTertiary">
             <i className="icon-arrow-right-border" />
           </div>
         )}
@@ -374,16 +374,18 @@ export default class Cascader extends Component {
               {operatePath.length >= minLayer ? (
                 <div className="flexRow">
                   <Radio
-                    className="flex cascaderRadio flexRow Gray"
+                    className="flex cascaderRadio flexRow textPrimary"
                     text={item.label}
                     checked={selectItem.id ? item.value === selectItem.id : item.value === selectedId}
                     onClick={() => this.setState({ selectItem: { id: item.value, label: item.label } })}
                   />
                   {!item.isLeaf && (
                     <Fragment>
-                      <div style={{ borderRight: '1px solid #e0e0e0', height: 18, marginTop: 4 }} />
                       <div
-                        className="pLeft10 Font16 Gray_9e"
+                        style={{ borderRight: '1px solid var(--color-border-secondary)', height: 18, marginTop: 4 }}
+                      />
+                      <div
+                        className="pLeft10 Font16 textTertiary"
                         onClick={e => {
                           e.stopPropagation();
                           this.setState({ operatePath: operatePath.concat(item.value) }, () => {
@@ -397,10 +399,10 @@ export default class Cascader extends Component {
                   )}
                 </div>
               ) : (
-                <div className="flexRow Gray">
+                <div className="flexRow textPrimary">
                   <div className="flex ellipsis">{item.label}</div>
                   {!item.isLeaf && (
-                    <div className="pLeft10 Font16 Gray_9e">
+                    <div className="pLeft10 Font16 textTertiary">
                       <i className="icon-arrow-right-border" />
                     </div>
                   )}
@@ -419,16 +421,16 @@ export default class Cascader extends Component {
           <List.Item key={item.value}>
             <div className="flexRow">
               <Radio
-                className="flex cascaderRadio flexRow Gray"
+                className="flex cascaderRadio flexRow textPrimary"
                 text={item.label}
                 checked={selectItem.id ? item.value === selectItem.id : item.value === selectedId}
                 onClick={() => this.setState({ selectItem: { id: item.value, label: item.label } })}
               />
               {!item.isLeaf && (
                 <Fragment>
-                  <div style={{ borderRight: '1px solid #e0e0e0', height: 18, marginTop: 4 }} />
+                  <div style={{ borderRight: '1px solid var(--color-border-secondary)', height: 18, marginTop: 4 }} />
                   <div
-                    className="pLeft10 Font16 Gray_9e"
+                    className="pLeft10 Font16 textTertiary"
                     onClick={e => {
                       e.stopPropagation();
                       this.setState({ operatePath: operatePath.concat(item.value) }, () => {

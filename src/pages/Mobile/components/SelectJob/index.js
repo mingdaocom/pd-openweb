@@ -109,7 +109,7 @@ export default class SelectJob extends Component {
               <span>{item.jobName}</span>
               <Icon
                 icon="close"
-                className="Gray_9e Font15"
+                className="textTertiary Font15"
                 onClick={() => {
                   const { selectJobs } = this.state;
                   this.setState({
@@ -148,7 +148,7 @@ export default class SelectJob extends Component {
               checked={_.includes(selectJobsIds, item.jobId)}
               onClick={() => this.checkJobs(item)}
             ></Checkbox>
-            <div className="flex jobName ellipsis Gray">{item.jobName}</div>
+            <div className="flex jobName ellipsis textPrimary">{item.jobName}</div>
           </div>
         ))}
       </ScrollView>
@@ -169,8 +169,8 @@ export default class SelectJob extends Component {
       <Popup visible={visible} onClose={onClose} className="mobileModal full">
         <div className="selectUserModal flexColumn h100">
           {this.renderContent()}
-          <div className="flexRow WhiteBG pAll10">
-            <Button className="flex mLeft6 mRight6 Gray_75 bold Font14" onClick={onClose}>
+          <div className="flexRow bgPrimary pAll10">
+            <Button className="flex mLeft6 mRight6 textSecondary bold Font14" onClick={onClose}>
               {_l('取消')}
             </Button>
             <Button className="flex mLeft6 mRight6 bold Font14" onClick={this.handleSave} color="primary">

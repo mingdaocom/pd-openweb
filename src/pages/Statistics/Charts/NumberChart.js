@@ -124,7 +124,7 @@ const Wrap = styled.div`
       top: 50%;
       right: 0;
       transform: translateY(-50%);
-      background-color: #eaeaea;
+      background-color: var(--color-border-secondary);
     }
   }
   .ant-col-5 {
@@ -178,7 +178,7 @@ const NumberChartContent = styled.div`
     font-size: ${props => props.fontSize}px !important;
     line-height: ${props => props.fontSize + 5}px !important;
     width: 100%;
-    color: #151515;
+    color: var(--color-text-title);
     font-weight: 500;
     font-family: system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   }
@@ -477,7 +477,7 @@ export default class extends Component {
 
     return (
       <div className="w100 flexRow textWrap flexWrap contrastWrap Font14">
-        <div className="mRight5 Gray_75">
+        <div className="mRight5 textSecondary">
           {name}
           {isContrastValue && tipsText && ` (${tipsText})`}
         </div>
@@ -493,12 +493,12 @@ export default class extends Component {
                   <Icon className="mRight3" icon={`${positiveNumber ? 'worksheet_rise' : 'worksheet_fall'}`} />
                 )}
                 {contrastValueShowPercent && (
-                  <span className={cx('bold mRight5', { Gray_75: isEquality })}>
+                  <span className={cx('bold mRight5', { textSecondary: isEquality })}>
                     {`${toFixed(Math.abs(percentage), contrastValueDot)}%`}
                   </span>
                 )}
                 {contrastValueShowNumber && (
-                  <span className={cx('bold', { Gray_75: isEquality })}>
+                  <span className={cx('bold', { textSecondary: isEquality })}>
                     {contrastValueShowPercent
                       ? `(${formatrChartValue(value - contrastValue, false, yaxisList, controlId)})`
                       : formatrChartValue(value - contrastValue, false, yaxisList, controlId)}
@@ -508,7 +508,7 @@ export default class extends Component {
             </div>
           </Tooltip>
         ) : (
-          <span className="Gray range">{contrastValue ? 0 : '- -'}</span>
+          <span className="textPrimary range">{contrastValue ? 0 : '- -'}</span>
         )}
       </div>
     );
@@ -606,7 +606,7 @@ export default class extends Component {
                     </div>
                     {descVisible && desc && (
                       <Tooltip title={desc} placement="bottom">
-                        <Icon icon="info" className="Font18 pointer Gray_9e mLeft7 mRight7 InlineBlock mTop2" />
+                        <Icon icon="info" className="Font18 pointer textTertiary mLeft7 mRight7 InlineBlock mTop2" />
                       </Tooltip>
                     )}
                   </div>
@@ -635,7 +635,7 @@ export default class extends Component {
                 })}
               {minorList.map(data => (
                 <div className="w100 flexRow textWrap minorWrap Font14">
-                  <div className="mRight5 Gray_75 name">{data.name}</div>
+                  <div className="mRight5 textSecondary name">{data.name}</div>
                   <div>{formatrChartValue(data.value, false, newYaxisList, data.controlId)}</div>
                 </div>
               ))}
@@ -650,13 +650,13 @@ export default class extends Component {
       <Menu className="chartMenu" style={{ width: 160 }}>
         <Menu.Item onClick={this.handleAutoLinkage} key="autoLinkage">
           <div className="flexRow valignWrapper">
-            <Icon icon="link1" className="mRight8 Gray_9e Font20 autoLinkageIcon" />
+            <Icon icon="link1" className="mRight8 textTertiary Font20 autoLinkageIcon" />
             <span>{_l('联动')}</span>
           </div>
         </Menu.Item>
         <Menu.Item onClick={this.handleRequestOriginalData} key="viewOriginalData">
           <div className="flexRow valignWrapper">
-            <Icon icon="table" className="mRight8 Gray_9e Font18" />
+            <Icon icon="table" className="mRight8 textTertiary Font18" />
             <span>{_l('查看原始数据')}</span>
           </div>
         </Menu.Item>
@@ -666,7 +666,7 @@ export default class extends Component {
   render() {
     const { mobileCount = 1, layoutType, reportData, sourceType, isThumbnail, customPageConfig } = this.props;
     const { pageStyleType = 'light' } = customPageConfig;
-    const isDark = pageStyleType === 'dark' && isThumbnail;
+    const isDark = window.themeMode === 'dark' || (pageStyleType === 'dark' && isThumbnail);
     const {
       name,
       xaxes,

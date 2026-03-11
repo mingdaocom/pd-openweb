@@ -14,15 +14,15 @@ import WithdrawalsDialogFunc from './WithdrawReimburseDialog';
 
 const BalanceWrap = styled.div`
   padding: 36px 0 25px 32px;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid var(--color-border-secondary);
   position: relative;
   .alignItemsBaseline {
     align-items: baseline;
   }
   .icon-help {
-    color: #9d9d9d;
+    color: var(--color-text-tertiary);
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
@@ -63,7 +63,7 @@ export default class WithdrawalsRecord extends Component {
         dataIndex: 'amount',
         width: 160,
         render: text => {
-          return <div style={{ color: '#47b14b' }}>{text}</div>;
+          return <div style={{ color: 'var(--color-success)' }}>{text}</div>;
         },
       },
       {
@@ -93,7 +93,7 @@ export default class WithdrawalsRecord extends Component {
                 projectId={props.projectId}
               />
               <UserName
-                className="Gray Font13 pLeft5 pRight10 pTop3 flex ellipsis"
+                className="textPrimary Font13 pLeft5 pRight10 pTop3 flex ellipsis"
                 projectId={props.projectId}
                 user={{
                   userName: fullname,
@@ -180,7 +180,7 @@ export default class WithdrawalsRecord extends Component {
       min: 0,
       max: banlance,
       desc: (
-        <div className="Gray_9e Font12 mTop10">
+        <div className="textTertiary Font12 mTop10">
           <div>{_l('1、提现手续费说明：当前版本暂不收取手续费')}</div>
           <div>{_l('2、余额的变动会影响后续退款是否成功')}</div>
         </div>
@@ -216,7 +216,7 @@ export default class WithdrawalsRecord extends Component {
             return (
               <div key={id} className="flexRow alignItemsBaseline mRight60">
                 <span className="Font12">{`${text}`}</span>
-                <span className="Font24 bold mLeft10 ThemeColor">
+                <span className="Font24 bold mLeft10 colorPrimary">
                   {!balanceLoading && !_.isUndefined(this.state[id]) ? (
                     <Fragment>
                       <span className="Font18">¥</span> {this.state[id]}
@@ -226,7 +226,7 @@ export default class WithdrawalsRecord extends Component {
                   )}
                 </span>
                 {!balanceLoading && (
-                  <span className="ThemeColor Hand mLeft10" onClick={this.handleWithdraw}>
+                  <span className="colorPrimary Hand mLeft10" onClick={this.handleWithdraw}>
                     {_l('提现')}
                   </span>
                 )}
@@ -242,7 +242,7 @@ export default class WithdrawalsRecord extends Component {
             <Empty
               className="flex"
               detail={{
-                descClassName: 'Gray_bd',
+                descClassName: 'textDisabled',
                 desc: _l('您的账户目前暂无提现记录'),
                 customIcon: <img className="customIcon" src={withdrawalsEmptyImg} />,
               }}

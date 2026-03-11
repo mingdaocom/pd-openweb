@@ -310,7 +310,7 @@ export default class WorkPlace extends Component {
                 />
                 {keywords && (
                   <span
-                    className="Font14 icon-cancel Gray_c Hand Absolute"
+                    className="Font14 icon-cancel textPlaceholder Hand Absolute"
                     style={{
                       top: '8px',
                       right: '8px',

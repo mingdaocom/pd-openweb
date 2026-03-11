@@ -96,13 +96,13 @@ export default function UserItem({
         <div className="departmentSelectItemInfoBox" onMouseDown={event => event.preventDefault()}>
           <div className="departmentItemContent" onClick={() => selectedDepartment(item)}>
             <div className="groupWrapper">
-              <Icon icon="group" className="Font22 White" />
+              <Icon icon="group" className="Font22 textWhite" />
             </div>
             <div className="departmentName">{item.departmentName}</div>
           </div>
           {item.haveSubDepartment && (
             <div className="extraDivision" onClick={() => handleSelectSubDepartment(item)}>
-              <Icon icon="arrow-right-border" className="Font18 Gray_bd" />
+              <Icon icon="arrow-right-border" className="Font18 textDisabled" />
             </div>
           )}
         </div>
@@ -114,11 +114,11 @@ export default function UserItem({
         <div className="departmentSelectItemInfoBox" onMouseDown={event => event.preventDefault()}>
           <div className="departmentItemContent">
             <div className="groupWrapper">
-              <Icon icon="group" className="Font22 White" />
+              <Icon icon="group" className="Font22 textWhite" />
             </div>
             <div className="departmentName">{item.departmentName}</div>
           </div>
-          <Icon icon="arrow-right-border" className="Font18 Gray_bd" />
+          <Icon icon="arrow-right-border" className="Font18 textDisabled" />
         </div>
       </div>
     );

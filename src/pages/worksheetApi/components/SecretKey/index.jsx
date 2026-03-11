@@ -12,7 +12,7 @@ const DialogWrap = styled(Dialog)`
     display: flex;
     align-items: center;
     height: 40px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     padding: 0 20px;
     font-weight: bold;
     .name {
@@ -26,7 +26,7 @@ const DialogWrap = styled(Dialog)`
       display: flex;
       align-items: center;
       height: 45px;
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-secondary);
       padding-right: 20px;
       .name {
         display: flex;
@@ -35,7 +35,7 @@ const DialogWrap = styled(Dialog)`
         &:not(.isView) {
           cursor: pointer;
           &:hover {
-            color: #1677ff;
+            color: var(--color-primary);
           }
         }
       }
@@ -45,7 +45,7 @@ const DialogWrap = styled(Dialog)`
     padding-left: 16px;
     height: 45px;
     line-height: 45px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
   }
 
   .verifyPasswordInput {
@@ -176,9 +176,9 @@ export default props => {
                     setExpandKeys(newKeys);
                   }}
                 >
-                  <Icon icon={isExpand ? 'arrow-down' : 'arrow-right-tip'} className="Gray_75 mRight6" />
+                  <Icon icon={isExpand ? 'arrow-down' : 'arrow-right-tip'} className="textSecondary mRight6" />
                   <span className="mRight6" m style={{ height: '18px' }}>
-                    <SvgIcon url={sheet.iconUrl} fill="#757575" size={18} />
+                    <SvgIcon url={sheet.iconUrl} fill="var(--color-text-secondary)" size={18} />
                   </span>
                   <span className="overflow_ellipsis" title={sheet.sheetName}>
                     {sheet.sheetName}
@@ -210,7 +210,7 @@ export default props => {
                     <div className="name isView pLeft40">
                       <span className="mRight6">
                         <Icon
-                          className="Gray_bd Font14"
+                          className="textDisabled Font14"
                           icon={_.find(VIEW_TYPE_ICON, { id: VIEW_DISPLAY_TYPE[view.viewType] }).icon}
                         />
                       </span>
@@ -245,7 +245,7 @@ export default props => {
       onCancel={onClose}
       okDisabled={submitting}
     >
-      <div className="Gray_75">{_l('应用授权密钥是极为重要的凭证，修改时需要验证身份')}</div>
+      <div className="textSecondary">{_l('应用授权密钥是极为重要的凭证，修改时需要验证身份')}</div>
 
       {appKey && (
         <Fragment>

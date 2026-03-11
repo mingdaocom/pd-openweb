@@ -12,25 +12,25 @@ const AreaCon = styled.div`
     width: 26px;
     height: 26px;
     border-radius: 50%;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     text-align: center;
     line-height: 26px;
     font-size: 16px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .rightArrow {
     position: absolute;
     right: 0;
     line-height: 26px;
     font-size: 16px;
-    color: #c7c7cc;
+    color: var(--color-text-placeholder);
   }
 `;
 const AreaItem = styled.span`
   max-width: ${props => (props.isMultiple ? '100%' : 'calc(100% - 20px)')};
   display: inline-block;
   height: 28px;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   border-radius: 14px;
   margin: 0 8px 10px 0;
   padding-right: 12px;

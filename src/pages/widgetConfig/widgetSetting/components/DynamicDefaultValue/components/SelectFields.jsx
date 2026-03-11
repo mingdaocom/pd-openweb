@@ -12,10 +12,10 @@ import { DYNAMIC_FROM_MODE } from '../config';
 import { filterControls, getControls, getOtherSelectField } from '../util';
 
 const Empty = styled.div`
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   padding: 60px 0;
   text-align: center;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
 `;
 
 const filterSys = (controls = [], fromCustomEventApi) => {
@@ -188,7 +188,7 @@ export default class SelectFields extends Component {
         }
       >
         <div className="search">
-          <i className="icon-search Gray_9e" />
+          <i className="icon-search textTertiary" />
           <input value={searchValue} onChange={this.handleChange} placeholder={_l('搜索字段')} autoFocus></input>
         </div>
         <div className="fieldsWrap">
@@ -233,7 +233,7 @@ export default class SelectFields extends Component {
                         <li className="overflow_ellipsis" onClick={() => onClick(ids)}>
                           <i className={`icon-${getIconByType(type)}`}></i>
                           <span className="overflow_ellipsis">{controlName}</span>
-                          {isEqualSource && <span className="Gray_9e">（{_l('相同选项集')}）</span>}
+                          {isEqualSource && <span className="textTertiary">（{_l('相同选项集')}）</span>}
                         </li>
                       );
                     })}

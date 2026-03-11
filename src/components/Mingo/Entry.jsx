@@ -15,17 +15,19 @@ export default function MingoEntry({
   setTitle = () => {},
   setCurrentChatId = () => {},
   onUpdateTaskType = () => {},
+  onUpdateBase = () => {},
   onClose = () => {},
   onBack = () => {},
 }) {
   if (taskType === MINGO_TASK_TYPE.MINGDAO_HELP_ASSISTANT) {
-    const isLocal = md.global.Config.IsLocal && !location.hostname.includes('nocoly.com'); //除nocoly外的私有部署环境   初始状态不显示对话框
+    const isLocal = window.platformENV.isLocal;
     return (
       <HelpBot
         taskType={taskType}
         updateIsChatting={updateIsChatting}
         setCurrentChatId={setCurrentChatId}
         onUpdateTaskType={onUpdateTaskType}
+        onUpdateBase={onUpdateBase}
         onClose={onClose}
         onBack={onBack}
         disabled={isLocal}

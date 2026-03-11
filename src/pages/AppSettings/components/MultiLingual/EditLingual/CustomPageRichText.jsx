@@ -38,7 +38,9 @@ export default function CustomPageRichText(props) {
   }
 
   if (!list.length) {
-    return <div className="flexRow alignItemsCenter justifyContentCenter h100 Gray_9e Font14">{_l('没有富文本')}</div>;
+    return (
+      <div className="flexRow alignItemsCenter justifyContentCenter h100 textTertiary Font14">{_l('没有富文本')}</div>
+    );
   }
 
   const handlePositionReport = item => {

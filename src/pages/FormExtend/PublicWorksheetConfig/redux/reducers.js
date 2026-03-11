@@ -70,7 +70,7 @@ export function controls(state = [], action) {
     case 'PUBLICWORKSHEET_UPDATE_CONTROLS':
       return action.controls;
     case 'WORKSHEET_SHOW_CONTROL':
-      return state.concat(action.control);
+      return state.concat(action.controls);
     case 'PUBLICWORKSHEET_CLEAR':
       return [];
     default:
@@ -85,7 +85,7 @@ export function hidedControlIds(state = [], action) {
     case 'WORKSHEET_HIDE_CONTROL':
       return _.uniqBy(state.concat(action.controlId));
     case 'WORKSHEET_SHOW_CONTROL':
-      return state.filter(controlId => controlId !== action.controlId);
+      return state.filter(controlId => !action.controlIds.includes(controlId));
     case 'PUBLICWORKSHEET_CLEAR':
       return [];
     default:

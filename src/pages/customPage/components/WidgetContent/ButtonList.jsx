@@ -310,7 +310,7 @@ export function ButtonList({
                   }
                 }}
               />
-              <div className="mTop10 confirmSubmitHint hide" style={{ color: '#4caf50' }}>
+              <div className="mTop10 confirmSubmitHint hide" style={{ color: 'var(--color-success)' }}>
                 {_l('已提交，请输入下一条')}
               </div>
             </div>
@@ -496,6 +496,7 @@ export function ButtonList({
       )}
       {visible && (
         <NewRecordComponent
+          allowShowMingoCreate
           visible
           showFillNext={true}
           needCache={true}

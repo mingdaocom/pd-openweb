@@ -72,7 +72,7 @@ class Root extends Component {
               {_l('汇报关系')}
               <Tooltip
                 title={
-                  <span className="White">
+                  <span className="textWhite">
                     {_l(
                       '在工作表和工作流的汇报关系检索时，若当前用户的所有下级用户总数超过2000（含），系统将默认仅获取当前用户的“直属下一级”所有用户。',
                     )}
@@ -81,7 +81,7 @@ class Root extends Component {
                 }
                 placement="top"
               >
-                <i className="icon-info_outline Gray_9e mLeft5" />
+                <i className="icon-info_outline textTertiary mLeft5" />
               </Tooltip>
             </div>
 

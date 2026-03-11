@@ -9,7 +9,7 @@ const { Option } = Select;
 const StyledSelectContainer = styled.div`
   .ant-select:not(.ant-select-customize-input) .ant-select-selector {
     border-radius: 3px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
     padding-right: 24px;
   }
 
@@ -25,7 +25,7 @@ const StyledDropdown = styled.div`
   }
   .ant-select-item-option-selected:not(.ant-select-item-option-disabled),
   .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
   .ant-select-item-option-selected:not(.ant-select-item-option-disabled) .ant-select-item-option-state {
     display: none;
@@ -40,7 +40,7 @@ const StyledDropdown = styled.div`
 
 const StyledTag = styled.span`
   &.ant-select-selection-item {
-    background: #f0f0f0;
+    background: var(--color-background-disabled);
     border-radius: 4px;
     margin-right: 4px;
     padding: 0 8px;
@@ -86,10 +86,14 @@ export default function CheckboxSelect(props) {
             >
               {props.label === props.value ? _l('已删除') : props.label}
             </span>
-            <Icon icon="close" className="Font14 inlineFlexRow Hand Gray_75 ThemeHoverColor3" onClick={props.onClose} />
+            <Icon
+              icon="close"
+              className="Font14 inlineFlexRow Hand textSecondary ThemeHoverColor3"
+              onClick={props.onClose}
+            />
           </StyledTag>
         )}
-        notFoundContent={<span className="Gray_9e">{props.noTxt || _l('暂无相关字段')}</span>}
+        notFoundContent={<span className="textTertiary">{props.noTxt || _l('暂无相关字段')}</span>}
         optionLabelProp="label"
         dropdownStyle={{ padding: 0 }}
         // 添加以下属性确保箭头显示

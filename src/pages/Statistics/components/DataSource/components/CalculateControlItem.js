@@ -29,17 +29,17 @@ const SourceBox = ({ item, isActive, onOpenEdit, onDelete, onChangeCheckbox }) =
         ref={drag}
         role="axisControlItem"
         style={{ opacity: isDragging ? 0.4 : 1 }}
-        className="axisControlItem flexRow valignWrapper pTop8 pBottom8 pLeft5 pRight5 Font13 Gray pointer"
+        className="axisControlItem flexRow valignWrapper pTop8 pBottom8 pLeft5 pRight5 Font13 textPrimary pointer"
       >
         <Checkbox className="mRight10" checked={isActive} onChange={onChangeCheckbox}></Checkbox>
         <Icon
-          className={cx('Gray_75 Font20 mRight10', {
+          className={cx('textSecondary Font20 mRight10', {
             active: isActive,
           })}
           icon="calculate"
         />
         <span className={cx('ellipsis flex', { active: isActive })}>{item.controlName}</span>
-        <Icon className="Gray_75 Font16 mRight15" icon="settings" onClick={onOpenEdit} />
+        <Icon className="textSecondary Font16 mRight15" icon="settings" onClick={onOpenEdit} />
         <Icon className="Red Font18" icon="trash" onClick={handleDelete} />
       </div>
     </Fragment>

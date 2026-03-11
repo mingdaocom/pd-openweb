@@ -15,7 +15,7 @@ import { canEditData } from 'src/pages/worksheet/redux/actions/util';
 const WrapHasPend = styled.div`
   width: 100%;
   height: 100%;
-  background: #fff;
+  background: var(--color-background-primary);
   .hasPendC {
     position: relative;
     top: 40%;
@@ -24,7 +24,7 @@ const WrapHasPend = styled.div`
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     margin: 0 auto;
     text-align: center;
     i {
@@ -43,13 +43,13 @@ const Wrap = styled.div`
 `;
 const WrapRejectBtn = styled.div`
   width: 45%;
-  background: #ffffff;
+  background: var(--color-background-primary);
   border-radius: 22px !important;
   opacity: 1;
-  border: 1px solid #dddddd;
-  color: red;
+  border: 1px solid var(--color-border-primary);
+  color: var(--color-error);
   &:hover {
-    color: red;
+    color: var(--color-error);
   }
   &.disable {
     opacity: 0.5;
@@ -134,7 +134,7 @@ export default function User(props) {
       <WrapHasPend>
         <div className="flexColumn alignItemsCenter hasPendC">
           <div className="hasPendCon">
-            <Icon className="Font60 Hand Gray_bd" icon="how_to_reg" />
+            <Icon className="Font60 Hand textDisabled" icon="how_to_reg" />
           </div>
           <div className="TxtCenter mTop16 Font17 Bold">{_l('用户已审核')}</div>
         </div>

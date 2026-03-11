@@ -9,13 +9,13 @@ import { getIconByType } from 'src/pages/widgetConfig/util';
 
 const SearchControlWrapper = styled.div`
   padding: 8px 5px;
-  border-bottom: 1px solid #ddddddff;
+  border-bottom: 1px solid var(--color-border-primary) ff;
   input {
-    color: #202020;
+    color: var(--color-white);
     border: none;
   }
   .icon-close:hover {
-    color: #1677ff !important;
+    color: var(--color-primary) !important;
   }
 `;
 
@@ -23,14 +23,14 @@ const ButtonWrapper = styled.div`
   padding: 0 10px;
   height: 28px;
   line-height: 28px;
-  color: #757575;
+  color: var(--color-text-secondary);
   margin-right: 8px;
   border-radius: 3px;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
   cursor: pointer;
   &:hover {
-    color: #1677ff;
-    background-color: #f0f0f0;
+    color: var(--color-primary);
+    background-color: var(--color-background-hover);
   }
 `;
 
@@ -68,14 +68,14 @@ const renderSortableItem = ({ DragHandle, item, otherProps }) => {
           style={{ cursor: isAttribute ? 'auto' : null }}
           className="switchIcon Font22 mRight12"
         />
-        <i className={cx('icon Gray_9e mRight6 Font16', 'icon-' + getIconByType(column.type))}></i>
+        <i className={cx('icon textTertiary mRight6 Font16', 'icon-' + getIconByType(column.type))}></i>
         <span className="Font14">{column.controlName}</span>
       </div>
       {column.type === 14 && control && (
         <SelectWrapper
           className="chartSelect"
           value={control.size}
-          suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+          suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           size="small"
           onChange={value => {
             handleChangeSize(control.controlId, value);
@@ -92,7 +92,7 @@ const renderSortableItem = ({ DragHandle, item, otherProps }) => {
         <Icon
           icon="drag"
           style={{ visibility: control ? null : 'hidden' }}
-          className="Gray_9e Font16 Right ThemeHoverColor3 Hand dragHandle"
+          className="textTertiary Font16 Right ThemeHoverColor3 Hand dragHandle"
         />
       </DragHandle>
     </div>
@@ -240,13 +240,13 @@ export default class ShowControlModal extends Component {
         visible={dialogVisible}
         destroyOnClose={true}
         centered={true}
-        closeIcon={<Icon icon="close" className="Font20 pointer Gray_9e" />}
+        closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
         footer={this.renderFooter()}
         onCancel={() => {
           this.props.onHideDialogVisible(false);
         }}
       >
-        <SearchControlWrapper className="flexRow valignWrapper Gray_9e">
+        <SearchControlWrapper className="flexRow valignWrapper textTertiary">
           <Icon icon="search" className="Font18 mRight3" />
           <input
             value={searchValue}
@@ -262,7 +262,7 @@ export default class ShowControlModal extends Component {
             <ButtonWrapper onClick={this.handleShowAll}>{_l('显示全部')}</ButtonWrapper>
             <ButtonWrapper onClick={this.handleHideAll}>{_l('隐藏全部')}</ButtonWrapper>
           </div>
-          {!_.isEmpty(selected) && <div className="Gray_75">{_l('显示%0列', selected.length)}</div>}
+          {!_.isEmpty(selected) && <div className="textSecondary">{_l('显示%0列', selected.length)}</div>}
         </div>
         <div className="sortableList flex" style={{ overflow: 'auto', height: 360 }}>
           <div className="columnCheckList">

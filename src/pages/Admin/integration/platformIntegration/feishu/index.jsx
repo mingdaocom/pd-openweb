@@ -174,7 +174,7 @@ export default class FeiShu extends React.Component {
               </span>
             }
           >
-            <Icon icon="help" className="Font18 Gray_9e" />
+            <Icon icon="help" className="Font18 textTertiary" />
           </Popover>
         </div>
         <div className="Relative InlineBlock inputDiv clearfix">
@@ -203,7 +203,7 @@ export default class FeiShu extends React.Component {
               />
               <Icon
                 icon={!this.state[`isShow${strId}`] ? 'visibility_off' : 'visibility'}
-                className="Gray_9e Font18 isShowIcon"
+                className="textTertiary Font18 isShowIcon"
                 onClick={() => {
                   this.setState({
                     [`isShow${strId}`]: !this.state[`isShow${strId}`],
@@ -224,7 +224,7 @@ export default class FeiShu extends React.Component {
     return (
       <div className="pBottom100">
         <div className="stepItem Relative">
-          <h3 className="Font16 Gray">{_l('1.获取对接信息')}</h3>
+          <h3 className="Font16 textPrimary">{_l('1.获取对接信息')}</h3>
           {!this.state.show1 ? (
             <div
               className="showDiv flexRow valignWrapper"
@@ -234,11 +234,11 @@ export default class FeiShu extends React.Component {
                 });
               }}
             >
-              <Icon icon="arrow-right-border" className="Font13 Gray_75 Right Hand" />
+              <Icon icon="arrow-right-border" className="Font13 textSecondary Right Hand" />
             </div>
           ) : (
             <React.Fragment>
-              <p className="mTop16 Font14 Gray_75">
+              <p className="mTop16 Font14 textSecondary">
                 {!isLark ? _l('从飞书开放平台获取对接信息，') : _l('从Lark开放平台获取对接信息，')}
                 {_l('即可开始集成以及同步通讯录')}
               </p>
@@ -253,7 +253,7 @@ export default class FeiShu extends React.Component {
           )}
         </div>
         <div className="stepItem Relative">
-          <h3 className="Font16 Gray">{_l('2.对接信息录入')}</h3>
+          <h3 className="Font16 textPrimary">{_l('2.对接信息录入')}</h3>
           {!this.state.show2 && (
             <div
               className="showDiv flexRow valignWrapper"
@@ -263,11 +263,11 @@ export default class FeiShu extends React.Component {
                 });
               }}
             >
-              <Icon icon="arrow-right-border" className="Font13 Gray_75 Right Hand" />
+              <Icon icon="arrow-right-border" className="Font13 textSecondary Right Hand" />
             </div>
           )}
           {this.state.isHasInfo && this.state.show2 && (
-            <span className="Font13 Gray_75 Right closeDing">
+            <span className="Font13 textSecondary Right closeDing">
               <Tooltip
                 title={
                   isLark ? _l('关闭Lark集成后，无法再从Lark处进入应用') : _l('关闭飞书集成后，无法再从飞书处进入应用')
@@ -285,7 +285,7 @@ export default class FeiShu extends React.Component {
           )}
           {!this.state.isCloseDing && this.state.show2 && (
             <React.Fragment>
-              <p className="mTop16 Font14 Gray_75">
+              <p className="mTop16 Font14 textSecondary">
                 {_l('完成步骤 1 后，填入App ID、App Secret后可对接应用与同步通讯录')}
               </p>
               <div className="mTop25 infoList">
@@ -329,7 +329,7 @@ export default class FeiShu extends React.Component {
           )}
         </div>
         <IntegrationSync
-          integrationType={isLark ? 7 : 6}
+          integrationType={isLark ? 62 : 6}
           step="3."
           syncDisabled={(canEditInfo && !isHasInfo) || isCloseDing}
           projectId={projectId}
@@ -433,7 +433,7 @@ export default class FeiShu extends React.Component {
                   updateCustomNameIcon={customNameIcon => this.setState({ customNameIcon })}
                 />
               </div>
-              {md.global.Config.IsLocal && (
+              {(window.platformENV.isOverseas || window.platformENV.isLocal) && (
                 <IntegrationSetPassword
                   password={this.state.password}
                   isSetPassword={this.state.isSetPassword}

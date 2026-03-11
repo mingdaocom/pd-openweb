@@ -19,7 +19,7 @@ const ContentWrap = styled.div`
   .limitWrap {
     height: 40px;
     line-height: 40px;
-    background: #f6fafe;
+    background: var(--color-primary-transparent);
     border-radius: 3px;
     padding-left: 12px;
     margin-bottom: 24px;
@@ -27,7 +27,7 @@ const ContentWrap = styled.div`
   input {
     width: 120px;
     &.overLimit {
-      border: 1px solid #f44336;
+      border: 1px solid var(--color-error);
     }
   }
   .appName {
@@ -55,7 +55,7 @@ const ContentWrap = styled.div`
     padding: 15px 0;
     position: absolute;
     bottom: 0;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
   .saveBtn,
   .delBtn {
@@ -73,30 +73,30 @@ const ContentWrap = styled.div`
 
   .saveBtn {
     margin-right: 20px;
-    background: #1e88e5;
-    color: #fff;
+    background: var(--color-primary);
+    color: var(--color-white);
     &:hover {
-      background: #1565c0;
+      background: var(--color-link-hover);
     }
     &.disabled {
-      color: #fff;
-      background: #b2dbff;
+      color: var(--color-white);
+      background: var(--color-primary-transparent);
       cursor: not-allowed;
       &:hover {
-        background: #b2dbff;
+        background: var(--color-primary-transparent);
       }
     }
   }
   .delBtn {
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     &:hover {
-      border: 1px solid #ccc;
+      border: 1px solid var(--color-border-tertiary);
     }
     &.disabled {
-      color: #eaeaea;
+      color: var(--color-border-secondary);
       cursor: not-allowed;
       &:hover {
-        border: 1px solid #eaeaea;
+        border: 1px solid var(--color-border-secondary);
       }
     }
   }
@@ -104,16 +104,16 @@ const ContentWrap = styled.div`
     display: flex;
     height: 36px;
     .add {
-      color: #2196f3;
-      border: 1px solid #2196f3;
+      color: var(--color-link-hover);
+      border: 1px solid var(--color-link-hover);
       line-height: 34px;
       cursor: pointer;
       padding: 0 20px;
       border-radius: 3px;
       &:hover {
-        color: #fff;
-        border: 1px solid #2196f3;
-        background-color: #2196f3;
+        color: var(--color-white);
+        border: 1px solid var(--color-link-hover);
+        background-color: var(--color-link-hover);
       }
     }
     .w200 {
@@ -121,7 +121,7 @@ const ContentWrap = styled.div`
     }
   }
   .header {
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
     padding: 12px 0;
   }
 
@@ -130,27 +130,10 @@ const ContentWrap = styled.div`
   }
   .resetBtn {
     line-height: 36px;
-    color: #1677ff;
+    color: var(--color-primary);
     &:hover {
-      color: #1565c0;
+      color: var(--color-link-hover);
     }
-  }
-`;
-
-const ResetDialog = styled(Dialog)`
-  /* .resetDialogContent {
-    height: 24px;
-    align-items: center;
-    .appIcon {
-      width: 24px;
-      height: 24px;
-      border-radius: 4px;
-      margin-right: 8px;
-      text-align: center;
-    }
-  } */
-  .mui-dialog-desc {
-    background-color: #f5f5f5;
   }
 `;
 
@@ -394,7 +377,7 @@ export default class LimitAttachmentUpload extends Component {
     Dialog.confirm({
       title: _l('重置应用的附件上传量'),
       description: (
-        <div className="Gray flexRow alignItemsCenter" style={{ height: '24px' }}>
+        <div className="textPrimary flexRow alignItemsCenter" style={{ height: '24px' }}>
           <span>{_l('确认将')}</span>
           <div className="mLeft10 mRight10 flexRow alignItemsCenter" style={{ height: '24px' }}>
             <div
@@ -535,7 +518,7 @@ export default class LimitAttachmentUpload extends Component {
         const limitSize = md.global.SysSettings.fileUploadLimitSize || 4 * 1024;
         text = _l(
           '系统支持的附件大小上限为 %0，可设置组织下允许的附件大小上限',
-          `${md.global.Config.IsLocal ? limitSize + 'M' : '4G'}`,
+          `${window.platformENV.isOverseas || window.platformENV.isLocal ? limitSize + 'M' : '4G'}`,
         );
         break;
       case 2:
@@ -578,7 +561,7 @@ export default class LimitAttachmentUpload extends Component {
           <Radio className="mRight8" checked={size === -1} onClick={() => this.setState({ size: -1 })} />
           <span>{_l('不限')}</span>
           <Tooltip title={_l('设置为“不限”，实际使用不得超过系统限制')}>
-            <Icon icon="info_outline" className="Font16 Gray_9e mLeft5 Hand" />
+            <Icon icon="info_outline" className="Font16 textTertiary mLeft5 Hand" />
           </Tooltip>
         </div>
         <div className="flexRow alignItemsCenter">
@@ -638,7 +621,7 @@ export default class LimitAttachmentUpload extends Component {
         return (
           <div className="flexRow alignItemsCenter">
             <div className="appIcon">
-              <SvgIcon url={appItem.iconUrl} fill="#9e9e9e" size={18} className="mTop3" />
+              <SvgIcon url={appItem.iconUrl} fill="var(--color-text-tertiary)" size={18} className="mTop3" />
             </div>
             <span className="flex ellipsis mRight10" title={appItem.name}>
               {appItem.name}
@@ -677,11 +660,14 @@ export default class LimitAttachmentUpload extends Component {
         return (
           <Fragment>
             {!!createTime && app.appName && (
-              <div className="Gray_bd Hand Hover_21 mRight10" onClick={() => this.handleReset(app, projectId)}>
+              <div
+                className="textDisabled Hand hoverColorPrimary mRight10"
+                onClick={() => this.handleReset(app, projectId)}
+              >
                 {_l('重置')}
               </div>
             )}
-            <div className="Gray_bd Hand Hover_21" onClick={() => this.remove(entityId)}>
+            <div className="textDisabled Hand hoverColorPrimary" onClick={() => this.remove(entityId)}>
               {_l('移除')}
             </div>
           </Fragment>
@@ -728,7 +714,7 @@ export default class LimitAttachmentUpload extends Component {
           <div className="addAndFilterWrap mBottom10">
             <div className="flex flexRow">
               <div className="flexRow alignItemsCenter">
-                <div className="mRight10 Gray_75">{_l('应用')}</div>
+                <div className="mRight10 textSecondary">{_l('应用')}</div>
                 <Select
                   className="mdAntSelect w200 mRight20"
                   placeholder={_l('所属应用')}
@@ -738,7 +724,7 @@ export default class LimitAttachmentUpload extends Component {
                   value={appIds}
                   mode="multiple"
                   maxTagCount="responsive"
-                  notFoundContent={() => <span className="Gray_9e">{_l('无搜索结果')}</span>}
+                  notFoundContent={() => <span className="textTertiary">{_l('无搜索结果')}</span>}
                   filterOption={(inputValue, option) => {
                     return (
                       appList
@@ -778,7 +764,7 @@ export default class LimitAttachmentUpload extends Component {
               </div>
               {businessType === 2 && (
                 <div className="flexRow alignItemsCenter">
-                  <div className="mRight10 Gray_75">{_l('工作表')}</div>
+                  <div className="mRight10 textSecondary">{_l('工作表')}</div>
                   <Select
                     className="mdAntSelect w200"
                     placeholder={_l('请选择')}
@@ -788,7 +774,7 @@ export default class LimitAttachmentUpload extends Component {
                     mode="multiple"
                     maxTagCount="responsive"
                     disabled={_.isEmpty(appIds)}
-                    notFoundContent={() => <span className="Gray_9e">{_l('无搜索结果')}</span>}
+                    notFoundContent={() => <span className="textTertiary">{_l('无搜索结果')}</span>}
                     filterOption={(inputValue, option) => {
                       return (
                         worksheetList
@@ -854,7 +840,7 @@ export default class LimitAttachmentUpload extends Component {
               {loading && pageIndex === 1 ? (
                 <LoadDiv />
               ) : _.isEmpty(limits) ? (
-                <div className="mTop40 Gray_75 TxtCenter">
+                <div className="mTop40 textSecondary TxtCenter">
                   {businessType === 2 ? _l('未添加工作表') : _l('未添加应用')}
                 </div>
               ) : (

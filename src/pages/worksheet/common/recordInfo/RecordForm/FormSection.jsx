@@ -11,7 +11,10 @@ const FormSectionWrap = styled.div`
   width: ${props => (props.isUnfold ? '220px' : '55px')};
   height: inherit;
   flex-shrink: 0;
-  ${props => (props.isFixedRight ? 'border-left: 1px solid #d9d9d9;' : 'border-right: 1px solid #d9d9d9;')}
+  ${props =>
+    props.isFixedRight
+      ? 'border-left: 1px solid var(--color-border-primary);'
+      : 'border-right: 1px solid var(--color-border-primary);'}
   display: flex;
   flex-direction: column;
   transition: all 0.3s;
@@ -26,9 +29,9 @@ const FormSectionWrap = styled.div`
     ${props => (props.isUnfold ? '' : 'flex-direction:column;min-height: 50px;justify-content: center;')}
     ${props => (props.isFixedRight ? 'flex-direction: row-reverse;' : '')}
     &.active {
-      color: #1677ff;
+      color: var(--color-primary);
       .icon {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
     &.active:before {
@@ -38,7 +41,7 @@ const FormSectionWrap = styled.div`
       height: 60%;
       content: ' ';
       position: absolute;
-      background-color: #1677ff;
+      background-color: var(--color-primary);
     }
     & > span.ellipsis {
       display: ${props => (props.isUnfold ? 'inline-block;' : 'none')};
@@ -63,7 +66,7 @@ const FormSectionWrap = styled.div`
     justify-content: center;
     border-radius: 3px;
     &:hover {
-      background: #f7f7f7;
+      background: var(--color-background-hover);
     }
   }
 `;
@@ -130,7 +133,7 @@ function FormSection(props, ref) {
           <Tooltip title={isUnfold ? _l('收起') : _l('展开')} placement="right">
             <Icon
               icon={isUnfold ? (widgetStyle.tabposition === '4' ? 'menu_right' : 'menu_left') : 'menu'}
-              className="Font20 Gray_9e pointer"
+              className="Font20 textTertiary pointer"
               onClick={() => {
                 setUnfold(!isUnfold);
                 safeLocalStorageSetItem(

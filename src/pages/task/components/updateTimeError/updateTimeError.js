@@ -118,7 +118,7 @@ export const updateTaskErrorDialog = callback => {
     closable: false,
     title: _l('任务还未开始，是否仍要完成此任务？'),
     children: (
-      <span style="font-size: 12px;color: #757575;">
+      <span style="font-size: 12px;color: var(--color-text-secondary);">
         {_l('开始时间不可以晚于结束时间，如果您仍要完成任务，开始时间将被置空')}
       </span>
     ),

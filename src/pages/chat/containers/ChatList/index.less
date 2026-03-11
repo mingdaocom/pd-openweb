@@ -5,12 +5,12 @@
   height: 100%;
   transition: width 0.3s cubic-bezier(0.18, 0.89, 0.68, 1.04);
   overflow: hidden;
-  border-left: 1px solid #e0e0e0;
-  background-color: #fff;
+  border-left: 1px solid var(--color-border-secondary);
+  background-color: var(--color-background-card);
   .divider {
     width: 30%;
     height: 1px;
-    background-color: #d7d7d7;
+    background-color: var(--color-border-primary);
     margin: 0 auto;
   }
   &.hide {
@@ -50,7 +50,7 @@
   .header {
     margin-left: 20px;
     height: 60px;
-    color: #151515;
+    color: var(--color-text-title);
     .title {
       font-size: 17px !important;
       margin-top: 20px;
@@ -67,7 +67,7 @@
   .dialogContent {
     min-height: 237px;
     padding: 0;
-    border-top: 1px solid #ddd;
+    border-top: 1px solid var(--color-border-primary);
     .postCard {
       margin: 0 !important;
     }
@@ -76,7 +76,7 @@
 .chatFeedDialog {
   .mui-dialog-body {
     padding: 15px 20px 0 15px !important;
-    border-top: 1px solid #ddd;
+    border-top: 1px solid var(--color-border-primary);
     .z-depth-1,
     nav,
     .card-panel,
@@ -88,7 +88,7 @@
 
 @iconTypes: 'system', 'post', 'calendar', 'task', 'knowledge', 'uploadhelper', 'hr', 'approval', 'check', 'dossier',
   'score', 'worksheet', 'workflow';
-@calendarDateColor: #e85c72;
+@calendarDateColor: var(--color-calendar);
 
 // definition
 .buildIconClass(@iterator: 1) when (@iterator <= length(@iconTypes)) {

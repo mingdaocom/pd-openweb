@@ -14,13 +14,13 @@ const ControlTag = styled.div`
   padding: 0 12px;
   border-radius: 16px;
   background: #d8eeff;
-  color: #174c76;
-  border: 1px solid #bbd6ea;
+  color: var(--color-link-hover);
+  border: 1px solid var(--color-primary-transparent);
 `;
 
 const ReadonlyTagTextareaWrap = styled.div`
   .CodeMirror-scroll {
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
   }
 `;
 
@@ -125,7 +125,7 @@ export default function WorkflowNode(props) {
 
   if (!nodes.length) {
     return (
-      <div className="flexRow alignItemsCenter justifyContentCenter h100 Gray_9e Font14">{_l('没有流程节点')}</div>
+      <div className="flexRow alignItemsCenter justifyContentCenter h100 textTertiary Font14">{_l('没有流程节点')}</div>
     );
   }
 
@@ -323,7 +323,7 @@ export default function WorkflowNode(props) {
     <div className="flexRow pAll10 h100">
       <div className="nav flexColumn">
         <div className="searchWrap flexRow alignItemsCenter mBottom10">
-          <Icon className="Gray_9e Font20 mRight5" icon="search" />
+          <Icon className="textTertiary Font20 mRight5" icon="search" />
           <input
             placeholder={_l('节点名称')}
             className="flex"
@@ -332,7 +332,9 @@ export default function WorkflowNode(props) {
               setSearchValue(e.target.value);
             }}
           />
-          {searchValue && <Icon className="Gray_9e pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />}
+          {searchValue && (
+            <Icon className="textTertiary pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />
+          )}
         </div>
         <ScrollView className="h100">
           {nodes.filter(item => item.nodeName.includes(searchValue)).map(item => renderNav(item))}

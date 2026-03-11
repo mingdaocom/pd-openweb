@@ -239,7 +239,7 @@ export default function CreateWechatOrAliMerchant(props) {
               <i className="errorArrow" />
             </div>
           )}
-          <div className="Gray_75 mBottom5 bold Relative">
+          <div className="textSecondary mBottom5 bold Relative">
             <div className="required">*</div>
             {item.label}
           </div>
@@ -284,7 +284,7 @@ export default function CreateWechatOrAliMerchant(props) {
                 </a>
                 <span className="TxtMiddle mLeft5">{_l('查看')}</span>
               </div>
-              {md.global.Config.IsLocal ? (
+              {window.platformENV.isOverseas || window.platformENV.isLocal ? (
                 <div>{_l('2、资金直达微信，本平台仅收取商户功能费')}</div>
               ) : (
                 <div>
@@ -313,7 +313,7 @@ export default function CreateWechatOrAliMerchant(props) {
                 </a>
                 <span className="TxtMiddle mLeft5">{_l('查看')}</span>
               </div>
-              {md.global.Config.IsLocal ? (
+              {window.platformENV.isOverseas || window.platformENV.isLocal ? (
                 <div>{_l('2、资金直达支付宝，本平台仅收取商户功能费')}</div>
               ) : (
                 <div>
@@ -339,7 +339,7 @@ export default function CreateWechatOrAliMerchant(props) {
         {renderFormInfo(formInfo)}
         {!isCreate && (
           <Fragment>
-            <div className="Gray_75 mBottom5 bold">{_l('密钥信息')}</div>
+            <div className="textSecondary mBottom5 bold">{_l('密钥信息')}</div>
             <div className="secretWrap flexRow Relative">
               <div className="flex">
                 {secretFormInfo.map(item => (
@@ -351,13 +351,13 @@ export default function CreateWechatOrAliMerchant(props) {
               </div>
               <div>
                 <i
-                  className="icon icon-edit Gray_9d Hand Hover_21 Font18 Absolute"
+                  className="icon icon-edit textTertiary Hand hoverColorPrimary Font18 Absolute"
                   onClick={() => setShowSecretDialog(true)}
                 />
               </div>
             </div>
-            <div className="Gray_75 Font12 mTop10">
-              <i className="icon icon-error1 Gray_9d mRight5" />
+            <div className="textSecondary Font12 mTop10">
+              <i className="icon icon-error1 textTertiary mRight5" />
               {_l('出于安全考虑，原始密钥信息不能直接编辑，点击上方按钮进行替换更新')}
             </div>
           </Fragment>
@@ -388,7 +388,7 @@ export default function CreateWechatOrAliMerchant(props) {
             setShowSecretDialog(false);
           }}
         >
-          <div className="Font14 Gray_75 mBottom20">
+          <div className="Font14 textSecondary mBottom20">
             {_l('修改配置后，需支付0.01元验证您填写的商户信息，支付成功后自动保存')}
           </div>
           {renderFormInfo(secretFormInfo)}

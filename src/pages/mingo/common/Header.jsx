@@ -16,7 +16,7 @@ const Con = styled.div`
   width: 100%;
   height: 50px;
   flex-shrink: 0;
-  border-bottom: 1px solid #dddddd;
+  border-bottom: 1px solid var(--color-border-primary);
   padding: 0 20px;
   .hap-logo {
     width: 32px;
@@ -26,7 +26,7 @@ const Con = styled.div`
     border-radius: 50%;
   }
   a.logo {
-    color: #151515 !important;
+    color: var(--color-text-primary) !important;
     font-weight: bold;
     font-size: 17px;
   }
@@ -35,7 +35,7 @@ const Con = styled.div`
     height: 32px;
     border-radius: 50%;
     overflow: hidden;
-    border: 1px solid #e3e3e3;
+    border: 1px solid var(--color-border-secondary);
     img {
       width: 100%;
       height: 100%;
@@ -56,13 +56,13 @@ const Con = styled.div`
   &.isEmbed {
     height: 36px;
     text-align: center;
-    background-color: #f8f8f8;
+    background-color: var(--color-background-secondary);
     padding: 0 12px;
     .title {
       width: 100%;
       font-size: 13px;
       font-weight: bold;
-      color: #151515;
+      color: var(--color-text-title);
     }
   }
 `;
@@ -75,8 +75,8 @@ const Right = styled.div`
 
 const WrappedButton = styled(Button)`
   padding: 0 10px !important;
-  color: #151515 !important;
-  border-color: #ccc !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border-tertiary) !important;
   min-width: auto !important;
   display: flex !important;
   align-items: center;
@@ -84,7 +84,7 @@ const WrappedButton = styled(Button)`
 
   .icon {
     font-size: 18px;
-    color: #9d9d9d !important;
+    color: var(--color-text-tertiary) !important;
     margin-right: 5px;
   }
   &.icon {
@@ -96,9 +96,9 @@ const WrappedButton = styled(Button)`
     }
   }
   &.new-chat {
-    color: #fff !important;
+    color: var(--color-white) !important;
     .icon {
-      color: #fff !important;
+      color: var(--color-white) !important;
     }
   }
   &.urlQrCode {
@@ -118,10 +118,10 @@ const QrCode = styled.div`
   left: calc(50% - 90px);
   width: 180px;
   height: 180px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   border-radius: 5px;
   padding: 16px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
   img {
     width: 100% !important;
@@ -138,7 +138,7 @@ export default function Header({ error, isShare, isFooter = false, isSmallMode, 
       <Con className={cx('t-flex t-items-center t-justify-between isEmbed')}>
         <div className="title">{_l('HAP助手')}</div>
         <i
-          className="Right icon icon-launch Font18 Gray_75 Hand"
+          className="Right icon icon-launch Font18 textSecondary Hand"
           onClick={() => {
             const urlObj = new URL(location.href);
             window.open(location.href.replace(urlObj.search, ''), '_blank');
@@ -151,8 +151,8 @@ export default function Header({ error, isShare, isFooter = false, isSmallMode, 
     <Con className={cx('t-flex t-items-center t-justify-between', { isSmallMode, isFooter, isEmbed })}>
       {!isFooter && (
         <a href="/" className="logo t-flex t-items-center">
-          <img className="hap-logo" src={mingoHead} alt="HAP助手" />
-          {_l('Mingo')}
+          <img className="hap-logo" src={md.global.SysSettings.aiBrandLogoUrl || mingoHead} alt="HAP助手" />
+          {md.global.SysSettings.aiBrandName || 'Mingo'}
         </a>
       )}
       <Right className="t-flex t-items-center">

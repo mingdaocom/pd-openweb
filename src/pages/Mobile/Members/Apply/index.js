@@ -73,15 +73,15 @@ class ApplyList extends React.Component {
     }
 
     return (
-      <React.Fragment>
+      <div className="listApplyCon">
         {applyList.length ? (
           <React.Fragment>
             {_.map(applyList, item => {
               return (
                 <React.Fragment key={item.id}>
-                  <div className="listApply pTop20 pLeft10 pRight10" key={item.id}>
+                  <div className="listApply" key={item.id}>
                     <div className="flexRow">
-                      <span className="Gray Font17 flex">{item.accountInfo.fullName}</span>
+                      <span className="textPrimary Font17 flex">{item.accountInfo.fullName}</span>
                       <div>
                         <span
                           className="InlineBlock toBeBtn rejectBtn"
@@ -93,7 +93,11 @@ class ApplyList extends React.Component {
                                   {_l('请填写拒绝的原因')}
                                   <Input
                                     className="mTop10 pAll5 rejectConfirmInput"
-                                    style={{ borderRadius: 4, border: '1px solid #ededed', '--font-size': 13 }}
+                                    style={{
+                                      borderRadius: 4,
+                                      border: '1px solid var(--color-border-secondary)',
+                                      '--font-size': 13,
+                                    }}
                                   />
                                 </div>
                               ),
@@ -125,8 +129,9 @@ class ApplyList extends React.Component {
                         </span>
                       </div>
                     </div>
-                    {item.remark ? <div className="Gray_9e Font13 mTop10 applyInfo">{item.remark}</div> : null}
+                    {item.remark ? <div className="textTertiary Font13 mTop6 applyInfo">{item.remark}</div> : null}
                   </div>
+                  <div className="splitLine"></div>
                 </React.Fragment>
               );
             })}
@@ -142,7 +147,7 @@ class ApplyList extends React.Component {
             history.back();
           }}
         />
-      </React.Fragment>
+      </div>
     );
   }
 }

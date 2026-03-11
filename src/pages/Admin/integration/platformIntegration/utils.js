@@ -27,21 +27,14 @@ export const integrationFailed = projectId => {
 };
 
 // 判断是否需要清理集成关系
-export const checkClearIntergrationData = ({ projectId, onSave = () => {} }) => {
-  return workwxAjax
-    .checkClearIntergrationData({
-      projectId,
-    })
-    .then(res => {
-      if (res) {
-        checkClearIntegrationDialog({
-          projectId,
-          onSave,
-        });
-      } else {
-        onSave();
-      }
-    });
+export const checkClearIntergrationData = ({ projectId, onSave = () => {}, integrationType, onClose = () => {} }) => {
+  return workwxAjax.checkClearIntergrationData({ projectId }).then(res => {
+    if (res) {
+      checkClearIntegrationDialog({ projectId, integrationType, onSave, onClose });
+    } else {
+      onSave();
+    }
+  });
 };
 
 /**

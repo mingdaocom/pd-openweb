@@ -7,7 +7,7 @@ import { defaultDoubleConfirm } from './config';
 
 const Wrap = styled.div`
   .line {
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-secondary);
     margin: 24px 0;
   }
   .btnTxt {
@@ -19,7 +19,7 @@ const Wrap = styled.div`
     }
   }
   .icon-ic_toggle_off {
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
   .icon-ic_toggle_on {
     color: #00c345;
@@ -28,14 +28,14 @@ const Wrap = styled.div`
     font-weight: 400;
   }
   .remarkWrap {
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     border-radius: 3px 3px 3px 3px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     line-height: 36px;
     padding: 0 12px;
   }
   .borderTop {
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-secondary);
     margin-top: 24px;
     padding-top: 24px;
   }

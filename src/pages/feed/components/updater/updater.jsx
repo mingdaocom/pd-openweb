@@ -203,7 +203,7 @@ class Updater extends React.Component {
           <div className="myUpdateItem ThemeBorderColor4">
             <div className="myUpdateItem_Content" id="myUpdateItem_Content" style={{ position: 'relative' }}>
               <div id="msgContainer" className="msgContainer">
-                <textarea id="textarea_Updater" style={{ height: '24px' }} className="TextArea Gray_a Block" />
+                <textarea id="textarea_Updater" style={{ height: '24px' }} className="TextArea textTertiary Block" />
               </div>
               <div className="Hidden" id="myupdaterOP">
                 <div className="faceArea">
@@ -258,7 +258,7 @@ class Updater extends React.Component {
                       temporaryData={this.state.temporaryData}
                       kcAttachmentData={this.state.kcAttachmentData}
                       onTemporaryDataUpdate={result => {
-                        this.handleOpen(result), this.setState({ temporaryData: result });
+                        (this.handleOpen(result), this.setState({ temporaryData: result }));
                       }}
                       onKcAttachmentDataUpdate={result => {
                         this.setState({ kcAttachmentData: result });

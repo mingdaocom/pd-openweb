@@ -161,7 +161,7 @@ class RelationList extends Component {
         {!_.isUndefined(keywords) || relationRows.length ? (
           <div className="searchRelationWrap">
             <div className="inputCon">
-              <i className="icon icon-search Gray_9e" />
+              <i className="icon icon-search textTertiary" />
               <input
                 className="flex"
                 placeholder={_l('搜索')}
@@ -172,7 +172,7 @@ class RelationList extends Component {
                 }}
               />
               <i
-                className={cx('icon icon-workflow_cancel Hand Gray_9e Font16', {
+                className={cx('icon icon-workflow_cancel Hand textTertiary Font16', {
                   none: !keywords,
                 })}
                 onClick={() => this.setState({ keywords: '' }, this.onSearch)}

@@ -13,12 +13,12 @@ const EmptyWrap = styled.div`
     width: 132px;
     height: 132px;
     border-radius: 50%;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
     margin-bottom: 32px;
     position: relative;
     .icon {
       font-size: 50px;
-      color: #c2c3c3;
+      color: var(--color-text-placeholder);
       position: absolute;
       top: 50%;
       left: 50%;
@@ -44,7 +44,7 @@ export default class EmptyStatus extends Component {
         <div className="iconWrap">
           <Icon icon={icon} />
         </div>
-        <div className="tipTxt Gray_75 Font14">{tipTxt || _l('数据空')}</div>
+        <div className="tipTxt textSecondary Font14">{tipTxt || _l('数据空')}</div>
       </EmptyWrap>
     );
   }

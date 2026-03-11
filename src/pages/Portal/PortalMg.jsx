@@ -99,7 +99,7 @@ export default class PortalMg extends Component {
                     this.handleClickAway(e);
                   }}
                 >
-                  <Icon icon="backspace mRight8 Gray_9e" />
+                  <Icon icon="backspace mRight8 textTertiary" />
                   {_l('消息')}
                 </span>
               </React.Fragment>

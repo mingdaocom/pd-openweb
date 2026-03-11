@@ -7,7 +7,7 @@ export default ({ data, onChange }) => (
   <div className="settingItem">
     <div className="settingItemTitle">{_l('排列方式')}</div>
     <Dropdown
-      style={{ width: '100%', backgroundColor: '#fff' }}
+      style={{ width: '100%', backgroundColor: 'var(--color-background-primary)' }}
       data={[
         { value: '0', name: _l('横向排列') },
         { value: '1', name: _l('纵向排列') },

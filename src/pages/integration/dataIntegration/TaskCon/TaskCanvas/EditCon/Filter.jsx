@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 import { formatControls } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util';
-import { FilterDialog, FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import FilterDialog from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterDialog';
+import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import { WrapL } from './style';
 
 export default function Filter(props) {
@@ -49,7 +50,7 @@ export default function Filter(props) {
   return (
     <WrapL>
       <div className="title Bold">{_l('筛选')}</div>
-      <div className="des mTop15 Gray_9e">{_l('设置筛选条件后，只有满足条件的数据才能进入本节点。')}</div>
+      <div className="des mTop15 textTertiary">{_l('设置筛选条件后，只有满足条件的数据才能进入本节点。')}</div>
       {filters.length <= 0 && (
         <div
           className="addFilter Bold mTop16 Hand TxtCenter"

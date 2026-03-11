@@ -11,9 +11,10 @@ import WorksheetTable from 'worksheet/components/WorksheetTable';
 import { RowHead } from 'worksheet/components/WorksheetTable/components/';
 import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
 import { SYSTEM_ENUM } from 'src/components/Form/core/config';
-import { controlState } from 'src/components/Form/core/utils';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import { resortControlByColRow } from 'src/pages/widgetConfig/util';
 import { emitter } from 'src/utils/common';
+import { controlState } from 'src/utils/control';
 import { updateDraftTotalInfo } from './utils';
 import WorksheetDraftOperate from './WorksheetDraftOperate';
 
@@ -41,9 +42,9 @@ const Header = styled.div`
     cursor: pointer;
     line-height: 1em;
     font-size: 22px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
@@ -63,7 +64,7 @@ const TotalNumWrap = styled.span`
 `;
 
 const DraftTxt = styled.span`
-  color: #515151;
+  color: var(--color-text-title);
 `;
 
 function DraftModal(props) {
@@ -87,6 +88,8 @@ function DraftModal(props) {
   const [loading, setLoading] = useState(false);
   const [records, setRecords] = useState(props.draftData || []);
   const [disableMaskDataControls, setDisableMaskDataControls] = useState({});
+  const [errorCode, setErrorCode] = useState(0);
+
   const controls = resortControlByColRow(_.get(worksheetInfo, 'template.controls'));
   const columns = controls
     .filter(
@@ -134,6 +137,10 @@ function DraftModal(props) {
           worksheetId,
           total: res.data.length,
         });
+      })
+      .catch(err => {
+        setLoading(false);
+        setErrorCode(err.errorCode);
       });
   };
 
@@ -223,68 +230,76 @@ function DraftModal(props) {
           <Header>
             <div className="title">{records.length ? `${_l('草稿箱')}（${records.length}/10）` : _l('草稿箱')}</div>
             <div className="flex"></div>
-            <span className="refreshBtn mRight10" onClick={() => loadRows()}>
-              <i className="icon icon-refresh1" />
-            </span>
+            {errorCode !== 300016 && (
+              <span className="refreshBtn mRight10" onClick={() => loadRows()}>
+                <i className="icon icon-refresh1" />
+              </span>
+            )}
             <span className="closeBtn" onClick={onCancel}>
               <i className="icon icon-close" />
             </span>
           </Header>
-          <Body>
-            <WorksheetTable
-              loading={loading}
-              worksheetId={worksheetId}
-              appId={appId}
-              lineNumberBegin={0}
-              emptyIcon={<Icon icon="drafts_approval" />}
-              emptyText={_l('暂无草稿')}
-              noRenderEmpty={true}
-              columns={columns}
-              rowHeight={34}
-              rowHeadWidth={88}
-              selectedIds={selected}
-              data={records}
-              controls={controls}
-              from={21}
-              rules={rules}
-              renderColumnHead={renderColumnHead}
-              sheetSwitchPermit={sheetSwitchPermit}
-              projectId={projectId}
-              renderRowHead={({ className, style, rowIndex }) => (
-                <RowHead
-                  isDraftTable
-                  className={className}
-                  style={style}
-                  numberWidth={numberWidth}
-                  lineNumberBegin={0}
-                  allowEdit={false}
-                  selectedIds={selected}
-                  onSelectAllWorksheet={() => {
-                    setSelected(records.map(row => row.rowid));
-                  }}
-                  onSelect={newSelected => {
-                    const selectRows = [];
-                    newSelected.forEach(rowId => {
-                      const row = _.find(records, trashRow => trashRow.rowid === rowId);
-                      if (row && (row.allowedit || row.allowEdit)) {
-                        selectRows.push(row);
-                      }
-                    });
-                    setSelected(newSelected);
-                  }}
-                  rowIndex={rowIndex}
-                  data={records}
-                />
-              )}
-              onCellClick={(cell, row) => {
-                if (cell.type === 29 && cell.enumDefault === 2) {
-                  setActiveRelateTableControlIdOfRecord(cell.controlId);
-                }
-                setRecordId(row.rowid);
-                setRecordInfoVisible(true);
-              }}
-            />
-          </Body>
+          {errorCode === 300016 ? (
+            <Con>
+              <RestrictAccessStatus />
+            </Con>
+          ) : (
+            <Body>
+              <WorksheetTable
+                loading={loading}
+                worksheetId={worksheetId}
+                appId={appId}
+                lineNumberBegin={0}
+                emptyIcon={<Icon icon="drafts_approval" />}
+                emptyText={_l('暂无草稿')}
+                noRenderEmpty={true}
+                columns={columns}
+                rowHeight={34}
+                rowHeadWidth={88}
+                selectedIds={selected}
+                data={records}
+                controls={controls}
+                from={21}
+                rules={rules}
+                renderColumnHead={renderColumnHead}
+                sheetSwitchPermit={sheetSwitchPermit}
+                projectId={projectId}
+                renderRowHead={({ className, style, rowIndex }) => (
+                  <RowHead
+                    isDraftTable
+                    className={className}
+                    style={style}
+                    numberWidth={numberWidth}
+                    lineNumberBegin={0}
+                    allowEdit={false}
+                    selectedIds={selected}
+                    onSelectAllWorksheet={() => {
+                      setSelected(records.map(row => row.rowid));
+                    }}
+                    onSelect={newSelected => {
+                      const selectRows = [];
+                      newSelected.forEach(rowId => {
+                        const row = _.find(records, trashRow => trashRow.rowid === rowId);
+                        if (row && (row.allowedit || row.allowEdit)) {
+                          selectRows.push(row);
+                        }
+                      });
+                      setSelected(newSelected);
+                    }}
+                    rowIndex={rowIndex}
+                    data={records}
+                  />
+                )}
+                onCellClick={(cell, row) => {
+                  if (cell.type === 29 && cell.enumDefault === 2) {
+                    setActiveRelateTableControlIdOfRecord(cell.controlId);
+                  }
+                  setRecordId(row.rowid);
+                  setRecordInfoVisible(true);
+                }}
+              />
+            </Body>
+          )}
         </Con>
         {recordInfoVisible && (
           <RecordInfo
@@ -420,7 +435,7 @@ function WorksheetDraft(props) {
         });
       }}
     >
-      <Icon icon="drafts_approval" className="Font18 Gray_9e" />
+      <Icon icon="drafts_approval" className="Font18 textTertiary" />
       <DraftTxt className="mLeft5 Font13">{_l('草稿箱')}</DraftTxt>
       {total ? <TotalNumWrap className="mLeft5 Font13">{total}</TotalNumWrap> : ''}
     </span>

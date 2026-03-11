@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import cx from 'classnames';
+import _ from 'lodash';
 import styled from 'styled-components';
 import { BgIconButton, Button, LoadDiv } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
@@ -29,7 +30,7 @@ const Success = styled.div`
   }
   .status {
     font-size: 17px;
-    color: #757575;
+    color: var(--color-text-secondary);
     margin: 24px 0 32px;
   }
 `;
@@ -48,8 +49,10 @@ export default class NewRecordLand extends Component {
     this.state = {
       isLarge: localStorage.getItem('NEW_RECORD_IS_LARGE') === 'true',
       status: STATUS.NORMAL,
+      allowMingoCreate: false,
     };
     this.handleMingoCreateRecordActive = this.handleMingoCreateRecordActive.bind(this);
+    this.handleWorksheetInfoReady = this.handleWorksheetInfoReady.bind(this);
   }
   componentDidMount() {
     emitter.on('MINGO_CREATE_RECORD_ACTIVE', this.handleMingoCreateRecordActive);
@@ -72,10 +75,21 @@ export default class NewRecordLand extends Component {
   handleMingoCreateRecordActive(value) {
     this.setState({ mingoActive: value });
   }
+  handleWorksheetInfoReady(worksheetInfo = {}) {
+    this.setState({ allowMingoCreate: String(_.get(worksheetInfo, 'advancedSetting.aifillin')) !== '1' });
+  }
   render() {
-    const { match = {}, appPkg = {}, createOptions, isMingoCreate, onClose, onAdd = () => {} } = this.props;
-    const { appId, worksheetId, viewId } = createOptions || match.params || {};
-    const { isLarge, status, mingoActive } = this.state;
+    const {
+      match = {},
+      appPkg = {},
+      createOptions,
+      defaultCreateRecordParams = {},
+      isMingoCreate,
+      onClose,
+      onAdd = () => {},
+    } = this.props;
+    const { appId, worksheetId, viewId, didMountTimestamp } = createOptions || match.params || {};
+    const { isLarge, status, mingoActive, allowMingoCreate } = this.state;
 
     if (!appPkg.id) {
       return (
@@ -92,7 +106,7 @@ export default class NewRecordLand extends Component {
       >
         {status === STATUS.NORMAL && (
           <ScaleButton gap={12}>
-            {!mingoActive && (
+            {!mingoActive && !md.global.SysSettings.hideAIBasicFun && allowMingoCreate && (
               <BgIconButton
                 className="mingoCreate"
                 text={_l('AI 填写')}
@@ -151,6 +165,7 @@ export default class NewRecordLand extends Component {
               showFillNext
               isMingoCreate={isMingoCreate}
               needCache={!isMingoCreate}
+              didMountTimestamp={didMountTimestamp}
               notDialog
               className="flexColumn"
               appId={appId}
@@ -158,13 +173,14 @@ export default class NewRecordLand extends Component {
               worksheetId={worksheetId}
               addType={1}
               visible
+              onWorksheetInfoReady={this.handleWorksheetInfoReady}
               changeWorksheetStatusCode={() => this.setState({ status: STATUS.ERROR })}
               onAdd={(row, { continueAdd }) => {
                 if (isMingoCreate) {
                   if (continueAdd) {
                     emitter.emit('MINGO_CREATE_RECORD_CLEAN', row);
                   } else {
-                    onAdd();
+                    onAdd(row);
                     onClose();
                   }
                   return;
@@ -174,6 +190,7 @@ export default class NewRecordLand extends Component {
                 }
               }}
               hideNewRecord={onClose}
+              {...defaultCreateRecordParams}
             />
           </div>
         )}

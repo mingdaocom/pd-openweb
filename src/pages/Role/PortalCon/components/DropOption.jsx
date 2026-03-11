@@ -9,9 +9,9 @@ const MenuWrap = styled(Menu)`
 const MenuItemWrap = styled(MenuItem)``;
 const RedMenuItemWrap = styled(MenuItemWrap)`
   .Item-content {
-    color: #f44336 !important;
+    color: var(--color-error) !important;
     .Icon {
-      color: #f44336 !important;
+      color: var(--color-error) !important;
     }
   }
 `;
@@ -48,7 +48,11 @@ export default function DropOption(props) {
             }
             return (
               <React.Fragment>
-                {o.showLine && <div style={{ width: '100%', margin: '6px 0', borderTop: '1px solid #EAEAEA' }} />}
+                {o.showLine && (
+                  <div
+                    style={{ width: '100%', margin: '6px 0', borderTop: '1px solid var(--color-border-secondary)' }}
+                  />
+                )}
                 <MenuItemWrap
                   onClick={e => {
                     e.stopPropagation();

@@ -172,12 +172,12 @@ export default class ImportApp extends React.Component {
               <span>{_l(errTip)}</span>
             </div>
           ) : (
-            <div className="Gray_75 mTop6">{_l('大小：%0', formatFileSize(file.size))}</div>
+            <div className="textSecondary mTop6">{_l('大小：%0', formatFileSize(file.size))}</div>
           )}
         </Fragment>
       );
     } else {
-      return <div className="Gray_bd">{_l('请选择.mdy格式的应用文件')}</div>;
+      return <div className="textDisabled">{_l('请选择.mdy格式的应用文件')}</div>;
     }
   }
 
@@ -206,13 +206,13 @@ export default class ImportApp extends React.Component {
               <div className={cx('flexRow mTop16', { Hidden: file.loaded === file.size })}>
                 <Progress
                   style={{ width: 250 }}
-                  trailColor="#eaeaea"
+                  trailColor="var(--color-border-secondary)"
                   strokeColor="#1677ff"
                   strokeWidth={8}
                   percent={Math.floor((file.loaded / (file.size || 0)) * 100)}
                 />
                 <span
-                  className="icon-cancel Gray_9e Font16 Hover_49 mLeft12 LineHeight22"
+                  className="icon-cancel textTertiary Font16 hoverTextPrimaryLight mLeft12 LineHeight22"
                   onClick={() => {
                     this.uploader.stop();
                     this.uploader.removeFile(file);
@@ -229,7 +229,7 @@ export default class ImportApp extends React.Component {
                 <div className="notificationIconWrap">
                   <i className="icon-loading_button Font20 ThemeColor3"></i>
                 </div>
-                <span className="Gray_75 mLeft10">{_l('正在解析文件...')}</span>
+                <span className="textSecondary mLeft10">{_l('正在解析文件...')}</span>
               </div>
             )}
           </div>
@@ -257,7 +257,7 @@ export default class ImportApp extends React.Component {
       case 3:
         return (
           <div className="importAppContent solidBorder pAll15">
-            <div className="Gray_75 mBottom15">{_l('文件解析成功，即将导入以下%0个应用', list.length)}</div>
+            <div className="textSecondary mBottom15">{_l('文件解析成功，即将导入以下%0个应用', list.length)}</div>
             {list.map(item => {
               return (
                 <div className="importAppContentItem" key={item.appId}>
@@ -265,7 +265,7 @@ export default class ImportApp extends React.Component {
                     <SvgIcon url={item.iconUrl} fill="#fff" size={14} />
                   </div>
                   <div className="flex ellipsis">{item.name}</div>
-                  {isHighVersions && <span className="Gray_9e">{_l('（从高版本系统导出）')}</span>}
+                  {isHighVersions && <span className="textTertiary">{_l('（从高版本系统导出）')}</span>}
                 </div>
               );
             })}
@@ -279,7 +279,7 @@ export default class ImportApp extends React.Component {
     return (
       <div className="importAppContainer">
         <div className="mBottom24">
-          <span className="Gray_75">
+          <span className="textSecondary">
             {_l(
               '将应用文件导入组织生成一个新的应用，以实现应用快速迁移或创建。在导入私有部署环境前，请确认私有部署的版本，高版本向低版本导入，可能会导入失败。',
             )}
@@ -301,12 +301,12 @@ export default class ImportApp extends React.Component {
                 placement="top"
                 title={_l('将工作表、工作流、角色中的人员部门职位与网络中的进行匹配可保证应用的完整性')}
               >
-                <span className="Gray_bd icon-help1 Font15"></span>
+                <span className="textDisabled icon-help1 Font15"></span>
               </Tooltip>
             </div>
             <button
               type="button"
-              className="ming Button Button--primary Hover_49 importBtn Bold"
+              className="ming Button Button--primary hoverTextPrimaryLight importBtn Bold"
               onClick={() => this.importApp()}
             >
               {_l('立即导入')}

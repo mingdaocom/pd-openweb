@@ -12,7 +12,7 @@ const Row = styled.div`
   margin-bottom: 10px;
   .fieldText {
     height: 36px;
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     border-radius: 3px;
     display: flex;
     align-items: center;
@@ -116,7 +116,7 @@ export default class MapField extends Component {
     return (
       <Row>
         <div className="fieldText flex">
-          <Icon className="Font16 Gray_9e mRight10" icon={getIconByType(item.type)} />
+          <Icon className="Font16 textTertiary mRight10" icon={getIconByType(item.type)} />
           {item.controlName}
           {item.desc && (
             <Tooltip
@@ -127,11 +127,11 @@ export default class MapField extends Component {
                 overflow: { adjustX: true, adjustY: true },
               }}
             >
-              <i className="icon icon-info Gray_bd Hover_21 Hand Font14 mLeft8" />
+              <i className="icon icon-info textDisabled hoverColorPrimary Hand Font14 mLeft8" />
             </Tooltip>
           )}
         </div>
-        <Icon icon="arrow_forward" className="Font16 ThemeColor mLeft16 mRight16" />
+        <Icon icon="arrow_forward" className="Font16 colorPrimary mLeft16 mRight16" />
         <Dropdown
           className="flex"
           menuClass="mapFieldMenuWrap"
@@ -174,7 +174,11 @@ export default class MapField extends Component {
             _l('点击设置')
           ) : (
             <Fragment>
-              <Icon icon="check_circle" className="mRight10 Font18 TxtMiddle" style={{ color: '#4CAF50' }} />
+              <Icon
+                icon="check_circle"
+                className="mRight10 Font18 TxtMiddle"
+                style={{ color: 'var(--color-success)' }}
+              />
               {_l('已设置')}
             </Fragment>
           )}
@@ -189,7 +193,7 @@ export default class MapField extends Component {
           onOk={this.onSave}
         >
           {mapFields.map(item => {
-            return item.isTitle ? <div className="Gray_9e mBottom10">{item.title}</div> : this.renderRow(item);
+            return item.isTitle ? <div className="textTertiary mBottom10">{item.title}</div> : this.renderRow(item);
           })}
         </Dialog>
       </Fragment>

@@ -8,7 +8,7 @@
 .createCustomBtnCon {
   width: 640px;
   height: 100%;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow: 0 16px 30px rgba(0, 0, 0, 0.3);
   z-index: 12;
   .mTop14 {
@@ -21,12 +21,12 @@
 
   .icon-close {
     &:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
 
   .redCon {
-    color: #f44336;
+    color: var(--color-error);
   }
 
   .title {
@@ -36,8 +36,8 @@
     align-items: center;
     justify-content: start;
     font-size: 17px;
-    border-bottom: 1px solid #dddddd;
-    background: #fff;
+    border-bottom: 1px solid var(--color-border-primary);
+    background: var(--color-background-primary);
 
     span {
       flex: 1;
@@ -51,7 +51,7 @@
   .createBtnBox {
     padding: 0 24px 32px;
     .line {
-      border-top: 1px solid #eaeaea;
+      border-top: 1px solid var(--color-border-secondary);
       margin: 32px 0;
     }
 
@@ -64,29 +64,29 @@
     }
 
     input::-webkit-input-placeholder {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
 
     input::-ms-input-placeholder {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
 
     input::-moz-placeholder {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
 
     .nameInput {
       width: 100%;
       height: 36px;
-      border: 1px solid #dddddd;
+      border: 1px solid var(--color-border-primary);
       border-radius: 3px;
-      color: #151515;
+      color: var(--color-text-title);
       padding: 0 12px;
       box-sizing: border-box;
       margin-top: 10px;
 
       &:focus {
-        border: 1px solid #1677ff;
+        border: 1px solid var(--color-primary);
       }
 
       &.errer {
@@ -95,7 +95,7 @@
     }
 
     .errorMessage {
-      color: #f44336;
+      color: var(--color-error);
       padding: 0;
       margin: 0;
       line-height: 1;
@@ -109,23 +109,23 @@
 
     .filterTextCon {
       width: 100%;
-      background: #f8f8f8;
-      border: 1px solid #dddddd;
+      background: var(--color-background-secondary);
+      border: 1px solid var(--color-border-primary);
       border-radius: 3px;
       padding: 16px;
       box-sizing: border-box;
-      color: #151515;
+      color: var(--color-text-title);
       margin-top: 12px;
       display: flex;
       &.createCon {
-        background: #fff;
+        background: var(--color-background-primary);
         display: block;
       }
 
       .txtFilter {
         flex: 1;
         font-size: 13px;
-        color: #151515;
+        color: var(--color-text-title);
         line-height: 24px;
 
         p {
@@ -153,20 +153,20 @@
         width: 20px;
 
         &:hover {
-          color: #1677ff !important;
+          color: var(--color-primary) !important;
         }
       }
 
       .editWorkflow {
         width: auto;
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
 
     .descInput {
       width: 100%;
       min-height: 36px;
-      border: 1px solid #dddddd;
+      border: 1px solid var(--color-border-primary);
       border-radius: 3px;
       padding: 8px 12px 10px;
       box-sizing: border-box;
@@ -174,61 +174,21 @@
     }
   }
 
-  .createActionCon {
-    height: 66px;
-    width: 100%;
-    background: #f5f5f5;
-    padding: 0 24px;
-    box-sizing: border-box;
-
-    span {
-      display: inline-block;
-      height: 36px;
-      padding: 0 24px;
-      border-radius: 3px;
-      box-sizing: border-box;
-      margin-top: 15px;
-      line-height: 36px;
-      cursor: pointer;
-    }
-
-    .addBtn {
-      background: #1677ff;
-      color: #fff;
-      padding: 0 32px;
-
-      &:hover {
-        background-color: #1565c0;
-      }
-
-      &.disable {
-        opacity: 0.5;
-      }
-    }
-
-    .cacleBtn {
-      background: #fff;
-      border: 1px solid #1677ff;
-      color: #1677ff;
-      margin-left: 16px;
-      padding: 0 32px;
-    }
-  }
   .conBox {
     min-width: 140px;
     height: 36px;
-    background: #ffffff;
-    border: 1px solid #dddddd;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-primary);
     opacity: 1;
     border-radius: 3px;
     padding: 4px;
     .colorCon {
       width: 102px;
       height: 28px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border-secondary);
       opacity: 1;
       border-radius: 3px;
-      color: #fff;
+      color: var(--color-white);
     }
   }
 }
@@ -239,7 +199,7 @@
     margin: 0;
     line-height: 1;
     font-size: 13px;
-    color: #151515;
+    color: var(--color-text-title);
     font-weight: 500;
   }
 
@@ -247,7 +207,7 @@
   input {
     width: 100%;
     box-sizing: border-box;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 3px;
     height: 36px;
     line-height: 36px;
@@ -304,7 +264,7 @@
 
       .editAppointFilters,
       .editAppointFiltersTxt {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
 
@@ -318,19 +278,19 @@
         min-height: 36px;
 
         .editAppointFilters:hover {
-          color: #f44336 !important;
+          color: var(--color-error) !important;
         }
 
         .widget {
           padding: 0 8px;
-          background: #f8f8f8;
+          background: var(--color-background-secondary);
           border-radius: 4px;
           height: 36px;
           line-height: 36px;
         }
         .isErr {
-          background: #fee7e7;
-          color: #f44336;
+          background: var(--color-error-bg);
+          color: var(--color-error);
           .iconErr {
             position: absolute;
             right: 0;
@@ -368,18 +328,18 @@
     display: inline-block;
     height: 36px;
     line-height: 36px;
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     border-radius: 4px;
     padding: 0 17px;
     box-sizing: border-box;
-    color: #1677ff;
+    color: var(--color-primary);
     cursor: pointer;
     margin-top: 10px;
     i {
       vertical-align: -1px;
     }
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
 
@@ -414,8 +374,8 @@
 .buttonTrigger {
   min-width: 200px;
   max-width: 400px;
-  background: #ffffff;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.24);
+  background: var(--color-background-primary);
+  box-shadow: var(--shadow-lg);
   opacity: 1;
   border-radius: 3px;
   padding: 16px;
@@ -438,7 +398,7 @@
     }
 
     .check {
-      color: #fff;
+      color: var(--color-white);
       vertical-align: middle;
       font-size: 18px;
     }
@@ -455,7 +415,7 @@
       line-height: 27px;
       text-align: center;
       display: inline-block;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       margin: 4px;
       font-size: 22px;
       vertical-align: top;
@@ -463,12 +423,12 @@
       border: none;
 
       &:hover {
-        background: #f5f5f5;
+        background: var(--color-background-hover);
       }
 
       &.current {
-        color: #fff;
-        background: #1677ff;
+        color: var(--color-white);
+        background: var(--color-primary);
       }
     }
 
@@ -479,11 +439,11 @@
   }
   .moreIcon {
     padding: 6px 10px;
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     border-radius: 3px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
       background: rgba(33, 150, 243, 0.1);
     }
   }

@@ -12,7 +12,7 @@ export const SwitchStyle = styled.div`
       color: #00c345;
     }
     &-ic_toggle_off {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
   }
 `;

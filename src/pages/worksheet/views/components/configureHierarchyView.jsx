@@ -36,7 +36,7 @@ const HierarchyViewConfigWrap = styled.div`
     }
     .controlName {
       margin: 0 4px 0 12px;
-      color: #151515;
+      color: var(--color-text-title);
     }
     li {
       display: flex;
@@ -50,7 +50,7 @@ const HierarchyViewConfigWrap = styled.div`
       .controlInfo {
         width: 260px;
         position: relative;
-        background-color: #f8f8f8;
+        background-color: var(--color-background-secondary);
         margin-left: 10px;
         border-radius: 3px;
       }
@@ -64,7 +64,7 @@ const HierarchyViewConfigWrap = styled.div`
     .addRelate {
       margin-top: 6px;
       width: 280px;
-      color: #1677ff;
+      color: var(--color-primary);
       font-weight: bold;
     }
   }
@@ -74,10 +74,10 @@ const HierarchyViewConfigWrap = styled.div`
     }
     .emptyHint {
       border-radius: 3px;
-      color: #757575;
+      color: var(--color-text-secondary);
       line-height: 34px;
       padding: 0 12px;
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
     }
   }
   .settingItemTitle {
@@ -113,6 +113,13 @@ export default function HierarchyViewConfig({
     if (singleRelate) {
       handleSelect({ viewControl: singleRelate, childType: 1 });
       return;
+    }
+    // 当前工作表中没有符合的字段，将自动为您添加一个时，需主动清除缓存
+    if (!isRelateOtherSheet && fields.length <= 0) {
+      window.clearLocalDataTime({
+        requestData: { worksheetId: worksheetInfo.worksheetId },
+        clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetBaseInfo'],
+      });
     }
     handleSelect({ viewControl: 'create', childType: 1 });
   };

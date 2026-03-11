@@ -156,7 +156,7 @@ const MobilePersonalInfo = props => {
                   {isMask && !hideMask ? maskValue(value, id) : value}
                   {isMask && !hideMask && (
                     <span className="mLeft10" onClick={() => showMaskInfo(id)}>
-                      <i className="icon icon-eye_off Gray_bd" />
+                      <i className="icon icon-eye_off textDisabled" />
                     </span>
                   )}
                 </Fragment>

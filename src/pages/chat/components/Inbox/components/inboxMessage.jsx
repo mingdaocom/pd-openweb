@@ -27,6 +27,7 @@ export default function InboxMessage(_props) {
     case MSGTYPES.WorkFlowTaskMessage:
     case MSGTYPES.WorkFlowUserTaskMessage:
     case MSGTYPES.WorkFlowSendTaskMessage:
+    case MSGTYPES.WorkFlowSendMessage:
       return <SystemMessage {...props} />;
     // 各种动态 回复我的 或者 回复我的回复
     case MSGTYPES.PostReply:

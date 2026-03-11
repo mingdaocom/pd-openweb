@@ -20,12 +20,12 @@ const ToolBarWrap = styled(FlexCenter)`
   position: absolute;
   bottom: 20px;
   right: 20px;
-  background-color: #fff;
+  background-color: var(--color-background-card);
   border-radius: 26px;
   height: 44px;
   padding: 0 22px 0 16px;
   z-index: 9;
-  box-shadow: rgba(0, 0, 0, 0.24) 0px 1px 6px;
+  box-shadow: var(--shadow-md);
   ${props =>
     props.isMobile &&
     css`
@@ -38,15 +38,18 @@ const ToolBarWrap = styled(FlexCenter)`
       .line {
         height: 20px;
         margin: 10px 0 10px 10px;
-        border: 1px solid #e0e0e0;
+        border: 1px solid var(--color-border-secondary);
       }
     `};
   .adjustScale {
     display: flex;
     align-items: center;
     .searchIcon {
-      color: #757575;
+      color: var(--color-text-secondary);
     }
+  }
+  .ant-select-selector {
+    border: none !important;
   }
   .toOrigin {
     margin: 0 12px;
@@ -61,7 +64,7 @@ const ToolBarWrap = styled(FlexCenter)`
   }
   .scale {
     font-size: 13px;
-    color: #515151;
+    color: var(--color-text-title);
   }
   .expand {
     .Dropdown--input {
@@ -92,7 +95,7 @@ const SelectWrap = styled(Select)`
   }
   &:hover {
     .icon-arrow-down {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
 `;
@@ -190,11 +193,11 @@ export default class ToolBar extends Component {
         {isMobile ? (
           <div onClick={this.changeMobileDisplayLevel}>
             {(_.find(DISPLAY_HIERARCHY, v => v.value === level) || {}).name || _l('展开')}
-            <Icon className="Font12 Gray_9e mLeft6" icon="arrow-down" />
+            <Icon className="Font12 textTertiary mLeft6" icon="arrow-down" />
           </div>
         ) : (
           <SelectWrap
-            suffixIcon={<Icon className="Font12 Gray_9e" icon="arrow-down" />}
+            suffixIcon={<Icon className="Font12 textTertiary" icon="arrow-down" />}
             defaultActiveFirstOption={false}
             defaultOpen={false}
             dropdownClassName="gunterToolBarSelectWrapper"
@@ -216,7 +219,7 @@ export default class ToolBar extends Component {
             {!isMobile ? <div className="scale">{`${scale}%`}</div> : null}
             <Tooltip title={isMobile ? null : <span>{_l('缩小')}</span>}>
               <Icon
-                className={cx('Font19 Gray_75 pointer mRight12 mLeft12', {
+                className={cx('Font19 textSecondary pointer mRight12 mLeft12', {
                   disableAdjustSize: scale <= SCALE_LIMIT.min,
                 })}
                 icon="minus"
@@ -225,7 +228,7 @@ export default class ToolBar extends Component {
             </Tooltip>
             <Tooltip title={isMobile ? null : <span>{_l('放大')}</span>}>
               <Icon
-                className={cx('Font19 Gray_75 pointer mLeft6', {
+                className={cx('Font19 textSecondary pointer mLeft6', {
                   disableAdjustSize: scale >= SCALE_LIMIT.max,
                 })}
                 icon="add1"
@@ -256,7 +259,11 @@ export default class ToolBar extends Component {
         )}
         {initExport && hierarchyTopLevelDataCount < 200 && allowExportAsImage && !isMobile && (
           <Tooltip title={_l('导出为图片')}>
-            <Icon icon="download" className="Gray_75 Font18 pointer mLeft24" onClick={() => onClick('genScreenshot')} />
+            <Icon
+              icon="download"
+              className="textSecondary Font18 pointer mLeft24"
+              onClick={() => onClick('genScreenshot')}
+            />
           </Tooltip>
         )}
         {customButtons}

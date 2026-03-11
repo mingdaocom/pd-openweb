@@ -20,32 +20,32 @@ const TOOL_CALL_CARD_TYPES = {
 const TOOL_CALL_CARD_CONFIG = {
   [TOOL_CALL_CARD_TYPES.UPDATE_RECORD]: {
     type: TOOL_CALL_CARD_TYPES.UPDATE_RECORD,
-    name: '更新记录',
+    name: _l('更新记录'),
     icon: 'icon-workflow_update',
   },
   [TOOL_CALL_CARD_TYPES.CREATE_RECORD]: {
     type: TOOL_CALL_CARD_TYPES.CREATE_RECORD,
-    name: '新增记录',
+    name: _l('新增记录'),
     icon: 'icon-playlist_add',
   },
   [TOOL_CALL_CARD_TYPES.API]: {
     type: TOOL_CALL_CARD_TYPES.API,
-    name: '集成 API',
+    name: _l('集成 API'),
     icon: 'icon-api',
   },
   [TOOL_CALL_CARD_TYPES.PBP]: {
     type: TOOL_CALL_CARD_TYPES.PBP,
-    name: '封装业务流程',
+    name: _l('封装业务流程'),
     icon: 'icon-pbc',
   },
   [TOOL_CALL_CARD_TYPES.SEND]: {
     type: TOOL_CALL_CARD_TYPES.SEND,
-    name: '发送站内通知',
+    name: _l('发送站内通知'),
     icon: 'icon-notifications',
   },
   [TOOL_CALL_CARD_TYPES.EMAIL]: {
     type: TOOL_CALL_CARD_TYPES.EMAIL,
-    name: '发送邮件',
+    name: _l('发送邮件'),
     icon: 'icon-workflow_email',
   },
 };
@@ -76,37 +76,37 @@ const Con = styled.div`
 `;
 
 const CardCon = styled.div`
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   border-radius: 6px;
   margin-bottom: 12px;
   max-width: 100%;
   .card-header {
     height: 40px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     padding: 0 16px 0 12px;
     .tool-icon {
       width: 24px;
       height: 24px;
       margin-right: 8px;
       font-size: 16px;
-      color: #fff;
+      color: var(--color-white);
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #f9e6ff;
-      color: #5b00a6;
+      background: var(--color-mingo-transparent);
+      color: var(--color-mingo-dark);
     }
     .tool-name {
       font-size: 14px;
       font-weight: bold;
-      color: #151515;
+      color: var(--color-text-title);
       max-width: 160px;
     }
     .secondary-tool-name {
       margin-left: 10px;
       font-size: 14px;
-      color: #151515;
+      color: var(--color-text-title);
     }
   }
   .card-body {
@@ -120,7 +120,7 @@ const CardCon = styled.div`
       &.needConfirm {
         cursor: pointer;
         &:hover {
-          background: #f5f5f5;
+          background: var(--color-background-hover);
         }
       }
     }
@@ -131,11 +131,11 @@ const JSONDataCon = styled.div`
   padding: 16px;
   width: 100%;
   height: 100%;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   padding: 10px 16px;
   .title {
     font-size: 12px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     margin-bottom: 5px;
   }
 `;
@@ -211,7 +211,7 @@ function FunctionCallCard(props) {
         {!isFolded && (
           <Fragment>
             <div className="t-flex-1"></div>
-            <div className="tool-calls-message-fold Gray_75 Font20 Hand" onClick={() => setIsFolded(true)}>
+            <div className="tool-calls-message-fold textSecondary Font20 Hand" onClick={() => setIsFolded(true)}>
               <i className="icon icon-arrow-up-border1"></i>
             </div>
           </Fragment>

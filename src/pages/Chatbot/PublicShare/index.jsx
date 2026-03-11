@@ -9,19 +9,20 @@ import { LoadDiv } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
 import { SHARE_STATE, ShareState, VerificationPass } from 'worksheet/components/ShareState';
 import preall from 'src/common/preall';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import chatBotDefaultIcon from 'src/pages/Chatbot/assets/profile.png';
 import Content from './Content';
 import Header from './Header';
 import './index.less';
 
 const Wrap = styled.div`
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   .header {
     height: 44px;
     padding: 0 24px;
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.16);
     justify-content: space-between;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     z-index: 1;
   }
 `;
@@ -31,6 +32,7 @@ const Entry = () => {
   const id = pathname[pathname.length - 1];
   const [loading, setLoading] = useState(true);
   const [share, setShare] = useState({});
+  const [errorCode, setErrorCode] = useState(null);
   const isSmallMode = window.innerWidth < 880;
   useEffect(() => {
     const clientId = sessionStorage.getItem(id);
@@ -38,30 +40,39 @@ const Entry = () => {
 
     getEntityShareById({
       clientId,
-    }).then(async result => {
-      const { data } = result;
-      const { projectId } = data || {};
-      localStorage.setItem('currentProjectId', projectId);
-      preall(
-        { type: 'function' },
-        {
-          allowNotLogin: true,
-          requestParams: { projectId },
-        },
-      );
+    })
+      .then(async result => {
+        const { data } = result;
+        const { projectId } = data || {};
+        localStorage.setItem('currentProjectId', projectId);
+        preall(
+          { type: 'function' },
+          {
+            allowNotLogin: true,
+            requestParams: { projectId },
+          },
+        );
 
-      setShare(result);
-      setLoading(false);
-    });
+        setShare(result);
+        setLoading(false);
+      })
+      .catch(err => {
+        setLoading(false);
+        setErrorCode(err.errorCode);
+      });
   }, []);
 
   const getEntityShareById = data => {
-    return new Promise(async resolve => {
-      const result = await appManagementApi.getEntityShareById({ id, sourceType: 71, ...data });
-      const clientId = _.get(result, 'data.clientId');
-      window.clientId = clientId;
-      clientId && sessionStorage.setItem(id, clientId);
-      resolve(result);
+    return new Promise(async (resolve, reject) => {
+      try {
+        const result = await appManagementApi.getEntityShareById({ id, sourceType: 71, ...data });
+        const clientId = _.get(result, 'data.clientId');
+        window.clientId = clientId;
+        clientId && sessionStorage.setItem(id, clientId);
+        resolve(result);
+      } catch (err) {
+        reject(err);
+      }
     });
   };
 
@@ -71,6 +82,10 @@ const Entry = () => {
         <LoadDiv />
       </div>
     );
+  }
+
+  if (errorCode === 300016) {
+    return <RestrictAccessStatus />;
   }
 
   const renderContent = ({ title, updateTime, chatbotId, conversationId }) => {
@@ -113,6 +128,7 @@ const Entry = () => {
     <Wrap className={cx('flexColumn h100')}>
       <DocumentTitle title={title} />
       <Header
+        isAiAction={share.data?.sourceType === 72}
         error={share.resultCode !== 1}
         isSmallMode={isSmallMode}
         title={title}
@@ -128,6 +144,7 @@ const Entry = () => {
       {isSmallMode && (
         <Header
           error={share.resultCode !== 1}
+          isAiAction={share.data?.sourceType === 72}
           isSmallMode={isSmallMode}
           isShare
           isFooter

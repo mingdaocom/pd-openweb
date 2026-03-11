@@ -169,7 +169,7 @@ export default function (props) {
           <div className="title mTop40 Bold TxtMiddle">
             {unionId && state && tpType && (
               <div
-                className="Font22 Hand back Gray_75 ThemeHoverColor3 InlineBlock"
+                className="Font22 Hand back textSecondary ThemeHoverColor3 InlineBlock"
                 onClick={() => {
                   navigateTo('/login');
                 }}
@@ -186,7 +186,7 @@ export default function (props) {
             {inviteInfo.fromType === InviteFromType.project && createUserName ? (
               <React.Fragment>
                 <div className="Font20 Bold">{loadProjectName ? '' : projectNameLang || htmlDecodeReg(titleStr)}</div>
-                <div className="Gray_9e Font14 Bold">{_l('%0邀请您加入组织', createUserName)}</div>
+                <div className="textTertiary Font14 Bold">{_l('%0邀请您加入组织', createUserName)}</div>
               </React.Fragment>
             ) : (
               <React.Fragment>
@@ -204,7 +204,7 @@ export default function (props) {
       {isTel(emailOrTel) && dialCode !== '+86' && keys.includes('code') && (
         <div className="messageBox">
           <div
-            className={cx('termsText Gray canSendCodeByTel mesDiv', {
+            className={cx('termsText textPrimary canSendCodeByTel mesDiv', {
               hasValue: canSendCodeByTel || focusDiv === 'canSendCodeByTel',
               errorDiv: warn,
               warnDiv: warn && warn.noErr,
@@ -231,7 +231,7 @@ export default function (props) {
       {!(isLink && loginForAdd) && (
         <div className="messageBox">
           <div
-            className={cx('termsText Gray privacyText mesDiv', {
+            className={cx('termsText textPrimary privacyText mesDiv', {
               hasValue: hasCheckPrivacy || focusDiv === 'privacyText',
               errorDiv: warnPrivate,
               warnDiv: warnPrivate,
@@ -280,7 +280,7 @@ export default function (props) {
       <React.Fragment>
         {createAccountLoading && <div className="loadingLine"></div>}
         {isLink && loginForAdd && (
-          <p className="termsText Gray_75">
+          <p className="termsText textSecondary">
             <a target="_blank" onClick={() => navigateTo('/findPassword')}>
               {_l('忘记密码？')}
             </a>

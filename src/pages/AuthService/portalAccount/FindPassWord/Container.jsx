@@ -13,12 +13,12 @@ const Wrap = styled.div`
   ul {
     justify-content: space-between;
     & > li span {
-      color: #757575;
+      color: var(--color-text-secondary);
       padding-bottom: 8px;
-      border-bottom: 1px solid #fff;
+      border-bottom: 1px solid var(--color-white);
       &.isCur {
-        color: #1677ff;
-        border-bottom: 1px solid #1677ff;
+        color: var(--color-primary);
+        border-bottom: 1px solid var(--color-primary);
       }
     }
   }

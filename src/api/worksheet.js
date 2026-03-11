@@ -298,6 +298,31 @@ export default {
     return mdyAPI('Worksheet', 'GetAttachmentDetail', args, options);
   },
   /**
+   * 获取附件列表
+   * @param {Object} args 请求参数
+   * @param {string} args.worksheetId 工作表id
+   * @param {string} args.rowId 行id
+   * @param {} args.getType
+   * @param {string} args.viewId 视图Id
+   * @param {string} args.appId 应用Id
+   * @param {string} args.instanceId 流程实例id
+   * @param {string} args.workId 运行节点id
+   * @param {boolean} args.getTemplate 是否获取模板
+   * @param {string} args.shareId 分享页获取关联记录iD
+   * @param {boolean} args.checkView 是否验证视图
+   * @param {string} args.relationWorksheetId 关联控件ID
+   * @param {string} args.discussId 讨论ID
+   * @param {integer} args.langType //语言类型
+   * @param {string} args.controlId 预览附件的控件id
+   * @param {string} args.fileId 当前预览的附件id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getAttachmentList: function (args, options = {}) {
+    return mdyAPI('Worksheet', 'GetAttachmentList', args, options);
+  },
+  /**
    * 获取 附件分享Id
    * @param {Object} args 请求参数
    * @param {string} args.appId 应用Id
@@ -394,6 +419,7 @@ export default {
    * @param {Object} args 请求参数
    * @param {string} args.worksheetId 工作表id
    * @param {string} args.rowId 行id
+   * @param {array} args.rowIds 行id列表 某些场景使用 如批量打印
    * @param {string} args.controlId 控件id
    * @param {integer} args.pageIndex 页码
    * @param {integer} args.pageSize 页大小
@@ -765,6 +791,54 @@ export default {
   **/
   getFilterRows: function (args, options = {}) {
     return mdyAPI('Worksheet', 'GetFilterRows', args, options);
+  },
+  /**
+  * 选择关联记录
+  * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
+  * @param {string} args.worksheetId 工作表id
+  * @param {} args.getType
+  * @param {array} args.filterControls 查询列
+  * @param {array} args.fastFilters 快速筛选
+  * @param {array} args.navGroupFilters 导航分组筛选
+  * @param {array} args.filtersGroup 筛选组件筛选
+  * @param {array} args.sortControls 排序列
+  * @param {string} args.keyWords 关键词
+  * @param {integer} args.pageSize 页大小
+  * @param {integer} args.pageIndex 页码
+  * @param {} args.searchType
+  * @param {} args.status
+  * @param {boolean} args.isUnRead 是否已读
+  * @param {boolean} args.isGetWorksheet 是否查询工作表的详情
+  * @param {string} args.viewId 视图Id
+  * @param {string} args.appId 应用Id
+  * @param {string} args.relationWorksheetId relationWorksheetId
+  * @param {string} args.relationViewId RelationViewId
+  * @param {string} args.rowId 行id
+  * @param {string} args.controlId 控件Id
+  * @param {string} args.kanbanKey 全部看板，&#34;-1&#34;:无等于或无选项单看板，&#34;key&#34;:单看板数据,
+  * @param {integer} args.layer 层级视图加载层数
+  * @param {string} args.beginTime 开始时间 日历视图
+  * @param {string} args.endTime 结束时间 日历视图
+  * @param {integer} args.kanbanSize 页大小
+  * @param {integer} args.kanbanIndex 页码
+  * @param {string} args.formId 公开表单ID
+  * @param {string} args.linkId 填写链接id
+  * @param {string} args.reportId 统计图ID
+  * @param {boolean} args.notGetTotal 不获取总记录数
+  * @param {object} args.requestParams 请求参数
+  * @param {integer} args.langType //语言类型
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+  chooseRelationRows: function (args, options = {}) {
+    return mdyAPI('Worksheet', 'ChooseRelationRows', args, options);
   },
   /**
   * 工作表查询默认值获取
@@ -1291,6 +1365,7 @@ export default {
    * @param {integer} args.status 状态 1：正常 9：回收站
    * @param {array} args.btnIds 批量获取按钮的id
    * @param {array} args.rowIds
+   * @param {integer} args.btnType -1:全部 0：按钮 1：AI Action
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -1309,6 +1384,7 @@ export default {
    * @param {integer} args.status 状态 1：正常 9：回收站
    * @param {array} args.btnIds 批量获取按钮的id
    * @param {array} args.rowIds
+   * @param {integer} args.btnType -1:全部 0：按钮 1：AI Action
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -1327,6 +1403,7 @@ export default {
    * @param {integer} args.status 状态 1：正常 9：回收站
    * @param {array} args.btnIds 批量获取按钮的id
    * @param {array} args.rowIds
+   * @param {integer} args.btnType -1:全部 0：按钮 1：AI Action
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -1345,6 +1422,7 @@ export default {
    * @param {integer} args.status 状态 1：正常 9：回收站
    * @param {array} args.btnIds 批量获取按钮的id
    * @param {array} args.rowIds
+   * @param {integer} args.btnType -1:全部 0：按钮 1：AI Action
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -1373,6 +1451,7 @@ export default {
    * @param {string} args.btnId
    * @param {string} args.name
    * @param {string} args.worksheetId
+   * @param {integer} args.btnType 按钮类型 1：AI Action
    * @param {integer} args.showType 1:一直 2：满足筛选条件
    * @param {array} args.filters 筛选条件
    * @param {array} args.displayViews 显示视图
@@ -1721,6 +1800,21 @@ export default {
    **/
   getPrintList: function (args, options = {}) {
     return mdyAPI('Worksheet', 'GetPrintList', args, options);
+  },
+  /**
+   * 获取系统打印详情页列表
+   * @param {Object} args 请求参数
+   * @param {string} args.appId
+   * @param {string} args.worksheetId
+   * @param {string} args.viewId
+   * @param {string} args.printId
+   * @param {array} args.rowIds
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getPrintDetailList: function (args, options = {}) {
+    return mdyAPI('Worksheet', 'GetPrintDetailList', args, options);
   },
   /**
    * 获取 表单组件
@@ -2496,6 +2590,10 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
    * @param {boolean} args.edited 是否允许修改
    * @param {array} args.sortRelationCids 强制排序导出的关联控件id集合
    * @param {boolean} args.isNumber 控件是否以数值格式导出
+   * @param {boolean} args.previewed 导出附件
+   * @param {boolean} args.exportId 导出id
+   * @param {boolean} args.exportJob 导出工号
+   * @param {boolean} args.speed 加速导出
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

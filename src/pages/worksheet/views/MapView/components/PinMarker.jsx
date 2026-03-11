@@ -26,7 +26,7 @@ const wrapStyles = `
     width: 48px;
     height: 16px;
     background: rgba(255, 147, 0, 0.3);
-    border: 1px solid #ff9300;
+    border: 1px solid var(--color-warning);
     border-radius: 100%;
     position: absolute;
     top: 24px;
@@ -45,7 +45,7 @@ const wrapStyles = `
   background-color: transparent;
   border-radius: 4px;
   font-size: 13px;
-  color: #151515;
+  color: var(--color-text-title);
   position: relative;
   .text {
     display: inline-block;
@@ -98,11 +98,11 @@ const PinCardCon = styled.div`
   flex-direction: row;
   width: 300px;
   border-radius: 3px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow:
     rgba(0, 0, 0, 0.12) 0px 1px 4px 0px,
     rgba(0, 0, 0, 0.12) 0px 0px 2px 0px;
-  color: #151515;
+  color: var(--color-text-title);
   display: block;
   overflow: hidden;
   &.active {
@@ -139,13 +139,13 @@ function getTagColor(tagType, colorControl, record = {}) {
     } catch (err) {
       console.log(err);
       return {
-        color: '#151515',
+        color: 'var(--color-text-title)',
         bgColor: '#fff',
       };
     }
   } else {
     return {
-      color: '#151515',
+      color: 'var(--color-text-title)',
       bgColor: '#fff',
     };
   }
@@ -251,7 +251,7 @@ export default function MarkerCard(props) {
           <Icon
             icon="location_on"
             className="Font34 pinIcon"
-            style={{ color: recordColor?.color ? `${recordColor.color}` : '#f44336' }}
+            style={{ color: recordColor?.color ? `${recordColor.color}` : 'var(--color-error)' }}
             onMouseOver={() => setActive(true)}
             onMouseOut={() => setActive(false)}
             onTouchStartCapture={() => setActive(!active)}

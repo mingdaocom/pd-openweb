@@ -4,7 +4,7 @@ import { Select } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Button, Dialog, Icon, Input, LoadDiv, QiniuUpload, Support } from 'ming-ui';
+import { Button, Dialog, Input, LoadDiv, QiniuUpload, Support } from 'ming-ui';
 import { captcha } from 'ming-ui/functions';
 import accountApi from 'src/api/account';
 import merchantInvoiceApi from 'src/api/merchantInvoice';
@@ -20,7 +20,7 @@ import { STEPS } from '../config';
 
 const DivideLine = styled.div`
   width: 1px;
-  border-right: 1px solid #f0f0f0;
+  border-right: 1px solid var(--color-background-disabled);
   margin: -24px 34px 0 30px;
 `;
 
@@ -28,9 +28,9 @@ const Description = styled.div`
   background: rgba(33, 150, 243, 0.05);
   border-radius: 5px;
   padding: 8px 10px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   margin-bottom: 32px;
-  color: #151515;
+  color: var(--color-text-title);
 `;
 
 const StepContentWrap = styled.div`
@@ -44,10 +44,10 @@ const StepContentWrap = styled.div`
 
   .formLabelText {
     font-weight: 600;
-    color: #757575;
+    color: var(--color-text-secondary);
     margin: 20px 0 6px;
     .required {
-      color: #f44336;
+      color: var(--color-error);
       font-weight: bold;
       font-size: 14px;
     }
@@ -55,55 +55,55 @@ const StepContentWrap = styled.div`
   .tips {
     font-size: 12px;
     margin-top: 10px;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
 
   .certLink {
     height: 36px;
     line-height: 36px;
     border-radius: 3px;
-    background: #f7f7f7;
-    border: 1px solid #e0e0e0;
-    color: #1677ff;
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-border-secondary);
+    color: var(--color-primary);
     padding-left: 12px;
     cursor: pointer;
     &:hover {
-      color: #1565c0;
+      color: var(--color-link-hover);
     }
   }
   .taxNoInput {
     height: 36px;
-    background: #fafafa;
+    background: var(--color-background-secondary);
     border-radius: 3px;
     line-height: 36px;
     padding: 0 10px;
   }
   input {
     font-size: 13px !important;
-    border-color: #ddd !important;
+    border-color: var(--color-border-primary) !important;
     &::placeholder {
-      color: #bdbdbd !important;
+      color: var(--color-text-disabled) !important;
     }
     &:hover {
-      border-color: #bbb !important;
+      border-color: var(--color-text-disabled) !important;
     }
     &:focus {
-      border-color: #1677ff !important;
+      border-color: var(--color-primary) !important;
     }
     &:disabled {
-      background-color: #fafafa;
+      background-color: var(--color-background-secondary);
     }
   }
   .line {
     height: 1px;
-    background: #f0f0f0;
+    background: var(--color-background-disabled);
     margin: 10px 0 20px;
   }
   .secretWrap {
     width: 50%;
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     border-radius: 3px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
     padding: 14px 16px 4px 20px;
     align-items: center;
     .icon-edit {
@@ -119,7 +119,7 @@ export default function CreateTaxNumber(props) {
   const { projectId, curTaxNo, curTaxInfo } = props;
   const [step, setStep] = useState(curTaxNo ? 2 : 0);
   const [data, setData] = useSetState(
-    md.global.Config.IsLocal && curTaxNo && curTaxInfo
+    (window.platformENV.isOverseas || window.platformENV.isLocal) && curTaxNo && curTaxInfo
       ? {
           companyName: curTaxInfo.companyName,
           taxNo: curTaxInfo.taxNo,
@@ -129,7 +129,7 @@ export default function CreateTaxNumber(props) {
   );
 
   //第一步
-  const [loading, setLoading] = useState(!md.global.Config.IsLocal);
+  const [loading, setLoading] = useState(!window.platformENV.isOverseas && !window.platformENV.isLocal);
   const [certList, setCertList] = useState([]);
   const [codeSending, setCodeSending] = useState(false);
   const [sendCodeText, setSendCodeText] = useState(_l('获取验证码'));
@@ -177,7 +177,7 @@ export default function CreateTaxNumber(props) {
   };
 
   const getData = () => {
-    if (md.global.Config.IsLocal) {
+    if (window.platformENV.isOverseas || window.platformENV.isLocal) {
       return;
     }
 
@@ -260,7 +260,7 @@ export default function CreateTaxNumber(props) {
   };
 
   const onValidate = () => {
-    if (!md.global.Config.IsLocal) {
+    if (!window.platformENV.isOverseas && !window.platformENV.isLocal) {
       if (!taxNo) {
         alert(_l('开票主体不能为空'), 3);
         return;
@@ -431,7 +431,13 @@ export default function CreateTaxNumber(props) {
             <Step
               key={index}
               title={item.title}
-              disabled={step === 0 && !taxId ? index > 0 : md.global.Config.IsLocal ? false : index === 0}
+              disabled={
+                step === 0 && !taxId
+                  ? index > 0
+                  : window.platformENV.isOverseas || window.platformENV.isLocal
+                    ? false
+                    : index === 0
+              }
               status={step === index ? 'process' : index < step ? 'finish' : ''}
             />
           );
@@ -442,7 +448,7 @@ export default function CreateTaxNumber(props) {
       <StepContentWrap className="flex">
         <Description>
           {step === 0 &&
-            (!md.global.Config.IsLocal ? (
+            (!window.platformENV.isOverseas && !window.platformENV.isLocal ? (
               <Fragment>
                 <div>
                   {_l('1、完成组织的企业认证或已有支付商户号即可创建开票税号。每个开票税号开通后，享有 7 天免费试用')}
@@ -488,16 +494,13 @@ export default function CreateTaxNumber(props) {
             ))}
           {step === 1 && (
             <div>
-              <span>
-                {_l('请您先在百望完成企业信息与登录验证等配置，否则无法开票。')}
-                {md.global.Config.IsLocal ? '' : _l('具体操作步骤请查看')}
-              </span>
-              {!md.global.Config.IsLocal && (
+              <span>{_l('请您先在百望完成企业信息与登录验证等配置，否则无法开票。')}</span>
+              {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
                 <Support
                   className="mBottom2"
                   type={3}
                   href="https://help.mingdao.com/org/invoice"
-                  text={_l('帮助文档')}
+                  text={_l('查看帮助文档')}
                 />
               )}
             </div>
@@ -516,11 +519,11 @@ export default function CreateTaxNumber(props) {
           ) : (
             <Fragment>
               <div className="title">{_l('填写开票税号')}</div>
-              {md.global.Config.IsLocal && (
+              {(window.platformENV.isOverseas || window.platformENV.isLocal) && (
                 <div className="bold mTop12">
                   <span>{_l('请前往')}</span>
                   <span
-                    className="mLeft5 mRight5 ThemeColor ThemeHoverColor2 pointer"
+                    className="mLeft5 mRight5 colorPrimary ThemeHoverColor2 pointer"
                     onClick={() => window.open('https://work.baiwang.com')}
                   >
                     {_l('百望发票-开放平台')}
@@ -533,7 +536,7 @@ export default function CreateTaxNumber(props) {
                 <span className="required">*</span>
               </div>
 
-              {md.global.Config.IsLocal ? (
+              {window.platformENV.isOverseas || window.platformENV.isLocal ? (
                 <Input
                   className="w100"
                   placeholder={_l('请输入开票主体')}
@@ -542,8 +545,8 @@ export default function CreateTaxNumber(props) {
                   onChange={value => setData({ companyName: value })}
                 />
               ) : _.isEmpty(certList) ? (
-                <div className="certLink" onClick={() => navigateTo(`/admin/sysinfo/${projectId}`)}>
-                  {_l('完成组织认证')}
+                <div className="certLink" onClick={() => navigateTo(`/admin/certinfo/${projectId}`)}>
+                  {_l('完成企业认证')}
                 </div>
               ) : (
                 <Select
@@ -558,14 +561,16 @@ export default function CreateTaxNumber(props) {
 
               <div className="tips">
                 {_l('创建后不能更换且不能删除，') +
-                  (md.global.Config.IsLocal ? _l('请谨慎填写已付费的主体') : _l('请谨慎选择'))}
+                  (window.platformENV.isOverseas || window.platformENV.isLocal
+                    ? _l('请谨慎填写已付费的主体')
+                    : _l('请谨慎选择'))}
               </div>
 
               <div className="formLabelText">
                 {_l('企业税号(统一社会信用代码)')}
-                {md.global.Config.IsLocal && <span className="required">*</span>}
+                {window.platformENV.isOverseas || (window.platformENV.isLocal && <span className="required">*</span>)}
               </div>
-              {md.global.Config.IsLocal ? (
+              {window.platformENV.isOverseas || window.platformENV.isLocal ? (
                 <Input
                   className="w100"
                   placeholder={_l('请输入企业税号')}
@@ -577,11 +582,11 @@ export default function CreateTaxNumber(props) {
                 <div className="taxNoInput">{taxNo}</div>
               )}
 
-              {md.global.Config.IsLocal ? (
+              {window.platformENV.isOverseas || window.platformENV.isLocal ? (
                 taxId ? (
                   <Fragment>
                     <div className="line"></div>
-                    <div className="Gray_75 mBottom5 bold">{_l('百望账户信息')}</div>
+                    <div className="textSecondary mBottom5 bold">{_l('百望账户信息')}</div>
                     <div className="secretWrap flexRow Relative">
                       <div className="flex">
                         {[
@@ -599,13 +604,13 @@ export default function CreateTaxNumber(props) {
                       </div>
                       <div>
                         <i
-                          className="icon icon-edit Gray_9d Hand Hover_21 Font18 Absolute"
+                          className="icon icon-edit textTertiary Hand hoverColorPrimary Font18 Absolute"
                           onClick={() => setPwdDialogVisible(true)}
                         />
                       </div>
                     </div>
-                    <div className="Gray_75 Font12 mTop10 mBottom20">
-                      <i className="icon icon-error1 Gray_9d mRight5" />
+                    <div className="textSecondary Font12 mTop10 mBottom20">
+                      <i className="icon icon-error1 textTertiary mRight5" />
                       {_l('出于安全考虑，原始账号信息不能直接编辑，点击上方按钮进行替换更新')}
                     </div>
                   </Fragment>
@@ -715,7 +720,11 @@ export default function CreateTaxNumber(props) {
                 <Button
                   className="mTop32 mBottom24"
                   onClick={
-                    md.global.Config.IsLocal ? (!taxId ? onPrivateCreateTax : () => setStep(step + 1)) : checkTaxNo
+                    window.platformENV.isOverseas || window.platformENV.isLocal
+                      ? !taxId
+                        ? onPrivateCreateTax
+                        : () => setStep(step + 1)
+                      : checkTaxNo
                   }
                 >
                   {_l('下一步')}
@@ -760,9 +769,9 @@ export default function CreateTaxNumber(props) {
                     setData({ account: '', password: '' });
                   }}
                 >
-                  <div className="Gray_75 bold mTop4 mBottom6">{_l('百望账号')}</div>
+                  <div className="textSecondary bold mTop4 mBottom6">{_l('百望账号')}</div>
                   <Input className="w100" value={account} onChange={value => setData({ account: value })} />
-                  <div className="Gray_75 bold mTop20 mBottom6">{_l('百望密码')}</div>
+                  <div className="textSecondary bold mTop20 mBottom6">{_l('百望密码')}</div>
                   <Input className="w100" value={password} onChange={value => setData({ password: value })} />
                 </Dialog>
               )}
@@ -775,7 +784,7 @@ export default function CreateTaxNumber(props) {
             <div className="Font15 bold mTop24">
               <span>{_l('请前往')}</span>
               <span
-                className="mLeft5 mRight5 ThemeColor ThemeHoverColor2 pointer"
+                className="mLeft5 mRight5 colorPrimary ThemeHoverColor2 pointer"
                 onClick={() => window.open('https://work.baiwang.com')}
               >
                 {_l('百望开票平台')}
@@ -785,9 +794,9 @@ export default function CreateTaxNumber(props) {
             <div className="mTop20">
               <span className="bold">{_l('1.登录百望：')}</span>
               <span>{_l('使用邮件中的账号登录')}</span>
-              <span className="Gray_9e">{_l('（账号与初始密码已发送至')}</span>
-              <span className="ThemeColor mLeft4">{email}</span>
-              <span className="Gray_9e mLeft4">{'）'}</span>
+              <span className="textTertiary">{_l('（账号与初始密码已发送至')}</span>
+              <span className="colorPrimary mLeft4">{email}</span>
+              <span className="textTertiary mLeft4">{'）'}</span>
             </div>
             <div className="mTop16">
               <span className="bold">{_l('2.开票配置：')}</span>
@@ -830,10 +839,10 @@ export default function CreateTaxNumber(props) {
                 </QiniuUpload>
               )}
             </div>
-            <div className="Font12 Gray_75 mTop16 mBottom20">
+            <div className="Font12 textSecondary mTop16 mBottom20">
               <span>{_l('请先前往')}</span>
               <span
-                className="ThemeColor ThemeHoverColor2 pointer mLeft5 mRight5"
+                className="colorPrimary ThemeHoverColor2 pointer mLeft5 mRight5"
                 onClick={() => window.open('https://tpass.chinatax.gov.cn:8443/#/login?client_type=itsLogin')}
               >
                 {_l('电子税局')}
@@ -843,13 +852,15 @@ export default function CreateTaxNumber(props) {
             {productLoading ? (
               <LoadDiv />
             ) : productList.length ? (
-              <PageTableCon
-                paginationInfo={{ pageIndex: 1, pageSize: productList.length }}
-                loading={productUpdating}
-                columns={productColumns}
-                dataSource={productList}
-                count={productList.length}
-              />
+              <div className="flex">
+                <PageTableCon
+                  paginationInfo={{ pageIndex: 1, pageSize: productList.length }}
+                  loading={productUpdating}
+                  columns={productColumns}
+                  dataSource={productList}
+                  count={productList.length}
+                />
+              </div>
             ) : (
               <UploadFile fileUploaded={file => onUploaded(file.url)} type={60} />
             )}

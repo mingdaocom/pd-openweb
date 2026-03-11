@@ -23,16 +23,16 @@ const Wrap = styled.div`
     }
   }
   .ant-tabs-content {
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 4px;
   }
   .searchWrap {
     padding: 12px 10px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     input {
       border: none;
       &::placeholder {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
     }
   }
@@ -43,7 +43,7 @@ const Wrap = styled.div`
     .sheetItem {
       padding: 10px;
       &:hover {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-hover);
       }
     }
     .svgIconWrap div {
@@ -56,7 +56,7 @@ const Wrap = styled.div`
       padding: 7px 20px 7px 32px;
       &.active,
       &:hover {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-hover);
       }
     }
   }
@@ -65,7 +65,7 @@ const Wrap = styled.div`
     height: 110px;
     border-radius: 50%;
     justify-content: center;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
   }
 `;
 
@@ -89,7 +89,9 @@ export default class SheetModal extends Component {
     };
     const featureType = getFeatureStatus(props.projectId, VersionProductType.aggregation);
     this.hideAggregation =
-      (md.global.Config.IsLocal && !md.global.Config.EnableDataPipeline) || !featureType || featureType === '2';
+      ((window.platformENV.isOverseas || window.platformENV.isLocal) && !md.global.Config.EnableDataPipeline) ||
+      !featureType ||
+      featureType === '2';
   }
   componentDidMount() {
     const { activeKey, newWorksheetId } = this.state;
@@ -216,8 +218,13 @@ export default class SheetModal extends Component {
             );
           }}
         >
-          <SvgIcon className="svgIconWrap" url={sheet.iconUrl} fill={isActive ? '#1677ff' : '#9e9e9e'} size={18} />
-          <span className={cx('bold mLeft8 ellipsis', { ThemeColor: isActive })}>{sheet.workSheetName}</span>
+          <SvgIcon
+            className="svgIconWrap"
+            url={sheet.iconUrl}
+            fill={isActive ? 'var(--color-primary)' : 'var(--color-text-tertiary)'}
+            size={18}
+          />
+          <span className={cx('bold mLeft8 ellipsis', { colorPrimary: isActive })}>{sheet.workSheetName}</span>
         </div>
       </Fragment>
     );
@@ -237,9 +244,9 @@ export default class SheetModal extends Component {
             });
           }}
         >
-          <Icon className={cx('Font20', isActive ? 'ThemeColor' : 'Gray_9e')} icon="aggregate_table" />
-          <span className={cx('bold mLeft8 ellipsis flex', { ThemeColor: isActive })}>{sheet.name}</span>
-          {isActive && <Icon className="ThemeColor Font18" icon="done" />}
+          <Icon className={cx('Font20', isActive ? 'colorPrimary' : 'textTertiary')} icon="aggregate_table" />
+          <span className={cx('bold mLeft8 ellipsis flex', { colorPrimary: isActive })}>{sheet.name}</span>
+          {isActive && <Icon className="colorPrimary Font18" icon="done" />}
         </div>
       </Fragment>
     );
@@ -248,7 +255,7 @@ export default class SheetModal extends Component {
     const { searchValue } = this.state;
     return (
       <div className="searchWrap flexRow alignItemsCenter">
-        <Icon className="Font18 Gray_9e mRight3" icon="search" />
+        <Icon className="Font18 textTertiary mRight3" icon="search" />
         <input
           className="w100"
           placeholder={_l('搜索')}
@@ -338,9 +345,9 @@ export default class SheetModal extends Component {
                         ) : (
                           <div className="flexColumn alignItemsCenter justifyContentCenter h100">
                             <div className="iconWrap flexRow alignItemsCenter justifyContentCenter">
-                              <Icon className="Font50 Gray_9e" icon="aggregate_table" />
+                              <Icon className="Font50 textTertiary" icon="aggregate_table" />
                             </div>
-                            <span className="Font14 Gray_9e mTop20 mBottom24">
+                            <span className="Font14 textTertiary mTop20 mBottom24">
                               {_l('将表单或多表数据预处理为聚合数据')}
                             </span>
                             {getFeatureStatus(projectId, VersionProductType.aggregation) == '1' && (
@@ -372,7 +379,7 @@ export default class SheetModal extends Component {
               <Select
                 className="chartSelect w100"
                 value={viewId || null}
-                suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                 onChange={viewId => {
                   this.setState({ viewId });
                 }}
@@ -416,7 +423,7 @@ export default class SheetModal extends Component {
                   className="chartSelect leftAlign"
                   style={{ width: 200 }}
                   value={viewId || null}
-                  suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                  suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                   onChange={viewId => {
                     this.setState({ viewId });
                   }}
@@ -437,7 +444,7 @@ export default class SheetModal extends Component {
           {activeKey === 'polymerizationSheet' &&
             getFeatureStatus(projectId, VersionProductType.aggregation) == '1' && (
               <div
-                className="flexRow alignItemsCenter ThemeColor pointer"
+                className="flexRow alignItemsCenter colorPrimary pointer"
                 onClick={() => window.open(`/app/${this.state.appId}/settings/aggregations`)}
               >
                 <Icon icon="add" className="mRight2" />
@@ -463,7 +470,7 @@ export default class SheetModal extends Component {
         visible={dialogVisible}
         centered={true}
         destroyOnClose={true}
-        closeIcon={<Icon icon="close" className="Font24 pointer Gray_9e" />}
+        closeIcon={<Icon icon="close" className="Font24 pointer textTertiary" />}
         footer={this.renderFooter()}
         onCancel={() => {
           this.props.onChangeDialogVisible(false);

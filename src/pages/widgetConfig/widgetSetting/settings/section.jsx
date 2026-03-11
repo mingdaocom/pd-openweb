@@ -15,7 +15,7 @@ export default function Section(props) {
         <IconSetting
           type={data.type}
           icon={icon}
-          iconColor="#9e9e9e"
+          iconColor="var(--color-text-tertiary)"
           projectId={globalSheetInfo.projectId}
           handleClick={value =>
             onChange(handleAdvancedSettingChange(data, { icon: value ? JSON.stringify(value) : '' }))

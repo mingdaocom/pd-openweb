@@ -108,7 +108,7 @@ export default function Score({ data, onChange }) {
         }}
       >
         <Fragment>
-          <div className="Gray_9e mBottom24">
+          <div className="textTertiary mBottom24">
             {_l('为每个等级设置颜色。当鼠标悬停或选中对应等级后，图标将显示为该等级设置的颜色')}
           </div>
           <div className="flexRow">

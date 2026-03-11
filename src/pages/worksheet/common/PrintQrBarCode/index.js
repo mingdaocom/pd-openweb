@@ -10,7 +10,7 @@ const FullScreenCon = styled.div`
   top: 0;
   left: 0;
   z-index: 1000;
-  background: #fff;
+  background: var(--color-background-primary);
 `;
 
 function FullScreen(props = {}) {

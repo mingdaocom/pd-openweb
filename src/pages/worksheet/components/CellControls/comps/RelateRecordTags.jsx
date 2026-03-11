@@ -8,11 +8,12 @@ import { Tooltip } from 'ming-ui/antd-components';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
 import ChildTableContext from 'worksheet/components/ChildTable/ChildTableContext';
-import { getTitleControlIdFromRelateControl, getTitleTextFromRelateControl } from 'src/components/Form/core/utils';
+import { getTitleControlIdFromRelateControl } from 'src/components/Form/core/utils';
 import { selectRecords } from 'src/components/SelectRecords';
 import { searchRecordInDialog } from 'src/pages/worksheet/components/SearchRelateRecords';
 import ViewHoverRelateRecordCard from 'src/pages/worksheet/views/components/ViewHoverRelateRecordCard.jsx';
 import { browserIsMobile } from 'src/utils/common';
+import { getTitleTextFromRelateControl } from 'src/utils/control';
 import { addBehaviorLog } from 'src/utils/project';
 
 function getCellHeight(texts = [], width) {
@@ -65,7 +66,7 @@ const Con = styled.div`
   overflow: hidden;
   padding-bottom: 6px;
   &.isediting {
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
 `;
 
@@ -81,7 +82,7 @@ const Tag = styled.div`
     padding-right: 24px;
   }
   &.allowOpenRecord:hover {
-    color: #1677ff;
+    color: var(--color-primary);
     background-color: rgba(33, 150, 243, 0.16);
     cursor: pointer;
   }
@@ -90,13 +91,13 @@ const Tag = styled.div`
     position: absolute;
     right: 4px;
     top: 2px;
-    color: #9d9d9d;
+    color: var(--color-text-tertiary);
     font-size: 16px;
     cursor: pointer;
   }
   &.icon {
     font-size: 14px;
-    color: #757575;
+    color: var(--color-text-secondary);
     cursor: pointer;
     padding: 0;
     height: 21px;

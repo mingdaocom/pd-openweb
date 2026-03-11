@@ -78,7 +78,7 @@ export default function WidgetConfig(props) {
                   '勾选后，中文可按拼音A-Z进行排序。注意，勾选了支持拼音排序时排序索引不生效。如无需要，建议不勾选。',
                 )}
               >
-                <i className="icon icon-help Gray_9e Font16"></i>
+                <i className="icon icon-help textTertiary Font16"></i>
               </Tooltip>
             </Checkbox>
           </div>
@@ -96,7 +96,7 @@ export default function WidgetConfig(props) {
                 placement="bottom"
                 title={_l('勾选后，当编号规则含时间相关字段时，对应的时间将按照应用时区显示。')}
               >
-                <i className="icon icon-help Gray_9e Font16"></i>
+                <i className="icon icon-help textTertiary Font16"></i>
               </Tooltip>
             </Checkbox>
           </div>
@@ -204,7 +204,7 @@ export default function WidgetConfig(props) {
                 </span>
               }
             >
-              <i className="icon icon-help Gray_9e Font16 mLeft5 pointer" />
+              <i className="icon icon-help textTertiary Font16 mLeft5 pointer" />
             </Tooltip>
           </Checkbox>
         </div>
@@ -223,7 +223,7 @@ export default function WidgetConfig(props) {
             }
           >
             <Tooltip placement="bottom" title={_l('在表单中显示查询记录的数量')}>
-              <i className="icon icon-help Gray_bd Font15 mLeft5 pointer" />
+              <i className="icon icon-help textDisabled Font15 mLeft5 pointer" />
             </Tooltip>
           </Checkbox>
         </div> */}
@@ -266,7 +266,7 @@ export default function WidgetConfig(props) {
                   </span>
                 }
               >
-                <i className="icon icon-help Gray_bd Font15 mLeft5 pointer" />
+                <i className="icon icon-help textDisabled Font15 mLeft5 pointer" />
               </Tooltip>
             </Checkbox>
           </div>
@@ -296,7 +296,7 @@ export default function WidgetConfig(props) {
           >
             <span>{_l('显示已删除')}</span>
             <Tooltip placement="bottom" title={_l('勾选时，组织中被删除的部门显示为“已删除”，否则不显示')}>
-              <i className="icon-help Gray_bd Font15"></i>
+              <i className="icon-help textDisabled Font15"></i>
             </Tooltip>
           </Checkbox>
         </div>

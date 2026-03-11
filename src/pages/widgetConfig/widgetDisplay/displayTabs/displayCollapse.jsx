@@ -11,7 +11,7 @@ const CollapseWrap = styled.div`
   border-radius: 8px;
   box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 16px 1px;
   box-sizing: border-box;
-  background: #ffffff;
+  background: var(--color-background-primary);
   display: flex;
   flex-direction: column;
   margin-top: 12px;
@@ -21,7 +21,7 @@ const CollapseWrap = styled.div`
     overflow-y: hidden;
   }
   #widgetSection {
-    border-top: 3px solid #ebebeb;
+    border-top: 3px solid var(--color-border-secondary);
     margin-top: -3px;
   }
 `;

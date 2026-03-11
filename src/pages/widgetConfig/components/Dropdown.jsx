@@ -57,7 +57,7 @@ export default function DropdownWrapper(props) {
         <DropdownOverlay>
           {searchable && (
             <div className="searchWrap" onClick={e => e.stopPropagation()}>
-              <i className="icon-search Font16 Gray_75"></i>
+              <i className="icon-search Font16 textSecondary"></i>
               <input
                 autoFocus
                 value={searchValue}
@@ -91,7 +91,7 @@ export default function DropdownWrapper(props) {
     >
       <DropdownPlaceholder>
         {renderPlaceholder()}
-        <i className="icon-arrow-down-border Font14 Gray_9e"></i>
+        <i className="icon-arrow-down-border Font14 textTertiary"></i>
       </DropdownPlaceholder>
     </Dropdown>
   );

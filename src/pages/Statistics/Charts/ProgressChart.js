@@ -215,22 +215,22 @@ class ProgressChart extends Component {
     };
   }
   renderProgress() {
-    const { data, yAxis, reportData, isDark } = this.props;
+    const { data, yAxis, reportData } = this.props;
     const { yaxisList, displaySetup, style } = reportData;
     const { currentValueName = _l('实际'), targetValueName = _l('目标') } = style;
     const { ydot } = yaxisList[0];
 
     return (
       <Fragment>
-        <div className={cx('Font13', isDark ? 'White' : 'Gray_75')}>{yAxis.rename || yAxis.controlName}</div>
+        <div className="Font13 textSecondary">{yAxis.rename || yAxis.controlName}</div>
         <div className="flexRow alignItemsCenter mTop7 mBottom7 printStatisticSign">
           <div className="flex overflowHidden" style={{ borderRadius: 2 }} ref={el => (this.chartEl = el)} />
           <div
-            className={cx('Font20 ellipsis mLeft12 bold', isDark ? 'White' : 'Gray')}
+            className="Font20 ellipsis mLeft12 bold textPrimary"
             style={{ lineHeight: '18px' }}
           >{`${((data.value / (data.targetValue || 1)) * 100).toFixed(ydot ? Number(ydot) : 2)}%`}</div>
         </div>
-        <div className={cx('Font13', isDark ? 'White' : 'Gray')}>
+        <div className="Font13 textPrimary">
           {displaySetup.showNumber &&
             `${currentValueName}: ${formatrChartValue(data.value || 0, false, yaxisList, '', false)}`}
           {displaySetup.showNumber && displaySetup.showDimension && ' | '}
@@ -266,7 +266,7 @@ class ProgressChart extends Component {
 export default props => {
   const { themeColor, projectId, customPageConfig = {}, reportData, isThumbnail } = props;
   const { chartColor, chartColorIndex = 1, pageStyleType = 'light' } = customPageConfig;
-  const isDark = pageStyleType === 'dark' && isThumbnail;
+  const isDark = window.themeMode === 'dark' || (pageStyleType === 'dark' && isThumbnail);
   const { map, yaxisList, config } = reportData;
   const { targetList } = config;
   const styleConfig = reportData.style || {};

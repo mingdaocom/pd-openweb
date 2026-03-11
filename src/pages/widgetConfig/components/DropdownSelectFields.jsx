@@ -23,7 +23,7 @@ export default function DropdownSelectFields(props) {
     >
       <DropdownPlaceholder>
         {renderPlaceholder()}
-        <i className="icon-arrow-down-border Font14 Gray_9e"></i>
+        <i className="icon-arrow-down-border Font14 textTertiary"></i>
       </DropdownPlaceholder>
     </Dropdown>
   );

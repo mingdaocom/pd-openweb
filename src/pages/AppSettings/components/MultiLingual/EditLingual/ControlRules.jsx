@@ -38,7 +38,7 @@ export default function ControlRules(props) {
 
   if (!rules.length) {
     return (
-      <div className="flexRow alignItemsCenter justifyContentCenter h100 Gray_9e Font14">{_l('没有验证规则')}</div>
+      <div className="flexRow alignItemsCenter justifyContentCenter h100 textTertiary Font14">{_l('没有验证规则')}</div>
     );
   }
 
@@ -112,7 +112,7 @@ export default function ControlRules(props) {
     <div className="flexRow pAll10 h100">
       <div className="nav flexColumn">
         <div className="searchWrap flexRow alignItemsCenter mBottom10">
-          <Icon className="Gray_9e Font20 mRight5" icon="search" />
+          <Icon className="textTertiary Font20 mRight5" icon="search" />
           <input
             placeholder={_l('验证规则')}
             className="flex"
@@ -121,7 +121,9 @@ export default function ControlRules(props) {
               setSearchValue(e.target.value);
             }}
           />
-          {searchValue && <Icon className="Gray_9e pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />}
+          {searchValue && (
+            <Icon className="textTertiary pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />
+          )}
         </div>
         <ScrollView className="h100">
           {rules.filter(item => item.name.includes(searchValue)).map(item => renderNav(item))}

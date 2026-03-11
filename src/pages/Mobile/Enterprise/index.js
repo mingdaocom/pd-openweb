@@ -13,7 +13,7 @@ const EmptyProject = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #fff;
+  background: var(--color-background-primary);
   padding: 32px 0 24px;
   margin: 10px 15px 20px;
   border-radius: 8px;
@@ -27,7 +27,7 @@ const EmptyProject = styled.div`
     border-radius: 4px;
     border: none;
     cursor: pointer;
-    color: #fff;
+    color: var(--color-white);
     font-size: 14px;
     font-weight: 400;
   }
@@ -35,17 +35,17 @@ const EmptyProject = styled.div`
     border-width: 1px;
     border-style: solid;
     &:not(:hover) {
-      background: #fff !important;
+      background: var(--color-background-primary) !important;
     }
     &:hover {
-      color: #fff !important;
+      color: var(--color-white) !important;
     }
   }
   .ThemeColor3 {
-    color: #1677ff;
+    color: var(--color-primary);
   }
   .ThemeBGColor3 {
-    background-color: #1677ff;
+    background-color: var(--color-primary);
   }
 `;
 
@@ -98,26 +98,26 @@ class ProjectCard extends Component {
   renderUserCard() {
     const { userInfo } = this.state;
     return (
-      <div className="mTop20 pTop20" style={{ borderTop: '1px solid #EAEAEA' }}>
+      <div className="mTop20 pTop20" style={{ borderTop: '1px solid var(--color-border-secondary)' }}>
         <div className="flexRow Font13 mBottom10">
-          <div className="Gray_75 mRight15">{_l('姓名')}</div>
-          <div className="Gray flex">{userInfo.fullname}</div>
+          <div className="textSecondary mRight15">{_l('姓名')}</div>
+          <div className="textPrimary flex">{userInfo.fullname}</div>
         </div>
         <div className="flexRow Font13 mBottom10">
-          <div className="Gray_75 mRight15">{_l('组织')}</div>
-          <div className="Gray flex">{userInfo.companyName}</div>
+          <div className="textSecondary mRight15">{_l('组织')}</div>
+          <div className="textPrimary flex">{userInfo.companyName}</div>
         </div>
         <div className="flexRow Font13 mBottom10">
-          <div className="Gray_75 mRight15">{_l('部门')}</div>
-          <div className="Gray flex">
+          <div className="textSecondary mRight15">{_l('部门')}</div>
+          <div className="textPrimary flex">
             {userInfo.departmentInfos.length > 0
               ? this.getItems(userInfo.departmentInfos, 'departmentName')
               : _l('未填写')}
           </div>
         </div>
         <div className="flexRow Font13">
-          <div className="Gray_75 mRight15">{_l('职位')}</div>
-          <div className="Gray flex">
+          <div className="textSecondary mRight15">{_l('职位')}</div>
+          <div className="textPrimary flex">
             {userInfo.jobInfos.length > 0 ? this.getItems(userInfo.jobInfos, 'jobName') : _l('未填写')}
           </div>
         </div>
@@ -128,7 +128,7 @@ class ProjectCard extends Component {
     const { item, checkedProjectId } = this.props;
     const { visible, loading } = this.state;
     return (
-      <div className="projectWrapper WhiteBG pTop15 pBottom20 pLeft16 pRight16 mBottom10">
+      <div className="projectWrapper bgPrimary pTop15 pBottom20 pLeft16 pRight16 mBottom10">
         <div className="flexRow">
           <div
             className="flex"
@@ -144,21 +144,21 @@ class ProjectCard extends Component {
                 {item.companyName}
               </Radio>
             </div>
-            <div className="Font12 Gray_75 mTop15 mBottom16">
+            <div className="Font12 textSecondary mTop15 mBottom16">
               {_l('组织门牌号 %0', item.projectCode)} {_l('(可用于邀请其他人加入该网络)')}
             </div>
             {item.userStatus !== common.USER_STATUS.UNAUDITED && (
               <div>
-                <span className="Gray_9e">{common.PROJECT_STATUS_TYPES_LABLE[item.projectStatus]}</span>
+                <span className="textTertiary">{common.PROJECT_STATUS_TYPES_LABLE[item.projectStatus]}</span>
                 {item.projectStatus === common.PROJECT_STATUS_TYPES.PAID && (
-                  <span className="mLeft10" style={{ color: '#47B14B' }}>
+                  <span className="mLeft10" style={{ color: 'var(--color-success)' }}>
                     {_l('%0 到期', moment(item.currentLicense.endDate).format('YYYY-MM-DD'))}
                   </span>
                 )}
               </div>
             )}
           </div>
-          <div className="flexRow valignWrapper Gray_75 mLeft10" onClick={this.handleChangeVisible}>
+          <div className="flexRow valignWrapper textSecondary mLeft10" onClick={this.handleChangeVisible}>
             <div>{this.renderStatus(item)}</div>
             <Icon className="Font20" icon={visible ? 'expand_more' : 'navigate_next'} />
           </div>
@@ -222,7 +222,7 @@ class Enterprise extends Component {
     return (
       <Fragment>
         <EmptyProject>
-          <div className="Gray Font17">{_l('您未拥有任何组织，申请加入组织')}</div>
+          <div className="textPrimary Font17">{_l('您未拥有任何组织，申请加入组织')}</div>
           <div className="flexRow mTop28">
             <button
               type="button"
@@ -241,7 +241,7 @@ class Enterprise extends Component {
           </div>
         </EmptyProject>
         <div
-          className="externalEntry WhiteBG pTop20 pBottom20 pLeft16 pRight16 mBottom20 Font18"
+          className="externalEntry bgPrimary pTop20 pBottom20 pLeft16 pRight16 mBottom20 Font18"
           onClick={() => this.checkCurrentProject({ projectId: 'external' })}
         >
           <Radio checked={checkedProjectId === 'external'}>{_l('外部协作')}</Radio>
@@ -257,7 +257,10 @@ class Enterprise extends Component {
     const currentProject = !_.isEmpty(projectObj) ? projectObj : { projectId: 'external', companyName: _l('外部协作') };
 
     return (
-      <div className="h100" style={{ background: '#f5f5f5', paddingTop: 10, overflowY: 'auto' }}>
+      <div
+        className="h100"
+        style={{ background: 'var(--color-background-secondary)', paddingTop: 10, overflowY: 'auto' }}
+      >
         {loading ? (
           <div className="flexRow justifyContentCenter alignItemsCenter h100">
             <SpinLoading color="primary" />
@@ -274,7 +277,7 @@ class Enterprise extends Component {
               />
             ))}
             <div
-              className="externalEntry WhiteBG pTop20 pBottom20 pLeft16 pRight16 mBottom20 Font18"
+              className="externalEntry bgPrimary pTop20 pBottom20 pLeft16 pRight16 mBottom20 Font18"
               onClick={() => this.checkCurrentProject({ projectId: 'external' })}
             >
               <Radio checked={checkedProjectId === 'external'}>{_l('外部协作')}</Radio>

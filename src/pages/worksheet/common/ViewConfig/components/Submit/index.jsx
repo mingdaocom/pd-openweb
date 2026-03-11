@@ -22,7 +22,7 @@ const Wrap = styled.div`
 `;
 const WrapList = styled.div`
   .refresh {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .w160 {
     width: 160px !important;
@@ -35,7 +35,7 @@ const WrapList = styled.div`
   }
   .nullCon {
     padding-bottom: 32px;
-    border-bottom: 1px solid #dddddd;
+    border-bottom: 1px solid var(--color-border-primary);
   }
   .conLi {
     padding: 10px 12px 10px 8px;
@@ -54,7 +54,7 @@ const WrapList = styled.div`
       }
     }
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       .action {
         option: 1;
         width: 16px;
@@ -69,25 +69,25 @@ const WrapList = styled.div`
 const WrapPopup = styled.div`
   padding: 6px 0;
   width: 160px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.25);
   & > div {
     height: 36px;
     font-weight: 400;
     .icon {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
     &.del {
-      color: #f44336;
+      color: var(--color-error);
       .icon {
-        color: #f44336;
+        color: var(--color-error);
       }
     }
     &:hover {
-      color: #fff;
-      background: #1677ff;
+      color: var(--color-white);
+      background: var(--color-primary);
       .icon {
-        color: #fff;
+        color: var(--color-white);
       }
     }
   }
@@ -279,13 +279,13 @@ export default function SubmitConfig(params) {
       <ScrollView className="submitCon flex" onScrollEnd={() => handleScroll(pageIndex + 1)}>
         <div className="submitContent">
           <div className="viewSetTitle">{_l('提交')}</div>
-          <div className="mTop4 Gray_9e">
+          <div className="mTop4 textTertiary">
             {_l('插件开发完成后，可以按以下步骤提交插件。发布成功后，本插件在组织下所有应用均可使用。')}
           </div>
-          <div className="Gray_75 mTop24 Bold">{_l('第1步')}</div>
+          <div className="textSecondary mTop24 Bold">{_l('第1步')}</div>
           <div className="mTop4">{_l('执行以下命令将本地项目打包')}</div>
           {renderText(`mdye build`)}
-          <div className="Gray_75 mTop24 Bold">{_l('第2步')}</div>
+          <div className="textSecondary mTop24 Bold">{_l('第2步')}</div>
           <div className="mTop4">
             {_l('执行以下命令将本地项目提交并推送到线上待发布插件列表。可以使用-m参数为本次推送添加备注信息：')}
           </div>
@@ -299,11 +299,11 @@ export default function SubmitConfig(params) {
           })}
           <div className="mTop24">{_l('提交时，需要登录账户，请按提示输入用户名（手机号或邮箱地址）和密码。')}</div>
           <div className="Bold mTop32">{_l('已提交')}</div>
-          <div className="mTop8 TxtMiddle Gray_9e flexRow alignItemsCenter">
+          <div className="mTop8 TxtMiddle textTertiary flexRow alignItemsCenter">
             {_l('选择一个已提交的代码应用到视图')}{' '}
             <Icon
               icon={'task-later'}
-              className="Gray_bd ThemeHoverColor3 Hand Font16 mLeft5"
+              className="textDisabled ThemeHoverColor3 Hand Font16 mLeft5"
               onClick={() => {
                 handleScroll(1, true);
               }}
@@ -334,18 +334,18 @@ export default function SubmitConfig(params) {
                         );
                       }}
                     />
-                    <div className="flex Gray_9e mLeft12 WordBreak overflow_ellipsis" style={{ 'flex-shrink': 0 }}>
-                      <div className="Gray overflow_ellipsis" title={_.get(o, 'message')}>
+                    <div className="flex textTertiary mLeft12 WordBreak overflow_ellipsis" style={{ 'flex-shrink': 0 }}>
+                      <div className="textPrimary overflow_ellipsis" title={_.get(o, 'message')}>
                         {_.get(o, 'message')}
                       </div>
-                      <div className="Gray_9e">
+                      <div className="textTertiary">
                         {createTimeSpan(o.commitTime)}
                         {o.versionTags.filter(o => !!o).length > 0 && ` | `}
                         {o.versionTags.join('、')}
                         {o.beUsing && `(${_l('当前')})`}
                       </div>
                     </div>
-                    <div className="mLeft12 Gray_9e actionOptions TxtRight flexRow alignItemsCenter">
+                    <div className="mLeft12 textTertiary actionOptions TxtRight flexRow alignItemsCenter">
                       <UserHead
                         size={20}
                         user={{
@@ -370,7 +370,7 @@ export default function SubmitConfig(params) {
                 );
               })}
               {list.length <= 0 && !loading && (
-                <div className="Gray_bd nullCon TxtCenter pTop10">{_l('还没有提交')}</div>
+                <div className="textDisabled nullCon TxtCenter pTop10">{_l('还没有提交')}</div>
               )}
               {loading && <LoadDiv />}
             </div>

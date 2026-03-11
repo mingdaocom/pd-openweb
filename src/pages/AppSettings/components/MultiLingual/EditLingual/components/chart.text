@@ -1,0 +1,44 @@
+
+
+xaxes.rename	// 维度 { xaxes-{controlId}-name: '' }
+yaxisList[].rename	// 数值 { yaxis-{controlId}-name: '' }
+
+summary.name	// 总计 { summaryName: '' }
+summary.controlList[].name	// y轴数值总计 { summaryControl-{controlId}-name: '' }
+
+if ( reportType === 7 ) {	// 双轴图
+	config.summary.name		// 右边总计 { rightYSummaryName: '' }
+	config.summary.controlList[].name	// 右边y轴数值总计 { rightYSummaryControl-{controlId}-name: '' }
+	config.yaxisList[].rename	// 右边y轴数值 { rightYaxis-{controlId}-name: '' }
+	config.display.ydisplay.title 	// 右边y轴显示标题 { rightYdisplayTitle: '' }
+}
+
+if ( reportType === 8 ) {	// 透视表
+	config.lines[].rename	// 行维度 { line-{controlId}-name: '' }
+	config.columns[].rename	// 列维度 { column-{controlId}-name: '' }
+	config.lineSummary.rename	// 行总计 { lineSummaryName: '' }
+	config.columnSummary.rename	// 列总计 { columnSummaryName: '' }
+	config.lineSummary.controlList[].name	// 行数值总计	 { lineSummaryControl-{controlId}-name: '' }
+	config.columnSummary.controlList[].name	// 列数值总计	 { columnSummaryControl-{controlId}-name: '' }
+}
+
+if ( reportType === 12 ) {	// 散点图
+	style.quadrant.topRightText		// 右上象限	{ quadrantTopRightText: '' }
+	style.quadrant.topLeftText		// 左上象限	{ quadrantTopLeftText: '' }
+	style.quadrant.bottomLeftText	// 左下象限	{ quadrantBottomLeftText: '' }
+	style.quadrant.bottomRightText	// 右下象限	{ quadrantBottomRightText: '' }
+}
+
+if ( reportType === 6 ) {	// 漏斗图
+	style.funnelConversionText	// 转化率文案 { funnelConversionText: '' }
+}
+
+if ( reportType === 15 ) {	// 进度条
+	style.currentValueName	// 当前值 { currentValueName: '' }
+	style.targetValueName	// 目标值 { targetValueName: '' }
+}
+
+if ( [1, 2, 7, 12].includes(reportType) ) {	// 柱图、折线、双轴、散点图
+	displaySetup.ydisplay.title		// y轴显示标题 { ydisplayTitle: '' }
+}
+

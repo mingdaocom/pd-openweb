@@ -19,7 +19,7 @@ import { LOGIN_FAIL_REASON, LOGIN_LOG_COLUMNS } from './enum';
 
 const LoginLogWrap = styled.div`
   .tipInfo {
-    color: #212121;
+    color: var(--color-white);
     font-size: 13px;
     line-height: 36px;
     font-weight: 400;
@@ -39,7 +39,7 @@ const PAGE_SIZE = 50;
 export default class LoginLog extends Component {
   constructor(props) {
     const columns = LOGIN_LOG_COLUMNS.filter(
-      v => md.global.Config.IsLocal || location.href !== 'www.mingdao.com' || v.dataIndex !== 'failReason',
+      v => window.platformENV.isLocal || (!window.platformENV.isLocal && v.dataIndex !== 'failReason'),
     );
     super(props);
     this.state = {
@@ -95,7 +95,7 @@ export default class LoginLog extends Component {
                     projectId={Config.projectId}
                   />
                   <UserName
-                    className="Gray Font13 pLeft5 pRight10 pTop3 flex ellipsis"
+                    className="textPrimary Font13 pLeft5 pRight10 pTop3 flex ellipsis"
                     projectId={Config.projectId}
                     user={{
                       userName: log.fullname,
@@ -114,8 +114,7 @@ export default class LoginLog extends Component {
                   {(
                     [
                       {
-                        label:
-                          md.global.Config.IsLocal || location.href !== 'www.mingdao.com' ? _l('登录成功') : _l('登录'),
+                        label: window.platformENV.isLocal ? _l('登录成功') : _l('登录'),
                         value: '1',
                       },
                       { label: _l('登出'), value: '2' },
@@ -252,7 +251,7 @@ export default class LoginLog extends Component {
         label: _l('登录/登出时间'),
         placeholder: _l('登录/登出时间'),
         dateFormat: 'YYYY-MM-DD HH:mm:ss',
-        limitSixMonths: md.global.Config.IsLocal,
+        limitSixMonths: window.platformENV.isOverseas || window.platformENV.isLocal,
         suffixIcon: <Icon icon="person" className="Font16" />,
       },
       {
@@ -265,12 +264,12 @@ export default class LoginLog extends Component {
         options: [
           { label: _l('全部'), value: '' },
           {
-            label: md.global.Config.IsLocal || location.href !== 'www.mingdao.com' ? _l('登录成功') : _l('登录'),
+            label: window.platformENV.isLocal ? _l('登录成功') : _l('登录'),
             value: 1,
           },
           { label: _l('登录失败'), value: -1 },
           { label: _l('登出'), value: 2 },
-        ].filter(v => md.global.Config.IsLocal || location.href !== 'www.mingdao.com' || v.value !== -1),
+        ].filter(v => window.platformENV.isLocal || (!window.platformENV.isLocal && v.value !== -1)),
       },
     ];
 
@@ -291,9 +290,13 @@ export default class LoginLog extends Component {
         <div className="orgManagementHeader Font17 flexRow">
           <span className="flex">{_l('登录')}</span>
           <div>
-            {md.global.Config.IsLocal ? '' : <span className="tipInfo mRight26">{_l('保留最近6个月的日志')}</span>}
+            {window.platformENV.isOverseas || window.platformENV.isLocal ? (
+              ''
+            ) : (
+              <span className="tipInfo mRight26">{_l('保留最近6个月的日志')}</span>
+            )}
             <i
-              className="icon-task-later Gray_9 hoverText mRight26 Font17"
+              className="icon-task-later textTertiary hoverText mRight26 Font17"
               onClick={() => this.setState({ searchValues: {}, pageIndex: 1 }, this.getLogList)}
             />
             <Tooltip placement="bottom" title={_l('导出上限10万条，超出限制可以先筛选，再分次导出。')}>

@@ -12,12 +12,12 @@ import { emitter } from 'src/utils/common';
 const Con = styled.div`
   padding: 12px;
   border-radius: 8px;
-  border: 1px solid #ddd;
-  background: #f7f8f9;
+  border: 1px solid var(--color-border-primary);
+  background: var(--color-primary-transparent);
   margin-bottom: 10px;
   .label {
     font-size: 13px;
-    color: #757575;
+    color: var(--color-text-secondary);
     margin-bottom: 5px;
     font-weight: bold;
   }
@@ -26,14 +26,14 @@ const Con = styled.div`
   }
   .generate-worksheet-controls {
     margin: 6px 0;
-    background: var(--ai-primary-color);
+    background: var(--color-mingo);
     height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-top: 12px;
     border-radius: 18px;
-    color: #fff;
+    color: var(--color-white);
     font-size: 13px;
     font-weight: bold;
     cursor: pointer;
@@ -41,17 +41,17 @@ const Con = styled.div`
   .icon-select-trigger {
     height: 36px;
     border-radius: 6px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     display: flex;
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
-    background: #fff;
+    background: var(--color-background-primary);
     padding: 0 10px;
   }
   &:not(.is-editing) {
     padding: 9px;
-    background: #f7f8f9;
+    background: var(--color-primary-transparent);
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -60,14 +60,14 @@ const Con = styled.div`
       width: 46px;
       height: 46px;
       border-radius: 8px;
-      background: #fff;
+      background: var(--color-background-primary);
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .worksheetName {
       font-size: 15px;
-      color: #151515;
+      color: var(--color-text-title);
       margin-left: 13px;
     }
   }
@@ -76,11 +76,11 @@ const Con = styled.div`
 const IconSelector = styled.div`
   padding: 10px;
   border-radius: 3px;
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow: 0px 3px 12px 1px rgba(0,0,0,0.16);
   .title {
     font-size: 12px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .iconList {
     margin-top: 10px;
@@ -92,9 +92,9 @@ const IconSelector = styled.div`
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #757575;
+      color: var(--color-text-secondary);
       &:hover {
-        background: #f5f5f5;
+        background: var(--color-background-hover);
       }
       &.active {
         color: #732ED1
@@ -168,7 +168,7 @@ export default function MingoEditWorksheetInfo({
                         <SvgIcon
                           url={`https://fp1.mingdaoyun.cn/customIcon/${icon.fileName}.svg`}
                           size={22}
-                          fill={selectedIconName === icon.fileName ? '#732ED1' : '#757575'}
+                          fill={selectedIconName === icon.fileName ? '#732ED1' : 'var(--color-text-secondary)'}
                         />
                       </div>
                     ))}
@@ -183,10 +183,10 @@ export default function MingoEditWorksheetInfo({
               <div className="icon-select-trigger">
                 <SvgIcon
                   url={`https://fp1.mingdaoyun.cn/customIcon/${selectedIconName}.svg`}
-                  fill={selectedIconName === selectedIconName ? '#732ED1' : '#757575'}
+                  fill={selectedIconName === selectedIconName ? '#732ED1' : 'var(--color-text-secondary)'}
                   size={22}
                 />
-                <i className="icon icon-arrow-down-border Gray_9e Font15"></i>
+                <i className="icon icon-arrow-down-border textTertiary Font15"></i>
               </div>
             </Trigger>
           </div>
@@ -233,7 +233,7 @@ export default function MingoEditWorksheetInfo({
             </div>
             <span className="worksheetName">{worksheetName}</span>
           </div>
-          <i className="icon icon-edit Gray_9e Font15 Hand" onClick={() => setIsEditing(true)}></i>
+          <i className="icon icon-edit textTertiary Font15 Hand" onClick={() => setIsEditing(true)}></i>
         </Fragment>
       )}
     </Con>

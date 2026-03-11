@@ -12,8 +12,8 @@ import OrgSelect from './OrgSelect';
 
 const FilterCountWrap = styled.span`
   padding: 0px 10px 0px 5px;
-  color: #9e9e9e;
-  background: #f5f5f5;
+  color: var(--color-text-tertiary);
+  background: var(--color-background-secondary);
   border-radius: 3px;
   font-weight: 600;
   font-size: 13px;
@@ -22,7 +22,7 @@ const FilterCountWrap = styled.span`
   align-items: center;
   cursor: pointer;
   &:hover {
-    background: #eaeaea;
+    background: var(--color-border-secondary);
   }
 `;
 
@@ -39,9 +39,9 @@ const FilterDialog = styled(Dialog)`
   .scrollCon {
     height: 390px;
     border-radius: 4px 4px 4px 4px;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     .empty {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       margin-top: 189px;
       text-align: center;
     }
@@ -49,7 +49,7 @@ const FilterDialog = styled(Dialog)`
   .listTitle {
     padding: 16px 20px 10px 20px;
     font-size: 12px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     font-weight: 600;
     line-height: 12px;
   }
@@ -58,7 +58,7 @@ const FilterDialog = styled(Dialog)`
     align-items: center;
     padding: 9px 14px 9px 20px;
     font-size: 13px;
-    color: #151515;
+    color: var(--color-text-title);
     .avatarCon {
       margin-right: 10px;
       width: 20px;
@@ -82,7 +82,7 @@ const FilterDialog = styled(Dialog)`
     }
   }
   .listItem:hover {
-    background: #f7f7f7;
+    background: var(--color-background-secondary);
     .delete {
       visibility: visible;
     }
@@ -174,7 +174,7 @@ export default function FilterPosition(props) {
               getFeatureStatus(l.projectId, VersionProductType.globalSearch) === '1' && l.licenseType !== 2
             }
           />
-          <span className="Gray_9e">{_l('标记应用和工作表，不再搜索它们的记录')}</span>
+          <span className="textTertiary">{_l('标记应用和工作表，不再搜索它们的记录')}</span>
         </div>
         <div className="scrollCon">
           {loading ? (
@@ -194,20 +194,27 @@ export default function FilterPosition(props) {
                             <span
                               className="avatarCon"
                               style={{
-                                background: listKey === 'app' ? item.color || '#EDEDED' : '#EDEDED',
+                                background:
+                                  listKey === 'app'
+                                    ? item.color || 'var(--color-border-secondary)'
+                                    : 'var(--color-border-secondary)',
                               }}
                             >
-                              <SvgIcon url={item.iconUrl} fill={listKey === 'app' ? '#fff' : '#757575'} size={12} />
+                              <SvgIcon
+                                url={item.iconUrl}
+                                fill={listKey === 'app' ? '#fff' : 'var(--color-text-secondary)'}
+                                size={12}
+                              />
                             </span>
                             <span className="itemName overflow_ellipsis">{item.name}</span>
                             {listKey !== 'app' && (
-                              <span className="Gray_9e overflow_ellipsis" style={{ maxWidth: 130 }}>
+                              <span className="textTertiary overflow_ellipsis" style={{ maxWidth: 130 }}>
                                 {item.appName || ''}
                               </span>
                             )}
                             <Icon
                               icon="clear"
-                              className="delete Font14 Gray_9d mLeft7"
+                              className="delete Font14 textTertiary mLeft7"
                               onClick={() => removeFilter(item)}
                             />
                           </div>

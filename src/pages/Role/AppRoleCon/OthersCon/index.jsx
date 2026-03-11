@@ -28,7 +28,7 @@ const Des = styled.div`
     margin: 30px auto;
   }
   padding: 30px 40px;
-  background: #f7f7f7;
+  background: var(--color-background-secondary);
   min-height: 100%;
   overflow: auto;
   .title {
@@ -43,12 +43,12 @@ const Des = styled.div`
     text-align: center;
     line-height: 56px;
     border-radius: 6px 6px 6px 6px;
-    border: 1px solid #dddddd;
-    background: #fff;
+    border: 1px solid var(--color-border-primary);
+    background: var(--color-background-primary);
     &.c {
-      background: #1677ff;
+      background: var(--color-primary);
       border: 0;
-      color: #fff;
+      color: var(--color-white);
     }
   }
 `;
@@ -68,21 +68,21 @@ const ExplainCon = styled.div`
   }
   .explain-desc {
     width: 445px;
-    color: #757575;
+    color: var(--color-text-secondary);
     margin: 23px auto;
     text-align: left;
   }
   .explain-button {
     padding: 15px 22px;
-    background: #1677ff;
+    background: var(--color-primary);
     border: none;
-    color: #ffffff;
+    color: var(--color-white);
     font-size: 14px;
     border-radius: 3px;
     font-weight: 600;
   }
   .explain-button:hover {
-    background: #1565c0;
+    background: var(--color-link-hover);
   }
 `;
 
@@ -164,30 +164,30 @@ function OthersCon(props) {
   const renderDes = () => {
     return (
       <Des className="">
-        <div className="title Gray_75">{_l('什么是用户扩展信息表？')}</div>
-        <div className="con mTop12 Gray_75">
+        <div className="title textSecondary">{_l('什么是用户扩展信息表？')}</div>
+        <div className="con mTop12 textSecondary">
           {_l(
             '用户扩展信息表非常类似于组织中的用户管理表。在组织中，可以全局管理成员基础信息，如：部门、职位、组织角色等。其中部门、组织角色可用于数据权限范围，在工作表添加部门字段，可以使用户对自己所在部门的记录都拥有权限。同样在具体应用中，往往也需要额外管理用户在本应用中的扩展信息。如：销售管理应用中，需要管理销售人员所在的团队、区域、职能等，同时也希望这些信息可以类似部门一样用于数据权限范围。此时就可以建立一张销售人员表。',
           )}
         </div>
-        <div className="title mTop24 Gray_75">{_l('什么是权限标签？')}</div>
-        <div className="con mTop12 Gray_75">
+        <div className="title mTop24 textSecondary">{_l('什么是权限标签？')}</div>
+        <div className="con mTop12 textSecondary">
           {_l(
             '权限标签指用于控制数据权限范围的扩展信息字段（仅支持关联类型字段）。当用户访问应用时，系统可以从扩展信息表中读取当前用户的权限标签，从而使用户对其他工作表中关联了相同标签的记录拥有权限。',
           )}
         </div>
-        <div className="title mTop24 Gray_75">{_l('权限标签如何用于数据权限范围？')}</div>
-        <div className="con mTop12 Gray_75">
+        <div className="title mTop24 textSecondary">{_l('权限标签如何用于数据权限范围？')}</div>
+        <div className="con mTop12 textSecondary">
           {_l('权限标签用于数据权限范围时和部门字段类似，只是没有专门的系统字段，需要通过关联记录字段来灵活实现。')}
         </div>
-        <div className="con mTop10 Gray_75">
+        <div className="con mTop10 textSecondary">
           {_l(
             '如：还是在销售管理应用中，用户扩展信息表中已设置了团队作为用户权限标签（关联团队表），并且订单表也关联了所属团队时。那么当用户访问应用时，系统就可以根据读取到的用户所在团队，并从订单表中过滤出关联了相同团队的订单，从而实现用户对属于自己团队的订单拥有查看、编辑或删除权限（可以在角色权限中进行设置）。',
           )}
         </div>
-        <div className="con mTop10 Gray_75">
-          {_l('此过程如下图所示：了解更多前往')}
-          <Support type={3} href={'https://help.mingdao.com/role/extended-info'} text={_l('帮助中心')} />
+        <div className="con mTop10 textSecondary">
+          {_l('此过程如下图所示')}
+          <Support type={3} href={'https://help.mingdao.com/role/extended-info'} text={_l('了解更多')} />
         </div>
         <div className="imgDes flexRow alignItemsCenter">
           <div className="left">

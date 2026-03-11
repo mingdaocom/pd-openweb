@@ -15,13 +15,13 @@ const Con = styled.div`
     width: calc(100% - 44px);
     font-size: 13px;
     .errorName {
-      color: #f44336;
+      color: var(--color-error);
     }
     .conditionItemHeader {
       position: relative;
       margin-bottom: 2px;
       .deletedColumn {
-        color: #f44336;
+        color: var(--color-error);
         margin-bottom: 6px;
         .icon {
           transform: rotate(90deg);
@@ -31,7 +31,7 @@ const Con = styled.div`
       }
       .controlIcon {
         font-size: 15px;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         margin-right: 6px;
       }
       .columnName {
@@ -49,7 +49,7 @@ const Con = styled.div`
             vertical-align: middle;
           }
           &:hover {
-            background: #f2f2f2;
+            background: var(--color-background-disabled);
           }
         }
       }
@@ -57,7 +57,7 @@ const Con = styled.div`
         cursor: pointer;
         position: absolute;
         right: 0px;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         margin-top: 5px;
         visibility: hidden;
         i {
@@ -84,8 +84,8 @@ const Con = styled.div`
       }
       .deletedColumn {
         width: 100%;
-        background: #ffebeb !important;
-        border-color: #f44336 !important;
+        background: var(--color-error-bg) !important;
+        border-color: var(--color-error) !important;
       }
     }
     &.readonly {
@@ -130,7 +130,7 @@ const ConditionCon = styled.div`
 `;
 
 const ConditionHeader = styled.div`
-  color: #757575;
+  color: var(--color-text-secondary);
   width: 44px;
   .text {
     display: inline-block;
@@ -144,14 +144,14 @@ const ConditionHeader = styled.div`
       vertical-align: middle;
     }
     &:hover {
-      background: #f2f2f2;
+      background: var(--color-background-disabled);
     }
   }
 `;
 
 const AddButton = styled(VCenterIconText)`
   cursor: pointer;
-  color: #757575;
+  color: var(--color-text-secondary);
   font-weight: bold;
 `;
 

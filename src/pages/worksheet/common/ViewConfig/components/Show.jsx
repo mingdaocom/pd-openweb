@@ -192,7 +192,7 @@ export default class Show extends React.Component {
         {customdisplay === '1' ? (
           <SortColumns
             layout={2}
-            placeholder={_l('查找字段')}
+            placeholder={_l('搜索字段')}
             noempty={false} //不需要至少显示一列
             maxHeight={height}
             showControls={showControlsForSortControl}

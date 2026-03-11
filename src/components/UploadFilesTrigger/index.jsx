@@ -122,7 +122,7 @@ export default class UploadFilesTrigger extends Component {
         </div>
         <Icon
           icon="close"
-          className="Gray_75 pointer Font18 ThemeHoverColor3"
+          className="textSecondary pointer Font18 ThemeHoverColor3"
           onClick={this.setTriggerPanelVisible.bind(this, false)}
         />
       </div>
@@ -178,7 +178,7 @@ export default class UploadFilesTrigger extends Component {
             hide: isData || !isComplete,
           })}
         >
-          <div className="Gray_9e flexRow valignWrapper">
+          <div className="textTertiary flexRow valignWrapper">
             <Icon icon="view-upload" className="mRight10 Font24" />
             <span className="Font14">{_l('拖拽至此 或 粘贴剪贴板文件')}</span>
           </div>
@@ -191,7 +191,7 @@ export default class UploadFilesTrigger extends Component {
             this.textarea = textarea;
           }}
         ></textarea>
-        <div className="dragPanel flexRow valignWrapper Font18 Gray_75">{_l('拖拽至此处上传文件')}</div>
+        <div className="dragPanel flexRow valignWrapper Font18 textSecondary">{_l('拖拽至此处上传文件')}</div>
       </ClickAwayable>
     );
   }

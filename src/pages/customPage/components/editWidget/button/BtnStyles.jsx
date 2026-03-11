@@ -16,7 +16,7 @@ const Wrap = styled.div`
     width: 28px;
     height: 28px;
     border-radius: 4px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-tertiary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -30,7 +30,7 @@ const Wrap = styled.div`
     }
     &.ant-input-affix-wrapper:hover,
     &:hover {
-      border-color: #1677ff !important;
+      border-color: var(--color-primary) !important;
     }
     &.ant-input-affix-wrapper,
     &.ant-input-affix-wrapper-focused,
@@ -44,8 +44,8 @@ const Wrap = styled.div`
       align-items: center;
       justify-content: center;
       border-radius: 0 4px 4px 0;
-      border-left: 1px solid #d9d9d9;
-      background-color: #fff;
+      border-left: 1px solid var(--color-border-primary);
+      background-color: var(--color-background-primary);
     }
     .icon-expand_less,
     .icon-expand_more {
@@ -57,7 +57,7 @@ const Wrap = styled.div`
   }
   .countInput {
     .disabled {
-      color: #ddd;
+      color: var(--color-border-primary);
     }
     .ant-input-suffix {
       width: 38px !important;
@@ -119,7 +119,10 @@ export default props => {
                 <div className="flexColumn">
                   <Icon
                     icon="expand_less"
-                    className={cx('Font20 pointer mBottom2', newTitleStyles.fontSize === 32 ? 'disabled' : 'Gray_9e')}
+                    className={cx(
+                      'Font20 pointer mBottom2',
+                      newTitleStyles.fontSize === 32 ? 'disabled' : 'textTertiary',
+                    )}
                     onClick={() => {
                       let value = Number(newTitleStyles.fontSize) + 1;
                       handleChange({
@@ -129,7 +132,10 @@ export default props => {
                   />
                   <Icon
                     icon="expand_more"
-                    className={cx('Font20 pointer mBottom2', newTitleStyles.fontSize === 13 ? 'disabled' : 'Gray_9e')}
+                    className={cx(
+                      'Font20 pointer mBottom2',
+                      newTitleStyles.fontSize === 13 ? 'disabled' : 'textTertiary',
+                    )}
                     onClick={() => {
                       let value = Number(newTitleStyles.fontSize) - 1;
                       handleChange({
@@ -142,25 +148,25 @@ export default props => {
             />
             <div
               className="colorWrap"
-              style={{ backgroundColor: '#fff' }}
+              style={{ backgroundColor: 'var(--color-background-primary)' }}
               onClick={() => {
                 handleChange({
                   fontBold: !newTitleStyles.fontBold,
                 });
               }}
             >
-              <Icon icon="format_bold" className={cx('Font20 mTop2', { ThemeColor: newTitleStyles.fontBold })} />
+              <Icon icon="format_bold" className={cx('Font20 mTop2', { colorPrimary: newTitleStyles.fontBold })} />
             </div>
             <div
               className="colorWrap"
-              style={{ backgroundColor: '#fff' }}
+              style={{ backgroundColor: 'var(--color-background-primary)' }}
               onClick={() => {
                 handleChange({
                   fontItalic: !newTitleStyles.fontItalic,
                 });
               }}
             >
-              <Icon icon="format_italic" className={cx('Font20 mTop2', { ThemeColor: newTitleStyles.fontItalic })} />
+              <Icon icon="format_italic" className={cx('Font20 mTop2', { colorPrimary: newTitleStyles.fontItalic })} />
             </div>
           </div>
         </div>
@@ -174,7 +180,7 @@ export default props => {
           <div className="label">{_l('对齐方式')}</div>
           <div className="typeSelect flexRow valignWrapper">
             <div
-              className={cx('centerAlign pLeft10 pRight10 pointer Gray_75', {
+              className={cx('centerAlign pLeft10 pRight10 pointer textSecondary', {
                 active: newTitleStyles.textAlign === 'left',
               })}
               onClick={() => {
@@ -186,7 +192,7 @@ export default props => {
               <Icon icon="format_align_left" className="Font18" />
             </div>
             <div
-              className={cx('centerAlign pLeft10 pRight10 pointer Gray_75', {
+              className={cx('centerAlign pLeft10 pRight10 pointer textSecondary', {
                 active: newTitleStyles.textAlign === 'center',
               })}
               onClick={() => {

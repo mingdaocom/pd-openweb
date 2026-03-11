@@ -34,7 +34,7 @@ const Dot = styled.span`
 `;
 
 const Done = styled.span`
-  color: #4caf50;
+  color: var(--color-success);
   display: inline-flex;
   align-items: center;
 `;
@@ -259,26 +259,28 @@ export default class SystemMessage extends PureComponent {
         MSGTYPES.WorkFlowTaskMessage,
         MSGTYPES.WorkFlowUserTaskMessage,
         MSGTYPES.WorkFlowSendTaskMessage,
+        MSGTYPES.WorkFlowSendMessage,
       ].includes(inboxType) && app;
     const done =
       [MSGTYPES.WorkFlowTaskMessage, MSGTYPES.WorkFlowUserTaskMessage, MSGTYPES.WorkFlowSendTaskMessage].includes(
         inboxType,
       ) && !!status;
 
+    const isApiErrorMessage = content.includes('integrationApi') && !app;
+
     return (
       <div className="messageItem">
         <div className="Left">
           {hasApp && app.status === 1 ? (
-            <span
-              className="msgIcon"
-              style={{
-                background: app.color,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
+            <span className="msgIcon flexRow alignItemsCenter justifyContentCenter" style={{ background: app.color }}>
               <SvgIcon url={app.iconUrl} fill="#fff" size={20} />
+            </span>
+          ) : isApiErrorMessage ? (
+            <span
+              className="msgIcon flexRow alignItemsCenter justifyContentCenter Font20"
+              style={{ background: '#1677ff', color: '#fff' }}
+            >
+              <i className="icon-connect" />
             </span>
           ) : (
             <Avatar {...this.props} />
@@ -289,7 +291,7 @@ export default class SystemMessage extends PureComponent {
           <div className="pRight25">
             <div className="textMsg">
               <span dangerouslySetInnerHTML={{ __html: typeName }} />
-              {typeName && <span className="mRight5 Gray_9">:</span>}
+              {typeName && <span className="mRight5 textTertiary">:</span>}
 
               <span
                 dangerouslySetInnerHTML={{
@@ -300,13 +302,13 @@ export default class SystemMessage extends PureComponent {
                 }}
               />
             </div>
-            <div className="Gray_9 mTop8">
+            <div className="textTertiary mTop8">
               {done && (
                 <Tooltip title={`${formatMsgDate(dateConvertToUserZone(readTime))} ${_l('完成')}`}>
-                  <Done className="Hover_21 Hand">
+                  <Done className="hoverColorPrimary Hand">
                     <Icon icon="done" className="mRight6" />
                     <span className="text">{MSG_DONE_TEXT[inboxType] || _l('已处理')}</span>
-                    <span className="mRight12 mLeft12 Gray_bd">|</span>
+                    <span className="mRight12 mLeft12 textDisabled">|</span>
                   </Done>
                 </Tooltip>
               )}
@@ -319,7 +321,7 @@ export default class SystemMessage extends PureComponent {
                   ) : (
                     <span className="bottomAppNameWrap">
                       <a
-                        className="Gray_9 Hover_21 inboxAppName"
+                        className="textTertiary hoverColorPrimary inboxAppName"
                         target="_blank"
                         href={`/app/${app.id}`}
                         onMouseEnter={this.getWorkflowDetail}
@@ -333,7 +335,11 @@ export default class SystemMessage extends PureComponent {
                             {processInfo.deleted ? (
                               _l('已删除')
                             ) : (
-                              <a target="_blank" className="Gray_9 Hover_21" href={`/workflowedit/${processInfo.id}`}>
+                              <a
+                                target="_blank"
+                                className="textTertiary hoverColorPrimary"
+                                href={`/workflowedit/${processInfo.id}`}
+                              >
                                 {processInfo.name}
                               </a>
                             )}

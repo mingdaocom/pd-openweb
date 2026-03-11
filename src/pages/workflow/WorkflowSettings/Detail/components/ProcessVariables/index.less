@@ -3,45 +3,45 @@
   .processConfigInput {
     padding: 5px 12px;
     border-radius: 4px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     height: 36px;
     line-height: 36px;
     font-size: 13px;
     &:focus {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
     &::-webkit-input-placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
     &:-moz-placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
     &::-moz-placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
     &:-ms-input-placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
   }
   .processConfigDel {
     margin-top: 10px;
     cursor: pointer;
     &:hover {
-      color: #f44336 !important;
+      color: var(--color-error) !important;
     }
   }
   .processConfigAdd {
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     display: inline-block;
     height: 36px;
     line-height: 36px;
     border-radius: 4px;
     padding: 0 20px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     cursor: pointer;
     box-sizing: border-box;
     &:hover {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
   }
 }

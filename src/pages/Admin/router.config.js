@@ -125,6 +125,10 @@ export const menuList = [
             path: '/admin/sysinfo/(.*)',
             component: () => import('./organization/systemSetting'),
           },
+          {
+            path: '/admin/certinfo/(.*)',
+            component: () => import('./organization/systemSetting'),
+          },
         ],
       },
       {
@@ -175,7 +179,7 @@ export const menuList = [
         key: 'analytics',
         routes: [
           {
-            path: '/admin/analytics/:projectId',
+            path: '/admin/analytics/:projectId/:type?',
             component: () => import('./app/useAnalytics/index.js'),
           },
         ],
@@ -186,7 +190,7 @@ export const menuList = [
         menuPath: '/admin/app/:projectId',
         routes: [
           {
-            path: '/admin/app/:projectId',
+            path: '/admin/app/:projectId/:type?',
             exact: true,
             component: () => import('./app/appManagement'),
           },
@@ -354,7 +358,7 @@ export const menuList = [
         key: 'data',
         routes: [
           {
-            path: '/admin/data/:projectId',
+            path: '/admin/data/:projectId/:type?',
             exact: true,
             component: () => import('./security/data'),
           },
@@ -423,12 +427,12 @@ export const menuList = [
     icon: 'icon-device_hub',
     subMenuList: [
       {
-        name: _l('第三方平台'),
+        name: _l('企业身份'),
         key: 'platformintegration',
         menuPath: '/admin/platformintegration/:projectId(.*)',
         routes: [
           {
-            path: '/admin/platformintegration/:projectId',
+            path: '/admin/platformintegration/:projectId/:type?',
             component: () => import('./integration/platformIntegration'),
           },
         ],

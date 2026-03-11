@@ -13,7 +13,7 @@ import { getTitleOfTaskType } from './modules';
 const MingoWrap = styled.div`
   height: 100%;
   overflow: hidden;
-  background: #fff;
+  background: var(--color-background-primary);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -25,13 +25,13 @@ const MingoWrap = styled.div`
     .chattingTitle {
       cursor: pointer;
       .backIcon:hover {
-        color: #151515 !important;
+        color: var(--color-text-title) !important;
       }
     }
     .chattingTitleText {
       margin-left: 8px;
       font-size: 17px;
-      color: #151515;
+      color: var(--color-text-title);
       font-weight: bold;
     }
   }
@@ -50,7 +50,8 @@ function getDefaultValueOfMingoCache() {
   return {};
 }
 function Mingo(props) {
-  const { mingoFixing, onFixing, onClose, drawerVisible, base, sheetList, worksheetInfo } = props;
+  const { mingoFixing, onFixing, onClose, drawerVisible, sheetList, worksheetInfo } = props;
+  const [base, setBase] = useState(props.base);
   const defaultMingoCache = useMemo(() => getDefaultValueOfMingoCache(), []);
   const [currentChatId, setCurrentChatId] = useState(null);
   const contentRef = useRef(null);
@@ -108,7 +109,7 @@ function Mingo(props) {
     return null;
   }
   return (
-    <MingoWrap>
+    <MingoWrap className="mingoWrap">
       {!includes(
         [
           MINGO_TASK_TYPE.CREATE_RECORD_ASSIGNMENT,
@@ -121,7 +122,9 @@ function Mingo(props) {
           {!isChatting && (
             <BgIconButton
               tooltip={mingoFixing ? _l('取消固定') : _l('固定')}
-              iconStyle={mingoFixing ? { color: '#515151' } : { color: '#cccccc' }}
+              iconStyle={
+                mingoFixing ? { color: 'var(--color-text-title)' } : { color: 'var(--color-text-placeholder)' }
+              }
               icon="set_top"
               onClick={onFixing}
             />
@@ -148,7 +151,7 @@ function Mingo(props) {
       )}
       <MingoEntry
         allowEdit
-        base={{ ...base, worksheetInfo }}
+        base={{ ...base, worksheetInfo: base.worksheetInfo || worksheetInfo }}
         sheetList={sheetList}
         taskType={taskType}
         ref={contentRef}
@@ -156,6 +159,7 @@ function Mingo(props) {
         updateIsChatting={setIsChatting}
         onUpdateChatId={setCurrentChatId}
         onUpdateTaskType={setTaskType}
+        onUpdateBase={setBase}
         onClose={onClose}
         onBack={handleBack}
       />

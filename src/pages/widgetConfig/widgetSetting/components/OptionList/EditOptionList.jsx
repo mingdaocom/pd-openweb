@@ -64,7 +64,7 @@ export default function EditOptionList(props) {
         <div className="settingItemTitle flexRow">
           <div className="flex">{_l('名称')}</div>
           {!_.isEmpty(options) && (
-            <div className="ThemeColor bold Hand" onClick={checkQuote}>
+            <div className="colorPrimary bold Hand" onClick={checkQuote}>
               {_l('查看引用')}
             </div>
           )}
@@ -76,7 +76,7 @@ export default function EditOptionList(props) {
         <div className="flexCenter" style={{ justifyContent: 'space-between' }}>
           <div className="flexCenter">
             <i
-              style={{ color: colorful ? '#43bd36' : '#bdbdbd' }}
+              style={{ color: colorful ? 'var(--color-success)' : 'var(--color-text-disabled)' }}
               className={`Font24 pointer icon-${colorful ? 'ic_toggle_on' : 'ic_toggle_off'}`}
               onClick={() => setColorful(colorful ? false : true)}
             ></i>

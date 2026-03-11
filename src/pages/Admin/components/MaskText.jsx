@@ -26,7 +26,7 @@ export default function MaskText({ text }) {
   return (
     <MaskTextWrap>
       {isMasked ? '*****' : text}
-      <Icon icon={isMasked ? 'eye_off' : 'eye'} className="mLeft8 eyeIcon Hand Gray_9e" onClick={handleMask} />
+      <Icon icon={isMasked ? 'eye_off' : 'eye'} className="mLeft8 eyeIcon Hand textTertiary" onClick={handleMask} />
     </MaskTextWrap>
   );
 }

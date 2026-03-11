@@ -1,7 +1,7 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import store from 'redux/configureStore';
 import PropTypes from 'prop-types';
+import store from 'src/redux/configureStore';
 import postEnum from '../../constants/postEnum';
 import { changeListType, changeTitle } from '../../redux/postActions';
 import { PostList } from '../post';

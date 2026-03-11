@@ -76,9 +76,9 @@ export default function PublishSetDialog(props) {
       }}
     >
       <Wrap>
-        <p className="Gray_75">{_l('此操作会重新同步全量数据')}</p>
+        <p className="textSecondary">{_l('此操作会重新同步全量数据')}</p>
         <h5 className="Bold mTop32 Font14">{_l('识别重复数据')}</h5>
-        <p className="mBottom12 Gray_9e">{_l('未选择目标字段时, 会根据数据源的主键字段判断重复')}</p>
+        <p className="mBottom12 textTertiary">{_l('未选择目标字段时, 会根据数据源的主键字段判断重复')}</p>
         <div className="">
           <div className="">{_l('在同步时，依据目标字段')}</div>
           <Dropdown
@@ -93,7 +93,7 @@ export default function PublishSetDialog(props) {
               const info = props.controls.find(o => o.id === value) || {};
               return (
                 <React.Fragment>
-                  <Icon className="Gray_9e" icon={getIconByType(info.mdType, false)} /> {info.alias || info.name}
+                  <Icon className="textTertiary" icon={getIconByType(info.mdType, false)} /> {info.alias || info.name}
                 </React.Fragment>
               );
             }}
@@ -123,7 +123,7 @@ export default function PublishSetDialog(props) {
               }}
             />
             <Tooltip title={_l('“覆盖”会导致数据同步变慢')}>
-              <Icon icon="info_outline" className="Gray_bd mLeft5 Font18" />
+              <Icon icon="info_outline" className="textDisabled mLeft5 Font18" />
             </Tooltip>
           </div>
         </div>

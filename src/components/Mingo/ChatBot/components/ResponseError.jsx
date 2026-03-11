@@ -9,7 +9,7 @@ const Con = styled.div`
   margin-top: 10px;
   height: 40px;
   font-size: 13px;
-  color: #f44336;
+  color: var(--color-error);
   padding: 0 12px;
   background: rgba(244, 67, 54, 0.04);
   border-radius: 4px;
@@ -18,22 +18,22 @@ const Con = styled.div`
   justify-content: center;
   .errorIcon {
     font-size: 16px;
-    color: #f44336;
+    color: var(--color-error);
     margin-right: 8px;
   }
   .errorIcon {
     font-size: 16px;
-    color: #f44336;
+    color: var(--color-error);
     margin-right: 8px;
   }
   .retry {
     margin-left: 20px;
     font-size: 13px;
-    color: #151515;
+    color: var(--color-text-title);
     cursor: pointer;
     .icon {
       font-size: 16px;
-      color: #757575;
+      color: var(--color-text-secondary);
       margin-right: 2px;
     }
   }

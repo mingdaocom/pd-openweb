@@ -13,11 +13,11 @@
       .del {
         margin-right: 24px;
         padding: 6px 18px;
-        border: 1px solid #eaeaea;
+        border: 1px solid var(--color-border-secondary);
         &:hover {
-          color: #fff;
-          background: #1677ff;
-          border: 1px solid #1677ff;
+          color: var(--color-white);
+          background: var(--color-primary);
+          border: 1px solid var(--color-primary);
         }
       }
     }
@@ -29,11 +29,11 @@
     display: flex;
     &.header {
       line-height: 36px;
-      color: #757575;
-      background-color: #f4f4f4;
+      color: var(--color-text-secondary);
+      background-color: var(--color-background-disabled);
     }
     &.templates {
-      border-bottom: 1px solid #ddd;
+      border-bottom: 1px solid var(--color-border-primary);
       padding: 16px 0;
     }
     .type {
@@ -42,7 +42,7 @@
     }
     .content {
       flex-wrap: wrap;
-      color: #000;
+      color: var(--color-text-primary);
       padding-left: 12px;
       overflow: hidden;
     }
@@ -53,7 +53,7 @@
     .msgTemplateCreateTime {
       width: 180px;
       &.theneColor {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }

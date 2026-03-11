@@ -35,14 +35,14 @@ function GroupFilter(props) {
       ];
   const item = <MenuItem onClick={changeGroupStatus}>{_l('显示已关闭的群组')}</MenuItem>;
   return (
-    <div className="pLeft10 Gray_75">
+    <div className="pLeft10 textSecondary">
       <Dropdown data={dropDownData} onChange={changeGroupFilter} value={searchGroupType} className="ThemeHoverColor3">
         <div className="ming Dividor" />
         {React.cloneElement(
           item,
           groupStatus === GROUP_STATUS.ALL
             ? { icon: <Icon icon="hr_ok" />, iconAtEnd: true, className: 'ThemeColor3' }
-            : { className: 'Gray_9' },
+            : { className: 'textTertiary' },
         )}
       </Dropdown>
     </div>

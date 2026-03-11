@@ -10,15 +10,15 @@ const Con = styled.div`
     height: 160px;
   }
   .tip {
-    color: #999;
+    color: var(--color-text-tertiary);
     margin-top: -2px;
   }
   .addFilter {
     border-radius: 36px !important;
     padding: 0 16px !important;
-    background-color: #1677ff;
+    background-color: var(--color-primary);
     &:hover {
-      background-color: #1565c0;
+      background-color: var(--color-link-hover);
     }
   }
 `;

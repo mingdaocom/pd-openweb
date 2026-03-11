@@ -5,11 +5,12 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   position: fixed;
   right: 20px;
   bottom: 70px;
   z-index: 100;
+  box-shadow: var(--shadow-lg);
   &.bottom124 {
     bottom: 124px;
   }
@@ -19,6 +20,9 @@
   &.bottom120 {
     bottom: 120px;
   }
+  &.bottom160 {
+    bottom: 160px;
+  }
   .redDot {
     position: absolute;
     top: 10px;
@@ -26,7 +30,7 @@
     width: 8px;
     height: 8px;
     border-radius: 100%;
-    background-color: red;
+    background-color: var(--color-error);
   }
 }
 
@@ -43,4 +47,3 @@
     height: 100%;
   }
 }
-

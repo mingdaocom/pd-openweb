@@ -57,11 +57,11 @@ export const renderContent = data => {
   return <Checkbox className="TxtCenter InlineBlock Hand" text={''} checked={isChecked} />;
 };
 
-export const renderText = o => {
+export const renderText = (o, options = {}) => {
   if ([1, 2, 23].includes(o.type)) {
-    return renderCellText({ ...o });
+    return renderCellText({ ...o }, options);
   } else {
-    return <CellControl cell={{ ...o }} from={4} mode="portal" />;
+    return <CellControl cell={{ ...o }} from={4} mode="portal" {...options} />;
   }
 };
 

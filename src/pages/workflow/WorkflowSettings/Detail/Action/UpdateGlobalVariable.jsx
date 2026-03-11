@@ -30,7 +30,7 @@ export default props => {
     }
 
     return (
-      <div className="Gray_75" style={{ lineHeight: '20px' }}>
+      <div className="textSecondary" style={{ lineHeight: '22px' }}>
         {_l('设为')}
       </div>
     );
@@ -46,7 +46,7 @@ export default props => {
   return (
     <Fragment>
       <div className="Font13 bold">{_l('更新变量')}</div>
-      <div className="mTop20 Gray_75">{_l('将变量')}</div>
+      <div className="mTop20 textSecondary">{_l('将变量')}</div>
 
       {!data.fields.length && (
         <div
@@ -106,7 +106,6 @@ export default props => {
             </div>
 
             <SingleControlValue
-              showClear
               companyId={props.companyId}
               relationId={props.relationId}
               processId={props.processId}

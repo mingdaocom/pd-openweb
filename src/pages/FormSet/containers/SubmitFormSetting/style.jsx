@@ -11,7 +11,7 @@ export const Con = styled.div`
   h6 {
     font-size: 14px;
     font-weight: 600;
-    color: #151515;
+    color: var(--color-text-title);
     margin-top: 38px;
   }
   .title {
@@ -19,27 +19,27 @@ export const Con = styled.div`
     padding: 0px 9px;
     line-height: 36px;
     border-radius: 3px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     box-sizing: border-box;
     &:-ms-input-placeholder {
-      color: #9e9e9e !important;
+      color: var(--color-text-tertiary) !important;
     }
     &::-ms-input-placeholder {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
     &::placeholder {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
     &:focus {
-      border: 1px solid #1677ff;
+      border: 1px solid var(--color-primary);
     }
   }
   .con {
     width: 100%;
     padding: 24px 16px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     border-radius: 8px;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -48,12 +48,12 @@ export const Con = styled.div`
         padding-left: 0px;
       }
       .currentMenu {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     .ming.MenuItem .Item-content:not(.disabled):hover {
-      background-color: #f5f5f5 !important;
-      color: #151515 !important;
+      background-color: var(--color-background-secondary) !important;
+      color: var(--color-text-title) !important;
     }
 
     .btnCon {
@@ -63,25 +63,25 @@ export const Con = styled.div`
         height: 32px;
       }
       .btnStr {
-        color: #fff;
+        color: var(--color-white);
         line-height: 32px;
         min-height: 32px;
         padding: 0 20px;
-        background: #1677ff;
+        background: var(--color-primary);
         border-radius: 4px;
         max-width: 155px;
         box-sizing: border-box;
       }
       i {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
         opacity: 0;
         &:hover {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }
     &:hover {
-      border: 1px solid #ccc;
+      border: 1px solid var(--color-border-tertiary);
       i {
         opacity: 1;
       }
@@ -89,9 +89,9 @@ export const Con = styled.div`
     &.nextBtn {
       .btnCon {
         .btnStr {
-          background: #ffffff;
-          border: 1px solid #e0e0e0;
-          color: #151515;
+          background: var(--color-background-primary);
+          border: 1px solid var(--color-border-secondary);
+          color: var(--color-text-title);
         }
       }
       &.noAction {
@@ -112,7 +112,7 @@ export const Con = styled.div`
     }
   }
   .moreActionCon {
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-secondary);
     padding-bottom: 20px;
     align-items: center;
     justify-content: center;
@@ -124,7 +124,7 @@ export const Con = styled.div`
       cursor: not-allowed;
     }
     &.borderB {
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-secondary);
     }
   }
   .autoreserveCon {
@@ -148,20 +148,20 @@ export const Con = styled.div`
     height: auto;
     min-height: 36px;
     .itemT {
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       border-radius: 4px 4px 4px 4px;
       padding: 2px 8px 2px 10px;
       line-height: 18px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border-secondary);
       overflow: hidden;
       span {
         max-width: 200px;
         overflow: hidden;
       }
       i {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         &:hover {
-          color: #757575;
+          color: var(--color-text-secondary);
         }
       }
     }
@@ -183,7 +183,7 @@ export const Con = styled.div`
 `;
 export const Wrap = styled.div`
   width: 340px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 3px 12px 1px rgba(0, 0, 0, 0.1607843137254902);
   border-radius: 3px;
   padding: 16px;
@@ -194,26 +194,26 @@ export const Wrap = styled.div`
     width: 100%;
     line-height: 36px;
     border-radius: 3px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     padding: 0 12px;
     &:focus {
-      border: 1px solid #1677ff;
+      border: 1px solid var(--color-primary);
     }
   }
 `;
 export const WrapTxt = styled.div`
    {
     width: 100%;
-    background: #f8f8f8;
-    border: 1px solid #dddddd;
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-border-primary);
     border-radius: 3px;
     padding: 16px;
     box-sizing: border-box;
-    color: #151515;
+    color: var(--color-text-title);
     margin-top: 12px;
     display: flex;
     &.createCon {
-      background: #fff;
+      background: var(--color-background-primary);
       display: block;
     }
 
@@ -222,7 +222,7 @@ export const WrapTxt = styled.div`
       min-width: 0;
       flex: 1;
       font-size: 13px;
-      color: #151515;
+      color: var(--color-text-title);
       line-height: 24px;
 
       p {
@@ -254,13 +254,13 @@ export const WrapTxt = styled.div`
       width: 20px;
 
       &:hover {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
 
     .editWorkflow {
       width: auto;
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;

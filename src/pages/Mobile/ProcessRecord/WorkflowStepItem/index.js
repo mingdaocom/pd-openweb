@@ -6,7 +6,7 @@ import { MobileFlowChart } from 'src/pages/workflow/components/FlowChart';
 
 const Wrap = styled.ul`
   padding: 0 17px 50px;
-  background-color: #f8f8f8;
+  background-color: var(--color-background-secondary);
 `;
 
 class WorkflowStepItem extends Component {
@@ -25,7 +25,7 @@ class WorkflowStepItem extends Component {
         <div className="pTop20 flexRow valignWrapper">
           <div className="Font17 bold flex">{_l('流程进度')}</div>
           {isApproval && !hideStep && (
-            <div className="flexRow alignItemsCenter Gray_9e" onClick={() => this.setState({ visible: true })}>
+            <div className="flexRow alignItemsCenter textTertiary" onClick={() => this.setState({ visible: true })}>
               <Icon className="Font16 mRight5" icon="department" />
               <div className="bold">{_l('流转图')}</div>
             </div>

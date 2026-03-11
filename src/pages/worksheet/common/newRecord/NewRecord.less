@@ -1,4 +1,9 @@
 .workSheetNewRecord {
+  background-color: var(--color-background-primary);
+  .ant-modal-body,
+  .ant-modal-footer {
+    background-color: var(--color-background-primary) !important;
+  }
   .customFieldsCon {
     position: relative;
   }
@@ -12,7 +17,7 @@
     cursor: pointer;
     font-size: 22px;
     margin-left: 4px;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
   .mingoCreate {
     cursor: pointer;
@@ -20,7 +25,7 @@
     align-items: center;
     justify-content: center;
     font-size: 13px;
-    color: #757575;
+    color: var(--color-text-secondary);
     img {
       width: 18px;
       margin-right: 5px;
@@ -56,18 +61,18 @@
       }
     }
     .saveAndContinueBtn {
-      color: #151515;
-      background: #fff;
-      border: 1px solid #bdbdbd;
+      color: var(--color-text-title);
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-text-disabled);
       line-height: 34px;
       &:hover {
-        color: #1677ff;
-        border-color: #1677ff;
+        color: var(--color-primary);
+        border-color: var(--color-primary);
       }
     }
     // .saveDraftBtn {
     //   &:hover {
-    //     color: #1677ff;
+    //     color: var(--color-primary);
     //   }
     // }
 
@@ -86,7 +91,7 @@
     height: 14px;
   }
   &.Switch--on {
-    background-color: #4caf50;
+    background-color: var(--color-success);
     .dot {
       left: 18px;
     }
@@ -95,13 +100,13 @@
 
 .promptCancelAddRecord {
   .saveAndContinueBtn {
-    color: #151515;
-    background: #fff !important;
-    border: 1px solid #bdbdbd;
+    color: var(--color-text-title);
+    background: var(--color-background-primary) !important;
+    border: 1px solid var(--color-text-disabled);
     line-height: 34px;
     &:hover {
-      color: #1677ff;
-      border-color: #1677ff;
+      color: var(--color-primary);
+      border-color: var(--color-primary);
     }
   }
 }

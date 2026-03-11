@@ -23,12 +23,12 @@ const Box = styled.div`
   .noData {
     margin-left: 14px;
     font-size: 12px;
-    color: #757575;
+    color: var(--color-text-secondary);
     display: flex;
     align-items: center;
   }
   .noData .icon {
-    color: #1677ff !important;
+    color: var(--color-primary) !important;
   }
   .list .listItem {
     width: 100%;
@@ -42,7 +42,7 @@ const Box = styled.div`
       right: 0;
       width: 200px;
       height: 100%;
-      background: linear-gradient(271deg, #ffffff 0%, rgba(255, 255, 255, 0) 100%);
+      background: linear-gradient(271deg, var(--color-background-card) 0%, rgba(255, 255, 255, 0) 100%);
       border-radius: 4px;
       align-items: center;
       justify-content: end;
@@ -50,15 +50,15 @@ const Box = styled.div`
       .moreAction {
         width: 28px;
         height: 28px;
-        background: #ffffff;
+        background: var(--color-background-primary);
         box-shadow: 0px 2px 4px 1px rgba(0, 0, 0, 0.06);
         border-radius: 5px 5px 5px 5px;
-        border: 1px solid #eaeaea;
+        border: 1px solid var(--color-border-secondary);
         display: flex;
         align-items: center;
         justify-content: center;
         &:hover {
-          background: #f7f7f7;
+          background: var(--color-background-hover);
         }
       }
     }
@@ -66,7 +66,7 @@ const Box = styled.div`
   .list .listItem:hover,
   .list .listItem.highlight,
   .showMore.highlight {
-    background: #f7f7f7;
+    background: var(--color-background-hover);
     .moreActionMask {
       display: flex;
     }
@@ -77,7 +77,7 @@ const Box = styled.div`
     width: 32px;
     height: 32px;
     border-radius: 18px;
-    background: #f7f7f7;
+    background: var(--color-background-secondary);
     text-align: center;
     line-height: 32px;
     min-width: 32px;
@@ -103,7 +103,7 @@ const Box = styled.div`
     position: absolute;
     width: 100%;
     font-size: 13px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   .list .listItem .listItemInfo .listItemInfoTitle {
     height: 20px;
@@ -116,12 +116,12 @@ const Box = styled.div`
     padding: 10px 0;
   }
   .showMore:hover {
-    background: #f7f7f7;
+    background: var(--color-background-hover);
   }
   .splitDot {
     width: 4px;
     height: 4px;
-    background: #c6c6c6;
+    background: var(--color-text-placeholder);
     margin-left: 6px;
     margin-right: 6px;
     display: inline-block;
@@ -132,7 +132,7 @@ const Box = styled.div`
   .splitVertical {
     width: 1px;
     height: 12px;
-    background: #c6c6c6;
+    background: var(--color-text-placeholder);
     margin-left: 6px;
     margin-right: 6px;
     display: inline-block;
@@ -141,20 +141,20 @@ const Box = styled.div`
 `;
 
 const MoreOperateMenu = styled.ul`
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
   border-radius: 3px 3px 3px 3px;
   width: 160px;
   font-size: 13px;
-  color: #151515;
+  color: var(--color-text-title);
   padding: 4px 0;
   li {
     line-height: 36px;
     padding: 0 24px;
     cursor: pointer;
     &:hover {
-      background-color: #1677ff;
-      color: #fff;
+      background-color: var(--color-primary);
+      color: var(--color-white);
     }
   }
 `;
@@ -424,7 +424,9 @@ export default function AppList(props) {
                 >
                   <SvgIcon
                     url={item.iconUrl}
-                    fill={dataKey === 'record' ? item.color : item.itemType === 3 ? '#fff' : '#757575'}
+                    fill={
+                      dataKey === 'record' ? item.color : item.itemType === 3 ? '#fff' : 'var(--color-text-secondary)'
+                    }
                     size={18}
                   />
                 </div>
@@ -436,7 +438,7 @@ export default function AppList(props) {
                       text={getTitle(item)}
                     />
                     {dataKey === 'record' && needTime && (
-                      <span className="mRight20 Gray_75 Font12 Normal">
+                      <span className="mRight20 textSecondary Font12 Normal">
                         {timeKey === 'updateTime' ? _l('更新时间：') : _l('创建时间')} {createTimeSpan(item[timeKey])}
                       </span>
                     )}
@@ -486,7 +488,7 @@ export default function AppList(props) {
                       }
                     >
                       <div className="moreAction">
-                        <Icon icon="moreop" className="Font18 Gray_9e" />
+                        <Icon icon="moreop" className="Font18 textTertiary" />
                       </div>
                     </Trigger>
                   </div>
@@ -497,18 +499,18 @@ export default function AppList(props) {
       </ul>
       {needShowMore && data.total > 5 && (
         <div className={cx('pLeft20 showMore', { highlight: start && current === -2 })}>
-          <Icon icon={expand ? 'expand_less' : 'more_horiz'} className="Gray_9e Font18" />
-          <a className="text mLeft24 Gray_9e" onClick={expandHandle}>
+          <Icon icon={expand ? 'expand_less' : 'more_horiz'} className="textTertiary Font18" />
+          <a className="text mLeft24 textTertiary" onClick={expandHandle}>
             {expand ? _l('收起') : _l('显示更多')}
           </a>
         </div>
       )}
       {viewAll && data.total > 5 && (
         <div className={cx('pLeft20 showMore', { highlight: start && current === -2 })}>
-          <Icon icon="more_horiz" className="Gray_9e Font18" />
+          <Icon icon="more_horiz" className="textTertiary Font18" />
           <a
             href={`/search?search_key=${searchKeyword}&search_type=${settingInfo.key}&appId=${id}`}
-            className="text mLeft24 Gray_9e"
+            className="text mLeft24 textTertiary"
             onClick={clickShowHandle}
           >
             {_l('查看全部')}
@@ -517,8 +519,8 @@ export default function AppList(props) {
       )}
       {loadMore && nextPage && list.length < 10 && (
         <div className={cx('pLeft20 showMore', { highlight: start && current === -2 })}>
-          <Icon icon="more_horiz" className="Gray_9e Font18" />
-          <a className="text mLeft24 Gray_9e" onClick={getNextPage}>
+          <Icon icon="more_horiz" className="textTertiary Font18" />
+          <a className="text mLeft24 textTertiary" onClick={getNextPage}>
             {_l('加载更多')}
           </a>
         </div>

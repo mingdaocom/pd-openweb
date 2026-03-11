@@ -83,7 +83,7 @@ export default class CustomLocation extends Component {
             const isLatLng = _.includes(['lat', 'lng'], item.key);
             return (
               <Fragment>
-                <div className="mBottom4 mTop16 bold Gray_75">{item.title}</div>
+                <div className="mBottom4 mTop16 bold textSecondary">{item.title}</div>
                 <Input
                   disabled={item.disabled}
                   value={

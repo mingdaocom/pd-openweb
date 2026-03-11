@@ -36,7 +36,7 @@ const TimePeriodType = styled.div`
   align-items: center;
   width: 40px;
   height: 32px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   border-right: 0;
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
@@ -48,10 +48,10 @@ const RangeInputContainer = styled.div`
   .ming.Input {
     width: 150px;
     height: 32px;
-    border-color: #ddd !important;
+    border-color: var(--color-border-primary) !important;
 
     &:focus {
-      border-color: #1e88e5 !important;
+      border-color: var(--color-primary) !important;
     }
   }
 
@@ -68,10 +68,10 @@ const CustomTimePicker = styled(TimePicker)`
   height: 32px !important;
   border-radius: 3px !important;
   &:hover {
-    border-color: #ddd !important;
+    border-color: var(--color-border-primary) !important;
   }
   &.ant-picker-focused {
-    border-color: #1e88e5 !important;
+    border-color: var(--color-primary) !important;
   }
 `;
 
@@ -81,12 +81,12 @@ const MonthDropdownItem = styled.div`
   align-items: center;
 
   .Icon {
-    color: #1677ff !important;
+    color: var(--color-primary) !important;
     position: unset !important;
   }
   &:hover {
     .Icon {
-      color: #fff !important;
+      color: var(--color-white) !important;
     }
   }
 `;
@@ -94,7 +94,7 @@ const MonthDropdownItem = styled.div`
 const DaySelectContainer = styled.div`
   width: 320px;
   padding: 12px 13px;
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.16);
   border-radius: 6px;
 
@@ -110,12 +110,12 @@ const DaySelectContainer = styled.div`
     cursor: pointer;
 
     :hover {
-      border: 1px solid #1677ff;
+      border: 1px solid var(--color-primary);
     }
 
     &.active {
-      background: #1677ff;
-      color: #fff;
+      background: var(--color-primary);
+      color: var(--color-white);
     }
   }
 `;
@@ -128,7 +128,7 @@ const WeekContainer = styled.div`
     height: 32px;
     padding: 6px;
     text-align: center;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     border-left-width: 0.5px;
     border-right-width: 0.5px;
     line-height: 18px;
@@ -145,11 +145,11 @@ const WeekContainer = styled.div`
       border-right-width: 1px;
     }
     :hover {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
     &.active {
-      background: #1677ff;
-      color: #fff;
+      background: var(--color-primary);
+      color: var(--color-white);
     }
   }
 `;
@@ -161,18 +161,18 @@ const NoExpandSelect = styled.div`
   width: 320px;
   height: 32px;
   padding: 5px 5px 5px 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   border-radius: 4px;
   box-sizing: border-box;
   cursor: pointer;
   i {
     margin-left: 8px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 
   :hover,
   &.active {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
   }
 `;
 
@@ -323,7 +323,7 @@ export default function DataCollectionSettings(props) {
             placeholder={_l('选择月份')}
             renderTitle={() =>
               _.isEmpty(selectedMonths) ? (
-                <span className="Gray_bd">{_l('选择月份')}</span>
+                <span className="textDisabled">{_l('选择月份')}</span>
               ) : (
                 <span>{selectedMonths.sort((a, b) => a - b).join(', ')}</span>
               )
@@ -385,7 +385,7 @@ export default function DataCollectionSettings(props) {
           >
             <NoExpandSelect className={cx({ active: daySelectPopupVisible })}>
               {_.isEmpty(selectedDays) ? (
-                <span className="Gray_bd ellipsis InlineBlock">{_l('选择日期')}</span>
+                <span className="textDisabled ellipsis InlineBlock">{_l('选择日期')}</span>
               ) : (
                 <span className="ellipsis InlineBlock">{selectedDays.sort((a, b) => a - b).join(', ')}</span>
               )}
@@ -425,7 +425,7 @@ export default function DataCollectionSettings(props) {
               />
               <div className="rangeSuffix">{type === TIME_TYPE.MONTH ? _l('月') : _l('日')}</div>
             </RangeInputContainer>
-            <Icon icon="minus Gray_75 Font12 mLeft4 mRight4" />
+            <Icon icon="minus textSecondary Font12 mLeft4 mRight4" />
             <RangeInputContainer>
               <Input
                 value={timeRange[type].end || ''}
@@ -450,7 +450,7 @@ export default function DataCollectionSettings(props) {
                     value={item.start ? dayjs(item.start, 'HH:mm') : null}
                     onChange={(time, timeString) => onTimeChange(timeString, index, 'start')}
                   />
-                  <Icon icon="minus Gray_75 Font12 mLeft4 mRight4" />
+                  <Icon icon="minus textSecondary Font12 mLeft4 mRight4" />
                   <CustomTimePicker
                     locale={locale}
                     format="HH:mm"
@@ -462,7 +462,7 @@ export default function DataCollectionSettings(props) {
                   />
                   <Icon
                     icon={index === 0 ? 'add_circle_outline' : 'remove_circle_outline'}
-                    className="Font15 Gray_9e mLeft10 pointer"
+                    className="Font15 textTertiary mLeft10 pointer"
                     onClick={() => {
                       setState({
                         timeRange: Object.assign({}, timeRange, {

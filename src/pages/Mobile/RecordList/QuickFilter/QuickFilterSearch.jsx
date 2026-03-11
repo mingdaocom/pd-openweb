@@ -9,7 +9,7 @@ import QuickFilter from './';
 import Search from './Search';
 
 const SearchWrapper = styled.div`
-  background-color: #f2f2f3;
+  background-color: var(--color-background-secondary);
   .filterStepListWrapper {
     -webkit-overflow-scrolling: touch;
     position: inherit;
@@ -22,7 +22,7 @@ const SearchWrapper = styled.div`
     height: 40px;
     border-radius: 50%;
     padding: 0 !important;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.16);
     z-index: 2;
     display: flex !important;
@@ -37,7 +37,7 @@ const SearchWrapper = styled.div`
   }
 `;
 const FilterWrapper = styled.div`
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   padding: 10px;
   border-radius: 50%;
   width: 34px;
@@ -47,7 +47,7 @@ const FilterWrapper = styled.div`
   justify-content: center;
   margin-left: 10px;
   .active {
-    color: #33a3f4 !important;
+    color: var(--color-primary-focus) !important;
   }
 `;
 
@@ -109,7 +109,7 @@ export default function QuickFilterSearch(props) {
         <FilterWrapper>
           <Icon
             icon="filter"
-            className={cx('Font20 Gray_9e', {
+            className={cx('Font20 textTertiary', {
               active:
                 isFilter || !_.isEmpty(activeSavedFilter) || (window.isMingDaoApp && !_.isEmpty(props.filterControls)),
             })}
@@ -124,6 +124,7 @@ export default function QuickFilterSearch(props) {
         bodyStyle={{
           borderRadius: '14px 0 0 14px',
           overflow: 'hidden',
+          backgroundColor: 'var(--color-background-card)',
         }}
         position="right"
         visible={filters.visible}

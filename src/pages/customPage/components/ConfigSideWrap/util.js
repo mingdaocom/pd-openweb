@@ -1,7 +1,7 @@
 import { generate } from '@ant-design/colors';
 
 export const defaultTitleStyles = {
-  color: '#333',
+  color: 'var(--color-text-primary)',
   fontSize: 15,
   fontBold: true,
   fontItalic: false,

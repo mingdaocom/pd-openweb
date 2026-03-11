@@ -4,7 +4,7 @@ import { Dialog, Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import certificationApi from 'src/api/certification.js';
 import projectSettingAjax from 'src/api/projectSetting';
-import SelectCertification from 'src/pages/certification/SelectCertification';
+import SelectCertification from 'src/pages/certification/components/SelectCertification';
 import { settingEarlyWarning } from 'src/pages/workflow/WorkflowList/components/WorkflowMonitor/EarlyWarningDialog';
 import { navigateTo } from 'src/router/navigateTo';
 import { formatNumberThousand } from 'src/utils/control';
@@ -108,7 +108,7 @@ export default function AccountBalance(props) {
   return (
     <div className="infoCard">
       <div>
-        <div className="Font16 bold Gray mBottom6 valignWrapper mBottom6">
+        <div className="Font16 bold textPrimary mBottom6 valignWrapper mBottom6">
           {_l('信用点')}
           <Tooltip
             title={_l(
@@ -116,25 +116,25 @@ export default function AccountBalance(props) {
             )}
             placement="bottom"
           >
-            <Icon icon="help" className="mLeft6 Hover_21 helpIcon" />
+            <Icon icon="help" className="mLeft6 hoverColorPrimary helpIcon" />
           </Tooltip>
         </div>
         <div className="mBottom6 flexRow alignItemsCenter">
-          <span className="Font28 Gray Bold Hand">
+          <span className="Font28 textPrimary Bold Hand">
             {data.hideBalance ? '*****' : formatNumberThousand(data.balance)}
           </span>
           <Icon
             icon={data.hideBalance ? 'eye_off' : 'eye'}
-            className="Gray_9e eyeIcon Hand"
+            className="textTertiary eyeIcon Hand"
             onClick={() => updateData({ hideBalance: !data.hideBalance })}
           />
         </div>
         {!_.isEmpty(balanceInfo) && hasBalance && (
           <div className="Font14">
             {!!balanceInfo.noticeEnabled && (
-              <span className="Gray_70 mRight8">{_l('预警（<%0信用点）', balanceInfo.balanceLimit || 0)}</span>
+              <span className="textSecondary mRight8">{_l('预警（<%0信用点）', balanceInfo.balanceLimit || 0)}</span>
             )}
-            <span className="ThemeColor Hand hoverColor" onClick={setEarlyWarning}>
+            <span className="colorPrimary Hand hoverColor" onClick={setEarlyWarning}>
               {balanceInfo.noticeEnabled ? _l('设置') : _l('信用点余额预警')}
             </span>
           </div>

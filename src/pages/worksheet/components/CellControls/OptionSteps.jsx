@@ -15,7 +15,7 @@ function getOptionStyle(option, cell) {
   return cell.enumDefault2 === 1 && option.color
     ? {
         backgroundColor: option.color,
-        color: option.color && isLightColor(option.color) ? '#151515' : '#fff',
+        color: option.color && isLightColor(option.color) ? 'var(--color-black)' : 'var(--color-white)',
       }
     : {};
 }
@@ -34,8 +34,8 @@ const Con = styled.div`
 
 const EditingCon = styled.div`
   padding: 7px 6px;
-  background: #fff;
-  box-shadow: inset 0 0 0 2px #2d7ff9 !important;
+  background: var(--color-background-primary);
+  box-shadow: inset 0 0 0 2px var(--color-primary-focus) !important;
 `;
 
 const OperateIcon = styled.div`
@@ -44,9 +44,9 @@ const OperateIcon = styled.div`
   width: 24px;
   height: 24px;
   border-radius: 3px;
-  background: #fff;
+  background: var(--color-background-primary);
   text-align: center;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   font-size: 16px;
   cursor: pointer;
 `;

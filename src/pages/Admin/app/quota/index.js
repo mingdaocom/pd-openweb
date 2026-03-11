@@ -75,12 +75,12 @@ export default function Quota(props) {
         </div>
 
         <div className="listWrap">
-          <div className="listHeader flexRow pTop10 pBottom10 Gray_15">
+          <div className="listHeader flexRow pTop10 pBottom10 textPrimary">
             <div className="flex pLeft10">{_l('资源类型')}</div>
             <div className="globalQuota">
               <span className="TxtMiddle"> {_l('全局额度')}</span>
               <Tooltip title={_l('设置为“不限”，实际使用不得超过系统限制')}>
-                <Icon icon="info_outline" className="Font16 Gray_9e mLeft5 TxtMiddle" />
+                <Icon icon="info_outline" className="Font16 textTertiary mLeft5 TxtMiddle" />
               </Tooltip>
             </div>
             <div className="extraSetting">{_l('额外设置')}</div>
@@ -96,8 +96,8 @@ export default function Quota(props) {
               return (
                 <div className="flexRow listContentItem">
                   <div className="flex pLeft10">
-                    <div className="Font14 Gray_15 bold mBottom5">{item.title}</div>
-                    <div className="Gray_9e">{item.desc}</div>
+                    <div className="Font14 textPrimary bold mBottom5">{item.title}</div>
+                    <div className="textTertiary">{item.desc}</div>
                   </div>
                   <div className="globalQuota">
                     {size && Number(size) === -1 ? _l('不限') : `${size}${item.quotaUnit}`}
@@ -105,7 +105,7 @@ export default function Quota(props) {
                   <div className="extraSetting">
                     {extra && _.isNumber(extra) ? `${extra}${item.extraSetting}` : '-'}
                   </div>
-                  <div className="setting ThemeColor Hand" onClick={() => handleSetting(item)}>
+                  <div className="setting colorPrimary Hand" onClick={() => handleSetting(item)}>
                     {_l('设置')}
                   </div>
                 </div>

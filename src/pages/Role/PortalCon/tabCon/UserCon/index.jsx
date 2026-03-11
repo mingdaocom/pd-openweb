@@ -60,7 +60,7 @@ const Wrap = styled.div`
 `;
 const WrapL = styled.div`
   .roleSearch {
-    background: #fff;
+    background: var(--color-background-primary);
     border-radius: 0;
     width: 100%;
     padding-left: 0;
@@ -220,7 +220,7 @@ class Con extends React.Component {
         <div className="navCon navConList">
           <ul>
             {navList.length <= 0 ? (
-              <div className="TxtCenter Gray_bd mTop20">{_l('无相关角色')}</div>
+              <div className="TxtCenter textDisabled mTop20">{_l('无相关角色')}</div>
             ) : (
               navList.map(o => {
                 let optList = [];
@@ -286,7 +286,7 @@ class Con extends React.Component {
                     </div>
                     {!!o.description && (
                       <Tooltip title={o.description}>
-                        <i className="icon-info_outline Font16 Gray_9e mLeft7" />
+                        <i className="icon-info_outline Font16 textTertiary mLeft7" />
                       </Tooltip>
                     )}
                   </li>

@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react';
 import _ from 'lodash';
 import nzh from 'nzh';
-import { DEPARTMENT_ORGANIZE, USER_ORGANIZE, USER_TYPE } from '../../enum';
+import { DEPARTMENT_ORGANIZE, RELATION_TYPE, USER_ORGANIZE, USER_TYPE } from '../../enum';
 
 export default ({ accounts, multipleLevelAccounts, relationType, relationId }) => {
-  const appId = relationType === 2 ? relationId : '';
+  const appId = relationType === RELATION_TYPE.APP ? relationId : '';
   const getMemberNames = data => {
     return data.map((obj, i) => {
       const split = i !== data.length - 1 ? '、' : '';
@@ -91,13 +91,13 @@ export default ({ accounts, multipleLevelAccounts, relationType, relationId }) =
     return (
       <Fragment>
         <div>
-          <span className="Gray_75">{_l('一级：')}</span>
+          <span className="textSecondary">{_l('一级：')}</span>
           {getMemberNames(accounts)}
         </div>
         {multipleLevelAccounts.map((item, i) => {
           return (
             <div key={i}>
-              <span className="Gray_75">{_l('%0级：', nzh.cn.encodeS(i + 2))}</span>
+              <span className="textSecondary">{_l('%0级：', nzh.cn.encodeS(i + 2))}</span>
               {getMemberNames(item)}
             </div>
           );

@@ -16,11 +16,15 @@ export default class CascaderSheet extends Component {
   };
   constructor(props) {
     super(props);
-    this.cascaderValue = [];
     this.state = {
       visible: false,
-      cascaderValue: [],
     };
+  }
+
+  componentWillReceiveProps(nextprops) {
+    if (_.get(nextprops, 'data.controlId') !== _.get(this.props, 'data.controlId')) {
+      this.setState({ visible: false, cascaderValue: [] });
+    }
   }
   handleClick = () => {
     const { data } = this.props;
@@ -28,6 +32,7 @@ export default class CascaderSheet extends Component {
       alert(_l('请先配置数据源'), 3);
       return;
     }
+
     this.setState({ visible: true });
   };
   getRowId = staticValue => {
@@ -46,26 +51,27 @@ export default class CascaderSheet extends Component {
     const { defaultType } = this.props;
     defaultType && this.$wrap.triggerClick();
   };
-  getDynamicValue = () => {
-    const { dynamicValue = [], multiple = false } = this.props;
-    if (_.isEmpty(this.cascaderValue)) return dynamicValue;
-    let newDynamicValue = [].concat(this.cascaderValue);
-    if (multiple) {
-      newDynamicValue = dynamicValue.concat(this.cascaderValue);
-    }
-    return _.unionBy(newDynamicValue, 'staticValue');
-  };
-  handleSave = () => {
-    const newVal = this.getDynamicValue();
-    this.props.onDynamicValueChange(newVal);
-    this.cascaderValue = [];
-    this.setState({ cascaderValue: [] });
-  };
   render() {
-    // multiple 给开始范围指定项专用
-    const { data, defaultType, multiple = false, getType } = this.props;
+    const { data, defaultType, hideOtherFields = false, getType, dynamicValue } = this.props;
     const titleControl = _.find(data.relationControls || [], re => re.attribute === 1);
     const { visible } = this.state;
+    const isDynamic = !_.isEmpty(dynamicValue) && !_.get(_.last(dynamicValue), 'staticValue');
+    const showValue =
+      _.isEmpty(dynamicValue) || isDynamic
+        ? []
+        : dynamicValue
+            .map(i => {
+              let staticValueInfo = JSON.parse(i.staticValue)[0];
+              staticValueInfo = staticValueInfo.indexOf('rowid') > -1 ? safeParse(staticValueInfo) : staticValueInfo;
+              if (_.isObject(staticValueInfo)) {
+                return {
+                  sid: staticValueInfo.rowid,
+                  name: JSON.parse(staticValueInfo.path || '[]').join(' / ') || _l('未命名'),
+                };
+              }
+              return { sid: JSON.parse(i.staticValue)[0], name: i.relateSheetName };
+            })
+            .filter(i => i.sid);
     const cascaderProps = {
       ...data,
       getType,
@@ -77,13 +83,11 @@ export default class CascaderSheet extends Component {
         minlayer: '0',
         anylevel: '0',
       },
-      visible,
+      visible: true,
       onPopupVisibleChange: visible => {
         this.setState({ visible });
-        if (!visible) {
-          this.handleSave();
-        }
       },
+      value: JSON.stringify(showValue),
       onChange: value => {
         const newValue = safeParse(value, 'array').map(item => {
           return {
@@ -93,8 +97,8 @@ export default class CascaderSheet extends Component {
             relateSheetName: item.name,
           };
         });
-        this.cascaderValue = newValue;
-        this.setState({ cascaderValue: newValue });
+
+        this.props.onDynamicValueChange(newValue);
       },
     };
     return (
@@ -104,15 +108,26 @@ export default class CascaderSheet extends Component {
         ) : (
           <OtherFieldList
             {...this.props}
-            dynamicValue={this.getDynamicValue()}
-            totalWidth={multiple}
+            dynamicValue={dynamicValue}
+            totalWidth={hideOtherFields}
             titleControl={titleControl}
-            onClick={this.handleClick}
+            onClick={() => {
+              if (isDynamic) return;
+              this.handleClick();
+            }}
             removeRelateSheet={this.removeRelateSheet}
           />
         )}
         {visible && <CascaderDropdown {...cascaderProps} />}
-        {!multiple && <SelectOtherField {...this.props} ref={con => (this.$wrap = con)} />}
+        {!hideOtherFields && (
+          <SelectOtherField
+            {...this.props}
+            ref={con => (this.$wrap = con)}
+            onDynamicValueChange={newValue => {
+              this.props.onDynamicValueChange(newValue);
+            }}
+          />
+        )}
       </DynamicValueInputWrap>
     );
   }

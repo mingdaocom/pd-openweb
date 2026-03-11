@@ -52,7 +52,7 @@ const GroupTitleCon = styled(VerticalMiddle)`
     margin-left: 10px;
     cursor: pointer;
     i {
-      color: #f9ce1d;
+      color: var(--color-yellow-dark);
       font-size: 18px;
     }
   }
@@ -80,7 +80,7 @@ const GroupTitleContent = styled(VerticalMiddle)`
   &:not(.disabled) {
     cursor: pointer;
     &:hover {
-      background: #f2f2f2;
+      background: var(--color-background-hover);
       .icon-arrow-down {
         visibility: visible;
       }
@@ -100,8 +100,8 @@ const GroupTabs = styled.div`
 const GroupTab = styled.div`
   cursor: pointer;
   padding: 5px 16px;
-  color: #757575;
-  background-color: #f5f5f5;
+  color: var(--color-text-secondary);
+  background-color: var(--color-background-secondary);
   margin-right: 8px;
   border-radius: 36px;
   font-weight: bolder;
@@ -121,13 +121,13 @@ const GroupTabClickPopup = styled.div`
   width: 200px;
   height: 46px;
   padding: 0 16px;
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 3px;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.24);
+  box-shadow: var(--shadow-lg);
   &:hover {
-    color: #1677ff;
+    color: var(--color-primary);
     i {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
 `;
@@ -170,7 +170,7 @@ const AddAppItemBtn = styled(AddAppItem)`
   .newAppBtn {
     font-size: 13px;
     display: inline-block;
-    color: #fff;
+    color: var(--color-white);
     line-height: 36px;
     font-weight: 700;
     border-radius: 36px;
@@ -206,12 +206,12 @@ const GroupTabList = styled.div`
       &:hover {
         .liContent {
           .itemText {
-            border-bottom: 2px solid #ddd;
+            border-bottom: 2px solid var(--color-border-primary);
           }
           .starIcon {
             display: inline-block;
             &:hover {
-              color: #f9ce1d;
+              color: var(--color-yellow-dark);
             }
           }
         }
@@ -235,7 +235,7 @@ const GroupTabList = styled.div`
           border-bottom: 2px solid rgba(0, 0, 0, 0);
           padding-bottom: 2px;
           max-width: 200px;
-          color: #757575;
+          color: var(--color-text-secondary);
           font-weight: bold;
 
           &::before {
@@ -249,7 +249,7 @@ const GroupTabList = styled.div`
         }
         .divideLine {
           height: 12px;
-          border-right: 1px solid #ddd;
+          border-right: 1px solid var(--color-border-primary);
           margin-left: 24px;
         }
         .starIcon {
@@ -257,10 +257,10 @@ const GroupTabList = styled.div`
           top: 1px;
           right: -20px;
           display: none;
-          color: #bdbdbd;
+          color: var(--color-text-tertiary);
           font-size: 13px;
           &.isMarked {
-            color: #f9ce1d;
+            color: var(--color-yellow-dark);
           }
         }
       }
@@ -279,7 +279,7 @@ const GroupTabList = styled.div`
     span {
       padding-bottom: 2px;
       border-bottom: 2px solid transparent;
-      color: #757575;
+      color: var(--color-text-secondary);
       &.isActive {
         color: ${({ themeColor }) => themeColor};
         border-color: ${({ themeColor }) => themeColor};
@@ -296,19 +296,17 @@ const GroupTabList = styled.div`
 
 const MorePopupContainer = styled.div`
   width: 220px;
-  background: #fff;
+  background: var(--color-background-card);
   border-radius: 3px;
   padding: 6px 0;
-  box-shadow:
-    0px 4px 20px rgba(0, 0, 0, 0.13),
-    0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
   .groupItem {
     display: flex;
     align-items: center;
     padding: 12px 20px;
     cursor: pointer;
     &:hover {
-      background: #f8f8f8;
+      background: var(--color-background-hover);
       .listStarIcon {
         display: block;
       }
@@ -320,13 +318,13 @@ const MorePopupContainer = styled.div`
 
     .listStarIcon {
       display: none;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       margin-left: 8px;
       &:hover {
-        color: #f9ce1d;
+        color: var(--color-yellow-dark);
       }
       &.isMarked {
-        color: #f9ce1d;
+        color: var(--color-yellow-dark);
       }
     }
   }
@@ -353,19 +351,19 @@ function GroupTitle(props) {
         {disabled ? (
           <span className="mRight18" />
         ) : (
-          <Icon icon={isFolded ? 'arrow-right-tip' : 'arrow-down'} className="mRight4 Font12 Gray_9d" />
+          <Icon icon={isFolded ? 'arrow-right-tip' : 'arrow-down'} className="mRight4 Font12 textTertiary" />
         )}
-        {iconName && <Icon icon={iconName} className="mRight4 Font20 Gray_75" />}
+        {iconName && <Icon icon={iconName} className="mRight4 Font20 textSecondary" />}
         {svgIcon && (
           <SvgIcon
             className="mRight4 mTop5"
             size={20}
             url={svgIcon.iconUrl || `${md.global.FileStoreConfig.pubHost}/customIcon/${svgIcon.icon}.svg`}
-            fill="#757575"
+            fill="var(--color-text-secondary)"
           />
         )}
         <div className="ellipsis">{title}</div>
-        {_.isNumber(count) && count !== 0 && <span className="Gray_bd mLeft6 Bold Font15">{count}</span>}
+        {_.isNumber(count) && count !== 0 && <span className="textDisabled mLeft6 Bold Font15">{count}</span>}
       </GroupTitleContent>
       {!!group && (
         <Tooltip title={_l('取消标星')} placement="bottom">
@@ -490,7 +488,7 @@ function MarkedGroupTab(props) {
                         });
                       }}
                     >
-                      <Icon icon="task-star" className="Gray_9d Font20" />
+                      <Icon icon="task-star" className="textTertiary Font20" />
                       <span className="mLeft10 mTop2">{_l('取消标星')}</span>
                     </GroupTabClickPopup>
                   }
@@ -778,7 +776,7 @@ export default function AppGrid(props) {
                   <span className={cx('overflow_ellipsis bold', { isActive: !!activeMoreGroup })}>
                     {activeMoreGroup || _l('更多')}
                   </span>
-                  <Icon icon="arrow-down-border" className="mLeft10 Gray_9d pBottom2" />
+                  <Icon icon="arrow-down-border" className="mLeft10 textTertiary pBottom2" />
                 </div>
               </div>
             </Trigger>
@@ -836,7 +834,7 @@ export default function AppGrid(props) {
             </React.Fragment>
           )}
           {type === 'project' && !apps.length && keywords && (
-            <NoSearchResultTip className="Font14 Gray_9e">{_l('无搜索结果')}</NoSearchResultTip>
+            <NoSearchResultTip className="Font14 textTertiary">{_l('无搜索结果')}</NoSearchResultTip>
           )}
           {type === 'external' && isExternal && !apps.length && (
             <NoExternalAppTip className="Font14 Gray75 noExternal">{_l('暂无外部协作者的应用')}</NoExternalAppTip>
@@ -885,7 +883,7 @@ export default function AppGrid(props) {
                 onClick={() => toggleFolded(activeGroup.id || 'owned')}
               />
               {keywords && !(isOwnedApp ? ownedApps : activeGroupApps).length && (
-                <div className="Font14 Gray_9e mTop24">{_l('无搜索结果')}</div>
+                <div className="Font14 textTertiary mTop24">{_l('无搜索结果')}</div>
               )}
               <AppList
                 {...props}
@@ -956,7 +954,7 @@ export default function AppGrid(props) {
               {currentTheme.appIcon && <img src={currentTheme.appIcon} />}
               {_l('应用')}
               {notDisplayMyAppTitle && !!myApps.length && (
-                <span className="Gray_bd mLeft6 Bold Font15">{myApps.length}</span>
+                <span className="textDisabled mLeft6 Bold Font15">{myApps.length}</span>
               )}
             </div>
             <div className="flex" />
@@ -982,7 +980,7 @@ export default function AppGrid(props) {
             }}
           >
             <span className="newAppBtn">
-              <i className="Icon icon icon-plus Font13 mRight5 White" />
+              <i className="Icon icon icon-plus Font13 mRight5 textWhite" />
               {_l('新建应用')}
             </span>
           </AddAppItemBtn>

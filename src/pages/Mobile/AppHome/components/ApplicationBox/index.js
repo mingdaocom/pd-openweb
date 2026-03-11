@@ -86,7 +86,7 @@ export default class ApplicationList extends Component {
 
     return (
       <div className="flexColumn flex valignWrapper justifyContentCenter">
-        <p className="Gray_75 mTop25 TxtCenter Gray Font17 errPageCon">
+        <p className="textSecondary mTop25 TxtCenter textPrimary Font17 errPageCon">
           {cannotCreateApp
             ? _l('暂无任何应用，请选择从应用库添加应用开始使用')
             : _l('您暂无权限添加应用，请联系管理员进行添加使用')}
@@ -107,7 +107,7 @@ export default class ApplicationList extends Component {
         key: 'application',
         text: (
           <Fragment>
-            <Icon className={cx('mRight10 Gray_9e Font18')} icon="application_library" />
+            <Icon className={cx('mRight10 textTertiary Font18')} icon="application_library" />
             <span className="Bold">{_l('从模板库添加')}</span>
           </Fragment>
         ),
@@ -116,7 +116,7 @@ export default class ApplicationList extends Component {
         key: 'add',
         text: (
           <Fragment>
-            <Icon className={cx('mRight10 Gray_9e Font18')} icon="add1" />
+            <Icon className={cx('mRight10 textTertiary Font18')} icon="add1" />
             <span className="Bold">{_l('自定义创建')}</span>
           </Fragment>
         ),
@@ -171,11 +171,11 @@ export default class ApplicationList extends Component {
           }}
         >
           <div className="flex">
-            <Icon icon={icon} className="mRight10 TxtMiddle Gray_9e Font20" />
-            <span className={cx('Gray Font17 Bold', { TxtMiddle: type !== 'groupApps' })}>{name}</span>
+            <Icon icon={icon} className="mRight10 TxtMiddle textTertiary Font20" />
+            <span className={cx('textPrimary Font17 Bold', { TxtMiddle: type !== 'groupApps' })}>{name}</span>
           </div>
           {showExpandIcon && (
-            <Icon icon={_.includes(dashboardHideGroup, type) ? 'plus' : 'minus'} className="Gray_9e" />
+            <Icon icon={_.includes(dashboardHideGroup, type) ? 'plus' : 'minus'} className="textTertiary" />
           )}
         </div>
       );
@@ -183,11 +183,11 @@ export default class ApplicationList extends Component {
     return (
       <div className="flexRow alignItemsCenter">
         {iconUrl ? (
-          <GroupIcon url={iconUrl} fill="#9e9e9e" size={20} />
+          <GroupIcon url={iconUrl} fill="var(--color-text-tertiary)" size={20} />
         ) : (
-          <Icon icon={icon} className="mRight10 TxtMiddle Gray_9e Font20" />
+          <Icon icon={icon} className="mRight10 TxtMiddle textTertiary Font20" />
         )}
-        <span className={cx('Gray Font17 Bold', { TxtMiddle: type !== 'groupApps' })}>{name}</span>
+        <span className={cx('textPrimary Font17 Bold', { TxtMiddle: type !== 'groupApps' })}>{name}</span>
       </div>
     );
   };
@@ -209,7 +209,7 @@ export default class ApplicationList extends Component {
           {this.forTitle({ type, name, icon, iconUrl, showExpandIcon })}
         </div>
         {type === 'externalApps' && _.isEmpty(apps) ? (
-          <div className="Gray_bd bold mLeft30 mTop20" style={{ paddingLeft: `${distance}px` }}>
+          <div className="textDisabled bold mLeft30 mTop20" style={{ paddingLeft: `${distance}px` }}>
             {_l('暂无外部协作者的应用')}
           </div>
         ) : _.includes(dashboardHideGroup, type) ? null : (
@@ -221,7 +221,7 @@ export default class ApplicationList extends Component {
               <ApplicationItem
                 data={{
                   id: 'add',
-                  iconColor: '#F5F5F5',
+                  iconColor: 'var(--color-background-secondary)',
                   icon: 'plus',
                   name: _l('添加应用'),
                   onClick: this.showActionSheet,
@@ -345,10 +345,10 @@ export default class ApplicationList extends Component {
               }}
             >
               <span>
-                <Icon icon="table_rows" className="mRight10 TxtMiddle Gray_9e Font20" />
-                <span className="Gray Font17 Bold TxtMiddle">{_l('应用分组')}</span>
+                <Icon icon="table_rows" className="mRight10 TxtMiddle textTertiary Font20" />
+                <span className="textPrimary Font17 Bold TxtMiddle">{_l('应用分组')}</span>
               </span>
-              <Icon icon="navigate_next" className="Gray_9e Font18" />
+              <Icon icon="navigate_next" className="textTertiary Font18" />
             </div>
             <div className="spaceBottom"></div>
           </Fragment>

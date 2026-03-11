@@ -1,7 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { Select } from 'antd';
+import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { dialogSelectUser } from 'ming-ui/functions';
+
+const OptionItem = styled.div`
+  display: flex;
+  align-items: center;
+  .iconWrap {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    color: var(--color-white);
+  }
+`;
 
 export default function SelectUser(props) {
   const {
@@ -13,8 +25,10 @@ export default function SelectUser(props) {
     isAdmin = false,
     maxCount,
     style = {},
+    containWorkflow = false,
   } = props;
   const [userInfo, setUserInfo] = useState(props.userInfo);
+  const [userType, setUserType] = useState(null);
 
   useEffect(() => {
     setUserInfo(props.userInfo);
@@ -44,21 +58,52 @@ export default function SelectUser(props) {
       },
     });
   };
+
   return (
     <Select
       className={className}
-      value={userInfo.map(item => item.fullname).join(',') || undefined}
+      value={
+        !containWorkflow || userType === 'addressBook'
+          ? userInfo.map(item => item.fullname).join(',') || null
+          : userType
+      }
       placeholder={placeholder || _l('搜索用户')}
       dropdownRender={null}
       allowClear
-      open={false}
       style={style}
-      onFocus={handleSelectUser}
       suffixIcon={<Icon icon="person" className="Font16" />}
-      onChange={() => {
+      onChange={value => {
+        if (value) {
+          setUserType(value);
+          value === 'addressBook' ? handleSelectUser() : changeData([{ accountId: 'user-workflow' }]);
+          return;
+        }
+
         setUserInfo([]);
         changeData([]);
+        setUserType(null);
       }}
+      {...(!containWorkflow
+        ? { open: false, onFocus: handleSelectUser }
+        : {
+            options: [
+              { text: _l('通讯录'), value: 'addressBook', icon: 'topbar-addressList', color: 'var(--color-success)' },
+              { text: _l('工作流'), value: 'workflow', icon: 'workflow', color: '#4158db' },
+            ].map(item => ({
+              ...item,
+              label: (
+                <OptionItem>
+                  <div
+                    className="iconWrap flexRow alignItemsCenter justifyContentCenter"
+                    style={{ backgroundColor: item.color }}
+                  >
+                    <Icon icon={item.icon} className="Font14" />
+                  </div>
+                  <div className="mLeft8">{item.text}</div>
+                </OptionItem>
+              ),
+            })),
+          })}
     />
   );
 }

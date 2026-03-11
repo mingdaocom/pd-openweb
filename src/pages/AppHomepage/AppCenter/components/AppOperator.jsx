@@ -47,7 +47,7 @@ const EXTERNAL_LINK_OPERATION = [
 ];
 
 const Divider = styled.div`
-  border-top: 1px solid #ddd;
+  border-top: 1px solid var(--color-border-primary);
   margin: 5px 0;
 `;
 
@@ -66,6 +66,7 @@ export default ({
   sourceType,
   isGoodsStatus,
   isExternalApp,
+  exported,
   ...propsRest
 }) => {
   const allowDelete = !isExternalApp
@@ -95,7 +96,7 @@ export default ({
   }
 
   if (sourceType === 60) {
-    _.remove(list, o => o.type === 'copy');
+    !exported && _.remove(list, o => o.type === 'copy');
 
     if (!isGoodsStatus) {
       _.remove(list, o => o.type === 'edit');

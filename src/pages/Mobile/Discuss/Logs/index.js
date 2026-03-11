@@ -6,7 +6,7 @@ const LogsContent = styled.div`
   width: 100%;
   height: 100%;
   color: rgba(0, 0, 0, 0.85);
-  background-color: #fafafa;
+  background-color: var(--color-background-secondary);
 `;
 
 class Logs extends Component {

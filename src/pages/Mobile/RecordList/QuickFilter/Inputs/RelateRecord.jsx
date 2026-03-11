@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import _ from 'lodash';
 import { arrayOf, func, shape } from 'prop-types';
 import MobileRecordCardListDialog from 'mobile/components/RecordCardListDialog';
-import { getTitleTextFromControls } from 'src/components/Form/core/utils';
+import { getTitleTextFromControls } from 'src/utils/control';
 import RelateRecordOptions from './RelateRecordOptions';
 
 export default function RelateRecord(props) {
@@ -17,6 +17,9 @@ export default function RelateRecord(props) {
   });
   const { controlId, coverCid, showControls, dataSource, viewId } = control;
   const { allowitem, nullitemname, shownullitem, navshow, navfilters } = advancedSetting;
+  if (advancedSetting.clicksearch && navshow !== '2') {
+    control.advancedSetting.clicksearch = advancedSetting.clicksearch;
+  }
   const isMultiple = String(allowitem) === '2';
   const [moreVisible, setMoreVisible] = useState(false);
   let staticRecords;
@@ -103,6 +106,7 @@ export default function RelateRecord(props) {
         prefixRecords={prefixRecords}
         staticRecords={staticRecords}
         parentWorksheetId={worksheetId}
+        parentAppId={appId}
         onSetMoreVisible={handleSetMoreVisible}
         onChange={newRecords => {
           handleChange({ values: newRecords });

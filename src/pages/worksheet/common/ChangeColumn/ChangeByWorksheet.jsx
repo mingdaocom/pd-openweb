@@ -9,15 +9,15 @@ const PopupCon = styled.div`
   border-radius: 2px;
   padding: 20px;
   box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.16);
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   .title {
     font-size: 15px;
-    color: #151515;
+    color: var(--color-text-title);
     font-weight: 500;
   }
   .description {
     font-size: 13px;
-    color: #757575;
+    color: var(--color-text-secondary);
     line-height: 1.8em;
     margin: 10px 0 26px;
   }
@@ -30,10 +30,10 @@ const PopupCon = styled.div`
 `;
 
 export default function ChangedIcon(props) {
-  const { onOk = () => {} } = props;
+  const { onOk = () => {}, skipConfirm = false } = props;
   const [popupVisible, setPopupVisible] = useState();
   return (
-    <button className="iconButton ThemeHoverColor3">
+    <button className="iconButton textTertiary ThemeHoverColor3" onClick={skipConfirm ? onOk : undefined}>
       <Trigger
         popupVisible={popupVisible}
         onPopupVisibleChange={newvisible => {
@@ -59,7 +59,7 @@ export default function ChangedIcon(props) {
             </div>
           </PopupCon>
         }
-        action={['click']}
+        action={skipConfirm ? [] : ['click']}
         popupAlign={{
           points: ['tl', 'bl'],
           offset: [-13, 8],

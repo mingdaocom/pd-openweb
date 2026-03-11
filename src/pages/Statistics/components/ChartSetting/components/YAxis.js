@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Dropdown, Menu } from 'antd';
+import { Checkbox, Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, SortableList } from 'ming-ui';
@@ -62,7 +62,7 @@ const renderOverlay = props => {
         <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
           {normTypes.map(item => (
             <Menu.Item
-              style={{ width: 120, color: item.value === normType ? '#1e88e5' : null }}
+              style={{ width: 120, color: item.value === normType ? 'var(--color-primary) !important' : null }}
               key={item.value}
               onClick={() => {
                 onNormType(controlId, item.value);
@@ -89,7 +89,7 @@ const renderOverlay = props => {
               ]
           ).map(item => (
             <Menu.Item
-              style={{ width: 120, color: item.value === normType ? '#1e88e5' : null }}
+              style={{ width: 120, color: item.value === normType ? 'var(--color-primary) !important' : null }}
               key={item.value}
               onClick={() => {
                 onNormType(controlId, item.value);
@@ -114,7 +114,7 @@ const renderOverlay = props => {
           title={
             <div className="flexRow valignWrapper w100">
               <div className="flex">{_l('空值显示')}</div>
-              <div className="Font12 Gray_75 emptyTypeName">
+              <div className="Font12 textSecondary emptyTypeName">
                 {_.get(_.find(emptyShowTypes, { value: emptyShowType }), 'text')}
               </div>
             </div>
@@ -125,7 +125,7 @@ const renderOverlay = props => {
             .filter(data => (data.value ? true : hideVisible))
             .map(item => (
               <Menu.Item
-                style={{ width: 120, color: item.value === emptyShowType ? '#1e88e5' : null }}
+                style={{ width: 120, color: item.value === emptyShowType ? 'var(--color-primary) !important' : null }}
                 key={item.value}
                 onClick={() => {
                   onEmptyShowType(controlId, item.value);
@@ -150,12 +150,12 @@ const renderSortableItem = props => {
   return (
     <SortableItemContent>
       <DragHandle>
-        <Icon className="sortableDrag Font20 pointer Gray_bd ThemeHoverColor3" icon="drag" />
+        <Icon className="sortableDrag Font20 pointer textDisabled ThemeHoverColor3" icon="drag" />
       </DragHandle>
       <div className="flexRow valignWrapper fidldItem" key={item.controlId}>
         {axis ? (
           <Tooltip title={tip}>
-            <span className="Gray flex ellipsis">
+            <span className="textPrimary flex ellipsis">
               {isNumber && normType && `${normType.text}: `}
               {item.rename || item.controlName}
             </span>
@@ -168,10 +168,10 @@ const renderSortableItem = props => {
           </Tooltip>
         )}
         <Dropdown overlay={renderOverlay(props)} trigger={['click']} placement="bottomRight">
-          <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
+          <Icon className="textTertiary Font18 pointer" icon="arrow-down-border" />
         </Dropdown>
         <Icon
-          className="Gray_9e Font18 pointer mLeft10"
+          className="textTertiary Font18 pointer mLeft10"
           icon="close"
           onClick={() => {
             onClear(item.controlId);
@@ -320,12 +320,20 @@ export default class YAxis extends Component {
     );
   }
   renderWithoutFidldItem() {
-    const { currentReport, yaxisList } = this.props;
-    const { reportType, xaxes } = currentReport;
+    const { currentReport, yaxisList, inheritLastYaxis } = this.props;
+    const { reportType, xaxes, style } = currentReport;
     const Content = <WithoutFidldItem onVerification={this.handleVerification} onAddControl={this.handleAddControl} />;
 
     if ([reportTypes.PieChart, reportTypes.FunnelChart].includes(reportType)) {
       return (xaxes.controlId ? _.isEmpty(yaxisList) : true) && Content;
+    }
+
+    if (
+      inheritLastYaxis &&
+      style.inheritLastYaxis &&
+      [reportTypes.WorldMap, reportTypes.ScatterChart].includes(reportType)
+    ) {
+      return null;
     }
 
     if (
@@ -344,7 +352,8 @@ export default class YAxis extends Component {
     return Content;
   }
   render() {
-    const { name, currentReport, axisControls, allControls, yaxisList } = this.props;
+    const { name, currentReport, axisControls, allControls, yaxisList, inheritLastYaxis } = this.props;
+    const { reportType, yaxisList: allYaxisList, style = {} } = currentReport;
     const otherProps = {
       allControls,
       axisControls,
@@ -355,16 +364,89 @@ export default class YAxis extends Component {
       onChangeControlId: this.handleChangeControlId,
       onChangeCurrentReport: this.props.onChangeCurrentReport,
     };
+    const renderInheritLastYaxis = () => {
+      const isScatterChart = reportTypes.ScatterChart === reportType;
+      const { inheritLastYaxisIndex = 0 } = style;
+      const yaxis = allYaxisList[isScatterChart ? inheritLastYaxisIndex : 0];
+      const isNumber = isNumberControl(yaxis.controlType, false);
+      const normType = _.find(normTypes, { value: yaxis.normType }) || {};
+      return (
+        <div className="fieldWrapper mBottom20">
+          <div className="flexRow valignWrapper fidldItem disabled">
+            <span className="textPrimary flex ellipsis">
+              {isNumber && normType && `${normType.text}: `}
+              {yaxis.rename || yaxis.controlName}
+            </span>
+            {isScatterChart && (
+              <Dropdown
+                overlay={
+                  <Menu
+                    className="chartControlMenu chartMenu"
+                    expandIcon={<Icon icon="arrow-right-tip" />}
+                    subMenuOpenDelay={0.2}
+                  >
+                    {allYaxisList.map((item, index) => (
+                      <Menu.Item
+                        style={{ color: index === inheritLastYaxisIndex ? 'var(--color-primary) !important' : null }}
+                        onClick={() => {
+                          this.props.onChangeStyle({
+                            inheritLastYaxisIndex: index,
+                          });
+                        }}
+                      >
+                        <div className="flexRow valignWrapper w100">
+                          <div className="flex">{item.rename || item.controlName}</div>
+                          {index === inheritLastYaxisIndex && <Icon className="colorPrimary" icon="done" />}
+                        </div>
+                      </Menu.Item>
+                    ))}
+                  </Menu>
+                }
+                trigger={['click']}
+                placement="bottomRight"
+              >
+                <Icon className="textTertiary Font18 pointer" icon="arrow-down-border" />
+              </Dropdown>
+            )}
+          </div>
+        </div>
+      );
+    };
+
     return (
       <div className="fieldWrapper mBottom20">
-        <div className="Bold mBottom12">{name}</div>
-        <SortableList
-          useDragHandle
-          items={yaxisList || []}
-          itemKey="controlId"
-          renderItem={options => renderSortableItem({ ...options, ...otherProps })}
-          onSortEnd={this.handleSortEnd}
-        />
+        <div className="flexRow valignWrapper mBottom12">
+          <div className="Bold flex">{name}</div>
+          {inheritLastYaxis && (
+            <Checkbox
+              className="flexRow"
+              checked={style.inheritLastYaxis}
+              onChange={e => {
+                const { checked } = e.target;
+                const data = {
+                  inheritLastYaxis: checked,
+                };
+                if (!checked) {
+                  data.inheritLastYaxisIndex = undefined;
+                }
+                this.props.onChangeStyle(data);
+              }}
+            >
+              {_l('使用已统计值')}
+            </Checkbox>
+          )}
+        </div>
+        {inheritLastYaxis && style.inheritLastYaxis && allYaxisList[0] ? (
+          renderInheritLastYaxis()
+        ) : (
+          <SortableList
+            useDragHandle
+            items={yaxisList || []}
+            itemKey="controlId"
+            renderItem={options => renderSortableItem({ ...options, ...otherProps })}
+            onSortEnd={this.handleSortEnd}
+          />
+        )}
         {this.renderWithoutFidldItem()}
         {this.renderModal()}
       </div>

@@ -8,14 +8,12 @@ import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 
 const Wrap = styled.div`
   padding: 24px;
-  width: 100%;
   max-width: 800px;
-  margin: 0 auto;
   .info,
   .liCon {
+    background: var(--color-background-primary);
     width: 100%;
-    background: #ffffff;
-    // border: 1px solid #ebebeb;
+    // border: 1px solid var(--color-border-secondary);
     padding: 20px 24px;
     border-radius: 6px;
     &.liCon {
@@ -24,14 +22,14 @@ const Wrap = styled.div`
     .li {
       padding: 14px 20px;
       &.borTop {
-        border-top: 1px solid #f4f4f4;
+        border-top: 1px solid var(--color-background-disabled);
       }
       .name a {
-        color: #151515;
+        color: var(--color-text-title);
       }
       &:hover {
         .name a {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }
@@ -41,13 +39,11 @@ const Wrap = styled.div`
     height: 130px;
     line-height: 130px;
     border-radius: 50%;
-    margin: 120px auto 0;
-    color: #e0e0e0;
-    background: #fff !important;
-    color: #9e9e9e;
+    background: var(--color-background-primary) !important;
+    color: var(--color-text-tertiary);
   }
   .Green_fr {
-    color: #4caf50;
+    color: var(--color-success);
   }
 `;
 let Ajax = null;
@@ -81,10 +77,10 @@ export default function Cite(props) {
   const noDataRender = () => {
     return (
       <div className="noData TxtCenter">
-        <span className="iconCon InlineBlock TxtCenter ">
+        <span className="iconCon InlineBlock TxtCenter mTop120 divCenter">
           <Icon icon="connect" className="icon InlineBlock Font64 TxtMiddle" />
         </span>
-        <p className="Gray_9e Font15 mTop20 mBottom0">{_l('暂无引用')}</p>
+        <p className="textTertiary Font15 mTop20 mBottom0">{_l('暂无引用')}</p>
       </div>
     );
   };
@@ -92,7 +88,7 @@ export default function Cite(props) {
     return <LoadDiv className="mTop24" />;
   }
   return (
-    <Wrap className="">
+    <Wrap className="w100 divCenter">
       {/* 状态 0已删除 1正常 2审核中 3已发布  只有自定义的连接并且已经「申请上架」或「已上架」的自定义连接，才需要显示在 API库 中的安装量等信息。*/}
       {props.connectInfo.info && props.connectInfo.type === 1 && [2, 3].includes(props.connectInfo.info.status) && (
         <React.Fragment>
@@ -102,15 +98,15 @@ export default function Cite(props) {
               {_l('上架时间：%0', props.connectInfo.lastModifiedDate || props.connectInfo.createdDate)}
             </div>
             <div className="">
-              <span className="Gray_75 flex">
+              <span className="textSecondary flex">
                 {_l('安装量')}
-                <span className="Bold Gray Font20 mLeft3">
+                <span className="Bold textPrimary Font20 mLeft3">
                   {_.get(props, ['connectInfo', 'info', 'installCount']) || 0}
                 </span>
               </span>
-              <span className="Gray_75 flex mLeft50">
+              <span className="textSecondary flex mLeft50">
                 {_l('引用量')}
-                <span className="Bold Gray Font20 mLeft3">
+                <span className="Bold textPrimary Font20 mLeft3">
                   {_.get(props, ['connectInfo', 'info', 'relationCount']) || 0}
                 </span>
               </span>
@@ -135,7 +131,7 @@ export default function Cite(props) {
                         {o.primaryName}
                       </a>
                     </div>
-                    <div className="flex Gray_75">{_l('节点：%0', o.minorName)}</div>
+                    <div className="flex textSecondary">{_l('节点：%0', o.minorName)}</div>
                   </div>
                 );
               })}
@@ -157,7 +153,7 @@ export default function Cite(props) {
                         {o.primaryName}
                       </a>
                     </div>
-                    <div className="flex Gray_75">{_l('字段：%0', o.minorName)}</div>
+                    <div className="flex textSecondary">{_l('字段：%0', o.minorName)}</div>
                   </div>
                 );
               })}

@@ -35,8 +35,8 @@ const Wrap = styled.div`
       .optionsCon {
         border-radius: 4px;
         padding: 0 10px;
-        border: 1px solid #ccc;
-        background: #ffffff;
+        border: 1px solid var(--color-border-tertiary);
+        background: var(--color-background-primary);
         height: 36px;
         line-height: 36px;
         width: 100%;
@@ -215,9 +215,9 @@ class AppointDialog extends React.Component {
       return (
         <Wrap className="appointFiltersList">
           <div className="headerCon flexRow">
-            <span className="Gray_75 controlname ">{_l('字段')}</span>
-            <span className="Gray_75 actionListBox pLeft10">{_l('属性')}</span>
-            <span className="Gray_75 Width250 InlineBlock valueDef">{_l('默认值')}</span>
+            <span className="textSecondary controlname ">{_l('字段')}</span>
+            <span className="textSecondary actionListBox pLeft10">{_l('属性')}</span>
+            <span className="textSecondary Width250 InlineBlock valueDef">{_l('默认值')}</span>
           </div>
           <div className="appointList">
             {writeControls.map((item, index) => {
@@ -231,7 +231,7 @@ class AppointDialog extends React.Component {
               if (sectionIds.includes(item.controlId)) {
                 return (
                   <div className="itemBox mTop10">
-                    <Icon icon={getIconByType(type)} className={cx('Font14 Gray_9e mRight15')} />
+                    <Icon icon={getIconByType(type)} className={cx('Font14 textTertiary mRight15')} />
                     <span className="">{controlName}</span>
                   </div>
                 );
@@ -239,17 +239,17 @@ class AppointDialog extends React.Component {
               return (
                 <div className="itemBox mTop10">
                   <span
-                    className={cx('widget controlname Gray Font13 WordBreak overflow_ellipsis Relative', {
+                    className={cx('widget controlname textPrimary Font13 WordBreak overflow_ellipsis Relative', {
                       isErr: canNotForWrite,
                       isChild: !!writeControlsData.sectionId,
                     })}
                   >
-                    <Icon icon={getIconByType(type)} className={cx('Font14 Gray_9e mRight15')} />
+                    <Icon icon={getIconByType(type)} className={cx('Font14 textTertiary mRight15')} />
                     <span className="">{controlName || (type === 22 ? _l('分段') : _l('备注'))}</span>
                     {canNotForWrite && (
                       <Tooltip
                         trigger="click"
-                        color="#ff4d4f"
+                        color="var(--color-error)"
                         placement="bottomRight"
                         align={{ offset: [14, 0] }}
                         title={_l('该字段不支持自定义填写')}
@@ -296,7 +296,7 @@ class AppointDialog extends React.Component {
 
                   <Icon
                     icon="hr_delete"
-                    className="Font18 editAppointFilters Hand Gray_9e mLeft8"
+                    className="Font18 editAppointFilters Hand textTertiary mLeft8"
                     onClick={() => {
                       this.handDel(item);
                     }}
@@ -382,8 +382,8 @@ class AppointDialog extends React.Component {
           visible={this.state.showAppointDialog}
         >
           <div className="appointCon">
-            <p className="Gray_9e Font14">{_l('用户点击按钮后，立即弹出对话框并填写指定的内容')}</p>
-            <p className="Gray Font13 mTop32 Bold500">{_l('填写对象%02061')}</p>
+            <p className="textTertiary Font14">{_l('用户点击按钮后，立即弹出对话框并填写指定的内容')}</p>
+            <p className="textPrimary Font13 mTop32 Bold500">{_l('填写对象%02061')}</p>
             <RadioGroup
               className="mTop10"
               data={[
@@ -416,7 +416,7 @@ class AppointDialog extends React.Component {
             />
             {this.state.writeObject === 2 && (
               <div className="contectBox">
-                <span className="titleLeft Font13 Gray">{_l('关联字段')}</span>
+                <span className="titleLeft Font13 textPrimary">{_l('关联字段')}</span>
                 <Dropdown
                   border
                   placeholder={_l('请选择')}
@@ -447,7 +447,7 @@ class AppointDialog extends React.Component {
                 />
               </div>
             )}
-            <p className="Gray Font13 mTop32 Bold500">{_l('填写内容%02063')}</p>
+            <p className="textPrimary Font13 mTop32 Bold500">{_l('填写内容%02063')}</p>
             <RadioGroup
               className="mTop10"
               data={[
@@ -506,7 +506,7 @@ class AppointDialog extends React.Component {
 
             {this.state.writeType === 2 && (
               <div className="contectBox">
-                <span className="titleLeft Font13 Gray">{_l('关联字段')}</span>
+                <span className="titleLeft Font13 textPrimary">{_l('关联字段')}</span>
                 <Dropdown
                   border
                   placeholder={_l('请选择')}

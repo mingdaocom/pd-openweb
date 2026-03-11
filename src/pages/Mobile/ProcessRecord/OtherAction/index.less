@@ -1,13 +1,8 @@
-@activeColor: #1677ff;
-@refuseColor: #f44336;
-@passColor: #4caf50;
-@submitColor: #1e88e5;
-
 .otherActionModal {
   max-height: 95%;
   overflow-y: auto;
   width: 100%;
-  background: #fff;
+  background: var(--color-background-primary);
 }
 .otherActionWrapper {
   max-height: 100vh;
@@ -28,14 +23,14 @@
       height: 30px;
     }
     .icon-lift {
-      color: #ffa340;
+      color: var(--color-warning);
     }
     .flexEnd {
       justify-content: flex-end;
     }
   }
   .adm-text-area {
-    border: 1px solid #e3e3e3;
+    border: 1px solid var(--color-border-secondary);
     padding: 6px;
     border-radius: 4px;
     > textarea {
@@ -52,7 +47,7 @@
     min-height: 39px;
     border-radius: 4px;
     padding: 5px;
-    border: 1px solid #e3e3e3;
+    border: 1px solid var(--color-border-secondary);
   }
   .actionBtnWrapper {
     height: 50px;
@@ -64,18 +59,18 @@
     align-items: center;
     justify-content: center;
     border-radius: 24px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     margin: 0 10px;
   }
   .ok {
-    color: #fff;
-    border-color: @activeColor;
-    background-color: @activeColor;
+    color: var(--color-white);
+    border-color: var(--color-primary);
+    background-color: var(--color-primary);
   }
   .overrule {
-    color: #fff;
-    border-color: @refuseColor;
-    background-color: @refuseColor;
+    color: var(--color-white);
+    border-color: var(--color-error);
+    background-color: var(--color-error);
   }
   .signature {
     width: 100%;
@@ -84,7 +79,7 @@
     .left,
     .right {
       display: flex;
-      color: #1677ff;
+      color: var(--color-primary);
       font-size: 16px;
       align-items: center;
     }
@@ -92,7 +87,7 @@
       justify-content: flex-start;
     }
     .title {
-      color: #000;
+      color: var(--color-text-primary);
       font-size: 17px;
     }
     .am-flexbox-item.right {
@@ -101,7 +96,7 @@
   }
   .backFlowNodesList {
     .icon-ok {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .fileWrapper {

@@ -10,7 +10,7 @@ const Con = styled.div`
   .recommendTitle {
     margin-top: 8px;
     font-size: 13px;
-    color: #757575;
+    color: var(--color-text-secondary);
     line-clamp: 1;
   }
   .recommendList {
@@ -21,7 +21,7 @@ const Con = styled.div`
   .expandButton {
     position: relative;
     font-size: 13px;
-    color: #757575;
+    color: var(--color-text-secondary);
     cursor: pointer;
     &:after {
       content: ' ';
@@ -29,7 +29,7 @@ const Con = styled.div`
       bottom: -1px;
       left: 1px;
       right: 1px;
-      border-bottom: 1px dashed #888;
+      border-bottom: 1px dashed var(--color-text-secondary);
     }
   }
 `;
@@ -44,7 +44,7 @@ const RecommendItem = styled.div`
   cursor: pointer;
   .name {
     font-size: 14px;
-    color: #151515;
+    color: var(--color-text-title);
     line-clamp: 1;
   }
   .description {

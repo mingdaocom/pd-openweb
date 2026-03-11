@@ -8,14 +8,10 @@
     line-height: 1;
   }
 
-  .ThemeColor {
-    color: #1677ff !important;
-  }
-
   .infoTips {
     padding: 10px 16px;
-    color: #ff0000;
-    background-color: #fff1f2;
+    color: var(--color-error);
+    background-color: var(--color-error-bg);
     margin: 0 25px;
   }
 
@@ -28,7 +24,7 @@
       display: inline-block;
       width: 68px;
       height: 68px;
-      background: #1677ff;
+      background: var(--color-primary);
       border-radius: 16px;
       text-align: center;
       vertical-align: top;
@@ -40,7 +36,7 @@
     }
 
     .icon-invite-ding {
-      color: #3aa2eb;
+      color: var(--color-primary);
       font-size: 82px;
       clear: both;
       display: inline-block;
@@ -57,12 +53,12 @@
   }
 
   .applyBtn {
-    background: #1677ff !important;
+    background: var(--color-primary) !important;
     width: 120px;
     height: 44px;
     line-height: 44px;
     &:hover {
-      background: #2366bf !important;
+      background: var(--color-link-hover) !important;
     }
   }
 
@@ -73,7 +69,7 @@
 
   .howApply {
     display: inline-block;
-    color: #1677ff;
+    color: var(--color-primary);
     cursor: pointer;
     &:hover {
       text-decoration: underline !important;
@@ -91,7 +87,7 @@
     justify-content: flex-end;
     &:hover {
       .icon-arrow-right-border {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
   }
@@ -104,7 +100,7 @@
 
   .icon.icon-help {
     &:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
 
@@ -156,17 +152,17 @@
           top: 9px;
           z-index: 1;
           &:hover {
-            color: #1677ff !important;
+            color: var(--color-primary) !important;
           }
         }
         .inputBox {
           width: 100%;
           line-height: 36px;
           height: 36px;
-          background-color: #fff;
+          background-color: var(--color-background-primary);
           border-radius: 3px;
           padding-left: 10px;
-          border: 1px solid #ddd;
+          border: 1px solid var(--color-border-primary);
           padding-right: 40px;
           box-sizing: border-box;
         }
@@ -178,10 +174,10 @@
     width: 90px;
     height: 36px;
     border-radius: 2px;
-    background: #f0f0f0 !important;
-    color: #1677ff !important;
+    background: var(--color-background-disabled) !important;
+    color: var(--color-primary) !important;
     &:hover {
-      background: #e3e3e3 !important;
+      background: var(--color-border-secondary) !important;
     }
   }
 
@@ -189,9 +185,9 @@
     width: 90px;
     height: 36px;
     border-radius: 2px;
-    background: #1677ff !important;
+    background: var(--color-primary) !important;
     &:hover {
-      background: #2366bf !important;
+      background: var(--color-link-hover) !important;
     }
   }
 
@@ -205,9 +201,9 @@
       width: 90px;
       height: 36px;
       border-radius: 2px;
-      background: #1677ff !important;
+      background: var(--color-primary) !important;
       &:hover {
-        background: #2366bf !important;
+        background: var(--color-link-hover) !important;
       }
     }
 
@@ -217,7 +213,7 @@
 
       &:hover {
         opacity: 0.5;
-        background: #1677ff !important;
+        background: var(--color-primary) !important;
       }
     }
   }
@@ -250,7 +246,7 @@
   padding: 0;
 }
 .helpEntry {
-  color: #1677ff;
+  color: var(--color-primary);
   &:hover {
     text-decoration: underline;
   }
@@ -260,9 +256,9 @@
   width: 174px;
   height: 48px;
   line-height: 48px;
-  color: #f51744;
+  color: var(--color-error);
   padding-left: 20px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
   border-radius: 3px;
 }

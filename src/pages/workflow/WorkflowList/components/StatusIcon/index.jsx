@@ -15,13 +15,13 @@ const MSG_TEMPLATE_STATUS_TO_TEXT = {
     id: 'pass',
     text: _l('审核通过'),
     icon: 'check_circle',
-    color: '#01ca83',
+    color: 'var(--color-task)',
   },
   2: {
     id: 'fail',
     text: _l('审核失败'),
     icon: 'workflow_failure',
-    color: '#f44336',
+    color: 'var(--color-error)',
   },
 };
 
@@ -37,7 +37,7 @@ export default class StatusIcon extends Component {
   };
   render() {
     const { config, status, className } = this.props;
-    const { text, icon, size = 16, color = '#757575' } = config[status];
+    const { text, icon, size = 16, color = 'var(--color-text-secondary)' } = config[status];
     return (
       <div className={cx('workflowStatusIconWrap', className)}>
         <Icon style={{ fontSize: size, color }} icon={icon} />

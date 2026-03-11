@@ -11,11 +11,12 @@ import { checkFileAvailable } from 'src/components/UploadFiles/utils';
 import MapHandler from 'src/ming-ui/components/amap/MapHandler';
 import MapLoader from 'src/ming-ui/components/amap/MapLoader';
 import { getRowGetType } from 'src/utils/common';
+import { controlState } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 import { compatibleMDJS } from 'src/utils/project';
 import Files from '../../../components/Files';
 import { permitList } from '../../../core/enum';
-import { checkValueByFilterRegex, controlState } from '../../../core/formUtils';
+import { checkValueByFilterRegex } from '../../../core/formUtils';
 import { isOpenPermit } from '../../tools/utils';
 import './index.less';
 
@@ -469,8 +470,8 @@ export default class Widgets extends Component {
 
     const Content = (
       <Fragment>
-        <Icon className={cx('Gray_9e TxtMiddle', { iconClass })} icon={icon ? icon : 'attachment'} />
-        <span className="Gray Font13 mLeft5 addFileName overflow_ellipsis flex">{addFileName}</span>
+        <Icon className={cx('textTertiary TxtMiddle', { iconClass })} icon={icon ? icon : 'attachment'} />
+        <span className="textPrimary Font13 mLeft5 addFileName overflow_ellipsis flex">{addFileName}</span>
         {!!mingdaoAppUploading && (
           <span className="mLeft5 ThemeColor3 fileUpdateLoading Font13">
             {_l('%0个附件正在上传', mingdaoAppUploading)}
@@ -713,12 +714,12 @@ export default class Widgets extends Component {
                       >
                         {gettingLocation ? (
                           <Fragment>
-                            <Icon icon="hr_work_location" className="Font16 ThemeColor mRight3" />
-                            <span className="ThemeColor">{_l('定位中...')}</span>
+                            <Icon icon="hr_work_location" className="Font16 colorPrimary mRight3" />
+                            <span className="colorPrimary">{_l('定位中...')}</span>
                           </Fragment>
                         ) : (
                           <Fragment>
-                            <Icon icon="photo_camera_20" className="Font16 Gray_9e mRight3" />
+                            <Icon icon="photo_camera_20" className="Font16 textTertiary mRight3" />
                             <span className="flex ellipsis">{_l('定位后拍照')}</span>
                           </Fragment>
                         )}

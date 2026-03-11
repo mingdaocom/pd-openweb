@@ -19,18 +19,18 @@ const FailInfoCon = styled.div`
     }
     .detailDesCount {
       font-size: 24px;
-      color: #292929;
+      color: var(--color-white);
       font-weight: 600;
     }
     .desInfo {
-      color: #898989;
+      color: var(--color-text-secondary);
       font-size: 14px;
     }
   }
   .listTitle {
     justify-content: space-between;
     font-size: 17px;
-    color: #151515;
+    color: var(--color-text-title);
     line-height: 36px;
     margin-bottom: 30px;
     .downloadBtn {
@@ -38,12 +38,12 @@ const FailInfoCon = styled.div`
       height: 36px;
       text-align: center;
       line-height: 36px;
-      background: #1677ff;
-      border: 1px solid #1677ff;
+      background: var(--color-primary);
+      border: 1px solid var(--color-primary);
       opacity: 1;
       border-radius: 28px;
       font-size: 13px;
-      color: #fff;
+      color: var(--color-white);
       cursor: pointer;
     }
   }
@@ -55,18 +55,18 @@ const ImportError = styled.div`
   align-items: center;
   justify-content: center;
   .errorIcon {
-    color: #f51744;
+    color: var(--color-error);
     font-size: 56px;
   }
   .errorTxt {
     font-size: 24px;
-    color: #292929;
+    color: var(--color-white);
     font-weight: 600;
     margin: 36px 0 16px;
   }
   .errorDes {
     font-size: 14;
-    color: #898989;
+    color: var(--color-text-secondary);
     margin-bottom: 78px;
   }
   .uploadBtnStyle {
@@ -74,11 +74,11 @@ const ImportError = styled.div`
     height: 36px;
     border: 1px solid rgba(33, 150, 243, 1);
     border-radius: 32px;
-    background-color: #ffffff;
+    background-color: var(--color-background-primary);
     color: rgba(33, 150, 243, 1);
     &:hover {
-      color: #49adfc !important;
-      border-color: #49adfc !important;
+      color: var(--color-primary-light) !important;
+      border-color: var(--color-primary-light) !important;
     }
   }
 `;
@@ -232,7 +232,11 @@ export default class ImportResulFailtDetail extends Component {
             <div className="errorTxt">{_l('导入错误')}</div>
             <div className="errorDes">
               {_l('请')}
-              <a className="Font16 ThemeColor3 Hover_49" href={userTemplatePaths[getCurrentLangCode()]} target="_blank">
+              <a
+                className="Font16 ThemeColor3 hoverTextPrimaryLight"
+                href={userTemplatePaths[getCurrentLangCode()]}
+                target="_blank"
+              >
                 {_l('下载模板')}
               </a>
               {_l('，按格式修改后重新导入')}

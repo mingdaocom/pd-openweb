@@ -65,7 +65,7 @@ const SearchFolderCon = styled.ul`
   -webkit-box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.13),
     0 2px 6px rgba(0, 0, 0, 0.1);
-  background: #fff;
+  background: var(--color-background-primary);
   padding: 6px 0;
   overflow-y: scroll;
   li {
@@ -78,14 +78,14 @@ const SearchFolderCon = styled.ul`
     text-overflow: ellipsis;
     white-space: nowrap;
     .icon {
-      color: #ccc;
+      color: var(--color-text-placeholder);
       display: inline-block;
       font-size: 14px;
       margin-right: 8px;
     }
     &.selected {
-      background-color: #0091ea;
-      color: #fff;
+      background-color: var(--color-primary);
+      color: var(--color-white);
     }
   }
 `;
@@ -2041,7 +2041,7 @@ class TaskNavigation extends Component {
     // 下属
     if (filterUserId && isSubUser) {
       return (
-        <ul className="taskType ThemeBorderColor7">
+        <ul className="taskType">
           <li
             className={cx('otherAndMe ThemeHoverBGColor7', { ThemeBGColor8: taskFilter === 7 })}
             data-type="otherAndMe"
@@ -2094,7 +2094,7 @@ class TaskNavigation extends Component {
     // 同事
     if (filterUserId && !isSubUser) {
       return (
-        <ul className="taskType ThemeBorderColor7">
+        <ul className="taskType">
           <li
             className={cx('otherAndMe ThemeHoverBGColor7', { ThemeBGColor8: taskFilter === 7 })}
             data-type="otherAndMe"
@@ -2124,7 +2124,7 @@ class TaskNavigation extends Component {
     }
 
     return (
-      <ul className="taskType ThemeBorderColor7">
+      <ul className="taskType">
         <li
           className={cx('myTask ThemeHoverBGColor7', {
             ThemeBGColor8: (taskFilter === 6 && !keyWords) || taskFilter === 1 || taskFilter === 2 || taskFilter === 3,

@@ -3,13 +3,13 @@ import styled from 'styled-components';
 export const Wrap = styled.div`
   width: 100%;
   height: 100%;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   overflow: hidden;
 `;
 
 export const WrapChoose = styled.div`
   width: 200px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.24);
   opacity: 1;
   border-radius: 2px;
@@ -19,7 +19,7 @@ export const WrapChoose = styled.div`
     line-height: 36px;
     padding: 0 16px;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
 `;

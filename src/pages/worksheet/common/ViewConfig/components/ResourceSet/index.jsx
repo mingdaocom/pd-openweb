@@ -14,23 +14,23 @@ import EditTimes from './EditTimes';
 const Wrap = styled.div`
   .ming.Dropdown.isDelete .Dropdown--input .value,
   .dropdownTrigger .Dropdown--input .value {
-    color: red;
+    color: var(--color-error);
   }
   .ming.Dropdown.isDelete .Dropdown--border,
   .dropdownTrigger .Dropdown--border {
-    border-color: red;
+    border-color: var(--color-error);
   }
   .showtimeCon {
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 3px;
-    color: #757575;
+    color: var(--color-text-secondary);
     padding: 6px 12px;
-    background: #fff;
+    background: var(--color-background-primary);
     display: flex;
     justify-content: space-between;
     cursor: pointer;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
 `;
@@ -307,11 +307,11 @@ export default function ResourceSet(props) {
         <div className="showtimeCon mTop10" onClick={() => setState({ show: true })}>
           <div className="flex LineHeight22">
             {(_.get(props, 'view.advancedSetting.showtime') || '').split('|').map(o => {
-              return <div className="Gray ">{o}</div>;
+              return <div className="textPrimary ">{o}</div>;
             })}
           </div>
           <div class="edit LineHeight22">
-            <i class="icon-edit Gray_9e ThemeHoverColor3 Font16 Hand"></i>
+            <i class="icon-edit textTertiary ThemeHoverColor3 Font16 Hand"></i>
           </div>
         </div>
       )}

@@ -27,7 +27,7 @@ function PreferenceTime(props) {
   };
 
   return (
-    <span className={cx(className, 'Hand Hover_9e')} title={isSimplify ? wholeTime : ''} onClick={handleClick}>
+    <span className={cx(className, 'Hand hoverTextTertiary')} title={isSimplify ? wholeTime : ''} onClick={handleClick}>
       {isSimplify ? createTimeSpan(time, type) : wholeTime}
     </span>
   );

@@ -34,7 +34,7 @@ const SourceBox = ({ item, isActive, onChangeCheckbox }) => {
       ref={drag}
       role="axisControlItem"
       style={{ opacity: isDragging ? 0.4 : 1 }}
-      className="axisControlItem flexRow valignWrapper pTop8 pBottom8 pLeft5 Font13 Gray pointer"
+      className="axisControlItem flexRow valignWrapper pTop8 pBottom8 pLeft5 Font13 textPrimary pointer"
     >
       <div>
         <Checkbox
@@ -45,7 +45,7 @@ const SourceBox = ({ item, isActive, onChangeCheckbox }) => {
         ></Checkbox>
       </div>
       <Icon
-        className={cx('Gray_75 Font20 mRight10', {
+        className={cx('textSecondary Font20 mRight10', {
           active: isActive,
         })}
         icon={getIcon()}

@@ -15,7 +15,7 @@ import '../less/CityPicker.less';
 const particularlyCity = ['110000', '120000', '310000', '500000', '810000', '820000'];
 
 const CascaderSelectWrap = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 3px;
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.13),
@@ -28,7 +28,7 @@ const CascaderSelectWrap = styled.div`
     height: 100%;
     overflow-y: scroll;
     width: 140px;
-    border-right: 1px solid #f5f5f5;
+    border-right: 1px solid var(--color-background-secondary);
     &:last-child {
       border-right: none;
     }
@@ -44,7 +44,7 @@ const CascaderSelectWrap = styled.div`
         background: rgba(0, 0, 0, 0.06);
       }
       &.active {
-        background: #e5f3fe;
+        background: var(--color-primary-transparent);
       }
     }
   }
@@ -55,7 +55,7 @@ const CascaderSearchSelectWrap = styled.ul`
   height: 211px;
   overflow-y: scroll;
   padding: 6px 0;
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 3px;
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.13),
@@ -70,11 +70,11 @@ const CascaderSearchSelectWrap = styled.ul`
       background: rgba(0, 0, 0, 0.06);
     }
     &.active {
-      background: #e5f3fe;
+      background: var(--color-primary-transparent);
     }
     .CityPicker-Search-Highline {
       background: unset;
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
@@ -427,7 +427,7 @@ export default function CityPicker(props) {
                             (loadingId === item.id ? (
                               <LoadDiv size="small" />
                             ) : (
-                              <Icon icon="arrow-right-tip" className="Gray_9e" />
+                              <Icon icon="arrow-right-tip" className="textTertiary" />
                             ))}
                         </li>
                       );

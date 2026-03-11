@@ -38,11 +38,11 @@ const ListItem = styled.div`
   width: 243px;
   padding: 0 12px;
   transition: transform 0.25s;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   max-height: 550px;
   overflow: hidden;
   transition: all 0.25s;
-  border: 1px solid #eaeaea;
+  border: 1px solid var(--color-border-secondary);
   border-radius: 8px;
   cursor: pointer;
   .operate {
@@ -56,7 +56,7 @@ const ListItem = styled.div`
   }
   .icon-trash {
     &:hover {
-      color: #f44336 !important;
+      color: var(--color-error) !important;
     }
   }
 
@@ -64,7 +64,7 @@ const ListItem = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-primary);
     line-height: 24px;
     padding: 10px 0;
   }
@@ -88,8 +88,8 @@ const ListItem = styled.div`
       position: absolute;
       width: 100%;
       bottom: 0;
-      background-color: #fff;
-      color: #757575;
+      background-color: var(--color-background-primary);
+      color: var(--color-text-secondary);
     }
   }
 `;
@@ -111,7 +111,11 @@ const OptionItem = props => {
         </div>
         <div className="operate">
           <Tooltip placement="bottom" title={_l('编辑')}>
-            <Icon icon="edit" className="Gray_9e ThemeHoverColor3 Font16 pointer" onClick={() => handleClick('edit')} />
+            <Icon
+              icon="edit"
+              className="textTertiary ThemeHoverColor3 Font16 pointer"
+              onClick={() => handleClick('edit')}
+            />
           </Tooltip>
           <div className="InlineBlock" onClick={e => e.stopPropagation()}>
             <OperateList {...props} status={status} />
@@ -241,7 +245,7 @@ export default function AllOptionList(props) {
           radiusSize={130}
           iconClassName="Font50"
           emptyTxt={_l('暂无选项集')}
-          emptyTxtClassName="Gray_9e Font17 mTop20"
+          emptyTxtClassName="textTertiary Font17 mTop20"
         />
       );
     }

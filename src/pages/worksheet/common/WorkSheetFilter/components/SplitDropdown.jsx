@@ -11,14 +11,14 @@ const Con = styled.div`
   hr {
     margin: 0 28px;
     border: none;
-    border-top: 2px solid #eaeaea;
+    border-top: 2px solid var(--color-border-secondary);
   }
   .text {
     position: absolute;
     top: 3px;
     left: calc(50% - 27px);
     padding: 0 12px;
-    background: #fff;
+    background: var(--color-background-primary);
   }
   .removeGroup {
     display: none;
@@ -28,9 +28,9 @@ const Con = styled.div`
     right: 0;
     top: 0px;
     right: 24px;
-    background: #fff;
+    background: var(--color-background-primary);
     font-size: 16px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     cursor: pointer;
   }
   &:hover {
@@ -46,7 +46,7 @@ const DropdownCon = styled.div`
   position: absolute;
   left: calc(50% - 27px);
   top: 0;
-  background: #fff;
+  background: var(--color-background-primary);
   .Dropdown--input {
     padding: 2px 6px !important;
     border-radius: 4px;
@@ -55,7 +55,7 @@ const DropdownCon = styled.div`
       vertical-align: middle;
     }
     &:hover {
-      background: #f2f2f2;
+      background: var(--color-background-disabled);
     }
   }
 `;

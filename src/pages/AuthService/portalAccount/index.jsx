@@ -244,7 +244,7 @@ function ContainerCon(props) {
     return (
       <WrapWx className="flexColumn">
         {baseSetInfo.logoImageUrl ? <img src={baseSetInfo.logoImageUrl} height={40} /> : ''}
-        <p className="Font26 Gray mAll0 Bold pageTitle flex" style={{ WebkitBoxOrient: 'vertical' }}>
+        <p className="Font26 textPrimary mAll0 Bold pageTitle flex" style={{ WebkitBoxOrient: 'vertical' }}>
           {baseSetInfo.pageTitle}
         </p>
         <div className="actCon">

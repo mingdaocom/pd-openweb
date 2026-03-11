@@ -236,7 +236,7 @@ export default {
     return mdyAPI('Account', 'CheckAccountIdentity', args, options);
   },
   /**
-   * 修改账号
+   * 修改账号的手机号或者邮箱
    * @param {Object} args 请求参数
    * @param {string} args.account 账号
    * @param {string} args.verifyCode 验证码
@@ -258,6 +258,28 @@ export default {
    **/
   unBindAccount: function (args, options = {}) {
     return mdyAPI('Account', 'UnBindAccount', args, options);
+  },
+  /**
+   * 获取账户TOTP两步验证二维码扫码地址
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getAccountTotpScanUrl: function (args, options = {}) {
+    return mdyAPI('Account', 'GetAccountTotpScanUrl', args, options);
+  },
+  /**
+   * 账号开启/关闭 TOTP两步验证
+   * @param {Object} args 请求参数
+   * @param {boolean} args.isEnable 是否开启
+   * @param {string} args.verifyCode 数字 验证码
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  editAccountTotp: function (args, options = {}) {
+    return mdyAPI('Account', 'EditAccountTotp', args, options);
   },
   /**
    * 退出指定设备已经登录的账号

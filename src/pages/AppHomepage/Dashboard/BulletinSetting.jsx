@@ -19,7 +19,7 @@ const BulletinDialog = styled(Dialog)`
   }
   .leftWrapper {
     width: 320px;
-    border-right: 1px solid #eaeaea;
+    border-right: 1px solid var(--color-border-secondary);
     display: flex;
     flex-direction: column;
     .title {
@@ -34,9 +34,9 @@ const BulletinDialog = styled(Dialog)`
         margin-top: 32px;
         margin-left: 36px;
         &.disabled {
-          background: #f8f8f8 !important;
-          color: #9e9e9e !important;
-          border-color: #eaeaea !important;
+          background: var(--color-background-secondary) !important;
+          color: var(--color-text-tertiary) !important;
+          border-color: var(--color-border-secondary) !important;
         }
       }
     }
@@ -64,7 +64,7 @@ const BulletinDialog = styled(Dialog)`
           background-color: rgba(0, 0, 0, 0.5);
           padding: 6px 8px;
           border-radius: 4px;
-          color: #fff;
+          color: var(--color-white);
           font-size: 14px;
           cursor: pointer;
           &:hover {
@@ -97,7 +97,7 @@ const BulletinDialog = styled(Dialog)`
           justify-content: center;
           background-color: rgba(0, 0, 0, 0.5);
           .icon-done {
-            color: #fff;
+            color: var(--color-white);
             font-size: 40px;
             text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.4);
           }
@@ -108,13 +108,13 @@ const BulletinDialog = styled(Dialog)`
       width: 100%;
       margin: 8px 0 20px;
       &:hover {
-        border-color: #1e88e5 !important;
+        border-color: var(--color-primary) !important;
       }
     }
     .saveBtn {
       &.disabled {
-        background: #a6d5fb !important;
-        color: #fff;
+        background: var(--color-primary-light) !important;
+        color: var(--color-white);
       }
     }
   }
@@ -142,21 +142,21 @@ const ItemWrapper = styled.div`
     .delIcon {
       display: none;
       cursor: pointer;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       font-size: 16px;
       &:hover {
-        color: #f44336;
+        color: var(--color-error);
       }
     }
 
     &:hover {
-      border-color: #eaeaea;
+      border-color: var(--color-border-secondary);
       .delIcon {
         display: block;
       }
     }
     &.isActive {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
       .delIcon {
         display: block;
       }
@@ -167,16 +167,16 @@ const ItemWrapper = styled.div`
 const TitleInput = styled(AntdInput)`
   &.ant-input-affix-wrapper {
     transition: none !important;
-    border-color: #ccc !important;
+    border-color: var(--color-border-tertiary) !important;
     border-radius: 3px !important;
     padding: 6px 12px !important;
     &:hover {
-      border-color: #1e88e5 !important;
+      border-color: var(--color-primary) !important;
     }
   }
   &.ant-input-affix-wrapper-focused {
     box-shadow: none !important;
-    border-color: #1e88e5 !important;
+    border-color: var(--color-primary) !important;
   }
 `;
 
@@ -290,7 +290,7 @@ export default function BulletinSetting(props) {
           className={cx('bulletinItem', { isActive: index === activeIndex && !dragging })}
           onClick={() => onSwitchItem(index)}
         >
-          <Icon className="mRight10 Font16 Hand Gray_9e dragIcon" icon="drag" />
+          <Icon className="mRight10 Font16 Hand textTertiary dragIcon" icon="drag" />
           <div className="picWrapper" style={{ background: `url(${url}) no-repeat center` }}></div>
           {title && (
             <div className="mLeft16 Font14 overflow_ellipsis" title={title}>
@@ -318,7 +318,7 @@ export default function BulletinSetting(props) {
       <div className="leftWrapper">
         <div className="title">
           <span className="Font17 bold">{_l('宣传栏')}</span>
-          <span className="Font12 bold Gray_9e mLeft10">{`${bulletins.length} / 10`}</span>
+          <span className="Font12 bold textTertiary mLeft10">{`${bulletins.length} / 10`}</span>
         </div>
         <div className="listContent">
           <SortableList
@@ -352,7 +352,7 @@ export default function BulletinSetting(props) {
       </div>
       <div className="rightWrapper">
         <div className="bold mBottom8">{_l('图片')}</div>
-        <div className="Gray_9e mBottom15">
+        <div className="textTertiary mBottom15">
           <span>
             {_l('支持 jpg、jpeg、png、gif格式，2MB以内')} <span></span>
           </span>
@@ -380,7 +380,9 @@ export default function BulletinSetting(props) {
         <div
           className="image"
           style={{
-            background: uploadLoading ? '#f5f5f5' : `url(${bulletins[activeIndex].url}) no-repeat center`,
+            background: uploadLoading
+              ? 'var(--color-background-secondary)'
+              : `url(${bulletins[activeIndex].url}) no-repeat center`,
           }}
         >
           <div className="customBtnWrapper">
@@ -413,7 +415,7 @@ export default function BulletinSetting(props) {
           {uploadLoading && (
             <React.Fragment>
               <LoadDiv />
-              <span className="mTop12 Gray_9e">{_l('正在上传')}</span>
+              <span className="mTop12 textTertiary">{_l('正在上传')}</span>
             </React.Fragment>
           )}
         </div>

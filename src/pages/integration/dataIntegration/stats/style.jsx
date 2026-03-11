@@ -7,7 +7,7 @@ export const Wrap = styled.div`
   .pBottom140 {
     padding-bottom: 140px;
   }
-  background: #fff;
+  background: var(--color-background-primary);
   overflow-y: auto;
   padding: 32px 32px;
   .timeNum {
@@ -15,19 +15,19 @@ export const Wrap = styled.div`
       width: 32%;
       margin-right:16%
       height: 120px;
-      background: #fafafa;
+      background: var(--color-background-secondary);
       border-radius: 4px;
       text-align: left;
       padding: 0 20px;
       .des {
         font-weight: 600;
-        color: #757575;
+        color: var(--color-text-secondary);
         padding-top: 25px;
       }
       .txt {
         font-size: 32px;
         font-weight: 400;
-        color: #151515;
+        color: var(--color-text-title);
       }
       .txtTime {
         font-size: 12px;
@@ -52,14 +52,14 @@ export const Wrap = styled.div`
   }
   .listTable {
     .trCon {
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-secondary);
       font-weight: 400;
       min-height: 55px;
       &.isErr {
-        color: #f44336;
+        color: var(--color-error);
       }
       &.isGreen {
-        color: #4caf50;
+        color: var(--color-success);
       }
       .item {
         min-width: 0;
@@ -75,11 +75,11 @@ export const Wrap = styled.div`
       flex: 2;
     }
     .sortIcon {
-      color: #bfbfbf;
+      color: var(--color-text-disabled);
       height: 8px;
 
       &.selected {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
@@ -89,17 +89,17 @@ export const Wrap = styled.div`
       display: inline-block;
       margin: 0 32px;
       cursor: pointer;
-      color: #151515;
+      color: var(--color-text-title);
       &.disable {
         cursor: not-allowed;
-        color: #aaaaaa;
+        color: var(--color-text-tertiary);
       }
     }
   }
   .searchCon {
     border-radius: 4px;
-    background: #fff;
-    border: 1px solid #bdbdbd;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-text-disabled);
     font-size: 14px;
   }
 `;

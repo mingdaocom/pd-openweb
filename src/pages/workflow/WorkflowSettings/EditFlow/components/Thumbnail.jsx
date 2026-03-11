@@ -13,7 +13,7 @@ const Thumbnail = styled.div`
 const Box = styled.div`
   width: ${thumbnailWidth}px;
   height: ${thumbnailHeight}px;
-  background-color: #f5f5f9;
+  background-color: var(--color-background-secondary);
   box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.16);
   border-radius: 6px;
   border: 5px solid transparent;
@@ -26,7 +26,7 @@ const Box = styled.div`
 `;
 
 const Frame = styled.div`
-  border: 1px solid #1677ff;
+  border: 1px solid var(--color-primary);
   border-radius: 3px;
   position: absolute;
 `;

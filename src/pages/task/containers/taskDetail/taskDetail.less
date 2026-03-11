@@ -7,11 +7,12 @@
   right: -640px;
   bottom: 0;
   width: 640px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   transition: right 0.25s ease-out;
   &.slide {
-    box-shadow: 0 10px 23px 2px rgba(0, 0, 0, 0.2),
+    box-shadow:
+      0 10px 23px 2px rgba(0, 0, 0, 0.2),
       0 3px 6px rgba(0, 0, 0, 0.15);
   }
   &.detail {
@@ -32,7 +33,7 @@
     right: 5px;
     font-size: 20px;
     &:not(:hover) {
-      color: #757575 !important;
+      color: var(--color-text-secondary) !important;
     }
   }
   .applyReturn {
@@ -42,11 +43,11 @@
     height: 58px;
     padding-left: 20px;
     cursor: pointer;
-    color: #999;
-    border-bottom: 1px solid #ccc;
+    color: var(--color-text-tertiary);
+    border-bottom: 1px solid var(--color-border-tertiary);
     box-sizing: border-box;
     &:hover {
-      color: #0091ea;
+      color: var(--color-primary);
     }
     .icon-arrow-left-border {
       font-size: 28px;
@@ -68,7 +69,7 @@
     height: 35px;
     margin-top: 20px;
     padding: 0 20px;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid var(--color-border-tertiary);
     li {
       float: left;
       padding: 0 12px;
@@ -83,14 +84,14 @@
         float: right;
       }
       &:not(:hover):not(.active) {
-        color: #aaa !important;
+        color: var(--color-text-tertiary) !important;
         border-color: transparent !important;
       }
     }
   }
   .taskDetailContent {
     position: relative;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
   }
   .talkBox {
     padding: 0 20px 0 25px;

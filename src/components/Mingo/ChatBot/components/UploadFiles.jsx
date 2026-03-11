@@ -16,7 +16,7 @@ function UploadFiles(
     onError = () => {},
     removeFile = () => {},
     allowMultiSelection = true,
-    allowMimeTypes = [{ title: 'image', extensions: 'jpg,jpeg,png' }],
+    allowMimeTypes = [{ title: 'image', extensions: 'jpg,jpeg,png,heic' }],
   },
   ref,
 ) {

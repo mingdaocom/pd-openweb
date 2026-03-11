@@ -1,13 +1,13 @@
 .attachmentListCard {
   height: 52px;
-  background: #ffffff;
-  border-bottom: 1px solid #f0f0f0;
+  background: var(--color-background-primary);
+  border-bottom: 1px solid --color-background-disabled;
   position: relative;
   &:hover,
   &.hover {
-    background: #fafafa;
+    background: var(--color-background-secondary);
     .fileName {
-      color: #1677ff;
+      color: var(--color-primary);
     }
     .operateBtns {
       display: flex;
@@ -62,7 +62,7 @@
   .fileSize,
   .fileCreateTime,
   .fileCreateUserName {
-    color: #757575;
+    color: var(--color-text-secondary);
     width: 15%;
   }
   .operateBtns {
@@ -74,7 +74,7 @@
     height: 100%;
     width: 30%;
     padding-right: 3%;
-    background: #fafafa;
+    background: var(--color-background-secondary);
     .cancelBtn,
     .deleteBtn {
       padding: 5px 16px;
@@ -89,10 +89,10 @@
     justify-content: center;
     margin-right: 20px;
     &:hover .icon {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
     &.delete:hover .icon {
-      color: red !important;
+      color: var(--color-error) !important;
     }
   }
 }

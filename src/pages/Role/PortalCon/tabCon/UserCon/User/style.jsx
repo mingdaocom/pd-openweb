@@ -3,9 +3,9 @@ import styled from 'styled-components';
 export const Wrap = styled.div(
   ({ len }) => `
   .toRole {
-    color: #5a5a5a;
+    color: var(--color-text-title);
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   padding: 16px 10px 0 10px;
@@ -20,7 +20,7 @@ export const Wrap = styled.div(
     overflow: hidden;
   }
   .moreop {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .topAct {
     padding-right: 22px;
@@ -32,8 +32,8 @@ export const Wrap = styled.div(
       .topActDrop {
         width: 180px;
         height: 36px;
-        background: #ffffff;
-        border: 1px solid #e0e0e0;
+        background: var(--color-background-primary);
+        border: 1px solid var(--color-border-secondary);
         border-radius: 3px;
         .Dropdown--input {
           display: flex;
@@ -53,12 +53,12 @@ export const Wrap = styled.div(
     .toRole {
       border-radius: 3px 3px 3px 3px;
       padding: 0 12px;
-      border: 1px solid #dddddd;
+      border: 1px solid var(--color-border-primary);
       line-height: 32px;
       display: inline-block;
       &:hover {
-        border: 1px solid #1677ff;
-        color: #1677ff;
+        border: 1px solid var(--color-primary);
+        color: var(--color-primary);
       }
     }
     .addUser {
@@ -67,11 +67,11 @@ export const Wrap = styled.div(
       vertical-align: top;
       line-height: 32px;
       border-radius: 3px;
-      color: #fff;
-      background: #1677ff;
+      color: var(--color-white);
+      background: var(--color-primary);
       i::before {
         line-height: 32px;
-        color: #fff;
+        color: var(--color-white);
       }
       .lAdd {
         padding-left: 12px;
@@ -87,9 +87,9 @@ export const Wrap = styled.div(
         cursor: pointer;
         height: 32px;
         display: inline-block;
-        background: #1677ff;
+        background: var(--color-primary);
         &:hover {
-          background: #1e88e5;
+          background: var(--color-primary);
         }
       }
     }
@@ -101,22 +101,22 @@ export const Wrap = styled.div(
       border-radius: 3px;
       line-height: 32px;
       text-align: center;
-      background: #f3faff;
-      color: #1677ff;
+      background: var(--color-primary-transparent);
+      color: var(--color-primary);
       &:hover {
-        background: #ebf6fe;
+        background: var(--color-primary-transparent);
       }
     }
     .del {
       background: rgba(244, 67, 54, 0.1);
       color: rgba(244, 67, 54, 1);
       &:hover {
-        background: #fee6e5;
+        background: var(--color-error-bg);
       }
     }
   }
   .isCurmemberType {
-    color: #1677ff;
+    color: var(--color-primary);
   }
   .topActDrop .Dropdown--input {
     display: flex;
@@ -134,7 +134,7 @@ export const Wrap = styled.div(
 export const WrapPop = styled.div`
   &.uploadUser {
     padding: 6px 0;
-    background: #ffffff;
+    background: var(--color-background-primary);
     box-shadow:
       0 4px 20px rgba(0, 0, 0, 0.13),
       0 2px 6px rgba(0, 0, 0, 0.1);
@@ -147,7 +147,7 @@ export const WrapPop = styled.div`
     }
 
     .icon {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
     span {
       line-height: 36px;

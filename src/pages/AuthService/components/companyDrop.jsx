@@ -9,25 +9,25 @@ const WrapCon = styled.div`
   .controlDropdown {
     height: auto;
     .itemT {
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       border-radius: 4px 4px 4px 4px;
       padding: 3px 8px 3px 10px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border-secondary);
       line-height: 20px;
       i {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         &:hover {
-          color: #757575;
+          color: var(--color-text-secondary);
         }
       }
     }
     span.itemSpan {
-      color: #151515 !important;
+      color: var(--color-text-title) !important;
       font-size: 15px;
     }
     .ming.Item .Item-content:not(.disabled):hover {
       span.itemSpan {
-        color: white !important;
+        color: var(--color-white) !important;
         font-size: 15px;
       }
     }

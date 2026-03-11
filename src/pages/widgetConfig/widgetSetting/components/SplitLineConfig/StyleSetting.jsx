@@ -6,9 +6,9 @@ import { DefaultEmpty, SectionItemWrap } from './style';
 import './index.less';
 
 const THEME_COLORS = {
-  0: '#FF982D',
-  1: '#1677ff',
-  2: '#4CAF50',
+  0: 'var(--color-warning)',
+  1: 'var(--color-primary)',
+  2: 'var(--color-success)',
 };
 
 const DropComponentWrap = styled(DropComponent)`
@@ -29,9 +29,9 @@ const renderItem = newVal => {
   return (
     <div
       className="mTop5 w100 mBottom5 flexColumn"
-      style={{ background: '#fff', padding: '0 12px', borderRadius: '3px' }}
+      style={{ background: 'var(--color-background-primary)', padding: '0 12px', borderRadius: '3px' }}
     >
-      <SectionItemWrap theme={THEME_COLORS[newVal]} color="#151515" sectionstyle={newVal}>
+      <SectionItemWrap theme={THEME_COLORS[newVal]} color="var(--color-text-primary)" sectionstyle={newVal}>
         <div className="titleBox">
           {iconContent}
           <div className="titleText">{_l('标题')}</div>

@@ -14,8 +14,9 @@ import SessionList from '../SessionList';
 import CreateGroup from './CreateGroup';
 
 const Wrap = styled.div`
+  box-shadow: var(--shadow-md);
   .icon-home_page {
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     padding: 3px;
     border-radius: 50%;
   }
@@ -28,13 +29,13 @@ const SessionListDrawer = props => {
   const hideChat = md.global.SysSettings.forbidSuites.includes('6');
 
   return (
-    <Wrap className={cx('flexColumn h100 w100 WhiteBG pLeft10 pRight10', embed ? 'pTop4' : 'pTop10')}>
+    <Wrap className={cx('flexColumn h100 w100 bgCard pLeft10 pRight10', embed ? 'pTop4' : 'pTop10')}>
       <div className="header flexRow alignItemsCenter justifyContentBetween">
         {embed ? (
           <BgIconButton
             tooltip={_l('首页')}
             icon="home_page"
-            iconClassName="Font20 Gray_75"
+            iconClassName="Font20 textSecondary"
             onClick={() => {
               location.href = '/dashboard';
             }}
@@ -44,7 +45,9 @@ const SessionListDrawer = props => {
             icon="set_top"
             tooltip={sessionListFixing ? _l('取消固定') : _l('固定')}
             iconClassName="Font20"
-            iconStyle={sessionListFixing ? { color: '#515151' } : { color: '#cccccc' }}
+            iconStyle={
+              sessionListFixing ? { color: 'var(--color-text-title)' } : { color: 'var(--color-text-placeholder)' }
+            }
             onClick={() => {
               setToolbarConfig({ sessionListFixing: !sessionListFixing });
               localStorage.setItem('sessionListFixing', !sessionListFixing);
@@ -55,7 +58,7 @@ const SessionListDrawer = props => {
           <BgIconButton
             icon="clean"
             tooltip={_l('已读全部消息')}
-            className="Font19 pointer Gray_75 mRight10"
+            className="Font19 pointer textSecondary mRight10"
             onClick={() => {
               socket.Contact.clearAllUnread();
               alert(_l('操作成功'));
@@ -68,14 +71,14 @@ const SessionListDrawer = props => {
               <BgIconButton
                 icon="launch"
                 tooltip={_l('新窗口打开')}
-                className="Font19 pointer Gray_75 mRight10"
+                className="Font19 pointer textSecondary mRight10"
                 onClick={() => {
                   window.open('/windowChat');
                 }}
               />
               <BgIconButton
                 icon="close"
-                className="Font22 pointer Gray_75"
+                className="Font22 pointer textSecondary"
                 onClick={() => {
                   setToolbarConfig({ sessionListVisible: false });
                   localStorage.removeItem('toolBarOpenType');
@@ -88,7 +91,7 @@ const SessionListDrawer = props => {
       <div className="content flexColumn mTop10 flex Font14 Relative minHeight0">
         {embed && (
           <Fragment>
-            <div className="Gray bold Font28 pLeft12 pRight12 mBottom5" style={{ lineHeight: 1 }}>
+            <div className="textPrimary bold Font28 pLeft12 pRight12 mBottom5" style={{ lineHeight: 1 }}>
               {_l('消息')}
             </div>
             <RenderAddressBook />
@@ -99,7 +102,7 @@ const SessionListDrawer = props => {
             <SearchMember embed={embed} searchValue={searchValue} setSearchValue={setSearchValue} />
             <BgIconButton
               icon="contacts-book"
-              iconClassName="Font19 pointer Gray_75"
+              iconClassName="Font19 pointer textSecondary"
               tooltip={`${_l('通讯录')}`}
               onClick={() => props.setShowAddressBook(true)}
               shortcut={'E'}

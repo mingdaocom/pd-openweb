@@ -33,18 +33,11 @@ class Textarea extends Component {
 
   componentDidMount() {
     const $textarea = $(this.textarea);
-    const diff = parseInt($textarea.css('paddingBottom'), 10) + parseInt($textarea.css('paddingTop'), 10) || 0;
     const events = this.props.resizeAfterBlur ? 'input keyup blur' : 'input keyup';
     const { chat } = this.props;
-    $textarea.height(0).height(this.textarea.scrollHeight - diff);
-    $textarea.on(events, function () {
-      if (chat) {
-        $(this)
-          .height(0)
-          .height(this.scrollHeight - diff);
-      } else {
-        $(this).height(this.scrollHeight - diff);
-      }
+    this.adjustHeight($textarea, chat);
+    $textarea.on(events, () => {
+      this.adjustHeight($textarea, chat);
     });
 
     if (this.props.isSelect) {
@@ -52,25 +45,71 @@ class Textarea extends Component {
     }
 
     if (this.props.isFocus) {
-      $textarea.focus();
+      this.textarea.focus({ preventScroll: true });
       this.moveCaretToEnd($textarea[0]);
     }
 
     setTimeout(() => {
-      $textarea.height(this.textarea ? this.textarea.scrollHeight - diff : 0);
+      this.adjustHeight($textarea, chat);
     }, 0);
   }
 
+  // 获取最近的滚动容器
+  getScrollParent(element) {
+    if (!element) return null;
+    let parent = element.parentElement;
+    while (parent) {
+      const { overflow, overflowY } = window.getComputedStyle(parent);
+      if (overflow === 'auto' || overflow === 'scroll' || overflowY === 'auto' || overflowY === 'scroll') {
+        return parent;
+      }
+      parent = parent.parentElement;
+    }
+    return null;
+  }
+
+  // 调整高度时保持滚动位置
+  adjustHeight($textarea, chat) {
+    if (!this.textarea) return;
+    const scrollParent = this.getScrollParent(this.textarea);
+    const scrollTop = scrollParent ? scrollParent.scrollTop : 0;
+
+    // 先重置高度为 0，确保 scrollHeight 是基于当前实际 padding 计算的
+    $textarea.height(0);
+
+    // 获取当前实际应用的 padding（可能被 CSS 覆盖了）
+    const diff = parseInt($textarea.css('paddingBottom'), 10) + parseInt($textarea.css('paddingTop'), 10) || 0;
+
+    const scrollHeight = this.textarea.scrollHeight;
+
+    if (chat) {
+      $textarea.height(0).height(scrollHeight - diff);
+    } else {
+      $textarea.height(scrollHeight - diff);
+    }
+
+    // 恢复滚动位置
+    if (scrollParent && scrollParent.scrollTop !== scrollTop) {
+      scrollParent.scrollTop = scrollTop;
+    }
+  }
+
   componentWillReceiveProps(nextProps) {
+    const $textarea = $(this.textarea);
+
+    // 处理 isFocus 变化
+    if (nextProps.isFocus && !this.props.isFocus) {
+      this.textarea.focus({ preventScroll: true });
+      this.moveCaretToEnd($textarea[0]);
+    }
+
     this.setState(
       {
         defaultValue: nextProps.defaultValue,
       },
       () => {
         $(this.textarea).trigger('input');
-        const $textarea = $(this.textarea);
-        const diff = parseInt($textarea.css('paddingBottom'), 10) + parseInt($textarea.css('paddingTop'), 10) || 0;
-        $textarea.height(0).height(this.textarea.scrollHeight - diff);
+        this.adjustHeight($textarea, this.props.chat);
       },
     );
   }
@@ -79,7 +118,7 @@ class Textarea extends Component {
     if (typeof el.selectionStart === 'number') {
       el.selectionStart = el.selectionEnd = el.value.length;
     } else if (typeof el.createTextRange !== 'undefined') {
-      el.focus();
+      el.focus({ preventScroll: true });
       var range = el.createTextRange();
       range.collapse(false);
       range.select();

@@ -573,7 +573,7 @@ class KcLeft extends Component {
           </div>
         )}
         {!isFolded && keywords && !projectRoots.length && (
-          <div className="Gray_9e TxtCenter mTop20 mBottom10">{_l('没有搜索结果')}</div>
+          <div className="textTertiary TxtCenter mTop20 mBottom10">{_l('没有搜索结果')}</div>
         )}
         {rootListComp}
       </div>
@@ -621,7 +621,7 @@ class KcLeft extends Component {
 
     return (
       <div className="kcLeft">
-        <div className="leftNavHairGlass ThemeBG Fixed" />
+        <div className="leftNavHairGlass bgTertiary Fixed" />
         <MDLeftNav className="yunFileNav ThemeBGColor9 snowFixedContainer">
           <div className="flexColumn">
             <div className="fileMenuTop">
@@ -712,7 +712,7 @@ class KcLeft extends Component {
                 </Item>
               </List>
             </div>
-            <Splitter className="fileHr ThemeBorderColor7" />
+            <Splitter className="fileHr" />
             <div className="folderHeader">
               <span className="folderCheckedType left" onClick={this.handleSelectFile}>
                 <span className="selectOptions ThemeColor8">{selectName}</span>

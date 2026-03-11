@@ -80,7 +80,7 @@ export default function () {
       })
       .then(function (res) {
         window.localStorage.removeItem('pcScan');
-        const { accountResult, state, accountId, appName } = res;
+        const { accountResult, accountId, appName } = res;
         let mdAppId = res.appId;
         const customLink = window.isWeiXin && mdAppId ? localStorage.getItem(`${mdAppId}_portalCustomLink`) : '';
         window.localStorage.removeItem(`${mdAppId}_portalCustomLink`);
@@ -138,8 +138,8 @@ export default function () {
       >
         {url ? (
           <div>
-            <div className="Bold Font20 Gray mTop80">{_l('长按识别下方二维码，关注服务号')}</div>
-            <div className="Bold Font18 Gray_75 mTop16">
+            <div className="Bold Font20 textPrimary mTop80">{_l('长按识别下方二维码，关注服务号')}</div>
+            <div className="Bold Font18 textSecondary mTop16">
               {_l('关注后重新扫码或者打开链接进入')}
               {appName}
             </div>
@@ -148,7 +148,7 @@ export default function () {
         ) : (
           <div className="TxtCenter">
             <div className="txtIcon">
-              <Icon type="check_circle" className="" style={{ color: '#4caf50' }} />
+              <Icon type="check_circle" className="" style={{ color: 'var(--color-success)' }} />
             </div>
             <p className="Font22 Bold mTop25">{_l('微信已授权')}</p>
           </div>

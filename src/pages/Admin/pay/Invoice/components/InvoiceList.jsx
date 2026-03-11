@@ -26,13 +26,13 @@ const Wrapper = styled.div`
     padding-left: 16px;
   }
   .successColor {
-    color: #4caf50;
+    color: var(--color-success);
   }
   .failedColor {
-    color: #f44336;
+    color: var(--color-error);
   }
   .warningColor {
-    color: #f78900;
+    color: var(--color-warning);
   }
 `;
 
@@ -80,14 +80,16 @@ const InvoiceList = forwardRef((props, ref) => {
     setLoading(true);
 
     const { startDate, endDate } = searchValues?.applyTime || {};
+    const operator = (searchValues?.operatorInfo || [])[0]?.accountId;
 
     merchantInvoiceApi
       .getInvoiceList({
         projectId,
         pageFilter: { pageIndex, pageSize: 50 },
-        ..._.omit(searchValues, 'applyTime'),
+        ..._.omit(searchValues, ['applyTime', 'operatorInfo']),
         startCreateTime: startDate,
         endCreateTime: endDate,
+        operator,
       })
       .then(({ invoices, dataCount }) => {
         updateDisabledExportBtn(dataCount === 0);
@@ -191,6 +193,21 @@ const InvoiceList = forwardRef((props, ref) => {
         suffixIcon: <Icon icon="person" className="Font16" />,
       },
       {
+        key: 'orderId',
+        type: 'input',
+        label: _l('订单编号'),
+        placeholder: _l('输入订单编号'),
+        value: orderId,
+      },
+      {
+        type: 'selectUser',
+        key: 'operatorInfo',
+        label: _l('开票人'),
+        suffixIcon: <Icon icon="person" className="Font16" />,
+        containWorkflow: true,
+        unique: true,
+      },
+      {
         key: 'appId',
         type: 'select',
         label: _l('应用'),
@@ -199,7 +216,7 @@ const InvoiceList = forwardRef((props, ref) => {
         allowClear: true,
         options: appList,
         value: appId || [],
-        notFoundContent: fetchAppState.loading ? <LoadDiv /> : <span className="Gray_9e">{_l('无搜索结果')}</span>,
+        notFoundContent: fetchAppState.loading ? <LoadDiv /> : <span className="textTertiary">{_l('无搜索结果')}</span>,
         maxTagCount: 'responsive',
         onFocus: () => !appList.length && setFetchAppState({ loading: true }),
         onSearch: _.debounce(val => setFetchAppState({ keyword: val, appPageIndex: 1, loading: true }), 500),
@@ -240,15 +257,8 @@ const InvoiceList = forwardRef((props, ref) => {
               .indexOf(inputValue.toLowerCase()) > -1
           );
         },
-        notFoundContent: <span className="Gray_9e">{_l('无搜索结果')}</span>,
+        notFoundContent: <span className="textTertiary">{_l('无搜索结果')}</span>,
         maxTagCount: 'responsive',
-      },
-      {
-        key: 'orderId',
-        type: 'input',
-        label: _l('订单编号'),
-        placeholder: _l('输入订单编号'),
-        value: orderId,
       },
     ];
 
@@ -257,6 +267,7 @@ const InvoiceList = forwardRef((props, ref) => {
 
   const handleExport = () => {
     const { startDate, endDate } = searchValues?.applyTime || {};
+    const operator = (searchValues?.operatorInfo || [])[0]?.accountId;
 
     if (exporting) return;
 
@@ -267,9 +278,10 @@ const InvoiceList = forwardRef((props, ref) => {
       .exportInvoices({
         projectId,
         pageFilter: { pageIndex, pageSize: 50 },
-        ..._.omit(searchValues, 'applyTime'),
+        ..._.omit(searchValues, ['applyTime', 'operatorInfo']),
         startCreateTime: startDate,
         endCreateTime: endDate,
+        operator,
       })
       .then(() => {
         setExporting(false);
@@ -316,7 +328,7 @@ const InvoiceList = forwardRef((props, ref) => {
           </span>
           {value === INVOICE_STATUS.FAILED && (
             <Tooltip title={record.message}>
-              <Icon icon="info_outline" className="Gray_9e Font14 mLeft5" />
+              <Icon icon="info_outline" className="textTertiary Font14 mLeft5" />
             </Tooltip>
           )}
         </div>
@@ -357,7 +369,7 @@ const InvoiceList = forwardRef((props, ref) => {
       width: 120,
       render: value =>
         value ? (
-          <span className="ThemeColor Hand Hover_51" onClick={() => window.open(value)}>
+          <span className="colorPrimary Hand Hover_51" onClick={() => window.open(value)}>
             {_l('查看')}
           </span>
         ) : (
@@ -378,7 +390,7 @@ const InvoiceList = forwardRef((props, ref) => {
               <div className="pLeft5">{fullname}</div>
             ) : (
               <UserName
-                className="Gray Font13 pLeft5 pRight10 pTop3 flex ellipsis"
+                className="textPrimary Font13 pLeft5 pRight10 pTop3 flex ellipsis"
                 projectId={projectId}
                 user={{ userName: fullname, accountId }}
               />
@@ -405,7 +417,7 @@ const InvoiceList = forwardRef((props, ref) => {
               <div className="pLeft5">{fullname}</div>
             ) : (
               <UserName
-                className="Gray Font13 pLeft5 pRight10 pTop3 flex ellipsis"
+                className="textPrimary Font13 pLeft5 pRight10 pTop3 flex ellipsis"
                 projectId={projectId}
                 user={{ userName: fullname, accountId }}
               />
@@ -415,20 +427,25 @@ const InvoiceList = forwardRef((props, ref) => {
       },
     },
     {
-      title: _l('订单编号'),
+      title: _l('订单编号/工作流ID'),
       dataIndex: 'orderId',
       width: 290,
       render: (value, record) => (
         //record.orderId === record.invoiceId 测试票
         <span
-          className={cx({ 'ThemeColor ThemeHoverColor2 pointer': record.orderId !== record.invoiceId && value })}
+          className={cx({ 'colorPrimary ThemeHoverColor2 pointer': record.orderId !== record.invoiceId && value })}
           onClick={() => {
+            if (record.processId) {
+              window.open(`/workflowedit/${record.processId}`);
+              return;
+            }
+
             record.orderId !== record.invoiceId &&
               value &&
               window.open(`/admin/transaction/${projectId}?orderId=${value}`);
           }}
         >
-          {record.orderId === record.invoiceId ? '-' : value}
+          {record.processId ? record.processId : record.orderId === record.invoiceId ? '-' : value}
         </span>
       ),
     },
@@ -457,7 +474,7 @@ const InvoiceList = forwardRef((props, ref) => {
       },
     },
     {
-      title: _l('所属表单'),
+      title: _l('所属表单/所属工作流'),
       dataIndex: 'worksheet',
       width: 160,
       render: (value, record) => {
@@ -471,8 +488,15 @@ const InvoiceList = forwardRef((props, ref) => {
         return (
           <span
             title={workSheetName}
-            className={cx({ 'Hand Hover_21': !!worksheetId })}
-            onClick={() => worksheetId && navigateTo(`/worksheet/${worksheetId}`)}
+            className={cx({ 'Hand hoverColorPrimary': !!worksheetId })}
+            onClick={() => {
+              if (record.processId) {
+                window.open(`/workflowedit/${record.processId}`);
+                return;
+              }
+
+              worksheetId && navigateTo(`/worksheet/${worksheetId}`);
+            }}
           >
             {workSheetName}
           </span>
@@ -484,11 +508,14 @@ const InvoiceList = forwardRef((props, ref) => {
       dataIndex: 'action',
       fixed: 'right',
       width: 'auto',
+      minWidth: 150,
       render: (value, record) => {
+        if (record.processId) return null;
+
         return (
           <div className="flexRow alignItemsCenter">
             {record.orderId !== record.invoiceId && (
-              <span className="ThemeColor Hand Hover_51" onClick={() => window.open(`/orderpay/${record.orderId}`)}>
+              <span className="colorPrimary Hand Hover_51" onClick={() => window.open(`/orderpay/${record.orderId}`)}>
                 {_l('查看订单')}
               </span>
             )}
@@ -499,14 +526,14 @@ const InvoiceList = forwardRef((props, ref) => {
                   <LoadDiv className="mLeft24" size="small" />
                 </span>
               ) : (
-                <span className="ThemeColor Hand Hover_51 mLeft24" onClick={() => onSyncInvoice(record)}>
+                <span className="colorPrimary Hand Hover_51 mLeft24" onClick={() => onSyncInvoice(record)}>
                   {_l('刷新')}
                 </span>
               ))}
 
             {record.status === INVOICE_STATUS.UN_INVOICED && (
               <span
-                className="ThemeColor Hand Hover_51 mLeft24"
+                className="colorPrimary Hand Hover_51 mLeft24"
                 onClick={() => {
                   InvoiceConfirmDialog({
                     isLandPage: false,
@@ -531,8 +558,8 @@ const InvoiceList = forwardRef((props, ref) => {
         {STATISTIC.map((item, index) => (
           <div key={item.id}>
             <span>{item.text}</span>
-            {index > 2 && <span className="mLeft8 ThemeColor">¥</span>}
-            <span className={cx('Font26 bold mLeft5', { ThemeColor: index > 2 })}>
+            {index > 2 && <span className="mLeft8 colorPrimary">¥</span>}
+            <span className={cx('Font26 bold mLeft5', { colorPrimary: index > 2 })}>
               {index > 2 ? <MaskText text={formatNumberThousand(summary[item.id])} /> : summary[item.id] || 0}
             </span>
             {index <= 2 && <span className="mLeft4">{_l('张')}</span>}

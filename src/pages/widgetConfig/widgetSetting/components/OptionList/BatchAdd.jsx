@@ -17,7 +17,7 @@ const BatchAddContent = styled.div`
     display: flex
     justify-content: flex-end;
     .countBox {
-      color: ${props => (props.disabled ? '#F52222' : '#9e9e9e')};
+      color: ${props => (props.disabled ? '#F52222' : 'var(--color-text-tertiary)')};
     }
   }
 `;
@@ -76,7 +76,7 @@ export default function BatchAdd({ data, options, onOk, ...rest }) {
       {...rest}
     >
       <BatchAddContent disabled={totalNum > MAX_OPTIONS_COUNT}>
-        <div className="hint Gray_9e">
+        <div className="hint textTertiary">
           {_l(
             '每个选项单列一行。若选项与选项列表重复，保存时将忽略重复选项；若选项与回收站内选项重复，保存时将自动恢复回收站的选项',
           )}

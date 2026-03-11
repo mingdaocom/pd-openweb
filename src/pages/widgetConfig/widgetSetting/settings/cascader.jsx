@@ -20,17 +20,27 @@ export const MENU_STYLE = [
   },
 ];
 
+const DISPLAY_OPTIONS = [
+  {
+    text: _l('单选'),
+    value: 1,
+  },
+  {
+    text: _l('多选'),
+    value: 2,
+  },
+];
 const DataSourceWrap = styled.div`
   .info {
     line-height: 32px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-primary);
     padding: 0 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     border-radius: 3px;
     span {
-      color: #e0e0e0;
+      color: var(--color-border-secondary);
     }
     .viewInfo {
       display: flex;
@@ -38,10 +48,10 @@ const DataSourceWrap = styled.div`
     }
     &.view {
       span {
-        color: #151515;
+        color: var(--color-text-title);
       }
       .viewName {
-        color: #1677ff;
+        color: var(--color-primary);
         max-width: 200px;
         margin-left: 6px;
         margin-top: -2px;
@@ -49,7 +59,7 @@ const DataSourceWrap = styled.div`
     }
 
     &.error {
-      border-color: #f44336;
+      border-color: var(--color-error);
       background-color: rgba(255, 0, 0, 0.05);
       span {
         color: rgba(244, 67, 54, 1);
@@ -66,7 +76,7 @@ const DataSourceWrap = styled.div`
 export default function Cascader(props) {
   const { data, globalSheetInfo, onChange, deleteWidget } = props;
   const { appId: currentAppId, groupId } = globalSheetInfo;
-  const { appId = currentAppId, controlId, dataSource, viewId } = data;
+  const { appId = currentAppId, controlId, dataSource, viewId, enumDefault } = data;
   const { showtype = '3' } = getAdvanceSetting(data);
   const [{ sheetInfo, viewInfo, hasError }, setInfo] = useSetState({
     sheetInfo: {},
@@ -120,7 +130,7 @@ export default function Cascader(props) {
       return (
         <div className="info error" onClick={() => setEdit({ editVisible: true, editType: 3 })}>
           <span>{_l('数据源异常')}</span>
-          <i className="icon-edit_17 Gray_9e pointer"></i>
+          <i className="icon-edit_17 textTertiary pointer"></i>
         </div>
       );
     }
@@ -135,7 +145,10 @@ export default function Cascader(props) {
             {(viewInfo || {}).name}
           </div>
         </div>
-        <i className="icon-edit_17 Gray_9e pointer" onClick={() => setEdit({ editVisible: true, editType: 3 })}></i>
+        <i
+          className="icon-edit_17 textTertiary pointer"
+          onClick={() => setEdit({ editVisible: true, editType: 3 })}
+        ></i>
       </div>
     );
   };
@@ -165,6 +178,16 @@ export default function Cascader(props) {
       </SettingItem>
       <SettingItem>
         <div className="settingItemTitle">{_l('选择方式')}</div>
+        <RadioGroup
+          className="singleLineRadio"
+          size="middle"
+          data={DISPLAY_OPTIONS}
+          checkedValue={enumDefault}
+          onChange={value => onChange({ enumDefault: value })}
+        />
+      </SettingItem>
+      <SettingItem>
+        <div className="settingItemTitle">{_l('下拉菜单样式')}</div>
         <RadioGroup
           className="singleLineRadio"
           size="middle"

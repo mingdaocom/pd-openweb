@@ -6,7 +6,7 @@
   .folderDetailMembers,
   .folderComment,
   .folderDetailTabList {
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     -webkit-box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
   }
@@ -14,7 +14,7 @@
     font-size: 14px;
     line-height: 46px;
     height: 46px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
     .projectDetail {
       flex-shrink: 0;
     }
@@ -40,14 +40,14 @@
       line-height: 32px;
 
       &:not(:hover) {
-        color: #9e9e9e !important;
+        color: var(--color-text-tertiary) !important;
       }
     }
 
     .mdEditorSave {
       font-size: 13px;
       cursor: pointer;
-      color: #fff;
+      color: var(--color-white);
       border-radius: 3px;
       height: 32px;
       line-height: 32px;
@@ -62,7 +62,7 @@
   .folderDetailTab {
     overflow: hidden;
     padding-left: 20px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
     margin-bottom: 12px;
     .commItem {
       line-height: 46px;
@@ -75,7 +75,7 @@
       transition: border-color 0.3s ease-out;
       border-bottom: 3px solid transparent;
       &:not(:hover):not(.active) {
-        color: #aaa !important;
+        color: var(--color-text-tertiary) !important;
         border-color: transparent !important;
       }
     }
@@ -83,12 +83,12 @@
       position: absolute !important;
       top: 14px;
       right: 25px;
-      color: #aaa;
+      color: var(--color-text-tertiary);
       cursor: pointer;
       .operationCheckbox {
         font-size: 12px;
         border-radius: 2px;
-        color: #fff;
+        color: var(--color-white);
         margin-right: 8px;
         border-width: 1px;
         border-style: solid;
@@ -98,8 +98,8 @@
       }
       &:not(.checked) {
         .operationCheckbox {
-          border-color: #ccc !important;
-          background: #fff !important;
+          border-color: var(--color-border-tertiary) !important;
+          background: var(--color-background-primary) !important;
         }
       }
     }
@@ -109,7 +109,7 @@
       padding: 0 20px;
     }
     .folderDetailNoTalk {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       background: url('./images/noTalk.jpg') no-repeat center 50px;
       text-align: center;
       padding-top: 160px;
@@ -118,14 +118,14 @@
     }
     .projectLogs {
       padding: 0 155px 15px 45px;
-      color: #999;
+      color: var(--color-text-tertiary);
       position: relative;
       word-break: break-all;
       .logsTime {
         position: absolute;
         top: 0;
         right: 25px;
-        color: #aaa;
+        color: var(--color-text-tertiary);
       }
       .logsType {
         font-size: 16px;
@@ -134,12 +134,12 @@
         left: 20px;
         display: inline-block;
         vertical-align: top;
-        color: #ccc;
+        color: var(--color-text-placeholder);
         a {
           text-decoration: none;
-          color: #0091ea;
+          color: var(--color-primary);
           &:hover {
-            color: #007ae1;
+            color: var(--color-link-hover);
           }
         }
       }
@@ -151,7 +151,7 @@
     box-sizing: border-box;
     .folderDetailHead {
       font-size: 14px;
-      color: #151515;
+      color: var(--color-text-title);
       margin-bottom: 16px;
       .icon-help {
         opacity: 0.4;
@@ -209,7 +209,7 @@
       .icon-task-add-member-circle {
         &:not(:hover) {
           opacity: 0.4;
-          color: #151515 !important;
+          color: var(--color-text-title) !important;
         }
         display: inline-block;
         margin-bottom: 10px;
@@ -220,7 +220,7 @@
       font-size: 0;
       height: 1px;
       width: 100%;
-      background: #e4e4e4;
+      background: var(--color-border-secondary);
     }
     .folderDetailRange {
       margin-top: 16px;
@@ -250,7 +250,7 @@
   text-align: center;
   cursor: pointer;
   &:not(:hover) {
-    color: #151515 !important;
+    color: var(--color-text-title) !important;
   }
   &:not(.fixWidth) {
     flex: 1;
@@ -259,10 +259,10 @@
     width: 60px;
   }
   &.borderRight {
-    border-right: 1px solid #ccc;
+    border-right: 1px solid var(--color-border-tertiary);
   }
 }
 
 .updateFolderCharge .yesText {
-  background: #f44336 !important;
+  background: var(--color-error) !important;
 }

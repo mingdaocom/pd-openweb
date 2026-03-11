@@ -201,23 +201,23 @@ function ChartWrapper(props) {
                 <Fragment>
                   <Icon
                     icon="navigate_before"
-                    className={cx('Font24 Gray_9e mRight10', { allow: beforeAllow })}
+                    className={cx('Font24 textTertiary mRight10', { allow: beforeAllow })}
                     onClick={beforeAllow && onLoadBeforeData.bind(this, index - 1)}
                   />
                   <Icon
                     icon="navigate_next"
-                    className={cx('Font24 Gray_9e mRight20', { allow: nextAllow })}
+                    className={cx('Font24 textTertiary mRight20', { allow: nextAllow })}
                     onClick={nextAllow && onLoadNextData.bind(this, index + 1)}
                   />
                 </Fragment>
               )}
-              <Icon className="Font20 Gray_9e mRight10" icon="import_export" onClick={onOpenFilterModal} />
+              <Icon className="Font20 textTertiary mRight10" icon="import_export" onClick={onOpenFilterModal} />
               {isHorizontal ? (
-                <Icon className="Font20 Gray_9e" icon="close" onClick={onOpenZoomModal} />
+                <Icon className="Font20 textTertiary" icon="close" onClick={onOpenZoomModal} />
               ) : (
                 isVertical && (
                   <Icon
-                    className={cx('Font18 Gray_9e', { Visibility: isMobileChartPage })}
+                    className={cx('Font18 textTertiary', { Visibility: isMobileChartPage })}
                     icon="task-new-fullscreen"
                     onClick={onOpenZoomModal}
                   />

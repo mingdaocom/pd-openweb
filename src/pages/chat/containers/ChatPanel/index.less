@@ -5,7 +5,7 @@
   z-index: 1;
   top: 0;
   left: 0;
-  background-color: #fff;
+  background-color: var(--color-background-card);
   display: none;
   > div {
     display: flex;
@@ -42,7 +42,7 @@
     cursor: pointer;
     z-index: 1;
     &:not(:hover) {
-      color: #9e9e9e !important;
+      color: var(--color-text-tertiary) !important;
     }
   }
   &-error {
@@ -61,7 +61,7 @@
     flex-direction: column;
     border-radius: 5px;
     overflow: hidden;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     z-index: 100;
     opacity: 1;
     // transition: right 0.3s;
@@ -87,6 +87,10 @@
         }
       }
     }
+  }
+
+  &-boxShadow {
+    box-shadow: var(--shadow-xl);
   }
 
   /* 兼容小屏幕 */

@@ -44,7 +44,7 @@ export default class MobilePhone extends React.Component {
 
   get editPhoneObj() {
     try {
-      return this.editRef.current.iti;
+      return this.editRef.current?.iti || undefined;
     } catch (err) {
       console.log(err);
       return undefined;
@@ -250,6 +250,7 @@ export default class MobilePhone extends React.Component {
         }}
       >
         <MobilePhoneEdit
+          isCellEdit
           isEditing={isediting}
           inputClassName="cellMobileInput stopPropagation"
           enumDefault={cell.enumDefault}
@@ -262,7 +263,7 @@ export default class MobilePhone extends React.Component {
         />
         {error && (
           <CellErrorTips
-            color={ignoreErrorMessage ? '#ff933e' : undefined}
+            color={ignoreErrorMessage ? 'var(--color-warning)' : undefined}
             error={typeof error === 'string' ? error : _l('不是有效的电话号码')}
             pos={rowIndex === 0 ? 'bottom' : 'top'}
           />
@@ -309,13 +310,13 @@ export default class MobilePhone extends React.Component {
           )}
           {isCard && this.masked && !forceShowFullValue && (
             <i
-              className="icon icon-eye_off Hand maskData Font16 Gray_bd mLeft4 mTop4 hoverShow"
+              className="icon icon-eye_off Hand maskData Font16 textDisabled mLeft4 mTop4 hoverShow"
               style={{ verticalAlign: 'text-top' }}
               onClick={this.handleUnMask}
             ></i>
           )}
           {tableType === 'classic' && !isediting && !value && cell.hint && (
-            <span className="guideText Gray_bd hide">{cell.hint}</span>
+            <span className="guideText textDisabled hide">{cell.hint}</span>
           )}
         </EditableCellCon>
       </Trigger>

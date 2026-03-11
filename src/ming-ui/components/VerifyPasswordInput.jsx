@@ -9,31 +9,31 @@ const Password = styled(Input.Password)`
   box-shadow: none !important;
   line-height: 28px !important;
   border-radius: 3px !important;
-  border: 1px solid #ccc !important;
+  border: 1px solid var(--color-border-tertiary) !important;
   margin-bottom: 10px;
   &.ant-input-affix-wrapper-focused {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
   }
 `;
 
 const User = styled.div`
   height: 36px;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   border-radius: 3px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   padding: 0 10px;
 `;
 
 const RequiredBox = styled.div`
   margin: 1px 0 0 -8px;
-  color: #f44336;
+  color: var(--color-error);
 `;
 
 const NoPassword = styled.div`
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   cursor: pointer;
   &:hover {
-    color: #757575;
+    color: var(--color-text-secondary);
   }
 `;
 
@@ -56,7 +56,7 @@ export default function VerifyPasswordInput(props) {
   const settingBtns = () => {
     return (
       <span
-        className="ThemeColor Hand"
+        className="colorPrimary Hand"
         onClick={() => {
           window.open('/personal?type=account');
         }}
@@ -70,7 +70,7 @@ export default function VerifyPasswordInput(props) {
     return (
       <span className="mTop5 InlineBlock">
         <Checkbox
-          className="InlineBlock TxtTop Gray"
+          className="InlineBlock TxtTop textPrimary"
           text={_l('一小时内免验证')}
           checked={isNoneVerification}
           onClick={checked => {
@@ -86,14 +86,14 @@ export default function VerifyPasswordInput(props) {
     <div className={className}>
       {showSubTitle && <div className="Font17 bold mBottom16 verifyPasswordTitle">{_l('安全验证')}</div>}
 
-      <div className={`Font13 Gray label ${isMobile ? 'bold' : ''}`}>{_l('账号')}</div>
+      <div className={`Font13 textPrimary label ${isMobile ? 'bold' : ''}`}>{_l('账号')}</div>
       <User className="mTop10 flexRow alignItemsCenter">
         {showAccountEmail && email ? email : mobilePhone ? mobilePhone : email}
       </User>
 
       <div className="Font13 mTop20 mBottom10 relative flexRow alignItemsCenter">
         {isRequired && <RequiredBox className="Absolute">*</RequiredBox>}
-        <span className={`flex Font13 Gray label ${isMobile ? 'bold' : ''}`}>{_l('密码')}</span>
+        <span className={`flex Font13 textPrimary label ${isMobile ? 'bold' : ''}`}>{_l('密码')}</span>
         <Tooltip
           title={
             <Fragment>

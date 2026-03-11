@@ -33,8 +33,9 @@ export const PERMISSION_ENUM = {
   MANAGE_MERCHANT: 16110,
   WITHDRAW: 16120,
   ORDER: 16200,
-  TAX: 16310,
+  TAX_OPEN: 16310,
   INVOICE: 16320,
+  TAX_SETTING: 16330,
 
   //日志
   APP_LOG: 17100,
@@ -82,7 +83,7 @@ export const ROUTE_CONFIG = {
   [PERMISSION_ENUM.SSO_LOGIN]: ['integrationothers'],
   [PERMISSION_ENUM.PLATFORM_ACCOUNT_LOGIN]: ['integrationothers'],
   [PERMISSION_ENUM.OPEN_INTERFACE]: ['integrationothers'],
-  [PERMISSION_ENUM.BASIC_SETTING]: ['sysinfo', 'orgothers'],
+  [PERMISSION_ENUM.BASIC_SETTING]: ['sysinfo', 'certinfo', 'orgothers'],
   [PERMISSION_ENUM.FINANCE]: ['home', 'billinfo'],
   [PERMISSION_ENUM.SECURITY]: ['security', 'account', 'data', 'securityOthers'],
   [PERMISSION_ENUM.APP_RESOURCE_SERVICE]: [
@@ -101,8 +102,9 @@ export const ROUTE_CONFIG = {
   [PERMISSION_ENUM.MANAGE_MERCHANT]: ['merchant'],
   [PERMISSION_ENUM.WITHDRAW]: ['merchant'],
   [PERMISSION_ENUM.ORDER]: ['transaction', 'refund'],
-  [PERMISSION_ENUM.TAX]: ['invoice'],
+  [PERMISSION_ENUM.TAX_OPEN]: ['invoice'],
   [PERMISSION_ENUM.INVOICE]: ['invoice'],
+  [PERMISSION_ENUM.TAX_SETTING]: ['invoice'],
 
   [PERMISSION_ENUM.APP_LOG]: ['applog'],
   [PERMISSION_ENUM.LOGIN_LOG]: ['loginlog'],

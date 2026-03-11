@@ -17,7 +17,7 @@ const Wrap = styled.div`
       content: ' ';
       width: 2px;
       min-height: 100%;
-      background: #dddddd;
+      background: var(--color-border-primary);
       border-radius: 1px;
       display: block;
       margin-left: 8px;
@@ -35,18 +35,18 @@ const Wrap = styled.div`
 `;
 const WrapTip = styled.div`
   margin-top: 18px;
-  background: #fafafa;
+  background: var(--color-background-secondary);
   border-radius: 3px 3px 3px 3px;
   padding: 18px;
-  border: 1px solid #e3e3e3;
+  border: 1px solid var(--color-border-secondary);
   position: relative;
   .tipConArrow {
     position: absolute;
     width: 12px;
     height: 12px;
-    background: #fafafa;
-    border-left: 1px solid #e3e3e3;
-    border-top: 1px solid #e3e3e3;
+    background: var(--color-background-secondary);
+    border-left: 1px solid var(--color-border-secondary);
+    border-top: 1px solid var(--color-border-secondary);
     transform: rotate(45deg);
     left: 118px;
     top: -7px;
@@ -95,14 +95,14 @@ function TipsRender(props) {
                 </span>
               }
             >
-              <i className="icon-info_outline Font16 mLeft6 Gray_bd TxtMiddle" />
+              <i className="icon-info_outline Font16 mLeft6 textDisabled TxtMiddle" />
             </Tooltip>
           )}
         </div>
       </WrapTip>
       {!isForPortal && (
         <React.Fragment>
-          <p className="mBottom0 mTop24 Gray_75">{_l('其它')}</p>
+          <p className="mBottom0 mTop24 textSecondary">{_l('其它')}</p>
           <div className={'tipItem flexRow alignItemsCenter mTop20'}>
             <Switch
               size="small"
@@ -117,7 +117,7 @@ function TipsRender(props) {
             </span>
             {type !== 'look' && (
               <Tooltip title={_l('在组织管理【汇报关系】中管理用户的下属')}>
-                <i className="icon-info_outline Font16 mLeft6 Gray_bd" />
+                <i className="icon-info_outline Font16 mLeft6 textDisabled" />
               </Tooltip>
             )}
           </div>
@@ -142,7 +142,7 @@ function TipsRender(props) {
               <span className="mLeft10">{_l('匹配用户权限标签的记录')}</span>
               {!isForPortal && (
                 <Tooltip title={_l('在本应用【用户-扩展】中管理用户的权限标签')}>
-                  <Icon icon="info_outline" className="Gray_bd Font16 mLeft6" />
+                  <Icon icon="info_outline" className="textDisabled Font16 mLeft6" />
                 </Tooltip>
               )}
             </span>
@@ -162,7 +162,7 @@ function TipsRender(props) {
                   }}
                 >
                   <Checkbox className="InlineBlock" checked={isChecked} />
-                  <span className={cx('Font13', isChecked ? 'Gray' : 'Gray_9e')}>{item.name}</span>
+                  <span className={cx('Font13', isChecked ? 'textPrimary' : 'textTertiary')}>{item.name}</span>
                 </span>
               );
             })}

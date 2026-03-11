@@ -2,7 +2,7 @@
   margin: 10px;
   margin-top: 0px;
   padding-top: 10px;
-  border-top: 1px solid #e9ecf0;
+  border-top: 1px solid var(--color-border-secondary);
 }
 
 .voteUpdaterOperate .voteAnonymous {
@@ -29,9 +29,9 @@
 }
 
 .updaterDialog_Main .voteOptions .inputTxt {
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   padding: 2px 2px;
-  background-color: White;
+  background-color: var(--color-white);
   width: 550px;
 }
 
@@ -41,7 +41,7 @@
 }
 
 .votePicContainer {
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--color-border-secondary);
   margin-top: 2px;
 }
 
@@ -89,7 +89,7 @@
   margin: auto;
   width: 100%;
   height: 100%;
-  background: white;
+  background: var(--color-background-primary);
 }
 
 .votePicContainer .uploadPicList .progressImg .progressPanel {
@@ -105,7 +105,7 @@
   height: 153px;
   padding: 0px;
   float: left;
-  border: 1px solid #aaa;
+  border: 1px solid var(--color-text-tertiary);
 }
 
 .votePicContainer .uploadPicList .picItem .uploadThumbPic {
@@ -119,7 +119,7 @@
   position: absolute;
   right: 0px;
   top: 0px;
-  background-color: white;
+  background-color: var(--color-background-primary);
   text-decoration: none;
   font-size: 16px;
   line-height: 15px;
@@ -145,7 +145,7 @@
 
 /*�ϴ����� ͼƬ��������ʽ*/
 .votePicContainer .progressImg {
-  color: #aaa;
+  color: var(--color-text-tertiary);
   text-align: center;
 }
 
@@ -161,7 +161,7 @@
 }
 
 .votePicContainer .progressImg .progressPanel .progressbar {
-  background-color: #ddd;
+  background-color: var(--color-border-primary);
   height: 100%;
   width: 1px;
   position: absolute;
@@ -187,8 +187,8 @@
 
 .voteUpdaterOperate .voteLastTimeWrap .mui-datetime-picker {
   padding: 1px 2px 1px 5px;
-  background: #fff;
-  border: 1px solid #d5d5d5;
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border-primary);
   font-size: 12px;
   line-height: 18px;
   width: 80px;

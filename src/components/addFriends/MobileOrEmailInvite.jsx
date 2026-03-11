@@ -223,7 +223,7 @@ export default class MobileOrEmailInvite extends Component {
         <img src={item.avatarBig} />
         <div className="userInfo ellipsis">
           <div className="Font17 Bold">{item.fullname}</div>
-          {item.subInfo && <div className="Gray_75 mTop8">{item.subInfo}</div>}
+          {item.subInfo && <div className="textSecondary mTop8">{item.subInfo}</div>}
         </div>
         <Button disabled={item.disabled} className="inviteButton" onClick={() => this.inviteFriend(item)}>
           {item.disabled ? _l('已邀请') : isDefault ? _l('发送邀请') : _l('加为好友')}
@@ -285,7 +285,7 @@ export default class MobileOrEmailInvite extends Component {
 
     return (
       <div className="addFriendsContent">
-        <div className="Gray_75 mBottom20 flexRow">
+        <div className="textSecondary mBottom20 flexRow">
           <span className="flex">{_l('邀请后，成员会收到邀请链接，验证后可加入%0', text)}</span>
           {fromType !== FROM_TYPE.GROUPS && (
             <div className="addBox mLeft10">
@@ -297,7 +297,9 @@ export default class MobileOrEmailInvite extends Component {
           )}
         </div>
 
-        {(!md.global.Config.IsLocal || (md.global.Config.IsLocal && md.global.SysSettings.enableSmsCustomContent)) && (
+        {((!window.platformENV.isOverseas && !window.platformENV.isLocal) ||
+          ((window.platformENV.isOverseas || window.platformENV.isLocal) &&
+            md.global.SysSettings.enableSmsCustomContent)) && (
           <RadioGroup
             size="middle"
             className="mBottom20"
@@ -306,27 +308,11 @@ export default class MobileOrEmailInvite extends Component {
             onChange={value => this.setState({ selectType: value, list: defaultList })}
           />
         )}
-        {md.global.SysSettings.enableSmsCustomContent && selectType === 1 && (
-          <div className="prompt flexRow mBottom20 Gray">
-            <div className="mRight3">
-              <Icon icon="info" className="Font16" />
-            </div>
-            <div className="flex">
-              <span>
-                {_l('受运营商政策影响，含链接的邀请短信可能被拦截。如未收到短信，请通过邮箱或邀请链接发送邀请')}
-              </span>
-              <Support
-                type={3}
-                className="mLeft5 mBottom3"
-                href="https://blog.mingdao.com/37103.html"
-                text={_l('详细')}
-              />
-            </div>
-          </div>
-        )}
-        {(!md.global.Config.IsLocal || (md.global.Config.IsLocal && md.global.SysSettings.enableSmsCustomContent)) &&
+        {((!window.platformENV.isOverseas && !window.platformENV.isLocal) ||
+          ((window.platformENV.isOverseas || window.platformENV.isLocal) &&
+            md.global.SysSettings.enableSmsCustomContent)) &&
           selectType === 1 && (
-            <div className="prompt flexRow mBottom20 Gray">
+            <div className="prompt flexRow mBottom20 textPrimary">
               <div className="mRight3">
                 <Icon icon="info" className="Font16" />
               </div>
@@ -356,7 +342,7 @@ export default class MobileOrEmailInvite extends Component {
         <div className="footContainer">
           <div className="flexRow flexCenter">
             {fromType !== FROM_TYPE.GROUPS && showInviteRules && (
-              <div className="addBox Gray_9e mRight16">
+              <div className="addBox textTertiary mRight16">
                 <span onClick={() => this.setState({ showDialogSettingInviteRules: true })}>
                   <Icon icon="settings" />
                   {_l('邀请设置')}
@@ -364,7 +350,7 @@ export default class MobileOrEmailInvite extends Component {
               </div>
             )}
             {fromType !== FROM_TYPE.GROUPS && (
-              <div className="addBox Gray_9e">
+              <div className="addBox textTertiary">
                 <span onClick={() => window.open(`${location.origin}/admin/structure/${projectId}/importusers`)}>
                   <Icon icon="add_software" />
                   {_l('批量导入')}

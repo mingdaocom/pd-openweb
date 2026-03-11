@@ -59,7 +59,6 @@ const RichTextWidget = props => {
     _.debounce(tempValue => {
       // 防止非聚焦态被触发
       if (valueRef.current !== tempValue && changeSettingRef.current) {
-        console.log('onChangeDebounced', tempValue);
         props.onChange(tempValue);
       }
       changeSettingRef.current = false;

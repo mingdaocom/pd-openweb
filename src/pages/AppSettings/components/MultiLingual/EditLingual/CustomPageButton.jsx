@@ -36,7 +36,9 @@ export default function CustomPageButton(props) {
   }
 
   if (!list.length) {
-    return <div className="flexRow alignItemsCenter justifyContentCenter h100 Gray_9e Font14">{_l('没有按钮')}</div>;
+    return (
+      <div className="flexRow alignItemsCenter justifyContentCenter h100 textTertiary Font14">{_l('没有按钮')}</div>
+    );
   }
 
   const handlePositionReport = item => {

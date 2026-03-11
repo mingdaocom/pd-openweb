@@ -1,6 +1,6 @@
 ﻿.AppTask {
   .printMessage {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .printOperation li {
     position: relative;
@@ -14,12 +14,12 @@
     font-size: 14px;
     display: inline-block;
     vertical-align: top;
-    color: #151515;
+    color: var(--color-text-title);
     cursor: pointer;
     .operationCheckbox {
       font-size: 12px;
       border-radius: 2px;
-      color: #fff;
+      color: var(--color-white);
       margin-right: 8px;
       border-width: 1px;
       border-style: solid;
@@ -29,16 +29,16 @@
     }
     &:not(.checked) {
       .operationCheckbox {
-        border-color: #ccc !important;
-        background: #fff !important;
+        border-color: var(--color-border-tertiary) !important;
+        background: var(--color-background-primary) !important;
       }
     }
   }
   .printOperation .checkOperationDisabled {
     cursor: default;
     .operationCheckbox {
-      background: #ccc !important;
-      border-color: #ccc !important;
+      background: var(--color-text-placeholder) !important;
+      border-color: var(--color-border-tertiary) !important;
     }
   }
 }

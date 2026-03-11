@@ -20,7 +20,7 @@ export const WrapL = styled.div`
   }
   .ming.Dropdown.disabled,
   .dropdownTrigger.disabled {
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
   .autosize {
     flex: 1;
@@ -31,8 +31,8 @@ export const WrapL = styled.div`
   .addCondition {
     height: 32px;
     line-height: 32px;
-    background: #f5f5f5;
-    border: 1px solid #dddddd;
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-border-primary);
     border-radius: 4px;
     display: inline-block;
     padding: 0 18px;
@@ -41,7 +41,7 @@ export const WrapL = styled.div`
     .dropCondition {
       width: 208px;
       height: 36px;
-      background: #ffffff;
+      background: var(--color-background-primary);
       opacity: 1;
       border-radius: 4px;
       .value {
@@ -54,26 +54,26 @@ export const WrapL = styled.div`
     }
     .closeBtn {
       opacity: 0;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
     &:hover {
       .closeBtn {
         opacity: 1;
         &:hover {
-          color: red;
+          color: var(--color-error);
         }
       }
     }
   }
   .addFilter {
     height: 58px;
-    background: #ffffff;
-    border: 1px dashed #dddddd;
+    background: var(--color-background-primary);
+    border: 1px dashed var(--color-border-primary);
     border-radius: 4px;
-    color: #1677ff;
+    color: var(--color-primary);
     line-height: 58px;
     &:hover {
-      border: 1px dashed #1677ff;
+      border: 1px dashed var(--color-primary);
     }
   }
   .dropWorksheet {
@@ -105,34 +105,34 @@ export const WrapL = styled.div`
       flex-shrink: 0;
       flex-grow: 0;
       width: 164px;
-      border: 1px solid #dddddd;
-      background: #ffffff;
+      border: 1px solid var(--color-border-primary);
+      background: var(--color-background-primary);
       border-radius: 4px;
-      color: #757575;
+      color: var(--color-text-secondary);
       padding: 9px 0;
       .er {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         font-weight: 400;
       }
       &.isCur {
         background: rgba(33, 150, 243, 0.1);
-        border: 1px solid #1677ff;
-        color: #1677ff;
+        border: 1px solid var(--color-primary);
+        color: var(--color-primary);
       }
     }
   }
   .groupCon {
     .icon {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       &:hover {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
   }
   .itemOp {
     line-height: 1;
-    background: #f5f5f5;
-    border: 1px solid #dfdfdf;
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-border-primary);
     padding: 5px 12px;
     border-radius: 14px;
     margin-right: 8px;

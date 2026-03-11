@@ -37,7 +37,7 @@ const ApplyInvoiceWrap = styled.ul`
         content: '*';
         left: 0;
         top: 2px;
-        color: red;
+        color: var(--color-error);
         display: inline-block;
         vertical-align: middle;
       }

@@ -21,18 +21,18 @@ const ConfigWrap = styled.div`
   .infoWrap {
     line-height: 48px;
     padding-left: 12px;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
   }
   .addFilterControl {
     width: 120px;
     border-radius: 3px;
     padding: 0 12px;
     line-height: 32px;
-    color: #1677ff;
+    color: var(--color-primary);
     font-weight: bold;
     &:hover {
-      color: #1780d3;
-      background-color: #f5f5f5;
+      color: var(--color-link-hover);
+      background-color: var(--color-background-hover);
     }
   }
   .configItem {
@@ -144,7 +144,7 @@ export default function ApiSearchConfig(props) {
             }}
           />
         </div>
-        {isForbidEncry() && <div className="Gray_9e mTop10 mLeft80">{_l('当前字段已加密，按照精确搜索查询')}</div>}
+        {isForbidEncry() && <div className="textTertiary mTop10 mLeft80">{_l('当前字段已加密，按照精确搜索查询')}</div>}
         {hideConfig ? null : (
           <Fragment>
             <div className="configItem">
@@ -160,7 +160,7 @@ export default function ApiSearchConfig(props) {
             {showtype !== '3' && (
               <SettingItem className="mTop36">
                 <div className="settingItemTitle">{_l('筛选')}</div>
-                <div className="subTitle Gray_9e">{_l('用户通过以下字段筛选关联记录')}</div>
+                <div className="subTitle textTertiary">{_l('用户通过以下字段筛选关联记录')}</div>
                 <FastFilter
                   from="fastFilter"
                   className="relateSheetSearchConfig"

@@ -3,9 +3,11 @@ import { dialogSelectDept, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui
 import actionLogAjax from 'src/api/actionLog';
 import appManagementAjax from 'src/api/appManagement';
 import attachmentAjax from 'src/api/attachment';
+import fixedDataAjax from 'src/api/fixedData';
 import homeAppAjax from 'src/api/homeApp';
 import pluginAjax from 'src/api/plugin';
 import qiniuAjax from 'src/api/qiniu';
+import userAjax from 'src/api/user';
 import worksheetAjax from 'src/api/worksheet';
 import delegationAjax from 'src/pages/workflow/api/delegation';
 import instanceAjax from 'src/pages/workflow/api/instance';
@@ -24,7 +26,7 @@ import { openMobileRecordInfo } from 'src/pages/Mobile/Record';
 import { browserIsMobile, getFilledRequestParams } from 'src/utils/common';
 import { emitter } from 'src/utils/common';
 import { renderText } from 'src/utils/control';
-import { addBehaviorLog, handlePushState, mdAppResponse } from 'src/utils/project';
+import { addBehaviorLog, compatibleMDJS, handlePushState, mdAppResponse } from 'src/utils/project';
 import selectLocation from './selectLocation';
 
 export const api = {
@@ -88,6 +90,14 @@ function getMainWebApi() {
     {
       controller: 'plugin',
       ajax: pluginAjax,
+    },
+    {
+      controller: 'fixedData',
+      ajax: fixedDataAjax,
+    },
+    {
+      controller: 'user',
+      ajax: userAjax,
     },
   ].forEach(item => {
     mainWebApi[item.controller] = item.ajax;
@@ -405,6 +415,21 @@ export const utils = {
         },
       });
     });
+  },
+  getLocation: () => {
+    if (window.isMingDaoApp) {
+      return new Promise((resolve, reject) => {
+        compatibleMDJS('getLocation', {
+          success: res => {
+            resolve(res);
+          },
+          cancel: res => {
+            reject(res);
+          },
+        });
+      });
+    }
+    return Promise.resolve({});
   },
   renderText,
 };

@@ -112,7 +112,7 @@ export default args => {
         } else {
           if (rGroup.isDelete) {
             replaceStr +=
-              ' <span class="DisabledColor" title="群组已删除">@' + htmlEncodeReg(rGroup.groupName) + '</span> ';
+              ' <span class="textDisabled" title="群组已删除">@' + htmlEncodeReg(rGroup.groupName) + '</span> ';
           } else {
             replaceStr +=
               ' <a target="_blank" data-groupid="' +

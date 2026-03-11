@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import { ConfigProvider, Table } from 'antd';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, LoadDiv, SvgIcon } from 'ming-ui';
+import { Checkbox, Dropdown, LoadDiv, SvgIcon, UserHead } from 'ming-ui';
 import { dialogSelectApp, dialogSelectUser } from 'ming-ui/functions';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion.js';
 import processAjax from 'src/pages/workflow/api/process.js';
@@ -18,9 +18,9 @@ const TRIGGER_TYPE = {
 const Wrap = styled.div`
   width: 880px;
   margin: 22px auto;
-  background: #ffffff;
+  background: var(--color-background-primary);
   padding: 36px 24px 24px;
-  // border: 1px solid #dddddd;
+  // border: 1px solid var(--color-border-primary);
   border-radius: 10px;
   .noData {
     text-align: center;
@@ -29,27 +29,27 @@ const Wrap = styled.div`
       width: 130px;
       height: 130px;
       line-height: 130px;
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       border-radius: 50%;
       margin: 80px auto 0;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
   }
   .addButtn {
     padding: 8px 24px;
-    background: #1677ff;
+    background: var(--color-primary);
     border-radius: 21px;
-    color: #fff;
+    color: var(--color-white);
     display: inline-block;
     &:hover {
-      background: #1764c0;
+      background: var(--color-link-hover);
     }
   }
 `;
 const WrapCon = styled.div`
   .owerItem {
     border-radius: 26px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     height: 26px;
     line-height: 26px;
     display: inline-block;
@@ -59,7 +59,7 @@ const WrapCon = styled.div`
     img {
       width: 26px;
       height: 26px;
-      background: #ffffff;
+      background: var(--color-background-primary);
       border-radius: 50%;
       overflow: hidden;
     }
@@ -72,10 +72,10 @@ const WrapCon = styled.div`
     &:hover {
       .tagDel {
         display: block;
-        color: #757575;
+        color: var(--color-text-secondary);
         cursor: pointer;
         &:hover {
-          color: red;
+          color: var(--color-error);
         }
       }
     }
@@ -84,7 +84,7 @@ const WrapCon = styled.div`
     width: 26px;
     height: 26px;
     line-height: 26px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 50%;
     display: inline-flex;
     vertical-align: top;
@@ -92,13 +92,13 @@ const WrapCon = styled.div`
     justify-content: center;
   }
   .addApp {
-    color: #1677ff;
+    color: var(--color-primary);
     &:hover {
-      color: #1764c0;
+      color: var(--color-link-hover);
     }
   }
   .ant-table-thead > tr > th {
-    color: #757575 !important;
+    color: var(--color-text-secondary) !important;
   }
   .iconWrap {
     border-radius: 3px;
@@ -145,12 +145,12 @@ const WrapCon = styled.div`
       vertical-align: top;
       margin-top: 9px;
       margin-right: 5px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
     li {
       &:hover {
         i {
-          color: #fff !important;
+          color: var(--color-white) !important;
         }
       }
     }
@@ -233,7 +233,7 @@ function AuthorizeToApp(props) {
       title: _l('创建时间'),
       dataIndex: 'createDate',
       render: (text, record) => {
-        return <div className="Gray_75">{record.createDate}</div>;
+        return <div className="textSecondary">{record.createDate}</div>;
       },
     },
     {
@@ -242,7 +242,13 @@ function AuthorizeToApp(props) {
       render: (text, record) => {
         return (
           <div className="flexRow ownerInfo alignItemsCenter WordBreak">
-            <img src={record.owner.avatar} width={36} />
+            <UserHead
+              user={{
+                userHead: record?.owner?.avatar,
+                accountId: record?.owner?.accountId,
+              }}
+              size={36}
+            />
             <div className="flex pLeft8 WordBreak">{record.owner.fullName}</div>
           </div>
         );
@@ -278,7 +284,7 @@ function AuthorizeToApp(props) {
         <span className="iconCon InlineBlock TxtCenter ">
           <i className="icon-admin-apps Font56 TxtMiddle" />
         </span>
-        <p className="Gray_9e mTop32 mBottom0">{_l('无授权应用')}</p>
+        <p className="textTertiary mTop32 mBottom0">{_l('无授权应用')}</p>
         {!keywords && (
           <span
             className="addButtn Bold Hand mTop40 Font15"
@@ -396,7 +402,7 @@ function AuthorizeToApp(props) {
             companyId={projectId}
           />
           <div
-            className="TxtCenter Relative Gray_75 ThemeHoverBorderColor3 ThemeHoverColor3 pointer addBtn mTop12 Block"
+            className="TxtCenter Relative textSecondary ThemeHoverBorderColor3 ThemeHoverColor3 pointer addBtn mTop12 Block"
             onClick={e => {
               addMembers(e);
             }}

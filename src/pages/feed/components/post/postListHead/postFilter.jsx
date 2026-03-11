@@ -174,13 +174,13 @@ class HomePostFilter extends React.Component {
         <div className="searchFilter Right mRight15">
           <div className="InlineBlock">
             <a
-              className={cx('fontAdd', { DisabledColor: !allowDecreaseFontSize })}
+              className={cx('fontAdd', { textDisabled: !allowDecreaseFontSize })}
               onClick={allowDecreaseFontSize ? () => this.setFontSize(-1) : undefined}
             >
               A-
             </a>
             <a
-              className={cx('fontAdd', { DisabledColor: !allowIncreaseFontSize })}
+              className={cx('fontAdd', { textDisabled: !allowIncreaseFontSize })}
               onClick={allowIncreaseFontSize ? () => this.setFontSize(1) : undefined}
             >
               A+
@@ -199,7 +199,7 @@ class HomePostFilter extends React.Component {
                 onKeyUp={this.keyupSearchInput}
                 onChange={this.changeSearchKeywords}
               />
-              <i className="icon-search Font16 Gray_9" onClick={this.focusSearchInput} />
+              <i className="icon-search Font16 textTertiary" onClick={this.focusSearchInput} />
             </div>
           </Tooltip>
           <DateFilter
@@ -224,7 +224,9 @@ class HomePostFilter extends React.Component {
                   hide: this.props.options.listType === postEnum.LIST_TYPE.ireply,
                 })}
               >
-                <i className={'icon-calander Font16 ' + (this.props.options.startDate ? 'ThemeColor3' : 'Gray_9')} />
+                <i
+                  className={'icon-calander Font16 ' + (this.props.options.startDate ? 'ThemeColor3' : 'textTertiary')}
+                />
               </div>
             </Tooltip>
           </DateFilter>

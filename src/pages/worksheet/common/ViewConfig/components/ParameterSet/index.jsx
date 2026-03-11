@@ -14,13 +14,13 @@ const Wrap = styled.div`
   .emptyCon {
     width: 130px;
     height: 130px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     border-radius: 50%;
     text-align: center;
     margin: 100px auto 0;
     i {
       font-size: 70px;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
   }
   .txt {
@@ -30,28 +30,28 @@ const Wrap = styled.div`
     display: none !important;
   }
   .customFieldsContainer .customFormItemControl .customFormControlBox {
-    background: #fff;
-    border-color: #ddd;
+    background: var(--color-background-primary);
+    border-color: var(--color-border-primary);
     &:not(.controlDisabled):hover {
-      background: #fff;
-      border-color: #ccc;
+      background: var(--color-background-primary);
+      border-color: var(--color-border-tertiary);
     }
   }
   .customAntSelect:not(.ant-select-open):not(.ant-select-disabled) .ant-select-selector {
-    background: #fff !important;
-    border-color: #ddd !important;
+    background: var(--color-background-primary) !important;
+    border-color: var(--color-border-primary) !important;
     &:hover {
-      border-color: #ccc !important;
-      background: #fff !important;
+      border-color: var(--color-border-tertiary) !important;
+      background: var(--color-background-primary) !important;
     }
   }
   .customFieldsContainer .customFormItemControl > .ming.Dropdown .Dropdown--border:not(:hover):not(.active),
   .customFieldsContainer .customFormItemControl .sortColumnWrap .Dropdown--input,
   .customFieldsContainer .customFormItemControl > .ming.Dropdown .Dropdown--border:hover,
   .customFieldsContainer .customFormItemControl > .ming.Dropdown .Dropdown--border.active {
-    border-color: #ddd !important;
+    border-color: var(--color-border-primary) !important;
     &:hover {
-      border-color: #ccc !important;
+      border-color: var(--color-border-tertiary) !important;
     }
   }
   .conCustomFields {
@@ -116,7 +116,7 @@ const ColumnDrop = props => {
         controlsSorts={value}
         showControls={value}
         columns={allColumns}
-        empty={<div className="Gray_9e">{_l('请选择')}</div>}
+        empty={<div className="textTertiary">{_l('请选择')}</div>}
         placeholder={_l('搜索')}
         onChange={({ newControlSorts, newShowControls }) => {
           let data = [];
@@ -185,7 +185,7 @@ const CustomControlDrop = props => {
           let item = allColumns.find(it => it.controlId === data);
           return (
             <div className="flexRow alignItemsCenter">
-              <Icon icon={getIconByType((item || {}).type, false)} className="Font16 Gray_9e" />
+              <Icon icon={getIconByType((item || {}).type, false)} className="Font16 textTertiary" />
               <span className="mLeft5">{(item || {}).controlName}</span>
             </div>
           );
@@ -234,7 +234,7 @@ export default function ParameterSet(params) {
         advancedSetting: {
           ...o.advancedSetting,
           hinttype: '2',
-          titlecolor: '#151515ff',
+          titlecolor: 'var(--color-text-primary)',
           titlestyle: '1000',
           hidetitle: !o.controlName ? '1' : '',
         },
@@ -327,7 +327,7 @@ export default function ParameterSet(params) {
     const { switchSettings = {} } = pluginInfo;
     return switchSettings.showRefresh === '1' ? (
       <React.Fragment>
-        {isNull && <div style={{ borderTop: '1px solid #eaeaea' }}></div>}
+        {isNull && <div style={{ borderTop: '1px solid var(--color-border-secondary)' }}></div>}
         <RefreshTime {...params} />
       </React.Fragment>
     ) : null;
@@ -339,7 +339,7 @@ export default function ParameterSet(params) {
           <div className="emptyCon flexRow alignItemsCenter justifyContentCenter">
             <Icon icon={'configure'} />
           </div>
-          <div className="Gray_9e Font16 TxtCenter mTop30 txt">{_l('暂未添加参数')}</div>
+          <div className="textTertiary Font16 TxtCenter mTop30 txt">{_l('暂未添加参数')}</div>
           {renderReshTime(true)}
         </React.Fragment>
       );
@@ -377,7 +377,7 @@ export default function ParameterSet(params) {
   return (
     <>
       {[1, 2, 3, 4].includes(sourceType) ? (
-        <div className="Gray_75 mTop10">
+        <div className="textSecondary mTop10">
           {sourceType === 4
             ? _l(
                 '%0（%1），升级方式：跟随应用升级',

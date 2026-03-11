@@ -26,7 +26,7 @@ export default class DeleteFlowBtn extends Component {
 
   render() {
     return (
-      <div onClick={this.delFlow} style={{ color: '#f44336' }}>
+      <div onClick={this.delFlow} style={{ color: 'var(--color-error)' }}>
         <span className="icon-trash Font16 pLeft12 mRight10" />
         {_l('删除')}
       </div>

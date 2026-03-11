@@ -1,9 +1,12 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Drawer } from 'antd';
+import { ActionSheet } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { Icon, LoadDiv, ScrollView, UserHead } from 'ming-ui';
+import Trigger from 'rc-trigger';
+import { Icon, LoadDiv, Menu, MenuItem, ScrollView, UserHead } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import instance from 'src/pages/workflow/api/instance';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import MobileOtherAction from 'mobile/ProcessRecord/OtherAction';
@@ -25,7 +28,7 @@ const renderTimeConsuming = (createDate, completeDate) => {
   if (timeConsuming) {
     return (
       <div className="flexRow valignWrapper mBottom12">
-        <div className="Font13 Gray_75 label">{_l('整体耗时')}</div>
+        <div className="Font13 textSecondary label">{_l('整体耗时')}</div>
         <div>{covertTime(timeConsuming)}</div>
       </div>
     );
@@ -39,7 +42,10 @@ const renderState = data => {
 
   if (allowReset) {
     return (
-      <div className="state bold valignWrapper Font13" style={{ backgroundColor: '#bdbdbd', color: '#fff' }}>
+      <div
+        className="state bold valignWrapper Font13"
+        style={{ backgroundColor: 'var(--color-text-disabled)', color: '#fff' }}
+      >
         {_l('流程撤回')}
       </div>
     );
@@ -48,19 +54,19 @@ const renderState = data => {
   if (workItem) {
     if (type === 3 || type === 0)
       return (
-        <span className="bold" style={{ color: '#1677ff' }}>
+        <span className="bold" style={{ color: 'var(--color-primary)' }}>
           {_l('等我填写...')}
         </span>
       );
     if (type === 4)
       return (
-        <span className="bold" style={{ color: '#1677ff' }}>
+        <span className="bold" style={{ color: 'var(--color-primary)' }}>
           {_l('等我审批...')}
         </span>
       );
   } else {
-    if (type === 3 || type === 0) return <span className="bold Gray_75">{_l('填写中...')}</span>;
-    if (type === 4) return <span className="bold Gray_75">{_l('审批中...')}</span>;
+    if (type === 3 || type === 0) return <span className="bold textSecondary">{_l('填写中...')}</span>;
+    if (type === 4) return <span className="bold textSecondary">{_l('审批中...')}</span>;
   }
 
   if (completed) {
@@ -91,12 +97,12 @@ const renderSurplusTime = data => {
 
   return (
     <div className="flexRow valignWrapper mBottom12">
-      <div className="Font13 Gray_75 label">{_l('剩余时间')}</div>
+      <div className="Font13 textSecondary label">{_l('剩余时间')}</div>
       <div>
         <span
           className="stepTimeConsuming flexRow"
           style={{
-            color: time > 0 ? '#F44336' : currentAccountNotified ? '#FF9800' : undefined,
+            color: time > 0 ? 'var(--color-error)' : currentAccountNotified ? 'var(--color-warning)' : undefined,
           }}
         >
           {time > 0 ? _l('已超时%0', covertTime(time)) : covertTime(time)}
@@ -126,7 +132,7 @@ function CurrentWorkItems(props) {
   return (
     !!(currentWorkItems || []).length && (
       <div className="flexRow valignWrapper mBottom12">
-        <div className="Font13 Gray_75 label">{type === 4 ? _l('审批人') : _l('填写人')}</div>
+        <div className="Font13 textSecondary label">{type === 4 ? _l('审批人') : _l('填写人')}</div>
         <div className="flex flexRow valignWrapper flexWrap" ref={wrapRef}>
           {currentWorkItems.map(data => (
             <span className="InlineBlock Relative mRight8">
@@ -197,8 +203,8 @@ function WorkflowCard(props) {
             {name && (
               <div className="flexRow valignWrapper mBottom12">
                 <div className="flexRow valignWrapper flex">
-                  <div className="Font13 Gray_75 label">{_l('当前节点')}</div>
-                  <div className="flowNodeName Gray">{name}</div>
+                  <div className="Font13 textSecondary label">{_l('当前节点')}</div>
+                  <div className="flowNodeName textPrimary">{name}</div>
                 </div>
                 {isBranch && renderState(data)}
               </div>
@@ -206,7 +212,7 @@ function WorkflowCard(props) {
             <CurrentWorkItems data={data} formWidth={formWidth} appId={appId} projectId={projectId} />
             {receiveTime && (
               <div className="flexRow valignWrapper mBottom12">
-                <div className="Font13 Gray_75 label">{_l('处理开始')}</div>
+                <div className="Font13 textSecondary label">{_l('处理开始')}</div>
                 <div>{dateConvertToUserZone(receiveTime)}</div>
               </div>
             )}
@@ -214,7 +220,7 @@ function WorkflowCard(props) {
         )}
         {completeDate && (
           <div className="flexRow valignWrapper mBottom12">
-            <div className="Font13 Gray_75 label">{_l('完成时间')}</div>
+            <div className="Font13 textSecondary label">{_l('完成时间')}</div>
             <div>{dateConvertToUserZone(completeDate)}</div>
           </div>
         )}
@@ -222,7 +228,7 @@ function WorkflowCard(props) {
         {allowReset && (
           <Fragment>
             <div className="flexRow valignWrapper mBottom12">
-              <div className="Font13 Gray_75 label">{_l('完成时间')}</div>
+              <div className="Font13 textSecondary label">{_l('完成时间')}</div>
               <div>{dateConvertToUserZone(revokeDate)}</div>
             </div>
             {renderTimeConsuming(createDate, revokeDate)}
@@ -244,8 +250,8 @@ function WorkflowCard(props) {
             projectId={projectId}
           />
           <div className="flexColumn flex mLeft10">
-            <div className="Font15 bold Gray">{process.name}</div>
-            <div className="Font13 Gray_75">
+            <div className="Font15 bold textPrimary">{process.name}</div>
+            <div className="Font13 textSecondary">
               {_l(
                 '%0 于 %1 发起',
                 createAccount.accountId === md.global.Account.accountId ? _l('我') : createAccount.fullName,
@@ -254,7 +260,7 @@ function WorkflowCard(props) {
             </div>
           </div>
           {isBranch && getIsRevoke() && (
-            <div className="ThemeColor bold Font14 pointer" onClick={handleRevoke}>
+            <div className="colorPrimary bold Font14 pointer" onClick={handleRevoke}>
               {_l('撤回')}
             </div>
           )}
@@ -333,6 +339,9 @@ export default function SheetWorkflow(props) {
   const [actionVisible, setActionVisible] = useState(false);
   const [allowTaskRevokeBackNodeId, setAllowTaskRevokeBackNodeId] = useState(null);
   const [ProcessRecord, setProcessRecord] = useState(null);
+  const [archivedList, setArchivedList] = useState([]);
+  const [selecteArchived, setSelecteArchived] = useState({});
+  const [filterVisible, setFilterVisible] = useState(false);
 
   const getList = () => {
     return new Promise(resolve => {
@@ -341,6 +350,11 @@ export default function SheetWorkflow(props) {
         startAppId: worksheetId,
         startSourceId: recordId,
       };
+      if (selecteArchived.id) {
+        param.archivedId = selecteArchived.id;
+        param.startDate = selecteArchived.start;
+        param.endDate = selecteArchived.end;
+      }
       Promise.all([
         instanceVersion.getTodoList2(param),
         instanceVersion.getTodoList2({
@@ -389,6 +403,18 @@ export default function SheetWorkflow(props) {
     });
   };
 
+  const getArchivedList = () => {
+    instance.getArchivedList().then(data => {
+      const list = data.reverse();
+      const current = {
+        id: '',
+        text: _l('%0年至今天', moment(list[0].end).format('YYYY')),
+      };
+      setSelecteArchived(current);
+      setArchivedList([current].concat(list));
+    });
+  };
+
   const getWorkflow = (data, param) => {
     const api = data.workItem ? instanceVersion.get : instanceVersion.get2;
     return api({
@@ -406,6 +432,9 @@ export default function SheetWorkflow(props) {
             name: getTranslateInfo(appId, instance.parentId, flowNode.id).nodename || flowNode.name,
           },
         };
+      });
+      instance.backFlowNodes.forEach(flowNode => {
+        flowNode.name = getTranslateInfo(appId, instance.parentId, flowNode.id).nodename || flowNode.name;
       });
       if (_.get(instance.currentWork, 'flowNode.name')) {
         const { flowNode } = instance.currentWork;
@@ -672,6 +701,39 @@ export default function SheetWorkflow(props) {
     });
   };
 
+  const handleMobileMoreAction = () => {
+    let actionHandler = null;
+    actionHandler = ActionSheet.show({
+      actions: archivedList.map((item, index) => {
+        return {
+          text: (
+            <div
+              className="flexRow valignWrapper w100"
+              onClick={() => {
+                setSelecteArchived({ ...item, sourceId: `clickTrigger-${index}` });
+                actionHandler.close();
+              }}
+            >
+              <div className="flex Bold">{item.text}</div>
+              {item.id === selecteArchived.id && <Icon icon="done" className="Font18 ThemeColor3" />}
+            </div>
+          ),
+        };
+      }),
+      extra: (
+        <div className="flexRow header">
+          <span className="Font13">{_l('查看历史数据')}</span>
+          <div className="closeIcon" onClick={() => actionHandler.close()}>
+            <Icon icon="close" />
+          </div>
+        </div>
+      ),
+      onAction: () => {
+        actionHandler.close();
+      },
+    });
+  };
+
   useEffect(() => {
     if (isMobile) {
       import('src/pages/Mobile/ProcessRecord').then(component => {
@@ -687,12 +749,18 @@ export default function SheetWorkflow(props) {
   useEffect(() => {
     handleCloseDrawer();
     getList();
+    getArchivedList();
   }, [recordId]);
+
+  useEffect(() => {
+    selecteArchived.sourceId && getList();
+  }, [selecteArchived.sourceId]);
 
   useEffect(() => {
     if (refreshBtnNeedLoading) {
       handleCloseDrawer();
       getList();
+      getArchivedList();
     }
   }, [refreshBtnNeedLoading]);
 
@@ -727,7 +795,7 @@ export default function SheetWorkflow(props) {
       return allowTaskRevokeWorks.length ? allowTaskRevokeWorks.concat(currentWorkflow.currentWork || []) : [];
     })();
     return (
-      <div className="h100 flexColumn">
+      <div className="h100 flexColumn bgSecondary">
         <StepHeader
           appId={appId}
           processId={processId}
@@ -779,7 +847,7 @@ export default function SheetWorkflow(props) {
         </ScrollView>
         {workId && !completed && !isRecordLock && (
           <div className={cx('workflowStepFooter flexColumn justifyContentCenter', isMobile ? 'pLeft10 pRight10' : '')}>
-            <div className="mLeft1 Font13 Gray_75">{_.get(currentWork, 'flowNode.name')}</div>
+            <div className="mLeft1 Font13 textSecondary">{_.get(currentWork, 'flowNode.name')}</div>
             {allowTaskRevokeBackNodeId ? (
               <TaskRevokeAction className="mBottom2 mTop5" onClick={handleTaskRevoke} />
             ) : (
@@ -809,10 +877,80 @@ export default function SheetWorkflow(props) {
     );
   };
 
+  const renderFilter = () => {
+    if (!archivedList.length) {
+      return null;
+    }
+    const content = (
+      <span
+        className="icon_Hover_21 flexRow alignItemsCenter Hand"
+        onClick={e => {
+          e.stopPropagation();
+          if (isMobile) {
+            handleMobileMoreAction();
+          }
+        }}
+      >
+        <Tooltip title={_l('查看历史数据')} visible={isMobile ? false : undefined}>
+          <Icon
+            icon="article"
+            className={cx('Font20 hoverColorPrimary Hand', {
+              textSecondary: !filterVisible,
+              colorPrimary: filterVisible,
+            })}
+          />
+        </Tooltip>
+      </span>
+    );
+    return (
+      <div className="flexRow alignItemsCenter pAll20 pBottom0 pTop20">
+        <div className="flex textSecondary">{_.get(selecteArchived, 'text')}</div>
+        {isMobile ? (
+          content
+        ) : (
+          <Trigger
+            popupVisible={filterVisible}
+            popupClassName="discussionFilterCon"
+            onPopupVisibleChange={visible => setFilterVisible(visible)}
+            action={['click']}
+            popupAlign={{
+              points: ['tr', 'br'],
+              offset: [0, 10],
+              overflow: { adjustX: true, adjustY: true },
+            }}
+            popup={
+              <Menu style={{ left: 'initial', right: 0, width: 180 }} onClick={e => e.stopPropagation()}>
+                {archivedList.map((item, index) => (
+                  <MenuItem
+                    key={index}
+                    className={cx('Relative', { selected: item.id === selecteArchived.id })}
+                    onClick={() => {
+                      setSelecteArchived({ ...item, sourceId: `clickTrigger-${index}` });
+                      setFilterVisible(false);
+                    }}
+                    style={{ lineHeight: '40px', height: 40 }}
+                  >
+                    {item.text}
+                    {item.id === selecteArchived.id && (
+                      <Icon icon="done" className="Font14 ThemeColor3" style={{ right: 10, left: 'auto' }} />
+                    )}
+                  </MenuItem>
+                ))}
+              </Menu>
+            }
+          >
+            {content}
+          </Trigger>
+        )}
+      </div>
+    );
+  };
+
   const Wrap = isMobile ? Fragment : ScrollView;
 
   return (
     <div className="h100 w100 sheetWorkflowWrapper Relative">
+      {renderFilter()}
       {loading ? (
         <LoadDiv className="pTop20" />
       ) : (
@@ -840,10 +978,10 @@ export default function SheetWorkflow(props) {
             ) : isMobile ? (
               <div className="flexColumn valignWrapper h100 withoutData">
                 <Icon className="Font70" icon="examination_approval_color" />
-                <div className="Font18 Gray_bd mTop20">{_l('暂无审批流程')}</div>
+                <div className="Font18 textDisabled mTop20">{_l('暂无审批流程')}</div>
               </div>
             ) : (
-              <div className="mTop5 mLeft4 Gray_bd Font13">{_l('暂无审批流程')}</div>
+              <div className="mTop5 mLeft4 textDisabled Font13">{_l('暂无审批流程')}</div>
             )}
           </div>
         </Wrap>

@@ -127,7 +127,7 @@ export default class ProcessRecordInfo extends Component {
           <Icon icon={typeof action.icon === 'string' ? action.icon : action.icon[appType]} className="Font18" />
           <span className="ellipsis">{name}</span>
         </div>
-        {isStash && <Icon className="Font22 mRight10 Gray_9e" icon="save1" onClick={this.handleStash} />}
+        {isStash && <Icon className="Font22 mRight10 textTertiary" icon="save1" onClick={this.handleStash} />}
       </div>
     );
   }
@@ -173,12 +173,13 @@ export default class ProcessRecordInfo extends Component {
         instanceId={instanceId}
         onClose={onClose}
         header={this.renderHeader()}
+        recordTitle={instance.recordTitle ? instance.title.replace(/(<([^>]+)>)/gi, '') : ''}
         renderAbnormal={() => {
           return (
             <Abnormal
               errorMsg={
                 <div className="flexColumn alignItemsCenter">
-                  <div className="Font17 Bold Gray">{_l('当前记录无权限，无法查看')}</div>
+                  <div className="Font17 Bold textPrimary">{_l('当前记录无权限，无法查看')}</div>
                   {!!instance.operationTypeList[0].length && (
                     <div className="mTop15 ThemeColor3 ThemeHoverColor2 pointer Font14" onClick={this.ownerHandle}>
                       {_l('转交给流程拥有者处理')}

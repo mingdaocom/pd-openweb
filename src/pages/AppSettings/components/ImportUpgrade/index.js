@@ -15,16 +15,13 @@ const LogsWrap = styled.div`
     height: 85px;
     display: flex;
     padding-top: 20px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     .avatar {
       width: 24px;
       height: 24px;
       margin-right: 5px;
       border-radius: 50%;
     }
-  }
-  .Gray_a4 {
-    color: #a4a4a4;
   }
 `;
 
@@ -44,9 +41,9 @@ export default class AppImportUpgrade extends Component {
       <EmptyStatus
         icon="unarchive"
         radiusSize={130}
-        iconClassName="Font50 Gray_9e"
+        iconClassName="Font50 textTertiary"
         emptyTxt={_l('暂无升级记录')}
-        emptyTxtClassName="Font17 Gray_bd mTop15"
+        emptyTxtClassName="Font17 textDisabled mTop15"
       />
     );
   };
@@ -96,10 +93,10 @@ export default class AppImportUpgrade extends Component {
                 <div className="logsItem">
                   <img className="avatar" src={creater.avatar} />
                   <div className="flex flexColumn pTop2">
-                    <div className="Gray_a4 mBottom8">{_l(`${creater.fullName} 操作导入升级`)}</div>
+                    <div className="textTertiary mBottom8">{_l(`${creater.fullName} 操作导入升级`)}</div>
                     <div>{fileName}</div>
                   </div>
-                  <div className="Gray_a4 Font12 mRight20 pTop2">
+                  <div className="textTertiary Font12 mRight20 pTop2">
                     {createTimeSpan(dateConvertToUserZone(createTime))}
                   </div>
                 </div>

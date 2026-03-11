@@ -12,13 +12,13 @@ const TitleWrapper = styled.div`
   cursor: pointer;
 
   .titleText {
-    color: #151515;
+    color: var(--color-text-title);
     font-weight: bold;
     vertical-align: middle;
     font-size: 15px;
   }
   i {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     margin-right: 12px;
   }
 `;

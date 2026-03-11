@@ -22,7 +22,7 @@ const WrapCon = styled.div`
   .headerCon {
     position: sticky;
     top: 0;
-    background: #fff;
+    background: var(--color-background-primary);
     z-index: 1;
   }
 `;
@@ -44,7 +44,7 @@ const Wrap = styled.div`
       }
       &.ming.Dropdown .Dropdown--border,
       .dropdownTrigger .Dropdown--border {
-        border-color: #f5f5f5;
+        border-color: var(--color-background-secondary);
         border-radius: 4px;
         overflow: hidden;
       }
@@ -179,7 +179,7 @@ export default function BatchSetDialog(props) {
               })
             }
           >
-            <Icon type={state[`isOpen${type}`] ? 'arrow-down' : 'arrow-right-tip'} className={'Gray_75'} />
+            <Icon type={state[`isOpen${type}`] ? 'arrow-down' : 'arrow-right-tip'} className={'textSecondary'} />
             <span className="mLeft5">
               {_l('隐藏')} {list.length || ''}
             </span>
@@ -203,7 +203,7 @@ export default function BatchSetDialog(props) {
               return (
                 <div className="flexRow mTop8 alignItemsCenter">
                   <div className="flex flex-shrink-0 flexRow alignItemsCenter">
-                    <Icon type={getIconByType(o.type)} className="Gray_75 flex-shrink-0" />
+                    <Icon type={getIconByType(o.type)} className="textSecondary flex-shrink-0" />
                     <span className="mLeft5 WordBreak overflow_ellipsis flex" title={o.controlName}>
                       {o.controlName}
                     </span>
@@ -273,7 +273,7 @@ export default function BatchSetDialog(props) {
                         max={1000}
                         min={20}
                       />
-                      <span className="Absolute Gray_9e liInputPx">px</span>
+                      <span className="Absolute textTertiary liInputPx">px</span>
                     </div>
                     {!isTreeTableView && (
                       <div className="liInput">
@@ -394,7 +394,7 @@ export default function BatchSetDialog(props) {
     >
       <div className="flexColumn">
         <WrapCon className="flex w100">
-          <div className="headerCon flexRow alignItemsCenter Gray_75 Bold Font13">
+          <div className="headerCon flexRow alignItemsCenter textSecondary Bold Font13">
             <div className="flex">
               <span className="WordBreak">{_l('字段')}</span>
             </div>

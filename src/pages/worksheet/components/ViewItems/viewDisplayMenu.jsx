@@ -26,7 +26,7 @@ export default class ViewDisplayMenu extends Component {
             {viewType === id && <Icon icon="done" className="mRight12" />}
             {isNew && (
               <div className="newIcon">
-                <Icon icon="new" className="ThemeColor Font20" />
+                <Icon icon="new" className="colorPrimary Font20" />
               </div>
             )}
           </Menu.Item>

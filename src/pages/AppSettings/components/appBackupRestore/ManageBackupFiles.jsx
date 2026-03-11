@@ -37,15 +37,15 @@ const Refresh = styled.span`
   height: 24px;
   border-radius: 50%;
   text-align: center;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   padding-top: 3px;
   box-sizing: border-box;
   margin-right: 30px;
   margin-left: 10px;
   cursor: pointer;
   &:hover {
-    background-color: #f5f5f5;
-    color: #1677ff;
+    background-color: var(--color-background-hover);
+    color: var(--color-primary);
   }
 `;
 const ActionWrap = styled.div`
@@ -53,16 +53,16 @@ const ActionWrap = styled.div`
     display: flex;
     align-items: center;
     font-size: 14px;
-    color: #757575;
+    color: var(--color-text-secondary);
     cursor: pointer;
     .icon {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       font-size: 18px;
     }
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
       .icon {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
@@ -241,7 +241,7 @@ export default function ManageBackupFiles(props) {
                   }}
                 >
                   <span
-                    className="mLeft5 Hand ThemeColor"
+                    className="mLeft5 Hand colorPrimary"
                     onClick={() => {
                       if (featureType === '2') {
                         buriedUpgradeVersionDialog(projectId, VersionProductType.regularBackup);
@@ -255,7 +255,7 @@ export default function ManageBackupFiles(props) {
                 </Trigger>
                 {backupTask.status === 1 && (
                   <Tooltip title={_l('凌晨时段自动执行备份')}>
-                    <i className="icon icon-info_outline Gray_9e Font16 Hand" />
+                    <i className="icon icon-info_outline textTertiary Font16 Hand" />
                   </Tooltip>
                 )}
                 {featureType === '2' && <UpgradeIcon />}
@@ -268,7 +268,7 @@ export default function ManageBackupFiles(props) {
               }}
             >
               <Icon icon="upload_file" className="mRight5" />
-              <span> {_l('从文件还原')}</span>
+              <span>{_l('从文件还原')}</span>
             </div>
             <div className="act" onClick={() => setShowLog(true)}>
               <Icon icon="wysiwyg" className="mRight5" />

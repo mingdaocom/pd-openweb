@@ -53,7 +53,7 @@ class ChangeRole extends React.Component {
 
     return (
       <React.Fragment>
-        <List style={{ overflow: 'scroll', background: '#fff' }}>
+        <List style={{ overflow: 'scroll', background: 'var(--color-background-primary)' }}>
           {roleList.list
             .filter(it => !_.includes([100, 2, 1], it.roleType))
             .map(item => {
@@ -72,7 +72,7 @@ class ChangeRole extends React.Component {
                     });
                   }}
                 >
-                  <span className={cx('Gray Font16')}>{item.name}</span>
+                  <span className={cx('textPrimary Font16')}>{item.name}</span>
                 </List.Item>
               );
             })}

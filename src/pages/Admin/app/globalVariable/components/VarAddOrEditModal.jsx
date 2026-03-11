@@ -2,17 +2,17 @@ import React, { createRef, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import { Drawer, Select } from 'antd';
 import _ from 'lodash';
-import moment from 'moment';
 import styled from 'styled-components';
-import { Button, Checkbox, Icon, Input, Radio, ScrollView, SvgIcon, Textarea } from 'ming-ui';
+import { Button, Checkbox, Icon, Input, Radio, Textarea } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectApp } from 'ming-ui/functions';
 import variableApi from 'src/api/variable';
+import AuthAppList from 'src/pages/Admin/components/AuthAppList';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { ALLOW_UPDATE_RADIOS, AUTH_SCOPE_RADIOS, REFRESH_TYPE } from '../constant';
 
 const VarDrawer = styled(Drawer)`
-  color: #151515;
+  color: var(--color-text-title);
   .ant-drawer-mask {
     background-color: transparent;
   }
@@ -62,17 +62,17 @@ const FormItem = styled.div`
     font-weight: 600;
     margin-bottom: 10px;
     .requiredStar {
-      color: #f44336;
+      color: var(--color-error);
       margin-left: 4px;
     }
   }
   input {
     width: 100%;
     &:disabled {
-      background: #f5f5f5;
-      border-color: #f5f5f5;
+      background: var(--color-background-secondary);
+      border-color: var(--color-background-secondary);
       &:hover {
-        border-color: #f5f5f5;
+        border-color: var(--color-background-hover);
       }
     }
   }
@@ -84,20 +84,20 @@ const FormItem = styled.div`
     .ant-select-selector {
       min-height: 36px;
       padding: 2px 11px !important;
-      border: 1px solid #ccc !important;
+      border: 1px solid var(--color-border-tertiary) !important;
       border-radius: 3px !important;
       box-shadow: none !important;
     }
     &.ant-select-focused {
       .ant-select-selector {
-        border-color: #1e88e5 !important;
+        border-color: var(--color-primary) !important;
       }
     }
     &.ant-select-disabled {
       .ant-select-selector {
-        color: #151515 !important;
-        background: #f5f5f5 !important;
-        border-color: #f5f5f5 !important;
+        color: var(--color-text-title) !important;
+        background: var(--color-background-secondary) !important;
+        border-color: var(--color-background-secondary) !important;
       }
     }
   }
@@ -114,7 +114,7 @@ const VarNumberContainer = styled.div`
     flex-direction: column;
     width: 40px;
     height: 36px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     border-left: none;
     border-radius: 0px 3px 3px 0px;
     .iconWrap {
@@ -123,82 +123,14 @@ const VarNumberContainer = styled.div`
       text-align: center;
       cursor: pointer;
       &:first-child {
-        border-bottom: 1px solid #ccc;
+        border-bottom: 1px solid var(--color-border-tertiary);
       }
       i {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
       &:hover {
         i {
-          color: #1677ff;
-        }
-      }
-    }
-  }
-`;
-
-const AppListContainer = styled.div`
-  width: 100%;
-  border-radius: 3px;
-  border: 1px solid #ddd;
-
-  .headTr {
-    display: flex;
-    height: 36px;
-    line-height: 36px;
-    font-size: 12px;
-    color: #9e9e9e;
-    padding: 0 12px;
-  }
-  .name {
-    flex: 7;
-    min-width: 0;
-  }
-  .createTime,
-  .owner {
-    flex: 3;
-    min-width: 0;
-  }
-  .option {
-    flex: 1;
-  }
-
-  .noDataContent {
-    height: 100px;
-    line-height: 100px;
-    color: #bdbdbd;
-    text-align: center;
-  }
-  .appList {
-    height: 300px;
-
-    .dataItem {
-      display: flex;
-      height: 48px;
-      line-height: 48px;
-      padding: 0 12px;
-      .appIcon {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 24px;
-        min-width: 24px;
-        height: 24px;
-        line-height: 16px;
-        border-radius: 4px;
-        margin-right: 8px;
-      }
-      .userIcon {
-        width: 25px;
-        height: 25px;
-        border-radius: 50%;
-        margin-right: 6px;
-      }
-      .removeItem {
-        color: #bdbdbd;
-        cursor: pointer;
-        &:hover {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }
@@ -209,7 +141,7 @@ const VAR_TYPE_OPTIONS = [
   {
     label: (
       <div className="flexRow alignItemsCenter">
-        <Icon icon={getIconByType(2, false)} className="mRight10 Gray_9d" />
+        <Icon icon={getIconByType(2, false)} className="mRight10 textTertiary" />
         <span>{_l('文本')}</span>
       </div>
     ),
@@ -218,7 +150,7 @@ const VAR_TYPE_OPTIONS = [
   {
     label: (
       <div className="flexRow alignItemsCenter">
-        <Icon icon={getIconByType(6, false)} className="mRight10 Gray_9d" />
+        <Icon icon={getIconByType(6, false)} className="mRight10 textTertiary" />
         <span>{_l('数值')}</span>
       </div>
     ),
@@ -243,7 +175,6 @@ export default function VarAddOrEditModal(props) {
   }, [defaultFormValue]);
 
   useEffect(() => {
-    console.log(inputRef, 'inputRef');
     if (inputRef.current) {
       inputRef.current.focus();
     }
@@ -267,10 +198,11 @@ export default function VarAddOrEditModal(props) {
       return;
     }
 
-    if (!formData.value && formData.value !== 0) {
+    if (formData.controlType === 6 && !formData.value && formData.value !== 0) {
       alert(_l('变量值不能为空'), 3);
       return;
     }
+
     const validName = formData.name
       .split('.')
       .filter(item => !!item)
@@ -318,91 +250,6 @@ export default function VarAddOrEditModal(props) {
     });
   };
 
-  const renderAppList = () => {
-    const columns = [
-      {
-        dataIndex: 'name',
-        title: _l('应用名称'),
-        render: item => {
-          return (
-            <div className="flexRow alignItemsCenter">
-              <div className="appIcon" style={{ background: item.iconColor }}>
-                <SvgIcon url={item.iconUrl} fill="#fff" size={16} />
-              </div>
-              <span className="overflow_ellipsis mRight10" title={item.appName}>
-                {item.appName}
-              </span>
-            </div>
-          );
-        },
-      },
-      {
-        dataIndex: 'createTime',
-        title: _l('创建时间'),
-        render: item => {
-          return <div>{item.ctime ? moment(item.ctime).format('YYYY-MM-DD') : ''}</div>;
-        },
-      },
-      {
-        dataIndex: 'owner',
-        title: _l('拥有者'),
-        render: item => {
-          const createAccount = item.createAccountInfo || {};
-          return !_.isEmpty(createAccount) ? (
-            <div className="flexRow alignItemsCenter">
-              <img className="userIcon" src={createAccount.avatar} />
-              <span className="overflow_ellipsis" title={createAccount.fullName}>
-                {createAccount.fullName}
-              </span>
-            </div>
-          ) : null;
-        },
-      },
-      {
-        dataIndex: 'option',
-        title: '',
-        render: item => (
-          <div className="removeItem" onClick={() => setAuthApps(authApps.filter(app => app.appId !== item.appId))}>
-            {_l('移除')}
-          </div>
-        ),
-      },
-    ];
-
-    return (
-      <AppListContainer>
-        <div className="headTr">
-          {columns.map((item, index) => {
-            return (
-              <div key={index} className={`${item.dataIndex}`}>
-                {item.title}
-              </div>
-            );
-          })}
-        </div>
-        {!authApps.length ? (
-          <div className="noDataContent">{_l('没有授权应用')}</div>
-        ) : (
-          <ScrollView className="appList">
-            {authApps.map((appItem, i) => {
-              return (
-                <div key={i} className="dataItem">
-                  {columns.map((item, j) => {
-                    return (
-                      <div key={`${i}-${j}`} className={`${item.dataIndex}`}>
-                        {item.render ? item.render(appItem) : appItem[item.dataIndex]}
-                      </div>
-                    );
-                  })}
-                </div>
-              );
-            })}
-          </ScrollView>
-        )}
-      </AppListContainer>
-    );
-  };
-
   const drawerTitle = isEdit
     ? appId
       ? _l('编辑应用变量')
@@ -433,7 +280,7 @@ export default function VarAddOrEditModal(props) {
               )}
               placement="top"
             >
-              <Icon icon="info_outline" className="Gray_bd mLeft8 pointer" />
+              <Icon icon="info_outline" className="textDisabled mLeft8 pointer" />
             </Tooltip>
           </div>
           <Input
@@ -458,7 +305,7 @@ export default function VarAddOrEditModal(props) {
           <div className="flexRow">
             <div className="labelText">
               <span>{_l('变量值')}</span>
-              <span className="requiredStar">*</span>
+              {formData.controlType === 6 && <span className="requiredStar">*</span>}
             </div>
             <div className="flex" />
             {formData.controlType === 2 && (
@@ -470,7 +317,7 @@ export default function VarAddOrEditModal(props) {
                   onClick={() => setFormData({ maskType: formData.maskType ? 0 : 1 })}
                 />
                 <Tooltip title={_l('在使用和查看变量时显示为掩码，应用管理员可以点击后解码查看')} placement="topRight">
-                  <Icon icon="info_outline" className="Gray_bd mLeft4 pointer" />
+                  <Icon icon="info_outline" className="textDisabled mLeft4 pointer" />
                 </Tooltip>
               </div>
             )}
@@ -567,7 +414,7 @@ export default function VarAddOrEditModal(props) {
                 <div className="flex" />
                 {formData.scope === 2 && (
                   <div
-                    className="ThemeColor Hand"
+                    className="colorPrimary Hand"
                     onClick={() => {
                       dialogSelectApp({
                         projectId,
@@ -585,7 +432,9 @@ export default function VarAddOrEditModal(props) {
                 )}
               </div>
             </FormItem>
-            {formData.scope === 2 && renderAppList()}
+            {formData.scope === 2 && (
+              <AuthAppList authApps={authApps} onRemove={id => setAuthApps(authApps.filter(app => app.appId !== id))} />
+            )}
           </React.Fragment>
         )}
       </div>

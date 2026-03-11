@@ -6,8 +6,8 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Dropdown, Switch } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
-import { getTitleTextFromControls } from 'src/components/Form/core/utils';
 import { selectRecords } from 'src/components/SelectRecords';
+import { getTitleTextFromControls } from 'src/utils/control';
 import { WIDGETS_TO_API_TYPE_ENUM } from '../../../config/widget';
 import CustomReference from '../CustomWidget/CustomReference';
 import { getFormData } from './util';
@@ -17,13 +17,13 @@ const Con = styled.div`
   padding: 16px 20px;
   .title {
     font-size: 14px;
-    color: #151515;
+    color: var(--color-text-title);
     font-weight: bold;
     margin-bottom: 4px;
   }
   .sectionTitle {
     font-size: 13px;
-    color: #757575;
+    color: var(--color-text-secondary);
     margin-bottom: 8px;
   }
   .envRadio {
@@ -31,7 +31,7 @@ const Con = styled.div`
     align-items: center;
     margin-bottom: 8px;
     .name {
-      color: #515151;
+      color: var(--color-text-title);
     }
     .RadioGroup {
       flex: 1;
@@ -42,18 +42,18 @@ const Con = styled.div`
 
 const LoadMockDataBtn = styled.div`
   font-size: 13px;
-  color: #757575;
+  color: var(--color-text-secondary);
   cursor: pointer;
   display: inline-flex;
   height: 24px;
   justify-content: center;
   align-items: center;
-  color: #1677ff;
+  color: var(--color-primary);
 `;
 
 const LoadedMockDataBtn = styled.div`
   font-size: 13px;
-  color: #757575;
+  color: var(--color-text-secondary);
   height: 24px;
   display: flex;
   align-items: center;
@@ -61,11 +61,11 @@ const LoadedMockDataBtn = styled.div`
   .recordName {
     max-width: 200px;
     overflow: hidden;
-    color: #151515;
+    color: var(--color-text-title);
     margin-left: 16px;
   }
   .clearMockData {
-    color: #1677ff;
+    color: var(--color-primary);
     cursor: pointer;
     margin-left: 16px;
   }
@@ -74,7 +74,7 @@ const LoadedMockDataBtn = styled.div`
 const ShowAllEnvBtn = styled.div`
   margin-left: 20px;
   font-size: 13px;
-  color: #1677ff;
+  color: var(--color-primary);
   display: inline-block;
   cursor: pointer;
   i {
@@ -91,24 +91,24 @@ const DrawerContent = styled.div`
   flex-direction: column;
   .title {
     font-size: 17px;
-    color: #151515;
+    color: var(--color-text-title);
     font-weight: bold;
     margin-bottom: 4px;
   }
   .sectionTitle {
     font-size: 13px;
-    color: #757575;
+    color: var(--color-text-secondary);
     margin-bottom: 20px;
   }
   .envValueArea {
-    background-color: #f7f7f7;
+    background-color: var(--color-background-secondary);
     padding: 12px 15px;
     border-radius: 5px;
     white-space: pre-wrap;
   }
   .envSecTitle {
     font-size: 13px;
-    color: #151515;
+    color: var(--color-text-title);
     margin: 8px 0;
   }
   .close {
@@ -116,7 +116,7 @@ const DrawerContent = styled.div`
     right: 15px;
     top: 15px;
     font-size: 22px;
-    color: #757575;
+    color: var(--color-text-secondary);
     cursor: pointer;
   }
   .content {

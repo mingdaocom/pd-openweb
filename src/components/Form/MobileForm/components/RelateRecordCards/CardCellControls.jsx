@@ -20,7 +20,7 @@ const Control = styled.div`
   .label {
     max-width: 200px;
     min-width: 70px;
-    color: #757575;
+    color: var(--color-text-secondary);
     padding-right: 1em;
     ${({ direction }) => direction === 'column' && 'padding-bottom: 6px;'}
     ${({ labelStyle }) => labelStyle}
@@ -108,10 +108,21 @@ const Control = styled.div`
 `;
 
 export default function CardCellControls(props) {
-  const { controls, data, parentControl, projectId, worksheetId, viewId, isCharge, sheetSwitchPermit } = props;
+  const {
+    className,
+    controls,
+    data,
+    parentControl,
+    projectId,
+    worksheetId,
+    viewId,
+    isCharge,
+    sheetSwitchPermit,
+    appId,
+  } = props;
 
   return (
-    <div>
+    <div className={className}>
       {controls.filter(identity).map((control = {}, i) => {
         const recordCardStyle = getRecordCardStyle(parentControl);
         const isColumn = get(recordCardStyle, 'controlTitleStyle.direction') === '2';
@@ -119,6 +130,7 @@ export default function CardCellControls(props) {
         const isNotEmpty = !checkCellIsEmpty(data[control.controlId]);
         return (
           <Control
+            className="controlWrap"
             key={i}
             labelStyle={get(recordCardStyle, 'controlTitleStyle.valueStyle', '')}
             contentStyle={isTextControl ? get(recordCardStyle, 'controlValueStyle.valueStyle', '') : ''}
@@ -149,6 +161,7 @@ export default function CardCellControls(props) {
                   viewId={viewId}
                   isCharge={isCharge}
                   sheetSwitchPermit={sheetSwitchPermit}
+                  appId={appId}
                 />
               ) : (
                 <div className="customFormNull" />

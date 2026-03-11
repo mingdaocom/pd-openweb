@@ -88,7 +88,7 @@ class Header extends Component {
           closable: false,
           children: (
             <Checkbox
-              className="Gray_9"
+              className="textTertiary"
               defaultChecked={false}
               ref={this.taskStatusCheckboxRef}
               text={status ? _l('同时标记该任务下所有任务为已完成') : _l('同时标记该任务下所有任务为未完成')}
@@ -276,7 +276,7 @@ class Header extends Component {
           </div>
           {!!data.subTask.length && (
             <Checkbox
-              className="Gray_9"
+              className="textTertiary"
               defaultChecked={false}
               ref={this.checkboxRef}
               text={_l('同时删除该任务下的所有子任务')}

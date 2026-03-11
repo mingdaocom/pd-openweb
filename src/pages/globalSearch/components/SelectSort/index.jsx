@@ -72,9 +72,9 @@ export default function SelectSort(props) {
         </div>
       }
     >
-      <span className={`selectSort Gray_9e ${className} ${value === 0 ? '' : 'lighthigh'}`}>
+      <span className={`selectSort textTertiary ${className} ${value === 0 ? '' : 'lighthigh'}`}>
         {value === 0 ? _l('更新时间') : SORT_TYPE[value].label}
-        <Icon icon={SORT_TYPE[value].icon} className="Gray_9e" />
+        <Icon icon={SORT_TYPE[value].icon} className="textTertiary" />
       </span>
     </Trigger>
   );

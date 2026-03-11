@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import sheetAjax from 'src/api/worksheet';
 import worksheetAjax from 'src/api/worksheet';
-import { controlState } from 'src/components/Form/core/utils';
 import { getIsScanQR } from 'src/components/Form/MobileForm/components/ScanQRCode';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { controlState } from 'src/utils/control';
 
 const getPermissionInfo = (activeRelateSheetControl, rowInfo, worksheet) => {
   const { allowAdd } = worksheet;
@@ -123,6 +123,7 @@ export const loadRowRelationRows = (relationControl, getType) => async (dispatch
     control: { ...control, relationControls, recordId: rowId },
     formData: control.formData || rowInfo.templateControls,
     filterKey: 'resultfilters',
+    appId: base.appId,
   });
   if (!filterControls) {
     dispatch({

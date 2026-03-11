@@ -33,7 +33,7 @@ const Con = styled.div`
   overflow: hidden;
   height: 100%;
   flex-direction: column;
-  background: #fff;
+  background: var(--color-background-primary);
   &.viewConfigVisible {
     .viewCon.viewType-0 {
       padding-right: 720px;
@@ -60,7 +60,7 @@ const ConView = styled.div`
 const QuickFilterCon = styled.div`
   max-height: 50%;
   overflow-y: auto;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--color-border-secondary);
 `;
 
 const Drag = styled.div(
@@ -71,15 +71,15 @@ const Drag = styled.div(
   width: 10px;
   height: 100%;
   cursor: ew-resize;
-  border-left: 1px solid #e0e0e0;
+  border-left: 1px solid var(--color-border-secondary);
   &:hover{
-    border-left: 1px solid #1677ff;
+    border-left: 1px solid var(--color-primary);
   }
 `,
 );
 
 const EmptyStatus = styled.div`
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   font-size: 17px;
   display: flex;
   flex: 1;
@@ -291,6 +291,9 @@ function Sheet(props) {
     setGroupFilterWidth(w);
   };
   useEffect(() => {
+    if (type === 'single') {
+      return;
+    }
     globalEmitter.emit('UPDATE_GLOBAL_STORE', 'activeWorksheet', {
       ...worksheetInfo,
       isCharge,
@@ -304,6 +307,9 @@ function Sheet(props) {
     return () => {
       updateGroupFilter([], view);
       delete window.openViewConfig;
+      if (type === 'single') {
+        return;
+      }
       globalEmitter.emit('UPDATE_GLOBAL_STORE', 'activeWorksheet');
     };
   }, []);
@@ -390,6 +396,7 @@ function Sheet(props) {
                   )}
                   <GroupFilter
                     key={view.viewId}
+                    isSingle={type === 'single'}
                     width={groupFilterWidth}
                     isOpenGroup={isOpenGroup}
                     changeGroupStatus={isOpen => {

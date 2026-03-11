@@ -25,7 +25,7 @@ const Con = styled.div`
     font-weight: bold;
     padding: 5px;
     border-radius: 50%;
-    background-color: #e6e6e6;
+    background-color: var(--color-border-secondary);
   }
   .body {
     padding: 0 15px;
@@ -34,35 +34,37 @@ const Con = styled.div`
       margin-bottom: 20px;
     }
     .selected {
-      color: #1677ff;
+      color: var(--color-primary);
       max-width: 100px;
       padding-left: 10px;
       font-weight: 500;
     }
   }
   .footer {
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-secondary);
     z-index: 0;
-    background-color: #fff;
     .flex {
       padding: 10px;
     }
+    .reset {
+      background-color: var(--color-background-card);
+    }
     .query {
-      color: #fff;
-      background-color: #1677ff;
+      color: var(--color-white);
+      background-color: var(--color-primary);
     }
   }
 `;
 
 const Item = styled.div`
   .controlName {
-    color: ${({ requiredError }) => (requiredError ? 'red' : '#151515')};
+    color: ${({ requiredError }) => (requiredError ? 'red' : 'var(--color-text-title)')};
   }
 `;
 const SpaceLine = styled.div`
   height: 12px;
   margin: 0 -15px;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
 `;
 
 const SavedItem = styled.div`
@@ -77,11 +79,11 @@ const SavedItem = styled.div`
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
   word-break: break-all;
   &.active {
-    background-color: #1677ff;
-    color: #fff;
+    background-color: var(--color-primary);
+    color: var(--color-white);
   }
 `;
 
@@ -139,7 +141,7 @@ export function QuickFilter(props) {
     const needCheckRequired = _.get(view, 'advancedSetting.fastrequired') === '1';
     const itemsWithValues = items.map((filter, i) => ({
       ...filter,
-      filterType: filter.filterType || (filter.dataType === 29 ? 24 : 2),
+      filterType: filter.dataType === 36 ? filter.filterType : filter.filterType || (filter.dataType === 29 ? 24 : 2),
       spliceType: filter.spliceType || 1,
       ...valuesToUpdate[i],
     }));
@@ -249,12 +251,12 @@ export function QuickFilter(props) {
   return (
     <Con className="flexColumn h100 overflowHidden" style={{ width }}>
       <div className="header flexRow valignWrapper">
-        <Icon className="Gray_9e close" icon="close" onClick={onHideSidebar} />
+        <Icon className="textTertiary close" icon="close" onClick={onHideSidebar} />
       </div>
       <div className="flex body">
         {showSavedFilter && !_.isEmpty(savedFilters) && (
           <Fragment>
-            <div className="Font14 Gray bold pTop16 pBottom16">{_l('常用筛选')}</div>
+            <div className="Font14 textPrimary bold pTop16 pBottom16">{_l('常用筛选')}</div>
             {[
               { title: _l('个人'), data: savedFilters.filter(s => s.type === 1) },
               { title: _l('公共'), data: savedFilters.filter(s => s.type === 2) },
@@ -262,7 +264,7 @@ export function QuickFilter(props) {
               const { title, data = [] } = item;
               return _.isEmpty(data) ? null : (
                 <Fragment>
-                  <div className="Gray_75 bold ellipsis mBottom16">{title}</div>
+                  <div className="textSecondary bold ellipsis mBottom16">{title}</div>
                   {data.map(it => (
                     <SavedItem
                       className={cx('ellipsis', { active: activeSavedFilter.id === it.id })}
@@ -284,12 +286,12 @@ export function QuickFilter(props) {
         {window.isMingDaoApp && (
           <Fragment>
             <div className="flexRow alignCenter Font14 pTop16 pBottom16" onClick={openAppFilter}>
-              <span className="bold Gray">{_l('自定义筛选')}</span>
+              <span className="bold textPrimary">{_l('自定义筛选')}</span>
               <div className="flex"></div>
               {props.filterControls && !!props.filterControls.length ? (
-                <span className="ThemeColor">{_l('选中 %0 项', props.filterControls.length)}</span>
+                <span className="colorPrimary">{_l('选中 %0 项', props.filterControls.length)}</span>
               ) : (
-                <i className="icon icon-arrow-right-border Fon18 Gray_9e LineHeight22" />
+                <i className="icon icon-arrow-right-border Fon18 textTertiary LineHeight22" />
               )}
             </div>
           </Fragment>
@@ -341,7 +343,7 @@ export function QuickFilter(props) {
         </div>
       </div>
       <div className="footer flexRow valignWrapper">
-        <div className="flex Font16 centerAlign" onClick={handleReset}>
+        <div className="flex Font16 centerAlign reset" onClick={handleReset}>
           {_l('重置')}
         </div>
         <div className="flex Font16 centerAlign query" onClick={() => update()}>

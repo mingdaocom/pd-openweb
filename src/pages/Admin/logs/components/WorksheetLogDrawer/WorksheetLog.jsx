@@ -94,7 +94,7 @@ export default class Discuss extends Component {
               <Icon icon={[undefined, 'plus', 'edit', 'trash', 'restart', 'download', 'reply'][item.type]} />
               <span className="logContent" dangerouslySetInnerHTML={{ __html: item.message }} />
               <span className="logTime">
-                <PreferenceTime value={item.createTime} className="Normal Hand Hover_21 logTimeTip" />
+                <PreferenceTime value={item.createTime} className="Normal Hand hoverColorPrimary logTimeTip" />
               </span>
             </div>
           );

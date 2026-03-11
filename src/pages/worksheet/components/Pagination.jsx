@@ -8,7 +8,7 @@ import { Dropdown, Input } from 'ming-ui';
 
 const Con = styled.div`
   font-size: 14px;
-  color: #888;
+  color: var(--color-text-secondary);
   cursor: default;
   display: flex;
   align-items: center;
@@ -26,25 +26,25 @@ const PageNum = styled.span`
     cursor: default;
   }
   &:not(.abnormalMode):hover {
-    background: #f0f0f0;
+    background: var(--color-background-disabled);
   }
 `;
 const Btn = styled.span`
   display: inline-block;
   cursor: pointer;
   font-size: 18px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   width: 25px;
   text-align: center;
   &.disabled {
-    color: #ddd;
+    color: var(--color-border-primary);
   }
 `;
 
 const Popup = styled.div`
   border-radius: 3px;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.24);
-  background: #fff;
+  box-shadow: var(--shadow-lg);
+  background: var(--color-background-primary);
   padding: 6px 0 10px;
 `;
 const PageList = styled.div`
@@ -52,14 +52,14 @@ const PageList = styled.div`
     padding: 0 14px;
     line-height: 28px;
     height: 28px;
-    color: #151515;
+    color: var(--color-text-title);
     &.dot {
       line-height: 20px;
     }
     &:not(.current, .dot) {
       cursor: pointer;
       &:hover {
-        background: #f0f0f0;
+        background: var(--color-background-disabled);
       }
     }
   }
@@ -250,7 +250,7 @@ export default class Pagination extends React.Component {
     if (onlyShowCount) {
       return (
         <Con className={className}>
-          <NoData>{_l('共%0行', allCount)}</NoData>
+          <NoData>{_l('共%0条', countForShow || allCount)}</NoData>
         </Con>
       );
     }

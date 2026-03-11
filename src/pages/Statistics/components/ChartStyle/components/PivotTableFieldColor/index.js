@@ -9,27 +9,27 @@ import RuleColor from '../Color/RuleColor';
 import DataBarColor from './DataBarColor';
 
 const AddLine = styled.div`
-  color: #1677ff;
+  color: var(--color-primary);
   &:hover {
-    color: #0484fb;
+    color: var(--color-link-hover);
   }
 `;
 
 const EntranceWrapper = styled.div`
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--color-border-primary);
   border-radius: 4px;
   height: 30px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   position: relative;
   &.ruleIcon {
     width: 30px;
     margin-left: 5px;
     justify-content: center;
     &:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
     }
     .icon-cancel:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
   &:hover {
@@ -57,7 +57,7 @@ const ColorRuleItem = styled.div`
     padding: 7px;
     display: none;
     &:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
       display: block;
     }
   }
@@ -122,6 +122,7 @@ export default class PivotTableFieldColor extends Component {
         visible={ruleColorModalVisible}
         reportType={reportType}
         yaxisList={yaxisList}
+        currentControlId={_.get(colorRule, 'controlId')}
         colorRule={_.get(colorRule, applyType) || {}}
         onSave={data => {
           const rules = colorRules.map(rule => {
@@ -189,7 +190,7 @@ export default class PivotTableFieldColor extends Component {
           <ColorRuleItem key={data.controlId} className="flexRow valignWrapper mBottom10">
             <Icon
               icon="trash"
-              className="Gray_9e Font18 pointer mLeft5 deleteColorRule"
+              className="textTertiary Font18 pointer mLeft5 deleteColorRule"
               onClick={() => {
                 const rules = colorRules.filter(item => item.controlId !== data.controlId);
                 onChangeDisplayValue('colorRules', rules);
@@ -207,7 +208,7 @@ export default class PivotTableFieldColor extends Component {
                     : _l('已删除')
                   : undefined
               }
-              suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+              suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
               onChange={value => {
                 const rules = colorRules.map(item => {
                   if (item.controlId === data.controlId) {
@@ -240,11 +241,14 @@ export default class PivotTableFieldColor extends Component {
                   });
                 }}
               >
-                <Icon className={cx('Font16', data.textColorRule ? 'ThemeColor' : 'Gray_9e')} icon="text_bold2" />
+                <Icon
+                  className={cx('Font16', data.textColorRule ? 'colorPrimary' : 'textTertiary')}
+                  icon="text_bold2"
+                />
                 {data.textColorRule && (
                   <Icon
                     icon="cancel"
-                    className="Gray_9e Font15 pointer close"
+                    className="textTertiary Font15 pointer close"
                     onClick={e => {
                       e.stopPropagation();
                       const rules = colorRules.map(item => {
@@ -270,11 +274,14 @@ export default class PivotTableFieldColor extends Component {
                   });
                 }}
               >
-                <Icon className={cx('Font18', data.bgColorRule ? 'ThemeColor' : 'Gray_9e')} icon="background_color" />
+                <Icon
+                  className={cx('Font18', data.bgColorRule ? 'colorPrimary' : 'textTertiary')}
+                  icon="background_color"
+                />
                 {data.bgColorRule && (
                   <Icon
                     icon="cancel"
-                    className="Gray_9e Font15 pointer close"
+                    className="textTertiary Font15 pointer close"
                     onClick={e => {
                       e.stopPropagation();
                       const rules = colorRules.map(item => {
@@ -300,11 +307,11 @@ export default class PivotTableFieldColor extends Component {
                   });
                 }}
               >
-                <Icon className={cx('Font16', data.dataBarRule ? 'ThemeColor' : 'Gray_9e')} icon="data_bar" />
+                <Icon className={cx('Font16', data.dataBarRule ? 'colorPrimary' : 'textTertiary')} icon="data_bar" />
                 {data.dataBarRule && (
                   <Icon
                     icon="cancel"
-                    className="Gray_9e Font15 pointer close"
+                    className="textTertiary Font15 pointer close"
                     onClick={e => {
                       e.stopPropagation();
                       const rules = colorRules.map(item => {

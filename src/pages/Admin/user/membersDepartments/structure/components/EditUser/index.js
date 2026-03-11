@@ -199,7 +199,7 @@ export default class EditUser extends Component {
       return;
     }
 
-    if (!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal) {
+    if (window.platformENV.isPlatform) {
       userController
         .updateUserCard({
           projectId,
@@ -295,10 +295,10 @@ export default class EditUser extends Component {
   renderBaseUserInfo = () => {
     const { typeCursor } = this.props;
     const { userName, mobile, email, mobilePhone, errors = {}, status } = this.state;
-    if (md.global.Config.IsLocal) {
+    if (window.platformENV.isOverseas || window.platformENV.isLocal) {
       return (
         <Fragment>
-          {md.global.Config.IsPlatformLocal || typeCursor === 2 || typeCursor === 3 ? (
+          {window.platformENV.isPlatform || typeCursor === 2 || typeCursor === 3 ? (
             <TextInput label={_l('姓名')} value={userName} disabled="disabled" />
           ) : (
             <TextInput
@@ -314,7 +314,7 @@ export default class EditUser extends Component {
               }}
             />
           )}
-          {md.global.Config.IsPlatformLocal || typeCursor === 2 || typeCursor === 3 ? (
+          {window.platformENV.isPlatform || typeCursor === 2 || typeCursor === 3 ? (
             <TextInput label={_l('手机号')} value={mobile} disabled="disabled" />
           ) : (
             <div className="formGroup">
@@ -336,7 +336,7 @@ export default class EditUser extends Component {
               )}
             </div>
           )}
-          {md.global.Config.IsPlatformLocal ? (
+          {window.platformENV.isPlatform ? (
             <TextInput label={_l('邮箱')} value={email} disabled="disabled" />
           ) : typeCursor === 0 || typeCursor === 1 ? (
             <TextInput
@@ -405,12 +405,12 @@ export default class EditUser extends Component {
                 onClose();
               }}
             >
-              <Icon icon="close" className="Font24 Gray_9e LineHeight36" />
+              <Icon icon="close" className="Font24 textTertiary LineHeight36" />
             </span>
           </div>
 
-          {(!md.global.Config.IsLocal || (md.global.Config.IsLocal && md.global.Config.IsPlatformLocal)) && (
-            <div className="Gray_9e mLeft24">{_l('姓名、手机和邮箱为个人账户信息，组织中无法修改')}</div>
+          {window.platformENV.isPlatform && (
+            <div className="textTertiary mLeft24">{_l('姓名、手机和邮箱为个人账户信息，组织中无法修改')}</div>
           )}
           {isUploading ? (
             <div className="flex flexRow justifyContentCenter alignItemsCenter">

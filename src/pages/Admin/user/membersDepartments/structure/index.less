@@ -2,7 +2,7 @@
   box-sizing: border-box;
   height: 100%;
   .adminStructureContent {
-    background: #fff;
+    background: var(--color-background-primary);
     border-radius: 4px;
     height: 100%;
     min-width: 750px;
@@ -23,11 +23,11 @@
       display: flex;
       flex-direction: column;
       margin-left: 1px;
-      border-right: 1px solid #eaeaea;
+      border-right: 1px solid var(--color-border-secondary);
 
       .searchContainer {
         box-sizing: border-box;
-        background: #f5f5f5;
+        background: var(--color-background-secondary);
         border-radius: 15px;
         margin: 0 12px;
 
@@ -52,7 +52,7 @@
         }
 
         .searchResult {
-          background: #fff;
+          background: var(--color-background-primary);
           position: absolute;
           z-index: 1;
           top: 33px;
@@ -64,7 +64,7 @@
             0 4px 23px 5px rgba(0, 0, 0, 0.2),
             0 2px 6px rgba(0, 0, 0, 0.15);
           overflow: auto;
-          background: #fff;
+          background: var(--color-background-primary);
 
           .userItem,
           .deptItem {
@@ -72,7 +72,7 @@
             cursor: pointer;
 
             &:hover {
-              background: #e4e4e4;
+              background: var(--color-border-secondary);
             }
           }
 
@@ -101,7 +101,7 @@
 
           .title {
             padding: 5px 10px;
-            color: #757575;
+            color: var(--color-text-secondary);
             margin-top: 10px;
           }
 
@@ -132,7 +132,7 @@
         }
       }
       .searchContainer:hover {
-        background-color: #ebebeb;
+        background-color: var(--color-border-secondary);
       }
 
       .labelContainer {
@@ -148,25 +148,25 @@
       }
 
       .typeLabBox {
-        border-bottom: 1px solid #eaeaea;
+        border-bottom: 1px solid var(--color-border-secondary);
         padding-top: 20px;
         margin: 0 24px;
 
         li {
           display: inline-block;
           padding-bottom: 10px;
-          border-bottom: 2px solid #fff;
+          border-bottom: 2px solid var(--color-white);
           cursor: pointer;
 
           &.current,
           &:hover {
-            border-bottom: 2px solid #1677ff;
-            color: #1677ff;
+            border-bottom: 2px solid var(--color-primary);
+            color: var(--color-primary);
           }
         }
       }
       .iconHover:hover {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
     .structureContent {
@@ -197,18 +197,18 @@
           }
         }
         .noDepartment.bgColorHover:hover {
-          background-color: #f5f5f5;
+          background-color: var(--color-background-hover);
         }
         .actionBox {
           float: right;
           font-weight: normal;
 
           .selectedAccountAction {
-            color: #1677ff;
+            color: var(--color-primary);
           }
         }
         .color_9e {
-          color: #9e9e9e;
+          color: var(--color-text-tertiary);
         }
       }
       .actList {
@@ -218,37 +218,37 @@
           border-radius: 3px;
           line-height: 30px;
           text-align: center;
-          border: 1px solid #eaeaea;
-          background-color: #fff;
+          border: 1px solid var(--color-border-secondary);
+          background-color: var(--color-background-primary);
           margin-right: 8px;
           margin-bottom: 10px;
           padding: 0 16px;
           font-size: 14px;
           cursor: pointer;
           &.disabledBtn {
-            border: 1px solid #eaeaea;
-            color: #9e9e9e;
+            border: 1px solid var(--color-border-secondary);
+            color: var(--color-text-tertiary);
           }
         }
         .actBtn.primaryBtn {
-          color: #fff;
-          background: #1677ff;
-          border: 1px solid #1677ff;
+          color: var(--color-white);
+          background: var(--color-primary);
+          border: 1px solid var(--color-primary);
         }
         .actBtn:hover {
-          color: #1565c0;
-          border: 1px solid #1565c0;
+          color: var(--color-link-hover);
+          border: 1px solid var(--color-link-hover);
           cursor: pointer;
         }
         .actBtn.primaryBtn:hover {
-          color: #fff;
-          background: #1565c0;
-          border: 1px solid #1565c0;
+          color: var(--color-white);
+          background: var(--color-link-hover);
+          border: 1px solid var(--color-link-hover);
         }
         .disabledBtn:hover {
-          border: 1px solid #eaeaea;
-          color: #9e9e9e;
-          background-color: #fff;
+          border: 1px solid var(--color-border-secondary);
+          color: var(--color-text-tertiary);
+          background-color: var(--color-background-primary);
           cursor: not-allowed;
         }
       }
@@ -257,11 +257,6 @@
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        .laodingContainer {
-          width: 100%;
-          height: calc(~'100% - 50px');
-          overflow: hidden;
-        }
         .tableContent {
           flex: 1;
           height: calc(~'100% - 50px');
@@ -282,18 +277,18 @@
                   font-weight: normal;
                   padding: 10px 0 12px;
                   text-align: left;
-                  background-color: #fff;
-                  border-bottom: 1px solid #eaeaea;
+                  background-color: var(--color-background-primary);
+                  border-bottom: 1px solid var(--color-border-secondary);
                   white-space: nowrap;
                   text-overflow: ellipsis;
                   font-size: 13px;
-                  color: #757575;
+                  color: var(--color-text-secondary);
                   box-sizing: border-box;
                   &.checkBox {
                     width: 44px;
                     min-width: 44px;
                     position: sticky;
-                    background: #fff;
+                    background: var(--color-background-primary);
                     left: 0;
                     z-index: 2;
                     padding-right: 0;
@@ -303,7 +298,7 @@
                     position: sticky;
                     width: 200px;
                     min-width: 200px;
-                    background: #fff;
+                    background: var(--color-background-primary);
                     left: 44px;
                     z-index: 2;
                     line-height: 32px;
@@ -340,21 +335,25 @@
                     position: sticky;
                     right: 0px;
                     z-index: 2;
-                    background-color: #fff;
+                    background-color: var(--color-background-primary);
                     padding: 0 30px;
                   }
                 }
+                .sorter {
+                  transform: scale(0.8);
+                  color: var(--color-text-disabled);
+                }
                 .fixedLeft {
-                  border-right: 1px solid #eaeaea;
+                  border-right: 1px solid var(--color-border-secondary);
                 }
                 .fixedRight {
-                  border-left: 1px solid #eaeaea;
+                  border-left: 1px solid var(--color-border-secondary);
                 }
                 .checkBox {
                   border-bottom: none;
                   // opacity: 1;
                   .Checkbox-box {
-                    border: 1px solid #ddd;
+                    border: 1px solid var(--color-border-primary);
                     margin-right: 0;
                     margin-top: -2px;
                   }
@@ -368,7 +367,7 @@
                       padding-left: 1px;
 
                       i.icon {
-                        color: #757575;
+                        color: var(--color-text-secondary);
                       }
                     }
                     .multi-dropdown-menu {
@@ -379,11 +378,11 @@
                 }
                 .showCheckBox.checkBox {
                   .Checkbox-box {
-                    border: 1px solid #1e88e5;
+                    border: 1px solid var(--color-primary);
                   }
                 }
                 .visibiliityIcon {
-                  color: #9e9e9e;
+                  color: var(--color-text-tertiary);
                   width: 24px;
                   height: 24px;
                   display: inline-block;
@@ -391,7 +390,7 @@
                   text-align: center;
                   cursor: pointer;
                   &:hover {
-                    color: #1677ff;
+                    color: var(--color-primary);
                   }
                 }
               }
@@ -427,7 +426,7 @@
                       width: 44px;
                       min-width: 44px;
                       position: sticky;
-                      background: #fff;
+                      background: var(--color-background-primary);
                       left: 0;
                       z-index: 1;
                       padding-right: 0;
@@ -437,11 +436,11 @@
                       position: sticky;
                       width: 200px;
                       min-width: 200px;
-                      background: #fff;
+                      background: var(--color-background-primary);
                       left: 44px;
                       z-index: 1;
                       a {
-                        color: #151515 !important;
+                        color: var(--color-text-title) !important;
                       }
                       a:hover {
                         text-decoration: none !important;
@@ -485,7 +484,7 @@
                       position: sticky;
                       right: 0;
                       z-index: 1;
-                      background-color: #fff;
+                      background-color: var(--color-background-primary);
                       padding: 0 30px;
                       .icon-moreop {
                         width: 24px;
@@ -497,21 +496,21 @@
                         border-radius: 50%;
                         cursor: pointer;
                         &:hover {
-                          background: #fff;
+                          background: var(--color-background-primary);
                         }
                       }
                     }
                   }
                   .fixedLeft {
-                    border-right: 1px solid #eaeaea;
+                    border-right: 1px solid var(--color-border-secondary);
                   }
                   .fixedRight {
-                    border-left: 1px solid #eaeaea;
+                    border-left: 1px solid var(--color-border-secondary);
                   }
                   .checkBox {
                     // border-bottom: none;
                     .Checkbox-box {
-                      border: 1px solid #ddd;
+                      border: 1px solid var(--color-border-primary);
                       margin-right: 0;
                       margin-top: -2px;
                     }
@@ -526,7 +525,7 @@
                         padding-left: 1px;
 
                         i.icon {
-                          color: #757575;
+                          color: var(--color-text-secondary);
                         }
                       }
 
@@ -538,32 +537,32 @@
                   }
                   .showCheckBox.checkBox {
                     .Checkbox-box {
-                      border: 1px solid #1e88e5;
+                      border: 1px solid var(--color-primary);
                     }
                   }
                   &:hover {
                     .checkBox {
                       opacity: 1;
                       .Checkbox-box {
-                        border: 1px solid #ddd;
+                        border: 1px solid var(--color-border-primary);
                       }
                     }
                     .showCheckBox.checkBox {
                       .Checkbox-box {
-                        border: 1px solid #1e88e5;
+                        border: 1px solid var(--color-primary);
                       }
                     }
                     .nameTh {
-                      color: #1e88e5 !important;
+                      color: var(--color-primary) !important;
                       .name {
                         a {
-                          color: #1e88e5 !important;
+                          color: var(--color-primary) !important;
                         }
                       }
                     }
                     .mobileTh {
                       .Remind {
-                        color: #1e88e5 !important;
+                        color: var(--color-primary) !important;
                         cursor: pointer;
                       }
                     }
@@ -571,17 +570,17 @@
                 }
                 tr:hover {
                   td {
-                    background-color: #f7f7f7;
+                    background-color: var(--color-background-hover);
                     &.nameTh {
                       a {
-                        color: #1e88e5 !important;
+                        color: var(--color-primary) !important;
                       }
                     }
                   }
                 }
                 .bgColor {
                   td {
-                    background-color: #f7f7f7 !important;
+                    background-color: var(--color-background-secondary) !important;
                   }
                 }
               }
@@ -599,8 +598,8 @@
           .nullState {
             width: 100px;
             height: 100px;
-            background: #f5f5f5;
-            color: #c2c3c3;
+            background: var(--color-background-secondary);
+            color: var(--color-text-placeholder);
             font-size: 44px;
             line-height: 100px;
             text-align: center;
@@ -614,7 +613,7 @@
     }
   }
   .exportContainer {
-    background: #fff;
+    background: var(--color-background-primary);
     border-radius: 4px;
     height: 100%;
     position: relative;
@@ -625,7 +624,7 @@
       font-weight: 600;
       font-size: 17px;
       padding-left: 24px;
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-secondary);
       .icon {
         margin-right: 18px;
         cursor: pointer;
@@ -638,7 +637,7 @@
       .tabs {
         width: 260px;
         margin: 0 auto 34px;
-        background: #f5f5f5;
+        background: var(--color-background-secondary);
         border-radius: 9px;
         display: flex;
         text-align: center;
@@ -653,11 +652,11 @@
           border-radius: 7px;
         }
         .activeTab {
-          background: #fff;
-          color: #1677ff;
+          background: var(--color-background-primary);
+          color: var(--color-primary);
         }
         .tabItem:hover {
-          color: #1677ff;
+          color: var(--color-primary);
           cursor: pointer;
         }
       }
@@ -671,9 +670,9 @@
         .templateInfo {
           height: 56px;
           line-height: 56px;
-          background: #ffffff;
-          border: 1px solid #e3e3e3;
-          box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.12);
+          background: var(--color-background-primary);
+          border: 1px solid var(--color-border-secondary);
+          box-shadow: var(--shadow-sm);
           border-radius: 3px;
           display: flex;
           justify-content: space-between;
@@ -685,7 +684,7 @@
           }
           .downLoad {
             font-size: 16px;
-            color: #1677ff;
+            color: var(--color-primary);
             cursor: pointer;
             cursor: pointer;
           }
@@ -694,40 +693,40 @@
             height: 32px;
             line-height: 32px;
             text-align: center;
-            border: 1px solid #1677ff;
+            border: 1px solid var(--color-primary);
             border-radius: 32px;
-            background-color: #fff;
+            background-color: var(--color-background-primary);
             padding: 0 24px;
             margin-top: 10px;
-            color: #1677ff;
+            color: var(--color-primary);
             cursor: pointer;
           }
           .exportBtn:hover {
-            color: #fff;
-            background-color: #1677ff;
+            color: var(--color-white);
+            background-color: var(--color-primary);
           }
         }
       }
       .color_b {
-        color: #151515;
+        color: var(--color-text-title);
       }
       .color_gr {
-        color: #1bb954;
+        color: var(--color-success);
       }
       .color_g {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
       .color_d {
-        color: #d9d9d9;
+        color: var(--color-border-primary);
       }
       .color_dd {
-        color: #757575;
+        color: var(--color-text-secondary);
       }
       .color_r {
-        color: #f51744;
+        color: var(--color-error);
       }
       .color_blue {
-        color: #1677ff;
+        color: var(--color-primary);
       }
       .uploadBtn {
         width: 200px;
@@ -747,7 +746,7 @@
           justify-content: space-between;
           height: 56px;
           padding: 0 25px;
-          border: 1px solid rgba(227, 227, 227, 1);
+          border: 1px solid var(--color-border-primary);
           box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.12);
           border-radius: 3px;
           box-sizing: border-box;
@@ -766,17 +765,17 @@
             text-align: center;
             border: none;
             border-radius: 32px;
-            background-color: #fff;
+            background-color: var(--color-background-primary);
           }
           .downloadBtn:hover {
-            color: #fff;
-            background-color: #1677ff;
+            color: var(--color-white);
+            background-color: var(--color-primary);
           }
         }
       }
       .importExcelBox {
         height: 280px;
-        border: 3px dashed rgba(234, 234, 234, 1);
+        border: 3px dashed var(--color-border-primary);
         border-radius: 3px;
         display: flex;
         flex-direction: column;
@@ -788,13 +787,13 @@
         .uploadBtnStyle {
           width: 108px;
           height: 36px;
-          border: 1px solid #eaeaea;
+          border: 1px solid var(--color-border-primary);
           border-radius: 32px;
-          background-color: #ffffff;
-          color: #212121;
+          background-color: var(--color-background-primary);
+          color: var(--color-text-primary);
           &:hover {
-            color: #49adfc !important;
-            border-color: #49adfc !important;
+            color: var(--color-primary-light) !important;
+            border-color: var(--color-primary-light) !important;
           }
         }
       }
@@ -803,12 +802,12 @@
         height: 36px;
         text-align: center;
         line-height: 36px;
-        background: #219dff;
+        background: var(--color-link-hover);
         border-radius: 32px;
-        color: #fff;
+        color: var(--color-white);
         margin-top: 44px;
         &:hover {
-          border-color: #49adfc !important;
+          border-color: var(--color-primary-light) !important;
         }
       }
       .uploadUserResult {
@@ -822,7 +821,7 @@
     .serialTitle {
       font-size: 14px;
       font-weight: 600;
-      color: #151515;
+      color: var(--color-text-title);
       margin-bottom: 17px;
     }
   }
@@ -839,10 +838,10 @@
       height: 36px;
       display: inline-block;
       border-radius: 18px;
-      background: #1677ff;
+      background: var(--color-primary);
       text-align: center;
       line-height: 36px;
-      color: #fff;
+      color: var(--color-white);
     }
   }
 }
@@ -850,7 +849,7 @@
 .showColumnsBox {
   width: 300px;
   z-index: 1;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
   padding: 24px 24px 12px;
   border-radius: 3px;
@@ -867,8 +866,8 @@
       line-height: 20px;
       .ming.Checkbox.Checkbox--disabled.checked {
         .Checkbox-box {
-          background-color: #81bceb;
-          border-color: #81bceb;
+          background-color: var(--color-primary-light);
+          border-color: var(--color-primary-light);
         }
       }
     }

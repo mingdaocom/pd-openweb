@@ -87,7 +87,7 @@ export default class DataContrast extends Component {
                   ? `${displaySetup.contrastType}-ignoreToday`
                   : displaySetup.contrastType
             }
-            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
               if (value === 5) {
                 this.setState({ customRangeVisible: true });
@@ -179,7 +179,7 @@ export default class DataContrast extends Component {
         <Select
           className="chartSelect w100"
           value={displaySetup.contrastType || 0}
-          suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+          suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           onChange={valaue => {
             this.handleChangeDropdown({ contrastType: valaue });
           }}

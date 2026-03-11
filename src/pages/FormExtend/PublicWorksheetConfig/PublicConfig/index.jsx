@@ -38,10 +38,10 @@ const NewDropdown = styled(Dropdown)`
 `;
 const AddControl = styled.div`
   :hover {
-    color: #fff !important;
+    color: var(--color-white) !important;
   }
   :hover .icon {
-    color: #fff !important;
+    color: var(--color-white) !important;
   }
 `;
 
@@ -496,7 +496,7 @@ class PublicConfig extends React.Component {
       .concat(wxMapControlIds)
       .concat(worksheetSettings.boundControlIds);
 
-    return [{ style: { color: '#757575' }, text: <span>{_l('清除')}</span>, value: 'clear' }]
+    return [{ style: { color: 'var(--color-text-secondary)' }, text: <span>{_l('清除')}</span>, value: 'clear' }]
       .concat(
         originalControls
           .filter(
@@ -510,7 +510,7 @@ class PublicConfig extends React.Component {
           })),
       )
       .concat({
-        style: { borderTop: '1px solid #ddd', paddingTop: '4px', height: '36px' },
+        style: { borderTop: '1px solid var(--color-border-primary)', paddingTop: '4px', height: '36px' },
         text: (
           <AddControl className="hand ThemeColor3" onClick={() => this.handleShowControl(key)}>
             <i className="icon icon-plus mRight5 ThemeColor3"></i>
@@ -758,7 +758,7 @@ class PublicConfig extends React.Component {
           {activeTab === 4 && (
             <React.Fragment>
               <H3>{_l('嵌入链接')}</H3>
-              <TipBlock color="#757575" className="Font14">
+              <TipBlock color="var(--color-text-secondary)" className="Font14">
                 {this.getIframeUrl()}
               </TipBlock>
               <div className="mTop16">

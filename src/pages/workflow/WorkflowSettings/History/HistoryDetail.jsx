@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
-import { func, string } from 'prop-types';
+import { bool, func, number, string } from 'prop-types';
 import { Icon, LoadDiv } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import api from '../../api/instance';
@@ -24,7 +24,9 @@ import {
 
 export default class HistoryDetail extends Component {
   static propTypes = {
+    isPlugin: bool,
     id: string,
+    moduleType: number,
     onClick: func,
     openNodeDetail: func,
   };
@@ -101,11 +103,13 @@ export default class HistoryDetail extends Component {
     } = item;
 
     if (!sourceId && log.executeType === 2) {
-      return <div className="Gray_75">{_l('跳过')}</div>;
+      return <div className="textSecondary">{_l('跳过')}</div>;
     }
 
     if (cause === 7777 && status === 3 && causeAccount) {
-      return <div className="personDetail flex Gray_75 flexRow">{_l('管理员：%0 中止', causeAccount.fullName)}</div>;
+      return (
+        <div className="personDetail flex textSecondary flexRow">{_l('管理员：%0 中止', causeAccount.fullName)}</div>
+      );
     }
 
     const { type, appType } = flowNode;
@@ -138,11 +142,11 @@ export default class HistoryDetail extends Component {
           ))}
 
         {!!(updateWorks || {})[OPERATION_TYPE.BEFORE] && (
-          <div className="breakAll mBottom12 Gray_75">{_l('审批前更新了记录')}</div>
+          <div className="breakAll mBottom12 textSecondary">{_l('审批前更新了记录')}</div>
         )}
 
         {countersign && _.includes([1, 2, 4], countersignType) && (
-          <div className="breakAll mBottom12 Gray_75">
+          <div className="breakAll mBottom12 textSecondary">
             <span>{_l('开始审批')}</span>
             <span>(</span>
             <span>{_l('会签：')}</span>
@@ -151,7 +155,7 @@ export default class HistoryDetail extends Component {
           </div>
         )}
 
-        <div className="personDetail flex Gray_75 flexRow">
+        <div className="personDetail flex textSecondary flexRow">
           {(_.includes([0, 3, 4, 5, 27], type) || isApproval) && (
             <Fragment>
               <div className="personInfo inlineFlexRow">
@@ -175,7 +179,7 @@ export default class HistoryDetail extends Component {
                       item.accounts.map((obj, j) => (
                         <Fragment key={`${i}-${j}`}>
                           <span>{obj.fullName}</span>
-                          <span className="Gray_75">({moment(item.executeTime).format('MM-DD HH:mm')})</span>
+                          <span className="textSecondary">({moment(item.executeTime).format('MM-DD HH:mm')})</span>
                           {(i !== scheduleActions.length - 1 || j !== item.accounts.length - 1) && <span>、</span>}
                         </Fragment>
                       )),
@@ -199,7 +203,7 @@ export default class HistoryDetail extends Component {
                 const { action, target } = item;
                 if (!action) return <div key={key} />;
                 return _.includes([2, 8, 16], action) ? (
-                  <div key={key} className="actionDetail flexRow Gray_75">
+                  <div key={key} className="actionDetail flexRow textSecondary">
                     <div className="actionType">{_l('%0：', ACTION_TYPE[action].text)}</div>
                     {target && <div className="actionTarget">{target}</div>}
                   </div>
@@ -211,11 +215,13 @@ export default class HistoryDetail extends Component {
 
         {!!updateWorks && (
           <Fragment>
-            {!!updateWorks[OPERATION_TYPE.PASS] && <div className="info Gray_75">{_l('通过后更新了记录')}</div>}
-            {!!updateWorks[OPERATION_TYPE.OVERRULE] && <div className="info Gray_75">{_l('否决后更新了记录')}</div>}
-            {!!updateWorks[OPERATION_TYPE.RETURN] && <div className="info Gray_75">{_l('退回后更新了记录')}</div>}
+            {!!updateWorks[OPERATION_TYPE.PASS] && <div className="info textSecondary">{_l('通过后更新了记录')}</div>}
+            {!!updateWorks[OPERATION_TYPE.OVERRULE] && (
+              <div className="info textSecondary">{_l('否决后更新了记录')}</div>
+            )}
+            {!!updateWorks[OPERATION_TYPE.RETURN] && <div className="info textSecondary">{_l('退回后更新了记录')}</div>}
             {!!updateWorks[OPERATION_TYPE.ADD_OPERATION] && (
-              <div className="info Gray_75">{_l('新增节点操作明细')}</div>
+              <div className="info textSecondary">{_l('新增节点操作明细')}</div>
             )}
           </Fragment>
         )}
@@ -230,7 +236,7 @@ export default class HistoryDetail extends Component {
 
     return (
       <Fragment>
-        <span className="Gray_75 mRight10">{_l('%0 行记录', item.sort)}</span>
+        <span className="textSecondary mRight10">{_l('%0 行记录', item.sort)}</span>
         <span
           className="ThemeColor3 ThemeHoverColor2 pointer"
           onClick={() =>
@@ -353,7 +359,7 @@ export default class HistoryDetail extends Component {
   }
 
   render() {
-    const { onClick, id, openNodeDetail, isPlugin } = this.props;
+    const { onClick, id, openNodeDetail, isPlugin, moduleType } = this.props;
     const { data, isRetry, processInfo } = this.state;
 
     if (_.isEmpty(data)) return <LoadDiv />;
@@ -372,7 +378,7 @@ export default class HistoryDetail extends Component {
     return (
       <div className="historyDetailWrap">
         <div className="header" onClick={onClick}>
-          <Icon icon="backspace" className="Font20 Gray_75" />
+          <Icon icon="backspace" className="Font20 textSecondary" />
           <span className="backText Font15">{_l('返回')}</span>
         </div>
         <div className="detailContent">
@@ -397,12 +403,12 @@ export default class HistoryDetail extends Component {
               </div>
             </div>
             <div className="time">
-              <div className="Font15 Gray_75">{createDate}</div>
+              <div className="Font15 textSecondary">{createDate}</div>
               {this.renderRetryBtn('header')}
             </div>
           </div>
           <div className="logWrap">
-            <div className="logTitle Font16 Gray_75 flexRow alignItemsCenter">
+            <div className="logTitle Font16 textSecondary flexRow alignItemsCenter">
               <div className="flex">{_l('日志')}</div>
               {_.includes(data.debugEvents, -1) && <div className="Font13 Normal">{_l('编辑版测试')} </div>}
               {!_.isEmpty(processInfo) && !_.includes(data.debugEvents, -1) && (
@@ -453,6 +459,7 @@ export default class HistoryDetail extends Component {
                         appType={appType}
                         actionId={flowNode.actionId}
                         isPlugin={isPlugin}
+                        moduleType={moduleType}
                         isFirst={index === 0}
                         isLast={index === works.length - 1}
                       />
@@ -481,9 +488,9 @@ export default class HistoryDetail extends Component {
                                   .name || _l('分支')}
                           {!_.includes([0, 11], multipleLevelType) && sort && _l('（第%0级）', sort)}
                         </div>
-                        {alias && <div className="Gray_75 Font13 ellipsis">{_l('别名：%0', alias)}</div>}
+                        {alias && <div className="textSecondary Font13 ellipsis">{_l('别名：%0', alias)}</div>}
                         {app && appType !== APP_TYPE.EVENT_PUSH && (
-                          <div className="Gray_75 Font13 ellipsis">{_l('工作表 “%0”', app.name)}</div>
+                          <div className="textSecondary Font13 ellipsis">{_l('工作表 “%0”', app.name)}</div>
                         )}
                       </div>
                     </div>
@@ -498,7 +505,7 @@ export default class HistoryDetail extends Component {
                             : this.renderOperationInfo(item, index === works.length - 1)}
                     </div>
 
-                    <div className="operationTime Gray_75">
+                    <div className="operationTime textSecondary">
                       <div className="enterTime">{`${_l('进入:')} ${moment(startDate).format(
                         'YYYY-MM-DD HH:mm:ss',
                       )}`}</div>
@@ -514,7 +521,7 @@ export default class HistoryDetail extends Component {
 
               {completeType === 1 && (
                 <li className="pBottom0 pTop25">
-                  <div className="TxtCenter Gray_75 w100">{_l('流程已结束')}</div>
+                  <div className="TxtCenter textSecondary w100">{_l('流程已结束')}</div>
                 </li>
               )}
             </ul>

@@ -14,9 +14,9 @@ const DialogFooter = styled.div`
   justify-content: space-between;
   .addOptionList {
     cursor: pointer;
-    color: #1677ff;
+    color: var(--color-primary);
     &:hover {
-      color: #2b65c4;
+      color: var(--color-link-hover);
     }
   }
   .btns {
@@ -57,7 +57,7 @@ export default function SelectOptionList(props) {
       onCancel={onCancel}
     >
       <Fragment>
-        <div className="hint Gray_9e">
+        <div className="hint textTertiary">
           {_l('选项集可以使一组选项在其他工作表中共用。你可以新建选项集或将一个已有的自定义选项转为选项集后再使用。')}
           <Support href="https://help.mingdao.com/worksheet/option-set" type={3} text={_l('帮助')} />
         </div>
@@ -90,7 +90,7 @@ export default function SelectOptionList(props) {
           {_l('新建选项集')}
         </div>
         <div className="btns flexCenter">
-          <div className="text hoverText Gray_9e pointer" onClick={onCancel}>
+          <div className="text hoverText textTertiary pointer" onClick={onCancel}>
             {_l('取消')}
           </div>
           <Button disabled={!listId} onClick={() => onOk({ app, listId, listItem })}>

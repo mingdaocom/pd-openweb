@@ -19,7 +19,13 @@ import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { canAsUniqueWidget } from 'src/pages/widgetConfig/util/setting';
 import * as actions from 'src/pages/worksheet/components/ChildTable/redux/actions';
 import { updateOptionsOfControls } from 'src/utils/control';
-import { isRelateRecordTableControl, parseAdvancedSetting, replaceByIndex, sortControlByIds } from 'src/utils/control';
+import {
+  controlState,
+  isRelateRecordTableControl,
+  parseAdvancedSetting,
+  replaceByIndex,
+  sortControlByIds,
+} from 'src/utils/control';
 import {
   copySublistRow,
   filterEmptyChildTableRows,
@@ -28,7 +34,7 @@ import {
   handleUpdateDefsourceOfControl,
 } from 'src/utils/record';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
-import { controlState } from '../../../core/formUtils';
+import ChildTableFlatComp from './ChildTableFlatComp';
 import MobileTable from './MobileTable';
 import RowDetailMobile from './RowDetailMobileModal';
 import SearchInput from './SearchInput';
@@ -842,10 +848,10 @@ class ChildTable extends React.Component {
       actions: [],
       extra: (
         <div className="flexColumn w100">
-          <div className="bold Gray Font17 pTop10">{_l('确定删除此记录 ?')}</div>
+          <div className="bold textPrimary Font17 pTop10">{_l('确定删除此记录 ?')}</div>
           <div className="valignWrapper flexRow confirm mTop24">
             <Button
-              className="flex mRight6 bold Gray_75 flex ellipsis Font13"
+              className="flex mRight6 bold textSecondary flex ellipsis Font13"
               onClick={() => this.deleteConformAction.close()}
             >
               {_l('取消')}
@@ -879,9 +885,9 @@ class ChildTable extends React.Component {
         onMaskClick={() => this.setState({ showRowHeightModal: false })}
       >
         <div className="flexRow header">
-          <div className="Font13 Gray_9e flex">{_l('表格行高')}</div>
+          <div className="Font13 textTertiary flex">{_l('表格行高')}</div>
           <div className="closeIcon" onClick={() => this.setState({ showRowHeightModal: false })}>
-            <i className="icon icon-close Font17 Gray_9e bold" />
+            <i className="icon icon-close Font17 textTertiary bold" />
           </div>
         </div>
         {[
@@ -896,7 +902,7 @@ class ChildTable extends React.Component {
             onClick={() => this.setState({ h5height: item.value, showRowHeightModal: false })}
           >
             <div className="flex">{item.text}</div>
-            {h5height === item.value && <i className="icon icon-done ThemeColor Font20" />}
+            {h5height === item.value && <i className="icon icon-done colorPrimary Font20" />}
           </div>
         ))}
       </Popup>
@@ -990,7 +996,7 @@ class ChildTable extends React.Component {
     const { showAsPages } = this;
     const h5ShowType = _.get(control || {}, 'advancedSetting.h5showtype');
 
-    const Component = h5showtype === '3' ? TableComponent : MobileTable;
+    const Component = h5showtype === '2' ? ChildTableFlatComp : h5showtype === '3' ? TableComponent : MobileTable;
 
     const operateComp = (
       <Fragment>
@@ -1035,7 +1041,7 @@ class ChildTable extends React.Component {
             <div className="operateBtnBox">
               <i
                 className={cx('icon icon-row_height', {
-                  ThemeColor: h5height !== _.get(control, 'advancedSetting.h5height'),
+                  colorPrimary: h5height !== _.get(control, 'advancedSetting.h5height'),
                 })}
               />
             </div>
@@ -1084,7 +1090,6 @@ class ChildTable extends React.Component {
             isEdit={mobileIsEdit}
             onDelete={this.deleteRecord}
             showNumber={!hidenumber}
-            h5showtype={h5showtype}
             h5abstractids={h5abstractids}
             appId={appId}
             worksheetId={control.dataSource}
@@ -1103,6 +1108,7 @@ class ChildTable extends React.Component {
             useUserPermission={useUserPermission}
             recordId={recordId}
             showExpand={showExpand}
+            control={control}
             widgetStyle={this.worksheetInfo.advancedSetting}
             updateIsAddByLine={value => this.setState({ isAddRowByLine: value })}
             onSave={this.handleRowDetailSave}
@@ -1112,7 +1118,7 @@ class ChildTable extends React.Component {
         )}
         {loading &&
           (error ? (
-            <div className="center Gray_9e">{error}</div>
+            <div className="center textTertiary">{error}</div>
           ) : (
             <div style={{ padding: 10 }}>
               <Skeleton

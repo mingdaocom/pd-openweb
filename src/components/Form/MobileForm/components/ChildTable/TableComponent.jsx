@@ -9,7 +9,8 @@ import styled from 'styled-components';
 import CellControl from 'worksheet/components/CellControls';
 import * as actions from 'src/pages/worksheet/components/ChildTable/redux/actions';
 import { getAdvanceSetting, getControlStyles } from 'src/utils/control';
-import { updateRulesData } from '../../../core/formUtils';
+import { controlState, isRelateRecordTableControl } from 'src/utils/control';
+import { updateRulesData } from '../../../core/formUtils/updateRulesData';
 import { addWidthToColumns } from './utils';
 
 const TableWrap = styled(Table)`
@@ -24,7 +25,7 @@ const TableWrap = styled(Table)`
     ${({ h5height }) => h5height === '0' && 'font-size: 0.8em !important;'};
     ${({ h5height }) => h5height === '1' && 'font-size: 0.9em !important;'};
     ${({ h5height }) => (h5height === '2' || h5height === '3') && 'font-size: 1em !important;'};
-    color: #151515 !important;
+    color: var(--color-text-title) !important;
   }
   .ant-table-thead
     > tr
@@ -35,7 +36,7 @@ const TableWrap = styled(Table)`
   }
   .ant-table-tbody > tr.ant-table-row:hover > td,
   .ant-table-tbody > tr > td.ant-table-cell-row-hover {
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
 
   .ant-table-tbody > tr > td {
@@ -46,8 +47,8 @@ const TableWrap = styled(Table)`
     padding: 0px 12px;
     height: 40px;
     line-height: 36px;
-    color: #151515;
-    background: #f7f7f7;
+    color: var(--color-text-title);
+    background: var(--color-background-secondary);
     font-size: 13px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -144,12 +145,12 @@ const Pagination = styled.div`
   .next {
     height: 100%;
     line-height: 36px;
-    color: #fff;
+    color: var(--color-white);
     padding: 0 12px;
-    background: #1677ff;
+    background: var(--color-primary);
     border-radius: 3px;
     &.disabled {
-      background: #e0e0e0;
+      background: var(--color-background-secondary);
     }
   }
 `;
@@ -171,6 +172,7 @@ function TableComponent(props) {
     useUserPermission,
     showExpand,
     rules,
+    appId,
     pagination = {},
     onSave = () => {},
     submitChildTableCheckData = () => {},
@@ -186,7 +188,10 @@ function TableComponent(props) {
       rows,
       row => /^temp/.test(row.rowid) || (allowcancel && (useUserPermission && !!recordId ? row.allowdelete : true)),
     ) > -1;
-  let columns = showControls.map(item => _.find(controls, c => c.controlId === item)).filter(_.identity);
+  let columns = showControls
+    .map(item => _.find(controls, c => c.controlId === item))
+    .filter(_.identity)
+    .filter(c => c.type !== 34 && controlState(c).visible && !isRelateRecordTableControl(c));
   columns =
     !disabled && isEdit && !_.isEmpty(rows) && showDeleteCol
       ? [{ controlId: 'delete', controlName: '', className: 'deleteAction', width: 30 }].concat(columns)
@@ -260,15 +265,6 @@ function TableComponent(props) {
               const currentCell = _.find(tableFormData, v => v.controlId === item.controlId);
               item = { ...item, fieldPermission: currentCell.fieldPermission };
 
-              const visible =
-                item.fieldPermission[0] === '1' &&
-                item.fieldPermission[2] === '1' &&
-                item.controlPermissions[2] === '1';
-
-              if (!visible) {
-                return <div className="cell"></div>;
-              }
-
               if (!record[item.controlId]) {
                 return <div className="customFormNull"></div>;
               }
@@ -286,6 +282,7 @@ function TableComponent(props) {
                   }}
                   row={record}
                   from={item.type == 29 ? 3 : 4}
+                  appId={appId}
                   style={
                     _.includes([29, 51], item.type)
                       ? {
@@ -334,14 +331,14 @@ function TableComponent(props) {
           }}
         ></TableWrap>
       </div>
-      {!isEdit && _.isEmpty(rows) && <div className="Gray_9e mTop15 bold">{_l('暂无记录')}</div>}
+      {!isEdit && _.isEmpty(rows) && <div className="textTertiary mTop15 bold">{_l('暂无记录')}</div>}
       {totalPage > 1 && (
         <Pagination className="Font14">
           <div className={cx('prev mLeft16', { disabled: pageIndex === 1 })} onClick={() => changePage('prev')}>
             {_l('上一页')}
           </div>
-          <div className="flex Gray Font15">
-            <span className="ThemeColor bold">{pageIndex}</span>/<span>{totalPage}</span>
+          <div className="flex textPrimary Font15">
+            <span className="colorPrimary bold">{pageIndex}</span>/<span>{totalPage}</span>
           </div>
           <div className={cx('next mRight16', { disabled: pageIndex >= totalPage })} onClick={() => changePage('next')}>
             {_l('下一页')}

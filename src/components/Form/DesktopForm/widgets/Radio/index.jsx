@@ -101,10 +101,13 @@ const RadioWidget = props => {
       <span
         className={cx(
           'ellipsis customRadioItem',
-          { White: enumDefault2 === 1 && !isLightColor(item.color) },
+          { textWhite: enumDefault2 === 1 && !isLightColor(item.color) },
+          { textBlack: enumDefault2 === 1 && isLightColor(item.color) },
           { 'pLeft12 pRight12': enumDefault2 === 1 || checkIds.length > 1 },
         )}
-        style={{ background: enumDefault2 === 1 ? item.color : checkIds.length > 1 ? '#eaeaea' : '' }}
+        style={{
+          background: enumDefault2 === 1 ? item.color : checkIds.length > 1 ? 'var(--color-border-secondary)' : '',
+        }}
       >
         {item.value}
       </span>
@@ -157,7 +160,7 @@ const RadioWidget = props => {
                     />
                   </div>
                 </div>
-                {item.key === 'other' && !disabled && (
+                {item.key === 'other' && (
                   <div className="otherInputBox w100">
                     <OtherInput className="pLeft0" {...props} isSelect={false} />
                   </div>

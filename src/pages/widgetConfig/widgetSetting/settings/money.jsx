@@ -28,7 +28,7 @@ const SelectCountryDropdown = ({ data = [], lang, setData, setVisible }) => {
   return (
     <DropdownContentWrap>
       <div className="searchWrap" onClick={e => e.stopPropagation()}>
-        <i className="icon-search Font16 Gray_75"></i>
+        <i className="icon-search Font16 textSecondary"></i>
         <input
           autoFocus
           value={value}
@@ -160,7 +160,7 @@ export default function Money(props) {
           <DropdownPlaceholder cancelAble={!!currentCurrency}>
             {renderPlaceholder()}
             <i
-              className="icon-cancel Gray_9e Font14 clearIcon"
+              className="icon-cancel textTertiary Font14 clearIcon"
               onClick={e => {
                 e.stopPropagation();
                 onChange(
@@ -172,7 +172,7 @@ export default function Money(props) {
                 );
               }}
             />
-            <i className="icon-arrow-down-border Font14 Gray_9e arrowIcon"></i>
+            <i className="icon-arrow-down-border Font14 textTertiary arrowIcon"></i>
           </DropdownPlaceholder>
         </Dropdown>
       </SettingItem>

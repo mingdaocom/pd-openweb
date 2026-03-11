@@ -25,7 +25,7 @@ const Wrap = styled.div`
   .hs {
     width: 6px;
     height: 6px;
-    background: #f44336;
+    background: var(--color-error);
     border-radius: 50%;
     position: relative;
     top: -1px;
@@ -33,7 +33,7 @@ const Wrap = styled.div`
   .isMyRole {
     width: 4px;
     height: 4px;
-    background: #1677ff;
+    background: var(--color-primary);
     border-radius: 50%;
     position: absolute;
     left: 10px;
@@ -79,7 +79,7 @@ const Wrap = styled.div`
   .iconBG {
     width: 32px;
     height: 32px;
-    background: #1677ff;
+    background: var(--color-primary);
     border-radius: 20px;
   }
   .memberInfo {
@@ -88,16 +88,16 @@ const Wrap = styled.div`
     }
     .memberTag {
       font-size: 12px;
-      color: #1677ff;
+      color: var(--color-primary);
       padding: 2px 6px;
       border-radius: 12px;
-      background: #f3faff;
+      background: var(--color-primary-transparent);
       display: inline-block;
       flex-shrink: 0;
     }
     .ownerTag {
-      color: #fff;
-      background: #1677ff;
+      color: var(--color-white);
+      background: var(--color-primary);
       font-weight: bold;
       padding: 2px 6px;
       font-size: 12px;
@@ -248,7 +248,7 @@ class Con extends React.Component {
           location.reload();
         } else {
           Dialog.confirm({
-            title: <span style={{ color: '#f44336' }}>{_l('无法退出非“人员”类型成员加入的角色')}</span>,
+            title: <span style={{ color: 'var(--color-error)' }}>{_l('无法退出非“人员”类型成员加入的角色')}</span>,
             description: _l('非“人员”类型的成员，只能由管理员或运营者操作'),
             closable: false,
             removeCancelBtn: true,

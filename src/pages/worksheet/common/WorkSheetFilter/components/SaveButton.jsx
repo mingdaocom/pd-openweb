@@ -9,10 +9,10 @@ const Con = styled.div`
   display: flex;
   flex-direction: row;
   height: 32px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   border-radius: 16px;
-  border: 1px solid #e6e6e6;
-  color: #757575;
+  border: 1px solid var(--color-border-secondary);
+  color: var(--color-text-secondary);
   font-weight: bold;
   font-size: 13px;
   user-select: none;
@@ -26,14 +26,14 @@ const Con = styled.div`
       cursor: pointer;
     }
     &:hover {
-      color: #1677ff;
-      border-color: #1677ff;
+      color: var(--color-primary);
+      border-color: var(--color-primary);
     }
   }
   &.disabled {
     .content {
       cursor: not-allowed;
-      color: #ccc;
+      color: var(--color-text-placeholder);
     }
   }
   &.hasDownList {
@@ -52,7 +52,7 @@ const DropdownIcon = styled.div`
   line-height: 30px;
   .icon {
     font-size: 12px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   &::before {
     content: '';
@@ -60,11 +60,11 @@ const DropdownIcon = styled.div`
     position: absolute;
     left: 0px;
     top: 8.5px;
-    border-left: 1px solid #ededed;
+    border-left: 1px solid var(--color-border-secondary);
   }
   &:hover {
     .icon {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;

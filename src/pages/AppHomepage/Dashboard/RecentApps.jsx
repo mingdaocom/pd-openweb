@@ -37,11 +37,11 @@ const Wrapper = styled.div`
           background-color: ${({ themeColor }) => themeColor};
         }
         &:hover {
-          background: #fff !important;
+          background: var(--color-background-primary) !important;
         }
       }
       &:hover {
-        background: #f5f5f5;
+        background: var(--color-background-hover);
       }
     }
   }

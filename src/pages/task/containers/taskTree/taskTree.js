@@ -529,7 +529,7 @@ class TaskTree extends Component {
             <span class="Font14">${_l('或使用右上角 + 号创建任务')}</span>
           </span>
         </div>
-        <div class="ThemeBG taskGroundGlass"></div>
+        <div class="bgTertiary taskGroundGlass"></div>
       </div>`;
 
     $('#taskList').html(this.props.taskConfig.searchKeyWords ? config.configHtml.searchNullHtml : noDataTpl);

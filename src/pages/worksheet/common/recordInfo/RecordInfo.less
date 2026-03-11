@@ -1,4 +1,5 @@
 .workSheetRecordInfo {
+  box-shadow: var(--shadow-xl);
   .ck-sticky-panel__content_sticky {
     top: 55px !important;
   }
@@ -6,7 +7,7 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background-color: #fafafa;
+    background-color: var(--color-background-primary);
     border-radius: 3px;
     font-size: 13px;
 
@@ -17,24 +18,24 @@
       z-index: 3;
       height: 52px;
       line-height: 52px;
-      background-color: #fff;
-      border-bottom: 1px solid #ddd;
+      background-color: var(--color-background-primary);
+      border-bottom: 1px solid var(--color-border-primary);
 
       .prevRecordBtn,
       .nextRecordBtn {
         cursor: pointer;
         font-size: 18px;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         margin-right: 6px;
 
         &.disable {
-          color: #e0e0e0;
+          color: var(--color-border-secondary);
         }
       }
 
       .refreshBtn {
         &.disable {
-          color: #e0e0e0 !important;
+          color: var(--color-border-secondary) !important;
           cursor: default;
         }
       }
@@ -50,6 +51,23 @@
         margin: 8px 0px 0px 20px;
       }
 
+      .aiActionButtons {
+        height: 30px;
+        line-height: 1em;
+        .aiButtonsCount {
+          margin-left: 2px;
+          background: var(--color-background-disabled);
+          padding: 0 6px;
+          border-radius: 10px;
+          line-height: 22px;
+        }
+        &:hover {
+          .aiButtonsCount {
+            background-color: var(--color-border-primary);
+          }
+        }
+      }
+
       .shareBtn {
         line-height: 1em;
         margin: 14px 0;
@@ -63,7 +81,7 @@
 
     .recordBody {
       position: relative;
-      background: #fff;
+      background: var(--color-background-primary);
       overflow: hidden;
       .recordInfoForm {
         min-width: 450px;
@@ -87,19 +105,31 @@
         }
         .recordInfoFormHeader {
           padding: 0 32px;
+          .worksheetNameCon {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            .right {
+              flex-shrink: 0;
+            }
+          }
           .worksheetName {
             cursor: pointer;
             text-decoration: none;
             font-size: 13px;
 
             &:hover {
-              color: #1677ff;
+              color: var(--color-primary);
             }
           }
 
           .lastLog {
             position: relative;
             margin: 2px 20px;
+            .userName {
+              display: inline-block;
+              max-width: 200px;
+            }
           }
 
           .owner {
@@ -111,7 +141,7 @@
               top: 2px;
               bottom: 2px;
               width: 1px;
-              background-color: #ddd;
+              background-color: var(--color-border-primary);
             }
             &.noBorder {
               &::before {
@@ -124,7 +154,7 @@
               border-radius: 24px;
               padding-right: 6px;
               &:not(.disabled):hover {
-                background-color: #f5f5f5;
+                background-color: var(--color-background-hover);
               }
               &.disabled {
                 .icon-arrow-down {
@@ -141,14 +171,14 @@
             line-height: 1.3em;
             vertical-align: middle;
             font-size: 24px;
-            color: #151515;
+            color: var(--color-text-primary);
             white-space: pre-wrap;
             .maskHoverTheme {
               cursor: pointer;
               &:hover {
-                color: #1d5786 !important;
+                color: var(--color-link-hover) !important;
                 i {
-                  color: #9e9e9e !important;
+                  color: var(--color-text-tertiary) !important;
                 }
               }
             }
@@ -160,13 +190,13 @@
             margin-bottom: 16px;
             .lineTag {
               width: 3px;
-              background: #dbdbdb;
+              background: var(--color-border-primary);
               height: 18px;
             }
             .userName {
-              color: #757575;
+              color: var(--color-text-secondary);
               &:hover {
-                color: #333;
+                color: var(--color-text-primary);
               }
             }
           }
@@ -180,10 +210,10 @@
           align-items: center;
           justify-content: center;
           font-size: 14px;
-          color: #777;
+          color: var(--color-text-secondary);
           .statusIcon {
             font-size: 84px;
-            color: #e0e0e0;
+            color: var(--color-border-secondary);
           }
         }
       }
@@ -196,13 +226,13 @@
         .discussLogFile {
           width: 100%;
           position: relative;
-          background: #fafafa;
-          border-color: #ddd !important;
+          background: var(--color-background-secondary);
+          border-color: var(--color-border-primary) !important;
           font-size: 13px;
           .header {
             height: 56px;
             padding: 2px 24px;
-            border-color: #eaeaea !important;
+            border-color: var(--color-border-secondary) !important;
             > .talk {
               position: relative;
               line-height: 50px;
@@ -238,7 +268,7 @@
             }
           }
           .discussType {
-            background: #f5f5f5;
+            background: var(--color-background-secondary);
             border-radius: 3px;
             padding: 2px;
             margin: 16px 16px 0;
@@ -246,13 +276,13 @@
               height: 28px;
               line-height: 28px;
               border-radius: 3px;
-              color: #757575;
+              color: var(--color-text-secondary);
               &.isCur {
-                background: #ffffff;
-                color: #1677ff;
+                background: var(--color-background-primary);
+                color: var(--color-primary);
               }
               &:hover {
-                color: #1677ff;
+                color: var(--color-primary);
               }
             }
           }
@@ -285,8 +315,8 @@
   height: 34px !important;
   min-width: 72px;
   line-height: 32px !important;
-  color: #1677ff;
-  border-color: #1677ff;
+  color: var(--color-primary);
+  border-color: var(--color-primary);
   transition: none;
   vertical-align: middle;
   display: inline-block;
@@ -328,8 +358,8 @@
   }
   &.Button--disabled {
     color: rgba(117, 117, 117, 0.5) !important;
-    background-color: #eaeaea !important;
-    border-color: #eaeaea !important;
+    background-color: var(--color-border-secondary) !important;
+    border-color: var(--color-border-secondary) !important;
   }
 }
 
@@ -356,14 +386,14 @@
 
 .DropdownPrintTrigger {
   width: 280px;
-  background: #ffffff 0% 0% no-repeat padding-box;
+  background: var(--color-background-primary) 0% 0% no-repeat padding-box;
   box-shadow: 0px 4px 16px #0000003d;
   border-radius: 3px;
   padding: 6px 0;
   .tempList {
     max-height: 300px;
     padding-bottom: 5px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
     overflow: auto;
     .ming.Item .Item-content .fileIcon {
       width: 13px;
@@ -375,7 +405,7 @@
     .ming.Item .Item-content .detail {
       position: absolute;
       right: 16px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       font-size: 12px;
       .downloadIcon {
         left: auto !important;

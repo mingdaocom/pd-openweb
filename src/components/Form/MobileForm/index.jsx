@@ -3,9 +3,10 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
+import { controlState } from 'src/utils/control';
 import { FROM } from '../core/config';
 import { mobileFormPropTypes } from '../core/formPropTypes';
-import { controlState, getControlsByTab, getWidgetDisplayRow, showRefreshBtn } from '../core/utils';
+import { getControlsByTab, getWidgetDisplayRow, showRefreshBtn } from '../core/utils';
 import { useFormStore } from '../index';
 import { updateEmSizeNumAction } from '../store/actions';
 import FormLabel from './components/FormLabel';
@@ -85,6 +86,7 @@ const MobileForm = props => {
       uniqueErrorItems,
       loadingItems,
       updateErrorState,
+      filledByAiMap = {},
     } = props;
     const { instanceId, workId } = mobileApprovalRecordInfo;
     const formList = [];
@@ -94,6 +96,7 @@ const MobileForm = props => {
     const richTextControlCount = data.filter(c => c.type === 41).length;
 
     data.forEach(item => {
+      const isFilledByAi = filledByAiMap?.[item.controlId];
       const { enumDefault2 } = item;
       const { hidetitle } = item.advancedSetting || {};
       // 自由连接不显示
@@ -117,7 +120,7 @@ const MobileForm = props => {
 
       formList.push(
         <div
-          className={cx('customFormItem', { customFormItemRow: displayRowInfo.displayRow })}
+          className={cx('customFormItem', { customFormItemRow: displayRowInfo.displayRow, isFilledByAi })}
           style={{
             width: '100%',
             display: item.type === 49 && disabled ? 'none' : 'flex',
@@ -130,7 +133,7 @@ const MobileForm = props => {
               <div
                 className="Absolute"
                 style={{
-                  background: 'var(--color-background-tertiary)',
+                  background: 'var(--color-background-secondary)',
                   height: 10,
                   left: -1000,
                   right: -1000,

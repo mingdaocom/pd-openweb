@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import configureStore from 'redux/configureStore';
 import { useDrag, useDrop } from 'react-dnd-latest';
 import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
@@ -9,6 +8,7 @@ import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
 import { getAppSectionData } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
 import * as sheetListActions from 'src/pages/worksheet/redux/actions/sheetList';
+import configureStore from 'src/redux/configureStore';
 
 const dndAccept = 'navigationListGroup';
 

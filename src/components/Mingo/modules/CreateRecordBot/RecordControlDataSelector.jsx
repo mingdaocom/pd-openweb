@@ -13,18 +13,18 @@ import { parseStreamingJsonlData } from 'src/utils/sse';
 
 const Con = styled.div`
   border-radius: 8px;
-  border: 1px solid #dddddd;
+  border: 1px solid var(--color-border-primary);
   padding: 12px 0;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   .hr {
     height: 1px;
-    background-color: #dddddd;
+    background-color: var(--color-border-primary);
     margin: 10px;
   }
   .widget-item {
     padding: 8px 17px;
     font-size: 13px;
-    color: #151515;
+    color: var(--color-text-title);
     .widget-item-left {
       width: 120px;
       flex-shrink: 0;
@@ -43,7 +43,7 @@ const Con = styled.div`
       font-size: 12px;
       margin-left: 1px;
       margin-top: -7px;
-      color: #f9b81a;
+      color: var(--color-warning-border);
     }
     .Checkbox {
       font-size: 0px;
@@ -52,8 +52,8 @@ const Con = styled.div`
     .Checkbox.checked .Checkbox-box,
     .Checkbox.clearselected .Checkbox-box,
     .Checkbox.clearselected .Checkbox-box:hover {
-      border-color: var(--ai-primary-color) !important;
-      background-color: var(--ai-primary-color) !important;
+      border-color: var(--color-mingo) !important;
+      background-color: var(--color-mingo) !important;
     }
     .ming.Checkbox.Checkbox--disabled .Checkbox-box,
     .ming.Checkbox.Checkbox--disabled.clearselected .Checkbox-box {
@@ -64,7 +64,7 @@ const Con = styled.div`
     }
     .widget-name {
       font-size: 13px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       display: none;
     }
     .options {
@@ -81,7 +81,7 @@ const Con = styled.div`
           margin-right: 5px;
         }
         font-size: 12px;
-        color: #757575;
+        color: var(--color-text-secondary);
       }
     }
     .widget-item-value {
@@ -111,32 +111,32 @@ const Con = styled.div`
     line-height: 30px;
     width: 260px;
     text-align: center;
-    background: #fff;
-    color: #151515;
+    background: var(--color-background-primary);
+    color: var(--color-text-title);
     border-radius: 32px;
     font-size: 14px;
     font-weight: bold;
     cursor: pointer;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
     &.disabled {
-      background: #f5f5f5;
-      color: #bdbdbd;
+      background: var(--color-background-secondary);
+      color: var(--color-text-disabled);
       cursor: not-allowed;
     }
   }
   &:not(.disabled) {
     .widget-item:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
       .widget-name {
         display: block;
       }
     }
   }
   &.disabled {
-    background: #f5f6f7;
+    background: var(--color-background-secondary);
   }
 `;
 
@@ -219,6 +219,7 @@ export default function MingoGeneratedWidgetsSelector({
   isStreaming = false,
   isLastAssistantMessage = false,
   content,
+  worksheetId,
   controls = [],
 }) {
   const disabled = !isLastAssistantMessage;
@@ -257,6 +258,7 @@ export default function MingoGeneratedWidgetsSelector({
     emitter.emit('MINGO_TRIGGER_ACTION', {
       action: 'fillValueByAi',
       params: {
+        worksheetId,
         controlId,
         value,
       },
@@ -334,7 +336,7 @@ export default function MingoGeneratedWidgetsSelector({
       {isStreaming && (
         <div className="t-flex t-items-center mTop10 mLeft16">
           <LoadingDots dotNumber={3} />
-          {<div className="statusText mLeft5 Gray_75">{_l('生成中')}</div>}
+          {<div className="statusText mLeft5 textSecondary">{_l('生成中')}</div>}
         </div>
       )}
     </Con>

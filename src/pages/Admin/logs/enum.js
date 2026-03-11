@@ -290,4 +290,5 @@ export const ORG_LOG_OPERATOR = [
   { value: 10, label: _l('待办委托') },
   { value: 11, label: _l('应用') },
   { value: 12, label: _l('工作流') },
+  { value: 13, label: _l('安全配置') },
 ];

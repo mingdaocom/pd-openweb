@@ -76,7 +76,7 @@ export default function MoneyCn({ data, onChange, allControls }) {
           />
         </SettingItem>
       )}
-      {currencytype === '1' && <div className="mTop10 Gray_9e">{_l('仅支持2位小数，超过则四舍五入')}</div>}
+      {currencytype === '1' && <div className="mTop10 textTertiary">{_l('仅支持2位小数，超过则四舍五入')}</div>}
     </Fragment>
   );
 }

@@ -163,6 +163,7 @@
     "mini-css-extract-plugin": "^2.8.1",
     "minimist": "^1.2.0",
     "moment-locales-webpack-plugin": "^1.2.0",
+    "node-fetch": "^3.3.2",
     "node-notifier": "^10.0.1",
     "open": "^8.0.6",
     "prettier": "^3.2.5",
@@ -175,7 +176,7 @@
     "thread-loader": "^3.0.4",
     "uglify-js": "^3.17.4",
     "url-loader": "^4.1.1",
-    "webpack": "5.90.0",
+    "webpack": "5.105.0",
     "webpack-bundle-analyzer": "^4.10.2",
     "webpack-merge": "^5.9.0",
     "webpackbar": "^5.0.2"

@@ -5,7 +5,7 @@ import { Dialog } from 'ming-ui';
 import { CustomTextarea } from '../components';
 
 const Preview = styled.div`
-  box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-md);
   border-radius: 3px;
   padding: 16px 22px;
   .circle {
@@ -69,16 +69,16 @@ export default ({ companyId, processId, relationId, selectNodeId, data, selectMs
         <div className="circle chat_workflow" />
         <div className="mLeft15 flex">
           <div className="mTop6">
-            <span className="Gray_75">{_l('工作流')}：</span>
+            <span className="textSecondary">{_l('工作流')}：</span>
             <span>
               【{data.name}】{_l('{记录名称}：{记录标题}，')}
             </span>
             {!selectMsg.trim() && selectMsgKey === 'passMessage' && _l('已通过审批')}
             {!selectMsg.trim() && selectMsgKey === 'overruleMessage' && _l('已否决审批')}
-            {selectMsg.trim() && <span style={{ background: '#FFA340' }}>{getNodeText(selectMsg)}</span>}
+            {selectMsg.trim() && <span style={{ background: 'var(--color-warning)' }}>{getNodeText(selectMsg)}</span>}
             <span className="ThemeColor3 mLeft5">{_l('查看详情')}</span>
           </div>
-          <div className="mTop15 Gray_75">{moment().format('YYYY-MM-DD HH:mm:ss')}</div>
+          <div className="mTop15 textSecondary">{moment().format('YYYY-MM-DD HH:mm:ss')}</div>
         </div>
       </Preview>
     </Dialog>

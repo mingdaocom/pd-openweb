@@ -116,8 +116,12 @@ export function updateRecord(
       console.error(err);
     }
   };
+  // 有些只读控件不在updateControlIds范围内，也需要传给后端做业务规则校验
   const updatedControls = data
-    .filter(control => updateControlIds.indexOf(control.controlId) > -1 && control.type !== 30)
+    .filter(
+      control =>
+        (updateControlIds.indexOf(control.controlId) > -1 && control.type !== 30) || _.includes([31], control.type),
+    )
     .map(control => formatControlToServer(control));
   let apiargs = {
     appId,
@@ -360,6 +364,7 @@ export class RecordApi {
       worksheetId,
       viewId: viewId === 'null' ? '' : viewId,
       rowId: recordId,
+      btnType: -1,
     };
   }
 

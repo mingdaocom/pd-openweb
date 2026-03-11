@@ -18,7 +18,7 @@ const Wrap = styled.div`
     margin-top: 14px;
   }
   .ant-select-disabled.ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    background: #fff;
+    background: var(--color-background-primary);
   }
   .ant-select-arrow {
     display: none;
@@ -34,10 +34,10 @@ const WrapTopic = styled.div`
   .sourceDesInput {
     width: 100%;
     height: 40px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     border-radius: 4px 4px 4px 4px;
     line-height: 40px;
-    border: 1px solid #dedede;
+    border: 1px solid var(--color-border-primary);
   }
 `;
 
@@ -655,7 +655,7 @@ export default class SourceDest extends Component {
                     hideTitle
                     key={appId}
                     className={'selectGroupDropWorksheet dropWorksheet w100'}
-                    suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                    suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                     appId={appId}
                     value={appSectionId}
                     onChange={appSectionId => {
@@ -734,7 +734,7 @@ export default class SourceDest extends Component {
                         {item.text}
                         {item.disabled && (
                           <Tooltip title={_l('名称包含特殊字符，无法同步')} placement="top" zIndex={100000}>
-                            <Icon icon="info" className="Gray_bd mLeft5 disabledIcon" />
+                            <Icon icon="info" className="textDisabled mLeft5 disabledIcon" />
                           </Tooltip>
                         )}
                       </div>

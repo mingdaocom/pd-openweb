@@ -18,7 +18,7 @@ import ButtonDisplay from './ButtonDisplay';
 import { GET_DEFAULT_BUTTON_LIST } from './config';
 
 const BtnWrap = styled.div`
-  background-color: #eee;
+  background-color: var(--color-border-secondary);
   height: 100%;
   display: flex;
 
@@ -36,7 +36,7 @@ const DefaultItem = styled.div`
   align-items: center;
   flex-wrap: wrap;
   justify-content: center;
-  background-color: #fff;
+  background-color: var(--color-background-card);
   margin-top: 15px;
   border-radius: 6px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
@@ -143,7 +143,7 @@ export default function Btn(props) {
   };
 
   return visible ? (
-    <SideWrap headerText={_l('选择按钮样式')} onClose={onClose}>
+    <SideWrap headerText={_l('选择按钮样式')} onClose={onClose} className="btnSideContentWrap">
       {GET_DEFAULT_BUTTON_LIST().map((item, i) => (
         <DefaultItem
           key={i}
@@ -183,7 +183,7 @@ export default function Btn(props) {
             </Button>
           </ConfigProvider>
           <Tooltip title={_l('关闭')} placement="bottom">
-            <Icon icon="close" className="Font24 pointer mLeft16 Gray_9e" onClick={onClose} />
+            <Icon icon="close" className="Font24 pointer mLeft16 textTertiary" onClick={onClose} />
           </Tooltip>
         </div>
       </Header>

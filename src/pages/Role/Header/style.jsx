@@ -22,11 +22,11 @@ export const TopBar = styled.div`
   height: 50px;
   padding-right: 24px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
-  background-color: #ffffff;
+  background-color: var(--color-background-primary);
   z-index: 1;
-  .Gray_bd {
+  .textDisabled {
     &:hover {
-      color: #9e9e9e !important;
+      color: var(--color-text-tertiary) !important;
     }
   }
   .valignWrapper {
@@ -52,8 +52,8 @@ export const WrapTabCon = styled.div`
     border-bottom: 3px solid transparent;
     &.current {
       position: relative;
-      color: #1677ff;
-      border-bottom: 3px solid #1677ff;
+      color: var(--color-primary);
+      border-bottom: 3px solid var(--color-primary);
     }
   }
 `;
@@ -61,12 +61,12 @@ export const WrapOpenPortalBtn = styled.div`
   padding: 0 14px 0 8px;
   line-height: 34px;
   height: 34px;
-  background: #f3faff;
+  background: var(--color-primary-transparent);
   border-radius: 18px;
-  color: #1677ff;
+  color: var(--color-primary);
   font-weight: 500;
   &:hover {
-    background: #ebf6fe;
+    background: var(--color-primary-transparent);
   }
   .set {
     margin-top: -4px;
@@ -76,7 +76,7 @@ export const WrapOpenPortalBtn = styled.div`
 `;
 export const WrapPop = styled.div`
   width: 640px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 5px 24px rgba(0, 0, 0, 0.24);
   border-radius: 5px;
   overflow: hidden;
@@ -89,10 +89,10 @@ export const WrapPop = styled.div`
     h6 {
       font-size: 15px;
       font-weight: 600;
-      color: #151515;
+      color: var(--color-text-title);
     }
     li {
-      color: #757575;
+      color: var(--color-text-secondary);
       line-height: 24px;
       font-weight: 400;
       &::before {
@@ -100,7 +100,7 @@ export const WrapPop = styled.div`
         width: 5px;
         height: 5px;
         display: inline-block;
-        background: #757575;
+        background: var(--color-text-secondary);
         border-radius: 50%;
         line-height: 32px;
         margin-right: 10px;
@@ -110,13 +110,13 @@ export const WrapPop = styled.div`
     .btn {
       margin-top: 16px;
       line-height: 36px;
-      background: #1677ff;
+      background: var(--color-primary);
       border-radius: 3px;
       padding: 0 24px;
-      color: #fff;
+      color: var(--color-white);
       font-weight: 600;
       &:hover {
-        background: #1e88e5;
+        background: var(--color-primary);
       }
     }
     .helpPortal {
@@ -149,5 +149,5 @@ export const DividerVertical = styled.div`
   height: 25px;
   opacity: 1;
   border: none;
-  background: #eaeaea;
+  background: var(--color-border-secondary);
 `;

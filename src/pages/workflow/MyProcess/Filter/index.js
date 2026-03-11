@@ -16,7 +16,7 @@ import './index.less';
 
 const { RangePicker } = DatePicker;
 
-const selectArrowIcon = <Icon icon="expand_more" className="Gray_75 Font20" />;
+const selectArrowIcon = <Icon icon="expand_more" className="textSecondary Font20" />;
 
 const operationTypeData = [
   {
@@ -278,8 +278,8 @@ export default class Filter extends Component {
               }
             }}
           />
-          {/*searchValue && <Icon icon="close" className="Gray_75 Font17 pointer" onClick={() => { this.setState({ searchValue: '' }) }} />*/}
-          <Icon icon="search" className="Gray_75 Font17" />
+          {/*searchValue && <Icon icon="close" className="textSecondary Font17 pointer" onClick={() => { this.setState({ searchValue: '' }) }} />*/}
+          <Icon icon="search" className="textSecondary Font17" />
         </div>
       </div>
     );
@@ -291,7 +291,11 @@ export default class Filter extends Component {
         <div className="Font12 mBottom10">{_l('发起人')}</div>
         {_.isEmpty(createAccount) ? (
           <div className="personPostBox" ref={owner => (this.owner = owner)}>
-            <Icon icon="task_add-02" className="Gray_75 Font24 Hover_49 Hand" onClick={this.changeUser} />
+            <Icon
+              icon="task_add-02"
+              className="textSecondary Font24 hoverTextPrimaryLight Hand"
+              onClick={this.changeUser}
+            />
           </div>
         ) : (
           <div className="personPostBox spaceBtween">
@@ -300,7 +304,7 @@ export default class Filter extends Component {
               <span className="mLeft8">{createAccount.fullname}</span>
             </div>
             <div
-              className="ThemeColor3 Hover_49 Hand right"
+              className="ThemeColor3 hoverTextPrimaryLight Hand right"
               onClick={() => {
                 this.setState(
                   {
@@ -444,7 +448,7 @@ export default class Filter extends Component {
                 <div className="flexRow valignWrapper appItem">
                   <Icon
                     icon={item.visible ? 'arrow-down' : 'arrow-right-tip'}
-                    className="flexRow valignWrapper pointer Gray_75 iconArrow"
+                    className="flexRow valignWrapper pointer textSecondary iconArrow"
                     onClick={() => {
                       this.handleOpenProcesses(item.app.id);
                     }}
@@ -459,7 +463,7 @@ export default class Filter extends Component {
                       <SvgIcon url={item.app.iconUrl} fill="#fff" size={18} />
                     </div>
                     <div className="flex processAppName ellipsis">{item.app.name}</div>
-                    <div className="Gray_75">{item.count}</div>
+                    <div className="textSecondary">{item.count}</div>
                   </div>
                 </div>
                 {item.visible && (
@@ -473,7 +477,7 @@ export default class Filter extends Component {
                         }}
                       >
                         <div className="flex ellipsis">{item.name}</div>
-                        <div className="Gray_75">{item.count}</div>
+                        <div className="textSecondary">{item.count}</div>
                       </div>
                     ))}
                   </Fragment>
@@ -481,7 +485,7 @@ export default class Filter extends Component {
               </Fragment>
             ))
           ) : (
-            <div className="Gray_9d withoutData" style={{ height: 100 }}>
+            <div className="textTertiary withoutData" style={{ height: 100 }}>
               {_l('暂无搜索结果')}
             </div>
           )}
@@ -502,7 +506,7 @@ export default class Filter extends Component {
               {_l('重置')}
             </div>
           )}
-          <Icon className="Gray_9d Font20 pointer" icon="close" onClick={this.handleClose} />
+          <Icon className="textTertiary Font20 pointer" icon="close" onClick={this.handleClose} />
         </div>
         <div className="flex filterContent">
           {this.renderSearchName()}

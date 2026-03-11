@@ -21,14 +21,14 @@ export default ({
     if (!item) {
       return (
         <Tooltip title={`ID：${data.assignFieldId}`}>
-          <span style={{ color: '#f44336' }}>{_l('字段已删除')}</span>
+          <span style={{ color: 'var(--color-error)' }}>{_l('字段已删除')}</span>
         </Tooltip>
       );
     }
 
     return (
       <Fragment>
-        <span className="Gray_75 mRight5">[{getControlTypeName(item)}]</span>
+        <span className="textSecondary mRight5">[{getControlTypeName(item)}]</span>
         <span>{item.controlName}</span>
       </Fragment>
     );
@@ -80,7 +80,7 @@ export default ({
         />
 
         <div className="Font13 bold mTop20">{_l('指定日期字段')}</div>
-        <div className="Font13 Gray_75 mTop10">{_l('将按照此字段的日期作为日期表来触发流程')}</div>
+        <div className="Font13 textSecondary mTop10">{_l('将按照此字段的日期作为日期表来触发流程')}</div>
         <Dropdown
           className="flowDropdown mTop10"
           data={getList(data.assignFieldId)}
@@ -111,7 +111,7 @@ export default ({
             {data.frequency !== 0 && (
               <Fragment>
                 <div className="Font13 bold mTop20">{_l('结束执行时间')}</div>
-                <div className="Font13 Gray_75 mTop5">{_l('当到达此时间点后将停止循环')}</div>
+                <div className="Font13 textSecondary mTop5">{_l('当到达此时间点后将停止循环')}</div>
                 <Dropdown
                   className="flowDropdown mTop10"
                   data={

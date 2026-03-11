@@ -19,12 +19,12 @@ import { handleUpdateTreeNodeExpansion, treeDataUpdater } from 'worksheet/common
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import DataFormat from 'src/components/Form/core/DataFormat';
-import { controlState } from 'src/components/Form/core/utils';
 import { SYSTEM_CONTROL, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import { deleteRecord, updateRecordControl, updateRelateRecords } from 'src/pages/worksheet/common/recordInfo/crtl';
 import { formatValuesOfCondition, getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { getTranslateInfo } from 'src/utils/app';
+import { controlState } from 'src/utils/control';
 import { replaceByIndex } from 'src/utils/control';
 import { handleRowData } from 'src/utils/record';
 import { replaceAdvancedSettingTranslateInfo, replaceControlsTranslateInfo } from 'src/utils/translate';
@@ -112,9 +112,15 @@ export function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksh
     const { base = {}, tableState = {}, changes = {} } = state;
     const { addedRecords = [], deletedRecordIds = [] } = changes;
     const { filterControls } = tableState;
-    const { from, worksheetId, control, recordId, instanceId, workId, isDraft, isTab } = base;
+    const { from, worksheetId, control, recordId, instanceId, workId, isDraft, isTab, direction } = base;
     pageIndex = pageIndex || tableState.pageIndex;
     pageSize = pageSize || tableState.pageSize;
+    if (!isTab) {
+      pageSize = 30;
+    }
+    if (direction === 'vertical') {
+      pageSize = 50;
+    }
     keywords = !isUndefined(keywords) ? keywords : tableState.keywords;
     dispatch({
       type: 'UPDATE_TABLE_STATE',
@@ -128,7 +134,7 @@ export function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksh
       controlId: control.controlId,
       pageIndex,
       keywords,
-      pageSize: isTab ? pageSize : 30,
+      pageSize,
       getWorksheet,
       getRules,
       filterControls: filterControls || [],
@@ -157,7 +163,7 @@ export function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksh
     dispatch(updateTreeTableViewData({ pageIndexStart: pageSize * (pageIndex - 1) }));
     dispatch({
       type: 'UPDATE_TABLE_STATE',
-      value: { tableLoading: false, pageIndex, pageSize: isTab ? pageSize : 30, keywords },
+      value: { tableLoading: false, pageIndex, pageSize, keywords },
     });
     dispatch({
       type: 'UPDATE_TABLE_STATE',
@@ -280,19 +286,33 @@ export function init() {
     const state = getState();
     if (state.initialized) return;
     const { base = {}, tableState } = state;
-    const { from, worksheetId, control, recordId, allowEdit, isTreeTableView, instanceId, workId } = base;
+    const { from, worksheetId, control, recordId, allowEdit, isTreeTableView, instanceId, workId, direction } = base;
     let { pageSize } = tableState;
     const isTab = [String(RELATE_RECORD_SHOW_TYPE.LIST), String(RELATE_RECORD_SHOW_TYPE.TAB_TABLE)].includes(
       get(control, 'advancedSetting.showtype'),
     );
+    if (isTab) {
+      pageSize = 30;
+    }
+    if (direction === 'vertical') {
+      pageSize = 50;
+    }
     const isNewRecord = !recordId;
     let relateWorksheetInfo;
     if (isNewRecord || control.type === 51) {
-      relateWorksheetInfo = await worksheetAjax.getWorksheetInfo({
-        worksheetId: control.dataSource,
-        getTemplate: true,
-        getRules: true,
-      });
+      relateWorksheetInfo = await worksheetAjax
+        .getWorksheetInfo({
+          worksheetId: control.dataSource,
+          getTemplate: true,
+          getRules: true,
+        })
+        .catch(err => {
+          dispatch({
+            type: 'UPDATE_TABLE_STATE',
+            value: { error: err.errorMessage },
+          });
+          return;
+        });
       if (relateWorksheetInfo && relateWorksheetInfo.resultCode !== 1) {
         dispatch({
           type: 'UPDATE_TABLE_STATE',
@@ -309,7 +329,7 @@ export function init() {
           rowId: recordId,
           controlId: control.controlId,
           pageIndex: 1,
-          pageSize: isTab ? pageSize : 30,
+          pageSize,
           getWorksheet: true,
           getRules: true,
           getType: from === RECORD_INFO_FROM.DRAFT ? from : undefined,
@@ -362,9 +382,23 @@ export function init() {
         }
         dispatch({
           type: 'UPDATE_TABLE_STATE',
-          value: { count: res.count, pageSize: isTab ? pageSize : 30 },
+          value: { count: res.count, pageSize },
         });
       }
+    }
+    const translateInfo = getTranslateInfo(base.appId, null, relateWorksheetInfo.worksheetId);
+    relateWorksheetInfo.entityName = translateInfo.recordName || relateWorksheetInfo.entityName;
+    relateWorksheetInfo.advancedSetting = replaceAdvancedSettingTranslateInfo(
+      base.appId,
+      relateWorksheetInfo.worksheetId,
+      relateWorksheetInfo.advancedSetting || {},
+    );
+    if (_.get(relateWorksheetInfo, 'template.controls')) {
+      relateWorksheetInfo.template.controls = replaceControlsTranslateInfo(
+        base.appId,
+        relateWorksheetInfo.worksheetId,
+        relateWorksheetInfo.template.controls,
+      );
     }
     const sheetSwitchPermit = await worksheetAjax.getSwitchPermit({ worksheetId: control.dataSource });
     const sheetQuery = await worksheetAjax.getQueryBySheetId({ worksheetId: control.dataSource });
@@ -386,16 +420,9 @@ export function init() {
             : replaceByIndex(control.controlPermissions || '111', 0, '1'),
         }).visible,
     );
-    const translateInfo = getTranslateInfo(relateWorksheetInfo.appId, null, relateWorksheetInfo.worksheetId);
-    relateWorksheetInfo.entityName = translateInfo.recordName || relateWorksheetInfo.entityName;
-    relateWorksheetInfo.advancedSetting = replaceAdvancedSettingTranslateInfo(
-      relateWorksheetInfo.appId,
-      relateWorksheetInfo.worksheetId,
-      relateWorksheetInfo.advancedSetting || {},
-    );
     dispatch({
       type: 'UPDATE_CONTROLS',
-      controls: replaceControlsTranslateInfo(relateWorksheetInfo.appId, relateWorksheetInfo.worksheetId, controls),
+      controls: controls,
     });
     if (control.type === 51) {
       dispatch(updateFilter());
@@ -847,11 +874,12 @@ export function updateFilter() {
   return (dispatch, getState) => {
     const state = getState();
     const { base = {}, controls } = state;
-    const { control, formData, recordId } = base;
+    const { control, formData, recordId, appId } = base;
     const filterControls = getFilter({
       control: { ...control, relationControls: controls, recordId },
       formData,
       filterKey: 'resultfilters',
+      appId,
     });
     dispatch(
       updateTableState({

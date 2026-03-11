@@ -25,7 +25,7 @@ const AdjustScreenWrap = styled.div`
   .hint {
     margin: 12px 0;
     font-size: 12px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
 `;
 
@@ -175,9 +175,9 @@ function OperateMenu(props) {
         onCancel={cancel}
         footer={renderFooter()}
       >
-        <div className="Gray_75">{_l('自定义页面下的所有配置会移动到目标应用中')}</div>
+        <div className="textSecondary">{_l('自定义页面下的所有配置会移动到目标应用中')}</div>
         <div className="flexRow valignWrapper mTop25">
-          <span className="Gray_75 mRight10 TxtRight name">{_l('应用')}</span>
+          <span className="textSecondary mRight10 TxtRight name">{_l('应用')}</span>
           <Dropdown
             isAppendToBody
             placeholder={_l('请选择你作为管理员或开发者的应用')}
@@ -192,7 +192,7 @@ function OperateMenu(props) {
           />
         </div>
         <div className="flexRow valignWrapper mTop15">
-          <span className="Gray_75 mRight10 TxtRight name">{_l('分组')}</span>
+          <span className="textSecondary mRight10 TxtRight name">{_l('分组')}</span>
           <Dropdown
             disabled={!selectedApp}
             isAppendToBody
@@ -281,7 +281,7 @@ function OperateMenu(props) {
                 }
               >
                 <AdjustScreenWrap onClick={e => e.stopPropagation()}>
-                  <h3>{_l('强制适应屏幕%07001')}</h3>
+                  <div className="bold Font18">{_l('强制适应屏幕%07001')}</div>
                   <div className="hint">
                     {_l(
                       '强制页面适应一屏显示，适合需要在所有尺寸屏幕下始终铺满的情况。（ 如果原始页面过长，组件会被压缩，导致无法正常显示 ）',

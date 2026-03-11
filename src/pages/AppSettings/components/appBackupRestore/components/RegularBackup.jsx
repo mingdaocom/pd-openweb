@@ -10,7 +10,7 @@ import { Days, RegularBackupTabs } from '../enum';
 const RegularBackupWrap = styled.div`
   width: 350px;
   padding: 14px 20px 20px;
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow: 0 2px 6px 0px rgba(0, 0, 0, 0.15);
   .icon-close {
     position: absolute;
@@ -23,18 +23,18 @@ const RegularBackupWrap = styled.div`
     font-size: 17px;
   }
   .weekWrap {
-    border: 1px solid #f5f5f5;
+    border: 1px solid var(--color-background-secondary);
     margin: 6px 0 16px;
   }
   .weekItem {
     height: 36px;
     line-height: 36px;
     text-align: center;
-    border-right: 1px solid #f5f5f5;
+    border-right: 1px solid var(--color-background-secondary);
     &:hover,
     &.active {
-      background-color: #1e88e5;
-      color: #fff;
+      background-color: var(--color-primary);
+      color: var(--color-white);
     }
   }
   .weekItem:last-child {
@@ -49,7 +49,7 @@ const DaySelectWrap = styled.div`
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
   display: flex;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow: 0 2px 6px 0px rgba(0, 0, 0, 0.15);
   padding: 15px;
   font-weight: 500;
@@ -60,8 +60,8 @@ const DaySelectWrap = styled.div`
     line-height: 30px;
     border-radius: 1px;
     &.active {
-      color: #fff;
-      background-color: #1e88e5;
+      color: var(--color-white);
+      background-color: var(--color-primary);
     }
   }
 `;
@@ -179,9 +179,9 @@ export default function RegularBackup(props) {
               <div className="ming Dropdown pointer mTop18 mBottom15 w100 ">
                 <div className="Dropdown--input Dropdown--border">
                   <div className="flex">
-                    {cycleValue ? _l('%0日', cycleValue) : <span className="Gray_bd">{_l('请选择')}</span>}
+                    {cycleValue ? _l('%0日', cycleValue) : <span className="textDisabled">{_l('请选择')}</span>}
                   </div>
-                  <i className="icon icon-arrow-down-border mLeft8 Gray_9e" />
+                  <i className="icon icon-arrow-down-border mLeft8 textTertiary" />
                 </div>
               </div>
             </Trigger>
@@ -192,7 +192,8 @@ export default function RegularBackup(props) {
         <div className="label">{_l('范围：')}</div>
         <div className="flex flexRow">
           <Checkbox className="mRight16" text={_l('备份应用')} disabled={true} checked={true} />
-          {(!md.global.Config.IsLocal || md.global.SysSettings.enableBackupWorksheetData) && (
+          {((!window.platformENV.isOverseas && !window.platformENV.isLocal) ||
+            md.global.SysSettings.enableBackupWorksheetData) && (
             <Checkbox text={_l('备份数据')} checked={datum} onClick={checked => updateData({ datum: !checked })} />
           )}
         </div>
@@ -200,7 +201,7 @@ export default function RegularBackup(props) {
 
       <div className="flexRow mTop24 alignItemsCenter">
         {_.get(props, 'backupTask.status') === 1 && (
-          <div className="Font15 Hand Gray_75" onClick={handleCloseBackupTask}>
+          <div className="Font15 Hand textSecondary" onClick={handleCloseBackupTask}>
             {_l('关闭定期备份')}
           </div>
         )}

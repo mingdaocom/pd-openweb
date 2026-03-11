@@ -73,7 +73,7 @@ class RoleUserList extends Component {
               />
               <a
                 href={'/user_' + item.accountId}
-                className="Gray overflow_ellipsis mLeft10 LineHeight32 name"
+                className="textPrimary overflow_ellipsis mLeft10 LineHeight32 name"
                 title={item.fullname}
               >
                 {item.fullname}

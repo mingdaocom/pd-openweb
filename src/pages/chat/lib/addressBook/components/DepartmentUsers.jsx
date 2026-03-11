@@ -40,7 +40,7 @@ const UserItem = styled.div`
   line-height: 32px;
   cursor: pointer;
   &:hover {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-hover);
   }
   .avatar {
     margin-right: 10px;
@@ -57,10 +57,10 @@ const UserItem = styled.div`
     white-space: nowrap;
   }
   .fullname {
-    color: #151515;
+    color: var(--color-text-title);
   }
   .jobs {
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   .rightArrow {
     width: 32px;
@@ -148,7 +148,9 @@ export default class DepartmentUsers extends Component {
                       })}
                     </Fragment>
                   ) : (
-                    <div className="Gray_75 TxtCenter justifyCenter flexRow valignWrapper h100">{_l('暂无成员')}</div>
+                    <div className="textSecondary TxtCenter justifyCenter flexRow valignWrapper h100">
+                      {_l('暂无成员')}
+                    </div>
                   )}
                 </ScrollView>
               </div>

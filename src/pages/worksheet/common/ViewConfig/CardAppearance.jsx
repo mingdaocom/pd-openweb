@@ -35,10 +35,10 @@ const WrapBoard = styled.div`
   input {
     margin-left: 13px;
     height: 36px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     border-radius: 3px 3px 3px 3px;
     line-height: 36px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     padding: 0 13px;
   }
 `;
@@ -55,7 +55,7 @@ const SwitchStyle = styled.div`
       color: #00c345;
     }
     &-ic_toggle_off {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
   }
 `;
@@ -63,7 +63,7 @@ const SwitchStyle = styled.div`
 const SelectValue = styled(DisplayControlOption)`
   &：hover {
     .icon {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
@@ -246,7 +246,7 @@ export default class CardAppearance extends Component {
                           }
                           placement="top"
                         >
-                          <i className="icon-help Font16 Gray_9e mLeft3 TxtMiddle" />
+                          <i className="icon-help Font16 textTertiary mLeft3 TxtMiddle" />
                         </Tooltip>
                       </div>
                     </SwitchStyle>
@@ -254,7 +254,7 @@ export default class CardAppearance extends Component {
                   {navempty === '1' && (
                     <Tooltip title={_l('重命名')}>
                       <i
-                        className="icon-rename_input Font18 Gray_9e mLeft3 TxtMiddle Hand pRight5"
+                        className="icon-rename_input Font18 textTertiary mLeft3 TxtMiddle Hand pRight5"
                         onClick={() => {
                           this.setState({ showChangeName: true });
                         }}
@@ -284,7 +284,7 @@ export default class CardAppearance extends Component {
                   <div className="switchText InlineBlock Normal mLeft12">
                     {_l('固定第1个看板')}
                     <Tooltip title={_l('当看板滚动时，始终固定第1个看板在左侧，方便向其他看板中拖拽记录。')}>
-                      <i className="icon-help Font16 Gray_9e mLeft3 TxtMiddle" />
+                      <i className="icon-help Font16 textTertiary mLeft3 TxtMiddle" />
                     </Tooltip>
                   </div>
                 </SwitchStyle>

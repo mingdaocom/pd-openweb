@@ -1,13 +1,13 @@
 .exclusiveComp {
-  overflow-y: scroll;
+  overflow-y: auto;
   > div {
-    background: #fff;
+    background: var(--color-background-primary);
   }
   .exclusiveCompHeader {
     height: 56px;
-    color: #212121;
+    color: var(--color-text-primary);
     padding: 14px 20px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
     .exclusiveCompButton {
       padding: 0 16px;
       line-height: 32px;
@@ -18,13 +18,13 @@
     }
     .refresh {
       border-radius: 50%;
-      color: #999;
+      color: var(--color-text-tertiary);
       height: 32px;
       line-height: 32px;
       text-align: center;
       width: 32px;
       &:hover {
-        background-color: #f7f7f7;
+        background-color: var(--color-background-hover);
       }
     }
     .betaIcon {
@@ -36,7 +36,7 @@
     padding: 0 20px;
     overflow-y: scroll;
     .exclusiveCompExplan {
-      background: #f2fafe;
+      background: var(--color-primary-transparent);
       border-radius: 3px;
       line-height: 40px;
       font-size: 13px;
@@ -46,14 +46,14 @@
       display: flex;
       justify-content: space-between;
       .createComputingButton {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     .exclusiveCompList {
       li {
         padding: 18px 20px;
         border-radius: 3px 3px 3px 3px;
-        border: 1px solid #e6e6e6;
+        border: 1px solid var(--color-border-secondary);
         .explanCardHeader {
           justify-content: space-between;
           margin-bottom: 29px;
@@ -71,19 +71,19 @@
           .actionsRight {
             .manageBtn {
               cursor: pointer;
-              background: #ffffff;
-              border: 1px solid #eaeaea;
+              background: var(--color-background-primary);
+              border: 1px solid var(--color-border-secondary);
               font-weight: 600;
-              color: #1677ff;
+              color: var(--color-primary);
               padding: 8px 18px;
               border-radius: 16px;
               margin-left: 24px;
               &:hover {
-                border: 1px solid #1677ff;
+                border: 1px solid var(--color-primary);
               }
             }
             .repurchaseBtn {
-              color: #1677ff;
+              color: var(--color-primary);
               cursor: pointer;
             }
           }
@@ -96,7 +96,7 @@
             .label {
               font-size: 13px;
               line-height: 13px;
-              color: #9e9e9e;
+              color: var(--color-text-tertiary);
               margin-bottom: 7px;
             }
             .value {
@@ -114,7 +114,7 @@
     .explanDetailLabel {
       font-size: 16px;
       font-weight: 600;
-      color: #212121;
+      color: var(--color-white);
       margin-left: 17px;
       margin-right: 9px;
     }
@@ -153,26 +153,26 @@
         cursor: pointer;
         text-align: center;
         font-size: 13px;
-        color: #212121;
+        color: var(--color-white);
         border-radius: 3px;
-        border: 1px solid #eaeaea;
+        border: 1px solid var(--color-border-secondary);
       }
       .actionBtn:hover {
-        border: 1px solid #1677ff;
-        color: #1677ff;
+        border: 1px solid var(--color-primary);
+        color: var(--color-primary);
       }
       .actionBtn.disabled {
-        color: #9e9e9e !important;
+        color: var(--color-text-tertiary) !important;
         cursor: not-allowed;
-        border: 1px solid #eaeaea !important;
+        border: 1px solid var(--color-border-secondary) !important;
       }
     }
     .workflowTable {
       .ant-table-thead > tr > th {
         font-size: 13px;
-        color: #999;
+        color: var(--color-text-tertiary);
         font-weight: 600;
-        background: #fff;
+        background: var(--color-background-primary);
       }
       .ant-table-thead > tr > th::before {
         display: none;
@@ -194,41 +194,9 @@
             width: 36px;
             margin-right: 10px;
             .icon {
-              color: #fff;
+              color: var(--color-white);
               font-size: 24px;
             }
-          }
-        }
-      }
-    }
-  }
-
-  .exclusiveHeader {
-    border-bottom: 1px solid #e0e0e0;
-    color: #212121;
-    height: 56px;
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    .exclusiveHeaderTextCon {
-      flex: 1;
-      span {
-        display: inline-block;
-        color: #212121;
-        font-size: 16px;
-        font-weight: 600;
-        padding: 0 20px;
-        position: relative;
-        &.active {
-          color: #1677ff;
-          &::after {
-            content: '';
-            width: 100%;
-            height: 3px;
-            position: absolute;
-            bottom: -17px;
-            left: 0;
-            background: #1677ff;
           }
         }
       }

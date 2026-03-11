@@ -13,7 +13,7 @@ export default class DeleteNodeObj extends Component {
 
     if (data.selectNodeObj.appId && data.selectNodeObj.appId !== selectNodeObj.appId) {
       Dialog.confirm({
-        title: <span style={{ color: '#f44336' }}>{_l('注意！你将要更改节点对象的表和原来不一致')}</span>,
+        title: <span style={{ color: 'var(--color-error)' }}>{_l('注意！你将要更改节点对象的表和原来不一致')}</span>,
         description: _l(
           '更改新的节点对象的工作表后，所有使用原表格数据的节点配置都将重置，且无法恢复。请确认你要执行此操作',
         ),
@@ -33,7 +33,7 @@ export default class DeleteNodeObj extends Component {
     return (
       <Fragment>
         <div className="Font13 bold">{_l('选择删除对象')}</div>
-        <div className="Font13 Gray_75 mTop10">{_l('当前流程中的节点对象')}</div>
+        <div className="Font13 textSecondary mTop10">{_l('当前流程中的节点对象')}</div>
         <SelectNodeObject
           appList={data.flowNodeList}
           selectNodeId={data.selectNodeId}
@@ -49,7 +49,7 @@ export default class DeleteNodeObj extends Component {
             onClick={checked => updateSource({ destroy: !checked })}
           />
         </div>
-        <div className="Gray_75 mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
+        <div className="textSecondary mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
       </Fragment>
     );
   }

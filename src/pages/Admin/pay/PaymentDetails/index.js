@@ -64,7 +64,7 @@ export default class PaymentDetails extends Component {
       //           projectId={props.projectId}
       //         />
       //         <UserName
-      //           className="Gray Font13 pLeft5 pRight10 pTop3 flex ellipsis"
+      //           className="textPrimary Font13 pLeft5 pRight10 pTop3 flex ellipsis"
       //           user={{
       //             userName: accountName,
       //             accountId: accountId,

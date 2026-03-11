@@ -25,7 +25,7 @@ const Wrap = styled.div`
     width: 4px;
     border-radius: 3px;
     transform: translateY(-50%);
-    background: #6e09f9;
+    background-color: ${props => props.aiColor};
   }
   .logo {
     width: 100%;
@@ -41,6 +41,8 @@ const Mingo = props => {
   const [hoverNow, setHoverNow] = useState(null);
   const [clickNow, setClickNow] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
+
+  const { aiBrandName, aiBrandLogoUrl, aiBrandThemeColor } = md.global.SysSettings;
 
   const handleOpenMingo = () => {
     if (mingoVisible) {
@@ -74,6 +76,9 @@ const Mingo = props => {
   };
 
   const getLogo = () => {
+    if (aiBrandLogoUrl) {
+      return aiBrandLogoUrl;
+    }
     if (clickNow || isPlaying) {
       return mingoClick;
     }
@@ -91,6 +96,7 @@ const Mingo = props => {
       className={cx('mingo flexColumn alignItemsCenter justifyContentCenter pointer pTop6 Relative', {
         active: mingoVisible,
       })}
+      aiColor={aiBrandThemeColor || 'var(--color-mingo)'}
       onClick={handleOpenMingo}
       onMouseEnter={() => {
         setClickNow(null);
@@ -101,7 +107,7 @@ const Mingo = props => {
         setClickNow(null);
       }}
     >
-      <img className="logo" src={getLogo()} />
+      <img className="logo" src={getLogo()} style={{ width: aiBrandLogoUrl ? 34 : undefined }} />
     </Wrap>
   );
 
@@ -118,7 +124,13 @@ const Mingo = props => {
         (mingoVisible ? (
           Content
         ) : (
-          <Tooltip title="mingo" shortcut="M" placement="left" align={{ offset: [10, 0] }} mouseLeaveDelay={0.1}>
+          <Tooltip
+            title={aiBrandName || 'AI助手'}
+            shortcut="M"
+            placement="left"
+            align={{ offset: [10, 0] }}
+            mouseLeaveDelay={0.1}
+          >
             {Content}
           </Tooltip>
         ))}

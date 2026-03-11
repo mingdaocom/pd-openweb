@@ -1,9 +1,9 @@
 import React from 'react';
-import store from 'redux/configureStore';
 import _ from 'lodash';
 import moment from 'moment';
 import groupController from 'src/api/group';
 import * as actions from 'src/pages/chat/redux/actions';
+import store from 'src/redux/configureStore';
 import { navigateTo } from 'src/router/navigateTo';
 import { getRequest } from 'src/utils/common';
 import './index.less';

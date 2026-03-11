@@ -16,12 +16,14 @@ export const DynamicValueInputWrap = styled(FlexCenter)`
     width: 100% !important;
     position: absolute;
     left: 0;
+    bottom: 0;
+    opacity: 0;
   }
   .CodeMirror-code {
     line-height: 28px;
   }
   .CodeMirror-placeholder {
-    color: #ccc !important;
+    color: var(--color-text-placeholder) !important;
     font-size: 14px !important;
     line-height: 27px !important;
     margin-left: 3px !important;
@@ -30,7 +32,7 @@ export const DynamicValueInputWrap = styled(FlexCenter)`
   .richInputText {
     width: calc(100% - 36px);
     border-radius: 3px 0 0 3px !important;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     &.editorNull {
       padding: 0px !important;
     }
@@ -41,7 +43,7 @@ export const DynamicValueInputWrap = styled(FlexCenter)`
   .datePicker {
     width: calc(100% - 36px);
     border-radius: 3px 0 0 3px !important;
-    border: 1px solid #ccc !important;
+    border: 1px solid var(--color-border-tertiary) !important;
     padding: 0;
     .ant-picker-input {
       height: 34px;
@@ -74,7 +76,7 @@ export const DynamicValueInputWrap = styled(FlexCenter)`
     line-height: 32px;
     font-size: 14px;
     word-break: break-all;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     border-radius: 3px 0 0 3px;
   }
   .dynamicCityContainer {
@@ -85,7 +87,7 @@ export const DynamicValueInputWrap = styled(FlexCenter)`
         display: block;
       }
       input {
-        background: ${props => (props.hasHoverBg ? '#f5f5f5' : '#fff')};
+        background: ${props => (props.hasHoverBg ? 'var(--color-background-secondary)' : 'transparent')};
       }
     }
     .clearOp {
@@ -94,7 +96,7 @@ export const DynamicValueInputWrap = styled(FlexCenter)`
       display: none;
       height: 26px;
       margin-top: 8px;
-      color: #9d9d9d;
+      color: var(--color-text-tertiary);
     }
     .CityPicker-wrapper {
       display: flex;
@@ -107,7 +109,7 @@ export const DynamicValueInputWrap = styled(FlexCenter)`
       height: 36px;
       line-height: 34px;
       padding: 0 12px;
-      border: 1px solid #ccc !important;
+      border: 1px solid var(--color-border-tertiary) !important;
       border-radius: 3px 0 0 3px;
       box-sizing: border-box;
       cursor: pointer;
@@ -124,8 +126,8 @@ export const OtherFieldWrap = styled(FlexCenter)`
   margin-right: 6px;
   border-radius: 16px;
   background: #d8eeff;
-  color: #174c76;
-  border: 1px solid #bbd6ea;
+  color: var(--color-link-hover);
+  border: 1px solid var(--color-primary-transparent);
   padding: 0 12px;
   font-size: 12px;
   box-sizing: border-box;
@@ -139,9 +141,9 @@ export const OtherFieldWrap = styled(FlexCenter)`
     padding: 0 6px 0 12px;
   }
   &.deleted {
-    background-color: #eaeaea;
-    color: #9e9e9e;
-    border: #ddd;
+    background-color: var(--color-border-secondary);
+    color: var(--color-text-tertiary);
+    border: var(--color-border-primary);
   }
   /* 文本默认值标签样式 */
   &.tagTextField {
@@ -161,13 +163,13 @@ export const OtherFieldWrap = styled(FlexCenter)`
     color: rgba(51, 51, 51, 0.2);
   }
   &.isGreenTag {
-    background: #d8f2d9;
-    border-color: #9dd59f;
-    color: #307433;
+    background: var(--color-success-bg);
+    border-color: var(--color-task);
+    color: var(--color-success-hover);
     .searchIcon {
       margin-left: 0px;
       margin-right: 6px;
-      color: #307433;
+      color: var(--color-success-hover);
     }
   }
 `;
@@ -179,22 +181,22 @@ export const SelectOtherFieldWrap = styled(FlexCenter)`
   top: 0;
   width: 36px;
   height: 36px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border-tertiary);
   border-left: none;
   border-radius: 0 3px 3px 0;
   cursor: pointer;
   justify-content: center;
   transition: all 0.25s;
-  color: #bdbdbd;
+  color: var(--color-text-disabled);
   &:hover {
-    color: #1677ff;
+    color: var(--color-primary);
     i {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   i {
     font-size: 22px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 `;
 
@@ -213,9 +215,9 @@ export const FieldInfo = styled(FlexCenter)`
     width: 24px;
     height: 24px;
     text-align: center;
-    color: #fff;
+    color: var(--color-white);
     border-radius: 12px;
-    background-color: #aaa;
+    background-color: var(--color-text-tertiary);
     flex-shrink: 0;
   }
   .name {
@@ -231,9 +233,9 @@ export const FieldInfo = styled(FlexCenter)`
   .remove {
     cursor: pointer;
     .icon-close {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       &:hover {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
     }
   }
@@ -248,10 +250,10 @@ export const OtherFieldList = styled(FlexCenter)`
   line-height: 32px;
   font-size: 14px;
   word-break: break-all;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   border-radius: 3px 0 0 3px;
   cursor: pointer;
-  background: ${props => (props.isHaveUniqueField ? '#f8f8f8' : '#fff')};
+  background: ${props => (props.isHaveUniqueField ? 'var(--color-background-secondary)' : 'transparent')};
   position: relative;
   .clearOp {
     position: absolute;
@@ -259,13 +261,13 @@ export const OtherFieldList = styled(FlexCenter)`
     display: none;
     height: 26px;
     margin-top: 3px;
-    color: #9d9d9d;
+    color: var(--color-text-tertiary);
   }
   &:hover {
     .clearOp {
       display: block;
     }
-    background: ${props => (props.isHaveClear ? '#f5f5f5' : '#fff')};
+    background: ${props => (props.isHaveClear ? 'var(--color-background-secondary)' : 'transparent')};
   }
 `;
 
@@ -295,7 +297,7 @@ export const OptionControl = styled(FlexCenter)`
     &.isDeleted {
       .text,
       i {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
     }
     .text {
@@ -307,7 +309,7 @@ export const OptionControl = styled(FlexCenter)`
 export const DynamicInputStyle = styled(FlexCenter)`
   justify-content: space-between;
   cursor: pointer;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border-tertiary);
   border-radius: 3px 0 0 3px;
   width: calc(100% - 36px);
   padding: 0 12px;
@@ -315,7 +317,7 @@ export const DynamicInputStyle = styled(FlexCenter)`
   box-sizing: border-box;
   .error,
   .error .icon-formula {
-    color: #f44336 !important;
+    color: var(--color-error) !important;
   }
   .text {
     flex: 1;
@@ -328,19 +330,19 @@ export const DynamicInputStyle = styled(FlexCenter)`
   }
   .edit {
     font-size: 15px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .delete {
     font-size: 15px;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
     display: none;
     margin-right: 10px;
   }
   &:hover {
-    background-color: #fafafa;
-    border: 1px solid #d8d8d8;
+    background-color: var(--color-background-secondary);
+    border: 1px solid var(--color-border-primary);
     .edit {
-      color: #1677ff;
+      color: var(--color-primary);
     }
     .delete {
       display: block;
@@ -358,10 +360,10 @@ export const SearchWorksheetWrap = styled.div`
     }
   }
   .settingItemTitle {
-    color: #151515;
+    color: var(--color-text-title);
   }
   .settingItemSubTitle {
-    color: #515151;
+    color: var(--color-text-title);
     font-weight: unset;
   }
 
@@ -377,13 +379,13 @@ export const SearchWorksheetWrap = styled.div`
       flex: 1;
       min-width: 0;
       line-height: 36px;
-      background: #f4f4f4;
+      background: var(--color-background-disabled);
       border-radius: 3px;
       padding: 0 14px;
     }
     .mappingTitle {
       flex: 1;
-      color: #757575;
+      color: var(--color-text-secondary);
       &:last-child {
         padding-left: 40px;
       }
@@ -401,23 +403,23 @@ export const SearchWorksheetWrap = styled.div`
     align-items: center;
   }
   .settingWorksheetInput {
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 3px;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
     line-height: 34px;
     padding: 0 12px;
-    background: #fff;
+    background: var(--color-background-primary);
     display: flex;
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
     .edit {
       font-size: 15px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
     &.disabled {
       cursor: not-allowed;
-      background: #f7f7f7;
+      background: var(--color-background-secondary);
       .edit {
         display: none;
       }
@@ -427,13 +429,13 @@ export const SearchWorksheetWrap = styled.div`
     width: fit-content;
   }
   .addFilterIcon span {
-    color: #1677ff;
+    color: var(--color-primary);
     display: inline-block;
     padding: 8px;
     font-weight: bold;
     &:hover {
-      color: #1780d3;
-      background: #fafafa;
+      color: var(--color-link-hover);
+      background: var(--color-background-secondary);
       border-radius: 3px;
     }
   }
@@ -473,7 +475,7 @@ export const SearchWorksheetWrap = styled.div`
       }
       .dynamicSource {
         width: 130px;
-        border-color: #e0e0e0;
+        border-color: var(--color-border-secondary);
         height: 36px;
         border-radius: 4px;
         box-shadow: none !important;
@@ -483,7 +485,7 @@ export const SearchWorksheetWrap = styled.div`
           margin-top: -8px !important;
         }
         .ant-select-selector {
-          border-color: #e0e0e0;
+          border-color: var(--color-border-secondary);
           height: 36px;
           border-radius: 4px;
           box-shadow: none !important;
@@ -546,12 +548,10 @@ export const SearchWorksheetWrap = styled.div`
 
 export const WorksheetListWrap = styled.div`
   border-radius: 3px;
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.13),
-    0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
   width: 100%;
-  border: 1px solid #eee;
-  background-color: #fff;
+  border: 1px solid var(--color-border-primary);
+  background-color: var(--color-background-primary);
   .MenuBox {
     position: relative !important;
   }
@@ -567,8 +567,8 @@ export const WorksheetListWrap = styled.div`
     width: 100%;
     padding: 6px 0;
     box-sizing: border-box;
-    border-top: 1px solid #eaeaea;
-    background: #ffffff;
+    border-top: 1px solid var(--color-border-primary);
+    background: var(--color-background-primary);
     cursor: pointer;
     position: relative;
     z-index: 11;
@@ -576,8 +576,8 @@ export const WorksheetListWrap = styled.div`
       padding: 0 16px;
       line-height: 32px;
       &:hover {
-        color: #fff !important;
-        background-color: #1e88e5 !important;
+        color: var(--color-white) !important;
+        background-color: var(--color-primary) !important;
       }
     }
   }
@@ -601,7 +601,7 @@ export const DynamicTextWrap = styled.div`
 `;
 
 export const WrapMaxOrMin = styled.div`
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--color-border-primary);
   border-radius: 3px 0 0 3px;
   width: calc(100% - 36px);
   .ant-input:focus,

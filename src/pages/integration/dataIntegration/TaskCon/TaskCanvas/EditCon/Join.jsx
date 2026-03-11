@@ -10,8 +10,8 @@ import { ALL_OPERATION_TYPE_DATA, TYPE_DATA } from '../config';
 import { WrapL } from './style';
 
 const PopupWrap = styled.ul`
-  background: #ffffff;
-  border: 1px solid #e0e0e0;
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border-secondary);
   box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.16);
   border-radius: 6px;
   li {
@@ -19,18 +19,18 @@ const PopupWrap = styled.ul`
     padding: 14px 0;
     text-align: center;
     .icon {
-      color: #1677ff;
+      color: var(--color-primary);
     }
     &.isCur {
-      background: rgba(33, 150, 243, 0.08);
-      color: #1677ff;
-      border: 1px solid #1677ff;
+      background: var(--color-primary-transparent);
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
     }
     .toolTipCon {
       border-radius: 6px;
       width: auto;
-      background: #ffffff;
-      box-shadow: 0px 3px 6px 1px rgba(0, 0, 0, 0.16);
+      background: var(--color-background-primary);
+      box-shadow: var(--shadow-lg);
       position: absolute;
       bottom: calc(100% + 11px);
       left: -100px;
@@ -47,7 +47,7 @@ const PopupWrap = styled.ul`
         height: 0;
         border-left: 10px solid transparent;
         border-right: 10px solid transparent;
-        border-bottom: 10px solid #fff;
+        border-bottom: 10px solid var(--color-white);
         transform: rotate(180deg);
         position: absolute;
         bottom: -6px;
@@ -137,7 +137,7 @@ export default function Join(props) {
               <div className="Bold">{o.txt}</div>
               <div className={cx(`iconImg InlineBlock ${o.img}`)} style={{ width: 24, height: 24 }}></div>
               <div class="toolTipCon">
-                <div className="Bold TxtLeft Gray titleTips">{o.tips}</div>
+                <div className="Bold TxtLeft textPrimary titleTips">{o.tips}</div>
                 <div
                   className={cx(`iconImg bgImg${o.img}`)}
                   style={{ width: 456, height: o.type === 'INNER_JOIN' ? 254 : 277 }}
@@ -179,10 +179,10 @@ export default function Join(props) {
     }
     return (
       <div>
-        {dataType && <span className="Gray_75 pRight5">[{dataType}]</span>}
+        {dataType && <span className="textSecondary pRight5">[{dataType}]</span>}
         {alias}
         {aggFuncType && (
-          <span className="Gray_9e">({ALL_OPERATION_TYPE_DATA.find(o => o.value === aggFuncType).text})</span>
+          <span className="textTertiary">({ALL_OPERATION_TYPE_DATA.find(o => o.value === aggFuncType).text})</span>
         )}
       </div>
     );
@@ -237,7 +237,7 @@ export default function Join(props) {
                   <DropWrap className={cx('joinDrop flexColumn alignItemsCenter Hand', { visible })}>
                     <div className="ThemeColor3 Bold">{typeData.txt}</div>
                     <div className={cx(`iconImg InlineBlock ${typeData.img}`)} style={{ width: 24, height: 24 }}></div>
-                    <i className="icon icon-arrow-down-border Gray_bd" />
+                    <i className="icon icon-arrow-down-border textDisabled" />
                   </DropWrap>
                 </Trigger>
               )}
@@ -350,7 +350,7 @@ export default function Join(props) {
         );
       })}
       <div
-        className="addCondition Hand Gray flewRow alignItemsCenter mTop16"
+        className="addCondition Hand textPrimary flewRow alignItemsCenter mTop16"
         onClick={() => {
           setState({
             conditions: (conditions || []).concat({
@@ -362,7 +362,7 @@ export default function Join(props) {
           });
         }}
       >
-        <i className="icon icon-add1 Gray mRight3" />
+        <i className="icon icon-add1 textPrimary mRight3" />
         {_l('条件')}
       </div>
     </WrapL>

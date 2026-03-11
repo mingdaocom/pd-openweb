@@ -1,15 +1,15 @@
 import _ from 'lodash';
 import moment from 'moment';
-import { controlState } from 'src/components/Form/core/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { OPTION_COLORS_LIST, OPTION_COLORS_LIST_HOVER } from 'src/pages/widgetConfig/config';
 import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
 import { renderTitleByViewtitle } from 'src/pages/worksheet/views/util.js';
+import { controlState } from 'src/utils/control';
 import { getAdvanceSetting } from 'src/utils/control';
 import { renderText as renderCellText } from 'src/utils/control';
-import { isLightColor } from 'src/utils/control';
-import { dateConvertToUserZone } from 'src/utils/project';
+import { isLightColor, isTimeStyle } from 'src/utils/control';
+import { dateAppZoneToServerZone, dateConvertToServerZone } from 'src/utils/project';
 import { getRecordColor, getRecordColorConfig } from 'src/utils/record';
 
 const defaultColor = '#C9E6FC';
@@ -63,38 +63,88 @@ export const isEmojiCharacter = substring => {
 
   return false;
 };
-const getAllDay = (data, o) => {
-  return data[o.begin] && data[o.end] && getIsOverOneDay(data, o) && moment(data[o.begin]).isBefore(data[o.end]);
-};
-const getStart = (data, o) => {
-  return !data[o.begin] ? '' : moment(data[o.begin]).format(o.startFormat);
-};
-const getEnd = (data, o) => {
-  return !data[o.end] || moment(data[o.begin]).isAfter(data[o.end])
-    ? ''
-    : moment(!getAllDay(data, o) ? moment(data[o.end]) : moment(data[o.end]).add(1, 'day')).format(o.endFormat);
-};
-const getIsOverOneDay = (data, o) => {
-  return (
-    moment(data[o.end]).format('YYYYMMDD') - moment(data[o.begin]).format('YYYYMMDD') >= 1 ||
-    moment(data[o.end]).diff(moment(data[o.begin]), 'minutes') >= 1439
+
+// 提取公共的 renderCellText 调用逻辑
+const renderTimeValue = (controlData, value, currentView) => {
+  if (!value) return '';
+  return renderCellText(
+    {
+      ...controlData,
+      value,
+      advancedSetting: { ...controlData.advancedSetting, showtimezone: '0' },
+    },
+    { appId: currentView.appId },
   );
 };
-const getTitleControls = worksheetControls => {
-  return worksheetControls.find(item => item.attribute === 1) || [];
+
+const getAllDay = (data, o, currentView = {}) => {
+  if (!data[o.begin] || !data[o.end]) {
+    return false;
+  }
+  const beginValue = renderTimeValue(o.startData, data[o.begin], currentView);
+  const endValue = renderTimeValue(o.endData, data[o.end], currentView);
+  return beginValue && endValue && getIsOverOneDay(beginValue, endValue) && moment(beginValue).isBefore(endValue);
 };
+
+const getStart = (data, o, currentView = {}) => {
+  const startData = { ...o.startData, advancedSetting: { ...o.startData.advancedSetting, showformat: '0' } };
+  return renderTimeValue(startData, data[o.begin], currentView);
+};
+
+const getEnd = (data, o, currentView = {}) => {
+  if (!data[o.end] || moment(data[o.begin]).isAfter(data[o.end])) {
+    return '';
+  }
+  const endData = { ...o.endData, advancedSetting: { ...o.endData.advancedSetting, showformat: '0' } };
+  const endValue = renderTimeValue(endData, data[o.end], currentView);
+  return moment(!getAllDay(data, o, currentView) ? endValue : moment(endValue).add(1, 'day')).format(o.endFormat);
+};
+
+const getIsOverOneDay = (beginValue, endValue) => {
+  const beginDate = moment(beginValue).format('YYYYMMDD');
+  const endDate = moment(endValue).format('YYYYMMDD');
+  return endDate - beginDate >= 1 || moment(endValue).diff(moment(beginValue), 'minutes') >= 1439;
+};
+
+const getTitleControls = worksheetControls => {
+  return worksheetControls.find(item => item.attribute === 1);
+};
+
 const getStringColor = (calendarData, data, currentView) => {
   const { colorOptions = [] } = calendarData;
   const { colorid = '' } = getAdvanceSetting(currentView);
-  let coloridData = data[colorid] ? JSON.parse(data[colorid])[0] : '';
-  //未设置颜色时，背景色的默认颜色为：蓝色浅色，黑色文字
-  return coloridData
-    ? (
-        colorOptions.find(it => (coloridData && coloridData.startsWith('other') ? 'other' : coloridData) === it.key) ||
-        []
-      ).color || defaultColor
-    : defaultColor;
+  const coloridData = data[colorid] ? JSON.parse(data[colorid])[0] : '';
+  if (!coloridData) return defaultColor;
+
+  const key = coloridData.startsWith('other') ? 'other' : coloridData;
+  const option = colorOptions.find(it => it.key === key);
+  return option?.color || defaultColor;
 };
+
+// 提取获取颜色的公共逻辑
+const getColorData = (calendarData, data, currentView, worksheetControls) => {
+  const stringColor = getStringColor(calendarData, data, currentView);
+  const recordColorConfig = getRecordColorConfig(currentView);
+  let recordColor =
+    recordColorConfig &&
+    getRecordColor({
+      controlId: recordColorConfig.controlId,
+      colorItems: recordColorConfig.colorItems,
+      controls: worksheetControls,
+      row: data,
+    });
+  if (recordColor) {
+    recordColor = { ...recordColorConfig, ...recordColor };
+  }
+  return { stringColor, recordColor };
+};
+
+// 提取创建事件样式的公共逻辑
+const getEventStyle = stringColor => ({
+  backgroundColor: stringColor,
+  borderColor: stringColor,
+  textColor: stringColor && isLightColor(stringColor) ? '#151515' : '#fff',
+});
 
 // type === 16 ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD';
 //格式events数据//根据多组时间拆分出多条数据
@@ -104,67 +154,31 @@ export const setDataFormat = pram => {
     return setDataFormatByRowId(pram);
   }
   const { calendarInfo = [] } = calendarData;
-  //无选项且无默认值，才用默认颜色
-  let stringColor = getStringColor(calendarData, data, currentView);
-  const recordColorConfig = getRecordColorConfig(currentView);
-  let recordColor =
-    recordColorConfig &&
-    getRecordColor({
-      controlId: recordColorConfig.controlId,
-      colorItems: recordColorConfig.colorItems,
-      controls: worksheetControls,
-      row: data,
-    });
-  if (recordColor) {
-    recordColor = {
-      ...recordColorConfig,
-      ...recordColor,
-    };
-  }
-  let list = [];
-  calendarInfo.map(o => {
-    const dataInfo = {
-      ...data,
-      [o.begin]: isTimeStyle(o.startData) ? dateConvertToUserZone(moment(data[o.begin])) : data[o.begin],
-      [o.end]: isTimeStyle(o.endData) ? dateConvertToUserZone(moment(data[o.end])) : data[o.end],
-    };
-    let editable = controlState(o.startData).editable;
-    if (dataInfo[o.begin]) {
-      let start = getStart(dataInfo, o);
-      let allDay = getAllDay(dataInfo, o);
-      // allDay = allDay || o.startData.type === 15; //开始时间为日期字段，均处理成全天事件
-      let end = getEnd(dataInfo, o);
-      list.push({
+  const { stringColor, recordColor } = getColorData(calendarData, data, currentView, worksheetControls);
+
+  return calendarInfo
+    .filter(o => data[o.begin])
+    .map(o => {
+      const editable = controlState(o.startData).editable;
+      const start = getStart(data, o, currentView);
+      const end = getEnd(data, o, currentView);
+      const allDay = getAllDay(data, o, currentView);
+      const timeItem = { info: o, start, end, editable, allDay: !!allDay, row: data };
+      return {
         ...o,
         info: o,
-        keyIds: `${dataInfo.rowid}-${o.begin}`,
-        extendedProps: {
-          ...dataInfo,
-          editable,
-          recordColor,
-          stringColor,
-        },
-        title: renderTitleTxt(worksheetControls, currentView, dataInfo),
+        keyIds: `${data.rowid}-${o.begin}`,
+        extendedProps: { ...data, editable, recordColor, stringColor },
+        title: renderTitleTxt(worksheetControls, currentView, data),
         start,
         end,
         allDay: !!allDay,
         editable,
-        timeList: [
-          {
-            info: o,
-            start,
-            end,
-            editable,
-            allDay: !!allDay,
-          },
-        ],
-        backgroundColor: stringColor,
-        borderColor: stringColor,
-        textColor: stringColor && isLightColor(stringColor) ? '#151515' : '#fff',
-      });
-    }
-  });
-  return list;
+        timeList: [timeItem],
+        ...getEventStyle(stringColor),
+        row: data,
+      };
+    });
 };
 
 const renderTitleTxt = (worksheetControls, currentView, dataInfo) => {
@@ -172,10 +186,13 @@ const renderTitleTxt = (worksheetControls, currentView, dataInfo) => {
   return (
     (_.get(currentView, 'advancedSetting.viewtitle')
       ? renderTitleByViewtitle(dataInfo, worksheetControls, currentView, true)
-      : renderCellText({
-          ...titleControls,
-          value: dataInfo[titleControls.controlId],
-        })) || _l('未命名')
+      : renderCellText(
+          {
+            ...titleControls,
+            value: dataInfo[titleControls.controlId],
+          },
+          { appId: currentView.appId },
+        )) || _l('未命名')
   );
 };
 
@@ -183,80 +200,31 @@ const renderTitleTxt = (worksheetControls, currentView, dataInfo) => {
 export const setDataFormatByRowId = pram => {
   const { worksheetControls = [], currentView = {}, calendarData = {}, ...data } = pram;
   const { calendarInfo = [] } = calendarData;
-  //无选项且无默认值，才用默认颜色
-  let stringColor = getStringColor(calendarData, data, currentView);
-  const recordColorConfig = getRecordColorConfig(currentView);
-  let recordColor =
-    recordColorConfig &&
-    getRecordColor({
-      controlId: recordColorConfig.controlId,
-      colorItems: recordColorConfig.colorItems,
-      controls: worksheetControls,
-      row: data,
-    });
-  if (recordColor) {
-    recordColor = {
-      ...recordColorConfig,
-      ...recordColor,
-    };
-  }
-  let timeList = [];
-  let dataInfo = {
-    ...data,
-    [calendarInfo.begin]: data[calendarInfo.begin]
-      ? dateConvertToUserZone(moment(data[calendarInfo.begin]))
-      : data[calendarInfo.begin],
-    [calendarInfo.end]: data[calendarInfo.end]
-      ? dateConvertToUserZone(moment(data[calendarInfo.end]))
-      : data[calendarInfo.end],
-  };
-  calendarInfo.map(o => {
-    let start = getStart(dataInfo, o);
-    let allDay = getAllDay(dataInfo, o);
-    // allDay = allDay || o.startData.type === 15; //开始时间为日期字段，均处理成全天事件 //开始日期不包含时间  仅跨天日程需要包含背景色
-    let end = getEnd(dataInfo, o);
-    timeList.push({
-      info: o,
-      start,
-      end,
-      allDay: !!allDay,
-      editable: controlState(o.startData).editable,
-    });
-  });
+  const { stringColor, recordColor } = getColorData(calendarData, data, currentView, worksheetControls);
+
+  const timeList = calendarInfo.map(o => ({
+    info: o,
+    start: getStart(data, o, currentView),
+    end: getEnd(data, o, currentView),
+    allDay: !!getAllDay(data, o, currentView),
+    editable: controlState(o.startData).editable,
+    row: data,
+  }));
+
   return [
     {
-      extendedProps: {
-        ...dataInfo,
-        stringColor,
-        recordColor,
-      },
-      title: renderTitleTxt(worksheetControls, currentView, dataInfo),
+      extendedProps: { ...data, stringColor, recordColor },
+      title: renderTitleTxt(worksheetControls, currentView, data),
       timeList,
-      backgroundColor: stringColor,
-      borderColor: stringColor,
-      textColor: stringColor && isLightColor(stringColor) ? '#151515' : '#fff',
+      ...getEventStyle(stringColor),
     },
   ];
 };
-export const getCalendarViewType = (strType, data) => {
-  const str = !['1', '2'].includes(strType)
-    ? 'dayGridMonth'
-    : strType === '1'
-      ? isTimeStyle(data)
-        ? 'timeGridWeek'
-        : 'dayGridWeek'
-      : isTimeStyle(data)
-        ? 'timeGridDay'
-        : 'dayGridDay';
-  return str;
-};
 
-export const isTimeStyle = (data = {}) => {
-  let type = data.type;
-  if (type === 30) {
-    type = data.sourceControlType;
-  }
-  return type === 16 || (type === 38 && data.enumDefault === 2 && data.unit !== '3');
+export const getCalendarViewType = (strType, data) => {
+  if (!['1', '2'].includes(strType)) return 'dayGridMonth';
+  const isTime = isTimeStyle(data);
+  return strType === '1' ? (isTime ? 'timeGridWeek' : 'dayGridWeek') : isTime ? 'timeGridDay' : 'dayGridDay';
 };
 
 export const getTimeControls = controls => {
@@ -272,37 +240,17 @@ export const getTimeControls = controls => {
 };
 
 export const getShowExternalData = () => {
-  let showExternalData = [];
-  try {
-    showExternalData = JSON.parse(window.localStorage.getItem('CalendarShowExternal')) || [];
-  } catch (error) {
-    showExternalData = [];
-    console.log(error);
-  }
-  //老数据兼容
-  if (!_.isArray(showExternalData)) {
-    showExternalData = [];
-  }
-  return showExternalData;
+  const showExternalData = safeParse(window.localStorage.getItem('CalendarShowExternal'), 'array');
+  return _.isArray(showExternalData) ? showExternalData : [];
 };
 
 export const getCalendartypeData = () => {
+  const viewType = window.localStorage.getItem('CalendarViewType');
   //老数据兼容
-  if (
-    ['timeGridWeek', 'timeGridDay', 'dayGridMonth', 'dayGridWeek', 'dayGridDay'].includes(
-      window.localStorage.getItem('CalendarViewType'),
-    )
-  ) {
+  if (['timeGridWeek', 'timeGridDay', 'dayGridMonth', 'dayGridWeek', 'dayGridDay'].includes(viewType)) {
     return {};
   }
-  let CalendartypeData = {};
-  try {
-    CalendartypeData = safeParse(window.localStorage.getItem('CalendarViewType'));
-  } catch (error) {
-    CalendartypeData = {};
-    console.log(error);
-  }
-  return CalendartypeData;
+  return safeParse(viewType) || {};
 };
 
 export const isIllegal = item => {
@@ -310,47 +258,39 @@ export const isIllegal = item => {
 };
 
 export const isIllegalFormat = (calendarInfo = []) => {
-  let isErr = false;
-  calendarInfo.forEach(o => {
-    [o.endData, o.startData].forEach(item => {
-      if (isIllegal(item)) {
-        isErr = true;
-      }
-    });
-  });
-  return isErr;
+  return calendarInfo.some(o => [o.endData, o.startData].some(item => isIllegal(item)));
 };
 
 export const setSysWorkflowTimeControlFormat = (controls = [], sheetSwitchPermit = [], key = 'controlId') => {
-  return controls.filter(o => {
-    if (!isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit)) {
-      return !SYS_CONTROLS_WORKFLOW.includes(o[key]);
-    } else {
-      return true;
-    }
-  });
+  const isPermitted = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
+  return controls.filter(o => isPermitted || !SYS_CONTROLS_WORKFLOW.includes(o[key]));
 };
 
 export const getCurrentView = props => {
   const { views = [], base = {} } = props;
   const { viewId } = base;
-  return views.find(o => o.viewId === viewId) || {};
+  const currentView = views.find(o => o.viewId === viewId) || {};
+  return { ...currentView, appId: base.appId };
 };
 
 export const renderLine = (random, view) => {
   $(`.boxCalendar_${random} .fc-timegrid-body .linBox`).remove();
   if (!$('.fc-day-today').length) return;
+
   const [start, end] = (_.get(view, 'advancedSetting.showtime') || '00:00-23:59').split('-');
   const now = new Date();
   const currentMins = now.getHours() * 60 + now.getMinutes();
   const [startH, startM] = start.split(':').map(Number);
   const [endH, endM] = end.split(':').map(Number);
-  if (currentMins < startH * 60 + startM || currentMins > endH * 60 + endM) return;
+  const startMins = startH * 60 + startM;
+  const endMins = endH * 60 + endM;
+
+  if (currentMins < startMins || currentMins > endMins) return;
+
   const hourHeight = 36;
-  const top =
-    ((currentMins - startH * 60 - startM) / (endH * 60 + endM - startH * 60 - startM)) *
-    hourHeight *
-    (endH - startH + (endM - startM) / 60);
+  const totalMins = endMins - startMins;
+  const hours = endH - startH + (endM - startM) / 60;
+  const top = ((currentMins - startMins) / totalMins) * hourHeight * hours;
 
   $(`.boxCalendar_${random} .fc-timegrid-body`).append(`
     <div class="linBox" style="
@@ -366,37 +306,32 @@ export const renderLine = (random, view) => {
   `);
 };
 
-export const changeEndStr = (end, allDay, calendarview) => {
-  const { calendarData = {} } = calendarview;
-  const { endFormat } = calendarData;
-
-  // 日期字段，结束时间按前一天的23:59:59处理（即减去一天）
-  // return moment(endData.type === 16 ? end : moment(end).subtract(1, 'day')).format(endFormat);
-  if (!allDay) {
-    return moment(end).format(endFormat);
-  } else {
-    return `${moment(end).subtract(1, 'day').format('YYYY-MM-DD')} 23:59:59`;
+//格式化时间用于保存
+export const formatTimeForSave = (value, data = {}, appId) => {
+  if (data.type === 16) {
+    return data?.advancedSetting?.timezonetype === '1'
+      ? dateAppZoneToServerZone(value, window[`timeZone_${appId}`])
+      : dateConvertToServerZone(value);
   }
+  return value;
+};
+
+export const changeEndStr = (end, allDay, calendarview) => {
+  const { endFormat } = calendarview.calendarData || {};
+  return allDay ? `${moment(end).subtract(1, 'day').format('YYYY-MM-DD')} 23:59:59` : moment(end).format(endFormat);
 };
 
 export const getRows = (start, end, calendarview) => {
   const { calendarFormatData = [] } = calendarview;
-  let list = calendarFormatData;
-  let rows = [];
-  list = list
-    .filter(o => !!o.start)
-    .sort((a, b) => {
-      return new Date(a.start) - new Date(b.start);
-    });
-  list.map(o => {
-    if (
-      (moment(o.start).isSameOrBefore(start, 'day') && moment(o.end).isSameOrAfter(end, 'day')) ||
-      moment(o.start).isSame(start, 'day')
-    ) {
-      rows.push(o.extendedProps);
-    }
-  });
-  return rows;
+  return calendarFormatData
+    .filter(o => o.start)
+    .sort((a, b) => new Date(a.start) - new Date(b.start))
+    .filter(
+      o =>
+        (moment(o.start).isSameOrBefore(start, 'day') && moment(o.end).isSameOrAfter(end, 'day')) ||
+        moment(o.start).isSame(start, 'day'),
+    )
+    .map(o => o.extendedProps);
 };
 
 //兼容自定义页面拖动事件定位问题
@@ -420,19 +355,31 @@ export const resetFcEventDraggingPoint = () => {
 export const setShowTip = (event, flag, canNew) => {
   const myTips = document.getElementById('mytips');
   if (!myTips || document.querySelector('.customPageContent')) return;
-  if (!flag || !canNew) return (myTips.style.opacity = 0);
+  if (!flag || !canNew) {
+    myTips.style.opacity = 0;
+    return;
+  }
+
   const calendarBox = event.target.closest('.boxCalendar');
   if (!calendarBox) return;
+
   const { left: minLeft, right: maxRight, top: minTop, bottom: maxBottom } = calendarBox.getBoundingClientRect();
   const { clientX, clientY } = event;
   const { offsetWidth: tipWidth, offsetHeight: tipHeight } = myTips;
+
   let left = Math.min(clientX + 10, maxRight - tipWidth);
   let top = Math.min(clientY + 10, maxBottom - tipHeight);
-  left = Math.max(minLeft, left < minLeft ? clientX - tipWidth - 10 : left);
-  top = Math.max(minTop, top < minTop ? clientY - tipHeight - 10 : top);
+  if (left < minLeft) left = clientX - tipWidth - 10;
+  if (top < minTop) top = clientY - tipHeight - 10;
+  left = Math.max(minLeft, left);
+  top = Math.max(minTop, top);
+
+  const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+  const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
   Object.assign(myTips.style, {
-    left: `${left - (window.pageXOffset || document.documentElement.scrollLeft)}px`,
-    top: `${top - (window.pageYOffset || document.documentElement.scrollTop)}px`,
+    left: `${left - scrollX}px`,
+    top: `${top - scrollY}px`,
     opacity: 1,
   });
 };

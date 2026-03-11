@@ -11,7 +11,7 @@ import { FILTER_TYPE } from '../enum';
 const Con = styled.div`
   .title {
     font-size: 14px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     padding: 8px 18px;
   }
 `;
@@ -22,7 +22,7 @@ const MenuCon = styled(Menu)`
   hr {
     border: none;
     margin: 4px 0;
-    border-top: 1px solid #e0e0e0 !important;
+    border-top: 1px solid var(--color-border-secondary) !important;
   }
   .ming.Item .Item-content {
     padding-left: 50px !important;
@@ -31,9 +31,9 @@ const MenuCon = styled(Menu)`
     }
   }
   .red {
-    color: #f44336;
+    color: var(--color-error);
     &.ming.MenuItem .icon {
-      color: #f44336;
+      color: var(--color-error);
     }
   }
 `;
@@ -58,20 +58,20 @@ const FilterTitleItemCon = styled(VerticalMiddle)`
   }
   .icon {
     font-size: 18px;
-    color: #999;
+    color: var(--color-text-tertiary);
   }
   .hoverShow {
     display: none;
   }
   &.active {
-    background: #e5f3fe;
-    color: #1677ff;
+    background: var(--color-primary-transparent);
+    color: var(--color-primary);
     .filterIcon {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   &:hover:not(.active):not(.isDragging) {
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
   }
   &:hover:not(.isDragging) {
     .hoverShow {
@@ -85,7 +85,7 @@ const FilterTitleItemCon = styled(VerticalMiddle)`
   }
   &.draggingItem {
     z-index: 9999;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     .dragger {
       display: inline-block;
     }
@@ -128,7 +128,7 @@ function FilterTitleItem(props) {
         </span>
         {error && (
           <Tooltip title={_l('该筛选器中的筛选条件出错')}>
-            <i className="icon icon-error1 Font16 mLeft6" style={{ color: '#F44336' }}></i>
+            <i className="icon icon-error1 Font16 mLeft6" style={{ color: 'var(--color-error)' }}></i>
           </Tooltip>
         )}
       </VerticalMiddle>

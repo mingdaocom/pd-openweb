@@ -75,7 +75,7 @@ const SectionColorConfigModal = props => {
       visible={visible}
       centered={true}
       destroyOnClose={true}
-      closeIcon={<Icon icon="close" className="Font20 pointer Gray_9e" />}
+      closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
       footer={
         <div className="mTop20 mBottom10 pRight8">
           <ConfigProvider autoInsertSpaceInButton={false}>
@@ -172,7 +172,7 @@ const SectionColorConfigModal = props => {
                 <div className="flexColumn">
                   <Icon
                     icon="expand_less"
-                    className="Gray_9e Font20 pointer mBottom2 Hover_21"
+                    className="textTertiary Font20 pointer mBottom2 hoverColorPrimary"
                     onClick={() => {
                       let value = quantity + 1;
                       if (value >= 10) {
@@ -192,7 +192,7 @@ const SectionColorConfigModal = props => {
                   />
                   <Icon
                     icon="expand_more"
-                    className="Gray_9e Font20 pointer mTop2 Hover_21"
+                    className="textTertiary Font20 pointer mTop2 hoverColorPrimary"
                     onClick={() => {
                       let value = quantity - 1;
                       if (value <= 1) {
@@ -235,7 +235,7 @@ const SectionColorConfigModal = props => {
             <Input
               disabled={type === 1}
               style={{ width: 180 }}
-              className="chartInput Gray"
+              className="chartInput textPrimary"
               value={data.value}
               onChange={event => {
                 const v = event.target.value.replace(/[^0-9]+/g, '');
@@ -293,7 +293,7 @@ const SectionColorConfigModal = props => {
             {type === 2 && sectionColors.length > 1 && (
               <Tooltip title={_l('删除')}>
                 <Icon
-                  className="mLeft10 Gray_9e Font18 pointer Hover_21"
+                  className="mLeft10 textTertiary Font18 pointer hoverColorPrimary"
                   icon="close"
                   onClick={() => {
                     changeSectionColorConfig({
@@ -307,7 +307,7 @@ const SectionColorConfigModal = props => {
         ))}
         {type === 2 && sectionColors.length < 10 && (
           <div
-            className="flexRow valignWrapper pointer mTop10 mBottom10 ThemeColor hoverThemeColor"
+            className="flexRow valignWrapper pointer mTop10 mBottom10 colorPrimary hoverThemeColor"
             style={{ width: 'max-content' }}
             onClick={() => {
               changeSectionColorConfig({
@@ -394,7 +394,7 @@ const GaugeColor = props => {
               setRuleColorModalVisible(true);
             }}
           >
-            <Icon className="Font16 Gray_9e" icon="formula" />
+            <Icon className="Font16 textTertiary" icon="formula" />
           </div>
           {!_.isEmpty(colorRule) && (
             <div
@@ -404,7 +404,7 @@ const GaugeColor = props => {
                 onChangeDisplayValue('colorRules', newColorRules);
               }}
             >
-              <Icon className="Font16 Gray_9e" icon="trash" />
+              <Icon className="Font16 textTertiary" icon="trash" />
             </div>
           )}
         </div>
@@ -415,7 +415,7 @@ const GaugeColor = props => {
           onClick={() => setSectionColorModalVisible(true)}
         >
           <span className="flex">{_l('自定义区间')}</span>
-          <Icon className="Font16 Gray_9e mRight10 highlightIcon" icon="edit" />
+          <Icon className="Font16 textTertiary mRight10 highlightIcon" icon="edit" />
         </div>
       )}
       <RuleColor

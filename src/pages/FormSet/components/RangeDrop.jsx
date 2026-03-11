@@ -7,19 +7,19 @@ const HeaderRange = styled.div`
   display: block;
   padding: 16px 24px;
   font-weight: bold;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid var(--color-border-secondary);
   .ming.icon-close {
     float: right;
   }
   .ming.icon-close:hover {
-    color: #1677ff !important;
+    color: var(--color-primary) !important;
   }
 `;
 const RangeBox = styled.div`
   position: absolute;
   z-index: 10;
   width: 320px;
-  background: #ffffff 0% 0% no-repeat padding-box;
+  background: var(--color-background-primary) 0% 0% no-repeat padding-box;
   box-shadow: 0px 12px 24px #0000003d;
   box-sizing: border-box;
   line-height: 1;
@@ -56,7 +56,7 @@ const RangeBox = styled.div`
     }
     .Radio-text {
       font-weight: initial;
-      color: #151515;
+      color: var(--color-text-title);
     }
   }
   .dropOptionTrigger {
@@ -81,11 +81,11 @@ export class RangeDrop extends React.Component {
 
     return (
       <RangeBox className={className}>
-        <HeaderRange className="headerRange Font14 Gray">
+        <HeaderRange className="headerRange Font14 textPrimary">
           {_l('使用范围')}
           <Icon
             icon="close"
-            className="Font18 Gray_9e Hand"
+            className="Font18 textTertiary Hand"
             onClick={() => {
               this.props.onClose();
             }}

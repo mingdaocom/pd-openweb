@@ -89,7 +89,7 @@ const IconWrap = styled.div`
   justify-content: center;
   border-radius: 3px;
   cursor: pointer;
-  color: ${props => (props.isActive ? '#757575' : '#bdbdbd')};
+  color: ${props => (props.isActive ? 'var(--color-text-secondary)' : 'var(--color-text-disabled)')};
   &:hover {
     background: rgba(0, 0, 0, 0.04);
   }
@@ -188,7 +188,7 @@ export function WidgetStyleSetting(props) {
         }}
       >
         <Panel header={_l('标题字段')} key="widgetTitle">
-          <div className="Gray_9e">
+          <div className="textTertiary">
             {_l('标题字段可以快速识别一条记录。用于记录详情、关联记录、和消息通知等功能场景中。')}
           </div>
           <SettingItem>
@@ -218,7 +218,7 @@ export function WidgetStyleSetting(props) {
                 checked={titlestorage !== '0'}
                 onClick={checked => handleChange({ titlestorage: checked ? '0' : '1' })}
               >
-                <span style={{ marginRight: '4px', paddingTop: '2px' }} className="Gray">
+                <span style={{ marginRight: '4px', paddingTop: '2px' }} className="textPrimary">
                   {_l('在关联表中可以被搜索')}
                 </span>
                 <Tooltip
@@ -242,14 +242,14 @@ export function WidgetStyleSetting(props) {
                     </span>
                   }
                 >
-                  <i className="icon-help Gray_9e Font16 Hand"></i>
+                  <i className="icon-help textTertiary Font16 Hand"></i>
                 </Tooltip>
               </Checkbox>
             </div>
             {relateSearchUnSupport() && (
               <Fragment>
                 {titlestorage === '0' ? (
-                  <div className="Gray_9e pLeft24" style={{ paddingLeft: '22px' }}>
+                  <div className="textTertiary pLeft24" style={{ paddingLeft: '22px' }}>
                     {_l('当前字段类型不支持此功能')}
                   </div>
                 ) : (
@@ -260,7 +260,7 @@ export function WidgetStyleSetting(props) {
           </SettingItem>
         </Panel>
         <Panel header={_l('表单封面')} key="formCover">
-          <div className="Gray_9e">{_l('将所选附件字段中的图片、视频作为封面，显示在记录详情上方。')}</div>
+          <div className="textTertiary">{_l('将所选附件字段中的图片、视频作为封面，显示在记录详情上方。')}</div>
           <SettingItem>
             <Dropdown
               border
@@ -428,7 +428,7 @@ export function WidgetStyleSetting(props) {
         <Panel header={_l('标签页')} key="tabStyle">
           <SettingItem className="mTop0">
             <div className="settingItemTitle">{_l('标签页位置')}</div>
-            <div className="Gray_9e mBottom8">
+            <div className="textTertiary mBottom8">
               {_l('标签页显示在顶部、左侧时，默认分组作为第一个标签页。移动端始终在顶部。')}
             </div>
             <DisplayMode>
@@ -463,7 +463,7 @@ export function WidgetStyleSetting(props) {
               <IconSetting
                 type={52}
                 icon={tabicon}
-                iconColor="#9e9e9e"
+                iconColor="var(--color-text-tertiary)"
                 projectId={globalSheetInfo.projectId}
                 handleClick={value => handleChange({ tabicon: value ? JSON.stringify(value) : '' })}
               />
@@ -488,7 +488,7 @@ export function WidgetStyleSetting(props) {
               >
                 <span style={{ marginRight: '4px' }}>{_l('当只有一个标签页时隐藏')}</span>
                 <Tooltip placement="bottom" title={_l('勾选后，当只有一个标签页时隐藏此标签页标题。直接显示内部内容')}>
-                  <i className="icon-help Gray_9e Font16 Hand"></i>
+                  <i className="icon-help textTertiary Font16 Hand"></i>
                 </Tooltip>
               </Checkbox>
             </div>

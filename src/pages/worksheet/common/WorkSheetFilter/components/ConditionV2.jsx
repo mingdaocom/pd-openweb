@@ -48,17 +48,17 @@ const ParamsDropdown = styled(Dropdown)`
     line-height: 22px;
     padding: 0 12px;
     border-radius: 16px;
-    color: #174c76;
+    color: var(--color-link-hover);
     background: #d8eeff;
-    border: 1px solid #bbd6ea;
+    border: 1px solid var(--color-primary-transparent);
     font-size: 12px;
     white-space: normal;
   }
   &.isDelete {
-    color: #f44336;
+    color: var(--color-error);
     background: rgba(244, 67, 54, 0.06);
     .Dropdown--input {
-      border-color: #f44336 !important;
+      border-color: var(--color-error) !important;
     }
   }
 `;
@@ -265,7 +265,7 @@ export default class Condition extends Component {
                 params ? (
                   <div className="titleDisplay">{params}</div>
                 ) : (
-                  <span className="Gray_bd">{_l('请选择')}</span>
+                  <span className="textDisabled">{_l('请选择')}</span>
                 )
               ) : (
                 <span>{_l('该参数已删除')}</span>

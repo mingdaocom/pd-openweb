@@ -9,16 +9,16 @@ import BaseColor from './BaseColor';
 import RuleColor from './RuleColor';
 
 const EntranceWrapper = styled.div`
-  border: 1px solid #d9d9d9;
+  border: 1px solid var(--color-border-primary);
   border-radius: 4px;
   height: 30px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   &.ruleIcon {
     width: 30px;
     margin-left: 10px;
     justify-content: center;
     &:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
     }
   }
 `;
@@ -162,7 +162,7 @@ export default class ColorEntrance extends Component {
         >
           {colorRules.length ? (
             <Fragment>
-              <Icon className="Font16 Gray_9e mRight10" icon="formula" />
+              <Icon className="Font16 textTertiary mRight10" icon="formula" />
               <span>{_l('规则')}</span>
             </Fragment>
           ) : (
@@ -177,7 +177,7 @@ export default class ColorEntrance extends Component {
                 this.props.onChangeDisplayValue('colorRules', []);
               }}
             >
-              <Icon className="Font16 Gray_9e" icon="trash" />
+              <Icon className="Font16 textTertiary" icon="trash" />
             </EntranceWrapper>
           ) : (
             <Tooltip title={_l('颜色规则')}>
@@ -187,7 +187,7 @@ export default class ColorEntrance extends Component {
                   this.setState({ ruleColorModalVisible: true });
                 }}
               >
-                <Icon className="Font16 Gray_9e" icon="formula" />
+                <Icon className="Font16 textTertiary" icon="formula" />
               </EntranceWrapper>
             </Tooltip>
           ))}

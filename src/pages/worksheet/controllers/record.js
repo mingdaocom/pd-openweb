@@ -343,7 +343,8 @@ export async function openControlAttachmentInNewTab({
     workId,
   });
   if (shareId) {
-    const url = `${window.subPath ? window.subPath : ''}/rowfile/${shareId}/${getType || ''}`;
+    // const url = `${window.subPath ? window.subPath : ''}/rowfile/${shareId}/${getType || ''}`;
+    const url = `${window.subPath ? window.subPath : ''}/rowfiles/${worksheetId}/${recordId}/${controlId}/${fileId || ''}/${getType || ''}`;
     if (!openAsPopup) {
       window.open(url);
     } else {

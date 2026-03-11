@@ -28,7 +28,7 @@
         width: 100%;
         cursor: pointer;
         &:not(:hover) {
-          color: #757575 !important;
+          color: var(--color-text-secondary) !important;
         }
         i {
           position: absolute;
@@ -42,7 +42,7 @@
         top: 42px;
         left: 5px;
         right: 5px;
-        background: #fff;
+        background: var(--color-background-primary);
         padding: 6px 0;
         z-index: 10;
         max-height: 160px;
@@ -57,14 +57,14 @@
           line-height: 32px;
           vertical-align: top;
           &:not(.active):not(:hover) {
-            background: #fff !important;
-            color: #757575 !important;
+            background: var(--color-background-primary) !important;
+            color: var(--color-text-secondary) !important;
           }
           &:not(.active):hover {
-            color: #fff !important;
+            color: var(--color-white) !important;
           }
           &.active {
-            background: #fff !important;
+            background: var(--color-background-primary) !important;
           }
           i {
             font-size: 14px;
@@ -142,7 +142,7 @@
           height: 0;
           border-style: solid;
           border-width: 8px;
-          border-color: transparent transparent #ccc transparent;
+          border-color: transparent transparent var(--color-border-tertiary) transparent;
           transform: rotate(-45deg);
         }
         .ganttMembersAddTask,
@@ -154,14 +154,14 @@
           line-height: normal;
           display: none;
           &:not(:hover) {
-            color: #9e9e9e !important;
+            color: var(--color-text-tertiary) !important;
           }
         }
         .ganttMembersOperation {
           top: 12px;
           right: 12px;
           .icon-moreop:not(:hover) {
-            color: #9e9e9e !important;
+            color: var(--color-text-tertiary) !important;
           }
         }
       }
@@ -177,18 +177,18 @@
     position: absolute;
     bottom: 0;
     left: 0;
-    background: #fff;
+    background: var(--color-background-primary);
     border-top: 1px solid rgba(117, 117, 117, 0.15);
     cursor: pointer;
     &:not(:hover),
     .icon-info {
-      color: #9e9e9e !important;
+      color: var(--color-text-tertiary) !important;
     }
   }
 
   .ganttSubordinateNull {
     width: 210px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -222,7 +222,7 @@
   }
   .ganttSubordinateMembersOp {
     width: 160px;
-    background: #fff;
+    background: var(--color-background-primary);
     padding: 6px 0;
     li {
       padding: 0 12px;
@@ -233,11 +233,11 @@
       line-height: 32px;
       vertical-align: top;
       &:not(:hover) {
-        background: #fff !important;
-        color: #757575 !important;
+        background: var(--color-background-primary) !important;
+        color: var(--color-text-secondary) !important;
       }
       &:hover {
-        color: #fff !important;
+        color: var(--color-white) !important;
       }
       i {
         font-size: 14px;

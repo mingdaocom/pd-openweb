@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useSetState } from 'react-use';
 import { Popover } from 'antd';
 import cx from 'classnames';
@@ -15,14 +15,14 @@ import RowBtn from './RowBtn';
 
 const Wrap = styled.div`
   .line {
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-secondary);
     margin-top: 24px;
   }
 `;
 const AnimationWrap = styled.div`
   display: flex;
   padding: 2px;
-  background: #f0f0f0;
+  background: var(--color-background-tertiary);
   border-radius: 3px;
   .animaItem {
     height: 32px;
@@ -32,30 +32,30 @@ const AnimationWrap = styled.div`
     justify-content: center;
     cursor: pointer;
     font-weight: bold;
-    color: #757575;
+    color: var(--color-text-secondary);
     flex: 1;
     margin-left: 2px;
     &:first-child {
       margin-left: 0;
     }
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
       i {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     i {
-      color: #757575;
+      color: var(--color-text-secondary);
     }
     &.active {
-      background: #ffffff;
-      color: #1677ff;
+      background: var(--color-background-primary);
+      color: var(--color-primary);
       i {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     &.disabled {
-      color: #bdbdbd !important;
+      color: var(--color-text-disabled) !important;
       cursor: not-allowed;
     }
   }
@@ -80,20 +80,20 @@ const WrapPopover = styled.div`
     height: 36px;
     line-height: 36px;
     border-radius: 3px 3px 3px 3px;
-    border: 1px solid #eaeaea;
-    color: #333;
+    border: 1px solid var(--color-border-secondary);
+    color: var(--color-text-primary);
     &.first {
-      color: #fff;
-      background: #4caf50;
-      border: 1px solid #4caf50;
+      color: var(--color-white);
+      background: var(--color-success);
+      border: 1px solid var(--color-success);
     }
     i {
-      color: #757575;
+      color: var(--color-text-secondary);
       &.del {
-        color: #e82828;
+        color: var(--color-error);
       }
       &.first {
-        color: #fff;
+        color: var(--color-white);
       }
     }
   }
@@ -182,7 +182,10 @@ export default function ActionSet(props) {
             });
           }}
         >
-          <Icon icon={openList.includes('clickAction') ? 'arrow-down' : 'arrow-right-tip'} className="Font14 Gray_9e" />
+          <Icon
+            icon={openList.includes('clickAction') ? 'arrow-down' : 'arrow-right-tip'}
+            className="Font14 textTertiary"
+          />
           <span className="Font15 Bold mLeft10">{_l('点击记录时')}</span>
         </div>
       )}
@@ -206,7 +209,7 @@ export default function ActionSet(props) {
           />
           {clicktype === '1' && (
             <React.Fragment>
-              <p className="Bold Gray_75 Font13 mTop25 mBottom0">{_l('链接字段')}</p>
+              <p className="Bold textSecondary Font13 mTop25 mBottom0">{_l('链接字段')}</p>
               <Dropdown
                 placeholder={_l('选择记录中的文本字段')}
                 value={clickcid}
@@ -239,9 +242,12 @@ export default function ActionSet(props) {
           });
         }}
       >
-        <Icon icon={openList.includes('recordAction') ? 'arrow-down' : 'arrow-right-tip'} className="Font14 Gray_9e" />
+        <Icon
+          icon={openList.includes('recordAction') ? 'arrow-down' : 'arrow-right-tip'}
+          className="Font14 textTertiary"
+        />
         <span className="Font15 Bold mLeft10">{_l('详情操作')}</span>
-        {detailBtns.length > 0 && <span className="num Bold Font15 Gray_75 mLeft8">{detailBtns.length}</span>}
+        {detailBtns.length > 0 && <span className="num Bold Font15 textSecondary mLeft8">{detailBtns.length}</span>}
       </div>
       {openList.includes('recordAction') && (
         <React.Fragment>
@@ -256,7 +262,7 @@ export default function ActionSet(props) {
           {/* 记录详情的自定义动作 单条 */}
           <div className="customBtnBox">
             <div className="flexRow mTop25 alignItemsCenter">
-              <p className="Bold Gray_75 Font13 mAll0 flex">{_l('自定义动作')}</p>
+              <p className="Bold textSecondary Font13 mAll0 flex">{_l('自定义动作')}</p>
               {detailBtns.length > 0 && (
                 <Checkbox
                   className="hideBtn"
@@ -300,10 +306,10 @@ export default function ActionSet(props) {
           >
             <Icon
               icon={openList.includes('bathAction') ? 'arrow-down' : 'arrow-right-tip'}
-              className="Font14 Gray_9e"
+              className="Font14 textTertiary"
             />
             <span className="Font15 Bold mLeft10">{_l('批量操作')}</span>
-            {listBtns.length > 0 && <span className="num Bold Font15 Gray_75 mLeft8">{listBtns.length}</span>}
+            {listBtns.length > 0 && <span className="num Bold Font15 textSecondary mLeft8">{listBtns.length}</span>}
           </div>
           {openList.includes('bathAction') && (
             <React.Fragment>
@@ -316,7 +322,7 @@ export default function ActionSet(props) {
                 /> */}
               {/* 批量操作的自定义动作 */}
               <div className="customBtnBox">
-                <p className="Bold Gray_75 Font13 mTop25 mBottom0">{_l('自定义动作')}</p>
+                <p className="Bold textSecondary Font13 mTop25 mBottom0">{_l('自定义动作')}</p>
                 <CustomBtnCon
                   {...props}
                   isListOption={true}
@@ -347,7 +353,10 @@ export default function ActionSet(props) {
               });
             }}
           >
-            <Icon icon={openList.includes('rowAction') ? 'arrow-down' : 'arrow-right-tip'} className="Font14 Gray_9e" />
+            <Icon
+              icon={openList.includes('rowAction') ? 'arrow-down' : 'arrow-right-tip'}
+              className="Font14 textTertiary"
+            />
             <span className="Font15 Bold mLeft10">
               {/* 表格类视图 */}
               {isSheetView ||
@@ -355,20 +364,20 @@ export default function ActionSet(props) {
                 ? _l('行内操作')
                 : _l('卡片操作')}
             </span>
-            {/* {detailBtns.length > 0 && <span className="num Bold Font15 Gray_75 mLeft8">{detailBtns.length}</span>} */}
+            {/* {detailBtns.length > 0 && <span className="num Bold Font15 textSecondary mLeft8">{detailBtns.length}</span>} */}
           </div>
           {openList.includes('rowAction') && (
             <React.Fragment>
               {/* 批量操作的自定义动作 */}
               <div className="customBtnBox">
-                <p className="Bold Font13 mTop25 Gray_75">
+                <p className="Bold Font13 mTop25 textSecondary">
                   {isSheetView ||
                   (['2'].includes(_.get(view, 'viewType') + '') &&
                     _.get(view, 'advancedSetting.hierarchyViewType') === '3')
                     ? _l('在表格右侧显示操作列，可以对每行记录进行快速操作')
                     : _l('在记录卡片上显示操作按钮，可以对单条记录快速操作')}
                 </p>
-                <p className="Bold Gray_75 Font13 mTop20  mBottom0">{_l('按钮')}</p>
+                <p className="Bold textSecondary Font13 mTop20  mBottom0">{_l('按钮')}</p>
                 <RowBtn
                   {...props}
                   isListOption={true}
@@ -386,7 +395,7 @@ export default function ActionSet(props) {
                   }}
                 />
               </div>
-              <p className="Bold Gray_75 Font13 mTop20  mBottom0 flexRow">
+              <p className="Bold textSecondary Font13 mTop20  mBottom0 flexRow">
                 <span className="flex">{_l('按钮样式')}</span>
                 {acstyle.style !== 3 && (
                   <Checkbox
@@ -462,7 +471,7 @@ export default function ActionSet(props) {
                             '通过首要按钮来强调主要操作。如：设置1个首要按钮，则第一个按钮显示为实心颜色。其他按钮则被显示为空心线框',
                           )}
                         </div>
-                        <div className="Gray_9e Bold Font13 mTop16">{_l('示例：')}</div>
+                        <div className="textTertiary Bold Font13 mTop16">{_l('示例：')}</div>
                         <div className="btns mTop12">
                           <div className="btn first">
                             <Icon type="send_8" className="first" />
@@ -481,7 +490,7 @@ export default function ActionSet(props) {
                     }
                     trigger="hover"
                   >
-                    <i className="icon-help Font16 Gray_9e mLeft8 TxtMiddle" />
+                    <i className="icon-help Font16 textTertiary mLeft8 TxtMiddle" />
                   </Popover>
                 </WrapCount>
               )}

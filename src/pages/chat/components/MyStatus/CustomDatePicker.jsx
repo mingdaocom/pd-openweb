@@ -19,13 +19,13 @@ const RangePickerWrap = styled.div`
   line-height: 36px;
   padding: 0 12px;
   border-radius: 3px;
-  border: 1px solid #dddddd;
+  border: 1px solid var(--color-border-primary);
 `;
 const PopupWrap = styled.div`
   width: 100%;
   min-width: 434px;
   height: 365px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   border-radius: 8px 0 0 8px;
   box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.1);
   .ant-picker-dropdown-range,
@@ -189,6 +189,7 @@ export default function CustomDatePicker(props) {
           : fixedValue
       }
       onSelect={handleTimeSelect}
+      suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
     >
       {dateOptions.map(item => (
         <Option key={item.value} value={item.value}>

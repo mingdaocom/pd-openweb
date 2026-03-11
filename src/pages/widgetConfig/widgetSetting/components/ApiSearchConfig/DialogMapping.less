@@ -36,7 +36,7 @@
       .sourceControls {
         .controlItem {
           border-radius: 3px;
-          background: #f8f8f8;
+          background: var(--color-background-secondary);
           height: 36px;
           line-height: 36px;
           padding: 0 12px;
@@ -45,6 +45,9 @@
           &.childPadding {
             margin-left: 25px;
           }
+        }
+        .minWidth80 {
+          min-width: 80px;
         }
       }
       .mappingControl {
@@ -55,8 +58,8 @@
         }
         .ant-dropdown-trigger {
           &[disabled] {
-            background-color: #f8f8f8 !important;
-            border-color: #e0e0e0 !important;
+            background-color: var(--color-background-secondary) !important;
+            border-color: var(--color-border-secondary) !important;
             cursor: not-allowed;
           }
         }
@@ -73,13 +76,13 @@
   }
   li.MenuItem.title {
     &:not(:first-child) {
-      border-top: 1px solid #eaeaea;
+      border-top: 1px solid var(--color-border-primary);
     }
     padding-top: 5px !important;
     height: auto !important;
     div {
       font-weight: bold;
-      color: #151515 !important;
+      color: var(--color-text-title) !important;
     }
   }
 }
@@ -88,10 +91,10 @@
   .noDataContent {
     margin-top: 25px;
     height: 240px;
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     line-height: 240px;
     text-align: center;
     font-size: 14px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 }

@@ -36,7 +36,7 @@ const Con = styled.div`
     margin: 0 8px;
   }
   .controlText {
-    color: #151515;
+    color: var(--color-text-title);
     /* font-size: 15px; */
     font-weight: bold;
   }
@@ -44,7 +44,7 @@ const Con = styled.div`
     margin: 0;
   }
   .Score-wrapper.customScoreWrap .text {
-    color: #151515;
+    color: var(--color-text-title);
     /* font-size: 15px; */
     font-weight: bold;
     margin-left: 5px !important;
@@ -99,7 +99,7 @@ function ControlContent(props) {
   } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.SCORE) {
     return (
       <div className="controlContent">
-        <CustomScore hideTip backgroundColor="rgba(0,0,0,0.16)" score={name} data={control} disabled />
+        <CustomScore hideTip backgroundColor="var(--color-border-primary)" score={name} data={control} disabled />
       </div>
     );
   } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.USER_PICKER) {

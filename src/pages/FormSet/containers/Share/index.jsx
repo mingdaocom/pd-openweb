@@ -15,7 +15,7 @@ const Container = styled.div`
 
 const Tabs = styled.div`
   display: flex;
-  border-bottom: 1px solid #dddddd;
+  border-bottom: 1px solid var(--color-border-primary);
 `;
 
 const Tab = styled.button`
@@ -34,7 +34,7 @@ const Tab = styled.button`
       left: 0;
       right: 0;
       height: 3px;
-      background-color: #1677ff;
+      background-color: var(--color-primary);
     }
   }
 `;
@@ -47,7 +47,7 @@ const SettingItem = styled.div``;
 
 const Description = styled.div`
   width: 100%;
-  background: #f2fafe;
+  background: var(--color-primary-transparent);
   border-radius: 3px;
   padding: 10px 12px;
   line-height: 1.5;
@@ -64,7 +64,7 @@ const RecordSharing = styled.div`
   .conLine {
     width: 100%;
     height: 0;
-    border-bottom: 1px solid #dddddd;
+    border-bottom: 1px solid var(--color-border-primary);
   }
   .ant-select-selector {
     min-height: 36px;
@@ -161,7 +161,7 @@ const SharingSettings = props => {
       case 'discussion':
         return (
           <>
-            <Description className="Gray">
+            <Description className="textPrimary">
               <div>
                 <span className="Bold">{_l('默认规则：')}</span>
                 {_l(
@@ -199,7 +199,7 @@ const SharingSettings = props => {
         const isSharingEnabled = data.state;
         return (
           <RecordSharing>
-            <p className="Gray Bold">
+            <p className="textPrimary Bold">
               {activeTab === 'view'
                 ? _l('允许将视图对外公开分享，获得链接的所有人都可以查看视图和视图下的全部记录')
                 : _l('允许将记录对外公开分享，获得链接的所有人都可以查看记录')}
@@ -241,7 +241,7 @@ const SharingSettings = props => {
                         <span className="InlineFlex alignItemsCenter">
                           {_l('仅系统角色')}
                           <Tooltip placement="bottom" title={_l('包含管理员、运营者、开发者')}>
-                            <Icon icon="info_outline" className="Gray_9e Font16 mLeft5 InlineFlex" />
+                            <Icon icon="info_outline" className="textTertiary Font16 mLeft5 InlineFlex" />
                           </Tooltip>
                         </span>
                       }
@@ -345,7 +345,7 @@ const SharingSettings = props => {
           {TYPES.map(o => {
             return (
               <Tab
-                className={cx('Bold Font14 hoverText', activeTab === o.key ? 'ThemeColor3 curTab' : 'Gray_75')}
+                className={cx('Bold Font14 hoverText', activeTab === o.key ? 'ThemeColor3 curTab' : 'textSecondary')}
                 onClick={() => setActiveTab(o.key)}
               >
                 {o.lab}

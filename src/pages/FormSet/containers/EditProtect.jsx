@@ -91,7 +91,7 @@ export default function EditProtect(props) {
         <span className="mLeft8">{lock.isopen === '1' ? _l('启用') : _l('关闭')}</span>
       </div>
 
-      <div className="Gray_9e mTop10">
+      <div className="textTertiary mTop10">
         {_l(
           '开启后，不能多人同时编辑同一条记录。当有用户在详情页触发编辑时，该记录即进入保护状态，仅当前用户可编辑记录，其他用户仅能查看。当该用户提交记录或超过保护时长，其他用户方可编辑。',
         )}
@@ -108,7 +108,7 @@ export default function EditProtect(props) {
                 )}
                 placement="bottom"
               >
-                <Icon icon="help" className="Gray_9e Font16 mLeft10" />
+                <Icon icon="help" className="textTertiary Font16 mLeft10" />
               </Tooltip>
             </div>
             <Dropdown
@@ -137,7 +137,7 @@ export default function EditProtect(props) {
               onChange={value => onEditSetting({ ...lock, expiredaction: value })}
             />
           </div>
-          <div className="mTop24 Gray_9e">
+          <div className="mTop24 textTertiary">
             <div>{_l('注意：')}</div>
             <div>{_l('仅详情页内编辑才能生效编辑保护；')}</div>
             <div>{_l('触发编辑以记录上方出现“正在修改表单数据…”的蓝色提示为准；')}</div>

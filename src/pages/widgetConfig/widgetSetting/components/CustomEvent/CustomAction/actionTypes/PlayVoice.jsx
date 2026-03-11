@@ -71,7 +71,7 @@ export default function PlayVoice(props) {
                   })}
                   onClick={() => handleSet(item)}
                 >
-                  <Icon icon="volume_up" className="mRight12 Gray_75 Font16" />
+                  <Icon icon="volume_up" className="mRight12 textSecondary Font16" />
                   <span className="flex overflow_ellipsis">{item.fileName}</span>
                   {isUpload && (
                     <Icon

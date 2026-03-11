@@ -53,13 +53,13 @@ function SortTopUp(props) {
     return (
       <div className="sortItem">
         <DragHandle>
-          <Icon icon="drag" className="dragIcon mRight12 Font16 Gray_bd Hover_21" />
+          <Icon icon="drag" className="dragIcon mRight12 Font16 textDisabled hoverColorPrimary" />
         </DragHandle>
 
         <UserHead projectId={projectId} size={28} user={{ userHead: item.avatar, accountId: item.accountId }} />
         <span className="flex overflow_ellipsis mLeft8">{item.fullname}</span>
         <Tooltip title={_l('取消置顶')}>
-          <Icon icon="close" className="mLeft8 Font14 Gray_9e Hover_21" onClick={() => onDelete(item)} />
+          <Icon icon="close" className="mLeft8 Font14 textTertiary hoverColorPrimary" onClick={() => onDelete(item)} />
         </Tooltip>
       </div>
     );
@@ -75,8 +75,10 @@ function SortTopUp(props) {
       onCancel={onCancel}
     >
       <Wrap className="flexColumn">
-        <div className="Gray_75 Font13 mBottom24">{_l('在人员选择层、通讯录中按部门查看时，按设置的排序显示')}</div>
-        <div className="Gray_3 Font14 mBottom16">{sortList.length}/50</div>
+        <div className="textSecondary Font13 mBottom24">
+          {_l('在人员选择层、通讯录中按部门查看时，按设置的排序显示')}
+        </div>
+        <div className="textPrimary Font14 mBottom16">{sortList.length}/50</div>
         <List className="flex">
           <SortableList
             useDragHandle

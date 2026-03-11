@@ -71,7 +71,9 @@ export default class SelectApp extends React.Component {
 
     if (keyword && !list.length) {
       return (
-        <div className="manageListNull Gray_bd mBottom20">{_l('未找到 "%0" 相关应用，请更换关键词试试', keyword)}</div>
+        <div className="manageListNull textDisabled mBottom20">
+          {_l('未找到 "%0" 相关应用，请更换关键词试试', keyword)}
+        </div>
       );
     }
 
@@ -105,11 +107,11 @@ export default class SelectApp extends React.Component {
       return (
         <div className="selectBox scrollBox">
           <div className="manageListNull">
-            <div className="Gray_bd TxtCenter">
+            <div className="textDisabled TxtCenter">
               <div>{_l('请从左侧列表选择应用,')}</div>
               <div>
                 {_l('选择的应用总数不能超过')}
-                <span className="Gray">{MAX_EXPORT_NUM}</span>
+                <span className="textPrimary">{MAX_EXPORT_NUM}</span>
                 {_l('个')}
               </div>
             </div>
@@ -121,15 +123,15 @@ export default class SelectApp extends React.Component {
     const renderSortableItem = ({ item }) => {
       return (
         <div className="selectAppSortableItem pLeft6 Hand">
-          <span className="icon-drag grabIcon Gray_9e"></span>
+          <span className="icon-drag grabIcon textTertiary"></span>
           <div className="mRight10 svgBox mLeft5" style={{ backgroundColor: item.iconColor }}>
             <SvgIcon url={item.iconUrl} fill="#fff" size={14} />
           </div>
           <span className="overflow_ellipsis WordBreak flex">{item.appName}</span>
           <div className="marginLeftAuto">
-            <span className="Gray_9e">{item.sheetCount}</span>
+            <span className="textTertiary">{item.sheetCount}</span>
             <span
-              className="Hover_49 icon-clear mLeft32 Gray_9e"
+              className="hoverTextPrimaryLight icon-clear mLeft32 textTertiary"
               onClick={() => _this.updateSelectList(true, item)}
             ></span>
           </div>
@@ -191,11 +193,11 @@ export default class SelectApp extends React.Component {
             <div className="clearfix">
               <span className="Left Font15">{_l('已选')}</span>
               <Tooltip placement="top" title={_l('导出的应用总数上限%0个', MAX_EXPORT_NUM)}>
-                <span className="icon-info mLeft8 Gray_bd Right LineHeight20"></span>
+                <span className="icon-info mLeft8 textDisabled Right LineHeight20"></span>
               </Tooltip>
               <span className={cx('Right', { errorMag: selectList.length > MAX_EXPORT_NUM })}>
                 <span>{selectList.length}</span>
-                <span className="Gray_bd">/{MAX_EXPORT_NUM}</span>
+                <span className="textDisabled">/{MAX_EXPORT_NUM}</span>
               </span>
             </div>
             {this.renderSelectList()}
@@ -216,7 +218,10 @@ export default class SelectApp extends React.Component {
           >
             {_l('下一步')}
           </button>
-          <div className="Right mRight40 Gray_9e Hover_49 Hand LineHeight36" onClick={() => this.props.closeDialog()}>
+          <div
+            className="Right mRight40 textTertiary hoverTextPrimaryLight Hand LineHeight36"
+            onClick={() => this.props.closeDialog()}
+          >
             {_l('取消')}
           </div>
         </div>

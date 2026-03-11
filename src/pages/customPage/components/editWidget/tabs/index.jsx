@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import GridLayout from 'react-grid-layout';
@@ -38,7 +38,7 @@ const ContentWrap = styled.div`
         bottom: -1px;
         width: 100%;
         height: 1px;
-        background: var(--bg-color, #e6e6e6);
+        background: var(--bg-color, var(--color-border-secondary));
       }
     }
   }
@@ -59,7 +59,7 @@ const ContentWrap = styled.div`
     }
   }
   &.activeWrap {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
     .bodyContent .widgetContentTools {
       display: none;
     }
@@ -124,17 +124,21 @@ const ContentWrap = styled.div`
       position: absolute;
       top: 0;
       left: 0;
+      width: 100%;
     }
+  }
+  .cardNoSelect .cardDragLine {
+    display: block;
   }
   .widgetContent {
     &.richText > .flex {
       height: 100%;
     }
     &.solidBorder {
-      border: 1px solid var(--bg-color, #e6e6e6);
+      border: 1px solid var(--bg-color, var(--color-border-secondary));
     }
     &.dashedBorder {
-      border: 1px dashed var(--bg-color, #e6e6e6);
+      border: 1px dashed var(--bg-color, var(--color-border-secondary));
     }
   }
 `;
@@ -208,7 +212,9 @@ export const Tabs = props => {
   }, []);
 
   useEffect(() => {
-    handleLayoutChange(getLayout(tabComponents, layoutType));
+    if (!isMobileLayout && !isTabs) {
+      handleLayoutChange(getLayout(tabComponents, layoutType));
+    }
   }, [showName]);
 
   const getLayoutConfig = () => {
@@ -256,7 +262,8 @@ export const Tabs = props => {
       _.max(res.map(item => _.get(item, [layoutType, 'layout'])).map(layout => layout.h + layout.y)) +
       getThresholdValue();
     const newComponents = components.map(c => {
-      if (c.id === widget.id && [9, 10, 'tabs', 'card'].includes(c.type) && maxH) {
+      const idKey = widget.id ? 'id' : 'uuid';
+      if (c[idKey] === widget[idKey] && [9, 10, 'tabs', 'card'].includes(c.type) && maxH) {
         if (layoutType === 'web' && c.web && c.web.layout) {
           c.web.layout.h = maxH;
           c.web.layout.minH = maxH;
@@ -276,6 +283,28 @@ export const Tabs = props => {
       );
     });
     props.updateComponents(newComponents);
+  };
+
+  const renderGrid = () => {
+    const el = _.get(elementRef, 'current') ? elementRef.current.querySelector('.bodyContent') : null;
+    if (el) {
+      const clientWidth = el.clientWidth - 10;
+      const cols = 48;
+      const colWidth = clientWidth / cols;
+      return (
+        <Fragment>
+          {Array.from({ length: cols }).map((_, index) => {
+            const stripeWidth = colWidth - 10;
+            const offset = stripeWidth * index + 10 + index * 10;
+            return (
+              <div key={index} className="cardDragLine dragLine" style={{ width: stripeWidth, left: offset }}></div>
+            );
+          })}
+        </Fragment>
+      );
+    } else {
+      return null;
+    }
   };
 
   const layout = getLayout(tabComponents, layoutType);
@@ -334,7 +363,7 @@ export const Tabs = props => {
         ref={elementRef}
       >
         {!tabComponents.length && editable && (
-          <div className="flexRow alignItemsCenter justifyContentCenter w100 h100 Font15 Gray_75">
+          <div className="flexRow alignItemsCenter justifyContentCenter w100 h100 Font15 textSecondary">
             {_l('添加或移动组件')}
           </div>
         )}
@@ -345,7 +374,12 @@ export const Tabs = props => {
             isDraggable={editable}
             isResizable={editable}
             draggableCancel=".childrenDisableDrag,.chartWrapper .drag"
+            onResizeStart={() => {
+              elementRef.current.classList.add('cardNoSelect');
+            }}
+            onResize={handleLayoutChange}
             onResizeStop={(layout, oldItem = {}) => {
+              elementRef.current.classList.remove('cardNoSelect');
               const index = _.findIndex(layout, { i: oldItem.i });
               const getData = _.get(displayRefs[index], ['getData']);
               if (getData && typeof getData === 'function') {
@@ -437,6 +471,7 @@ export const Tabs = props => {
               );
             })}
           </GridLayout>
+          {editable && renderGrid()}
         </div>
       </div>
     </ContentWrap>

@@ -1,5 +1,4 @@
 .customFieldsContainer {
-  background: var(--color-background-primary);
   margin: 0 -12px;
   color: var(--color-text-primary);
   line-height: normal;
@@ -60,7 +59,7 @@
 
   .customFormLine {
     height: 1px;
-    background: var(--color-background-tertiary);
+    background: var(--color-background-secondary);
     clear: both;
     margin: 0 12px;
   }
@@ -146,7 +145,6 @@
       }
     }
 
-    .customCascader,
     .customAntSelect {
       &.ant-select-open {
         .ant-select-selector {
@@ -267,8 +265,8 @@
     .customFormControlMobileHover {
       &:hover {
         .customFormControlBox {
-          border-color: var(--color-background-tertiary);
-          background: var(--color-background-tertiary);
+          border-color: var(--color-background-secondary);
+          background: var(--color-background-secondary);
         }
       }
     }
@@ -313,7 +311,7 @@
 
         .descText::after {
           content: '更多';
-          color: var(--color-background-primary);
+          color: var(--color-white);
           padding-left: 6px;
           word-wrap: break-word;
           word-break: break-all;
@@ -398,7 +396,7 @@
       height: 36px;
       border: 1px solid var(--color-border-primary);
       font-size: 13px;
-      background: var(--color-background-tertiary);
+      background: var(--color-background-secondary);
       border-radius: 4px;
       padding: 0 12px;
       width: 100%;
@@ -439,8 +437,8 @@
       }
 
       &:not(.controlDisabled):hover {
-        border-color: var(--color-background-tertiary);
-        background: var(--color-background-tertiary);
+        border-color: var(--color-background-secondary);
+        background: var(--color-background-secondary);
         .maskIcon {
           color: var(--color-text-tertiary) !important;
         }
@@ -458,11 +456,11 @@
           cursor: pointer !important;
           &.checked {
             .Radio-box {
-              border-color: #1e88e5 !important;
+              border-color: var(--color-primary) !important;
               opacity: 0.7;
             }
             .Radio-box-round {
-              background-color: #1e88e5 !important;
+              background-color: var(--color-primary) !important;
             }
           }
           .Checkbox-box,
@@ -472,6 +470,7 @@
         }
       }
 
+      &.controlOtherDisabled,
       &.controlDisabled {
         background: transparent !important;
         border-color: transparent !important;
@@ -489,6 +488,13 @@
         }
       }
 
+      &.controlOtherDisabled {
+        min-height: unset !important;
+        height: unset !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
       &.customFormFileBox:not(.controlDisabled) {
         color: var(--color-text-secondary);
         padding: 8px 10px 7px;
@@ -500,7 +506,7 @@
           cursor: pointer;
           color: var(--color-text-disabled);
           &:hover {
-            color: #777 !important;
+            color: var(--color-text-secondary) !important;
           }
         }
         &:hover,
@@ -577,7 +583,7 @@
         justify-content: center;
         max-width: 320px;
         &:hover {
-          background: var(--color-background-tertiary) !important;
+          background: var(--color-background-secondary) !important;
         }
         .customOCRLoading {
           display: block;
@@ -608,7 +614,7 @@
           background-color: var(--color-text-placeholder) !important;
         }
         &.ming.Switch--on {
-          background: #01ca83 !important;
+          background: var(--color-task) !important;
         }
       }
       &.customFormControlSwitch,
@@ -663,8 +669,8 @@
       cursor: pointer;
 
       &:focus {
-        border-color: var(--color-background-tertiary) !important;
-        background: var(--color-background-tertiary) !important;
+        border-color: var(--color-background-secondary) !important;
+        background: var(--color-background-secondary) !important;
       }
 
       &:not(.controlDisabled):hover {
@@ -744,7 +750,7 @@
       font-weight: 500;
       font-size: 13px;
       &:hover {
-        background-color: var(--color-background-tertiary);
+        background-color: var(--color-background-hover);
       }
     }
 
@@ -775,7 +781,7 @@
 
         &:hover,
         &.active {
-          border-color: var(--color-background-tertiary) !important;
+          border-color: var(--color-background-secondary) !important;
         }
       }
 
@@ -787,7 +793,7 @@
           line-height: 36px;
 
           .Item-content:not(.disabled):hover {
-            background: var(--color-background-tertiary) !important;
+            background: var(--color-background-secondary) !important;
             color: var(--color-text-primary) !important;
           }
         }
@@ -971,17 +977,6 @@
       }
     }
 
-    .customCascaderDel {
-      top: 11px;
-      right: 11px;
-      color: var(--color-text-tertiary);
-      background: var(--color-background-primary);
-      cursor: pointer;
-      &:hover {
-        color: var(--color-text-secondary);
-      }
-    }
-
     .customTreeSelect {
       .ant-select-selection-placeholder,
       .ant-select-selection-item {
@@ -1008,8 +1003,8 @@
     .customFormLocation,
     .customAntPicker,
     .CityPicker-input-container .customFormButton,
-    .customCascader .ant-select-selector,
-    .customAntSelect .ant-select-selector {
+    .customCascader.custom-cascader .cascader-input,
+    .customAntSelect:not(.ant-select-open):not(.ant-select-disabled) .ant-select-selector {
       border-color: var(--color-primary) !important;
       background-color: var(--color-background-primary) !important;
     }
@@ -1068,7 +1063,7 @@
   transform: translateY(-5px);
   z-index: 3;
   left: 0;
-  color: var(--color-background-primary);
+  color: var(--color-white);
   padding: 3px 8px;
   white-space: nowrap;
   background: var(--color-error);
@@ -1123,13 +1118,7 @@ input.customFormControlBox:disabled {
   opacity: 1;
   -webkit-text-fill-color: var(--color-text-primary);
 }
-.customCascader {
-  .ant-select-selection-placeholder {
-    line-height: 34px !important;
-  }
-}
 
-.customCascader,
 .customAntSelect {
   &.ant-select-open {
     .ant-select-selector {
@@ -1142,6 +1131,35 @@ input.customFormControlBox:disabled {
     .ant-select-selection-item {
       opacity: 0.4;
       color: var(--color-text-primary);
+    }
+  }
+
+  .ant-select-arrow {
+    color: var(--color-text-tertiary) !important;
+  }
+  .ant-select-clear {
+    border-radius: 50%;
+  }
+
+  &.ant-select-multiple {
+    .ant-select-selection-item {
+      border-radius: 12px;
+      padding: 0 12px !important;
+      line-height: 24px !important;
+      background-color: #efefef !important;
+      .ant-select-selection-item-content {
+        margin-right: 6px !important;
+      }
+      .ant-select-selection-item-remove {
+        line-height: 22px !important;
+        cursor: pointer;
+        .anticon-close {
+          color: var(--color-text-secondary) !important;
+          &:hover {
+            color: var(--color-primary) !important;
+          }
+        }
+      }
     }
   }
 
@@ -1159,7 +1177,7 @@ input.customFormControlBox:disabled {
       padding: 0 !important;
     }
     .ant-select-selection-item {
-      color: var(--color-text-primary);
+      color: var(--color-text-primary) !important;
       padding: 0;
     }
     .ant-select-arrow {
@@ -1170,8 +1188,8 @@ input.customFormControlBox:disabled {
   &:not(.ant-select-open):not(.ant-select-disabled) {
     .ant-select-selector {
       &:hover {
-        border-color: var(--color-background-tertiary) !important;
-        background-color: var(--color-background-tertiary) !important;
+        border-color: var(--color-background-secondary) !important;
+        background-color: var(--color-background-secondary) !important;
       }
     }
   }
@@ -1219,12 +1237,6 @@ input.customFormControlBox:disabled {
   .ant-select-selection-search-input {
     padding: 0;
     height: 34px !important;
-  }
-
-  .ant-select-selection-item {
-    overflow: inherit;
-    max-width: 100%;
-    white-space: inherit;
   }
 
   .customAntSelectPlaceHolder {
@@ -1279,7 +1291,7 @@ input.customFormControlBox:disabled {
   .departWrap {
     width: 26px;
     height: 26px;
-    color: var(--color-background-primary);
+    color: var(--color-white);
     border-radius: 13px;
     display: inline-flex;
     align-items: center;

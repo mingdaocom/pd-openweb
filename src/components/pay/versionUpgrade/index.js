@@ -66,7 +66,7 @@ export default class VersionUpgrade extends Component {
         projectId,
       })
       .then(res => {
-        this, this.setState({ contractInfo: res });
+        (this, this.setState({ contractInfo: res }));
       });
   };
 
@@ -199,10 +199,10 @@ export default class VersionUpgrade extends Component {
 
     return (
       <div className="payOrder">
-        <h3 className="titleUpgrade Black18 Normal">{_l('您正在购买付费产品，请完成支付！')}</h3>
+        <h3 className="titleUpgrade textPrimary Font18 Normal">{_l('您正在购买付费产品，请完成支付！')}</h3>
         <div className="mTop20 LineHeight40">
           <span className="Width70 InlineBlock">{_l('支付总计:')}</span>
-          <span className="newColor Font20 bold500 mLeft10 ThemeColor">{totalPrice}</span>
+          <span className="newColor Font20 bold500 mLeft10 colorPrimary">{totalPrice}</span>
           <span className="mLeft10 mRight30">{_l('元(人民币)')} </span>
           <a href={`/upgrade/contract?projectId=${projectId}`} target="_blank" className="LineHeight35 Font14">
             {_l('合同预览')}
@@ -233,8 +233,10 @@ export default class VersionUpgrade extends Component {
             {_l('取消订单')}
           </Button>
         </div>
-        <div className="LineHeight30 Gray_8 mTop40 Font14">{_l('我们将在收到款项后的15分钟内为您完成服务。')}</div>
-        <div className="LineHeight30 Gray_8 Font14 InlineBlock">
+        <div className="LineHeight30 textSecondary mTop40 Font14">
+          {_l('我们将在收到款项后的15分钟内为您完成服务。')}
+        </div>
+        <div className="LineHeight30 textSecondary Font14 InlineBlock">
           {_l('如果您已完成付款而未成功开通，请拨打免费咨询热线 %0', md.global.Config.ServiceTel)}
         </div>
       </div>
@@ -313,7 +315,7 @@ export default class VersionUpgrade extends Component {
                       }}
                       onMouseLeave={() => {
                         $(`.${item.className}`).css({
-                          backgroundColor: '#fff',
+                          backgroundColor: 'var(--color-background-primary)',
                         });
                       }}
                     >
@@ -322,7 +324,7 @@ export default class VersionUpgrade extends Component {
                           <span>{item.name}</span>
                           {!!item.dataTip && (
                             <Tooltip placement="bottom" title={item.dataTip}>
-                              <Icon className="icon icon-help Gray_bd Font16 mLeft3" />
+                              <Icon className="icon icon-help textDisabled Font16 mLeft3" />
                             </Tooltip>
                           )}
                           {item.isNew && <span className="newTag">NEW</span>}
@@ -440,7 +442,7 @@ export default class VersionUpgrade extends Component {
             </div>
             <div className="purchaseInfoWrap flexRow" id="purchaseInfoWrap">
               <div className="versionInfoWrap flex flexColumn pRight30">
-                <div className="Gray_75 Font16 LineHeight30">{_l('已选：%0', selectVersionName)}</div>
+                <div className="textSecondary Font16 LineHeight30">{_l('已选：%0', selectVersionName)}</div>
                 <div className="Font14 mRight15 mTop30 mRight15">{_l('使用人数')}</div>
                 <div className="slider mTop30 mBottom20">
                   <Slider
@@ -489,11 +491,11 @@ export default class VersionUpgrade extends Component {
                   </a>
                 ) : (
                   <div className="showPrice pBottom20">
-                    <div className="ThemeColor mTop10 InlineBlock">
+                    <div className="colorPrimary mTop10 InlineBlock">
                       <span className="Font28 Bold">￥</span>
                       <span className="LineHeight35 Font44 bold500">{totalPrice}</span>
                     </div>
-                    <div className="TxtLeft InlineBlock Gray_9e mLeft10 mLeft3">
+                    <div className="TxtLeft InlineBlock textTertiary mLeft10 mLeft3">
                       {_l('约%0 /月', averageMonthPrice)}
                     </div>
                   </div>
@@ -517,12 +519,12 @@ export default class VersionUpgrade extends Component {
                   ''
                 )}
                 <div className="companyInfo Font16 TxtLeft">
-                  <div className="Gray_9e">{_l('组织信息')}</div>
+                  <div className="textTertiary">{_l('组织信息')}</div>
                   <div>{contractInfo.companyName || _l('组织信息：未填写')}</div>
                   <div>{contractInfo.recipientName || _l('联系人姓名：未填写')}</div>
                   <div>{contractInfo.mobilePhone || _l('联系电话：未填写')}</div>
                 </div>
-                <div className="LineHeight30 Gray_8 mTop12 Font14 TxtLeft">
+                <div className="LineHeight30 textSecondary mTop12 Font14 TxtLeft">
                   {_l(
                     '如需发票，请拨打400-665-6655联系顾问，为您开具发票；您也可以在完成支付后前往组织管理 - > 账务中心，进行申请。',
                   )}

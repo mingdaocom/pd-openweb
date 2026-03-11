@@ -168,7 +168,7 @@ export default function BaseInfo(props) {
               getCanDisplayControls(viewControlInfo.relationControls || []).filter(
                 it => _.get(it, 'advancedSetting.hide') !== '1',
               ).length <= 0 ? (
-                <WrapNullTxt className="Gray_9e pAll15">
+                <WrapNullTxt className="textTertiary pAll15">
                   {_l('关联的工作表中没有可选字段，请先去添加一个')}
                   <span
                     className="ThemeColor3 Hand"

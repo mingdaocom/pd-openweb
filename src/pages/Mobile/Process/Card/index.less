@@ -3,26 +3,26 @@
     width: 100%;
     padding: 12px 15px;
     margin-bottom: 12px;
-    background-color: #fff;
+    background-color: var(--color-background-card);
     box-sizing: border-box;
     transition: box-shadow 0.3s;
     border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16);
-    border: 1px solid #fff;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-background-card);
     &.batchApproval {
       padding: 12px 9px;
     }
     &.approveChecked {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
     .adm-checkbox {
       display: inline;
     }
     .nodeState {
-      color: #fff;
+      color: var(--color-white);
       padding: 3px 11px;
       border-radius: 25px;
-      background-color: #ebebeb;
+      background-color: var(--color-border-secondary);
     }
   }
   &Content {
@@ -37,7 +37,7 @@
     .flowNode {
       border-radius: 3px;
       padding: 4px 12px;
-      background-color: #f2f2f2;
+      background-color: var(--color-background-tertiary);
     }
     .stepTimeConsuming {
       margin-left: 10px;
@@ -48,7 +48,7 @@
     }
   }
   &Body {
-    color: #151515;
+    color: var(--color-text-title);
     font-size: 15px;
     padding: 12px 0;
     font-weight: 500;
@@ -75,7 +75,7 @@
     justify-content: space-between;
     .state {
       font-weight: bold;
-      color: #1677ff;
+      color: var(--color-primary);
       font-size: 13px;
     }
     .appIcon {
@@ -85,7 +85,7 @@
       align-items: center;
       justify-content: center;
       border-radius: 4px;
-      color: #fff;
+      color: var(--color-white);
       font-size: 17px;
       margin-right: 10px;
     }
@@ -95,23 +95,23 @@
       margin: 2px 6px;
       border-radius: 50%;
       display: inline-block;
-      background-color: #9e9e9e;
+      background-color: var(--color-text-tertiary);
     }
     .approveBtnWrapper {
       .pass,
       .overrule,
       .backlog {
-        border-color: #efefef !important;
+        border-color: var(--color-border-primary) !important;
         border-radius: 19px;
         padding: 2px 12px;
         max-width: 100px;
         min-width: 60px;
       }
       .pass {
-        color: #4caf50 !important;
+        color: var(--color-success) !important;
       }
       .overrule {
-        color: #f44336 !important;
+        color: var(--color-error) !important;
       }
     }
     .appName,

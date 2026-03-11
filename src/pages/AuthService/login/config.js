@@ -14,6 +14,7 @@ export const LoginResult = {
   firstLoginResetPassword: 13, //首次登录需修改密码
   passwordOverdue: 14, // 密码过期需要重新设置密码
   cancellation: 15, //注销
+  integrationEnabled: 16, //需要企业单点登录
 };
 
 export const TwofactorVerifyCodeActionResult = {
@@ -24,4 +25,11 @@ export const TwofactorVerifyCodeActionResult = {
   sendFrequent: 8, // 发送过于频繁，需要出来图形验证码机制验证
   noEmail: 12, // 邮箱不能为空
   noTel: 17, // 手机号不能为空
+};
+
+// 集成账号类型
+export const IntegrationAccountType = {
+  microsoftEntra: 7, // 微软Entra集成类型
+  // dingding: 1, // 钉钉集成类型
+  // feishu: 6, // 飞书集成类型
 };

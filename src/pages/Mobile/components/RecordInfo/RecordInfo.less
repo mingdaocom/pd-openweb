@@ -1,5 +1,5 @@
 .mobileSheetRowRecord {
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-sizing: border-box;
   .recordScroll {
     -webkit-overflow-scrolling: touch;
@@ -27,7 +27,7 @@
   }
   .payWrap {
     height: 50px;
-    background: #f2fcf2;
+    background: var(--color-success-bg);
     border-radius: 3px;
     align-items: center;
     flex-shrink: 0;
@@ -38,8 +38,8 @@
       height: 28px;
       line-height: 28px;
       padding: 0 13px;
-      color: #fff;
-      background-color: #4caf50;
+      color: var(--color-white);
+      background-color: var(--color-success);
       border-radius: 3px;
     }
   }
@@ -49,9 +49,9 @@
     justify-content: space-between;
   }
   .sheetName {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     font-size: 13px;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
     border-radius: 20px;
     padding: 0 10px;
     height: 28px;
@@ -60,12 +60,12 @@
     min-width: 0;
     max-width: calc(~'50% - 16px');
     &.owner {
-      color: #757575;
-      background-color: #fff;
+      color: var(--color-text-secondary);
+      background-color: var(--color-background-primary);
     }
   }
   .refreshWrap {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     border-radius: 50%;
     width: 28px;
     height: 28px;
@@ -73,7 +73,7 @@
     align-items: center;
     justify-content: center;
     margin-right: 5px;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
     &.isLoading .icon {
       display: inline-block;
       animation: rotate 0.6s infinite linear;
@@ -89,7 +89,7 @@
       .sheetName,
       .refreshWrap {
         background-color: rgba(0, 0, 0, 0.2);
-        color: #fff;
+        color: var(--color-white);
       }
     }
     .ant-carousel .slick-dots {
@@ -102,15 +102,15 @@
       z-index: 999;
     }
     .fixedSheetNameWrapBG {
-      background-color: #fff;
+      background-color: var(--color-background-primary);
       .sheetName,
       .refreshWrap {
-        color: #9e9e9e;
-        background-color: #f5f5f5;
+        color: var(--color-text-tertiary);
+        background-color: var(--color-background-secondary);
       }
       .owner {
-        color: #757575;
-        background-color: #fff;
+        color: var(--color-text-secondary);
+        background-color: var(--color-background-primary);
       }
     }
   }
@@ -123,7 +123,7 @@
     }
   }
   .title {
-    color: #000;
+    color: var(--color-text-primary);
     font-size: 24px;
     font-weight: bold;
     word-break: break-all;
@@ -135,7 +135,7 @@
     justify-content: center;
   }
   .moreHoriz {
-    color: #1677ff;
+    color: var(--color-primary);
   }
   .customFieldsWrapper {
     -webkit-overflow-scrolling: auto;
@@ -152,9 +152,9 @@
   }
   .saveWrapper {
     padding: 10px 20px 10px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     .save {
-      color: #fff;
+      color: var(--color-white);
       height: 36px;
       width: 100%;
       text-align: center;
@@ -162,14 +162,14 @@
       padding: 0 23px;
       font-size: 15px;
       border-radius: 25px;
-      background-color: #108ee9;
+      background-color: var(--color-primary);
     }
   }
   .recordViewTabs {
     z-index: 2;
     .am-tabs-tab-bar-wrap {
       z-index: 0;
-      border-bottom: 1px solid #f5f5f5;
+      border-bottom: 1px solid var(--color-background-secondary);
     }
     &.edit .am-tabs-tab-bar-wrap {
       display: none;
@@ -196,7 +196,7 @@
       &:before {
         content: '';
         height: 3px;
-        background-color: #108ee9;
+        background-color: var(--color-primary);
         width: 80%;
         position: absolute;
         bottom: 0;
@@ -213,7 +213,7 @@
   }
   .extraAction {
     position: fixed;
-    bottom: 66px;
+    bottom: 80px;
     padding-bottom: calc(~'constant(safe-area-inset-bottom) - 20px');
     padding-bottom: calc(~'env(safe-area-inset-bottom) - 20px');
     right: 20px;
@@ -231,12 +231,12 @@
         padding: 0 14px;
         width: auto;
         height: 40px;
-        color: #757575;
+        color: var(--color-text-secondary);
         text-align: center;
         line-height: 40px;
         border-radius: 20px;
-        background-color: #fff;
-        box-shadow: 0 3px 6px 0px rgba(0, 0, 0, 0.16);
+        background-color: var(--color-background-card);
+        box-shadow: var(--shadow-md);
         z-index: 99;
         top: unset;
         bottom: unset;
@@ -254,10 +254,10 @@
       line-height: 36px;
       text-align: center;
       font-weight: 500;
-      color: #1677ff;
-      background-color: rgba(33, 150, 243, 0.08);
+      color: var(--color-primary);
+      background-color: var(--color-background-tertiary);
       border-radius: 11px;
-      margin-left: 3px;
+      margin-left: 6px;
       & > i {
         line-height: 36px;
       }
@@ -276,11 +276,11 @@
   .header {
     line-height: 24px;
     justify-content: space-between;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     .closeIcon {
       width: 24px;
       border-radius: 12px;
-      background-color: #e6e6e6;
+      background-color: var(--color-border-secondary);
     }
   }
   .am-action-sheet-button-list-item {
@@ -299,7 +299,7 @@
   }
 }
 .activeStar {
-  color: #ffb100 !important;
+  color: var(--color-warning) !important;
 }
 
 .switchRecordEntryWrap {
@@ -308,10 +308,10 @@
   text-align: center;
   font-size: 18px;
   border-radius: 50%;
-  background-color: #fff;
-  box-shadow: 0 3px 6px 0px rgba(0, 0, 0, 0.16);
+  background-color: var(--color-background-card);
+  box-shadow: var(--shadow-md);
   z-index: 99;
   padding-bottom: calc(~'constant(safe-area-inset-bottom) - 20px');
   padding-bottom: calc(~'env(safe-area-inset-bottom) - 20px');
-  color: #757575;
+  color: var(--color-text-secondary);
 }

@@ -64,7 +64,7 @@ export default ({
   >
     <Fragment>
       {_.isEmpty(dynamicValue) ? (
-        <span className="Gray_c LineHeight20 mTop5">{getPlaceHolder(data)}</span>
+        <span className="textPlaceholder LineHeight20 mTop5">{getPlaceHolder(data)}</span>
       ) : (
         <Fragment>
           {dynamicValue.map(item => {

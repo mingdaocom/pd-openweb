@@ -41,7 +41,7 @@ export default ({
         <div className={cx('flowDetailMemberNodeName ellipsis bold', errorClass)} title={nodeName || _l('节点删除')}>
           <i
             className={cx('Font14 mRight5', getIcons(parseInt(flowNodeType), parseInt(appType), actionId), {
-              Gray_75: !!nodeName && !!controlName,
+              textSecondary: !!nodeName && !!controlName,
             })}
           />
           {nodeName || _l('节点删除')}

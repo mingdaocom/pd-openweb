@@ -92,7 +92,7 @@ export default class CustomTextarea extends Component {
       errorMessage,
     } = this.props;
     const { fieldsVisible } = this.state;
-
+    const params = isIntegration ? { maxHeight: 'auto' } : {};
     return (
       <div className="flexRow mTop10 relative">
         <TagTextarea
@@ -127,10 +127,11 @@ export default class CustomTextarea extends Component {
           }}
           onBlur={onBlur}
           onChange={onChange}
+          {...params}
         />
         {content && onlyOneValue && (
           <i
-            className="icon-delete ThemeHoverColor3 Absolute Gray_75 Font16 pointer"
+            className="icon-delete ThemeHoverColor3 Absolute textSecondary Font16 pointer"
             style={{ right: 46, top: 10 }}
             onClick={() => onChange(null, '')}
           />

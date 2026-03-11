@@ -145,7 +145,11 @@ export default function Runner({ reRenderFlag, type, code, params, onChange = ()
       runnerEmitter.current.emit('set-loading', false);
     }, 0);
   }, [reRenderFlag]);
-  return <Con>{error ? <span style={{ color: '#ff2424' }}>{type === 'production' ? '' : error}</span> : element}</Con>;
+  return (
+    <Con>
+      {error ? <span style={{ color: 'var(--color-error)' }}>{type === 'production' ? '' : error}</span> : element}
+    </Con>
+  );
 }
 
 Runner.propTypes = {

@@ -16,7 +16,7 @@ import { createEditDeptDialog } from '../CreateEditDeptDialog';
 
 const Wrap = styled.div`
   padding: 12px 0;
-  border-top: 1px solid #eaeaea;
+  border-top: 1px solid var(--color-border-secondary);
   display: flex;
   align-items: center;
 `;
@@ -103,10 +103,10 @@ class CreateBtn extends Component {
             </span>
           }
         >
-          <Icon className="Font16 Gray_bd Hand mLeft4" icon="info_outline" />
+          <Icon className="Font16 textDisabled Hand mLeft4" icon="info_outline" />
         </Tooltip>
         <div className="flex"></div>
-        <span className="Hand ThemeColor mRight12" onClick={this.handleClick}>
+        <span className="Hand colorPrimary mRight12" onClick={this.handleClick}>
           <i className="mRight3 icon-add Font18 TxtMiddle" />
           {_l('添加')}
         </span>
@@ -139,7 +139,7 @@ class CreateBtn extends Component {
             </MenuWrap>
           }
         >
-          <Icon icon="moreop" className="Gray_9e Hand Font20 iconHover mRight12" />
+          <Icon icon="moreop" className="textTertiary Hand Font20 iconHover mRight12" />
         </Trigger>
       </Wrap>
     );

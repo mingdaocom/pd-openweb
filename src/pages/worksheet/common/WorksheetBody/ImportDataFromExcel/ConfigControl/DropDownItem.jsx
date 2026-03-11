@@ -53,21 +53,26 @@ export default class DropDownItem extends Component {
     );
 
     return (
-      <Dropdown overlay={menu} trigger={['click']} className={cx(className, 'excelControlDropDown')}>
+      <Dropdown
+        overlay={menu}
+        trigger={['click']}
+        align={{ overflow: { adjustY: true } }}
+        className={cx(className, 'excelControlDropDown')}
+      >
         <div className="fixedDropdownSelected">
           <span className="contentLabel">
             <span className="dropDownLabel TxtBottom">
               {value ? (
                 <span className="valueText">{this.getTextByValue('text', value)}</span>
               ) : (
-                <span className="valueText Gray_9e">{_l('请选择')}</span>
+                <span className="valueText textTertiary">{_l('请选择')}</span>
               )}
-              <span className="preViewContent Gray_9e mLeft12">
+              <span className="preViewContent textTertiary mLeft12">
                 {value ? this.getTextByValue('previewContent', value) : ''}
               </span>
             </span>
             <span className="Right mLeft10 mRight10">
-              <i className="icon-arrow-down-border Gray_9e Font14" />
+              <i className="icon-arrow-down-border textTertiary Font14" />
             </span>
           </span>
         </div>

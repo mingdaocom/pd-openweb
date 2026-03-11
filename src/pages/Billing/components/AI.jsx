@@ -8,16 +8,16 @@ import EditableTable from './EditableTable';
 const AITableWrap = styled.div`
   .aiTable {
     .providerCell {
-      background-color: #fafafa;
+      background-color: var(--color-background-secondary);
       font-weight: 500;
       color: #262626;
-      border-right: 1px solid #e0e0e0;
+      border-right: 1px solid var(--color-border-secondary);
       vertical-align: middle;
       text-align: left;
       width: 20%;
 
       &:first-child {
-        border-left: 1px solid #e0e0e0;
+        border-left: 1px solid var(--color-border-secondary);
       }
     }
 
@@ -31,7 +31,7 @@ const AITableWrap = styled.div`
 
     .providerSubtext {
       font-size: 12px;
-      color: #8c8c8c;
+      color: var(--color-text-secondary);
       margin-top: 4px;
     }
 
@@ -45,8 +45,8 @@ const AITableWrap = styled.div`
     }
 
     .emptyCell {
-      background-color: #f5f5f5;
-      color: #8c8c8c;
+      background-color: var(--color-background-secondary);
+      color: var(--color-text-secondary);
       text-align: center;
     }
 
@@ -205,7 +205,7 @@ const AI = () => {
                 </tbody>
               </table>
             ) : (
-              <div className="flexRow justifyContentCenter alignItemsCenter mHeight200 Font14 Gray_9e">
+              <div className="flexRow justifyContentCenter alignItemsCenter mHeight200 Font14 textTertiary">
                 {_l('暂无AI模型数据')}
               </div>
             );

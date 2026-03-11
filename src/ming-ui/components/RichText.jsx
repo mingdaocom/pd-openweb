@@ -56,12 +56,20 @@ for (let key in whiteListClone) {
 }
 const Wrapper = styled.div(
   ({ minHeight, maxWidth, maxHeight, dropdownPanelPosition = {}, width }) => `
+  --ck-color-button-default-hover-background: rgba(0, 0, 0, 0.1);
+  --ck-color-button-on-background: rgba(0, 0, 0, 0.1);
+  --ck-color-button-on-hover-background: rgba(0, 0, 0, 0.1);
+  [data-theme='dark'] & {
+    --ck-color-button-default-hover-background: rgba(255, 255, 255, 0.5);
+    --ck-color-button-on-background: rgba(255, 255, 255, 0.5);
+    --ck-color-button-on-hover-background: rgba(255, 255, 255, 0.5);
+  }
   .ck {
     &.ckByHtml {
       .ck-content table td, .ck-content table th {
         min-width: 2em;
         padding: 0.4em;
-        border: 1px solid #bfbfbf;
+        border: 1px solid var(--color-text-disabled);
       }
     }
     .ck-sticky-panel {
@@ -72,7 +80,7 @@ const Wrapper = styled.div(
       min-height: 28px !important;
       .ck-icon{
         font-size: 10px;
-        color: #515151;
+        color: var(--color-text-title);
       }
     }
     &.ck-toolbar-dropdown>.ck-dropdown__panel{
@@ -86,8 +94,8 @@ const Wrapper = styled.div(
         border: none;
       }
       .ck-toolbar_grouping {
-        background: #fafafa !important;
-        border: 1px solid #dddddd !important;
+        background: var(--color-background-secondary) !important;
+        border: 1px solid var(--color-border-primary) !important;
         height: 36px !important;
       }
       .ck-dropdown__panel {
@@ -96,8 +104,8 @@ const Wrapper = styled.div(
         }
       }
       .ck-dropdown__panel.ck-dropdown__panel_sw {
-        background: #ffffff !important;
-        border: 1px solid #e8e8e8 !important;
+        background: var(--color-background-primary) !important;
+        border: 1px solid var(--color-border-secondary) !important;
         box-shadow: 0px 3px 6px 0px rgba(0, 0, 0, 0.16) !important;
       }
       .ck-dropdown__panel.ck-dropdown__panel_ne,
@@ -111,9 +119,9 @@ const Wrapper = styled.div(
     .ck-content {
       min-height: ${minHeight || 90}px !important;
       max-height: ${maxHeight ? `${maxHeight}px` : 'initial'} ;
-      border: 1px solid #f7f7f7 !important;
+      border: 1px solid var(--color-background-secondary) !important;
       font-size: 13px !important;
-      background: #f7f7f7 !important;
+      background: var(--color-background-secondary) !important;
       border-radius: 3px !important;
       box-shadow: none !important;
       padding: 0 7.8px;
@@ -124,8 +132,8 @@ const Wrapper = styled.div(
         margin-bottom: 11.7px;
       }
       &.ck-focused {
-        background: #fff !important;
-        border: 1px solid #1677ff !important;
+        background: var(--color-background-primary) !important;
+        border: 1px solid var(--color-primary) !important;
       }
       h1 {
         font-size: 2em;
@@ -143,11 +151,11 @@ const Wrapper = styled.div(
   }
   &.disabled {
     .ck-content {
-      background: #fff !important;
+      background: var(--color-background-primary) !important;
       border: 0px !important;
       &.ck-focused {
-        background: #fff !important;
-        border: 1px solid #fff !important;
+        background: var(--color-background-primary) !important;
+        border: 1px solid var(--color-white) !important;
       }
     }
     .ck.ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected, .ck.ck-editor__editable.ck-blurred .ck-widget.ck-widget_selected:hover{
@@ -158,11 +166,11 @@ const Wrapper = styled.div(
     .ck {
       .ck-content {
         border: none !important;
-        background: #fff !important;
+        background: var(--color-background-primary) !important;
         border-radius: none !important;
         box-shadow: none !important;
         &.ck-focused {
-          background: #fff !important;
+          background: var(--color-background-primary) !important;
           border: none !important;
         }
       }
@@ -172,8 +180,8 @@ const Wrapper = styled.div(
     .ck-sticky-panel {
       display: block;
       .ck-toolbar{
-        background: #fafafa;
-        border: 1px solid #eaeaea !important;
+        background: var(--color-background-secondary);
+        border: 1px solid var(--color-border-secondary) !important;
         border-left:0;
         border-right:0;
       }
@@ -181,11 +189,11 @@ const Wrapper = styled.div(
   }
   &.editorNull{
     min-height: ${minHeight || 90}px ;
-    background: #fff ;
+    background: var(--color-background-primary);
     border-radius: 2px;
     padding: 10px;
-    color: #bdbdbd;
-    border: 1px solid #dddddd;
+    color: var(--color-text-disabled);
+    border: 1px solid var(--color-border-primary);
     overflow: hidden;
   }
   &.remarkControl{
@@ -633,7 +641,7 @@ const RichText = forwardRef((props, ref) => {
           }
         }}
         onBlur={(event, editor) => {
-          window.disableShortcutsSaveRecord = false;
+          window.richTextDialogIsActive = false;
           const currentData = editor.getData();
           if (normalizeContent(currentData) === normalizeContent(lastSavedContentRef.current)) return;
           changeSetting && changeSetting(true);
@@ -647,7 +655,7 @@ const RichText = forwardRef((props, ref) => {
           setTimeout(() => {
             !showTool && $(editorDiv.current).find('.ck-sticky-panel').show();
           }, 300);
-          window.disableShortcutsSaveRecord = true;
+          window.richTextDialogIsActive = true;
           onFocus();
         }}
       />

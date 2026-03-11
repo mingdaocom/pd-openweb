@@ -2,12 +2,12 @@
 @import url(./mixins.less);
 
 a {
-    color: @themeLinkColor;
+  color: @themeLinkColor;
 }
 
 .themeLoopClass(1, 10, ThemeColor, color, themeColor);
 .themeLoopClass(1, 10, ThemeBGColor, background-color, themeBgColor);
-.themeLoopClass(1, 10, ThemeHoverColor, color, themeHoverColor, ":hover");
+.themeLoopClass(1, 10, ThemeHoverColor, color, themeHoverColor, ':hover');
 .themeLoopClass(1, 10, ThemeBorderColor, border-color, themeBorderColor);
 
 .ThemeHoverBGColor2:hover {
@@ -17,7 +17,7 @@ a {
   background-color: @themeBgColor3 !important;
 }
 .ThemeHoverBGColor7:not(.ThemeBGColor8):hover {
-    background-color: @themeBgColor7 !important;
+  background-color: @themeBgColor7 !important;
 }
 .ThemeHoverBorderColor2:hover {
   border-color: @themeBorderColor2 !important;
@@ -33,13 +33,17 @@ a {
 }
 
 .btnBootstrap-primary {
-    background-color: @themeColor3;
-    transition: all 0.35s ease-in;
+  background-color: @themeColor3;
+  transition: all 0.35s ease-in;
 }
-.btnBootstrap-primary:hover, .btnBootstrap-primary:focus, .btnBootstrap-primary:active, .btnBootstrap-primary.active, .btnBootstrap-primary.disabled, .btnBootstrap-primary[disabled] {
-    background-color: @themeColor2;
+.btnBootstrap-primary:hover,
+.btnBootstrap-primary:focus,
+.btnBootstrap-primary:active,
+.btnBootstrap-primary.active,
+.btnBootstrap-primary.disabled,
+.btnBootstrap-primary[disabled] {
+  background-color: @themeColor2;
 }
-
 
 .MdLoader {
   position: relative;

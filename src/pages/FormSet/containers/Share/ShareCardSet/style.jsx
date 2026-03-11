@@ -10,12 +10,12 @@ export const Con = styled.div`
     .card {
       width: 100%;
       min-height: 110px;
-      background-color: #fff;
+      background-color: var(--color-background-primary);
       background-clip: padding-box;
       padding: 19px 19px 18px 16px;
       position: relative;
       z-index: 9;
-      box-shadow: 0px 3px 6px 1px rgba(0, 0, 0, 0.16);
+      box-shadow: var(--shadow-lg);
       display: flex;
       flex-direction: column;
       .desc {
@@ -79,7 +79,7 @@ export const Con = styled.div`
           left: -11.3137085px;
           width: 33.9411255px;
           height: 33.9411255px;
-          background: #fff;
+          background: var(--color-background-primary);
           background-repeat: no-repeat;
           background-position: -10px -10px;
           content: '';
@@ -100,7 +100,7 @@ export const Con = styled.div`
       width: 60px;
       height: 60px;
       border-radius: 3px;
-      border: 1px solid #e8e8e8;
+      border: 1px solid var(--color-border-secondary);
       text-align: center;
       position: relative;
       &:hover {
@@ -126,18 +126,18 @@ export const Con = styled.div`
           opacity: 1;
         }
         .Icon {
-          color: #fff;
+          color: var(--color-white);
         }
       }
     }
   }
   .fillInput {
-    border-color: #ddd !important;
+    border-color: var(--color-border-primary) !important;
     &:hover {
-      border-color: #ccc !important;
+      border-color: var(--color-border-tertiary) !important;
     }
     &:focus {
-      border-color: #1e88e5 !important;
+      border-color: var(--color-primary) !important;
     }
   }
   .customImgWrap {
@@ -160,7 +160,7 @@ export const Con = styled.div`
       .deleteBtn {
         width: 32px;
         height: 24px;
-        background: #fff;
+        background: var(--color-background-primary);
         border-radius: 3px;
         display: flex;
         align-items: center;
@@ -170,7 +170,7 @@ export const Con = styled.div`
         bottom: 12px;
         &:hover {
           .Icon {
-            color: red !important;
+            color: var(--color-error) !important;
           }
         }
       }
@@ -184,11 +184,11 @@ export const Con = styled.div`
 `;
 
 export const UploadBtn = styled(CustomButton)`
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-secondary);
   width: fit-content;
   &.disabled {
     cursor: not-allowed;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
   }
   .icon {
     display: inline-block;

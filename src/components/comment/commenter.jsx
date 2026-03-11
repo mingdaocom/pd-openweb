@@ -457,7 +457,7 @@ class Commenter extends React.Component {
           onBlur={onBlur}
           defaultValue={window.localStorage.getItem('commenter-' + this.props.storageId) || ''}
         />
-        <div className="commentActionsBox Gray" style={style}>
+        <div className="commentActionsBox textPrimary" style={style}>
           <Tooltip title={_l('上传附件')}>
             <span className="commentIconBtn">
               <Icon

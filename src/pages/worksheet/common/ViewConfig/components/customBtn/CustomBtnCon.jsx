@@ -37,7 +37,7 @@ const Item = ({
           editBtn(btnId);
         }}
       >
-        <span className="Font13 WordBreak Gray Bold flexRow alignItemsCenter">
+        <span className="Font13 WordBreak textPrimary Bold flexRow alignItemsCenter">
           {disable ? (
             <Tooltip placement="bottom" title={_l('批量操作的按钮不支持关联形态表单填写')}>
               <Icon icon={'error1'} style={{ color: 'red' }} className={cx('mRight12 Font18')} />
@@ -47,7 +47,15 @@ const Item = ({
               className="mRight12"
               addClassName="TxtMiddle"
               url={iconUrl}
-              fill={!icon ? '#bdbdbd' : !color ? '#1677ff' : color === 'transparent' ? '#151515' : color}
+              fill={
+                !icon
+                  ? 'var(--color-text-disabled)'
+                  : !color
+                    ? 'var(--color-primary)'
+                    : color === 'transparent'
+                      ? 'var(--color-text-primary)'
+                      : color
+              }
               size={18}
             />
           ) : (
@@ -56,11 +64,11 @@ const Item = ({
               style={{ color: color }}
               className={cx(
                 'mRight12 Font18',
-                !icon ? 'Gray_bd' : !color ? 'ThemeColor3' : color === 'transparent' ? 'Gray' : '',
+                !icon ? 'textDisabled' : !color ? 'ThemeColor3' : color === 'transparent' ? 'textPrimary' : '',
               )}
             />
           )}
-          <span className={cx('flex overflow_ellipsis', { Gray_9e: disable })}>{name || ''}</span>
+          <span className={cx('flex overflow_ellipsis', { textTertiary: disable })}>{name || ''}</span>
         </span>
         <Icon
           className="Font16 Hand copyIcon"

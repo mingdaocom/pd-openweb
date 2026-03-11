@@ -36,12 +36,12 @@ const Con = styled.div`
     height: 36px;
     padding: 0 16px;
     border-radius: 3px;
-    background-color: #f8f8f8;
+    background-color: var(--color-background-secondary);
     cursor: pointer;
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
       i {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
   }
@@ -57,7 +57,7 @@ const Tip2 = styled.div`
 const Receipt = styled.div`
   word-break: break-all;
   font-size: 14px;
-  color: #757575;
+  color: var(--color-text-secondary);
   text-align: left;
   padding: 0 50px;
   white-space: pre-line;
@@ -78,12 +78,12 @@ const Receipt = styled.div`
 
 function getIcon(status, worksheetId) {
   if (!worksheetId) {
-    return { icon: 'icon-cancel', color: '#f44133' };
+    return { icon: 'icon-cancel', color: 'var(--color-error)' };
   }
   if (status === FILL_STATUS.COMPLETED) {
-    return { icon: 'icon-check_circle', color: '#4CAF50' };
+    return { icon: 'icon-check_circle', color: 'var(--color-success)' };
   }
-  return { icon: 'icon-error1', color: '#FF6200' };
+  return { icon: 'icon-error1', color: 'var(--color-warning)' };
 }
 
 function getTip(worksheetId, status) {
@@ -137,7 +137,7 @@ export default function NotFillStatus(props) {
   const handleReceive = () => {
     const text = afterSubmit.content || '';
     const output = text.replace(/#\{([^}]+)\}/g, (match, controlId) => {
-      const control = _.find(fillData, l => l.controlId === controlId);
+      const control = _.find(fillData, l => l.controlId === controlId) || {};
 
       if (control.type === 14 && control.value && !_.isArray(safeParse(control.value))) {
         const fileValue = _.get(safeParse(control.value), 'attachments');
@@ -193,7 +193,7 @@ export default function NotFillStatus(props) {
             request.statusExtra !== 'no' &&
             (canSubmitByLimit || !!_.get(abilityExpand, 'allowViewChange.isAllowViewChange')) && (
               <Tip2
-                style={{ color: '#1677ff', margin: '24px 0', fontWeight: 600 }}
+                style={{ color: 'var(--color-primary)', margin: '24px 0', fontWeight: 600 }}
                 className="flexRow justifyContentCenter alignItemsCenter"
               >
                 <FilledRecord

@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button, Input } from 'antd';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
-import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
+import { dialogSelectIcon } from 'ming-ui/functions';
 
 const ButtonWrap = styled.div`
   .ant-btn,
@@ -49,11 +48,32 @@ export default function BtnName(props) {
     btnType === 2 ? { iconUrl: `${md.global.FileStoreConfig.pubHost}/customIcon/custom_actions.svg` } : {};
   const { icon, iconUrl } = config || defaultConfig;
 
-  // eslint-disable-next-line no-unused-vars
-  const [visible, setVisible] = useState(false);
-
-  const onCancel = () => {
-    setVisible(false);
+  const onEditIcon = () => {
+    dialogSelectIcon({
+      hideInput: true,
+      iconColor: color,
+      icon,
+      projectId,
+      workSheetId: pageId,
+      onModify: data => {
+        const { iconColor, icon, iconUrl } = data;
+        setBtnSetting({
+          ...btnSetting,
+          color: iconColor,
+          config: icon && iconUrl ? { ...config, icon, iconUrl } : config,
+        });
+      },
+      onClearIcon:
+        btnType === 1
+          ? () => {
+              setBtnSetting({
+                ...btnSetting,
+                icon: '',
+                config: { ...config, icon: '', iconUrl: '' },
+              });
+            }
+          : undefined,
+    });
   };
 
   return (
@@ -68,68 +88,14 @@ export default function BtnName(props) {
             setBtnSetting({ ...btnSetting, name });
           }}
         />
-        <Trigger
-          action={['click']}
-          zIndex={1000}
-          popupAlign={{ points: ['tl', 'bl'], offset: [-570, 5], overflow: { adjustX: true, adjustY: true } }}
-          popup={
-            <SelectIcon
-              hideInput={true}
-              iconColor={color}
-              workSheetId={pageId}
-              projectId={projectId}
-              icon={icon}
-              className="customPageBtnSelectIcon"
-              onModify={data => {
-                const { iconColor, icon, iconUrl } = data;
-                if (iconColor) {
-                  setBtnSetting({ ...btnSetting, color: iconColor });
-                }
-                if (icon || iconUrl) {
-                  setBtnSetting({
-                    ...btnSetting,
-                    config: {
-                      ...config,
-                      icon,
-                      iconUrl,
-                    },
-                  });
-                }
-              }}
-              onClearIcon={
-                btnType === 1
-                  ? () => {
-                      setBtnSetting({
-                        ...btnSetting,
-                        icon: '',
-                        config: {
-                          ...config,
-                          icon: '',
-                          iconUrl: '',
-                        },
-                      });
-                    }
-                  : undefined
-              }
-              onClickAway={onCancel}
-              onClose={onCancel}
-            />
-          }
-        >
-          <ButtonWrap color={color}>
-            <Button
-              type="primary"
-              onClick={() => {
-                setVisible(true);
-              }}
-            >
-              <SvgIcon url={iconUrl} fill="#fff" size={22} />
-              <div className="arrowWrap valignWrapper">
-                <Icon icon="arrow-down-border" />
-              </div>
-            </Button>
-          </ButtonWrap>
-        </Trigger>
+        <ButtonWrap color={color}>
+          <Button type="primary" onClick={onEditIcon}>
+            <SvgIcon url={iconUrl} fill="#fff" size={22} />
+            <div className="arrowWrap valignWrapper">
+              <Icon icon="arrow-down-border" />
+            </div>
+          </Button>
+        </ButtonWrap>
       </Input.Group>
     </div>
   );

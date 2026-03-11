@@ -8,12 +8,12 @@ export const Wrap = styled.div`
     font-weight: 400;
   }
   .Green_right {
-    color: #4caf50;
+    color: var(--color-success);
   }
   .iconCon {
     width: 44px;
     height: 44px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
     border-radius: 6px;
     position: relative;
     text-align: center;
@@ -21,8 +21,8 @@ export const Wrap = styled.div`
   }
   width: 880px;
   margin: 0 auto;
-  background: #ffffff;
-  // border: 1px solid #dddddd;
+  background: var(--color-background-primary);
+  // border: 1px solid var(--color-border-primary);
   border-radius: 10px;
   .con {
     padding: 20px 24px;
@@ -40,13 +40,13 @@ export const Wrap = styled.div`
   }
   .line {
     padding: 10px 0;
-    border-bottom: 1px solid #f2f2f2;
+    border-bottom: 1px solid var(--color-background-disabled);
   }
   .btn {
     &.disable {
-      background: #f5f5f5;
-      color: #bdbdbd;
-      border: 1px solid #bdbdbd;
+      background: var(--color-background-secondary);
+      color: var(--color-text-disabled);
+      border: 1px solid var(--color-text-disabled);
     }
   }
   .customTextareaCon {
@@ -60,14 +60,14 @@ export const Wrap = styled.div`
       box-sizing: border-box;
       border-top-right-radius: 4px;
       border-bottom-right-radius: 4px;
-      border-color: #ddd;
+      border-color: var(--color-border-primary);
       font-size: 20px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       &:not(:hover) {
-        color: #757575 !important;
+        color: var(--color-text-secondary) !important;
       }
     }
   }
@@ -75,9 +75,9 @@ export const Wrap = styled.div`
     border-radius: 3px;
     height: 36px;
     line-height: 36px;
-    background: #f4f4f3;
-    border: 1px solid #e0e0e0;
-    color: #151515;
+    background: var(--color-background-disabled);
+    border: 1px solid var(--color-border-secondary);
+    color: var(--color-text-title);
     font-size: 14px;
     padding: 0 10px;
     overflow: hidden;
@@ -86,11 +86,11 @@ export const Wrap = styled.div`
     height: 36px;
     line-height: 36px;
     padding: 0 25px;
-    background: #f4f4f3;
+    background: var(--color-background-disabled);
     border-radius: 4px 4px 4px 4px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;

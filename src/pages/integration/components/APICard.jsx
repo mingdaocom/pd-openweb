@@ -12,10 +12,10 @@ const Wrap = styled.div`
   p {
     margin: 0;
   }
-  background: #ffffff;
-  border: 1px solid #f5f5f5;
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-background-secondary);
   border-radius: 8px;
-  padding: 0 40px 0 12px;
+  padding: 0 20px 0 12px;
   align-items: center;
   margin-bottom: 16px;
   .logo {
@@ -30,26 +30,26 @@ const Wrap = styled.div`
   .optionCon {
     opacity: 0;
     .icon {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     .del {
       &:hover {
-        color: red;
+        color: var(--color-error);
       }
     }
   }
   .StatusTxt {
     opacity: 1;
     position: absolute;
-    max-width: 145px;
+    max-width: 200px;
   }
   &:hover {
-    border: 1px solid #e8e8e8;
+    border: 1px solid var(--color-border-secondary);
     .name {
-      color: #1677ff;
+      color: var(--color-primary);
     }
     .optionCon {
       opacity: 1;
@@ -63,7 +63,7 @@ const Wrap = styled.div`
     width: 62px;
   }
   .publishStatusCon {
-    width: 145px;
+    width: 200px;
   }
   .apiDesCon {
     height: 74px;
@@ -75,7 +75,7 @@ function APICard(props) {
   return (
     <Wrap className="flexRow alignItemsCenter">
       <LogoWrap className="logo iconWrap flexRow alignItemsCenter justifyContentCenter">
-        <div className="bg" style={{ backgroundColor: props.item.iconColor || '#757575' }}></div>
+        <div className="bg" style={{ backgroundColor: props.item.iconColor || 'var(--color-text-secondary)' }}></div>
         {props.item.iconName ? (
           <SvgIcon url={props.item.iconName} fill={props.item.iconColor} size={32} />
         ) : (
@@ -90,7 +90,7 @@ function APICard(props) {
       >
         <div className="">
           <p className="Font15 Bold name Hand WordBreak overflow_ellipsis">{props.item.name}</p>
-          <p className="Font13 Gray_9e WordBreak overflow_ellipsis" title={props.item.explain}>
+          <p className="Font13 textTertiary WordBreak overflow_ellipsis" title={props.item.explain}>
             {props.item.explain}
           </p>
         </div>
@@ -110,15 +110,17 @@ function APICard(props) {
         />
       </div>
       <div className="publishStatusCon">
-        {props.item.publishStatus === 1 && props.item.enabled && (
-          <span
-            className={cx(
-              'StatusTxt mLeft40 Font12 ellipsis',
-              props.item.publishStatus === 1 ? 'ThemeColor3' : 'Gray_9e',
-            )}
-          >{`${formatDate(props.item.lastModifiedDate)} ${publishStatus2Text[props.item.publishStatus]}`}</span>
-        )}
-        <div className="optionCon mLeft40">
+        <span
+          className={cx('StatusTxt mLeft40 Font12', props.item.publishStatus === 1 ? 'ThemeColor3' : 'textTertiary')}
+        >
+          {props?.item?.lastModifiedDate && props?.item?.publishStatus
+            ? `${formatDate(props.item.lastModifiedDate)} ${publishStatus2Text[props.item.publishStatus]}`
+            : props?.item?.createdDate
+              ? `${_l('创建于')} ${formatDate(props.item.createdDate)}`
+              : ''}
+        </span>
+
+        <div className="optionCon mLeft40 TxtCenter">
           <Tooltip title={_l('日志')}>
             <span>
               <Icon
@@ -133,7 +135,7 @@ function APICard(props) {
           <Tooltip title={_l('复制')}>
             <span className="mLeft25">
               <Icon
-                className={cx('Font18 InlineBlock', { 'Gray_9e Alpha5': !props.canEdit, Hand: props.canEdit })}
+                className={cx('Font18 InlineBlock', { 'textTertiary Alpha5': !props.canEdit, Hand: props.canEdit })}
                 icon="copy"
                 onClick={() => {
                   if (!props.canEdit) {
@@ -147,7 +149,7 @@ function APICard(props) {
           <Tooltip title={_l('删除')}>
             <span className="mLeft25">
               <Icon
-                className={cx('Font18 InlineBlock del', { 'Gray_9e Alpha5': !props.canEdit, Hand: props.canEdit })}
+                className={cx('Font18 InlineBlock del', { 'textTertiary Alpha5': !props.canEdit, Hand: props.canEdit })}
                 icon="trash"
                 onClick={() => {
                   if (!props.canEdit) {

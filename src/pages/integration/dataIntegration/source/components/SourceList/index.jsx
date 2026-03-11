@@ -28,15 +28,15 @@ const FilterContent = styled.div`
     height: 36px;
     border-radius: 50%;
     margin-left: 24px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     cursor: pointer;
 
     &:hover {
-      color: #1677ff;
-      background: #f5f5f5;
+      color: var(--color-primary);
+      background: var(--color-background-secondary);
     }
     &.isActive {
-      color: #1677ff;
+      color: var(--color-primary);
       background: rgba(33, 150, 243, 0.07);
     }
   }
@@ -49,7 +49,7 @@ const RedDot = styled.div`
   width: 6px;
   height: 6px;
   border-radius: 100%;
-  background-color: red;
+  background-color: var(--color-error);
 `;
 
 const FilterItem = styled.div`
@@ -65,7 +65,7 @@ const FilterItem = styled.div`
   .itemText {
     min-width: 70px;
     font-size: 13px;
-    color: #757575;
+    color: var(--color-text-secondary);
     font-weight: 600;
     padding: 8px 0;
   }
@@ -79,19 +79,19 @@ const FilterItem = styled.div`
       margin: 4px 0 4px 8px;
       height: 28px;
       box-sizing: border-box;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border-secondary);
       border-radius: 20px;
       cursor: pointer;
       line-height: 26px;
       font-size: 12px;
-      color: #151515;
+      color: var(--color-text-title);
 
       &.isActive {
         font-weight: 600;
-        color: #1677ff;
+        color: var(--color-primary);
       }
       &:hover {
-        border-color: #ccc;
+        border-color: var(--color-border-tertiary);
       }
       &::before {
         display: block;
@@ -114,12 +114,12 @@ const FilterItem = styled.div`
     border-radius: 14px;
     top: 5px;
     right: 0;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
     cursor: pointer;
 
     &:hover {
-      color: #1677ff;
-      background: #f5f5f5;
+      color: var(--color-primary);
+      background: var(--color-background-secondary);
     }
   }
 `;
@@ -130,14 +130,14 @@ const SourceListBox = styled.div`
     align-items: center;
     margin: 0;
     padding: 8px 0;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
 
     .sortIcon {
-      color: #bfbfbf;
+      color: var(--color-text-disabled);
       height: 8px;
 
       &.selected {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
@@ -147,7 +147,7 @@ const SourceListBox = styled.div`
     align-items: center;
     margin: 0;
     padding: 12px 0;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
 
     .titleText,
     .taskNum {
@@ -156,9 +156,9 @@ const SourceListBox = styled.div`
     }
 
     &:hover {
-      background: rgba(247, 247, 247, 1);
+      background: var(--color-background-card);
       .titleText {
-        color: #1677ff;
+        color: var(--color-primary);
       }
       .optionIcon {
         background: rgba(247, 247, 247, 1);
@@ -189,12 +189,12 @@ const SourceListBox = styled.div`
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    color: #9e9e9e;
-    background: #fff;
+    color: var(--color-text-tertiary);
+    background: var(--color-background-primary);
 
     &:hover {
-      color: #1677ff;
-      background: #fff !important;
+      color: var(--color-primary);
+      background: var(--color-background-primary) !important;
     }
   }
 
@@ -226,10 +226,10 @@ const NoDataWrapper = styled.div`
     width: 130px;
     height: 130px;
     line-height: 130px;
-    background: #fbfbfb;
+    background: var(--color-background-secondary);
     border-radius: 50%;
     margin: 64px auto 0;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 `;
 
@@ -365,7 +365,7 @@ export default function SourceList(props) {
       title: _l('地址'),
       render: item => {
         return (
-          <div title={item.address} className="Gray_75 overflow_ellipsis">
+          <div title={item.address} className="textSecondary overflow_ellipsis">
             {item.address}
           </div>
         );
@@ -467,7 +467,7 @@ export default function SourceList(props) {
         return (
           <div className="pRight8">
             <span>{item.creatorName}</span>
-            <span className="Gray_9e">{` 创建于 ${formatDate(item.createTime)}`}</span>
+            <span className="textTertiary">{` 创建于 ${formatDate(item.createTime)}`}</span>
           </div>
         );
       },
@@ -593,7 +593,7 @@ export default function SourceList(props) {
                 <span className="iconCon InlineBlock TxtCenter ">
                   <i className="icon-storage Font64 TxtMiddle" />
                 </span>
-                <p className="Gray_9e mTop20 mBottom0">{_l('暂无数据')}</p>
+                <p className="textTertiary mTop20 mBottom0">{_l('暂无数据')}</p>
               </NoDataWrapper>
             )}
           </SourceListBox>

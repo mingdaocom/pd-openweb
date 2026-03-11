@@ -13,6 +13,7 @@ import RecordCoverCard from 'src/components/Form/MobileForm/components/RelateRec
 import RelateScanQRCode from 'src/components/Form/MobileForm/components/RelateScanQRCode.jsx';
 import { getIsScanQR } from 'src/components/Form/MobileForm/components/ScanQRCode';
 import { getCoverUrl } from 'src/components/Form/MobileForm/tools/utils';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import MobileNewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { fieldCanSort } from 'src/utils/control';
@@ -77,7 +78,7 @@ export default class RecordCardListDialog extends Component {
     this.isOnComposition = false;
   }
   componentDidMount() {
-    const { control, keyWords, parentWorksheetId, staticRecords = [] } = this.props;
+    const { control, keyWords, parentWorksheetId, staticRecords = [], isScan } = this.props;
 
     if (!_.isEmpty(staticRecords)) {
       this.setState({ list: staticRecords, loading: false });
@@ -108,10 +109,13 @@ export default class RecordCardListDialog extends Component {
 
             () => {
               if (!this.clickSearch || keyWords) {
-                this.handleSearch(keyWords, control.advancedSetting.scancontrolid === 'rowid' ? true : false);
+                this.handleSearch(keyWords, control.advancedSetting.scancontrolid === 'rowid' && isScan ? true : false);
               }
             },
           );
+        })
+        .catch(err => {
+          this.setState({ loading: false, error: err.errorCode === 300016 ? err.errorCode : err.errorMessage });
         });
     } else {
       if (!this.clickSearch || keyWords) {
@@ -178,7 +182,7 @@ export default class RecordCardListDialog extends Component {
       if (worksheetInfo) {
         control.relationControls = worksheetInfo.template.controls;
       }
-      filterControls = getFilter({ control, formData });
+      filterControls = getFilter({ control, formData, appId: this.props.appId });
     }
     // 存在不符合条件值的条件
     if (filterControls === false && !ignoreAllFilters) {
@@ -231,7 +235,7 @@ export default class RecordCardListDialog extends Component {
         : quickFilters;
 
     if (from !== FROM.PUBLIC_ADD && !window.isPublicWorksheet) {
-      getFilterRowsPromise = sheetAjax.getFilterRows;
+      getFilterRowsPromise = sheetAjax.chooseRelationRows;
 
       args = {
         worksheetId: relateSheetId,
@@ -302,76 +306,83 @@ export default class RecordCardListDialog extends Component {
     this.setState({ loading: true });
     this.abortSearch();
     this.searchAjax = getFilterRowsPromise(args);
-    this.searchAjax.then(res => {
-      if (res.resultCode === 1) {
-        let filteredList = _.uniqBy(
-          list.concat(res.data.filter(record => !_.find(filterRowIds, fid => record.rowid === fid))),
-          'rowid',
-        );
+    this.searchAjax
+      .then(res => {
+        if (res.resultCode === 1) {
+          let filteredList = _.uniqBy(
+            list.concat(res.data.filter(record => !_.find(filterRowIds, fid => record.rowid === fid))),
+            'rowid',
+          );
 
-        this.setState(
-          {
-            list: getDataType
-              ? list.concat(res.data.filter(rec => !_.includes(relationRowIds, rec.rowid)))
-              : filteredList,
-            loading: false,
-            loadouted: res.data.length < 20,
-            controls: res.template
-              ? replaceControlsTranslateInfo(res.worksheet.appId, null, res.template.controls)
-              : [],
-            worksheet: res.worksheet || {},
-          },
-          () => {
-            if (this.props.keyWords && res.data.length === 1) {
-              this.setState({
-                selectedRecords: [res.data[0]],
-              });
-            }
-            if (!this.state.loadouted && filteredList.length < 8) {
-              this.loadNext();
-            }
-
-            if (window.isMingDaoApp && (isScan || isScanSearch) && multiple) {
-              const firstRow = res.data && res.data.length ? res.data[0] : {};
-              if (filteredList.length > 1) {
-                // 终止扫码，用户手动选
-                compatibleMDJS('stopScanWithControls', { cid: controlId, cancel: () => {} });
-              } else if (filteredList.length === 1) {
-                const titleControl = _.find(_.get(control, 'relationControls'), i => i.attribute === 1) || {};
-                const nameValue = titleControl ? firstRow[titleControl.controlId] : undefined;
-                // 直接关联
-                onOk([firstRow]);
-                this.appScanCallback({
-                  controlId,
-                  enumDefault: control.enumDefault,
-                  controlName: control.controlName,
-                  title: getCurrentValue(titleControl, nameValue, { type: 2 }),
-                  rowId: firstRow.rowid,
+          this.setState(
+            {
+              list: getDataType
+                ? list.concat(res.data.filter(rec => !_.includes(relationRowIds, rec.rowid)))
+                : filteredList,
+              loading: false,
+              loadouted: res.data.length < 20,
+              controls: res.template
+                ? replaceControlsTranslateInfo(res.worksheet.appId, null, res.template.controls)
+                : [],
+              worksheet: res.worksheet || {},
+            },
+            () => {
+              if (this.props.keyWords && res.data.length === 1) {
+                this.setState({
+                  selectedRecords: [res.data[0]],
                 });
-                onClose();
-                handleReplaceHistoryState();
-              } else {
-                this.appScanCallback({
-                  controlId,
-                  enumDefault: control.enumDefault,
-                  controlName: control.controlName,
-                  title: '',
-                  rowId: '',
-                  type: _.isEmpty(firstRow) ? '1' : '3',
-                });
-                onClose();
-                handleReplaceHistoryState();
               }
-            }
-          },
-        );
-      } else {
+              if (!this.state.loadouted && filteredList.length < 8) {
+                this.loadNext();
+              }
+
+              if (window.isMingDaoApp && (isScan || isScanSearch) && multiple) {
+                const firstRow = res.data && res.data.length ? res.data[0] : {};
+                if (filteredList.length > 1) {
+                  // 终止扫码，用户手动选
+                  compatibleMDJS('stopScanWithControls', { cid: controlId, cancel: () => {} });
+                } else if (filteredList.length === 1) {
+                  const titleControl = _.find(_.get(control, 'relationControls'), i => i.attribute === 1) || {};
+                  const nameValue = titleControl ? firstRow[titleControl.controlId] : undefined;
+                  // 直接关联
+                  onOk([firstRow]);
+                  this.appScanCallback({
+                    controlId,
+                    enumDefault: control.enumDefault,
+                    controlName: control.controlName,
+                    title: getCurrentValue(titleControl, nameValue, { type: 2 }),
+                    rowId: firstRow.rowid,
+                  });
+                  onClose();
+                  handleReplaceHistoryState();
+                } else {
+                  this.appScanCallback({
+                    controlId,
+                    enumDefault: control.enumDefault,
+                    controlName: control.controlName,
+                    title: '',
+                    rowId: '',
+                    type: _.isEmpty(firstRow) ? '1' : '3',
+                  });
+                  onClose();
+                  handleReplaceHistoryState();
+                }
+              }
+            },
+          );
+        } else {
+          this.setState({
+            loading: false,
+            error: true,
+          });
+        }
+      })
+      .catch(err => {
         this.setState({
           loading: false,
-          error: true,
+          error: err.errorCode === 300016 ? err.errorCode : err.errorMessage,
         });
-      }
-    });
+      });
   }
 
   // 关联记录关联成功将当前关联数据通过js sdk返回给APP
@@ -564,7 +575,7 @@ export default class RecordCardListDialog extends Component {
       handleReplaceHistoryState = () => {},
     } = this.props;
     const { keyWords, worksheet, worksheetInfo = {}, filtersVisible, quickFilters, fastFiltersVisible } = this.state;
-    const filterControls = getFilter({ control, formData });
+    const filterControls = getFilter({ control, formData, appId: this.props.appId });
     const { searchfilters = '[]' } = _.get(control, 'advancedSetting') || {};
     const searchFilters = safeParse(searchfilters, 'array');
     const controls = _.get(worksheetInfo, 'template.controls');
@@ -585,7 +596,7 @@ export default class RecordCardListDialog extends Component {
     return (
       <div className="flexRow alignItemsCenter justifyContentCenter mTop10 pLeft10 pRight10">
         <div className="searchWrapper flex">
-          <Icon className="Gray_9e" icon="h5_search" />
+          <Icon className="textTertiary" icon="h5_search" />
           <form action="#" className="flex" onSubmit={event => event.preventDefault()}>
             <input
               className="w100"
@@ -607,7 +618,7 @@ export default class RecordCardListDialog extends Component {
           </form>
           {keyWords ? (
             <Icon
-              className="Gray_9e"
+              className="textTertiary"
               icon="workflow_cancel"
               onClick={() => {
                 if (this.inputRef) {
@@ -643,7 +654,7 @@ export default class RecordCardListDialog extends Component {
                   }, 200);
                 }}
               >
-                <Icon className="Font20 Gray_9e" icon="qr_code_19" />
+                <Icon className="Font20 textTertiary" icon="qr_code_19" />
               </RelateScanQRCode>
             )
           )}
@@ -654,7 +665,7 @@ export default class RecordCardListDialog extends Component {
               className="filterWrapper flexRow alignItemsCenter justifyContentCenter mLeft10"
               onClick={() => this.setState({ filtersVisible: true })}
             >
-              <Icon className={cx('Font20', { ThemeColor: quickFilters.length })} icon="filter" />
+              <Icon className={cx('Font20', { colorPrimary: quickFilters.length })} icon="filter" />
             </div>
             <Filter
               filtersVisible={filtersVisible}
@@ -677,7 +688,7 @@ export default class RecordCardListDialog extends Component {
                 className="filterWrapper flexRow alignItemsCenter justifyContentCenter mLeft10"
                 onClick={() => this.setState({ fastFiltersVisible: true })}
               >
-                <Icon className={cx('Font20', { ThemeColor: quickFilters.length })} icon="filter" />
+                <Icon className={cx('Font20', { colorPrimary: quickFilters.length })} icon="filter" />
               </div>
               <QuickFilterView
                 view={fastFiltersView}
@@ -834,7 +845,7 @@ export default class RecordCardListDialog extends Component {
                 <div className="emptyIcon flexColumn valignWrapper">
                   <i className="icon Icon icon-ic-line Font56" />
                   {error ? (
-                    <p className="emptyTip Gray_9e">
+                    <p className="emptyTip textTertiary">
                       {error === 'notCorrectCondition'
                         ? _l('不存在符合条件的%0', worksheet.entityName || control.sourceEntityName || '')
                         : _l('没有权限')}
@@ -849,7 +860,7 @@ export default class RecordCardListDialog extends Component {
                       )}
                     </p>
                   ) : (
-                    <p className="emptyTip Gray_9e">
+                    <p className="emptyTip textTertiary">
                       {keyWords
                         ? _l('无匹配的结果')
                         : this.clickSearch
@@ -876,7 +887,7 @@ export default class RecordCardListDialog extends Component {
       className,
       handleReplaceHistoryState = () => {},
     } = this.props;
-    const { selectedRecords } = this.state;
+    const { selectedRecords, error } = this.state;
 
     return (
       <PopupWrapper
@@ -903,8 +914,14 @@ export default class RecordCardListDialog extends Component {
         }
       >
         <div className="flexColumn mobileRecordCardListDialog">
-          {!disabledManualWrite && this.renderSearchWrapper()}
-          {this.renderContent()}
+          {error === 300016 ? (
+            <RestrictAccessStatus />
+          ) : (
+            <Fragment>
+              {!disabledManualWrite && this.renderSearchWrapper()}
+              {this.renderContent()}
+            </Fragment>
+          )}
         </div>
       </PopupWrapper>
     );

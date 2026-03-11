@@ -10,7 +10,7 @@ export default ({ data }) => {
         <div className="Font16 mTop10">{_l('对话触发')}</div>
       </div>
       <div className="workflowDetailBox mTop20">
-        <div className="Gray_75">
+        <div className="textSecondary">
           {_l(
             '对话触发后，系统将依序执行工作流中各节点。所有 AI Agent 节点的输出内容作为本轮对话的回复，依序展示给用户',
           )}

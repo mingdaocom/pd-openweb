@@ -34,6 +34,7 @@
 }
 
 .popupWrapper {
+  background-color: var(--color-background-primary);
   .popupHeaderBox {
     display: flex;
     justify-content: space-between;
@@ -55,15 +56,15 @@
       left: 50%;
       transform: translateX(-50%);
       max-width: 150px;
-      color: #151515;
+      color: var(--color-text-title);
     }
 
     .btnCancel {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
 
     .btnBack {
-      color: #1677ff;
+      color: var(--color-primary);
     }
 
     .rightBtnBox {
@@ -71,11 +72,11 @@
       gap: 16px;
 
       .btnClear {
-        color: #f44336;
+        color: var(--color-error);
       }
 
       .btnConfirm {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
 
@@ -85,12 +86,12 @@
 
     .widthIconTitle-center {
       max-width: 180px;
-      color: #151515;
+      color: var(--color-text-title);
       font-size: 18px;
     }
     .widthIconTitle-left {
       max-width: 200px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       font-size: 13px;
     }
     .closeIcon {
@@ -103,9 +104,15 @@
       width: 24px;
       height: 24px;
       border-radius: 12px;
-      background-color: #e6e6e6;
+      background-color: var(--color-border-secondary);
       font-size: 18px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
+    }
+    .leftBox {
+      position: absolute;
+      left: 16px;
+      top: 10px;
+      font-size: 18px;
     }
   }
   .popupContentBox {

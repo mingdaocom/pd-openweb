@@ -54,8 +54,8 @@ export default class IntegrationApi extends React.Component {
           <div>
             {cite.length > 0 ? (
               <React.Fragment>
-                <span className="Font14 Bold Gray">{_l('注意：当前API正在被组织内引用')}</span>
-                <p className="Gray_75 Font14 mTop8">{_l('请务必确认引用位置不再需要此API，再执行此操作')}</p>
+                <span className="Font14 Bold textPrimary">{_l('注意：当前API正在被组织内引用')}</span>
+                <p className="textSecondary Font14 mTop8">{_l('请务必确认引用位置不再需要此API，再执行此操作')}</p>
               </React.Fragment>
             ) : (
               _l('API 删除后将不可恢复，确认删除吗？')

@@ -12,6 +12,7 @@ import { func, oneOf } from 'prop-types';
 import styled from 'styled-components';
 import { Icon, Menu, MenuItem, Skeleton, SvgIcon, UpgradeIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import { dialogSelectIcon } from 'ming-ui/functions';
 import appManagementApi from 'src/api/appManagement';
 import DragMask from 'worksheet/common/DragMask';
 import { refreshSheetList } from 'worksheet/redux/actions/sheetList';
@@ -19,7 +20,6 @@ import ProductLicenseInfo from 'src/components/productLicenseInfo';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import AppAnalytics from 'src/pages/Admin/app/useAnalytics/components/AppAnalytics';
 import CopyApp from 'src/pages/AppHomepage/components/CopyApp';
-import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 import { unlockAppLockPassword } from 'src/pages/AppSettings/components/LockApp/AppLockPasswordDialog';
 import { pcNavList } from 'src/pages/PageHeader/AppPkgHeader/AppDetail/AppNavStyle';
 import GlobalSearch from 'src/pages/PageHeader/components/GlobalSearch';
@@ -66,7 +66,7 @@ const Drag = styled.div(
   height: 100%;
   cursor: ew-resize;
   &:hover {
-    border-left: 1px solid #ddd;
+    border-left: 1px solid var(--color-border-primary);
   }
 `,
 );
@@ -110,7 +110,6 @@ export default class AppInfo extends Component {
     this.state = {
       indexSideVisible: false,
       appConfigVisible: false,
-      modifyAppIconAndNameVisible: false,
       editAppIntroVisible: false,
       isEditing: false,
       isShowAppIntroFirst: !_.includes(openedApps, appId) && !isRowInfo,
@@ -142,6 +141,7 @@ export default class AppInfo extends Component {
     if (!_.includes(openedApps, appId)) {
       safeLocalStorageSetItem('openedApps', JSON.stringify(openedApps.concat(appId)));
     }
+    emitter.addListener('CHANGE_THEME_MODE', this.handleChangeThemeMode);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -153,7 +153,13 @@ export default class AppInfo extends Component {
     if (data.id === getIds(this.props).appId) {
       const isRowInfo = checkRecordInfo(nextProps.location.pathname);
       const currentPcNaviStyle = isRowInfo ? 0 : data.pcNaviStyle;
-      const appStatus = isRowInfo ? 0 : nextProps.appStatus;
+      let appStatus = isRowInfo ? 0 : nextProps.appStatus;
+
+      if (nextProps.appStatus === 300016 || _.get(nextProps, 'appStatus.status') === 300016) {
+        appStatus = 300016;
+        data.appStatus = 300016;
+      }
+
       this.setState({
         data: {
           ...data,
@@ -178,6 +184,7 @@ export default class AppInfo extends Component {
     $('[rel="icon"]').attr('href', '/file/mdpic/ProjectLogo/favicon.png?t=' + Date.now());
     document.querySelector('body').classList.remove('leftNavigationStyleWrap');
     this.props.clearAppDetail();
+    emitter.removeListener('CHANGE_THEME_MODE', this.handleChangeThemeMode);
     delete window.updateAppGroups;
   }
 
@@ -190,10 +197,11 @@ export default class AppInfo extends Component {
   };
 
   checkNavigationStyle = currentPcNaviStyle => {
+    const body = document.querySelector('body');
     if ([1, 3].includes(currentPcNaviStyle)) {
-      document.querySelector('body').classList.add('leftNavigationStyleWrap');
+      body && body.classList.add('leftNavigationStyleWrap');
     } else {
-      document.querySelector('body').classList.remove('leftNavigationStyleWrap');
+      body && body.classList.remove('leftNavigationStyleWrap');
     }
   };
 
@@ -206,6 +214,22 @@ export default class AppInfo extends Component {
       return 'black';
     }
     return 'theme';
+  };
+
+  handleChangeThemeMode = value => {
+    const { iconColor, lightThemeModeNavColor } = this.state.data;
+    if (value === 'dark') {
+      const navColor = '#1b2025';
+      this.handleModify({
+        iconColor,
+        navColor,
+      });
+    } else {
+      this.handleModify({
+        iconColor,
+        navColor: lightThemeModeNavColor,
+      });
+    }
   };
 
   getData = async (props = this.props) => {
@@ -243,10 +267,20 @@ export default class AppInfo extends Component {
 
     data.currentPcNaviStyle =
       checkRecordInfo(location.pathname) || !_.find(pcNavList, { value: data.pcNaviStyle }) ? 0 : data.pcNaviStyle;
-    data.themeType = this.getThemeType(data.iconColor, data.navColor);
+    data.lightThemeModeNavColor = data.navColor;
     data.needUpdate = Date.now();
     data.workflowAgentFeatureType = getFeatureStatus(data.projectId, VersionProductType.workflowAgent);
-    this.props.setAppStatus(data.appStatus);
+    if (window.themeMode === 'dark') {
+      data.navColor = '#1b2025';
+    }
+    data.themeType = this.getThemeType(data.iconColor, data.navColor);
+
+    const accessPolicyStatus = localStorage.getItem('accessPolicyStatus');
+    if (accessPolicyStatus === '300016') {
+      data.appStatus = 300016;
+    }
+    this.props.setAppStatus(accessPolicyStatus === '300016' ? 300016 : data.appStatus);
+    localStorage.removeItem('accessPolicyStatus');
 
     this.setState({ data });
     // 同步应用信息至工作表
@@ -410,7 +444,7 @@ export default class AppInfo extends Component {
     if (_.includes(['appAnalytics', 'copy', 'worksheetapi', 'modifyAppLockPassword'], type)) {
       return (
         <React.Fragment>
-          <div style={{ width: '100%', margin: '3px 0', borderTop: '1px solid #EAEAEA' }} />
+          <div style={{ width: '100%', margin: '3px 0', borderTop: '1px solid var(--color-border-secondary)' }} />
           {this.renderMenuHtml({ type, icon, text, action, ...rest })}
         </React.Fragment>
       );
@@ -493,6 +527,22 @@ export default class AppInfo extends Component {
             return;
           }
 
+          if (type === 'modify') {
+            dialogSelectIcon({
+              projectId,
+              ..._.pick(this.state.data, ['icon', 'iconColor', 'name', 'navColor']),
+              onModify: data => {
+                data.lightThemeModeNavColor = data.navColor;
+                this.handleModify(data);
+              },
+              onChange: this.handleAppIconAndNameChange,
+              showNavigationConfig: canEditApp(permissionType, isLock),
+              onChangeNavigationConfig: this.onChangeNavigationConfig,
+              app: this.state.data,
+            });
+            return;
+          }
+
           this.handleAppConfigClick(action);
         }}
         {...rest}
@@ -528,9 +578,16 @@ export default class AppInfo extends Component {
     });
   };
 
+  onChangeNavigationConfig = value => {
+    const result = { ...this.state.data, ...value };
+    this.setState({ data: result });
+    this.updateAppDetail(value);
+    this.props.syncAppDetail(result);
+  };
+
   renderAppInfoWrap = showName => {
     const { appStatus } = this.props;
-    const { appConfigVisible, modifyAppIconAndNameVisible, data } = this.state;
+    const { appConfigVisible, data } = this.state;
     const {
       iconUrl,
       iconColor,
@@ -545,6 +602,7 @@ export default class AppInfo extends Component {
       themeType,
       sourceType,
       ssoAddress,
+      exported,
     } = data;
     const isUpgrade = _.includes([10, 11], appStatus);
     const isNormalApp = _.includes([1, 5], appStatus);
@@ -574,7 +632,7 @@ export default class AppInfo extends Component {
     }
     // 应用市场
     if (sourceType === 60) {
-      _.remove(list, o => o.type === 'copy');
+      !exported && _.remove(list, o => o.type === 'copy');
     } else {
       _.remove(list, o => o.type === 'appLicense');
     }
@@ -699,26 +757,6 @@ export default class AppInfo extends Component {
               </div>
             </Tooltip>
           )}
-          {modifyAppIconAndNameVisible && (
-            <SelectIcon
-              projectId={projectId}
-              {..._.pick(data, ['icon', 'iconColor', 'name', 'navColor'])}
-              className="modifyAppInfo"
-              onNameInput={this.handleNameInput}
-              onModify={this.handleModify}
-              onChange={this.handleAppIconAndNameChange}
-              onClose={() => this.switchVisible({ selectIconVisible: false })}
-              onClickAway={() => this.switchVisible({ modifyAppIconAndNameVisible: false })}
-              onClickAwayExceptions={['.mui-dialog-container']}
-              onShowNavigationConfig={
-                canEditApp(permissionType, isLock)
-                  ? () => {
-                      this.setState({ navigationConfigVisible: true });
-                    }
-                  : null
-              }
-            />
-          )}
         </Fragment>
       );
     };
@@ -726,7 +764,11 @@ export default class AppInfo extends Component {
     if ([1, 3].includes(currentPcNaviStyle)) {
       const renderContent = ({ count, waitingExamine }, onClick) => {
         return (
-          <div className="flexRow alignItemsCenter pointer White backlogWrap" onClick={onClick}>
+          <div
+            className="flexRow alignItemsCenter pointer backlogWrap"
+            style={{ color: 'var(--color-white)' }}
+            onClick={onClick}
+          >
             <Icon icon="task_alt" className="Font18" />
             <div className="mLeft5 mRight5 bold">{_l('待办')}</div>
             {!!count && <div className="count">{count}</div>}
@@ -740,14 +782,18 @@ export default class AppInfo extends Component {
             <div className="flex">
               {!(window.isPublicApp || !s || md.global.Account.isPortal) && renderHomepageIconWrap()}
             </div>
-            {!window.isPublicApp && ss && !md.global.Account.isPortal && (
+            {appStatus !== 300016 && !window.isPublicApp && ss && !md.global.Account.isPortal && (
               <Tooltip title={_l('超级搜索')} shortcut="F">
-                <div className="flexRow alignItemsCenter pointer White backlogWrap" onClick={this.openGlobalSearch}>
+                <div
+                  className="flexRow alignItemsCenter pointer backlogWrap"
+                  style={{ color: 'var(--color-white)' }}
+                  onClick={this.openGlobalSearch}
+                >
                   <Icon icon="search" className="Font18" />
                 </div>
               </Tooltip>
             )}
-            {!(md.global.Account.isPortal || window.isPublicApp) && td && (
+            {appStatus !== 300016 && !(md.global.Account.isPortal || window.isPublicApp) && td && (
               <MyProcessEntry type="appPkg" renderContent={renderContent} />
             )}
           </div>
@@ -883,7 +929,7 @@ export default class AppInfo extends Component {
                     <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                       <path
                         d="M0.5,22 L0.5,13.9851088 C0.503434088,13.8199063 0.5,13.6531791 0.5,13.4856816 C0.5,6.59003004 6.32029825,1 13.5,1"
-                        stroke="#0000001a"
+                        stroke="var(--color-border-tertiary)"
                       ></path>
                     </g>
                   </svg>
@@ -892,7 +938,7 @@ export default class AppInfo extends Component {
                     <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                       <path
                         d="M0.5,21 L0.5,12.9851088 C0.503434088,12.8199063 0.5,12.6531791 0.5,12.4856816 C0.5,5.59003004 6.32029825,0 13.5,0"
-                        stroke="#0000001a"
+                        stroke="var(--color-border-tertiary)"
                         transform="translate(7.000000, 10.500000) scale(1, -1) translate(-7.000000, -10.500000) "
                       ></path>
                     </g>
@@ -968,14 +1014,7 @@ export default class AppInfo extends Component {
           >
             <NavigationConfig
               app={data}
-              onChangeApp={value => {
-                const result = { ...data, ...value };
-                this.setState({
-                  data: result,
-                });
-                this.updateAppDetail(value);
-                this.props.syncAppDetail(result);
-              }}
+              onChangeApp={this.onChangeNavigationConfig}
               visible={navigationConfigVisible}
               onClose={this.closeNavigationConfigVisible}
             />

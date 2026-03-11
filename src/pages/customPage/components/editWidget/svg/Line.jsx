@@ -8,7 +8,7 @@ export default props => (
           <path
             data-name="\u8DEF\u5F84 60033"
             d="M60.428 64.592l-36.534-36.66-21.12 14.572-1.773-2.45 23.262-16.052 35.871 35.992 17.44-22.551 2.452 1.808z"
-            fill="#f44336"
+            fill="var(--color-error)"
           />
         </g>
         <g data-name="\u7EC4 18283">

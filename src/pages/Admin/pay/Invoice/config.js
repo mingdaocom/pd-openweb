@@ -1,8 +1,8 @@
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 export const TABS = [
-  { key: 'taxNo', label: _l('开票税号'), permissionKey: PERMISSION_ENUM.TAX },
-  { key: 'list', label: _l('开票记录'), permissionKey: PERMISSION_ENUM.INVOICE },
+  { key: 'taxNo', label: _l('开票税号'), permissionKeys: [PERMISSION_ENUM.TAX_OPEN, PERMISSION_ENUM.TAX_SETTING] },
+  { key: 'list', label: _l('开票记录'), permissionKeys: PERMISSION_ENUM.INVOICE },
 ];
 
 // 税号状态文本

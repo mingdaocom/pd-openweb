@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 const Wrap = styled.div`
-  background: #ffffff 0% 0% no-repeat padding-box;
+  background: var(--color-background-primary) 0% 0% no-repeat padding-box;
   box-shadow: 0px 0px 4px #0000001f;
   border-radius: 4px;
   padding: 45px 24px;
@@ -25,29 +25,31 @@ export default class CreateOrAdd extends React.Component {
 
   renderCon = () => {
     const { onChange = () => {} } = this.props;
-
+    const canCreateProject = md.global.Account.superAdmin || md.global.SysSettings.enableCreateProject;
     return (
       <React.Fragment>
         <Wrap className="gNextBox mTop32" onClick={() => onChange({ step: 'add' })}>
-          <h5 className="Gray Font18 Bold">
+          <h5 className="textPrimary Font18 Bold">
             {_l('加入')}
-            <span style={{ color: '#00BCD7' }} className="mLeft3 mRight3">
+            <span style={{ color: 'var(--color-cyan-dark)' }} className="mLeft3 mRight3">
               {_l('已有')}
             </span>
             {_l('组织')}
           </h5>
-          <p className="Gray Font13 mTop12">{_l('同事已经在用，我要找到并加入组织')}</p>
+          <p className="textPrimary Font13 mTop12">{_l('同事已经在用，我要找到并加入组织')}</p>
         </Wrap>
-        <Wrap className="gNextBox mTop24 mBottom25" onClick={() => onChange({ step: 'create' })}>
-          <h5 className="Gray Font18 Bold">
-            {_l('创建')}
-            <span style={{ color: '#3E4DB9' }} className="mLeft3 mRight3">
-              {_l('新的')}
-            </span>
-            {_l('组织')}
-          </h5>
-          <p className="Gray Font13 mTop12">{_l('我想自己创建一个新组织')}</p>
-        </Wrap>
+        {canCreateProject && (
+          <Wrap className="gNextBox mTop24 mBottom25" onClick={() => onChange({ step: 'create' })}>
+            <h5 className="textPrimary Font18 Bold">
+              {_l('创建')}
+              <span style={{ color: 'var(--color-link-hover)' }} className="mLeft3 mRight3">
+                {_l('新的')}
+              </span>
+              {_l('组织')}
+            </h5>
+            <p className="textPrimary Font13 mTop12">{_l('我想自己创建一个新组织')}</p>
+          </Wrap>
+        )}
       </React.Fragment>
     );
   };

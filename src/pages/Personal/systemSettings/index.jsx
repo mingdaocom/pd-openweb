@@ -153,21 +153,21 @@ export default class AccountChart extends React.Component {
 
     return (
       <div className="systemSettingsContainer">
-        <div className="mTop24 Gray Font15 Bold">{_l('偏好设置')}</div>
+        <div className="mTop24 textPrimary Font15 Bold">{_l('偏好设置')}</div>
         {configs.map((item, index) => {
           return (
             <div className="systemSettingItem borderNoe" key={index}>
-              <div className="systemSettingsLabel Gray_75 LineHeight32">{item.label}</div>
+              <div className="systemSettingsLabel textSecondary LineHeight32">{item.label}</div>
               <div className="systemSettingsRight">{this[item.component]()}</div>
             </div>
           );
         })}
         <div className="systemSettingItem">
-          <div className="systemSettingsLabel Gray_75 LineHeight32">{_l('时区')}</div>
+          <div className="systemSettingsLabel textSecondary LineHeight32">{_l('时区')}</div>
           <div className="systemSettingsRight">
-            <div className="Gray_75 mBottom16">
+            <div className="textSecondary mBottom16">
               <Dropdown
-                className="systemSettingsZone Gray w100"
+                className="systemSettingsZone textPrimary w100"
                 border
                 value={this.state.currentTimeZone}
                 data={this.state.timeZones}
@@ -189,16 +189,20 @@ export default class AccountChart extends React.Component {
             </div>
           </div>
         </div>
+
         {md.global.SysSettings.enableMap && (
           <div className="systemSettingItem">
-            <div className="systemSettingsLabel Gray_75 LineHeight32">{_l('地图')}</div>
+            <div className="systemSettingsLabel textSecondary LineHeight32">{_l('地图')}</div>
             <div className="systemSettingsRight">
-              <div className="Gray_75 mBottom10">
+              <div className="textSecondary mBottom10">
                 <Dropdown
-                  className="systemSettingsZone Gray"
+                  className="systemSettingsZone textPrimary"
                   border
                   value={this.state.map}
-                  data={this.state.mapList}
+                  data={[
+                    { text: _l('高德地图'), value: 0 },
+                    { text: _l('Google地图'), value: 1 },
+                  ]}
                   onChange={value => {
                     this.sureSettings('map', value, () => {
                       this.setState({ map: value });
@@ -207,7 +211,7 @@ export default class AccountChart extends React.Component {
                   }}
                 />
               </div>
-              <div className="Gray_9e">
+              <div className="textTertiary">
                 {this.state.map === 1
                   ? _l('包含全球地图，暂不支持搜索名称定位。')
                   : _l('支持搜索地点名称定位，地图信息只包含：中国大陆、香港、澳门、台湾地区')}
@@ -216,9 +220,9 @@ export default class AccountChart extends React.Component {
           </div>
         )}
         <div className="systemSettingItem borderNoe">
-          <div className="systemSettingsLabel Gray_75">{_l('浏览器新消息通知')}</div>
+          <div className="systemSettingsLabel textSecondary">{_l('浏览器新消息通知')}</div>
           <div className="systemSettingsRight">
-            <div className="Gray_75 mBottom16">{_l('当有新消息时以何种方式提醒')}</div>
+            <div className="textSecondary mBottom16">{_l('当有新消息时以何种方式提醒')}</div>
             <div className="mBottom16">
               <Checkbox
                 checked={this.state.isOpenMessageSound}
@@ -252,7 +256,7 @@ export default class AccountChart extends React.Component {
           </div>
         </div>
         <div className="systemSettingItem borderNoe">
-          <div className="systemSettingsLabel Gray_75">{_l('应用返回首页方式')}</div>
+          <div className="systemSettingsLabel textSecondary">{_l('应用返回首页方式')}</div>
           <div className="systemSettingsRight">
             <RadioGroup
               size="middle"

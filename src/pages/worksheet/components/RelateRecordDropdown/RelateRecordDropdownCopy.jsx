@@ -7,11 +7,11 @@ import styled from 'styled-components';
 import { ClickAway, SortableList } from 'ming-ui';
 import RelateRecordCards from 'worksheet/components/RelateRecordCards';
 import { FROM } from 'src/components/Form/core/config';
-import { getTitleTextFromRelateControl } from 'src/components/Form/core/utils';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import { updateRelateRecordSorts } from 'src/pages/worksheet/controllers/record';
 import { getTranslateInfo } from 'src/utils/app';
+import { getTitleTextFromRelateControl } from 'src/utils/control';
 import { checkIsTextControl } from 'src/utils/control';
 import AutoWidthInput from './AutoWidthInput';
 import RelateRecordList from './RelateRecordList';
@@ -20,17 +20,17 @@ import './style.less';
 const OnlyScanTip = styled.div`
   width: 310px;
   padding: 10px 16px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   border-radius: 3px;
-  background-color: #fff;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.24);
+  background-color: var(--color-background-primary);
+  box-shadow: var(--shadow-lg);
   .clearBtn {
     padding: 6px 16px;
     margin: 0 -16px 6px;
     cursor: pointer;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     &:hover {
-      background: #e4f4ff;
+      background: var(--color-primary-transparent);
     }
   }
 `;
@@ -40,7 +40,7 @@ const PlaceHolder = styled.div`
   left: 10px;
   top: 50%;
   margin-top: -6px;
-  color: #bdbdbd;
+  color: var(--color-text-disabled);
   line-height: 1em;
   width: calc(100% - 10px);
 `;

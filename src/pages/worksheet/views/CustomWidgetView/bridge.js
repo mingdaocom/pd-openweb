@@ -76,7 +76,7 @@ export default class WidgetBridge {
           ...args,
           projectId: get(this, 'cache.current.config.worksheetInfo.projectId'),
           worksheetInfo:
-            args.worksheetId && args.worksheetId !== get(this, 'cache.current.config.worksheetInfo.worksheetId')
+            args?.worksheetId && args?.worksheetId !== get(this, 'cache.current.config.worksheetInfo.worksheetId')
               ? undefined
               : get(this, 'cache.current.config.worksheetInfo'),
         });

@@ -10,7 +10,7 @@ import WidgetIntro from '../WidgetIntro';
 
 const SubControlConfigWrap = styled.div`
   position: absolute;
-  background: #fff;
+  background: var(--color-background-primary);
   top: 0;
   left: 0;
   width: 100%;
@@ -34,7 +34,7 @@ const SubControlConfigWrap = styled.div`
     line-height: 36px;
     padding: 12px 20px;
     font-size: 15px;
-    color: #151515;
+    color: var(--color-text-title);
     span {
       margin-left: 6px;
     }
@@ -96,7 +96,7 @@ export default function SubControlConfig({
   return (
     <SubControlConfigWrap>
       <div className="backToSupConfig pointer" onClick={backTop}>
-        <i className="icon-arrow-left-border Font18 Gray_75"></i>
+        <i className="icon-arrow-left-border Font18 textSecondary"></i>
         <span className="Bold">{controlName}</span>
       </div>
       <WidgetIntro {...subListProps} setSettingMode={setSettingMode} />

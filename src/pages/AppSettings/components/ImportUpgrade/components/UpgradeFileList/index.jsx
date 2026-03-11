@@ -3,6 +3,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, Icon, LoadDiv, QiniuUpload, SvgIcon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
 
 const FileListWrap = styled.div`
@@ -13,13 +14,13 @@ const FileListWrap = styled.div`
   min-height: 0;
   border-radius: 8px;
   overflow-y: auto;
-  border: 1px dashed #eaeaea;
+  border: 1px dashed var(--color-border-secondary);
   box-sizing: border-box;
   margin-bottom: 20px;
   flex: 1;
   padding: 32px 0 32px 56px;
   ::-webkit-scrollbar-thumb {
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     background-clip: padding-box;
   }
   .upgradeAppUploadButton {
@@ -32,7 +33,7 @@ const FileItemWrap = styled.div`
   align-items: center;
   .itemInfo {
     border-radius: 8px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
     width: 310px;
     height: 72px;
     padding: 0 24px 0 16px;
@@ -42,9 +43,9 @@ const FileItemWrap = styled.div`
       width: 40px;
       height: 40px;
       display: inline-block;
-      background: #fff;
+      background: var(--color-background-primary);
       border-radius: 4px 4px 4px 4px;
-      color: #fff;
+      color: var(--color-white);
       text-align: center;
       line-height: 40px;
       .icon,
@@ -55,22 +56,25 @@ const FileItemWrap = styled.div`
   }
   .addFileButton {
     .iconWrap {
-      border: 1px dashed #bdbdbd;
+      border: 1px dashed var(--color-text-disabled);
     }
   }
   .greenColor {
-    color: #4caf50;
+    color: var(--color-success);
   }
   .redColor {
-    color: #f44336;
+    color: var(--color-error);
   }
   .passwordInputBox {
     width: 248px;
     line-height: 40px;
-    border: 1px solid #1677ff;
+    border: 1px solid var(--color-border-secondary);
     border-radius: 3px;
     padding: 0 12px;
     box-sizing: border-box;
+    &.focus {
+      border: 1px solid var(--color-primary);
+    }
   }
 `;
 
@@ -80,6 +84,8 @@ const CHECK_FILE_ERROR_TEXT = {
   4: _l('重试超过6次'),
   5: _l('解析错误'),
   6: _l('工作表数量超标'),
+  50: _l('无法导入，应用在回收站中或已被彻底删除'),
+  51: _l('无法导入，应用在其他组织中已存在'),
 };
 
 const MAX_FILES = 20;
@@ -87,16 +93,12 @@ const MAX_FILES = 20;
 export default function UpgradeFileList(props) {
   const { files, projectId, addFilesLoading, batchCheckFiles, updateFiles } = props;
   const [passwords, setPasswords] = useState({});
+  const [focusKey, setFocusKey] = useState(null);
   const uploadFiles = useRef([]);
 
   const onDelete = fileName => {
     const item = _.find(files, l => l.fileName === fileName);
     const password = (passwords[item.fileName] || '').trim();
-
-    if (!password && [2, 3].includes(item.code)) {
-      alert(_l('请输入密码'), 2);
-      return;
-    }
 
     appManagementAjax
       .batchImportCheck({
@@ -122,7 +124,7 @@ export default function UpgradeFileList(props) {
   const renderItemStatus = item => {
     switch (item.code) {
       case 0:
-        return <span className="Gray_9e">{_l('已上传')}</span>;
+        return <span className="textTertiary">{_l('已上传')}</span>;
       case -1:
       case 1:
       case 4:
@@ -139,10 +141,11 @@ export default function UpgradeFileList(props) {
         return (
           <Fragment>
             <input
-              className="passwordInputBox mRight20"
+              className={cx('passwordInputBox mRight20', { focus: focusKey === item.key })}
               placeholder={_l('请输入密码')}
               value={passwords[item.fileName]}
               onChange={e => setPasswords({ ...passwords, [item.fileName]: e.target.value })}
+              onFocus={() => setFocusKey(item.key)}
             />
             <Button
               type="primary"
@@ -151,8 +154,28 @@ export default function UpgradeFileList(props) {
             >
               {_l('确认')}
             </Button>
+            {focusKey === item.key && (
+              <Tooltip title={_l('将当前输入的密码自动填入所有应用密码框')} placement="top">
+                <span
+                  className="colorPrimary mLeft10 Hand"
+                  onClick={() => {
+                    const newPasswords = files.reduce((obj, v) => {
+                      obj[v.fileName] = passwords[item.fileName];
+                      return obj;
+                    }, {});
+                    console.log(newPasswords, 'newPasswords');
+                    setPasswords({ ...passwords, ...newPasswords });
+                  }}
+                >
+                  {_l('一键复用')}
+                </span>
+              </Tooltip>
+            )}
           </Fragment>
         );
+      case 50:
+      case 51:
+        return <span className="redColor">{CHECK_FILE_ERROR_TEXT[String(item.code)]}</span>;
       default:
         return null;
     }
@@ -186,9 +209,9 @@ export default function UpgradeFileList(props) {
         <FileItemWrap className="Hand">
           <div className="itemInfo addFileButton">
             <span className="iconWrap mRight10">
-              <Icon icon="add" className="icon Font16 Gray_bd" />
+              <Icon icon="add" className="icon Font16 textDisabled" />
             </span>
-            <span className="flex overflow_ellipsis Font15 ThemeColor">{_l('上传文件')}</span>
+            <span className="flex overflow_ellipsis Font15 colorPrimary">{_l('上传文件')}</span>
           </div>
         </FileItemWrap>
       </QiniuUpload>
@@ -206,11 +229,18 @@ export default function UpgradeFileList(props) {
                 <SvgIcon url={appInfo.iconUrl} fill="#fff" size={24} />
               </span>
               <span className="flex name overflow_ellipsis Font15">{appInfo.name}</span>
-              <span className="remove Font13 Gray_9e Hand" onClick={() => onDelete(item.fileName)}>
+              <span className="remove Font13 textTertiary Hand" onClick={() => onDelete(item.fileName)}>
                 {_l('移除')}
               </span>
             </div>
-            <Icon icon="check_circle" className={cx('mRight16 Font20', item.code === 0 ? 'greenColor' : 'Gray_bd')} />
+            {_.includes([50, 51], item.code) ? (
+              <Icon icon="closeelement-bg-circle" className="mRight16 redColor Font20" />
+            ) : (
+              <Icon
+                icon="check_circle"
+                className={cx('mRight16 Font20', item.code === 0 ? 'greenColor' : 'textDisabled')}
+              />
+            )}
             {renderItemStatus(item)}
           </FileItemWrap>
         );

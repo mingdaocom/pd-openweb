@@ -11,7 +11,7 @@ import { FlexSpacer, VerticalMiddle } from 'worksheet/components/Basics';
 const GroupItemLink = styled(MdLink)`
   display: block;
   &.draggingItem > div {
-    background: #f1f1f1;
+    background: var(--color-background-disabled);
   }
   &.isDragging:not(.draggingItem) {
     transition: ease 0.3s;
@@ -20,14 +20,14 @@ const GroupItemLink = styled(MdLink)`
 
 const GroupItemCon = styled.div`
   display: block;
-  color: #151515;
+  color: var(--color-text-title);
   font-size: 14px;
   cursor: pointer;
   height: 36px;
   padding: 0 14px;
   margin: 0 -14px;
   border-radius: 6px;
-  background: #fff;
+  background: var(--color-background-primary);
   font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
     'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
@@ -44,11 +44,11 @@ const GroupItemCon = styled.div`
   .star {
     &.isMarked,
     &:hover {
-      color: #ffc400 !important;
+      color: var(--color-yellow-dark) !important;
     }
   }
   .visibleStar {
-    color: #ffc400;
+    color: var(--color-yellow-dark);
   }
   &.hover:not(.isDragging),
   &:hover:not(.isDragging) {
@@ -67,7 +67,7 @@ const GroupItemCon = styled.div`
   }
   &.hover:not(.isDragging):not(.active),
   &:hover:not(.isDragging):not(.active) {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-hover);
   }
   &.active {
     color: ${({ themeColor }) => themeColor};
@@ -93,9 +93,9 @@ const MenuWrap = styled(Menu)`
   padding: 6px 0 !important;
   width: 200px !important;
   .ming.MenuItem.red .Item-content {
-    color: #f44336 !important;
+    color: var(--color-error) !important;
     .Icon {
-      color: #f44336 !important;
+      color: var(--color-error) !important;
     }
   }
 `;
@@ -164,12 +164,12 @@ export default function GroupItem(props) {
     >
       <VerticalMiddle>
         {fontIcon ? (
-          <i className={`fontIcon icon icon-${fontIcon} Font16 Gray_75 mRight8`} />
+          <i className={`fontIcon icon icon-${fontIcon} Font16 textSecondary mRight8`} />
         ) : (
           <GroupItemIcon
             size={18}
             url={iconUrl || `${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`}
-            fill="#757575"
+            fill="var(--color-text-secondary)"
           />
         )}
         <span className="name ellipsis">{name}</span>
@@ -217,7 +217,7 @@ export default function GroupItem(props) {
                   }
                 >
                   <MoreBtnCon>
-                    <i className="icon icon-more_horiz Font18 Gray_9e Hand" />
+                    <i className="icon icon-more_horiz Font18 textTertiary Hand" />
                   </MoreBtnCon>
                 </Trigger>
               )}
@@ -225,7 +225,7 @@ export default function GroupItem(props) {
               <Tooltip placement="right" title={isMarked ? _l('取消标星') : _l('标星')}>
                 <i
                   className={cx(
-                    `star icon icon-${isMarked ? 'task-star' : 'star_outline'} Font18 Gray_9e mLeft5 stopPropagation`,
+                    `star icon icon-${isMarked ? 'task-star' : 'star_outline'} Font18 textTertiary mLeft5 stopPropagation`,
                     {
                       isMarked,
                     },
@@ -234,7 +234,7 @@ export default function GroupItem(props) {
                 />
               </Tooltip>
             </VerticalMiddle>
-            {itemType !== 'star' && count !== 0 && <span className="num Gray_9e">{count}</span>}
+            {itemType !== 'star' && count !== 0 && <span className="num textTertiary">{count}</span>}
             {itemType !== 'star' && isMarked && <i className={cx('visibleStar icon-task-star Font18  mLeft8')} />}
           </React.Fragment>
         )}

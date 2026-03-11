@@ -111,10 +111,10 @@ export default class HandOver extends React.Component {
                 {user.fullname}
               </a>
             </UserCard>
-            <span className="overflow_ellipsis Gray_bd wMax100" title={user.department}>
+            <span className="overflow_ellipsis textDisabled wMax100" title={user.department}>
               {user.department}
             </span>
-            <span className="overflow_ellipsis Gray_bd wMax100" title={user.job}>
+            <span className="overflow_ellipsis textDisabled wMax100" title={user.job}>
               {user.job}
             </span>
           </span>
@@ -155,7 +155,7 @@ export default class HandOver extends React.Component {
               <div className="flexRow originalCharger alignItemsCenter">{this.renderUser(item.originalChargeUser)}</div>
             </div>
             <div className="tableWork">
-              <span className="overflow_ellipsis TxtMiddle Gray Font14">{item.createTime}</span>
+              <span className="overflow_ellipsis TxtMiddle textPrimary Font14">{item.createTime}</span>
             </div>
             <div className="tableDays overflowHidden">
               <span className="ellipsis TxtMiddle color_b Font13 InlineBlock w100">

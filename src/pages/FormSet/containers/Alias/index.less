@@ -1,5 +1,5 @@
 .aliasCon {
-  background: #fff;
+  background: var(--color-background-primary);
   h5,
   p,
   h6 {
@@ -17,30 +17,30 @@
       font-weight: 500;
       font-size: 17px;
       letter-spacing: 0px;
-      color: #151515;
+      color: var(--color-text-title);
     }
     p {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       font-size: 13px;
       margin-top: 8px;
     }
     .attr {
-      border: 1px solid #cccccc;
+      border: 1px solid var(--color-text-placeholder);
       border-radius: 2px;
       width: 100%;
       height: 36px;
       display: flex;
       position: relative;
       &:hover {
-        border: 1px solid #bdbdbd;
+        border: 1px solid var(--color-text-disabled);
       }
       .inputTxt {
         flex: 1;
         padding-left: 12px;
         line-height: 36px;
-        color: #151515;
+        color: var(--color-text-title);
         &.noData {
-          color: #bdbdbd;
+          color: var(--color-text-disabled);
         }
       }
       .icon {
@@ -50,11 +50,11 @@
     }
     .line {
       display: block;
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-secondary);
       margin: 32px 0;
     }
     .name {
-      border: 1px solid #cccccc;
+      border: 1px solid var(--color-text-placeholder);
       border-radius: 2px;
       width: 100%;
       height: 36px;
@@ -62,10 +62,10 @@
       padding: 0 13px;
       box-sizing: border-box;
       &:hover {
-        border: 1px solid #bdbdbd;
+        border: 1px solid var(--color-text-disabled);
       }
       &:focus {
-        border: 1px solid #1677ff;
+        border: 1px solid var(--color-primary);
       }
     }
     .preview {
@@ -75,14 +75,14 @@
           width: 74px;
           text-align: left;
           padding: 5px 0;
-          color: #757575;
+          color: var(--color-text-secondary);
         }
         .btnCon {
           display: inline-block;
           padding: 5px 18px;
-          background: #1677ff 0% 0% no-repeat padding-box;
+          background: var(--color-primary) 0% 0% no-repeat padding-box;
           border-radius: 22px;
-          color: #fff;
+          color: var(--color-white);
           max-width: 560px;
           cursor: initial;
         }
@@ -91,7 +91,7 @@
           .noticeCon {
             flex: 1;
             box-shadow: 0px 1px 3px #00000029;
-            border: 1px solid #efefef;
+            border: 1px solid var(--color-border-secondary);
             border-radius: 2px;
             padding: 10px;
             display: flex;
@@ -99,21 +99,21 @@
               width: 32px;
               height: 32px;
               display: inline-block;
-              background: #f7a943 0% 0% no-repeat padding-box;
-              color: #fff;
+              background: var(--color-warning) 0% 0% no-repeat padding-box;
+              color: var(--color-white);
               border-radius: 50%;
               line-height: 33px;
               text-align: center;
             }
             .textCon {
-              color: #9e9e9e;
+              color: var(--color-text-tertiary);
               padding-left: 13px;
               padding-top: 5px;
               .text {
                 display: block;
                 max-width: 490px;
                 span {
-                  color: #1677ff;
+                  color: var(--color-primary);
                 }
               }
             }
@@ -123,21 +123,21 @@
     }
   }
   .nameFocus {
-    background-color: #f7a943;
+    background-color: var(--color-warning);
   }
   .btnAlias {
-    border: 1px solid #1677ff;
+    border: 1px solid var(--color-primary);
     border-radius: 3px;
     width: 132px;
     text-align: center;
     height: 36px;
     line-height: 36px;
     display: inline-block;
-    color: #1677ff;
+    color: var(--color-primary);
     cursor: pointer;
     &:hover {
-      color: #fff;
-      background-color: #1677ff;
+      color: var(--color-white);
+      background-color: var(--color-primary);
     }
   }
   .listCon {
@@ -149,7 +149,7 @@
     overflow: auto;
     max-height: 264px;
     display: block;
-    background: #ffffff 0% 0% no-repeat padding-box;
+    background: var(--color-background-primary) 0% 0% no-repeat padding-box;
     box-shadow: 0px 6px 24px #0000003d;
     border-radius: 2px;
     li {
@@ -159,17 +159,17 @@
       padding: 0 14px;
       box-sizing: border-box;
       cursor: pointer;
-      color: #151515;
+      color: var(--color-text-title);
       &.current,
       &:hover {
-        background-color: #1677ff;
-        color: #fff;
+        background-color: var(--color-primary);
+        color: var(--color-white);
         .icon {
-          color: #fff;
+          color: var(--color-white);
         }
       }
       .icon {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
     }
   }

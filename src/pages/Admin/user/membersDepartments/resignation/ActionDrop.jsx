@@ -48,7 +48,7 @@ export default function ActionDrop(props) {
           </MenuWrap>
         }
       >
-        <Icon icon="moreop" className="Gray_9e Font16 Hand" />
+        <Icon icon="moreop" className="textTertiary Font16 Hand" />
       </Trigger>
     </div>
   );

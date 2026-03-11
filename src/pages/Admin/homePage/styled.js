@@ -8,15 +8,15 @@ export const HomePageWrap = styled.div`
   padding-top: 19px;
   box-sizing: border-box;
   overflow-y: auto;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   .Red_f00 {
-    color: #ff0000;
+    color: var(--color-error);
   }
   .Yellow_de9 {
-    color: #de9000;
+    color: var(--color-warning);
   }
   .Hover_theme:hover {
-    color: #0063b2 !important;
+    color: var(--color-link-hover) !important;
   }
   .Hover_theme.Normal.Bold {
     font-weight: bold !important;
@@ -33,7 +33,7 @@ export const HomePageWrap = styled.div`
     gap: 10px;
     flex-wrap: wrap;
     .infoCard {
-      background: #fff;
+      background: var(--color-background-primary);
       border-radius: 6px;
       min-height: 187px;
       padding: 20px 24px;
@@ -42,15 +42,15 @@ export const HomePageWrap = styled.div`
       flex-direction: column;
       justify-content: space-between;
       .renewTag {
-        color: #4caf50;
+        color: var(--color-success);
         .doneIcon {
           margin-right: 4px;
         }
       }
       .helpIcon {
-        color: #d0d0d0 !important;
+        color: var(--color-text-tertiary) !important;
         &:hover {
-          color: #1677ff !important;
+          color: var(--color-primary) !important;
         }
       }
       .buttons {
@@ -62,9 +62,9 @@ export const HomePageWrap = styled.div`
       .greenBtn {
         padding: 6px 21px;
         font-size: 14px;
-        color: #fff;
+        color: var(--color-white);
         border-radius: 16px;
-        background: #4caf59;
+        background: var(--color-success);
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -73,16 +73,16 @@ export const HomePageWrap = styled.div`
           height: 20px;
         }
         &:hover {
-          color: #fff;
-          background: #1d660e;
+          color: var(--color-white);
+          background: var(--color-success-hover);
         }
       }
       .blueBtn {
         padding: 6px 21px;
         font-size: 14px;
-        color: #fff;
+        color: var(--color-white);
         border-radius: 16px;
-        background: #1677ff;
+        background: var(--color-primary);
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -91,27 +91,27 @@ export const HomePageWrap = styled.div`
           height: 20px;
         }
         &:hover {
-          color: #fff;
-          background: #1565c0;
+          color: var(--color-white);
+          background: var(--color-link-hover);
         }
       }
       .whiteBtn {
         padding: 6px 16px;
         font-size: 14px;
-        color: #333;
+        color: var(--color-text-primary);
         border-radius: 16px;
-        border: 1px solid #dddddd;
+        border: 1px solid var(--color-border-primary);
         cursor: pointer;
         &:hover {
-          color: #1565c0;
-          border: 1px solid #1565c0;
+          color: var(--color-link-hover);
+          border: 1px solid var(--color-link-hover);
           cursor: pointer;
         }
       }
       .trialTag {
         padding: 4px 8px;
-        background: #fef5ea;
-        color: #de9000;
+        background: var(--color-warning-bg);
+        color: var(--color-warning);
         margin-left: 10px;
         display: inline-block;
         border-radius: 50px;
@@ -126,7 +126,7 @@ export const HomePageWrap = styled.div`
         line-height: 20px;
         border-radius: 50%;
         &:hover {
-          background: #f5f5f5;
+          background: var(--color-background-hover);
         }
       }
     }
@@ -150,7 +150,7 @@ export const HomePageWrap = styled.div`
   }
   .hoverColor {
     &:hover {
-      color: #1764c0 !important;
+      color: var(--color-link-hover) !important;
     }
   }
   .userInfoWrap {
@@ -176,7 +176,7 @@ export const HomePageWrap = styled.div`
   .analysis {
     flex-shrink: 0;
     .content {
-      background-color: #fff;
+      background-color: var(--color-background-primary);
       box-sizing: border-box;
       padding: 24px;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
@@ -188,7 +188,7 @@ export const HomePageWrap = styled.div`
         vertical-align: text-bottom;
       }
       .name {
-        color: #757575;
+        color: var(--color-text-secondary);
         margin-top: 4px;
       }
     }
@@ -196,7 +196,7 @@ export const HomePageWrap = styled.div`
       display: flex;
       justify-content: space-between;
       width: 100%;
-      color: #757575;
+      color: var(--color-text-secondary);
       span {
         display: inline-block;
       }
@@ -212,7 +212,7 @@ export const HomePageWrap = styled.div`
       height: 180px;
     }
     .limitUser {
-      color: #7d7d7d;
+      color: var(--color-text-secondary);
     }
   }
   .infoBox {
@@ -237,20 +237,20 @@ export const HomePageWrap = styled.div`
       position: absolute;
       top: 12px;
       right: 12px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       font-size: 12px;
       cursor: pointer;
-      .Hover_21:hover {
-        color: #1677ff !important;
+      .hoverColorPrimary:hover {
+        color: var(--color-primary) !important;
       }
     }
     .limitUser {
       font-size: 13px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
     .name {
       font-size: 14px;
-      color: #7d7d7d;
+      color: var(--color-text-secondary);
       font-weight: 600;
     }
     ul {
@@ -270,13 +270,22 @@ export const HomePageWrap = styled.div`
         @media screen and (max-width: 1367px) {
           padding: 10px;
         }
+
+        .percentResult,
         .detailBtn {
           display: none;
+          .line {
+            color: var(--color-text-disabled);
+            margin: 0 5px;
+          }
         }
         &:hover {
           border-radius: 15px;
-          background-color: #f5f5f5;
+          background-color: var(--color-background-hover);
           .detailBtn {
+            display: inline-block;
+          }
+          .percentResult {
             display: inline-block;
           }
         }
@@ -305,13 +314,13 @@ export const HomePageWrap = styled.div`
     }
   }
   .trialAuthenticate {
-    background-color: #fef5e9;
-    color: #151515;
+    background-color: var(--color-warning-bg);
+    color: var(--color-text-title);
     &:hover {
-      background-color: #fdebd5;
+      background-color: var(--color-warning-bg);
     }
     .icon-gift {
-      color: #f89a2e;
+      color: var(--color-warning);
     }
   }
 
@@ -325,13 +334,13 @@ export const HomePageWrap = styled.div`
       border-radius: 24px;
       position: unset;
       background-color: rgb(76, 175, 80, 0.1);
-      color: #4caf50;
+      color: var(--color-success);
       margin: 0 auto;
       display: inline-block;
       white-space: nowrap;
       font-weight: 600;
       &:hover {
-        background-color: #c8e6c9;
+        background-color: var(--color-success-bg);
       }
     }
   }
@@ -354,15 +363,15 @@ export const HomePageWrap = styled.div`
       align-items: center;
       i {
         font-size: 24px;
-        color: #1677ff;
+        color: var(--color-primary);
       }
       span {
-        color: #757575;
+        color: var(--color-text-secondary);
         font-size: 14px;
         margin: 0 12px 0 10px;
       }
       .balance {
-        color: #151515;
+        color: var(--color-text-title);
         font-size: 16px;
         margin: 0;
         font-weight: 600;
@@ -375,9 +384,9 @@ export const HomePageWrap = styled.div`
       right: 4px;
       line-height: 26px;
       padding: 0 12px;
-      color: #fff;
+      color: var(--color-white);
       border-radius: 3px;
-      background: linear-gradient(281deg, #ff9a00 0%, #ffad12 100%);
+      background: linear-gradient(281deg, var(--color-warning) 0%, #ffad12 100%);
       z-index: 2;
       i {
         margin-right: 4px;
@@ -390,8 +399,8 @@ export const HomePageWrap = styled.div`
       padding: 0 16px;
       margin-top: 8px;
       line-height: 24px;
-      background: #ff9a00;
-      color: #fff;
+      background: var(--color-warning);
+      color: var(--color-white);
       border-radius: 12px;
       cursor: pointer;
       font-weight: 600;
@@ -429,30 +438,30 @@ export const HomePageWrap = styled.div`
       margin: 0 12px;
       span {
         font-size: 16px;
-        color: #1677ff;
+        color: var(--color-primary);
         margin: 0 4px;
       }
     }
     .expireDate {
       margin: 0 5px;
       font-size: 12px;
-      color: #757575;
+      color: var(--color-text-secondary);
     }
     .upgrade {
-      color: #1677ff;
+      color: var(--color-primary);
       margin-left: 6px;
     }
     .delayTrial {
-      color: #757575;
+      color: var(--color-text-secondary);
       margin-left: 6px;
       cursor: pointer;
       i {
-        color: #ff9a00;
+        color: var(--color-warning);
       }
       span {
         margin-left: 4px;
         &:hover {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }
@@ -462,7 +471,7 @@ export const HomePageWrap = styled.div`
   }
   .nextLicenseInfo {
     .licenseFlag {
-      background-color: #bdbdbd;
+      background-color: var(--color-text-disabled);
       &::before {
         background-color: rgba(189, 189, 189, 0.1);
       }
@@ -494,7 +503,7 @@ export const HomePageWrap = styled.div`
       border-radius: 10px;
       flex: 1;
       &:hover {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-hover);
       }
       .name {
         word-break: keep-all;
@@ -517,7 +526,7 @@ export const HomePageWrap = styled.div`
   .quickEntry {
     .content {
       padding: 16px;
-      background-color: #fff;
+      background-color: var(--color-background-primary);
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
       border-radius: 6px;
     }
@@ -533,13 +542,13 @@ export const HomePageWrap = styled.div`
         .wrap {
           display: flex;
           align-items: center;
-          border: 1px solid #f0f0f0;
+          border: 1px solid var(--color-background-disabled);
           border-radius: 4px;
           padding: 24px 16px;
           height: 100%;
           box-sizing: border-box;
           &:hover {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            background-color: var(--color-background-hover);
           }
           .iconWrap {
             width: 36px;
@@ -550,12 +559,12 @@ export const HomePageWrap = styled.div`
             border-radius: 50%;
             margin-right: 12px;
             flex-shrink: 0;
-            color: #fff;
+            color: var(--color-white);
             font-size: 18px;
           }
           .explain {
             margin-top: 8px;
-            color: #bdbdbd;
+            color: var(--color-text-disabled);
           }
         }
       }
@@ -582,17 +591,17 @@ export const FreeTrialWrap = styled.div`
     font-size: 18px;
     margin-top: 20px;
     span {
-      color: #1677ff;
+      color: var(--color-primary);
       font-size: 24px;
       margin: 0 6px;
     }
   }
   .expire {
-    color: #757575;
+    color: var(--color-text-secondary);
     margin: 12px 0;
   }
   .remainTime {
-    color: #1677ff;
+    color: var(--color-primary);
     margin-left: 6px;
   }
   .inviteRules {
@@ -602,7 +611,7 @@ export const FreeTrialWrap = styled.div`
     li {
       min-width: 80px;
       .achieveDays {
-        color: #1677ff;
+        color: var(--color-primary);
         font-size: 14px;
         span {
           margin-right: 4px;
@@ -619,14 +628,14 @@ export const FreeTrialWrap = styled.div`
       }
     }
     .activeSymbolWrap {
-      background: #1677ff !important;
+      background: var(--color-primary) !important;
       .iconWrap {
-        background: #1677ff !important;
+        background: var(--color-primary) !important;
       }
     }
     .symbolWrap {
       position: relative;
-      background-color: #e0e0e0;
+      background-color: var(--color-background-secondary);
       height: 8px;
       margin: 24px 0;
       .iconWrap {
@@ -637,10 +646,10 @@ export const FreeTrialWrap = styled.div`
         width: 36px;
         height: 36px;
         border-radius: 50%;
-        background: #e8e8e8;
+        background: var(--color-border-secondary);
         text-align: center;
         line-height: 36px;
-        color: #fff;
+        color: var(--color-white);
         font-size: 20px;
       }
     }
@@ -656,20 +665,20 @@ export const TitleWrap = styled.div`
   height: 32px;
   font-weight: bold;
   font-size: 16px;
-  color: #333333;
+  color: var(--color-text-primary);
   .titleBtn {
     padding: 0 16px;
     height: 32px;
-    background: #fff;
+    background: var(--color-background-primary);
     font-weight: bold;
     font-size: 14px;
     line-height: 32px;
     border-radius: 3px;
     cursor: pointer;
-    border: 1px solid #fff;
+    border: 1px solid var(--color-border-primary);
     &:hover {
-      color: #1565c0;
-      border: 1px solid #1565c0;
+      color: var(--color-link-hover);
+      border: 1px solid var(--color-link-hover);
       cursor: pointer;
     }
   }

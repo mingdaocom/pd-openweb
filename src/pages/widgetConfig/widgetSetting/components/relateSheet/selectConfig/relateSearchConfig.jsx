@@ -5,7 +5,7 @@ import { get, head } from 'lodash';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Checkbox, Dropdown, Icon, RadioGroup, Switch } from 'ming-ui';
+import { Checkbox, Dropdown, Icon, RadioGroup } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { FASTFILTER_CONDITION_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/util.js';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
@@ -32,21 +32,21 @@ const ConfigWrap = styled.div`
   .infoWrap {
     line-height: 48px;
     padding-left: 12px;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
   }
   .addFilterControl {
     width: 100%;
     border-radius: 3px;
     line-height: 44px;
-    color: #1677ff;
-    background: #f8f8f8;
+    color: var(--color-primary);
+    background: var(--color-background-secondary);
     font-weight: bold;
     display: flex;
     align-items: center;
     justify-content: center;
     &:hover {
-      color: #1780d3;
-      background-color: #f5f5f5;
+      color: var(--color-link-hover);
+      background-color: var(--color-background-hover);
     }
   }
 
@@ -56,6 +56,13 @@ const ConfigWrap = styled.div`
   }
   .ming.Dropdown {
     background-color: transparent;
+  }
+  .filterDesc {
+    line-height: 44px;
+    background: var(--color-background-secondary);
+    padding: 0 12px;
+    color: var(--color-text-title);
+    margin: 8px 0;
   }
 `;
 
@@ -93,7 +100,7 @@ export default function RelateSearchConfig(props) {
   } = advancedSetting;
   const searchfilters = getAdvanceSetting(data, 'searchfilters') || [];
   const isDropdown = showtype === '3';
-  const openfastfilters = advancedSetting.openfastfilters || (isDropdown ? '0' : '1');
+  const showFastFilter = isDropdown ? advancedSetting.openfastfilters || '0' : '1';
   const fastViews = views.filter(f => !_.isEmpty(f.fastFilters) && f.viewId !== f.worksheetId);
 
   const handleDelete = id => {
@@ -168,7 +175,9 @@ export default function RelateSearchConfig(props) {
                 }}
               />
             </SectionItem>
-            {isForbidEncry() && <div className="Gray_9e mTop10 mLeft80">{_l('当前字段已加密，按照精确搜索查询')}</div>}
+            {isForbidEncry() && (
+              <div className="textTertiary mTop10 mLeft80">{_l('当前字段已加密，按照精确搜索查询')}</div>
+            )}
           </Fragment>
         )}
         <SectionItem>
@@ -184,34 +193,16 @@ export default function RelateSearchConfig(props) {
       </SettingItem>
 
       <SettingItem>
-        <div className="settingItemTitle">{isDropdown ? _l('弹窗选择方式') : _l('筛选')}</div>
-        <div className="subTitle Gray_75">
-          {isDropdown
-            ? _l('使用弹窗关联记录，可以配置的筛选器过滤记录并设置弹窗中的显示字段')
-            : _l('用户通过配置的筛选器过滤记录')}
-        </div>
-        <div className="flexCenter flexRow">
-          <Switch
-            checked={openfastfilters === '1'}
-            onClick={value =>
-              handleChange(
-                handleAdvancedSettingChange(data, {
-                  openfastfilters: value ? '0' : '1',
-                  searchfilters: '',
-                  fastfiltersview: '',
-                  fastfilterstype: '1',
-                  chooseshow: '0',
-                  ...(data.enumDefault === 1 && showtype === '3' ? {} : { chooseshowids: '' }),
-                }),
-              )
-            }
-          />
-          <span className="mLeft6">{_l('启用')}</span>
-        </div>
-        {openfastfilters === '1' && (
+        <div className="settingItemTitle">{_l('筛选')}</div>
+        {isDropdown && (
+          <div className="filterDesc">
+            {_l('设置用户在使用弹层输入时，可以筛选的字段 。（此配置需要 下拉框设置-辅助输入方式：设为弹层选择）')}
+          </div>
+        )}
+        {showFastFilter === '1' && (
           <Fragment>
             <SectionItem>
-              <div className="label Width120">{_l('设置')}</div>
+              <div className="label Width120">{_l('筛选设置')}</div>
               <RadioGroup
                 checkedValue={fastfilterstype}
                 className="fixedWidth"
@@ -224,7 +215,7 @@ export default function RelateSearchConfig(props) {
                       <span>
                         {_l('使用视图的快速筛选')}
                         <Tooltip title={_l('只有能访问该视图的用户，才能看到并使用配置的快速筛选')}>
-                          <Icon icon="help" className="Font16 Gray_bd mLeft4" />
+                          <Icon icon="help" className="Font16 textDisabled mLeft4" />
                         </Tooltip>
                       </span>
                     ),
@@ -247,8 +238,7 @@ export default function RelateSearchConfig(props) {
               />
             </SectionItem>
             {fastfilterstype === '1' ? (
-              <div className="mTop16">
-                <div className={cx({ mBottom8: !searchfilters.length })}>{_l('筛选字段')}</div>
+              <div className="mTop16" style={{ paddingLeft: 120 }}>
                 <FastFilter
                   from="fastFilter"
                   className="relateSheetSearchConfig"
@@ -308,8 +298,7 @@ export default function RelateSearchConfig(props) {
                 />
               </div>
             ) : (
-              <div className="mTop16">
-                <div className="mBottom8">{_l('视图')}</div>
+              <div className="mTop16" style={{ paddingLeft: 120 }}>
                 <Dropdown
                   border
                   className="w100"
@@ -318,7 +307,7 @@ export default function RelateSearchConfig(props) {
                   data={fastViews.map(i => ({ text: i.name, value: i.viewId, ..._.pick(i, ['viewType', 'name']) }))}
                   renderTitle={({ value } = {}) => {
                     const currenView = _.find(fastViews, f => f.viewId === value);
-                    if (!fastfiltersview) return <span className="Gray_bd">{_l('请选择')}</span>;
+                    if (!fastfiltersview) return <span className="textDisabled">{_l('请选择')}</span>;
                     if (fastfiltersview && !currenView) return <span className="Red">{_l('已删除')}</span>;
                     return renderViewMenu(currenView, true);
                   }}

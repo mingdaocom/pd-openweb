@@ -37,7 +37,7 @@ const PAGE_TITLE = {
   portalexpand: _l('用户自助购买外部门户用户包'),
   portalupgrade: _l('用户自助购买外部门户用户包'),
   dataSync: _l('用户自助购买数据同步算力升级包'),
-  computing: md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? _l('创建专属算力') : _l('购买专属算力'),
+  computing: !window.platformENV.isPlatform ? _l('创建专属算力') : _l('购买专属算力'),
   renewcomputing: _l('续费专属算力'),
   aggregationtable: _l('扩充聚合表数量'),
   merchant: _l('开通商户号收款'),
@@ -52,7 +52,7 @@ const HeaderTitle = {
   portalexpand: _l('购买外部用户人数'),
   portalupgrade: _l('购买外部用户人数'),
   dataSync: _l('购买数据同步算力升级包'),
-  computing: md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? _l('创建专属算力') : _l('购买专属算力'),
+  computing: !window.platformENV.isPlatform ? _l('创建专属算力') : _l('购买专属算力'),
   renewcomputing: _l('续费专属算力'),
   aggregationtable: _l('扩充聚合表数量'),
   merchant: { trial: _l('开通商户号收款试用'), normal: _l('开通商户号收款') },
@@ -119,13 +119,12 @@ const DATASYNC_TYPE_LIST = [
   { title: _l('每月额度升级包'), money: 50, count: 10, month: _l('剩余月份'), key: 1 },
   { title: _l('单月包'), money: 10, count: 1, month: _l('本月'), key: 2 },
 ];
-const EXCLUSIVE_TYPE_LIST =
-  md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal
-    ? [{ title: _l('组织到期时间'), key: 1 }]
-    : [
-        { title: _l('组织到期时间'), key: 1 },
-        { title: _l('当月有效'), key: 0 },
-      ];
+const EXCLUSIVE_TYPE_LIST = !window.platformENV.isPlatform
+  ? [{ title: _l('组织到期时间'), key: 1 }]
+  : [
+      { title: _l('组织到期时间'), key: 1 },
+      { title: _l('当月有效'), key: 0 },
+    ];
 const MERCHANT_TYPE_LIST = [
   { title: _l('组织到期时间'), key: 1, price: _l('%0元/年', 999) },
   { title: _l('一个月'), key: 4, price: _l('%0元/月', 199) },
@@ -208,7 +207,10 @@ export default class ExpansionService extends Component {
           maxUserCount: 5000000,
           balance: res.balance,
           showWorkflowExtPack:
-            !_.includes([0, 2], licenseType) && !res.autoPurchaseWorkflowExtPack && !md.global.Config.IsLocal,
+            !_.includes([0, 2], licenseType) &&
+            !res.autoPurchaseWorkflowExtPack &&
+            !window.platformENV.isOverseas &&
+            !window.platformENV.isLocal,
           autoPurchaseWorkflowExtPack: res.autoPurchaseWorkflowExtPack,
           loading: false,
         });
@@ -221,7 +223,10 @@ export default class ExpansionService extends Component {
           maxUserCount: 5000000,
           balance: res.balance,
           showDataSyncExtPack:
-            !_.includes([0, 2], licenseType) && !res.autoPurchaseDataPipelineExtPack && !md.global.Config.IsLocal,
+            !_.includes([0, 2], licenseType) &&
+            !res.autoPurchaseDataPipelineExtPack &&
+            !window.platformENV.isOverseas &&
+            !window.platformENV.isLocal,
           autoPurchaseDataPipelineExtPack: res.autoPurchaseDataPipelineExtPack,
           loading: false,
         });
@@ -343,9 +348,7 @@ export default class ExpansionService extends Component {
 
     if (
       !GET_ORDER_PRICE[actionType] ||
-      ([EXPAND_TYPE.COMPUTING, EXPAND_TYPE.RENEWCOMPUTING].includes(expandType) &&
-        md.global.Config.IsLocal &&
-        !md.global.Config.IsPlatformLocal)
+      ([EXPAND_TYPE.COMPUTING, EXPAND_TYPE.RENEWCOMPUTING].includes(expandType) && !window.platformENV.isPlatform)
     )
       return;
     if (this.ajax) {
@@ -512,9 +515,7 @@ export default class ExpansionService extends Component {
     const { addUserCount, needSalesAssistance, exclusiveInfo } = this.state;
     let actionType = this.getCurrentType();
     const isNotPlatformLocal =
-      [EXPAND_TYPE.COMPUTING, EXPAND_TYPE.RENEWCOMPUTING].includes(expandType) &&
-      md.global.Config.IsLocal &&
-      !md.global.Config.IsPlatformLocal;
+      [EXPAND_TYPE.COMPUTING, EXPAND_TYPE.RENEWCOMPUTING].includes(expandType) && !window.platformENV.isPlatform;
     let param = {};
     if (expandType === EXPAND_TYPE.COMPUTING) {
       param.productId = exclusiveInfo.specs;
@@ -601,7 +602,7 @@ export default class ExpansionService extends Component {
             ＋
           </span>
         </div>
-        {desc && <div className="Gray_75 mTop8">{desc}</div>}
+        {desc && <div className="textSecondary mTop8">{desc}</div>}
       </div>
     );
   }
@@ -632,8 +633,8 @@ export default class ExpansionService extends Component {
                   })
                 }
               >
-                <div className="Font15 Gray Bold">{item.title}</div>
-                <div className="Gray_9e mTop6">
+                <div className="Font15 textPrimary Bold">{item.title}</div>
+                <div className="textTertiary mTop6">
                   {_l('%0 元', item.money)} / {item.key === 1 ? _l('%0 W次', item.count) : _l('%0 K次', item.count)}*
                   {item.month}
                 </div>
@@ -675,8 +676,8 @@ export default class ExpansionService extends Component {
                   })
                 }
               >
-                <div className="Font15 Gray Bold">{item.title}</div>
-                <div className="Gray_9e mTop6">
+                <div className="Font15 textPrimary Bold">{item.title}</div>
+                <div className="textTertiary mTop6">
                   {_l('%0 元', item.money)} / {_l('%0 W行', item.count)}*{item.month}
                 </div>
               </div>
@@ -699,14 +700,14 @@ export default class ExpansionService extends Component {
       <Fragment>
         <div className="workflowTypeContent">
           <div className="workflowTypeItem active">
-            <div className="Font15 Gray Bold">{_l('本年用量扩充包')}</div>
-            <div className="Gray_9e mTop6">{_l('20 元')} / 1 GB</div>
+            <div className="Font15 textPrimary Bold">{_l('本年用量扩充包')}</div>
+            <div className="textTertiary mTop6">{_l('20 元')} / 1 GB</div>
           </div>
         </div>
         <div className="addWorkFlowBox">
           <div className="addUserLabl">{_l('购买数量')}</div>
           {this.renderPlusInput({ hasUnit: true })}
-          <div className="mLeft15 Gray_75">{_l('仅本年内使用有效，次年1月1日清零')}</div>
+          <div className="mLeft15 textSecondary">{_l('仅本年内使用有效，次年1月1日清零')}</div>
         </div>
       </Fragment>
     );
@@ -751,20 +752,18 @@ export default class ExpansionService extends Component {
                 this.updataAndCompute({ exclusiveInfo: { ...exclusiveInfo, specs: item.id } });
               }}
             >
-              <div className="Font15 Gray Bold">
-                {_.get(md, 'global.Config.IsLocal') ? _l('%0并发数', item.partion) : item.name}
+              <div className="Font15 textPrimary Bold">
+                {window.platformENV.isOverseas || window.platformENV.isLocal ? _l('%0并发数', item.partion) : item.name}
               </div>
-              <div className="Gray_9e mTop6">
+              <div className="textTertiary mTop6">
                 {`${_l('%0核', item.cpu)}（vCPU）`} | {`${item.memory / 1024}GiB`}
               </div>
             </div>
           ))}
         </div>
-        <div className="mTop13 Gray_9e Font13">{_l('并发数是指同一个时间点可同时运行的实例数')}</div>
+        <div className="mTop13 textTertiary Font13">{_l('并发数是指同一个时间点可同时运行的实例数')}</div>
         <div className="mTop40 Font13">
-          <div className="Gray_75 mRight24 mBottom16">
-            {md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? _l('有效时长') : _l('购买时长')}
-          </div>
+          <div className="textSecondary mRight24 mBottom16">{_l('有效时长')}</div>
           <div className="flexRow">
             {EXCLUSIVE_TYPE_LIST.map(item => (
               <div
@@ -776,22 +775,20 @@ export default class ExpansionService extends Component {
                   this.updataAndCompute({ exclusiveInfo: { ...exclusiveInfo, type: item.key } });
                 }}
               >
-                <div className="Font15 bold Gray">{item.title}</div>
+                <div className="Font15 bold textPrimary">{item.title}</div>
               </div>
             ))}
           </div>
         </div>
         <div className="addWorkFlowBox">
-          <div className="addUserLabl">
-            {md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? _l('创建数量') : _l('购买数量')}
-          </div>
+          <div className="addUserLabl">{!window.platformENV.isPlatform ? _l('创建数量') : _l('购买数量')}</div>
           {this.renderPlusInput({ hasUnit: false, disabled: true })}
           <div className="mLeft16">{_l('个实例数')}</div>
         </div>
-        {exclusiveInfo.currentLicense.endDate && !(md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal) && (
+        {exclusiveInfo.currentLicense.endDate && !!window.platformENV.isPlatform && (
           <div className="Font13 mBottom40">
-            <span className="Gray_75 mRight24">{_l('到期时间')}</span>
-            <span className="Gray">
+            <span className="textSecondary mRight24">{_l('到期时间')}</span>
+            <span className="textPrimary">
               {exclusiveInfo.type === 0
                 ? monthEndDate.format(_l('YYYY年MM月DD日'))
                 : moment(exclusiveInfo.currentLicense.endDate).format(_l('YYYY年MM月DD日'))}
@@ -819,14 +816,14 @@ export default class ExpansionService extends Component {
           <span className="label">{_l('资源ID')}</span>
           <span className="value">{resourceId}</span>
         </div>
-        <div className="mTop40 Gray_75 mBottom16">{_l('购买时长')}</div>
+        <div className="mTop40 textSecondary mBottom16">{_l('购买时长')}</div>
         <div className="renewExclusiveCard">
           <div className="Font15 bold">{_l('组织到期时间')}</div>
         </div>
         <div className="mTop40 mBottom40">
-          <span className="Gray_75 mRight24">{_l('到期时间')}</span>
+          <span className="textSecondary mRight24">{_l('到期时间')}</span>
           {moment(renewexclusiveInfo.currentLicense.endDate).format(_l('YYYY年MM月DD日'))}
-          <span className="Gray_b4">
+          <span className="textDisabled">
             {`（${_l('计费')}：${renewexclusiveInfo.currentLicense.expireDays}${_l('天')}）`}
           </span>
         </div>
@@ -836,7 +833,7 @@ export default class ExpansionService extends Component {
 
   renderMerchantContent(disable = false) {
     const { merchantType, licenseInfo, merchantInfo } = this.state;
-    const color = disable ? 'Gray_9' : 'Gray_75';
+    const color = disable ? 'textTertiary' : 'textSecondary';
     const dateRange = this.getMerchantDate();
 
     return (
@@ -863,7 +860,7 @@ export default class ExpansionService extends Component {
                   this.updataAndCompute({ merchantType: index });
                 }}
               >
-                <div className="Font15 bold Gray">{item.title}</div>
+                <div className="Font15 bold textPrimary">{item.title}</div>
               </div>
             ))}
           </div>
@@ -883,11 +880,11 @@ export default class ExpansionService extends Component {
         {licenseInfo.currentLicense.endDate && (
           <div className={cx('Font13 mBottom24', { mTop24: merchantType !== 1 })}>
             <span className={cx('mRight24', color)}>{_l('购买时间')}</span>
-            <span className={disable ? 'Gray_9' : 'Gray'}>
+            <span className={disable ? 'textTertiary' : 'textPrimary'}>
               {moment(dateRange.startDate).format(_l('YYYY年MM月DD日'))}
             </span>
             <span className="mLeft6 mRight6">-</span>
-            <span className={disable ? 'Gray_9' : 'Gray'}>
+            <span className={disable ? 'textTertiary' : 'textPrimary'}>
               {moment(dateRange.endDate).format(_l('YYYY年MM月DD日'))}
             </span>
           </div>
@@ -902,21 +899,21 @@ export default class ExpansionService extends Component {
     return (
       <Fragment>
         <div className="mTop24">
-          <span className="mRight24 Gray_75">{_l('税号')}</span>
+          <span className="mRight24 textSecondary">{_l('税号')}</span>
           <span>{taxNo}</span>
         </div>
         <div className="mTop24">
-          <span className="mRight24 Gray_75">{_l('单价')}</span>
+          <span className="mRight24 textSecondary">{_l('单价')}</span>
           <span>{_l('1500元/年/税号')}</span>
         </div>
         <div className="mTop24">
-          <div className="mRight24 Gray_75 mBottom16">{_l('购买时长')}</div>
+          <div className="mRight24 textSecondary mBottom16">{_l('购买时长')}</div>
           <div className="invoiceTypeCard active flexColumn justifyContentCenter">
-            <div className="Font15 bold Gray">{_l('1年期')}</div>
+            <div className="Font15 bold textPrimary">{_l('1年期')}</div>
           </div>
         </div>
         <div className="mTop24 mBottom24">
-          <span className="mRight24 Gray_75">{_l('购买时间')}</span>
+          <span className="mRight24 textSecondary">{_l('购买时间')}</span>
           <span>{moment(this.getInvoiceDate().startDate).format(_l('YYYY年MM月DD日'))}</span>
           <span className="mLeft6 mRight6">-</span>
           <span>{moment(this.getInvoiceDate().endDate).format(_l('YYYY年MM月DD日'))}</span>
@@ -1027,7 +1024,7 @@ export default class ExpansionService extends Component {
               <span>1</span>
             </div>
             {exclusiveInfo.currentLicense.endDate && (
-              <div className="Font13 mBottom24 Gray_9e">
+              <div className="Font13 mBottom24 textTertiary">
                 <span className="mRight12">{_l('到期时间')}</span>
                 <span>
                   {exclusiveInfo.type === 0
@@ -1063,7 +1060,7 @@ export default class ExpansionService extends Component {
               <span>1</span>
             </div>
             {exclusiveInfo.currentLicense.endDate && (
-              <div className="Font13 mBottom24 Gray_9e">
+              <div className="Font13 mBottom24 textTertiary">
                 <span className="mRight12">{_l('到期时间')}</span>
                 <span>{moment(renewexclusiveInfo.currentLicense.endDate).format(_l('YYYY年MM月DD日'))}</span>
                 <span>{`（${_l('计费')}：${renewexclusiveInfo.currentLicense.expireDays}${_l('天')}）`}</span>
@@ -1132,7 +1129,7 @@ export default class ExpansionService extends Component {
                 });
             }}
           />
-          <span className="Gray_75 mTop10">
+          <span className="textSecondary mTop10">
             {showWorkflowExtPack
               ? _l(
                   '开启后，当月剩余执行额度为2%时，自动购买100信用点/1万次的单月包，自动从企业账务中心扣除（开启后仍可以在组织管理后台的工作流处关闭）',
@@ -1191,7 +1188,7 @@ export default class ExpansionService extends Component {
         <div style={{ flex: 1, overflow: 'scroll' }}>
           <div className="warpOneStep">
             <div className={cx('stepTitle', { color_bd: step !== 1 })}>
-              {!(expandType === 'computing' && md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal) && (
+              {!(expandType === 'computing' && !window.platformENV.isPlatform) && (
                 <div className="stepNum">
                   <span className="Bold Font12">1</span>
                 </div>
@@ -1203,14 +1200,14 @@ export default class ExpansionService extends Component {
                 )}
               </span>
             </div>
-            <div className={cx('Gray_9 Font13 Normal mTop10', { Hidden: step !== 1 })}>
+            <div className={cx('textTertiary Font13 Normal mTop10', { Hidden: step !== 1 })}>
               {this.renderSubTitleSummary()}
             </div>
             <div className="stepContent">
               {step === 1 ? (
                 <div className="infoEdit">
                   {this.renderOptionStyle()}
-                  {!(expandType === 'computing' && md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal) && (
+                  {!(expandType === 'computing' && !window.platformENV.isPlatform) && (
                     <div>
                       <div className="oneStepLeft">{_l('总计')}</div>
                       <span className="Font20 color_b">￥</span>
@@ -1237,9 +1234,7 @@ export default class ExpansionService extends Component {
                       type="button"
                       className="ming Button Button--primary nextBtn"
                       onClick={() => {
-                        if (
-                          !(expandType === 'computing' && md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal)
-                        ) {
+                        if (!(expandType === 'computing' && !window.platformENV.isPlatform)) {
                           this.setStep(2);
                           return;
                         }
@@ -1247,16 +1242,14 @@ export default class ExpansionService extends Component {
                       }}
                       disabled={isPay}
                     >
-                      {expandType === 'computing' && md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal
-                        ? _l('确认')
-                        : _l('下一步')}
+                      {expandType === 'computing' && !window.platformENV.isPlatform ? _l('确认') : _l('下一步')}
                     </button>
                   </div>
                 </div>
               ) : (
                 <div className="infoShow">
-                  <div className="mTop25 Font13 Gray_9">{this.renderInfoShow()}</div>
-                  <div className="mTop16 mBottom20 Font13 Gray_9">
+                  <div className="mTop25 Font13 textTertiary">{this.renderInfoShow()}</div>
+                  <div className="mTop16 mBottom20 Font13 textTertiary">
                     <span
                       className={`${
                         [EXPAND_TYPE.COMPUTING, EXPAND_TYPE.RENEWCOMPUTING, EXPAND_TYPE.AGGREGATIONTABLE].includes(
@@ -1274,7 +1267,7 @@ export default class ExpansionService extends Component {
                   </div>
                   <button
                     type="button"
-                    className="ming Button Button--link ThemeColor3 pAll0 Hover_49"
+                    className="ming Button Button--link ThemeColor3 pAll0 hoverTextPrimaryLight"
                     onClick={() => this.setStep(1)}
                   >
                     {_l('修改')}
@@ -1283,7 +1276,8 @@ export default class ExpansionService extends Component {
               )}
             </div>
           </div>
-          {!(expandType === 'computing' && md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal) && (
+          {(window.platformENV.isPlatform ||
+            (expandType !== 'computing' && (window.platformENV.isLocal || window.platformENV.isOverseas))) && (
             <Fragment>
               <div className="stepDiviceLine"></div>
               <div className="warpTowStep">

@@ -20,25 +20,25 @@ const WrapCon = styled.div`
     width: 640px;
   }
   .conTemplate {
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
   }
   .tableCon {
     position: relative;
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-secondary);
     .deleteIcon {
       position: absolute;
       left: -15px;
       top: 16px;
       display: none;
       font-size: 16px;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       cursor: pointer;
       &:hover {
         color: #f00;
       }
     }
     &:hover {
-      background: #fafafa;
+      background: var(--color-background-secondary);
       .deleteIcon {
         display: block;
       }
@@ -58,21 +58,21 @@ const WrapCon = styled.div`
     }
     &.itemBoxCanEmpty {
       width: 100px;
-      color: #aaa;
+      color: var(--color-text-tertiary);
       flex: none;
     }
   }
   .conTemplateByUnion {
-    border-top: 1px solid #eaeaea;
-    border-bottom: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-secondary);
+    border-bottom: 1px solid var(--color-border-secondary);
     .itemBox {
       &.itemBoxType {
         width: 100px;
         flex: none;
       }
       &.secondD {
-        border-left: 1px solid #eaeaea;
-        border-right: 1px solid #eaeaea;
+        border-left: 1px solid var(--color-border-secondary);
+        border-right: 1px solid var(--color-border-secondary);
       }
       height: 48px;
       min-width: 48px;
@@ -82,7 +82,7 @@ const WrapCon = styled.div`
     .tableCon {
       .itemBox {
         &.isNull {
-          background: #f5f5f5 !important;
+          background: var(--color-background-secondary) !important;
         }
         &.secondD {
           .ming.Dropdown,
@@ -151,14 +151,14 @@ export default function SlideLayerTem(props) {
               }}
             ></Checkbox>
           </div>
-          <div className="itemBox Gray_75">{_l('字段')}</div>
+          <div className="itemBox textSecondary">{_l('字段')}</div>
           {!isAppWorksheet && (
             <React.Fragment>
-              <div className="itemBox Gray_75">{_l('类型')}</div>
-              {!hideIsNull && <div className="itemBox itemBoxCanEmpty Gray_75">{_l('不允许NULL')}</div>}
+              <div className="itemBox textSecondary">{_l('类型')}</div>
+              {!hideIsNull && <div className="itemBox itemBoxCanEmpty textSecondary">{_l('不允许NULL')}</div>}
             </React.Fragment>
           )}
-          <div className="itemBox Gray_75">{_l('重命名')}</div>
+          <div className="itemBox textSecondary">{_l('重命名')}</div>
         </div>
         {fields.map(item => {
           const isNotSupport = [22].includes(item.mdType); //排除分段
@@ -193,23 +193,23 @@ export default function SlideLayerTem(props) {
                   }}
                 ></Checkbox>
               </div>
-              <div className="itemBox Gray TxtMiddle flexRow">
+              <div className="itemBox textPrimary TxtMiddle flexRow">
                 {isAppWorksheet && (
                   <Icon
                     icon={getIconByType(item.mdType, false)}
-                    className={cx('Font16 Gray_bd customIcon mRight5 TxtMiddle')}
+                    className={cx('Font16 textDisabled customIcon mRight5 TxtMiddle')}
                   />
                 )}
                 <span className={cx({ Red: item.isErr })}> {item.name}</span>
                 {isNotSupport && (
                   <Tooltip title={_l('暂不支持同步')}>
                     <div className="pointer">
-                      <Icon icon="help" className="Gray_bd mLeft5" />
+                      <Icon icon="help" className="textDisabled mLeft5" />
                     </div>
                   </Tooltip>
                 )}
                 {item.aggFuncType && (
-                  <span className="Gray_9e">
+                  <span className="textTertiary">
                     ({ALL_OPERATION_TYPE_DATA.find(o => o.value === item.aggFuncType).text})
                   </span>
                 )}
@@ -220,11 +220,11 @@ export default function SlideLayerTem(props) {
                     </div>
                   </Tooltip>
                 )}
-                {item.isTitle && isAppWorksheet && <Icon icon="ic_title" className="Gray_bd mLeft5" />}
+                {item.isTitle && isAppWorksheet && <Icon icon="ic_title" className="textDisabled mLeft5" />}
                 {item.isPk && ( //!isAppWorksheet &&
                   <Tooltip title={_l('主键')}>
                     <div className="TxtMiddle">
-                      <Icon icon="key1" className="Gray_bd mLeft5" />
+                      <Icon icon="key1" className="textDisabled mLeft5" />
                     </div>
                   </Tooltip>
                 )}
@@ -301,10 +301,10 @@ export default function SlideLayerTem(props) {
               }}
             ></Checkbox>
           </div>
-          <div className="itemBox Gray_75 Bold">{leftNode.name}</div>
-          <div className="itemBox Gray_75 Bold secondD">{rightNode.name}</div>
-          <div className="itemBox Gray_75 Bold">{_l('合并后字段')}</div>
-          <div className="itemBox Gray_75 Bold itemBoxType">{_l('类型')}</div>
+          <div className="itemBox textSecondary Bold">{leftNode.name}</div>
+          <div className="itemBox textSecondary Bold secondD">{rightNode.name}</div>
+          <div className="itemBox textSecondary Bold">{_l('合并后字段')}</div>
+          <div className="itemBox textSecondary Bold itemBoxType">{_l('类型')}</div>
         </div>
         {fields.map((item, i) => {
           const field = _.get(item, ['resultField']) || {};
@@ -348,7 +348,7 @@ export default function SlideLayerTem(props) {
                   }}
                 ></Checkbox>
               </div>
-              <div className={cx('itemBox Gray', { isNull: !leftField.id })}>{leftField.alias}</div>
+              <div className={cx('itemBox textPrimary', { isNull: !leftField.id })}>{leftField.alias}</div>
               <div className={cx('itemBox secondD', { isNull: !rightField.id })}>{rightField.alias}</div>
               <div className="itemBox ">{field.alias}</div>
               <div className="itemBox itemBoxType overflow_ellipsis WordBreak" title={field.dataType}>
@@ -389,8 +389,8 @@ export default function SlideLayerTem(props) {
                           return {
                             label: (
                               <div className="flexRow alignItemsCenter">
-                                <Icon icon={getIconByType(item.mdType, false)} className="Gray_9e Font18" />
-                                <span title={item.name} className="mLeft8 overflow_ellipsis Gray">
+                                <Icon icon={getIconByType(item.mdType, false)} className="textTertiary Font18" />
+                                <span title={item.name} className="mLeft8 overflow_ellipsis textPrimary">
                                   {item.name}
                                 </span>
                               </div>
@@ -413,7 +413,7 @@ export default function SlideLayerTem(props) {
                   </div>
                   <span className="nowrap">{_l('为主键')}</span>
                   <Tooltip title={_l('仅用于数据同步，不会改变数据库字段属性，建议使用索引列。')}>
-                    <Icon icon="info_outline" className="Font16 Gray_bd pointer mLeft12" />
+                    <Icon icon="info_outline" className="Font16 textDisabled pointer mLeft12" />
                   </Tooltip>
                 </div>
               </React.Fragment>
@@ -479,7 +479,7 @@ export default function SlideLayerTem(props) {
                   <Des nodeData={leftNode} className="InlineBlock" />
                 )}
               </span>
-              <span className="Gray_9e mLeft5 Font13">{leftNode.name}</span>
+              <span className="textTertiary mLeft5 Font13">{leftNode.name}</span>
             </div>
             {renderTemplate(
               formatFields(_.get(leftNode, ['nodeConfig', 'fields']), leftFields || []),
@@ -503,7 +503,7 @@ export default function SlideLayerTem(props) {
                   <Des nodeData={rightNode} className="InlineBlock" />
                 )}
               </span>
-              <span className="Gray_9e mLeft5 Font13">{rightNode.name}</span>
+              <span className="textTertiary mLeft5 Font13">{rightNode.name}</span>
             </div>
             {renderTemplate(
               formatFields(_.get(rightNode, ['nodeConfig', 'fields']), rightFields || []),

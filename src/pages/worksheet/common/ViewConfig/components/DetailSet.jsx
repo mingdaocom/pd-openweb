@@ -28,7 +28,7 @@ export default function DetailSet(props) {
                 handleChange(2);
               }}
             />
-            <div className="txt Gray_75 mTop8" style={{ marginLeft: '28px' }}>
+            <div className="txt textSecondary mTop8" style={{ marginLeft: '28px' }}>
               {_l('在左侧显示卡片列表，可切换查看记录详情')}
             </div>
           </div>
@@ -41,7 +41,7 @@ export default function DetailSet(props) {
                 handleChange(1);
               }}
             />
-            <div className="txt Gray_75 mTop8" style={{ marginLeft: '28px' }}>
+            <div className="txt textSecondary mTop8" style={{ marginLeft: '28px' }}>
               {_l('显示第一条记录的详情')}
             </div>
           </div>

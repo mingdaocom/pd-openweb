@@ -5,10 +5,10 @@ import PropTypes from 'prop-types';
 import { Icon, UserHead, UserName } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
-import { controlState } from 'src/components/Form/core/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { getTranslateInfo } from 'src/utils/app';
+import { controlState } from 'src/utils/control';
 import { dateConvertToUserZone } from 'src/utils/project';
 import { handleChangeOwner, updateRecordOwner } from '../crtl';
 
@@ -72,29 +72,34 @@ export default function FormHeader(props) {
   }
 
   return (
-    <div className={cx('recordInfoFormHeader Gray_9e', { isSmall })}>
+    <div className={cx('recordInfoFormHeader textTertiary', { isSmall })}>
       {!isPublicShare && !hideFormHeader && (
         <div className="worksheetNameCon mTop12">
           {!(window.isPublicApp || md.global.Account.isPortal) ? (
-            <a className="worksheetName Gray_9e InlineBlock" target="_blank" href={`/worksheet/${worksheetId}`}>
+            <a className="worksheetName textTertiary InlineBlock" target="_blank" href={`/worksheet/${worksheetId}`}>
               {getTranslateInfo(appId, null, worksheetId).name || worksheetName}
             </a>
           ) : (
-            <span className="worksheetName Gray_9e InlineBlock">
+            <span className="worksheetName textTertiary InlineBlock">
               {getTranslateInfo(appId, null, worksheetId).name || worksheetName}
             </span>
           )}
-          <div className="Right">
+          <div className="right">
             {createTime && isOpenLogs && (
-              <span className="lastLog InlineBlock Font12 Gray_9e">
+              <span className="lastLog InlineBlock Font12 textTertiary">
                 {createTimeSpan(dateConvertToUserZone(createTime === updateTime ? createTime : updateTime))}
                 &nbsp;
-                {createTime === updateTime ? createAccount.fullname : editAccount.fullname}
+                <span
+                  className="userName ellipsis"
+                  title={createTime === updateTime ? createAccount.fullname : editAccount.fullname}
+                >
+                  {createTime === updateTime ? createAccount.fullname : editAccount.fullname}
+                </span>
                 <span className="mRight3">{createTime === updateTime ? _l('创建') : _l('更新了')}</span>
               </span>
             )}
             {showOwner && (
-              <span className={cx('owner Font12 Gray_9e', { noBorder: !isOpenLogs })}>
+              <span className={cx('owner Font12 textTertiary', { noBorder: !isOpenLogs })}>
                 {_l('拥有者')}：
                 <span
                   className={cx('ownerBlock', { disabled: !ownerEditable, Hand: ownerEditable })}
@@ -143,8 +148,8 @@ export default function FormHeader(props) {
                       headClick={() => {}}
                     />
                   </span>
-                  <span className="Gray mLeft4">{ownerAccount.fullname}</span>
-                  <i className="icon icon-arrow-down Hand Font12 Gray_75 mLeft4"></i>
+                  <span className="textPrimary mLeft4">{ownerAccount.fullname}</span>
+                  <i className="icon icon-arrow-down Hand Font12 textSecondary mLeft4"></i>
                 </span>
               </span>
             )}
@@ -156,7 +161,7 @@ export default function FormHeader(props) {
           {recordTitle}
           {maskPermissions && (
             <i
-              className="icon icon-eye_off Hand Font20 Gray_bd mLeft4"
+              className="icon icon-eye_off Hand Font20 textDisabled mLeft4"
               style={{ verticalAlign: 'middle' }}
               onClick={e => {
                 if (!maskPermissions) return;
@@ -174,7 +179,7 @@ export default function FormHeader(props) {
         <div className="lockedUserInfo">
           <div className="lineTag" />
           <Tooltip title={_l('当前记录不允许多人同时编辑。请稍后重试')} placement="bottom">
-            <Icon icon="workflow_write" className="Font16 ThemeColor mLeft5 mRight5" />
+            <Icon icon="workflow_write" className="Font16 colorPrimary mLeft5 mRight5" />
           </Tooltip>
           <UserName
             user={{ userName: editLockedUser.fullname, accountId: editLockedUser.accountId }}
@@ -182,7 +187,7 @@ export default function FormHeader(props) {
             appId={appId}
             className="userName"
           />
-          <div className="mLeft5 Gray_75">{_l('编辑中···')}</div>
+          <div className="mLeft5 textSecondary">{_l('编辑中···')}</div>
         </div>
       )}
     </div>

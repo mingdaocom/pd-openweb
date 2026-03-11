@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Tooltip } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import Config from 'src/pages/chat/utils/config';
+import RegExpValidator from 'src/utils/expression';
 import * as utils from '../../../utils/';
+import FileMessage from '../FileMessage';
 import { handleMessageFilePreview } from '../MessageToolbar';
 import './index.less';
 
@@ -74,8 +77,14 @@ export default class ImageMessage extends Component {
   }
   render() {
     const { loading, previewUrl } = this.state;
-    const { message } = this.props;
+    const { message, session } = this.props;
     const { files } = message.msg;
+    const fileExt = (_.get(files, 'fileExt') || RegExpValidator.getExtOfFileName(_.get(files, 'name'))).toLowerCase();
+
+    if (fileExt.includes('heic') || fileExt.includes('heif')) {
+      return <FileMessage message={message} session={session} />;
+    }
+
     return (
       <div
         className={cx('Message-image', { 'Message-emotion-image': files.isEmotion, 'Message-image-loading': !loading })}

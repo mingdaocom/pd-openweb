@@ -53,4 +53,5 @@ rewrite (?i)^(/|/portal/)print /index.html break;
 rewrite (?i)^(/|/portal/)workflow /index.html break;
 rewrite (?i)^(/|/portal/)gunterExport /index.html break;
 rewrite (?i)^(/|/portal/)printForm /index.html break;
+rewrite (?i)^(/|/portal/)printFormBatch /index.html break;
 rewrite (?i)^(/|/portal/) /index.html break;

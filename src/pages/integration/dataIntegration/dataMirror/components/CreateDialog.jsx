@@ -94,7 +94,7 @@ export default function CreateDialog(props) {
                   <React.Fragment>
                     {item.workSheetName}
                     <Tooltip title={_l('名称包含特殊字符，无法同步')}>
-                      <Icon icon="info" className="Gray_bd mLeft5 pointer" />
+                      <Icon icon="info" className="textDisabled mLeft5 pointer" />
                     </Tooltip>
                   </React.Fragment>
                 ) : (

@@ -8,12 +8,12 @@ import AppAndWorksheetLog from './components/AppAndWorksheetLog';
 const AppLogWrap = styled.div`
   flex: 1;
   min-height: 0;
-  background-color: #ffffff;
+  background-color: var(--color-background-primary);
   display: flex;
   flex-direction: column;
   border-radius: 4px;
   .tipInfo {
-    color: #212121;
+    color: var(--color-white);
     font-size: 13px;
     line-height: 36px;
     font-weight: 400;

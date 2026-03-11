@@ -4,9 +4,9 @@ import styled from 'styled-components';
 const ErrorIconWrap = styled.div`
   width: 90px;
   height: 90px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   border-radius: 45px;
-  border: 2px solid #f8f8f8;
+  border: 2px solid var(--color-background-secondary);
   text-align: center;
   .icon {
     line-height: 90px;
@@ -16,7 +16,7 @@ const ErrorIconWrap = styled.div`
 export default ({ className }) => {
   return (
     <ErrorIconWrap className={className}>
-      <i className="icon icon-account_balance_wallet Font50 Gray_bd" />
+      <i className="icon icon-account_balance_wallet Font50 textDisabled" />
     </ErrorIconWrap>
   );
 };

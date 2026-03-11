@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import cx from 'classnames';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
@@ -7,6 +7,7 @@ import { BgIconButton } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { formatResponseData } from 'src/components/UploadFiles/utils';
 import chatbotApi from 'src/pages/workflow/apiV2/chatbot';
+import { compatibleMDJS } from 'src/utils/project';
 import Recorder from './Recorder';
 import UploadFiles from './UploadFiles';
 
@@ -25,13 +26,20 @@ const AbortButton = styled.div`
   cursor: pointer;
   .icon {
     font-size: 32px;
-    color: var(--ai-primary-color);
+    color: var(--color-mingo);
   }
   &.useAppThemeColor {
     .icon {
-      color: var(--app-primary-color, var(--ai-primary-color));
+      color: var(--app-primary-color, var(--color-mingo));
     }
   }
+`;
+
+const AppUploadWrap = styled.div`
+  display: inline-block;
+  padding: 1px 6px;
+  font-size: 20px;
+  color: var(--color-text-secondary);
 `;
 
 function SendButtons(
@@ -49,6 +57,7 @@ function SendButtons(
     allowMultiSelection = true,
     allowMimeTypes,
     existingFiles = [],
+    uploadPermission,
     onUpdateFiles = () => {},
     abortRequest = () => {},
     onBeginRecord = () => {},
@@ -65,13 +74,92 @@ function SendButtons(
 ) {
   const recorderRef = useRef(null);
   const uploadFileRef = useRef(null);
+  const cache = useRef({});
+  const [uploadSessionId, setUploadSessionId] = useState('');
   useImperativeHandle(ref, () => ({
     uploader: uploadFileRef.current?.uploader,
   }));
+  useEffect(() => {
+    cache.current.chatbotId = chatbotId;
+  }, [chatbotId]);
+
+  const onMingDaoAppChooseImage = () => {
+    compatibleMDJS('chooseImage', {
+      sessionId: uploadSessionId,
+      knowledge: false,
+      count: allowMultiSelection ? (maxFileLength > 1 ? maxFileLength : undefined) : 1,
+      mediaType: uploadPermission === '01' ? 'document' : uploadPermission === 10 ? 'image' : undefined,
+      format:
+        uploadPermission === '01'
+          ? ['pdf', 'doc', 'docx', 'xls', 'xlsx']
+          : uploadPermission === 10
+            ? ['jpg', 'jpeg', 'png']
+            : ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx', 'xls', 'xlsx'],
+      success: res => {
+        const { sessionId, completed, error, uploading } = res;
+        setUploadSessionId(sessionId);
+        if (completed?.length) {
+          completed.forEach(file => {
+            file.id = file.fileID;
+            file.name = file.originalFileName;
+            file.type = ['.jpg', '.jpeg', '.png'].includes(file.fileExt) ? 'image' : file.type;
+            const commonAttachment = formatResponseData(file, file);
+            onUpdateFiles(oldFiles =>
+              [
+                ...oldFiles,
+                ...[file].map(f =>
+                  f.id === file.id
+                    ? { ...f, status: needOcr ? 'ocr' : 'uploaded', file, commonAttachment, url: file.url }
+                    : f,
+                ),
+              ].filter(f => f.id !== sessionId),
+            );
+            if (needOcr) {
+              chatbotApi
+                .ocr({
+                  chatbotId,
+                  media: JSON.stringify([commonAttachment]),
+                })
+                .then(([ocrId]) => {
+                  onUpdateFiles(oldFiles => [
+                    ...oldFiles
+                      .filter(f => f.id !== sessionId)
+                      .map(f => (f.id === file.id ? { ...f, status: 'uploaded', ocrId } : f)),
+                  ]);
+                })
+                .catch(() => {
+                  onUpdateFiles(oldFiles => [
+                    ...oldFiles
+                      .filter(f => f.id !== sessionId)
+                      .map(f => (f.id === file.id ? { ...f, status: 'error', errorText: _l('解析失败') } : f)),
+                  ]);
+                });
+            }
+          });
+        } else {
+          onUpdateFiles(oldFiles => [
+            ...oldFiles.filter(f => f.id !== sessionId),
+            ...[{ id: sessionId, status: 'added' }],
+          ]);
+        }
+
+        if (!uploading && error) {
+          alert(_l('上传失败'), 2);
+        }
+      },
+      cancel: () => {},
+    });
+  };
+
   return (
     <Con className="t-flex t-flex-row t-items-center t-space-between">
       <div className="t-flex-1">
-        {!isRecording && allowUpload && (
+        {window.isMingDaoApp && !isRecording && allowUpload && (
+          <AppUploadWrap>
+            <i className="icon icon-attachment" onClick={onMingDaoAppChooseImage} />
+          </AppUploadWrap>
+        )}
+        {!window.isMingDaoApp && !isRecording && allowUpload && (
           <UploadFiles
             disabled={disabled}
             ref={uploadFileRef}
@@ -113,7 +201,7 @@ function SendButtons(
               if (needOcr) {
                 chatbotApi
                   .ocr({
-                    chatbotId,
+                    chatbotId: cache.current.chatbotId,
                     media: JSON.stringify([commonAttachment]),
                   })
                   .then(([ocrId]) => {
@@ -181,9 +269,7 @@ function SendButtons(
             className="sendButton"
             disabled={sendDisabled || disabled}
             style={{
-              backgroundColor: useAppThemeColor
-                ? 'var(--app-primary-color, var(--ai-primary-color))'
-                : 'var(--ai-primary-color)',
+              backgroundColor: useAppThemeColor ? 'var(--app-primary-color, var(--color-mingo))' : 'var(--color-mingo)',
               borderRadius: '8px',
               padding: '6px',
             }}

@@ -13,8 +13,7 @@ export const MarkdownWithCSS = styled.div`
     -ms-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
     margin: 0;
-    color: #1f2328;
-    background-color: #ffffff;
+    color: var(--color-text-primary);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif,
       'Apple Color Emoji', 'Segoe UI Emoji';
     font-size: 14px;
@@ -84,12 +83,12 @@ export const MarkdownWithCSS = styled.div`
     font-weight: 600;
     padding-bottom: 0.3em;
     font-size: 2em;
-    border-bottom: 1px solid #d1d9e0b3;
+    border-bottom: 1px solid var(--color-border-secondary);
   }
 
   mark {
     background-color: #fff8c5;
-    color: #1f2328;
+    color: var(--color-text-primary);
   }
 
   small {
@@ -259,13 +258,13 @@ export const MarkdownWithCSS = styled.div`
     padding: 0.25rem;
     font: 11px ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
     line-height: 10px;
-    color: #1f2328;
+    color: var(--color-text-primary);
     vertical-align: middle;
-    background-color: #f6f8fa;
-    border: solid 1px #d1d9e0b3;
-    border-bottom-color: #d1d9e0b3;
+    background-color: var(--color-background-secondary);
+    border: solid 1px var(--color-border-secondary);
+    border-bottom-color: var(--color-border-secondary);
     border-radius: 6px;
-    box-shadow: inset 0 -1px 0 #d1d9e0b3;
+    box-shadow: inset 0 -1px 0 var(--color-border-secondary);
   }
 
   h1,
@@ -284,7 +283,7 @@ export const MarkdownWithCSS = styled.div`
     font-weight: 600;
     padding-bottom: 0.3em;
     font-size: 1.3em;
-    border-bottom: 1px solid #d1d9e0b3;
+    border-bottom: 1px solid var(--color-border-secondary);
   }
 
   h3 {
@@ -456,7 +455,7 @@ export const MarkdownWithCSS = styled.div`
   h4 .octicon-link,
   h5 .octicon-link,
   h6 .octicon-link {
-    color: #1f2328;
+    color: var(--color-text-primary);
     vertical-align: middle;
     visibility: hidden;
   }
@@ -598,12 +597,12 @@ export const MarkdownWithCSS = styled.div`
   }
 
   table tr {
-    background-color: #ffffff;
-    border-top: 1px solid #d1d9e0b3;
+    background-color: var(--color-background-primary);
+    border-top: 1px solid var(--color-border-secondary);
   }
 
   table tr:nth-child(2n) {
-    background-color: #f6f8fa;
+    background-color: var(--color-background-secondary);
   }
 
   table img {
@@ -648,7 +647,7 @@ export const MarkdownWithCSS = styled.div`
     display: block;
     padding: 5px 0 0;
     clear: both;
-    color: #1f2328;
+    color: var(--color-text-primary);
   }
 
   span.align-center {
@@ -763,8 +762,8 @@ export const MarkdownWithCSS = styled.div`
     overflow: scroll;
     font-size: 85%;
     line-height: 1.45;
-    color: #1f2328;
-    background-color: #f6f8fa;
+    color: var(--color-text-primary);
+    background-color: var(--color-background-secondary);
     border-radius: 6px;
   }
 
@@ -794,7 +793,7 @@ export const MarkdownWithCSS = styled.div`
   .csv-data .blob-num {
     padding: 10px 0.5rem 9px;
     text-align: right;
-    background: #ffffff;
+    background: var(--color-background-primary);
     border: 0;
   }
 
@@ -804,7 +803,7 @@ export const MarkdownWithCSS = styled.div`
 
   .csv-data th {
     font-weight: 600;
-    background: #f6f8fa;
+    background: var(--color-background-secondary);
     border-top: 0;
   }
 
@@ -849,7 +848,7 @@ export const MarkdownWithCSS = styled.div`
   }
 
   .footnotes li:target {
-    color: #1f2328;
+    color: var(--color-text-primary);
   }
 
   .footnotes .data-footnote-backref g-emoji {
@@ -872,7 +871,7 @@ export const MarkdownWithCSS = styled.div`
 
   .pl-smi,
   .pl-s .pl-s1 {
-    color: #1f2328;
+    color: var(--color-text-primary);
   }
 
   .pl-ent {
@@ -930,17 +929,17 @@ export const MarkdownWithCSS = styled.div`
 
   .pl-mi {
     font-style: italic;
-    color: #1f2328;
+    color: var(--color-text-primary);
   }
 
   .pl-mb {
     font-weight: bold;
-    color: #1f2328;
+    color: var(--color-text-primary);
   }
 
   .pl-md {
     color: #82071e;
-    background-color: #ffebe9;
+    background-color: var(--color-error-bg);
   }
 
   .pl-mi1 {
@@ -1144,8 +1143,8 @@ export const MarkdownWithCSS = styled.div`
   pre[class*='language-'] {
     position: relative;
     border-left: 10px solid #358ccb;
-    box-shadow: -1px 0 0 0 #358ccb, 0 0 0 1px #dfdfdf;
-    background-color: #fdfdfd;
+    box-shadow: -1px 0 0 0 #358ccb, 0 0 0 1px var(--color-border-primary);
+    background-color: var(--color-background-secondary);
     background-image: linear-gradient(transparent 50%, rgba(69, 142, 209, 0.04) 50%);
     background-size: 3em 3em;
     background-origin: content-box;
@@ -1167,7 +1166,7 @@ export const MarkdownWithCSS = styled.div`
     border: 1px solid rgba(0, 0, 0, 0.1);
     display: inline;
     white-space: normal;
-    background-color: #fdfdfd;
+    background-color: var(--color-background-secondary);
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
@@ -1270,7 +1269,7 @@ export const MarkdownWithCSS = styled.div`
       position: absolute;
       aspect-ratio: 1/1;
       width: calc(var(--size, 120px));
-      background: linear-gradient(to left, var(--color-from, #6e09f920), var(--color-to, #6e09f9), transparent);
+      background: linear-gradient(to left, var(--color-from, #6e09f920), var(--color-to, var(--color-mingo)), transparent);
       offset-anchor: calc(var(--anchor, 90)) 50%;
       offset-path: rect(0 auto auto 0 round calc(var(--size, 120px)));
       animation: ${borderBeamAnimation} calc(var(--duration, 6s)) infinite linear;

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { func } from 'prop-types';
 import { FullScreenCurtain } from 'ming-ui';
-import PrintForm from 'src/pages/Print/index.jsx';
+import PrintForm from 'src/pages/OldPrint/index.jsx';
 
 export default class PrintTemDialog extends Component {
   static propTypes = {
@@ -28,6 +28,7 @@ export default class PrintTemDialog extends Component {
       name,
       fileTypeNum,
     } = this.props;
+
     const match = {
       params: {
         printType: 'worksheet',
@@ -37,7 +38,7 @@ export default class PrintTemDialog extends Component {
         isDefault, // 系统打印模板
         worksheetId,
         projectId,
-        rowId,
+        rowIds: [rowId],
         getType,
         viewId,
         appId,

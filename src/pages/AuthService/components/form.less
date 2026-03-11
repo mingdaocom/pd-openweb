@@ -40,13 +40,13 @@
       font-weight: bold;
     }
     &.errorDiv {
-      background: #fff0f0;
+      background: var(--color-error-bg);
       &:hover {
-        background: #fff0f0;
+        background: var(--color-error-bg);
       }
     }
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
   .canSendCodeByTel {
@@ -55,13 +55,13 @@
     height: auto !important;
     border-radius: 3px;
     &.errorDiv {
-      background: #fff0f0;
+      background: var(--color-error-bg);
       &:hover {
-        background: #fff0f0;
+        background: var(--color-error-bg);
       }
     }
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
   .passwordTip {
@@ -70,13 +70,13 @@
     top: 11px;
     border-radius: 50%;
     text-align: center;
-    color: #757575;
+    color: var(--color-text-secondary);
     position: absolute;
     right: 8px;
     font-size: 20px;
     background: none;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
 
@@ -97,12 +97,12 @@
   }
 
   .iti--separate-dial-code .iti__selected-country {
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     border-radius: 3px;
   }
 
   .iti--allow-dropdown .iti__country-container:hover .iti__selected-country {
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
 
   .iti__country {
@@ -145,19 +145,19 @@
     background-clip: padding-box;
 
     &.RedWarn {
-      background: #ffd0d0;
-      color: #ce4040;
+      background: var(--color-error-bg);
+      color: var(--color-error);
     }
 
     &.GreenWarn {
-      background: #f2f5f7;
+      background: var(--color-background-secondary);
     }
   }
 
   .mesDiv {
     position: relative;
     margin-top: 24px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     height: 52px;
     &.mesDivDrop {
       height: auto;
@@ -189,7 +189,7 @@
     #fullName {
       transition: all 0.25s ease-out;
       &.onlyRead {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-secondary);
       }
     }
     #txtMobilePhone {
@@ -203,7 +203,7 @@
       position: absolute;
       left: 12px;
       top: 18px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       font-size: 14px;
       z-index: 0;
       line-height: 1;
@@ -213,7 +213,7 @@
 
     .warnTips {
       display: block;
-      color: red;
+      color: var(--color-error);
       text-align: right;
       font-size: 13px;
       width: 100%;
@@ -227,7 +227,7 @@
     }
     &.hasValue.errorDiv {
       .title {
-        color: red !important;
+        color: var(--color-error) !important;
       }
     }
     &.errorDiv {
@@ -235,10 +235,10 @@
         input[type='text']:not(.iti__search-input),
         input[type='password'],
         .Dropdown--input {
-          border: 2px solid #1677ff !important;
+          border: 2px solid var(--color-primary) !important;
         }
         .title {
-          color: #1677ff !important;
+          color: var(--color-primary) !important;
         }
       }
 
@@ -249,34 +249,34 @@
         border: 2px solid red !important;
       }
       .title {
-        color: red !important;
+        color: var(--color-error) !important;
         top: -9px;
-        background: #fff;
+        background: var(--color-background-primary);
         padding: 0 4px;
       }
       &.warnDiv {
         input[type='text']:not(.iti__search-input),
         input[type='password'],
         .Dropdown--input {
-          border: 2px solid #e6e6e6 !important;
+          border: 2px solid var(--color-border-secondary) !important;
         }
         &.errorDivCu {
           input[type='text']:not(.iti__search-input),
           input[type='password'],
           .Dropdown--input {
-            border: 2px solid #1677ff !important;
+            border: 2px solid var(--color-primary) !important;
           }
         }
         .title {
-          color: #1677ff !important;
+          color: var(--color-primary) !important;
         }
         .warnTips.noIcon {
-          color: #151515 !important;
+          color: var(--color-text-title) !important;
           padding: 10px 10px;
           font-weight: bold;
           font-size: 13px;
           line-height: 24px;
-          background: #ffffff 0% 0% no-repeat padding-box;
+          background: var(--color-background-primary) 0% 0% no-repeat padding-box;
           box-shadow: 0px 3px 6px #00000029;
           border-radius: 4px;
           text-align: left;
@@ -286,11 +286,11 @@
         }
       }
       #btnSendVerifyCode {
-        border: 1px solid #1677ff !important;
+        border: 1px solid var(--color-primary) !important;
       }
     }
     .ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
-      border: 1px solid #e6e6e6;
+      border: 1px solid var(--color-border-secondary);
       box-shadow: none;
     }
     .ant-select-show-search.ant-select:not(.ant-select-customize-input) .ant-select-selector input {
@@ -312,18 +312,18 @@
       vertical-align: top;
       line-height: 42px;
       font-size: 16px;
-      border: 1px solid #e6e6e6;
+      border: 1px solid var(--color-border-secondary);
       border-radius: 3px;
 
       .Dropdown--placeholder {
         padding: 0 15px;
-        color: #9e9e9e !important;
+        color: var(--color-text-tertiary) !important;
         line-height: 42px;
       }
 
       &:focus {
         outline: 0px;
-        border-color: #1677ff;
+        border-color: var(--color-primary);
       }
 
       &.loginInput {
@@ -342,18 +342,18 @@
     &.hasValue {
       .title {
         font-size: 14px;
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
         top: -9px;
         z-index: 0;
-        background: #fff;
+        background: var(--color-background-primary);
         padding: 0 4px;
       }
 
       input:not(.iti__search-input),
       .Dropdown--input {
-        border: 1px solid #e6e6e6;
+        border: 1px solid var(--color-border-secondary);
         &:focus {
-          border: 2px solid #1677ff !important;
+          border: 2px solid var(--color-primary) !important;
         }
         .icon-arrow-down-border {
           position: absolute;
@@ -372,7 +372,7 @@
       display: inline-block;
       padding: 0 10px;
       height: 44px;
-      background-color: #1677ff;
+      background-color: var(--color-primary);
       border-radius: 4px;
       position: absolute;
       right: 4px;
@@ -380,26 +380,26 @@
       text-align: center;
       font-size: 14px;
       font-weight: bold;
-      color: #fff;
+      color: var(--color-white);
       line-height: 44px;
       cursor: pointer;
       z-index: 1;
 
       &.btnEnabled {
-        background-color: #1677ff;
+        background-color: var(--color-primary);
         cursor: pointer;
         -webkit-transition: background-color 0.5s;
         transition: background-color 0.5s;
       }
 
       &.btnEnabled:hover {
-        background-color: #42a5f5;
+        background-color: var(--color-link-hover);
         -webkit-transition: background-color 0.5s;
         transition: background-color 0.5s;
       }
 
       &.btnDisabled {
-        background-color: #ccc;
+        background-color: var(--color-text-placeholder);
         cursor: default;
       }
     }
@@ -443,7 +443,7 @@
       background-size: contain;
     }
     &:hover {
-      color: #1182dd;
+      color: var(--color-link-hover);
 
       .backspace {
         background: url(../login/img/backspaceH.png) no-repeat;

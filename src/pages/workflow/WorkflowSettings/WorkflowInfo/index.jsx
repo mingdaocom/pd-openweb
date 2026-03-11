@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Drawer } from 'antd';
-import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import { SvgIcon, Textarea } from 'ming-ui';
-import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
+import { dialogSelectIcon } from 'ming-ui/functions';
 import { updateProcess } from '../../redux/actions';
 import { DetailFooter } from '../Detail/components';
 import './index.less';
@@ -13,7 +12,7 @@ const PluginIcon = styled.div`
   width: 36px;
   height: 36px;
   border-radius: 3px;
-  color: #fff;
+  color: var(--color-white);
   font-size: 22px;
   display: inline-flex;
   align-items: center;
@@ -99,36 +98,26 @@ class WorkflowInfo extends Component {
             {isPlugin && (
               <div className="mTop15">
                 <div className="bold">{_l('图标和颜色')}</div>
-
-                <Trigger
-                  action={['click']}
-                  popup={
-                    <SelectIcon
-                      hideInput
-                      iconColor={iconColor}
-                      icon={(iconName.match(/.*\/(.*)?\.svg/) || [])[1]}
-                      projectId={flowInfo.companyId}
-                      onModify={options => {
+                <PluginIcon
+                  className="mTop10 pointer"
+                  style={{ background: iconColor }}
+                  onClick={() => {
+                    dialogSelectIcon({
+                      hideInput: true,
+                      iconColor,
+                      icon: (iconName.match(/.*\/(.*)?\.svg/) || [])[1],
+                      projectId: flowInfo.companyId,
+                      onModify: options => {
                         this.setState({
                           iconColor: options.iconColor || iconColor,
                           iconName: options.iconUrl || iconName,
                         });
-                      }}
-                    />
-                  }
-                  zIndex={1000}
-                  popupAlign={{
-                    points: ['tl', 'bl'],
-                    overflow: {
-                      adjustX: true,
-                      adjustY: true,
-                    },
+                      },
+                    });
                   }}
                 >
-                  <PluginIcon className="mTop10 pointer" style={{ background: iconColor }}>
-                    {iconName ? <SvgIcon url={iconName} fill="#fff" size={22} /> : <i className="icon-workflow" />}
-                  </PluginIcon>
-                </Trigger>
+                  {iconName ? <SvgIcon url={iconName} fill="#fff" size={22} /> : <i className="icon-workflow" />}
+                </PluginIcon>
               </div>
             )}
             <div className="mTop15 bold mBottom10">{_l('说明')}</div>

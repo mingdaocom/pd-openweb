@@ -359,7 +359,7 @@ class FeedLeftNav extends React.Component {
             <span className="ThemeColor10">{_l('星标动态')}</span>
           </Item>
         </List>
-        <Splitter className="ThemeBorderColor7" />
+        <Splitter />
         <div className="clearfix panelHead">
           <div className="left panelTitle ThemeColor8">{_l('群组')}</div>
           <div className="right panelIcon Hand ThemeColor9 ThemeHoverColor10" onClick={e => this.createGroup(e)}>

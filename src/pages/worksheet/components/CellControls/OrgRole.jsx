@@ -208,7 +208,7 @@ export default class Text extends React.Component {
                 )}
                 {isediting && !(cell.required && value.length === 1) && (
                   <i
-                    className="Font14 Gray_9e icon-close Hand"
+                    className="Font14 textTertiary icon-close Hand"
                     onClick={() => this.deleteDepartment(organize.organizeId)}
                   />
                 )}
@@ -217,7 +217,7 @@ export default class Text extends React.Component {
           ))}
           {!single && (
             <span className="addUserBtn" onClick={this.handleSelect}>
-              <i className="icon icon-add Gray_75 Font14" />
+              <i className="icon icon-add textSecondary Font14" />
             </span>
           )}
         </div>

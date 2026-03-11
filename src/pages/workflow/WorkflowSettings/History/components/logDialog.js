@@ -14,7 +14,7 @@ import { getToolName } from '../../utils';
 
 const DialogWrapper = styled(Dialog)`
   .mui-dialog-header {
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-primary);
   }
   .mui-dialog-body {
     padding: 0 !important;
@@ -39,7 +39,7 @@ const Nav = styled.div`
 
     &:hover,
     &.active {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
     }
   }
 `;
@@ -48,22 +48,22 @@ const Content = styled.div`
   flex: 1;
   .scrollViewContainer {
     padding: 20px 24px 20px 21px;
-    background: #fafafa;
+    background: var(--color-background-secondary);
     border-radius: 0 0 4px 0;
   }
   .contentMessage {
     border-radius: 6px;
-    background: #fff;
-    border: 1px solid #ddd;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-primary);
     padding: 12px;
     margin-left: 69px;
     margin-top: 12px;
     &.success {
-      border-color: #01ca83;
+      border-color: var(--color-task);
       background: rgba(1, 202, 131, 0.04);
     }
     &.error {
-      border-color: #f44336;
+      border-color: var(--color-error);
     }
   }
   .react-json-view {
@@ -80,8 +80,8 @@ const ListIconBox = styled.div`
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  color: #5b00a6;
-  background: #f9e6ff;
+  color: var(--color-mingo-dark);
+  background: #eee3ff;
 `;
 
 const Error = styled.div`
@@ -91,10 +91,10 @@ const Error = styled.div`
   align-items: center;
   justify-content: center;
   border-radius: 38px 38px 38px 38px;
-  border: 1px solid #f44336;
+  border: 1px solid var(--color-error);
   background: rgba(244, 67, 54, 0.04);
   font-size: 15px;
-  color: #f44336;
+  color: var(--color-error);
   margin: 20px auto;
 `;
 
@@ -140,7 +140,7 @@ const LogDialog = props => {
         return {
           icon: 'icon-AI_Agent',
           color: '#fff',
-          backgroundColor: '#6E09F9',
+          backgroundColor: 'var(--color-mingo)',
         };
       }
 
@@ -155,7 +155,7 @@ const LogDialog = props => {
         return {
           icon: 'icon-AI_Agent',
           color: '#2196f3',
-          backgroundColor: '#fff',
+          backgroundColor: 'var(--color-background-primary)',
           border: '1px solid #ddd',
         };
       }
@@ -169,7 +169,7 @@ const LogDialog = props => {
               : _.includes(model, 'QWen')
                 ? MODEL_ICON.QWen
                 : MODEL_ICON.AI_Agent),
-          backgroundColor: '#fff',
+          backgroundColor: 'var(--color-background-primary)',
           border: '1px solid #ddd',
         };
       }
@@ -370,14 +370,14 @@ const LogDialog = props => {
                     >
                       <ListIcon item={item} />
                       {!_.includes(['memory', 'agent'], item.role) && (
-                        <div className="mLeft5 Gray_75 Font12">{diffTime(item, list, index)}</div>
+                        <div className="mLeft5 textSecondary Font12">{diffTime(item, list, index)}</div>
                       )}
                     </li>
                   ))}
                 </ul>
               </ScrollView>
 
-              {(!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal) && (
+              {window.platformENV.isPlatform && (
                 <div
                   className="ThemeColor3 ThemeHoverColor2 Font14 flexRow alignItemsCenter pointer pLeft16"
                   style={{ height: 40 }}
@@ -394,7 +394,7 @@ const LogDialog = props => {
                   <Fragment key={index}>
                     <div className={cx('flexRow alignItemsCenter workflowSectionName', { mTop24: index !== 0 })}>
                       <div
-                        className="pAll3 pointer Font0 mRight7 Gray_9e ThemeHoverColor3"
+                        className="pAll3 pointer Font0 mRight7 textTertiary ThemeHoverColor3"
                         onClick={() => {
                           if (_.includes(folds, index)) {
                             setFolds(folds.filter(o => o !== index));
@@ -412,22 +412,22 @@ const LogDialog = props => {
                       </div>
                       <ListIcon item={item} />
                       {!_.includes(['memory', 'agent'], item.role) && (
-                        <div className="mLeft5 Gray_75 Font12">{diffTime(item, list, index, true)}</div>
+                        <div className="mLeft5 textSecondary Font12">{diffTime(item, list, index, true)}</div>
                       )}
                     </div>
                     {!_.includes(folds, index) && (
                       <Fragment>
                         {item.role === 'agent' && (
                           <div className="contentMessage success">
-                            <div className="flexRow Font13 Gray_75 bold">
+                            <div className="flexRow Font13 textSecondary bold">
                               <div className="flex">{_l('总 TOKEN 数')}</div>
-                              {md.global.Config.IsPlatformLocal && <div className="flex">{_l('费用')}</div>}
+                              {window.platformENV.isPlatform && <div className="flex">{_l('费用')}</div>}
                             </div>
                             <div className="flexRow Font15 bold">
                               <div className="flex">
                                 {_l('%0 Tokens', formatNumberThousand(support.totalTokens) || 0)}
                               </div>
-                              {md.global.Config.IsPlatformLocal && (
+                              {window.platformENV.isPlatform && (
                                 <div className="flex">{_l('%0 信用点', support.price || 0)}</div>
                               )}
                             </div>
@@ -438,16 +438,19 @@ const LogDialog = props => {
                           <div className="contentMessage">
                             <div className="flexRow alignItemsCenter">
                               <i
-                                className={cx('Font16 Gray_9e', item.role === 'user' ? 'icon-input' : 'icon-output')}
+                                className={cx(
+                                  'Font16 textTertiary',
+                                  item.role === 'user' ? 'icon-input' : 'icon-output',
+                                )}
                               />
                               <div className="bold mLeft6">
                                 {item.role === 'user' ? _l('%0 输入', item.createBy.fullname) : _l('输出')}
                               </div>
-                              <div className="Gray_75 Font12 mLeft6 flex">
+                              <div className="textSecondary Font12 mLeft6 flex">
                                 {moment(item.ctime).format('YYYY/MM/DD HH:mm:ss.SSS')}
                               </div>
                               <i
-                                className="icon-copy Font16 Gray_9e ThemeHoverColor3 pointer"
+                                className="icon-copy Font16 textTertiary ThemeHoverColor3 pointer"
                                 onClick={() => copyText(item.text)}
                               />
                             </div>
@@ -460,18 +463,18 @@ const LogDialog = props => {
                             {item.role === 'agent' && (
                               <div className="contentMessage">
                                 <div className="flexRow alignItemsCenter">
-                                  <i className="icon-settings Font16 Gray_9e" />
+                                  <i className="icon-settings Font16 textTertiary" />
                                   <div className="bold mLeft6">{_l('配置信息')}</div>
                                   <i
                                     className={cx(
-                                      'Font14 Gray_9e ThemeHoverColor3 pointer mLeft6',
+                                      'Font14 textTertiary ThemeHoverColor3 pointer mLeft6',
                                       showConfigInfo ? 'icon-arrow-down' : 'icon-arrow-right-tip',
                                     )}
                                     onClick={() => setShowConfigInfo(!showConfigInfo)}
                                   />
                                   <div className="flex" />
                                   <i
-                                    className="icon-copy Font16 Gray_9e ThemeHoverColor3 pointer"
+                                    className="icon-copy Font16 textTertiary ThemeHoverColor3 pointer"
                                     onClick={() => copyText(JSON.stringify(item.toolCall))}
                                   />
                                 </div>
@@ -493,13 +496,13 @@ const LogDialog = props => {
                             {item.toolCall.arguments && (
                               <div className="contentMessage">
                                 <div className="flexRow alignItemsCenter">
-                                  <i className="icon-input Font16 Gray_9e" />
+                                  <i className="icon-input Font16 textTertiary" />
                                   <div className="bold mLeft6">{_l('输入')}</div>
-                                  <div className="Gray_75 Font12 mLeft6 flex">
+                                  <div className="textSecondary Font12 mLeft6 flex">
                                     {moment(item.ctime).format('YYYY/MM/DD HH:mm:ss.SSS')}
                                   </div>
                                   <i
-                                    className="icon-copy Font16 Gray_9e ThemeHoverColor3 pointer"
+                                    className="icon-copy Font16 textTertiary ThemeHoverColor3 pointer"
                                     onClick={() => copyText(item.toolCall.arguments)}
                                   />
                                 </div>
@@ -523,13 +526,13 @@ const LogDialog = props => {
                             {item.toolCall.responseData && (
                               <div className="contentMessage success">
                                 <div className="flexRow alignItemsCenter">
-                                  <i className="icon-output Font16 Gray_9e" />
+                                  <i className="icon-output Font16 textTertiary" />
                                   <div className="bold mLeft6">{_l('输出')}</div>
-                                  <div className="Gray_75 Font12 mLeft6 flex">
+                                  <div className="textSecondary Font12 mLeft6 flex">
                                     {moment(item.utime).format('YYYY/MM/DD HH:mm:ss.SSS')}
                                   </div>
                                   <i
-                                    className="icon-copy Font16 Gray_9e ThemeHoverColor3 pointer"
+                                    className="icon-copy Font16 textTertiary ThemeHoverColor3 pointer"
                                     onClick={() => copyText(item.toolCall.responseData)}
                                   />
                                 </div>

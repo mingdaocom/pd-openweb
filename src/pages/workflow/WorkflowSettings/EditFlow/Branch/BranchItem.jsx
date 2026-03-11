@@ -80,7 +80,9 @@ export default class BranchItem extends Component {
                     <div key={j} className="workflowBranchItemTag">
                       <span
                         className="ellipsis maxWidth mRight5"
-                        style={{ color: obj.nodeName && obj.filedValue ? '#151515' : '#f44336' }}
+                        style={{
+                          color: obj.nodeName && obj.filedValue ? 'var(--color-text-title)' : 'var(--color-error)',
+                        }}
                       >
                         {obj.nodeName && obj.filedValue
                           ? obj.nodeType === NODE_TYPE.FORMULA
@@ -89,7 +91,7 @@ export default class BranchItem extends Component {
                           : _l('字段已删除')}
                       </span>
                       <span className="ellipsis maxWidth">
-                        <span className="mRight5 Gray_75">
+                        <span className="mRight5 textSecondary">
                           {getFilterText(Object.assign({}, obj, { type: obj.filedTypeId }), obj.conditionId)}
                           {isOldCondition && '*'}
                         </span>
@@ -108,7 +110,7 @@ export default class BranchItem extends Component {
             );
           })
         ) : (
-          <div className="workflowBranchItemTag Gray_75">{_l('所有数据可进入该分支')}</div>
+          <div className="workflowBranchItemTag textSecondary">{_l('所有数据可进入该分支')}</div>
         )}
       </div>
     );
@@ -144,11 +146,11 @@ export default class BranchItem extends Component {
             <Fragment key={i}>
               {obj.controlId ? (
                 <Fragment>
-                  <span style={{ color: obj.nodeName ? '#151515' : '#f44336' }}>
+                  <span style={{ color: obj.nodeName ? 'var(--color-text-title)' : 'var(--color-error)' }}>
                     {obj.nodeName || _l('节点已删除')}
                   </span>
                   -
-                  <span style={{ color: obj.controlName ? '#151515' : '#f44336' }}>
+                  <span style={{ color: obj.controlName ? 'var(--color-text-title)' : 'var(--color-error)' }}>
                     {obj.controlName || _l('字段已删除')}
                   </span>
                 </Fragment>
@@ -157,7 +159,7 @@ export default class BranchItem extends Component {
               ) : (
                 obj.value
               )}
-              {i !== item.conditionValues.length - 1 && <span className="mLeft5 mRight5 Gray_75">{text}</span>}
+              {i !== item.conditionValues.length - 1 && <span className="mLeft5 mRight5 textSecondary">{text}</span>}
             </Fragment>
           );
         })}
@@ -256,7 +258,7 @@ export default class BranchItem extends Component {
               <Fragment>
                 {isSimple ? (
                   <div className="workflowName workflowBranchItem">
-                    <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span>
+                    <span className="pLeft8 pRight8 textSecondary">{_l('加载中...')}</span>
                   </div>
                 ) : (
                   this.renderContent()

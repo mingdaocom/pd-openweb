@@ -130,7 +130,7 @@ class SearchBox extends Component {
     let clearBtn =
       searchValue !== '' ? (
         <span
-          className="Font14 icon-cancel Gray_c Hand Absolute"
+          className="Font14 icon-cancel textPlaceholder Hand Absolute"
           style={{
             top: '8px',
             right: '8px',
@@ -140,7 +140,7 @@ class SearchBox extends Component {
       ) : null;
     return (
       <div className="searchContainer Relative" ref={box => (this.box = box)}>
-        <span className="icon-search btnSearch Gray_75" title={_l('搜索')} />
+        <span className="icon-search btnSearch textSecondary" title={_l('搜索')} />
         <input
           defaultValue={searchValue}
           ref={input => (this.input = input)}

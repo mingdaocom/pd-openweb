@@ -87,7 +87,7 @@ export default function TimeConfig(props) {
             placement="bottom"
             title={_l('用于控制时间选择器上的分钟按多少间隔显示，但依然可手动输入任意分钟数')}
           >
-            <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
+            <i className="icon-help tipsIcon textTertiary Font16 pointer"></i>
           </Tooltip>
         </Checkbox>
       </div>
@@ -114,9 +114,9 @@ export default function TimeConfig(props) {
             </IntervalWrap>
           }
         >
-          <DropdownPlaceholder className={cx({ active: timeIntervalVisible })} color="#151515">
+          <DropdownPlaceholder className={cx({ active: timeIntervalVisible })} color="var(--color-text-primary)">
             {_l('%0分钟', timeinterval)}
-            <i className="icon-arrow-down-border Font16 Gray_9e"></i>
+            <i className="icon-arrow-down-border Font16 textTertiary"></i>
           </DropdownPlaceholder>
         </Dropdown>
       )}

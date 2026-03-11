@@ -13,7 +13,7 @@ const Con = styled.div`
   width: 140px;
   height: 106px;
   border-radius: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   flex: 0 0 auto;
   img {
     width: 100%;
@@ -26,7 +26,7 @@ const Con = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #eaebef;
+    background-color: var(--color-border-secondary);
     .fileIcon {
       height: 30px;
       width: 26px;
@@ -37,8 +37,8 @@ const Con = styled.div`
       }
     }
     &.error {
-      background-color: #fef0ef;
-      color: #ff0000;
+      background-color: var(--color-error-bg);
+      color: var(--color-error);
       .icon {
         font-size: 16px;
         margin-right: 2px;
@@ -53,7 +53,7 @@ const Con = styled.div`
     align-items: center;
     justify-content: center;
     font-size: 12px;
-    color: #151515;
+    color: var(--color-text-title);
     padding: 0 10px;
     word-break: break-all;
     white-space: break-spaces;
@@ -70,11 +70,11 @@ const Con = styled.div`
     top: 3px;
     width: 18px;
     height: 18px;
-    color: #757575;
+    color: var(--color-text-secondary);
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     border-radius: 50%;
     .icon {
       font-size: 16px;
@@ -143,8 +143,8 @@ function FileCard({
                 isRound={false}
                 strokeWidth={3}
                 diameter={46}
-                foregroundColor="#BDBDBD"
-                backgroundColor="#fff"
+                foregroundColor="var(--color-text-disabled)"
+                backgroundColor="var(--color-background-primary)"
                 percent={parseInt(progress)}
               />
             )}

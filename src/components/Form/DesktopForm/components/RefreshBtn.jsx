@@ -10,7 +10,7 @@ export default props => {
   return (
     <Tooltip title={isRefresh ? _l('刷新中...') : _l('刷新')} placement="top">
       <span
-        className="Font14 mLeft5 Gray_9e pointer RefreshBtn ThemeHoverColor3"
+        className="Font14 mLeft5 textTertiary pointer RefreshBtn ThemeHoverColor3"
         onClick={() => {
           if (isRefresh) return;
 

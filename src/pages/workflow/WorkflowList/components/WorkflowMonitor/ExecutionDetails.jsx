@@ -234,7 +234,7 @@ export default class ExecutionDetails extends Component {
               </div>
             }
           >
-            <Icon icon="info_outline" className="Gray_75 mLeft6 LineHeight54 " />
+            <Icon icon="info_outline" className="textSecondary mLeft6 LineHeight54 " />
           </Tooltip>
         )}
         {showHistoryDetail ? name : tableHeaderName}
@@ -307,7 +307,7 @@ export default class ExecutionDetails extends Component {
                   >
                     {name}
                   </div>
-                  <div className="Gray_75 Font12 ellipsis">{app.name}</div>
+                  <div className="textSecondary Font12 ellipsis">{app.name}</div>
                 </div>
               </div>
               <div className="cloumnItem columnWidth170 textalignR pRight20">{formatter(producer)}</div>
@@ -360,7 +360,7 @@ export default class ExecutionDetails extends Component {
                             });
                         }}
                         icon="history_toggle_off"
-                        className="Gray_75 Hover_21 Hand"
+                        className="textSecondary hoverColorPrimary Hand"
                       />
                     </Tooltip>
                   ) : (
@@ -368,27 +368,32 @@ export default class ExecutionDetails extends Component {
                   )}
                 </span>
               </div>
-              {md.global.Config.IsLocal && !showHistoryDetail && (
-                <div className="cloumnItem columnWidth170 textalignR">
-                  <span className="Hand Hover_1f" onClick={() => this.updateRouterIndex(item)}>
-                    <span
-                      className="dot"
-                      style={
-                        _.isUndefined(routerIndex) ? {} : { background: routerIndex === -1 ? '#1677ff' : '#FFC37C' }
-                      }
-                    ></span>
-                    <span className="mLeft5">{routerName || ''}</span>
-                    {!_.isUndefined(routerIndex) && Object.keys(routerList).length > 1 ? (
-                      <div className="flexColumn manageListOrder Right mLeft6">
-                        <Icon icon="arrow-up" />
-                        <Icon icon="arrow-down" />
-                      </div>
-                    ) : (
-                      ''
-                    )}
-                  </span>
-                </div>
-              )}
+              {window.platformENV.isOverseas ||
+                (window.platformENV.isLocal && !showHistoryDetail && (
+                  <div className="cloumnItem columnWidth170 textalignR">
+                    <span className="Hand Hover_1f" onClick={() => this.updateRouterIndex(item)}>
+                      <span
+                        className="dot"
+                        style={
+                          _.isUndefined(routerIndex)
+                            ? {}
+                            : {
+                                background: routerIndex === -1 ? 'var(--color-primary)' : 'var(--color-warning-border)',
+                              }
+                        }
+                      ></span>
+                      <span className="mLeft5">{routerName || ''}</span>
+                      {!_.isUndefined(routerIndex) && Object.keys(routerList).length > 1 ? (
+                        <div className="flexColumn manageListOrder Right mLeft6">
+                          <Icon icon="arrow-up" />
+                          <Icon icon="arrow-down" />
+                        </div>
+                      ) : (
+                        ''
+                      )}
+                    </span>
+                  </div>
+                ))}
               {!showHistoryDetail && (
                 <div className="cloumnItem columnWidth170 textalignR">
                   <PauseTimeList
@@ -398,10 +403,10 @@ export default class ExecutionDetails extends Component {
                     getPopupContainer={() => this.props.monitorContainer}
                   >
                     <span className="Hand Hover_1f">
-                      <span style={{ color: waiting ? '#F44336' : '#151515' }}>
+                      <span style={{ color: waiting ? 'var(--color-error)' : 'var(--color-text-title)' }}>
                         {!waiting ? _l('正常') : _l('暂停')}
                       </span>
-                      <Icon icon="arrow-down" className="Gray_75 mLeft5" />
+                      <Icon icon="arrow-down" className="textSecondary mLeft5" />
                     </span>
                   </PauseTimeList>
                 </div>
@@ -445,9 +450,7 @@ export default class ExecutionDetails extends Component {
     if (moment(dateStr).get('date') === moment().get('date')) {
       dayStr = _l('今天');
     }
-    return (
-      <span>{_l(`正在查看历史执行详情（${dayStr} ${time}），本月新增、本月排队指截止到 ${dayStr} ${time} 的值`)}</span>
-    );
+    return <span>{_l(`正在查看历史执行详情（${dayStr} ${time}），本月新增与本月消费为截至此时的累计值`)}</span>;
   };
 
   render() {
@@ -461,7 +464,7 @@ export default class ExecutionDetails extends Component {
             <div className="subTitle">{_l('执行详情')}</div>
           ) : (
             <div>
-              <span className="Gray Bold mRight16">{_l('已选择%0条流程', checkedIds.length)}</span>
+              <span className="textPrimary Bold mRight16">{_l('已选择%0条流程', checkedIds.length)}</span>
               <Dropdown
                 trigger={['click']}
                 placement="bottomLeft"
@@ -496,15 +499,16 @@ export default class ExecutionDetails extends Component {
                     </span>
                   }
                 >
-                  <Icon icon="info_outline" className="mLeft8 Gray_9d" />
+                  <Icon icon="info_outline" className="mLeft8 textTertiary" />
                 </Tooltip>
               </Button>
-              {md.global.Config.IsLocal &&
-                Object.keys(routerList).map(v => (
-                  <Button type="ghostgray" className="mRight10" onClick={() => this.updateRouterIndex(v)}>
-                    {_l(`通道：${routerList[v]}`)}
-                  </Button>
-                ))}
+              {window.platformENV.isOverseas ||
+                (window.platformENV.isLocal &&
+                  Object.keys(routerList).map(v => (
+                    <Button type="ghostgray" className="mRight10" onClick={() => this.updateRouterIndex(v)}>
+                      {_l(`通道：${routerList[v]}`)}
+                    </Button>
+                  )))}
             </div>
           )}
           <div>
@@ -522,7 +526,7 @@ export default class ExecutionDetails extends Component {
           <div className="checkHistoryWrap">
             <span>{this.renderHistoryDateInfo()}</span>
             <span
-              className="mLeft20 ThemeColor Hand"
+              className="mLeft20 colorPrimary Hand"
               onClick={() => this.props.updateHistoryDetail({ showHistoryDetail: false })}
             >
               {_l('取消')}
@@ -536,7 +540,7 @@ export default class ExecutionDetails extends Component {
               .filter(it =>
                 showHistoryDetail
                   ? !_.includes(['routerIndex', 'waiting'], it.type)
-                  : md.global.Config.IsLocal
+                  : window.platformENV.isOverseas || window.platformENV.isLocal
                     ? true
                     : it.type !== 'routerIndex',
               )

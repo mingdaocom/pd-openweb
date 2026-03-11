@@ -1,7 +1,7 @@
 ﻿#createFolder {
   overflow: hidden;
   .folderBox {
-    background: #eee;
+    background: var(--color-border-secondary);
     border-radius: 0 3px 3px 0;
     width: 300px;
     .folderBoxPadding {
@@ -11,7 +11,7 @@
     .folderBoxImg {
       width: 100%;
       height: 156px;
-      background: #bdbdbd;
+      background: var(--color-text-disabled);
       border-radius: 0 3px 0 0;
       img {
         width: 100%;
@@ -23,16 +23,16 @@
       height: 36px;
       line-height: 36px;
       padding-left: 10px;
-      border: 1px solid #efefef;
+      border: 1px solid var(--color-border-secondary);
       border-radius: 3px;
       margin-top: 16px;
       &:not(:focus) {
-        border-color: #ccc !important;
+        border-color: var(--color-border-tertiary) !important;
       }
     }
     .folderBoxDesc {
       font-size: 13px;
-      color: #757575;
+      color: var(--color-text-secondary);
       margin-top: 13px;
     }
     .createFolderNetwork {
@@ -60,7 +60,7 @@
       position: absolute;
       top: 45px;
       left: 24px;
-      background: #fff;
+      background: var(--color-background-primary);
       max-height: 180px;
       overflow-y: auto;
       overflow-x: hidden;
@@ -86,10 +86,10 @@
         }
       }
       &:not(:hover) {
-        background-color: #fff !important;
+        background-color: var(--color-background-primary) !important;
       }
       &:hover {
-        color: #fff;
+        color: var(--color-white);
       }
       &:first-child {
         border-top-left-radius: 3px;
@@ -112,11 +112,11 @@
         line-height: 36px;
         cursor: pointer;
         &.createFolderBtnCancel:not(:hover) {
-          color: #757575 !important;
+          color: var(--color-text-secondary) !important;
         }
         &.createFolderBtnSave {
           padding: 0 30px;
-          color: #fff;
+          color: var(--color-white);
           font-size: 14px;
           border-radius: 3px;
         }
@@ -154,18 +154,18 @@
     font-size: 13px;
     white-space: nowrap;
     width: 260px;
-    background: #fff;
+    background: var(--color-background-primary);
     li {
       padding: 7px 20px 5px 20px;
       line-height: 22px;
       &:not(:hover) {
-        background: #fff !important;
+        background: var(--color-background-primary) !important;
       }
       &:hover {
-        background: #f5f5f5;
-        color: #fff !important;
+        background: var(--color-background-secondary);
+        color: var(--color-white) !important;
         .ThemeColor3 {
-          color: #fff !important;
+          color: var(--color-white) !important;
         }
         .descTip {
           color: rgba(255, 255, 255, 0.5);
@@ -178,7 +178,7 @@
       padding: 0;
       width: 100%;
       cursor: default;
-      border-top: 1px solid #e0e0e0;
+      border-top: 1px solid var(--color-border-secondary);
     }
     .descTip {
       color: rgba(0, 0, 0, 0.5);
@@ -194,7 +194,7 @@
       left: 30px;
       cursor: pointer;
       &:not(:hover) {
-        color: #757575 !important;
+        color: var(--color-text-secondary) !important;
       }
     }
   }

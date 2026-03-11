@@ -7,7 +7,7 @@ import CellControl from 'worksheet/components/CellControls';
 const Wrap = styled.div(
   ({ width }) => `
   .tableCon {
-    border-top: 1px solid #f1f1f1;
+    border-top: 1px solid var(--color-background-disabled);
     overflow: auto;
     width: 100%;
     .itemCon {
@@ -24,7 +24,7 @@ const Wrap = styled.div(
       overflow: hidden;
       font-weight: bold;
       font-size: 13px;
-      color: #757575;
+      color: var(--color-text-secondary);
     }
     .tag {
       max-width: 70px;
@@ -35,14 +35,14 @@ const Wrap = styled.div(
       position: sticky;
       top: 0;
       .itemCon {
-        background-color: #fafafa !important;
+        background-color: var(--color-background-secondary) !important;
       }
       .emptyForResize {
         width: 10px !important;
         min-width: 10px !important;
         max-width: 10px !important;
         border-color: transparent !important;
-        background: #fff !important;
+        background: var(--color-background-primary) !important;
       }
     }
     .rowCon {
@@ -80,7 +80,7 @@ function Table(props) {
                       <Icon
                         icon={control.icon}
                         className="Font16 mRight5"
-                        style={{ color: control.color || '#9e9e9e' }}
+                        style={{ color: control.color || 'var(--color-text-tertiary)' }}
                       />
                     </React.Fragment>
                   )}

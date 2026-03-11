@@ -103,7 +103,7 @@ export default class SelectDeptUser extends Component {
               <div className="iconWrap">
                 <i className="icon-Empty_data" />
               </div>
-              <div className="mTop10 Gray_75">{_.trim(keywords) ? _l('无搜索结果') : _l('暂无成员')}</div>
+              <div className="mTop10 textSecondary">{_.trim(keywords) ? _l('无搜索结果') : _l('暂无成员')}</div>
             </div>
           ) : (
             <div className="selectDepartmentUserContent">

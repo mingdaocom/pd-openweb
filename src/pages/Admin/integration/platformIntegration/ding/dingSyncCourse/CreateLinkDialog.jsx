@@ -36,7 +36,7 @@ const CreateLinkDialog = props => {
       onCancel={onCancel}
     >
       <div className="flexRow valignWrapper mBottom15 mTop15">
-        <div className="Gray_9e label">{_l('应用内链接')}</div>
+        <div className="textTertiary label">{_l('应用内链接')}</div>
         <Input
           value={appLink}
           onChange={value => setAppLink(value)}
@@ -48,7 +48,7 @@ const CreateLinkDialog = props => {
         </Button>
       </div>
       <div className="flexRow valignWrapper mBottom20">
-        <div className="Gray_9e label">{_l('%0链接', title)}</div>
+        <div className="textTertiary label">{_l('%0链接', title)}</div>
         <Input className="flex mLeft15 mRight10 readonly" value={ssoLink} readOnly />
         <Button
           className="pLeft10 pRight10"

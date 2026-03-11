@@ -10,26 +10,26 @@ import DataBaseImg from '../images/database.png';
 import './DataBase.less';
 
 const MoreOperateMenu = styled.ul`
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
   border-radius: 3px 3px 3px 3px;
   width: 160px;
   font-size: 13px;
-  color: #151515;
+  color: var(--color-text-title);
   padding: 4px 0;
   li {
     line-height: 36px;
     padding: 0 24px;
     cursor: pointer;
     a {
-      color: #151515;
+      color: var(--color-text-title);
       transition: none !important;
     }
     &:hover {
-      background-color: #1677ff;
-      color: #fff;
+      background-color: var(--color-primary);
+      color: var(--color-white);
       a {
-        color: #fff;
+        color: var(--color-white);
       }
     }
   }
@@ -49,7 +49,9 @@ const DISPLAY_DATA = [
   {
     label: _l('新增应用'),
     key: 'status',
-    format: l => <span className={l === 1 ? 'allowCreateColor' : 'Gray'}>{l === 1 ? _l('允许') : _l('不允许')}</span>,
+    format: l => (
+      <span className={l === 1 ? 'allowCreateColor' : 'textPrimary'}>{l === 1 ? _l('允许') : _l('不允许')}</span>
+    ),
     defaultValue: '',
   },
 ];
@@ -187,7 +189,7 @@ function DataBase(props) {
                   </span>
                   {item.remark && (
                     <Tooltip title={item.remark}>
-                      <span className="icon-info_outline Font16 Gray_bd"></span>
+                      <span className="icon-info_outline Font16 textDisabled"></span>
                     </Tooltip>
                   )}
                 </div>
@@ -204,7 +206,7 @@ function DataBase(props) {
                       setPopupVisibleId(visible ? item.id : undefined);
                     }}
                   >
-                    <Icon icon="moreop" className="Gray_bd Font20 mLeft24 Hover_49 Hand" />
+                    <Icon icon="moreop" className="textDisabled Font20 mLeft24 hoverTextPrimaryLight Hand" />
                   </Trigger>
                 </div>
               </div>
@@ -214,7 +216,7 @@ function DataBase(props) {
 
                   return (
                     <div>
-                      <div className="label Gray_9e mBottom8">{l.label}</div>
+                      <div className="label textTertiary mBottom8">{l.label}</div>
                       <div className="value">{l.format ? l.format(itemValue) : itemValue}</div>
                     </div>
                   );

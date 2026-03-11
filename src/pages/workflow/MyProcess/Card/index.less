@@ -3,16 +3,16 @@
     width: 100%;
     padding: 14px 16px 14px;
     margin-bottom: 12px;
-    background-color: #fff;
+    background-color: var(--color-background-card);
     box-sizing: border-box;
     transition: box-shadow 0.3s;
     border-radius: 4px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+    box-shadow: var(--shadow-sm);
     position: relative;
     overflow: hidden;
 
     &:hover {
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.16);
+      box-shadow: var(--shadow-lg);
       .alreadyRead {
         display: block;
       }
@@ -32,26 +32,26 @@
       top: 0;
       height: 100%;
       width: 3px;
-      background-color: #1890ff;
+      background-color: var(--color-link-hover);
     }
   }
   &Header {
     justify-content: space-between;
     .state {
-      color: #fff;
+      color: var(--color-white);
       padding: 1px 11px;
       border-radius: 25px;
-      background-color: #ebebeb;
+      background-color: var(--color-border-secondary);
     }
     .alreadyRead {
-      color: #757575;
+      color: var(--color-text-secondary);
       padding: 1px 15px 1px 9px;
       border-radius: 25px;
       cursor: pointer;
       display: none;
       &:hover {
-        color: #1677ff;
-        background-color: #1677ff33;
+        color: var(--color-primary);
+        background-color: var(--color-primary) 33;
       }
     }
     .appIcon {
@@ -61,7 +61,7 @@
       align-items: center;
       justify-content: center;
       border-radius: 4px;
-      color: #fff;
+      color: var(--color-white);
       font-size: 18px;
       margin-right: 10px;
       > div {
@@ -74,7 +74,7 @@
       margin: 2px 6px;
       border-radius: 50%;
       display: inline-block;
-      background-color: #757575;
+      background-color: var(--color-text-secondary);
     }
     .stepTimeConsuming {
       margin-left: 10px;
@@ -85,7 +85,7 @@
     }
   }
   &Body {
-    color: #151515;
+    color: var(--color-text-primary);
     font-size: 15px;
     padding: 12px 0 0;
     font-weight: 500;
@@ -95,7 +95,7 @@
     }
     .avatarWrapper {
       border-radius: 24px;
-      background-color: #eaeaea;
+      background-color: var(--color-border-secondary);
       .accountAvatar {
         img {
           vertical-align: top;

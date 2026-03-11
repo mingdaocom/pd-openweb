@@ -13,29 +13,29 @@ const WrapSys = styled.div`
     .nameInput {
       width: 300px;
       line-height: 36px;
-      background: #f8f8f8;
+      background: var(--color-background-secondary);
       border-radius: 3px 3px 3px 3px;
       padding: 0 13px;
       font-weight: 400;
     }
     .desC {
       line-height: 36px;
-      background: #f8f8f8;
+      background: var(--color-background-secondary);
       border-radius: 3px 3px 3px 3px;
       padding: 0 13px;
       font-weight: 400;
     }
     .desRole {
       line-height: 25px;
-      background: #fef9e4;
+      background: var(--color-yellow-black);
       border-radius: 3px 3px 3px 3px;
       padding: 6px 13px;
       font-weight: 400;
     }
     .toUser {
-      color: #5a5a5a;
+      color: var(--color-text-title);
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }

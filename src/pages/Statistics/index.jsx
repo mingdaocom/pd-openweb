@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+﻿import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -42,6 +42,9 @@ const exceptions = [
   '.selectRoleDialog',
   '.fullScreenMarkdown',
   '.attachmentsPreview',
+  '.createRecordSideMask',
+  '.mingoWrap',
+  '.doNotTriggerClickAway',
 ];
 
 const renderSortableItem = ({ item, DragHandle, otherProps }) => {
@@ -223,7 +226,7 @@ export default class Statistics extends Component {
                   this.setState({ dialogVisible: true });
                 }}
                 icon="plus"
-                className="ThemeHoverColor3 Gray_9e"
+                className="ThemeHoverColor3 textTertiary"
               />
             </Tooltip>
           )}
@@ -231,7 +234,7 @@ export default class Statistics extends Component {
             <Icon
               onClick={this.handleOpenGlobalStatisticsPanel.bind(this)}
               icon={isFullScreen ? 'worksheet_narrow' : 'worksheet_enlarge'}
-              className="ThemeHoverColor3 Gray_9e"
+              className="ThemeHoverColor3 textTertiary"
             />
           </Tooltip>
         </div>

@@ -8,7 +8,7 @@ export const Header = styled(FlexCenter)`
   padding: 0 24px;
   height: 54px;
   justify-content: space-between;
-  background-color: #fff;
+  background-color: var(--color-background-card);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.24);
   border-radius: 5px 5px 0 0;
   font-size: 17px;
@@ -16,15 +16,9 @@ export const Header = styled(FlexCenter)`
   .typeName {
     font-weight: bold;
   }
-  .saveBtn {
-    padding: 0 24px;
-    margin-right: 50px;
-    border-radius: 16px;
-    line-height: 32px;
-    min-height: 32px;
-    padding: 0 16px;
-    min-width: 64px;
-    font-size: 13px;
+  .save:hover {
+    border-color: var(--color-primary-dark);
+    background-color: var(--color-primary-dark);
   }
 `;
 

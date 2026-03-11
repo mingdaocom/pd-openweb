@@ -18,6 +18,7 @@ import * as viewActions from 'worksheet/redux/actions/index';
 import { getDynamicValue } from 'src/components/Form/core/formUtils';
 import { browserIsMobile } from 'src/utils/common';
 import { emitter } from 'src/utils/common';
+import { replaceControlsTranslateInfo } from 'src/utils/translate.js';
 import { updateWorksheetControls, updateWorksheetInfo } from '../../redux/actions';
 import SelectField from '../components/SelectField';
 import ViewEmpty from '../components/ViewEmpty';
@@ -145,6 +146,19 @@ function Hierarchy(props) {
 
   useEffect(() => {
     if (!cache.current.didMount) return;
+    const hierarchyData = hierarchyViewCanSelectFields({
+      controls,
+      worksheetId,
+    });
+    const isHaveSelectControl =
+      viewControl === 'create' ||
+      (viewControl &&
+        _.find(controls, item => item.controlId === viewControl) &&
+        hierarchyData.map(o => o.value).includes(viewControl)) ||
+      !_.isEmpty(viewControls);
+    if (!isHaveSelectControl) {
+      return;
+    }
     getDefaultHierarchyData();
     const { level } = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
     level && setState({ level: level });
@@ -152,13 +166,15 @@ function Hierarchy(props) {
     const { viewType, childType } = view;
     if (viewType === 2 && childType === 2) {
       const ids = (viewControls || []).slice(1).map(item => item.worksheetId);
+      const appId = _.get(props, 'appId');
       worksheetAjax
-        .getWorksheetsControls({ worksheetIds: ids, handControlSource: true, appId: _.get(props, 'appId') })
+        .getWorksheetsControls({ worksheetIds: ids, handControlSource: true, appId })
         .then(({ code, data }) => {
           if (code === 1) {
-            const relateControls = ids.map(id =>
-              _.get(_.find(data || [], i => i.worksheetId === id) || {}, 'controls'),
-            );
+            const relateControls = ids.map(id => {
+              const res = _.get(_.find(data || [], i => i.worksheetId === id) || {}, 'controls');
+              return replaceControlsTranslateInfo(appId, id, res);
+            });
             initHierarchyRelateSheetControls({ ids, controls: relateControls });
           }
         });

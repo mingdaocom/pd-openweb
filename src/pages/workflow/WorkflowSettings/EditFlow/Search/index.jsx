@@ -69,7 +69,7 @@ export default class Search extends Component {
         <WorksheetMessage
           item={{ ...item, appTypeName: item.appType === APP_TYPE.SHEET ? _l('工作表') : _l('聚合表') }}
         />
-        <div className="workflowContentInfo ellipsis Gray_75 mTop4 pBottom5">
+        <div className="workflowContentInfo ellipsis textSecondary mTop4 pBottom5">
           {_.includes([ACTION_ID.WORKSHEET_FIND, ACTION_ID.RECORD_UPDATE, ACTION_ID.RECORD_DELETE], item.actionId)
             ? item.appType === APP_TYPE.SHEET
               ? _l('从工作表获得')
@@ -103,7 +103,11 @@ export default class Search extends Component {
             </div>
             <NodeOperate nodeClassName="BGYellow" {...this.props} />
             <div className="workflowContent Font13">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? (
+                <span className="pLeft8 pRight8 textSecondary">{_l('加载中...')}</span>
+              ) : (
+                this.renderContent()
+              )}
             </div>
           </div>
           {item.resultTypeId ? <div className="workflowLineBtn" /> : <CreateNode {...this.props} />}

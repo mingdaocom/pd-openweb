@@ -82,6 +82,11 @@ const PopupWrapper = ({
         )}
         {headerType === 'withIcon' && (
           <div className={cx('popupHeaderBox', `justify-${headerTitleAlign}`)}>
+            {onClear && (
+              <div className="leftBox">
+                <Icon icon="clean" onClick={onClear} />
+              </div>
+            )}
             <div className={cx('ellipsis', `widthIconTitle-${headerTitleAlign}`)}>{title}</div>
             <div className="closeIcon">
               <Icon icon="close" onClick={onClose} />

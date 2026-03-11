@@ -19,6 +19,19 @@ import WidthProvider from './widthProvider';
 const AutoWidthGridLayout = WidthProvider(GridLayout);
 
 export const LayoutContent = styled.div`
+  &.resizableWrap&.resizing {
+    border: 1px solid var(--adm-color-primary);
+    > .widgetContent > div > div.layoutInfo,
+    > .widgetContent > div > div > div.layoutInfo {
+      display: block;
+    }
+  }
+  &.resizableWrap-tabs,
+  &.resizableWrap-card {
+    & > .react-resizable-handle {
+      cursor: ew-resize !important;
+    }
+  }
   &:hover {
     z-index: 1;
     > .widgetContentTools {
@@ -48,7 +61,7 @@ export const LayoutContent = styled.div`
     flex-direction: column;
     width: 100%;
     height: 100%;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     border-radius: 6px;
     overflow: auto;
     transition: box-shadow 0.2s;
@@ -60,9 +73,8 @@ export const LayoutContent = styled.div`
         border: none;
       }
     }
-    &.analysis,
-    &.embedUrl {
-      // overflow: visible;
+    &.analysis {
+      overflow: hidden;
     }
     &.filter {
       justify-content: center;
@@ -137,10 +149,10 @@ export const LayoutContent = styled.div`
       padding-right: 16px;
       font-size: 16px;
       &::placeholder {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
       &:focus {
-        border-bottom: 2px solid #1677ff;
+        border-bottom: 2px solid var(--color-primary);
       }
     }
   }
@@ -212,6 +224,10 @@ function WidgetContent(props) {
     return { ...config, rowHeight: ((isFullscreen ? window.screen.height : $wrap.offsetHeight) - 10) / maxH - 10 };
   };
 
+  const handleLayoutChange = layouts => {
+    setTimeout(() => updateLayout({ layouts, layoutType, components, adjustScreen }));
+  };
+
   const layout = getLayout(components, layoutType);
 
   return (
@@ -224,7 +240,11 @@ function WidgetContent(props) {
         isFullscreen={isFullscreen}
         layoutType={layoutType}
         draggableCancel=".disableDrag,.chartWrapper .drag"
+        onResizeStart={() => {
+          document.body.classList.add('pageNoSelect');
+        }}
         onResizeStop={(layout, oldItem = {}) => {
+          document.body.classList.remove('pageNoSelect');
           const index = _.findIndex(layout, { i: oldItem.i });
           const getData = _.get(displayRefs[index], ['getData']);
           if (getData && typeof getData === 'function') {
@@ -232,9 +252,8 @@ function WidgetContent(props) {
           }
         }}
         layout={layout}
-        onLayoutChange={layouts => {
-          setTimeout(() => updateLayout({ layouts, layoutType, components, adjustScreen }));
-        }}
+        onResize={handleLayoutChange}
+        onLayoutChange={handleLayoutChange}
         {...getLayoutConfig()}
       >
         {components.map((widget, index) => {
@@ -249,7 +268,7 @@ function WidgetContent(props) {
             widgetBgColor: isTransparent ? 'transparent' : config.widgetBgColor,
           };
           return (
-            <LayoutContent key={`${id || index}`} className="resizableWrap">
+            <LayoutContent key={`${id || index}`} className={cx('resizableWrap', `resizableWrap-${enumType}`)}>
               <WidgetTools
                 ids={ids}
                 enumType={enumType}

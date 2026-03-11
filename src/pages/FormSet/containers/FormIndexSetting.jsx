@@ -14,7 +14,7 @@ import '../components/MoreOption.less';
 const Con = styled.div`
   width: 100%;
   height: 100%;
-  background: #fff;
+  background: var(--color-background-primary);
   position: relative !important;
   overflow: hidden;
   .setIndexList {
@@ -28,26 +28,26 @@ const Con = styled.div`
       padding: 0 16px;
       line-height: 38px;
       height: 38px;
-      background: #1677ff 0% 0% no-repeat padding-box;
+      background: var(--color-primary) 0% 0% no-repeat padding-box;
       border-radius: 32px;
       text-align: center;
       font-size: 13px;
       letter-spacing: 0px;
-      color: #ffffff;
+      color: var(--color-white);
       cursor: pointer;
       &.disabled {
-        background-color: #9e9e9e;
+        background-color: var(--color-text-tertiary);
         cursor: not-allowed;
       }
     }
     .noData {
       width: 130px;
       height: 130px;
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       border-radius: 50%;
       margin: 200px auto 0;
       text-align: center;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       .icon {
         font-size: 60px;
         line-height: 130px;
@@ -68,19 +68,19 @@ const Con = styled.div`
         display: flex;
         align-items: center;
         font-size: 13px;
-        color: #757575;
+        color: var(--color-text-secondary);
         font-weight: 600;
         padding-bottom: 11px;
-        border-bottom: 1px solid #dddddd;
+        border-bottom: 1px solid var(--color-border-primary);
       }
       .printTemplatesList-tr {
         display: flex;
         align-items: center;
-        border-bottom: 1px solid #eaeaea;
+        border-bottom: 1px solid var(--color-border-secondary);
         height: auto !important;
         min-height: 68px !important;
         &:hover {
-          background: #fafafa;
+          background: var(--color-background-hover);
         }
         .field {
           padding: 10px 0;
@@ -99,14 +99,14 @@ const Con = styled.div`
             height: 24px;
             padding: 0 12px;
             border-radius: 12px;
-            color: #f44336;
-            background-color: #fbe9e7;
+            color: var(--color-error);
+            background-color: var(--color-error-bg);
           }
           .opacity0 {
             opacity: 0;
           }
           .edit {
-            color: #1677ff;
+            color: var(--color-primary);
             &:hover {
               opacity: 0.8;
             }
@@ -117,7 +117,7 @@ const Con = styled.div`
 
           & > span {
             display: inline-flex;
-            color: #1677ff;
+            color: var(--color-primary);
 
             &:hover {
               opacity: 0.8;
@@ -146,17 +146,20 @@ const Con = styled.div`
     }
   }
   .uniqueIndexColor {
-    color: #4caf50;
+    color: var(--color-success);
   }
   .wildcardIndexColor {
-    color: #ffa340;
+    color: var(--color-warning);
+  }
+  .sortFields:hover {
+    color: var(--color-primary);
   }
 `;
 
 const ArrowUp = styled.span`
   border-width: 5px;
   border-style: solid;
-  border-color: transparent transparent #9e9e9e transparent;
+  border-color: transparent transparent var(--color-text-tertiary) transparent;
   cursor: pointer;
   &:hover,
   &.active {
@@ -167,12 +170,12 @@ const ArrowUp = styled.span`
 const ArrowDown = styled.span`
   border-width: 5px;
   border-style: solid;
-  border-color: #9e9e9e transparent transparent transparent;
+  border-color: var(--color-text-tertiary) transparent transparent transparent;
   cursor: pointer;
   margin-top: 2px;
   &:hover,
   &.active {
-    border-color: #1677ff transparent transparent transparent;
+    border-color: var(--color-primary) transparent transparent transparent;
   }
 `;
 
@@ -265,11 +268,11 @@ function FormIndexSetting(props) {
         <div className="setIndexList">
           <div className="flexRow">
             <div className="flex">
-              <h5 className="formName Gray Font17 Bold">
+              <h5 className="formName textPrimary Font17 Bold">
                 {_l('检索加速')}
                 <Icon
                   icon="workflow_cycle"
-                  className="Font12 mLeft12 Hand Gray_9e"
+                  className="Font12 mLeft12 Hand textTertiary"
                   onClick={() => {
                     setIsloading(true);
                     getIndexesInfo();
@@ -277,7 +280,7 @@ function FormIndexSetting(props) {
                 />
               </h5>
               <p className="desc mTop8">
-                <span className="Font13 Gray_9e">
+                <span className="Font13 textTertiary">
                   {_l(
                     '手动为大数据量的工作表建立合适的索引，可以加快工作表检索速度，最多创建%0个。',
                     worksheetRowIndexLimit,
@@ -313,16 +316,19 @@ function FormIndexSetting(props) {
           {_.isEmpty(indexList) ? (
             <div className="noData">
               <Icon icon="db_index" />
-              <div className="mTop20 Gray_9e Font15">{_l('暂无索引')}</div>
+              <div className="mTop20 textTertiary Font15">{_l('暂无索引')}</div>
             </div>
           ) : (
             <div className="printTemplatesList flex overflowHidden flexColumn">
               <div className="printTemplatesList-header">
-                <div className="name flex mRight20 valignWrapper">
+                <div
+                  className="name flex mRight20 valignWrapper sortFields Hand"
+                  onClick={() => setSort(sort === 'ASC' ? 'DESC' : 'ASC')}
+                >
                   <div className="flex">{_l('名称')}</div>
                   <div className="flexColumn">
-                    <ArrowUp className={cx({ active: sort === 'ASC' })} onClick={() => setSort('ASC')} />
-                    <ArrowDown className={cx({ active: sort === 'DESC' })} onClick={() => setSort('DESC')} />
+                    <ArrowUp className={cx({ active: sort === 'ASC' })} />
+                    <ArrowDown className={cx({ active: sort === 'DESC' })} />
                   </div>
                 </div>
                 <div className="type mRight20 w120px">{_l('索引类型')}</div>
@@ -352,7 +358,7 @@ function FormIndexSetting(props) {
                           icon={type === 0 ? 'db_index' : type === 1 ? 'score' : 'title'}
                           className={cx(
                             'iconTitle Font24 mRight13',
-                            type === 0 ? 'Gray_75' : type === 1 ? 'uniqueIndexColor' : 'wildcardIndexColor',
+                            type === 0 ? 'textSecondary' : type === 1 ? 'uniqueIndexColor' : 'wildcardIndexColor',
                           )}
                         />
                         {isRename && templateId === item.indexConfigId ? (
@@ -393,7 +399,7 @@ function FormIndexSetting(props) {
                         )}
                         <span className="status mLeft12 nowrap">
                           {item.indexStateId === 1 && item.uniqueIndex && (
-                            <span className="Gray_9e">{_l('唯一索引')}</span>
+                            <span className="textTertiary">{_l('唯一索引')}</span>
                           )}
                           {item.indexStateId === -1 && <span className="fail">{_l('后台执行失败')}</span>}
                           {item.indexStateId === 0 && <span className="inLine">{_l('排队中')}</span>}
@@ -413,7 +419,7 @@ function FormIndexSetting(props) {
                                     ? _.get(getFieldObjById(it.fieldId), 'name')
                                     : it.fieldId}
                               </span>
-                              <span className="rule Gray_9e">
+                              <span className="rule textTertiary">
                                 {!isSpecial ? `（${sortRules[it.indexType]}）` : `（${it.indexType}）`}
                               </span>
                               {i < item.indexFields.length - 1 ? '、' : ''}
@@ -472,7 +478,7 @@ function FormIndexSetting(props) {
                           popup={
                             <MoreOption
                               disabledRename={item.isSystem}
-                              delTxt={_l('删除索引')}
+                              delTxt={_l('删除')}
                               description={_l('确定删除索引吗？删除后将无法恢复')}
                               showMoreOption={showMoreOption}
                               setFn={data => {
@@ -502,7 +508,7 @@ function FormIndexSetting(props) {
                         >
                           <Icon
                             icon="more_horiz"
-                            className="moreActive Hand Font18 Gray_9e Hover_21"
+                            className="moreActive Hand Font18 textTertiary hoverColorPrimary"
                             onClick={() => {
                               setShowMoreOption(true);
                               setTemplateId(item.indexConfigId ? item.indexConfigId : item.systemIndexName);

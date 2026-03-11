@@ -22,7 +22,7 @@ const ConnectorAddWrapper = styled.div`
   width: 100%;
   height: 100%;
   z-index: 999;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
   display: flex;
   flex-direction: column;
 `;
@@ -34,7 +34,7 @@ const HeaderWrapper = styled.div`
   min-height: 64px;
   justify-content: space-between;
   align-items: center;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.16);
 
   .headerLeft {
@@ -58,40 +58,40 @@ const HeaderWrapper = styled.div`
           width: 24px;
           height: 24px;
           border-radius: 50%;
-          background: #f4f4f4;
-          color: #9e9e9e;
+          background: var(--color-background-disabled);
+          color: var(--color-text-tertiary);
         }
         span {
           line-height: 20px;
           margin-left: 5px;
-          color: #9e9e9e;
+          color: var(--color-text-tertiary);
         }
         .connectLine {
           height: 1px;
           width: 50px;
           margin: 0 16px;
-          background-color: #ddd;
+          background-color: var(--color-border-primary);
         }
 
         &.isActive {
           .stepIcon {
-            background: #1677ff;
-            color: #fff;
+            background: var(--color-primary);
+            color: var(--color-white);
           }
           span {
-            color: #151515;
+            color: var(--color-text-title);
           }
         }
         &.isComplete {
           .stepIcon {
-            background-color: #ecf6fe;
-            color: #1677ff;
+            background-color: var(--color-primary-transparent);
+            color: var(--color-primary);
           }
           span {
-            color: #9e9e9e;
+            color: var(--color-text-tertiary);
           }
           .connectLine {
-            background-color: #1677ff;
+            background-color: var(--color-primary);
           }
         }
       }
@@ -105,14 +105,14 @@ const HeaderWrapper = styled.div`
       height: 36px;
       min-width: 102px;
       &.disabled {
-        background: #93c4f1 !important;
+        background: var(--color-primary-light) !important;
       }
     }
     .lastStepButton {
       margin-right: 16px;
-      border: 1px solid #1677ff;
-      background: #fff;
-      color: #1677ff;
+      border: 1px solid var(--color-primary);
+      background: var(--color-background-primary);
+      color: var(--color-primary);
     }
   }
 `;
@@ -120,14 +120,14 @@ const HeaderWrapper = styled.div`
 const ContentWrapper = styled.div`
   display: flex;
   height: 100%;
-  background-color: #fafafa;
+  background-color: var(--color-background-secondary);
 
   .configForm {
     flex: 2;
     height: calc(100vh - 64px);
     overflow: auto;
     padding: 0px 80px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     font-size: 13px;
   }
 
@@ -472,8 +472,8 @@ export default function AddConnector(props) {
     <ConnectorAddWrapper>
       <HeaderWrapper>
         <div className="headerLeft" onClick={onClose}>
-          <Icon icon="backspace" className="Gray_75 Font22 bold" />
-          <span className="Gray Font16 bold pLeft10">{_l('创建连接器')}</span>
+          <Icon icon="backspace" className="textSecondary Font22 bold" />
+          <span className="textPrimary Font16 bold pLeft10">{_l('创建连接器')}</span>
         </div>
 
         <div className="headerMiddle">
@@ -556,7 +556,7 @@ export default function AddConnector(props) {
                 <React.Fragment>
                   <img src="/staticfiles/images/trophy.png" width={190} height={170} />
                   <div className="Font20 bold mTop20">{_l('太棒了！同步任务创建成功')}</div>
-                  <div className="Font14 Gray_75 mTop20">
+                  <div className="Font14 textSecondary mTop20">
                     {_l('可在')}
                     <a
                       className="mLeft5 mRight5"
@@ -569,8 +569,8 @@ export default function AddConnector(props) {
                     {_l('中查看任务的运行状态与同步详情')}
                   </div>
                   <div className="flexRow alignItemsCenter mTop20">
-                    <Icon icon="info_outline" className="Gray_9e Font16" />
-                    <span className="Gray_9e mLeft8">{_l('连续60天无数据同步，会自动停止')}</span>
+                    <Icon icon="info_outline" className="textTertiary Font16" />
+                    <span className="textTertiary mLeft8">{_l('连续60天无数据同步，会自动停止')}</span>
                   </div>
                   <Button
                     type="primary"
@@ -584,7 +584,7 @@ export default function AddConnector(props) {
                 <React.Fragment>
                   <LoadDiv />
                   <div className="Font20 bold mTop36">{_l('任务创建中...')}</div>
-                  <div className="Font14 Gray_75 mTop8">{_l('可能需要一些时间，请耐心等待')}</div>
+                  <div className="Font14 textSecondary mTop8">{_l('可能需要一些时间，请耐心等待')}</div>
                 </React.Fragment>
               )}
             </div>

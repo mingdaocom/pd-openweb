@@ -11,39 +11,39 @@ const borderBeamAnimation = keyframes`
 const Con = styled.div`
   position: relative;
   border-radius: 8px;
-  border: 1px solid #dddddd;
+  border: 1px solid var(--color-border-primary);
   padding: 16px 14px 14px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   .add-widget-btn {
     height: 32px;
     line-height: 32px;
     width: 100%;
     text-align: center;
-    background: var(--ai-primary-color);
+    background: var(--color-mingo);
     border-radius: 32px;
     font-size: 14px;
-    color: #fff;
+    color: var(--color-white);
     cursor: pointer;
     &.secondary {
       background: transparent;
-      color: #151515;
-      border: 1px solid #dddddd;
+      color: var(--color-text-title);
+      border: 1px solid var(--color-border-primary);
       &:hover {
-        background: #f5f5f5;
+        background: var(--color-background-hover);
       }
     }
     &.disabled {
-      background: #f5f5f5;
-      color: #bdbdbd;
+      background: var(--color-background-secondary);
+      color: var(--color-text-disabled);
       cursor: not-allowed;
       &.secondary {
-        border-color: #f5f5f5;
+        border-color: var(--color-background-secondary);
       }
     }
   }
   &:not(.disabled) {
     .widget-item:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
       .widget-name {
         display: block;
       }
@@ -51,12 +51,12 @@ const Con = styled.div`
   }
   .generate-status {
     font-size: 14px;
-    color: #757575;
+    color: var(--color-text-secondary);
     margin: -3px 0px;
   }
   .generated-count {
     font-size: 14px;
-    color: #151515;
+    color: var(--color-text-title);
     .selectedIcon {
       margin-right: 6px;
       width: 22px;
@@ -65,15 +65,15 @@ const Con = styled.div`
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      border: 1px solid #c4c4c4;
+      border: 1px solid var(--color-text-placeholder);
       &.isSelected {
-        background: #6e09f9;
-        border-color: #6e09f9;
+        background: var(--color-mingo);
+        border-color: var(--color-mingo);
       }
       .icon-ok {
         visibility: hidden;
         font-size: 18px;
-        color: #fff;
+        color: var(--color-white);
       }
       &.disabled {
         background: var(--color-background-disabled);
@@ -116,7 +116,7 @@ const Con = styled.div`
       position: absolute;
       aspect-ratio: 1/1;
       width: 80px;
-      background: linear-gradient(to left, #6e09f920, #6e09f9, transparent);
+      background: linear-gradient(to left, #6e09f920, var(--color-mingo), transparent);
       offset-anchor: 90 50%;
       offset-path: rect(0 auto auto 0 round 80px);
       animation: ${borderBeamAnimation} 2s infinite linear;

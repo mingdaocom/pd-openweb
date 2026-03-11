@@ -26,6 +26,7 @@ export default {
    * @param {string} args.startTime 开始时间
    * @param {string} args.endTime 结束时间
    * @param {boolean} args.clearUnread 是否清理未读数
+   * @param {string} args.appId 筛选应用id
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

@@ -11,8 +11,8 @@ const WarningWrap = styled.div`
   border-radius: 2px;
   ${props =>
     props.isBg
-      ? 'margin-top: 10px;background: #FFFCD5;'
-      : 'margin: 12px 0;background: #f7f7f7;border: 1px solid #eaeaea;'}
+      ? 'margin-top: 10px;background: var(--color-yellow-black);'
+      : 'margin: 12px 0;background: var(--color-background-secondary);border: 1px solid var(--color-border-primary);'}
 `;
 
 const DEFAULT_TEXT = {

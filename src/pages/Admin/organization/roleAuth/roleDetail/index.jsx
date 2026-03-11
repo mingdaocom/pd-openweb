@@ -27,8 +27,8 @@ const DetailDrawer = styled(Drawer)`
       font-weight: bold;
       border: none;
       border-radius: 0;
-      border-bottom: 1px solid #eaeaea;
-      border-color: #eaeaea !important;
+      border-bottom: 1px solid var(--color-border-secondary);
+      border-color: var(--color-border-secondary) !important;
       padding: 0;
     }
   }
@@ -38,22 +38,22 @@ const DetailDrawer = styled(Drawer)`
   .tabList {
     display: flex;
     margin: 0 24px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     .tabItem {
       padding: 10px 8px;
       margin-right: 24px;
       border-bottom: 2px solid transparent;
       cursor: pointer;
       &.isActive {
-        border-color: #1677ff;
-        color: #1677ff;
+        border-color: var(--color-primary);
+        color: var(--color-primary);
         font-weight: bold;
       }
     }
   }
   .hrPermissionsHeader {
     padding: 20px 0;
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-secondary);
     &.noBorder {
       border: none;
     }
@@ -111,7 +111,7 @@ export default function RoleDetail(props) {
       {isSuperAdmin && !isRoleSuperAdmin && (
         <Icon
           icon="edit"
-          className="Font16 mLeft5 Gray_9d Hand Hover_21"
+          className="Font16 mLeft5 textTertiary Hand hoverColorPrimary"
           onClick={() => {
             setNameEditing(true);
             setTimeout(() => {
@@ -152,7 +152,7 @@ export default function RoleDetail(props) {
       mask={false}
       width={720}
       title={title}
-      extra={<Icon icon="close" className="Font20 Gray_9e Hand" onClick={onClose} />}
+      extra={<Icon icon="close" className="Font20 textTertiary Hand" onClick={onClose} />}
       onClose={onClose}
     >
       <div className="flexColumn h100 overflowHidden">
@@ -183,7 +183,7 @@ export default function RoleDetail(props) {
             {!loading &&
               (!roleInfo.permissions.length && !roleInfo.hrPermissions.length ? (
                 <div className="flex flexColumn justifyContentCenter TxtCenter">
-                  <div className="Gray_75 mBottom12">{_l('没有任何权限')}</div>
+                  <div className="textSecondary mBottom12">{_l('没有任何权限')}</div>
                   {(isSuperAdmin || role.allowAssignSamePermission) && (
                     <div className="ThemeColor3 ThemeHoverColor2 pointer" onClick={() => onOpenDrawer('editRole')}>
                       {_l('前往编辑')}
@@ -195,7 +195,7 @@ export default function RoleDetail(props) {
                   <div className="mLeft24 mRight24">
                     {isSuperAdmin && !isRoleSuperAdmin && (
                       <div className="flexRow alignItemsCenter mTop20">
-                        <div className="bold flex Gray_75">{_l('拥有权限')}</div>
+                        <div className="bold flex textSecondary">{_l('拥有权限')}</div>
                         <div className="flex" />
                         <Checkbox
                           checked={roleInfo.allowAddMembers}
@@ -214,7 +214,7 @@ export default function RoleDetail(props) {
                           }}
                         />
                         <Tooltip title={_l('勾选后，角色下成员可以添加、移除其他成员')}>
-                          <Icon icon="info_outline" className="Gray_9e Font16 mLeft4 mRight20" />
+                          <Icon icon="info_outline" className="textTertiary Font16 mLeft4 mRight20" />
                         </Tooltip>
                         <Button type="ghost" size="small" onClick={() => onOpenDrawer('editRole')}>
                           {_l('编辑')}

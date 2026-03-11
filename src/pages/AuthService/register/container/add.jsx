@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import styled from 'styled-components';
@@ -149,6 +149,11 @@ export default function (props) {
     }
   };
 
+  const currentLang = getCurrentLang();
+  // 根据当前语言生成帮助文档路径，日语没有帮助文档，所以显示英文
+  const helpPath = currentLang === 'zh-Hant' ? 'zh-Hant/' : ['en', 'ja'].includes(currentLang) ? 'en/' : '';
+  const helpLink = `https://help.mingdao.com/${helpPath}org/id/`;
+
   return (
     <Wrap>
       {loading && <div className="loadingLine"></div>}
@@ -159,14 +164,9 @@ export default function (props) {
         </span>
       )}
       <div className="title mTop16 Font26 Bold">{_l('请填写组织门牌号')}</div>
-      <p className="mTop6 Gray Font15">{_l('组织门牌号可以通过管理员获取')}</p>
+      <p className="mTop6 textPrimary Font15">{_l('组织门牌号可以通过管理员获取')}</p>
       {renderCon()}
-      <Support
-        type={3}
-        href="https://help.mingdao.com/org/id"
-        text={_l('没有组织门牌号？')}
-        className="mTop16 InlineBlock"
-      />
+      <Support type={3} href={helpLink} text={_l('没有组织门牌号？')} className="mTop16 InlineBlock" />
       <span
         className="btnForRegister Hand mTop40"
         onClick={() => {

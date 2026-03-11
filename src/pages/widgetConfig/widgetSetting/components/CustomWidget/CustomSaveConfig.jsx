@@ -53,7 +53,7 @@ export default function CustomSaveConfig(props) {
           renderTitle={data => {
             return (
               <div className="flexCenter">
-                <Icon icon={data.iconName} className="Font16 mRight6 Gray_9e" />
+                <Icon icon={data.iconName} className="Font16 mRight6 textTertiary" />
                 <span className="flex">{data.text}</span>
               </div>
             );

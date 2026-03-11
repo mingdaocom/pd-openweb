@@ -12,7 +12,7 @@ const Box = styled.ul`
   > li {
     align-items: center;
     height: 40px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
     > div.flex {
       min-width: 0;
     }
@@ -29,7 +29,7 @@ const SearchBox = styled.div`
     height: 36px;
     padding: 0px 28px;
     border-radius: 4px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     width: 300px;
   }
   .icon {
@@ -40,8 +40,9 @@ const SearchBox = styled.div`
 `;
 
 const DecryptBox = styled.span`
+  color: var(--color-black);
   padding: 3px 5px;
-  background: #ffe49b;
+  background: var(--color-warning-border);
   border-radius: 3px;
   font-size: 12px;
   min-width: max-content;
@@ -351,7 +352,7 @@ export default class WriteFields extends Component {
                 {item.type === 52 && (
                   <i
                     className={cx(
-                      'mRight5 Gray_75',
+                      'mRight5 textSecondary',
                       _.includes(foldIds, item.id) ? 'icon-arrow-right-tip' : 'icon-arrow-down',
                     )}
                   />
@@ -365,7 +366,7 @@ export default class WriteFields extends Component {
                 {item.type === 29 && !!(item.subFormProperties || []).length && selectNodeType !== NODE_TYPE.CC && (
                   <Tooltip title={_l('设置子表操作和列权限')} placement="bottomRight">
                     <div
-                      className="mLeft5 Gray_75 ThemeHoverColor3 pointer"
+                      className="mLeft5 textSecondary ThemeHoverColor3 pointer"
                       style={{ display: 'inline-flex' }}
                       onClick={() =>
                         this.setState({
@@ -463,7 +464,7 @@ export default class WriteFields extends Component {
         <div className="flexRow alignItemsCenter">
           <SearchBox>
             <input type="text" placeholder={_l('搜索')} onChange={e => this.setState({ keywords: e.target.value })} />
-            <Icon type="search" className="Gray_75 Font16" />
+            <Icon type="search" className="textSecondary Font16" />
           </SearchBox>
           <div className="flex" />
           {!_.includes(hideTypes, 1) && (
@@ -512,7 +513,9 @@ export default class WriteFields extends Component {
                 }
               />
             </div>
-            <div className="Gray_75 mTop5">{_l('未开启时按照子表本身权限，开启后可配置子表的细分操作和列权限')}</div>
+            <div className="textSecondary mTop5">
+              {_l('未开启时按照子表本身权限，开启后可配置子表的细分操作和列权限')}
+            </div>
 
             {selectItem.workflow && (
               <Fragment>

@@ -7,14 +7,14 @@ import { SvgIcon } from 'ming-ui';
 const Con = styled.div`
   display: inline-block;
   cursor: pointer;
-  color: #151515;
+  color: var(--color-text-title);
   padding: 0px 12px;
   height: 28px;
   line-height: 28px;
   border-radius: 4px;
   white-space: nowrap;
   &:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
   &.disabled {
     cursor: not-allowed !important;
@@ -29,7 +29,7 @@ const Icon = styled.span`
   margin-right: 4px;
   font-size: 18px;
   vertical-align: middle;
-  color: #757575;
+  color: var(--color-text-secondary);
 `;
 
 const Text = styled.span`

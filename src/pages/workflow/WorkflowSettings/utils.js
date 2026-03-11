@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import store from 'src/redux/configureStore';
 import { ACTION_ID, APP_TYPE, CONDITION_TYPE, CONTROLS_NAME, GLOBAL_VARIABLE, NODE_TYPE, TRIGGER_ID } from './enum';
 
 /**
@@ -20,6 +21,7 @@ export const getSameLevelIds = (data, firstId, excludeFirstId = false) => {
  * 返回对应的图标
  */
 export const getIcons = (type, appType, actionId) => {
+  const { flowInfo } = store.getState().workflow;
   let icon;
 
   switch (type) {
@@ -31,7 +33,7 @@ export const getIcons = (type, appType, actionId) => {
       } else if (appType === APP_TYPE.WEBHOOK) {
         icon = 'icon-workflow_webhook';
       } else if (appType === APP_TYPE.CUSTOM_ACTION) {
-        icon = 'icon-custom_actions';
+        icon = flowInfo.moduleType === 1 ? 'icon-auto_awesome' : 'icon-custom_actions';
       } else if (appType === APP_TYPE.USER) {
         icon = 'icon-hr_structure';
       } else if (appType === APP_TYPE.DEPARTMENT) {
@@ -90,6 +92,10 @@ export const getIcons = (type, appType, actionId) => {
         icon = 'icon-invited_users';
       } else if (appType === APP_TYPE.CALENDAR) {
         icon = 'icon-sidebar_calendar';
+      } else if (appType === APP_TYPE.INVOICE) {
+        icon = 'icon-Invoice';
+      } else if (appType === APP_TYPE.REFUND) {
+        icon = 'icon-refund';
       } else if (actionId === ACTION_ID.REFRESH_SINGLE_DATA) {
         icon = 'icon-architecture';
       }
@@ -253,15 +259,18 @@ export const getIcons = (type, appType, actionId) => {
  * 返回开始对应的节点颜色
  */
 export const getStartNodeColor = (appType, triggerId) => {
+  const { flowInfo } = store.getState().workflow;
+
   switch (appType) {
     case APP_TYPE.SHEET:
       return 'BGYellow';
     case APP_TYPE.WEBHOOK:
-    case APP_TYPE.CUSTOM_ACTION:
     case APP_TYPE.PBC:
     case APP_TYPE.EVENT_PUSH:
     case APP_TYPE.LOOP_PROCESS:
       return 'BGBlueAsh';
+    case APP_TYPE.CUSTOM_ACTION:
+      return flowInfo.moduleType === 1 ? 'BGBlue' : 'BGBlueAsh';
     case APP_TYPE.USER:
     case APP_TYPE.DEPARTMENT:
       return 'BGGreen';

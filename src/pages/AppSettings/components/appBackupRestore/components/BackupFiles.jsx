@@ -49,13 +49,16 @@ const ListWrap = styled.div`
   }
   .header,
   .row {
-    border-bottom: 1px solid #dddddd;
+    border-bottom: 1px solid var(--color-border-primary);
     .icon-edit {
       display: none !important;
     }
     .order {
       transform: scale(0.8);
       margin-left: 4px;
+      .icon-arrow-down {
+        margin-top: -4px;
+      }
     }
   }
   .header {
@@ -64,13 +67,13 @@ const ListWrap = styled.div`
   .row {
     height: 60px;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       .icon-edit {
         display: inline-block !important;
       }
     }
     .warningColor {
-      color: #ff9a2d;
+      color: var(--color-warning);
     }
   }
 `;
@@ -181,7 +184,7 @@ export default function BackupFiles(props) {
       onOk: () => {
         const hasDataBase =
           getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
-          (!md.global.Config.IsPlatformLocal || !md.global.Config.IsLocal);
+          (!window.platformENV.isPlatform || (!window.platformENV.isOverseas && !window.platformENV.isLocal));
         const hasAppResourceAuth = checkPermission(projectId, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
 
         if (hasDataBase && hasAppResourceAuth) {
@@ -275,23 +278,19 @@ export default function BackupFiles(props) {
 
   const canCreateApp = !Object.assign({ cannotCreateApp: true }, getCurrentProject(projectId)).cannotCreateApp;
 
-  if (isLoading && pageIndex === 1) {
-    return <LoadDiv className="mTop15" />;
-  }
-
   return (
     <Fragment>
-      {_.isEmpty(fileList) ? (
+      {_.isEmpty(fileList) && !isLoading ? (
         <EmptyStatus
           icon="cloud_sync"
           radiusSize={130}
           iconClassName="Font50"
           emptyTxt={_l('暂无备份文件')}
-          emptyTxtClassName="Gray_9e Font17 mTop20"
+          emptyTxtClassName="textTertiary Font17 mTop20"
         />
       ) : (
         <ListWrap>
-          <div className="header Gray_9e flexRow alignItemsCenter">
+          <div className="header textTertiary flexRow alignItemsCenter">
             <div className="name flex">{_l('备份文件名称')}</div>
             <div className="backupType">{_l('备份类型')}</div>
             <div className="backupTime flexRow alignItemsCenter">
@@ -324,175 +323,179 @@ export default function BackupFiles(props) {
             <div className="status">{_l('备份状态')}</div>
             <div className="action"></div>
           </div>
-          <ScrollView className="flex" onScrollEnd={onScrollEnd}>
-            {fileList.map(item => {
-              const { id, operator = {}, operationDateTime, status, containData, usage, dataStatus } = item;
+          {isLoading && pageIndex === 1 ? (
+            <LoadDiv className="mTop25" />
+          ) : (
+            <ScrollView className="flex" onScrollEnd={onScrollEnd}>
+              {fileList.map(item => {
+                const { id, operator = {}, operationDateTime, status, containData, usage, dataStatus } = item;
 
-              const size =
-                usage / Math.pow(1024, 2) >= 1024
-                  ? (usage / Math.pow(1024, 3)).toFixed(2) + 'GB'
-                  : (usage / Math.pow(1024, 2)).toFixed(2) + 'MB';
+                const size =
+                  usage / Math.pow(1024, 2) >= 1024
+                    ? (usage / Math.pow(1024, 3)).toFixed(2) + 'GB'
+                    : (usage / Math.pow(1024, 2)).toFixed(2) + 'MB';
 
-              // 已过期
-              const expired =
-                (validLimit === -1
-                  ? moment(item.operationDateTime).add(1, 'year').format('YYYYMMDDHHmmss')
-                  : moment(item.operationDateTime).add(60, 'days').format('YYYYMMDDHHmmss')) <
-                moment().format('YYYYMMDDHHmmss');
-              // 即将过期
-              const expiredSoon =
-                (validLimit === -1
-                  ? moment(item.operationDateTime).add(1, 'year').subtract(10, 'days').format('YYYYMMDDHHmmss')
-                  : moment(item.operationDateTime).add(50, 'days').format('YYYYMMDDHHmmss')) <
-                moment().format('YYYYMMDDHHmmss');
+                // 已过期
+                const expired =
+                  (validLimit === -1
+                    ? moment(item.operationDateTime).add(1, 'year').format('YYYYMMDDHHmmss')
+                    : moment(item.operationDateTime).add(60, 'days').format('YYYYMMDDHHmmss')) <
+                  moment().format('YYYYMMDDHHmmss');
+                // 即将过期
+                const expiredSoon =
+                  (validLimit === -1
+                    ? moment(item.operationDateTime).add(1, 'year').subtract(10, 'days').format('YYYYMMDDHHmmss')
+                    : moment(item.operationDateTime).add(50, 'days').format('YYYYMMDDHHmmss')) <
+                  moment().format('YYYYMMDDHHmmss');
 
-              return (
-                <div key={id} className="row flexRow alignItemsCenter">
-                  <div className="backupFileName pLeft10 flex ellipsis">
-                    <EditInput
-                      actCurrentFileInfo={item}
-                      projectId={projectId}
-                      appId={appId}
-                      updateFileList={updateFileList}
-                    />
-                  </div>
-                  <div className="backupType">{containData ? _l('应用、数据') : _l('应用')}</div>
-                  <div className="backupTime">{createTimeSpan(dateConvertToUserZone(operationDateTime))}</div>
-                  <div className="size">{containData ? size : '-'}</div>
-                  <div className="operator ellipsis">
-                    {operator.accountId === 'user-system' ? _l('系统定期') : operator.fullname}
-                  </div>
-                  <div
-                    className={cx('status', {
-                      ThemeColor: _.includes([1, 2], status),
-                      Gray_75: expired,
-                      warningColor: expiredSoon && status === 0,
-                    })}
-                  >
-                    {status === 1
-                      ? _l('排队中...')
-                      : status === 2
-                        ? _l('备份中...')
-                        : status === 10
-                          ? _l('失败')
-                          : expired
-                            ? _l('已过期')
-                            : expiredSoon
-                              ? _l('即将过期')
-                              : _l('完成')}
+                return (
+                  <div key={id} className="row flexRow alignItemsCenter">
+                    <div className="backupFileName pLeft10 flex ellipsis">
+                      <EditInput
+                        actCurrentFileInfo={item}
+                        projectId={projectId}
+                        appId={appId}
+                        updateFileList={updateFileList}
+                      />
+                    </div>
+                    <div className="backupType">{containData ? _l('应用、数据') : _l('应用')}</div>
+                    <div className="backupTime">{createTimeSpan(dateConvertToUserZone(operationDateTime))}</div>
+                    <div className="size">{containData ? size : '-'}</div>
+                    <div className="operator ellipsis">
+                      {operator.accountId === 'user-system' ? _l('系统定期') : operator.fullname}
+                    </div>
+                    <div
+                      className={cx('status', {
+                        colorPrimary: _.includes([1, 2], status),
+                        textSecondary: expired,
+                        warningColor: expiredSoon && status === 0,
+                      })}
+                    >
+                      {status === 1
+                        ? _l('排队中...')
+                        : status === 2
+                          ? _l('备份中...')
+                          : status === 10
+                            ? _l('失败')
+                            : expired
+                              ? _l('已过期')
+                              : expiredSoon
+                                ? _l('即将过期')
+                                : _l('完成')}
 
-                    {validLimit !== -1 && (expired || expiredSoon) ? (
-                      <Tooltip
-                        title={
-                          expired ? (
-                            <span>
-                              {_l('备份文件已过期，升级旗舰版后可恢复下载')}
-                              <Support
-                                text={_l('了解更多')}
-                                type={3}
-                                href={`/upgrade/choose?projectId=${projectId}&select=3`}
-                              />
-                            </span>
-                          ) : (
-                            <span>
-                              {_l('备份文件即将到期，升级旗舰版延长有效期')}
-                              <Support
-                                text={_l('了解更多')}
-                                type={3}
-                                href={`/upgrade/choose?projectId=${projectId}&select=3`}
-                              />
-                            </span>
-                          )
-                        }
-                      >
-                        <Icon icon="info_outline" className="Gray_bd mLeft4" />
-                      </Tooltip>
-                    ) : (
-                      ''
-                    )}
-                  </div>
-                  {_.includes([0, 10], status) ? (
-                    <div className="action">
-                      <div className="pRight10 TxtRight">
-                        {!expired && status === 0 && (
-                          <span className="Hand mRight20" onClick={() => restoreApp(item)}>
-                            {_l('还原')}
-                          </span>
-                        )}
-                        {!expired &&
-                          permissionType !== APP_ROLE_TYPE.DEVELOPERS_ROLE &&
-                          status === 0 &&
-                          sourceType !== 60 && (
-                            <Dropdown
-                              trigger={['click']}
-                              placement={['bottomRight']}
-                              overlayClassName="moreActionDropdown"
-                              overlay={
-                                <Menu>
-                                  <MenuItem onClick={() => downloadBackup(item)}>{_l('下载应用')}</MenuItem>
-                                  {containData && dataStatus === 1 ? (
-                                    <MenuItem onClick={() => downloadData(item)}>
-                                      <span> {_l('下载数据')}</span>
-                                    </MenuItem>
-                                  ) : (
-                                    <Tooltip
-                                      title={
-                                        !containData ? (
-                                          ''
-                                        ) : dataStatus === 0 ? (
-                                          <span>{_l('不支持下载老数据')}</span>
-                                        ) : dataStatus === 2 ? (
-                                          <span>{_l('数据大于1GB，无法下载')}</span>
-                                        ) : (
-                                          ''
-                                        )
-                                      }
-                                    >
-                                      <MenuItem disabled={true}>
-                                        <span> {_l('下载数据')}</span>
-                                      </MenuItem>
-                                    </Tooltip>
-                                  )}
-                                </Menu>
-                              }
-                            >
-                              <span className="Hand mRight20">{_l('下载')}</span>
-                            </Dropdown>
-                          )}
-                        <Dropdown
-                          trigger={['click']}
-                          placement={['bottomRight']}
-                          overlayClassName="moreActionDropdown"
-                          overlay={
-                            <Menu>
-                              {/* 备份文件列表中，开发者无“下载备份和还原为新应用”权限 */}
-                              {!expired &&
-                                permissionType !== APP_ROLE_TYPE.DEVELOPERS_ROLE &&
-                                canCreateApp &&
-                                status === 0 &&
-                                sourceType !== 60 && (
-                                  <MenuItem onClick={() => restoreNewApp(item)}>
-                                    <span>{_l('还原为新应用')}</span>
-                                  </MenuItem>
-                                )}
-                              <MenuItem className="delete" onClick={() => deleteBackup(item)}>
-                                <span>{_l('删除')}</span>
-                              </MenuItem>
-                            </Menu>
+                      {validLimit !== -1 && (expired || expiredSoon) ? (
+                        <Tooltip
+                          title={
+                            expired ? (
+                              <span>
+                                {_l('备份文件已过期，升级旗舰版后可恢复下载')}
+                                <Support
+                                  text={_l('了解更多')}
+                                  type={3}
+                                  href={`/upgrade/choose?projectId=${projectId}&select=3`}
+                                />
+                              </span>
+                            ) : (
+                              <span>
+                                {_l('备份文件即将到期，升级旗舰版延长有效期')}
+                                <Support
+                                  text={_l('了解更多')}
+                                  type={3}
+                                  href={`/upgrade/choose?projectId=${projectId}&select=3`}
+                                />
+                              </span>
+                            )
                           }
                         >
-                          <Icon icon="more_horiz" className="Gray_9e Hand Font18 more_horiz" />
-                        </Dropdown>
-                      </div>
+                          <Icon icon="info_outline" className="textDisabled mLeft4" />
+                        </Tooltip>
+                      ) : (
+                        ''
+                      )}
                     </div>
-                  ) : (
-                    <div className="action"></div>
-                  )}
-                </div>
-              );
-            })}
-            {isLoading && pageIndex > 1 && <LoadDiv className="mTop15" />}
-          </ScrollView>
+                    {_.includes([0, 10], status) ? (
+                      <div className="action">
+                        <div className="pRight10 TxtRight">
+                          {!expired && status === 0 && (
+                            <span className="Hand mRight20" onClick={() => restoreApp(item)}>
+                              {_l('还原')}
+                            </span>
+                          )}
+                          {!expired &&
+                            permissionType !== APP_ROLE_TYPE.DEVELOPERS_ROLE &&
+                            status === 0 &&
+                            sourceType !== 60 && (
+                              <Dropdown
+                                trigger={['click']}
+                                placement={['bottomRight']}
+                                overlayClassName="moreActionDropdown"
+                                overlay={
+                                  <Menu>
+                                    <MenuItem onClick={() => downloadBackup(item)}>{_l('下载应用')}</MenuItem>
+                                    {containData && dataStatus === 1 ? (
+                                      <MenuItem onClick={() => downloadData(item)}>
+                                        <span> {_l('下载数据')}</span>
+                                      </MenuItem>
+                                    ) : (
+                                      <Tooltip
+                                        title={
+                                          !containData ? (
+                                            ''
+                                          ) : dataStatus === 0 ? (
+                                            <span>{_l('不支持下载老数据')}</span>
+                                          ) : dataStatus === 2 ? (
+                                            <span>{_l('数据大于1GB，无法下载')}</span>
+                                          ) : (
+                                            ''
+                                          )
+                                        }
+                                      >
+                                        <MenuItem disabled={true}>
+                                          <span> {_l('下载数据')}</span>
+                                        </MenuItem>
+                                      </Tooltip>
+                                    )}
+                                  </Menu>
+                                }
+                              >
+                                <span className="Hand mRight20">{_l('下载')}</span>
+                              </Dropdown>
+                            )}
+                          <Dropdown
+                            trigger={['click']}
+                            placement={['bottomRight']}
+                            overlayClassName="moreActionDropdown"
+                            overlay={
+                              <Menu>
+                                {/* 备份文件列表中，开发者无“下载备份和还原为新应用”权限 */}
+                                {!expired &&
+                                  permissionType !== APP_ROLE_TYPE.DEVELOPERS_ROLE &&
+                                  canCreateApp &&
+                                  status === 0 &&
+                                  sourceType !== 60 && (
+                                    <MenuItem onClick={() => restoreNewApp(item)}>
+                                      <span>{_l('还原为新应用')}</span>
+                                    </MenuItem>
+                                  )}
+                                <MenuItem className="delete" onClick={() => deleteBackup(item)}>
+                                  <span>{_l('删除')}</span>
+                                </MenuItem>
+                              </Menu>
+                            }
+                          >
+                            <Icon icon="more_horiz" className="textTertiary Hand Font18 more_horiz" />
+                          </Dropdown>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="action"></div>
+                    )}
+                  </div>
+                );
+              })}
+              {isLoading && pageIndex > 1 && <LoadDiv className="mTop15" />}
+            </ScrollView>
+          )}
         </ListWrap>
       )}
       <RestoreAppDialog

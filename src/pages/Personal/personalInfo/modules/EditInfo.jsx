@@ -57,11 +57,11 @@ export default class EditInfo extends React.Component {
   render() {
     const { baseInfo } = this.state;
     return (
-      <div className="baseInfoEditContent Gray">
-        <div className="Gray_9e mBottom24">
+      <div className="baseInfoEditContent textPrimary">
+        <div className="textTertiary mBottom24">
           {_l('邮箱和手机设置请到')}
           <span
-            className="ThemeColor3 Hover_49 Hand mLeft3"
+            className="ThemeColor3 hoverTextPrimaryLight Hand mLeft3"
             onClick={() => {
               this.props.closeDialog();
               navigateTo(common.url({ type: 'account' }));
@@ -107,7 +107,7 @@ export default class EditInfo extends React.Component {
         <div className="mTop20 flexEnd">
           <button
             type="button"
-            className="ming Button Button--link Gray_9e mRight30"
+            className="ming Button Button--link textTertiary mRight30"
             onClick={() => this.props.closeDialog()}
           >
             {_l('取消')}

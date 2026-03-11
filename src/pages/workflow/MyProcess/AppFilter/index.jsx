@@ -86,20 +86,22 @@ export default class AppFilter extends Component {
     const { app } = this.state;
     return (
       <Fragment>
-        {apps.map(item => (
-          <div
-            className={cx('appWrapper valignWrapper', { active: item.id === app.id })}
-            key={item.id}
-            onClick={() => {
-              this.handleSelection(item);
-            }}
-          >
-            <div className="valignWrapper iconWrqaper" style={{ backgroundColor: item.iconColor }}>
-              <SvgIcon url={item.iconUrl} fill="#fff" size={20} addClassName="mTop2" />
+        {apps
+          .filter(app => app.permissionType >= 100)
+          .map(item => (
+            <div
+              className={cx('appWrapper valignWrapper', { active: item.id === app.id })}
+              key={item.id}
+              onClick={() => {
+                this.handleSelection(item);
+              }}
+            >
+              <div className="valignWrapper iconWrqaper" style={{ backgroundColor: item.iconColor }}>
+                <SvgIcon url={item.iconUrl} fill="#fff" size={20} addClassName="mTop2" />
+              </div>
+              <span className="flex overflow_ellipsis">{item.name}</span>
             </div>
-            <span className="flex overflow_ellipsis">{item.name}</span>
-          </div>
-        ))}
+          ))}
       </Fragment>
     );
   }
@@ -115,6 +117,7 @@ export default class AppFilter extends Component {
           <input
             autoFocus
             value={searchValue}
+            className="flex"
             type="text"
             placeholder={_l('搜索应用名称')}
             onChange={event => {
@@ -126,15 +129,17 @@ export default class AppFilter extends Component {
               );
             }}
           />
-          <Icon icon="search" className="Gray_75 Font20" />
+          <Icon icon="search" className="textSecondary Font20" />
         </div>
         {apps.map(item => (
           <div className={cx('appListWrapper', { hide: !item.projectApps.length })} key={item.projectId}>
-            <div className="Gray_75 Font13 pBottom5 projectName">{item.projectName}</div>
+            <div className="textSecondary Font13 pBottom5 projectName">{item.projectName}</div>
             {this.renderAppList(item.projectApps)}
           </div>
         ))}
-        {apps.length ? null : <div className="pTop100 pBottom100 TxtCenter Font17">{_l('暂无应用搜索结果')}</div>}
+        {apps.length ? null : (
+          <div className="pTop100 pBottom100 TxtCenter Font17 textTertiary">{_l('暂无应用搜索结果')}</div>
+        )}
       </div>
     );
   }
@@ -146,7 +151,7 @@ export default class AppFilter extends Component {
           value={processType}
           placeholder={_l('请选择流程类型')}
           className="w100 selectWrapper selectProcessTypeWrapper"
-          suffixIcon={<Icon icon="expand_more" className="Gray_75 Font20" />}
+          suffixIcon={<Icon icon="expand_more" className="textSecondary Font20" />}
           onChange={value => {
             this.setState(
               {
@@ -162,7 +167,7 @@ export default class AppFilter extends Component {
           {TYPES.map(item => (
             <Select.Option className="processOptionWrapper" value={item.value}>
               <div className="flexRow valignWrapper">
-                <i className={`icon ${item.icon} Gray_9e Font18 mRight5`} />
+                <i className={`icon ${item.icon} textTertiary Font18 mRight5`} />
                 {item.text}
               </div>
             </Select.Option>
@@ -171,9 +176,9 @@ export default class AppFilter extends Component {
         <Select
           value={processId}
           placeholder={_l('请选择流程')}
-          notFoundContent={<div className="valignWrapper">{_l('暂无数据')}</div>}
+          notFoundContent={<div className="valignWrapper textTertiary">{_l('暂无数据')}</div>}
           className="w100 selectWrapper mTop16"
-          suffixIcon={<Icon icon="expand_more" className="Gray_75 Font20" />}
+          suffixIcon={<Icon icon="expand_more" className="textSecondary Font20" />}
           onChange={value => {
             this.setState({ processId: value });
             this.props.onChange(app.id, value);
@@ -212,9 +217,9 @@ export default class AppFilter extends Component {
             {apkId && app.id ? (
               <div className="flex ellipsis">{app.name}</div>
             ) : (
-              <div className="flex Gray_c">{_l('请选择')}</div>
+              <div className="flex textPlaceholder">{_l('请选择')}</div>
             )}
-            <Icon icon="expand_more" className="Gray_75 Font20" />
+            <Icon icon="expand_more" className="textSecondary Font20" />
           </div>
         </Dropdown>
         {app.id && this.renderWorkflowList()}

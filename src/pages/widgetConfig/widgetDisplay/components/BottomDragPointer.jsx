@@ -27,15 +27,15 @@ const DragPointer = styled.div`
     justify-content: center;
     gap: 8px;
     font-size: 14px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     .aiGenIcon {
       font-size: 22px;
-      color: var(--ai-primary-color);
+      color: var(--color-mingo);
     }
   }
   &.isOver {
     .line {
-      background-color: #1677ff;
+      background-color: var(--color-primary);
     }
   }
 `;

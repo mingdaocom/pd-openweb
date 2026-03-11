@@ -204,6 +204,7 @@ export const SYSTEM_ENUM = [
   'utime',
   'daid',
   'wfcotime',
+  'wfdtime',
 ];
 
 // 各控件取值id

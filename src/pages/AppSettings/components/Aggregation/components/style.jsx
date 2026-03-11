@@ -4,15 +4,15 @@ import { Menu } from 'ming-ui';
 export const Wrap = styled.div`
   .setCon {
     width: 360px;
-    border-right: 1px solid #e8e8e8;
+    border-right: 1px solid var(--color-border-secondary);
     flex-shrink: 0;
     min-width: 0;
     .line {
-      border-bottom: 1px solid #dddddd;
+      border-bottom: 1px solid var(--color-border-primary);
     }
     .cover {
       position: fixed;
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       opacity: 0.45;
       left: 0;
       top: 0;
@@ -26,7 +26,7 @@ export const Wrap = styled.div`
     }
   }
   .preview {
-    background: #fff;
+    background: var(--color-background-primary);
     flex-shrink: 0;
     min-width: 0;
   }
@@ -52,7 +52,7 @@ export const WrapDropW = styled.div`
     0 4px 20px rgba(0, 0, 0, 0.13),
     0 2px 6px rgba(0, 0, 0, 0.1);
   padding: 6px 0;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
 `;
 export const WrapSelectCon = styled.div`
   .topCon {
@@ -65,7 +65,7 @@ export const WrapSource = styled.div`
     .selectWorksheetCommonContent {
       input {
         &::placeholder {
-          color: #bdbdbd;
+          color: var(--color-text-disabled);
         }
         margin-left: -8px;
       }
@@ -88,9 +88,9 @@ export const WrapWorksheet = styled.div`
     min-width: 0;
   }
   &.isRelative {
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
   }
-  background: #ffffff;
+  background: var(--color-background-primary);
   border-radius: 4px;
   box-shadow: 0px 1px 2px rgba(51, 51, 51, 0.16);
   &.isAdd {
@@ -111,8 +111,8 @@ export const WrapWorksheet = styled.div`
     border: none !important;
   }
   .filterConByWorksheet {
-    background: #ffffff;
-    border: 1px solid #eaeaea;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-secondary);
     border-radius: 3px;
     margin: 0 12px 0;
     box-sizing: border-box;
@@ -120,7 +120,7 @@ export const WrapWorksheet = styled.div`
     padding: 2px 5px 8px 12px;
     display: flex !important;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
     .renderFilterItem {
       span {
@@ -133,16 +133,16 @@ export const WrapWorksheet = styled.div`
 export const Header = styled.div`
   width: 100%;
   height: 54px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.16);
   z-index: 10000;
   .pageName {
     .iconWrap {
       padding-right: 24px;
       .back {
-        color: #757575;
+        color: var(--color-text-secondary);
         &:hover {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }
@@ -154,37 +154,37 @@ export const Header = styled.div`
       max-width: 500px;
       margin-top: 1px;
       padding: 0 10px;
-      border-bottom: 1px dashed #9e9e9e;
+      border-bottom: 1px dashed var(--color-text-tertiary);
       cursor: pointer;
     }
     input {
       max-width: 500px;
       border: none;
       font-size: 17px;
-      border-bottom: 2px solid #1677ff;
+      border-bottom: 2px solid var(--color-primary);
     }
   }
   .ming.Button--secondary {
-    color: #757575;
-    background: #f5f5f5;
+    color: var(--color-text-secondary);
+    background: var(--color-background-secondary);
     &:hover {
-      background: #e0e0e0;
+      background: var(--color-background-hover);
     }
   }
   .reset {
     box-sizing: border-box;
     padding: 0 22px;
     line-height: 34px;
-    color: #fff;
+    color: var(--color-white);
     cursor: not-allowed;
     border-radius: 3px;
     text-align: center;
     font-weight: 600;
-    border: 1px solid #9e9e9e;
+    border: 1px solid var(--color-text-tertiary);
     &.Hand {
       cursor: pointer;
       &:hover {
-        border: 1px solid #1677ff;
+        border: 1px solid var(--color-primary);
       }
     }
   }
@@ -192,30 +192,30 @@ export const Header = styled.div`
     box-sizing: border-box;
     padding: 0 32px;
     line-height: 36px;
-    color: #fff;
+    color: var(--color-white);
     cursor: pointer;
     border-radius: 3px;
     text-align: center;
     font-weight: 600;
-    background: #1677ff;
+    background: var(--color-primary);
     &:hover {
-      background: #1e88e5;
+      background: var(--color-primary);
     }
   }
   .disable,
   .disable:hover {
-    background: #bdbdbd;
-    background-color: #bdbdbd !important;
-    border: 1px solid #bdbdbd;
-    border-color: #bdbdbd;
+    background: var(--color-text-disabled);
+    background-color: var(--color-text-disabled) !important;
+    border: 1px solid var(--color-text-disabled);
+    border-color: var(--color-text-disabled);
     cursor: not-allowed !important;
-    color: #fff;
+    color: var(--color-white);
   }
   .workflowStatusWrap {
     .disable,
     .disable:hover {
       .iconWrap .workflowSwitchIcon-active {
-        color: #bdbdbd !important;
+        color: var(--color-text-disabled) !important;
       }
     }
   }
@@ -233,10 +233,10 @@ export const WrapPreview = styled.div`
     border-right: 0;
   }
   .finished {
-    color: #4caf50;
+    color: var(--color-success);
   }
   .stop {
-    color: #ffa340;
+    color: var(--color-warning);
   }
   .coverTab {
     position: absolute;
@@ -245,7 +245,7 @@ export const WrapPreview = styled.div`
     bottom: 0;
     left: 20px;
     z-index: 1;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     opacity: 0.5;
   }
   .warnCon {
@@ -253,20 +253,20 @@ export const WrapPreview = styled.div`
     padding: 8px 14px;
     margin: 20px 24px 0;
     &.isERR {
-      background: #ffedeb;
+      background: var(--color-error-bg);
     }
     &.isRunning {
-      background: #edf6ff;
+      background: var(--color-primary-transparent);
     }
     &.hasRun {
       background: rgba(76, 175, 80, 0.09);
     }
     &.isStop {
-      background: #fef9ed;
+      background: var(--color-warning-bg);
     }
     &.hasChange {
       .icon {
-        color: #ff6c00;
+        color: var(--color-warning);
       }
       background: #fff9ed;
     }
@@ -274,31 +274,31 @@ export const WrapPreview = styled.div`
       padding: 0 16px;
       height: 32px;
       line-height: 32px;
-      background: #ffffff;
+      background: var(--color-background-primary);
       border-radius: 3px;
-      border: 1px solid #bfbfbf;
+      border: 1px solid var(--color-text-disabled);
       &:hover {
-        color: #1677ff;
-        border: 1px solid #1677ff;
+        color: var(--color-primary);
+        border: 1px solid var(--color-primary);
       }
       &.refreshBtn:hover {
-        color: #ffa340;
-        border: 1px solid #ffa340;
+        color: var(--color-warning);
+        border: 1px solid var(--color-warning);
       }
       &.finishedBtn:hover {
-        color: #4caf50;
-        border: 1px solid #4caf50;
+        color: var(--color-success);
+        border: 1px solid var(--color-success);
       }
       &.errBtn:hover {
-        color: #f44336;
-        border: 1px solid #f44336;
+        color: var(--color-error);
+        border: 1px solid var(--color-error);
       }
     }
   }
   .searchInputComp.default .icon-search {
     font-size: 20px;
     &:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
   .previewHeader {
@@ -319,10 +319,10 @@ export const WrapPreview = styled.div`
     top: 50%;
     transform: translate(-50%, -50%);
     &.disable {
-      color: #bdbdbd;
-      border: 1px solid #bdbdbd;
+      color: var(--color-text-disabled);
+      border: 1px solid var(--color-text-disabled);
       &:hover {
-        background: #fff;
+        background: var(--color-background-primary);
       }
     }
   }
@@ -353,7 +353,7 @@ export const TextAbsoluteCenter = styled.div`
     display: inline-block;
     border-radius: 50%;
     background-size: 130px 130px;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
     text-align: center;
     line-height: 130px;
     font-size: 80px;
@@ -366,20 +366,20 @@ export const WrapS = styled(Menu)`
   // }
   // height: 120px;
   .ming.MenuItem .Item-content:not(.disabled):hover {
-    background: #f5f5f5 !important;
+    background: var(--color-background-secondary) !important;
     color: initial !important;
     .icon {
-      color: #9e9e9e !important;
+      color: var(--color-text-tertiary) !important;
     }
     .Red {
-      color: red !important;
+      color: var(--color-error) !important;
     }
   }
   .ming.Item.ThemeColor3 .Item-content:not(.disabled):hover {
-    color: #1e88e5 !important;
+    color: var(--color-primary) !important;
   }
   .Red.ming.MenuItem .Item-content:not(.disabled):hover {
-    color: red !important;
+    color: var(--color-error) !important;
   }
   .ming.Item .Item-content {
     padding: 0 8px 0 16px;
@@ -390,7 +390,7 @@ export const WrapS = styled(Menu)`
       }
     }
   }
-  .gray_75 {
-    color: #757575;
+  .textSecondary {
+    color: var(--color-text-secondary);
   }
 `;

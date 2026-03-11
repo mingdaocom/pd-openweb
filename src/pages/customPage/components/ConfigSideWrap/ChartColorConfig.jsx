@@ -122,7 +122,7 @@ export default props => {
     };
     return (
       <div className="flexRow alignItemsCenter">
-        <div className="Gray_75 Font13 bold mRight10 label">{_l('透视表颜色')}</div>
+        <div className="textSecondary Font13 bold mRight10 label">{_l('透视表颜色')}</div>
         <div className="flexRow alignItemsCenter flex">
           {colors.map((data, index) =>
             data.title ? (
@@ -182,7 +182,7 @@ export default props => {
     const colors = pageStyleType === 'light' ? darkColors : lightColors;
     return (
       <div className="flexRow alignItemsCenter mBottom15">
-        <div className="Gray_75 Font13 bold mRight10 label">{_l('数值颜色')}</div>
+        <div className="textSecondary Font13 bold mRight10 label">{_l('数值颜色')}</div>
         <div className="flexRow alignItemsCenter flex">
           {colors.map((data, index) =>
             data.title ? (
@@ -237,7 +237,7 @@ export default props => {
     };
     return (
       <div className="flexRow alignItemsCenter mBottom15">
-        <div className="Gray_75 Font13 bold mRight10 label">{_l('标题样式')}</div>
+        <div className="textSecondary Font13 bold mRight10 label">{_l('标题样式')}</div>
         <div className="flexRow alignItemsCenter flex">
           <ColorPicker
             isPopupBody={true}
@@ -260,7 +260,7 @@ export default props => {
               <div className="flexColumn">
                 <Icon
                   icon="expand_less"
-                  className={cx('Font20 pointer mBottom2', titleStyles.fontSize === 32 ? 'disabled' : 'Gray_9e')}
+                  className={cx('Font20 pointer mBottom2', titleStyles.fontSize === 32 ? 'disabled' : 'textTertiary')}
                   onClick={() => {
                     let value = Number(titleStyles.fontSize) + 1;
                     handleChange({
@@ -270,7 +270,7 @@ export default props => {
                 />
                 <Icon
                   icon="expand_more"
-                  className={cx('Font20 pointer mBottom2', titleStyles.fontSize === 13 ? 'disabled' : 'Gray_9e')}
+                  className={cx('Font20 pointer mBottom2', titleStyles.fontSize === 13 ? 'disabled' : 'textTertiary')}
                   onClick={() => {
                     let value = Number(titleStyles.fontSize) - 1;
                     handleChange({
@@ -283,29 +283,29 @@ export default props => {
           />
           <div
             className="colorWrap"
-            style={{ backgroundColor: '#fff' }}
+            style={{ backgroundColor: 'var(--color-background-primary)' }}
             onClick={() => {
               handleChange({
                 fontBold: !titleStyles.fontBold,
               });
             }}
           >
-            <Icon icon="format_bold" className={cx('Font20 mTop2', { ThemeColor: titleStyles.fontBold })} />
+            <Icon icon="format_bold" className={cx('Font20 mTop2', { colorPrimary: titleStyles.fontBold })} />
           </div>
           <div
             className="colorWrap"
-            style={{ backgroundColor: '#fff' }}
+            style={{ backgroundColor: 'var(--color-background-primary)' }}
             onClick={() => {
               handleChange({
                 fontItalic: !titleStyles.fontItalic,
               });
             }}
           >
-            <Icon icon="format_italic" className={cx('Font20 mTop2', { ThemeColor: titleStyles.fontItalic })} />
+            <Icon icon="format_italic" className={cx('Font20 mTop2', { colorPrimary: titleStyles.fontItalic })} />
           </div>
           <div className="typeSelect flexRow valignWrapper">
             <div
-              className={cx('centerAlign pointer Gray_75 pLeft10 pRight10', {
+              className={cx('centerAlign pointer textSecondary pLeft10 pRight10', {
                 active: titleStyles.textAlign === 'left',
               })}
               onClick={() => {
@@ -317,7 +317,7 @@ export default props => {
               <Icon icon="format_align_left" className="Font18" />
             </div>
             <div
-              className={cx('centerAlign pointer Gray_75 pLeft10 pRight10', {
+              className={cx('centerAlign pointer textSecondary pLeft10 pRight10', {
                 active: titleStyles.textAlign === 'center',
               })}
               onClick={() => {
@@ -339,8 +339,8 @@ export default props => {
     const value = _.isNumber(titleStyle) ? titleStyle : config.titleStyle || 0;
     if (value === 0 || value === 3) {
       return {
-        color: '#333',
-        border: '1px solid #b3afaf',
+        color: 'var(--color-text-primary)',
+        border: '1px solid var(--color-text-disabled)',
       };
     }
     if (value === 1) {
@@ -359,10 +359,12 @@ export default props => {
 
   return (
     <Fragment>
-      <div className="Gray Font14 bold mBottom10">{_l('全局颜色')}</div>
-      <div className="Gray_9e Font13 mBottom10">{_l('为所有图表设置统一颜色，全局颜色将覆盖图表本色的颜色配置。')}</div>
+      <div className="textPrimary Font14 bold mBottom10">{_l('全局颜色')}</div>
+      <div className="textTertiary Font13 mBottom10">
+        {_l('为所有图表设置统一颜色，全局颜色将覆盖图表本色的颜色配置。')}
+      </div>
       <div className="flexRow alignItemsCenter mBottom15">
-        <div className="Gray_75 Font13 bold mRight10 label">{_l('图表配色')}</div>
+        <div className="textSecondary Font13 bold mRight10 label">{_l('图表配色')}</div>
         <div className="flexRow alignItemsCenter flex">
           <div
             className="selectChartColor flexRow alignItemsCenter pointer flex"
@@ -374,7 +376,7 @@ export default props => {
               ))}
               <div className="colorName ellipsis">{name}</div>
             </div>
-            <Icon icon="arrow-down-border" className="Gray_9e Font18" />
+            <Icon icon="arrow-down-border" className="textTertiary Font18" />
           </div>
           {/*
         <div className="colorSpacingLine" />
@@ -394,12 +396,12 @@ export default props => {
         </div>
       </div>
       <div className="flexRow alignItemsCenter mBottom15">
-        <div className="Gray_75 Font13 bold mRight10 label">{_l('标题栏样式')}</div>
+        <div className="textSecondary Font13 bold mRight10 label">{_l('标题栏样式')}</div>
         <div className="flexRow alignItemsCenter flex">
           <Select
             className="pageSelect selectTitleSelect w100"
             value={config.titleStyle || 0}
-            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
               handleChangeConfig({
                 titleStyle: value,

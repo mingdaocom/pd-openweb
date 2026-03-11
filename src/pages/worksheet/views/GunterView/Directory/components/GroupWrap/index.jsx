@@ -24,7 +24,7 @@ const GroupingTotalWrapper = styled.div`
 
 const GroupingChildWrapper = styled.div`
   height: 29px;
-  border-bottom: 1px solid #ececec;
+  border-bottom: 1px solid var(--color-border-secondary);
   .drag {
     position: absolute;
     right: -1px;
@@ -33,7 +33,7 @@ const GroupingChildWrapper = styled.div`
     height: 100%;
     width: 2px;
     cursor: ew-resize;
-    // background-color: red;
+    // background-color: var(--color-error);
   }
   .dragLine {
     position: absolute;
@@ -43,7 +43,7 @@ const GroupingChildWrapper = styled.div`
     height: 100%;
     width: 2px;
     cursor: ew-resize;
-    background-color: #0f8df2;
+    background-color: var(--color-primary);
   }
 `;
 
@@ -169,7 +169,7 @@ export default class GroupWrap extends Component {
             key={index}
             // style={{ top: index ? (grouping[index - 1].openCount * 32) : 0 }}
             style={{ top: index ? (item.openCount - (item.subVisible ? item.rows.length : 0) - 1) * 32 : 0 }}
-            className="valignWrapper item Gray_9e"
+            className="valignWrapper item textTertiary"
           >
             <span>{item.totalNum}</span>
             {/*<Icon icon="custom_add_circle" />*/}
@@ -220,7 +220,7 @@ export default class GroupWrap extends Component {
     return (
       <GroupingChildWrapper className="overflowHidden">
         <RecordWrapper className="valignWrapper groupingControlHeader">
-          <Icon className="Gray_9e Font17 mRight5 Visibility" icon="more_horiz" />
+          <Icon className="textTertiary Font17 mRight5 Visibility" icon="more_horiz" />
           {!viewConfig.hideTitle && (
             <div className="groupingName relative overflow_ellipsis" style={{ width: widthConfig[0] }}>
               {titleControl.controlName}

@@ -128,7 +128,7 @@ export default class PrintOptDialog extends Component {
   renderApprovalFlow() {
     return (
       <div className="processOption">
-        <span className="Block Font13 Gray_9e mBottom16">{_l('打印流程')}</span>
+        <span className="Block Font13 textTertiary mBottom16">{_l('打印流程')}</span>
         <div
           className="processOptionItem mBottom6 pointer"
           onClick={() => {
@@ -141,8 +141,8 @@ export default class PrintOptDialog extends Component {
             name="processOption"
             checked={this.state.processOption === 'all'}
           />
-          <span className="Font13 Gray mRight10 TxtMiddle">{_l('完整模式')}</span>
-          <span className="Font12 Gray_9e TxtMiddle">{_l('会保留完整的流程内容，包括"查看申请"等节点信息')}</span>
+          <span className="Font13 textPrimary mRight10 TxtMiddle">{_l('完整模式')}</span>
+          <span className="Font12 textTertiary TxtMiddle">{_l('会保留完整的流程内容，包括"查看申请"等节点信息')}</span>
         </div>
         <div
           className="processOptionItem mBottom6 pointer"
@@ -156,8 +156,8 @@ export default class PrintOptDialog extends Component {
             name="processOption"
             checked={this.state.processOption === 'some'}
           />
-          <span className="Font13 Gray TxtMiddle mRight10">{_l('精简模式')}</span>
-          <span className="Font12 Gray_9e TxtMiddle">
+          <span className="Font13 textPrimary TxtMiddle mRight10">{_l('精简模式')}</span>
+          <span className="Font12 textTertiary TxtMiddle">
             {_l('只会保留流程的关键内容，类似"通过审批"或"否决审批"等关键节点信息')}
           </span>
         </div>
@@ -173,7 +173,7 @@ export default class PrintOptDialog extends Component {
             name="processOption"
             checked={this.state.processOption === 'no'}
           />
-          <span className="Font13 Gray TxtMiddle mRight10">{_l('不打印')}</span>
+          <span className="Font13 textPrimary TxtMiddle mRight10">{_l('不打印')}</span>
         </div>
       </div>
     );
@@ -182,7 +182,7 @@ export default class PrintOptDialog extends Component {
     const { workflow } = this.state;
     return (
       <div className="controlOption mBottom32">
-        <span className="Block Font13 Gray_9e mBottom16">{`${_l('流程中的节点内容')}`}</span>
+        <span className="Block Font13 textTertiary mBottom16">{`${_l('流程中的节点内容')}`}</span>
         {workflow.map(item => (
           <Checkbox
             className="controlOptionItem mBottom15"
@@ -201,7 +201,7 @@ export default class PrintOptDialog extends Component {
     const { task } = this.state;
     return (
       <div className="controlOption mBottom32">
-        <span className="Block Font13 Gray_9e mBottom16">{_l('任务')}</span>
+        <span className="Block Font13 textTertiary mBottom16">{_l('任务')}</span>
         {task.map(item => (
           <Checkbox
             className="controlOptionItem mBottom15"
@@ -271,7 +271,7 @@ export default class PrintOptDialog extends Component {
         {this.props.type === 'task' && this.renderTask()}
         {this.state.reqInfo.controls.filter(item => !item.printHide).length > 0 && (
           <div className="controlOption mBottom32">
-            <span className="Block Font13 Gray_9e mBottom16">{_l('自定义字段内容')}</span>
+            <span className="Block Font13 textTertiary mBottom16">{_l('自定义字段内容')}</span>
             {this.state.reqInfo.controls
               .sort((a, b) => {
                 if (a.row === b.row) {

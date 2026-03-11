@@ -14,13 +14,13 @@ export const Wrap = styled.div`
     margin-left: 22px;
     width: 99px;
     height: 36px;
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     border-radius: 3px;
-    color: #1677ff;
+    color: var(--color-primary);
     line-height: 34px;
     text-align: center;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
 `;
@@ -33,7 +33,7 @@ export const WrapSortControls = styled.div`
     margin-left: 0px;
     border-radius: 3px;
     overflow: hidden;
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     padding-left: 16px;
   }
   label {

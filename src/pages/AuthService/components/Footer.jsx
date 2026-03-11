@@ -18,12 +18,12 @@ const Wrap = styled.div`
   width: 100%;
   height: auto;
   line-height: 22px;
-  background: #f2f5f7;
+  background: var(--color-background-secondary);
   padding: 8px;
   z-index: 1;
-  .HoverWhite {
+  .hoverTextWhite {
     &:hover {
-      color: #fff;
+      color: var(--color-white);
     }
   }
   &.isBd {
@@ -36,21 +36,21 @@ const Wrap = styled.div`
   .lineCenter {
     width: 0;
     height: 11px;
-    border-right: 1px solid #bdbdbd;
+    border-right: 1px solid var(--color-text-disabled);
     &.isBd {
-      border-right: 1px solid #9e9e9e;
+      border-right: 1px solid var(--color-text-tertiary);
     }
   }
   .pointCon {
     width: 4px;
     height: 4px;
     border-radius: 50%;
-    background: #bdbdbd;
+    background: var(--color-text-disabled);
     vertical-align: middle;
     margin-top: -3px;
     display: inline-block;
     &.isBd {
-      background: #9e9e9e;
+      background: var(--color-text-tertiary);
     }
   }
 `;
@@ -73,9 +73,9 @@ export default function Footer() {
     });
   };
 
-  const showRight = _.get(md, 'global.Config.IsPlatformLocal') && _.get(md, 'global.Config.IsCobranding');
+  const showRight = window.platformENV.isPlatform && _.get(md, 'global.Config.IsCobranding');
   return (
-    _.get(md, 'global.Config.IsLocal') &&
+    (window.platformENV.isOverseas || window.platformENV.isLocal) &&
     (links.length > 0 || showRight) && (
       <Wrap
         className={cx('TxtCenter', {
@@ -91,8 +91,8 @@ export default function Footer() {
                     className={cx(
                       'linkCon Hand',
                       _.get(md, 'global.SysSettings.footerThemeColor') === 2
-                        ? 'Gray_bd HoverWhite'
-                        : 'Gray_75 ThemeHoverColor3',
+                        ? 'textDisabled hoverTextWhite'
+                        : 'textSecondary ThemeHoverColor3',
                     )}
                     onClick={() => window.open(o.href)}
                   >
@@ -122,8 +122,8 @@ export default function Footer() {
             className={cx(
               'Hand Font12 CreatByText',
               _.get(md, 'global.SysSettings.footerThemeColor') === 2
-                ? 'Gray_bd HoverWhite'
-                : 'Gray_75 ThemeHoverColor3',
+                ? 'textDisabled hoverTextWhite'
+                : 'textSecondary ThemeHoverColor3',
             )}
             onClick={() => window.open('https://www.mingdao.com')}
           >

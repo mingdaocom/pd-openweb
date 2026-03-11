@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Checkbox, Icon, LoadDiv, ScrollView, Support } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
-import { OPERATION_TYPE } from '../../enum';
+import { OPERATION_TYPE, RELATION_TYPE } from '../../enum';
 import { clearFlowNodeMapParameter } from '../../utils';
 import {
   ButtonName,
@@ -40,7 +40,7 @@ const TABS_ITEM = styled.div`
       right: 0;
       content: '';
       height: 0;
-      border-bottom: 3px solid #1677ff;
+      border-bottom: 3px solid var(--color-primary);
     }
   }
 `;
@@ -93,6 +93,7 @@ export default class Write extends Component {
             flowNodeMap: Object.assign({}, data.flowNodeMap, {
               [OPERATION_TYPE.BEFORE]: result.flowNodeMap[OPERATION_TYPE.BEFORE],
               [OPERATION_TYPE.PASS]: result.flowNodeMap[OPERATION_TYPE.PASS],
+              [OPERATION_TYPE.TRANSFER]: result.flowNodeMap[OPERATION_TYPE.TRANSFER],
               [OPERATION_TYPE.PROMPT_SOUND]: result.flowNodeMap[OPERATION_TYPE.PROMPT_SOUND],
             }),
             formProperties: result.formProperties,
@@ -210,7 +211,7 @@ export default class Write extends Component {
     ];
 
     return (
-      <div className="mTop25" style={{ borderBottom: '1px solid #ddd' }}>
+      <div className="mTop25" style={{ borderBottom: '1px solid var(--color-border-primary)' }}>
         {TABS.map(item => {
           return (
             <TABS_ITEM
@@ -255,6 +256,11 @@ export default class Write extends Component {
         desc: _l('节点通过后，更新数据对象的字段值'),
         key: OPERATION_TYPE.PASS,
       },
+      {
+        title: _l('转交他人填写后更新'),
+        desc: _l('节点转交他人填写通过后，更新数据对象的字段值'),
+        key: OPERATION_TYPE.TRANSFER,
+      },
     ];
 
     if (_.isEmpty(data)) {
@@ -286,7 +292,7 @@ export default class Write extends Component {
 
               <Member
                 companyId={this.props.companyId}
-                appId={this.props.relationType === 2 ? this.props.relationId : ''}
+                appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
                 accounts={data.accounts}
                 updateSource={this.updateSource}
               />
@@ -297,7 +303,7 @@ export default class Write extends Component {
                 <i className="Font28 icon-task-add-member-circle mRight10" />
                 {_l('指定填写人')}
                 <SelectUserDropDown
-                  appId={this.props.relationType === 2 ? this.props.relationId : ''}
+                  appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
                   visible={showSelectUserDialog}
                   companyId={this.props.companyId}
                   processId={this.props.processId}
@@ -338,7 +344,7 @@ export default class Write extends Component {
 
                   <OperatorEmpty
                     projectId={this.props.companyId}
-                    appId={this.props.relationType === 2 ? this.props.relationId : ''}
+                    appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
                     isApproval={this.props.isApproval}
                     title={_l('填写人为空时')}
                     titleInfo={_l(
@@ -357,7 +363,7 @@ export default class Write extends Component {
                         {_l('登录密码验证')}
                         <Tooltip title={_l('启用后，用户输入登录密码后才可进行提交')}>
                           <Icon
-                            className="Font16 Gray_9e mLeft5"
+                            className="Font16 textTertiary mLeft5"
                             style={{ verticalAlign: 'text-bottom' }}
                             icon="info"
                           />
@@ -416,7 +422,7 @@ export default class Write extends Component {
 
               {tabIndex === 2 && (
                 <Fragment>
-                  <div className="Gray_75 mTop20">
+                  <div className="textSecondary mTop20">
                     {_l('设置填写时可以查看、编辑、必填的字段。设为摘要的字段可以在流程待办列表中直接显示。')}
                     <Support
                       type={3}
@@ -426,81 +432,52 @@ export default class Write extends Component {
                     />
                   </div>
 
-                  {data.selectNodeId ? (
-                    <div className="Font13 mTop15">
-                      {data.selectNodeObj.nodeName && !data.selectNodeObj.appName ? (
-                        <div className="Gray_75 Font13 flexRow flowDetailTips">
-                          <i className="icon-error1 Font16 Gray_9e" />
-                          <div
-                            className="flex mLeft10"
-                            dangerouslySetInnerHTML={{
-                              __html: _l(
-                                '节点所使用的数据来源%0中的工作表已删除。必须修复此节点中的错误，或重新指定一个有效的对象后才能设置可填写字段。',
-                                `<span class="mLeft5 mRight5 flowDetailTipsColor">“${data.selectNodeObj.nodeName}”</span>`,
-                              ),
-                            }}
-                          />
-                        </div>
-                      ) : (
-                        <WriteFields
-                          data={data.formProperties}
-                          addNotAllowView={data.addNotAllowView}
-                          updateSource={this.updateSource}
-                          showCard={true}
-                        />
-                      )}
-                    </div>
-                  ) : (
-                    <div className="Gray_75 Font13 flexRow flowDetailTips mTop15">
-                      <i className="icon-error1 Font16 Gray_9e" />
-                      <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置字段权限')}</div>
-                    </div>
+                  {data.selectNodeId && (
+                    <WriteFields
+                      data={data.formProperties}
+                      addNotAllowView={data.addNotAllowView}
+                      updateSource={this.updateSource}
+                      showCard={true}
+                    />
                   )}
                 </Fragment>
               )}
 
-              {tabIndex === 3 && (
+              {tabIndex === 3 && data.selectNodeId && (
                 <Fragment>
-                  {data.selectNodeId ? (
-                    SOURCE_HANDLE_LIST.map((item, index) => {
-                      const sourceData = data.flowNodeMap[item.key] || {};
+                  {SOURCE_HANDLE_LIST.map((item, index) => {
+                    const sourceData = data.flowNodeMap[item.key] || {};
 
-                      return (
-                        <Fragment key={item.key}>
-                          <div className={cx('Font13 bold', index === 0 ? 'mTop20' : 'mTop25')}>{item.title}</div>
-                          <div className="Font13 Gray_75 mTop10">{item.desc}</div>
-                          <UpdateFields
-                            type={1}
-                            companyId={this.props.companyId}
-                            processId={this.props.processId}
-                            relationId={this.props.relationId}
-                            selectNodeId={this.props.selectNodeId}
-                            nodeId={sourceData.selectNodeId}
-                            controls={sourceData.controls.filter(o => o.type !== 29)}
-                            fields={sourceData.fields}
-                            showCurrent={true}
-                            filterType={item.key === OPERATION_TYPE.BEFORE ? 7 : 0}
-                            formulaMap={sourceData.formulaMap}
-                            updateSource={(obj, callback = () => {}) =>
-                              this.updateSource(
-                                {
-                                  flowNodeMap: Object.assign({}, data.flowNodeMap, {
-                                    [item.key]: Object.assign({}, data.flowNodeMap[item.key], obj),
-                                  }),
-                                },
-                                callback,
-                              )
-                            }
-                          />
-                        </Fragment>
-                      );
-                    })
-                  ) : (
-                    <div className="Gray_75 Font13 flexRow flowDetailTips mTop25">
-                      <i className="icon-error1 Font16 Gray_9e" />
-                      <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置数据更新')}</div>
-                    </div>
-                  )}
+                    return (
+                      <Fragment key={item.key}>
+                        <div className={cx('Font13 bold', index === 0 ? 'mTop20' : 'mTop25')}>{item.title}</div>
+                        <div className="Font13 textSecondary mTop10">{item.desc}</div>
+                        <UpdateFields
+                          type={1}
+                          companyId={this.props.companyId}
+                          processId={this.props.processId}
+                          relationId={this.props.relationId}
+                          selectNodeId={this.props.selectNodeId}
+                          nodeId={sourceData.selectNodeId}
+                          controls={sourceData.controls.filter(o => o.type !== 29)}
+                          fields={sourceData.fields}
+                          showCurrent={true}
+                          filterType={item.key === OPERATION_TYPE.BEFORE ? 7 : 0}
+                          formulaMap={sourceData.formulaMap}
+                          updateSource={(obj, callback = () => {}) =>
+                            this.updateSource(
+                              {
+                                flowNodeMap: Object.assign({}, data.flowNodeMap, {
+                                  [item.key]: Object.assign({}, data.flowNodeMap[item.key], obj),
+                                }),
+                              },
+                              callback,
+                            )
+                          }
+                        />
+                      </Fragment>
+                    );
+                  })}
                 </Fragment>
               )}
             </div>

@@ -1,6 +1,10 @@
 .processTabs {
-  color: #9e9e9e;
-  background-color: #fff;
+  color: var(--color-text-tertiary);
+  background-color: var(--color-background-primary);
+  box-shadow: var(--shadow-md);
+  .adm-tabs-header {
+    border-bottom: initial;
+  }
 }
 
 .bottomProcessTabs {
@@ -10,7 +14,7 @@
 }
 
 .processContent {
-  background-color: #f2f2f2;
+  background: var(--color-background-secondary);
 
   .headerWrapper {
     padding: 10px 15px;
@@ -27,18 +31,18 @@
       width: 130px;
       height: 130px;
       border-radius: 50%;
-      background-color: #efefef;
+      background-color: var(--color-border-secondary);
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .icon {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       font-size: 90px;
     }
     span {
       font-size: 18px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       margin-top: 22px;
     }
   }
@@ -51,11 +55,11 @@
       height: 36px;
       padding: 0 15px;
       border-radius: 25px;
-      background-color: #fff;
+      background-color: var(--color-background-primary);
       position: relative;
     }
     .filterWrap {
-      background-color: #fff;
+      background-color: var(--color-background-primary);
       border-radius: 50%;
       width: 36px;
       height: 36px;
@@ -64,7 +68,7 @@
       justify-content: center;
       margin-left: 10px;
       .active {
-        color: #33a3f4 !important;
+        color: var(--color-primary-focus) !important;
       }
     }
     input {
@@ -82,7 +86,7 @@
     justify-content: space-between;
     height: 44px;
     padding: 0 15px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     border-radius: 0 0 8px 8px;
     box-shadow: 0 6px 12px #0000001f;
     position: absolute;
@@ -95,7 +99,7 @@
     padding: 17px 13px;
     font-weight: 700;
     box-shadow: 0 -6px 12px rgba(0, 0, 0, 0.12);
-    background-color: #fff;
+    background-color: var(--color-background-card);
     font-size: 15px;
     border-radius: 8px 8px 0 0;
     z-index: 2;
@@ -104,33 +108,33 @@
     width: 100%;
     .passApprove,
     .rejectApprove {
-      color: #999;
+      color: var(--color-text-tertiary);
       text-align: center;
       padding: 4px 15px;
       border-radius: 24px;
-      border: 1px solid #dddddd;
-      background-color: #fff;
+      border: 1px solid var(--color-border-primary);
+      background-color: var(--color-background-primary);
       .MdLoader-path {
         stroke: #fff;
       }
     }
     .passApprove {
       &.all {
-        color: #fff;
-        border-color: #4caf50;
-        background-color: #4caf50;
+        color: var(--color-white);
+        border-color: var(--color-success);
+        background-color: var(--color-success);
       }
     }
     .rejectApprove {
       &.select {
-        color: #f44336;
-        border-color: #f44336;
-        background-color: rgba(244, 67, 54, 0.12);
+        color: var(--color-error);
+        border-color: var(--color-error);
+        background-color: var(--color-error-bg);
       }
       &.all {
-        color: #fff;
-        border-color: #f44336;
-        background-color: #f44336;
+        color: var(--color-white);
+        border-color: var(--color-error);
+        background-color: var(--color-error);
       }
     }
   }
@@ -139,10 +143,15 @@
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     position: fixed;
     right: 20px;
     bottom: 70px;
     z-index: 99;
+    box-shadow: var(--shadow-lg);
+
+    &.bottom100 {
+      bottom: 100px;
+    }
   }
 }

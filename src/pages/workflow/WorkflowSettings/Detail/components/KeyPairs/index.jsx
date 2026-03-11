@@ -34,7 +34,7 @@ const TextareaBox = styled(Textarea)`
   padding-bottom: 7px !important;
   vertical-align: top;
   &:not(:hover):not(:focus) {
-    border-color: #ddd !important;
+    border-color: var(--color-border-primary) !important;
   }
 `;
 
@@ -182,15 +182,15 @@ export default ({
             }}
           >
             <div className="flexRow alignItemsCenter">
-              <span className={cx('Font16 Gray_75', getIcons(item.nodeTypeId, item.appType, item.actionId))} />
-              <span className={cx('Font14 mLeft5 ellipsis flex', { Gray_75: !item.appId })}>{item.nodeName}</span>
+              <span className={cx('Font16 textSecondary', getIcons(item.nodeTypeId, item.appType, item.actionId))} />
+              <span className={cx('Font14 mLeft5 ellipsis flex', { textSecondary: !item.appId })}>{item.nodeName}</span>
               {isPlugin ? null : item.appId && item.appName ? (
                 <Fragment>
                   <span className="Font14 mLeft5 bold">{item.appTypeName}</span>
                   <span className="Font14 mLeft5 bold ellipsis" style={{ maxWidth: 150 }}>{`“${item.appName}”`}</span>
                 </Fragment>
               ) : (
-                <span className="Font14 mLeft5 Gray_75">
+                <span className="Font14 mLeft5 textSecondary">
                   <i className="icon-info_outline Font14 mRight5" />
                   {_l('设置此节点后才能选择')}
                 </span>
@@ -288,7 +288,7 @@ export default ({
 
               {!!flowNodeList.length && (
                 <NodeListIcon ref={menuBtn} onClick={() => setIndex(i)}>
-                  <i className="icon-arrow-down-border Font16 ThemeHoverColor3 pointer Gray_bd" />
+                  <i className="icon-arrow-down-border Font16 ThemeHoverColor3 pointer textDisabled" />
                 </NodeListIcon>
               )}
 
@@ -296,7 +296,10 @@ export default ({
               {renderNodeListTag(item)}
             </div>
             {!onlyFile && (
-              <i className="icon-trash Font16 mTop20 ThemeHoverColor3 pointer Gray_bd" onClick={() => deleteKeys(i)} />
+              <i
+                className="icon-trash Font16 mTop20 ThemeHoverColor3 pointer textDisabled"
+                onClick={() => deleteKeys(i)}
+              />
             )}
           </div>
         );
@@ -305,7 +308,7 @@ export default ({
       {btnText && (
         <div className="mTop10 flexRow alignItemsCenter">
           <span
-            className="ThemeHoverColor3 pointer Gray_75"
+            className="ThemeHoverColor3 pointer textSecondary"
             onClick={() =>
               updateSource({
                 [sourceKey]: source.concat(

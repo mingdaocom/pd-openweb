@@ -18,6 +18,7 @@ export default class Footer extends Component {
       isUrged: false,
       action: '',
       otherActionVisible: false,
+      sessionId: Date.now().toString(),
     };
   }
 
@@ -30,12 +31,13 @@ export default class Footer extends Component {
     this.actionOperationHandler && this.actionOperationHandler.close();
     this.actionSelectOperationHandler && this.actionSelectOperationHandler.close();
   }
+
   writeVerifyPassword = removeNoneVerification => {
     this.actionVerifyPasswordHandler = ActionSheet.show({
       actions: [],
       extra: (
         <div className="TxtLeft w100 sheetProcessRowRecord">
-          <div className="Font17 Bold Gray mBottom10">{_l('提交记录')}</div>
+          <div className="Font17 Bold textPrimary mBottom10">{_l('提交记录')}</div>
           <VerifyPasswordInput
             autoFocus={true}
             showSubTitle={false}
@@ -48,7 +50,7 @@ export default class Footer extends Component {
           />
           <div className="flexRow btnsWrapper mTop20 pAll0 Border0 ">
             <Button
-              className="Font13 flex bold Gray_75 mRight10"
+              className="Font13 flex bold textSecondary mRight10"
               onClick={() => {
                 this.actionVerifyPasswordHandler.close();
               }}
@@ -301,11 +303,11 @@ export default class Footer extends Component {
           actions: [
             {
               key: 'after',
-              text: <div className="Gray bold">{_l('通过申请后增加审批人')}</div>,
+              text: <div className="textPrimary bold">{_l('通过申请后增加审批人')}</div>,
             },
             {
               key: 'before',
-              text: <div className="Gray bold">{_l('在我审批前增加审批人')}</div>,
+              text: <div className="textPrimary bold">{_l('在我审批前增加审批人')}</div>,
             },
           ],
           extra: (
@@ -341,7 +343,7 @@ export default class Footer extends Component {
           key: index,
           text: (
             <Fragment>
-              <Icon className="mRight10 Gray_9e Font22" icon={item.icon} />
+              <Icon className="mRight10 textTertiary Font22" icon={item.icon} />
               <span className="Bold ellipsis">{btnMap[item.type] || item.text}</span>
             </Fragment>
           ),
@@ -477,7 +479,9 @@ export default class Footer extends Component {
             instanceId={instanceId}
             workId={workId}
             onAction={this.handleAction}
-            onHide={() => this.setState({ otherActionVisible: false })}
+            onHide={() => {
+              this.setState({ otherActionVisible: false });
+            }}
           />
         )}
       </div>

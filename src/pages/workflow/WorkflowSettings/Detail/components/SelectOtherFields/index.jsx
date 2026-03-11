@@ -128,6 +128,7 @@ export default class SelectOtherFields extends Component {
                   ? `[${o.enumDefault === 0 ? 'Body' : o.enumDefault === 1001 ? 'Params' : 'Header'}] ${o.controlName}`
                   : o.controlName,
               sourceType: o.sourceControlType,
+              desc: obj.appType === APP_TYPE.API ? o.desc : '',
             };
           }),
         };

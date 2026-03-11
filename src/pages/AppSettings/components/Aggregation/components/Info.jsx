@@ -349,10 +349,10 @@ export default function Info(props) {
     return <LoadDiv />;
   }
   if (isErr && errorMsg) {
-    return <div className="Font17 Gray_75 mTop90 pTop100 TxtCenter">{errorMsg}</div>;
+    return <div className="Font17 textSecondary mTop90 pTop100 TxtCenter">{errorMsg}</div>;
   }
   if (id && !flowData.id) {
-    return <div className="Font17 Gray_75 mTop90 pTop100 TxtCenter">{_l('无相关聚合表')}</div>;
+    return <div className="Font17 textSecondary mTop90 pTop100 TxtCenter">{_l('无相关聚合表')}</div>;
   }
   const sourceDt = getNodeInfo(flowData, 'DATASOURCE');
   const groupDt = getNodeInfo(flowData, 'GROUP');
@@ -413,11 +413,11 @@ export default function Info(props) {
             text={_l('使用帮助')}
             type={2}
             href="https://help.mingdao.com/application/aggregation"
-            className="mRight20 Gray_bd"
+            className="mRight20 textDisabled"
           />
           {hasChange && flowData.aggTableTaskStatus === 1 && (
             <span
-              className={cx('reset InlineBlock mRight24 Gray_9e', { 'ThemeHoverColor3 Hand': !isPreviewRunning })}
+              className={cx('reset InlineBlock mRight24 textTertiary', { 'ThemeHoverColor3 Hand': !isPreviewRunning })}
               onClick={() => {
                 if (isPreviewRunning) return;
                 reset();
@@ -458,20 +458,20 @@ export default function Info(props) {
               {isPreviewRunning && (
                 <React.Fragment>
                   <div className="cover"></div>
-                  <div className="TxtLeft Bold Black mBottom20">{_l('预览中无法修改配置，请先停止预览')}</div>
+                  <div className="TxtLeft Bold textPrimary mBottom20">{_l('预览中无法修改配置，请先停止预览')}</div>
                 </React.Fragment>
               )}
-              <div className="Bold Font14 Gray flexRow alignItemsCenter">
+              <div className="Bold Font14 textPrimary flexRow alignItemsCenter">
                 {_l('数据源')}
-                <span className="Gray_75 mLeft10">
+                <span className="textSecondary mLeft10">
                   {getAllSourceList(flowData).length}/{getSourceMaxCountByVersion(projectId)}
                 </span>
-                {!md.global.Config.IsLocal && (
+                {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
                   <Tooltip
                     placement="bottom"
                     title={<span className="">{_l('标准版支持5个、专业版和旗舰版支持10个')}</span>}
                   >
-                    <Icon icon="info" className="Hand Gray_9e ThemeHoverColor3 mLeft5 Font16" />
+                    <Icon icon="info" className="Hand textTertiary ThemeHoverColor3 mLeft5 Font16" />
                   </Tooltip>
                 )}
               </div>
@@ -493,11 +493,11 @@ export default function Info(props) {
                 updateLoading={updateLoading}
               />
               <div className="line mTop20" />
-              <div className="Bold Font13 Gray mTop24">
+              <div className="Bold Font13 textPrimary mTop24">
                 <div className="flexRow alignItemsCenter">
                   <span className="flex Font14 flexRow alignItemsCenter">
                     {_l('归组字段')}
-                    <span className="Gray_75 mLeft10">{`(${getGroupFields(flowData).length}/${GROUPMAX})`}</span>
+                    <span className="textSecondary mLeft10">{`(${getGroupFields(flowData).length}/${GROUPMAX})`}</span>
                     <Tooltip
                       placement="bottom"
                       title={
@@ -506,11 +506,11 @@ export default function Info(props) {
                         </span>
                       }
                     >
-                      <Icon icon="info" className="Hand Gray_9e ThemeHoverColor3 mLeft5 Font16" />
+                      <Icon icon="info" className="Hand textTertiary ThemeHoverColor3 mLeft5 Font16" />
                     </Tooltip>
                   </span>
                   <CheckBox
-                    className="Hand Gray_75 ThemeHoverColor3"
+                    className="Hand textSecondary ThemeHoverColor3"
                     checked={_.get(groupDt, 'nodeConfig.config.displayNull') !== false}
                     onClick={() => {
                       onUpdate(
@@ -553,7 +553,7 @@ export default function Info(props) {
                   />
                 ) : (
                   <span
-                    className="Hand mTop16 Gray_75 ThemeHoverColor3 InlineBlock"
+                    className="Hand mTop16 textSecondary ThemeHoverColor3 InlineBlock"
                     onClick={() => {
                       setState({ showGroupDialog: true });
                     }}
@@ -563,9 +563,9 @@ export default function Info(props) {
                 )}
               </div>
               <div className="line mTop20" />
-              <div className="Bold Font14 Gray mTop24">
+              <div className="Bold Font14 textPrimary mTop24">
                 {_l('聚合字段')}
-                <span className="Gray_75 mLeft10">{`(${(_.get(aggregateDt, 'nodeConfig.config.aggregateFields') || []).filter(o => !o.isCalculateField).length}/${AGG_CONTROL_MAX})`}</span>
+                <span className="textSecondary mLeft10">{`(${(_.get(aggregateDt, 'nodeConfig.config.aggregateFields') || []).filter(o => !o.isCalculateField).length}/${AGG_CONTROL_MAX})`}</span>
               </div>
               <AggregationCon
                 flowData={flowData}

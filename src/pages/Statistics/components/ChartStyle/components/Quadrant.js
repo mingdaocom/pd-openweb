@@ -9,8 +9,8 @@ const ColorWrap = styled.div`
   height: 32px;
   border-radius: 3px;
   padding: 4px;
-  border: 1px solid #dddddd;
-  background-color: #fff;
+  border: 1px solid var(--color-border-primary);
+  background-color: var(--color-background-primary);
   .colorBlock {
     width: 100%;
     height: 100%;

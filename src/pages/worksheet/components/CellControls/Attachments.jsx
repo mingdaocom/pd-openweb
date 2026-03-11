@@ -9,15 +9,17 @@ import 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { deleteAttachmentOfControl } from 'worksheet/api';
 import { downloadAttachmentById, openControlAttachmentInNewTab } from 'worksheet/controllers/record';
-import { checkValueByFilterRegex, controlState } from 'src/components/Form/core/formUtils';
+import { checkValueByFilterRegex } from 'src/components/Form/core/formUtils';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { browserIsMobile, formatFileSize, getClassNameByExt } from 'src/utils/common';
+import { controlState } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 import { addBehaviorLog, compatibleMDJS } from 'src/utils/project';
 import { FROM } from './enum';
+
 
 const Con = styled.div`
   &:hover {
@@ -45,8 +47,8 @@ const CutCon = styled.div`
 
 const EditingCon = styled.div`
   padding: 5px 6px 0px;
-  box-shadow: inset 0 0 0 2px #2d7ff9 !important;
-  background-color: #fff;
+  box-shadow: inset 0 0 0 2px var(--color-primary-focus) !important;
+  background-color: var(--color-background-primary);
 `;
 
 const AttachmentCon = styled.div`
@@ -129,9 +131,9 @@ const OperateIcon = styled.div`
   width: 24px;
   height: 24px;
   border-radius: 3px;
-  background: #fff;
+  background: var(--color-background-primary);
   text-align: center;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   font-size: 16px;
   cursor: pointer;
 `;
@@ -141,7 +143,7 @@ const HoverPreviewPanelCon = styled.div`
   width: 240px;
   box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.24);
   border-radius: 6px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   overflow: hidden;
   .fileDetail {
     text-align: left;
@@ -150,13 +152,13 @@ const HoverPreviewPanelCon = styled.div`
     word-break: break-all;
   }
   .fileName {
-    color: #151515;
+    color: var(--color-text-title);
   }
   .panelFooter {
     margin-top: 2px;
   }
   .fileSize {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .downloadBtn,
   .openInNewTabBtn {
@@ -167,10 +169,10 @@ const HoverPreviewPanelCon = styled.div`
   .openInNewTabBtn {
     cursor: pointer;
     float: right;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     font-size: 18px;
     &:not(.disabled):hover {
-      color: #f44336;
+      color: var(--color-error);
     }
     &.disabled {
       cursor: not-allowed;
@@ -179,7 +181,7 @@ const HoverPreviewPanelCon = styled.div`
 `;
 
 const ImageCoverCon = styled.div`
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
   height: 160px;
   display: flex;
   justify-content: center;
@@ -207,10 +209,10 @@ const Add = styled.div`
   margin-bottom: 5px;
   border-radius: 2px;
   overflow: hidden;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   .icon {
     font-size: 16px;
-    color: #ccc;
+    color: var(--color-text-placeholder);
     line-height: inherit;
   }
 `;
@@ -381,7 +383,9 @@ function HoverPreviewPanel(props) {
   const { controlId, advancedSetting, sourceControlId } = cell;
   const { appId, viewId, worksheetId, recordId, disableDownload } = cellInfo;
   const [loading, setLoading] = useState(true);
-  const allowDelete = !get(window, 'shareState.shareId') && (advancedSetting.allowdelete || '1');
+  const allowDelete =
+    !(get(window, 'shareState.shareId') && !recordId.startsWith('temp-') && !recordId.startsWith('default-')) &&
+    (advancedSetting.allowdelete || '1');
   const allowDownload = !get(window, 'shareState.isPublicQuery') && (advancedSetting.allowdownload || '1');
   const recordAttachmentSwitch =
     !!_.get(window, 'shareState.shareId') || isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewId);

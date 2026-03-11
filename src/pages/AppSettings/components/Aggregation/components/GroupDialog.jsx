@@ -41,13 +41,13 @@ const WrapItem = styled.div(
     width: 36px;
     min-width: 36px;
     text-align: center;
-    background: #fff;
+    background: var(--color-background-primary);
     z-index: 1;
     &:hover {
       .dragIcon,
       .clearIcon {
         opacity: 1;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         &:hover {
           color: Red;
         }
@@ -94,12 +94,12 @@ const WrapItem = styled.div(
       }
     }
     &.cardItemTitle {
-      background: #fff;
+      background: var(--color-background-primary);
     }
     .dragIcon,
     .clearIcon {
       opacity: 1;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       &:hover {
         color: Red;
       }
@@ -119,8 +119,8 @@ const WrapItem = styled.div(
     width: ${length > 2 ? inputWm : inputW}px;
     height: 35px;
     line-height: 35px;
-    background: #ffffff;
-    border: 1px solid #dddddd;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-primary);
     border-radius: 3px;
     padding: 0 8px 0 12px;
     &.hasField {
@@ -145,7 +145,7 @@ const WrapItem = styled.div(
   }
   &.cardItemTitle {
     .Dropdown--input {
-      background: #f4f4f4;
+      background: var(--color-background-disabled);
       border: none;
       font-weight: 700;
       padding: 0 12px;
@@ -154,15 +154,15 @@ const WrapItem = styled.div(
 `,
 );
 const WrapDrop = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
   border-radius: 3px;
   padding: 5px 0;
   max-height: 360px;
 `;
 const WrapAdd = styled.span`
-  color: #1677ff;
-  background: #fff;
+  color: var(--color-primary);
+  background: var(--color-background-primary);
   height: 36px;
   position: relative;
   z-index: 1;
@@ -311,7 +311,7 @@ export default function GroupDialog(props) {
                     >
                       <div
                         className={cx('flex WordBreak overflow_ellipsis', {
-                          Gray_bd: !_.get(item, `fields[${i}].name`),
+                          textDisabled: !_.get(item, `fields[${i}].name`),
                           Red: isDel,
                         })}
                       >
@@ -324,7 +324,7 @@ export default function GroupDialog(props) {
                           title={
                             <span className="">
                               {_.get(item, `fields[${i}].parentFieldInfo.controlSetting.controlName`) && (
-                                <span className="Gray_bd pRight5">{_l('关联')}</span>
+                                <span className="textDisabled pRight5">{_l('关联')}</span>
                               )}
                               {`${_.get(item, `fields[${i}].parentFieldInfo.controlSetting.controlName`) + '>'}${
                                 !_.get(item, `fields[${i}]controlSetting`)
@@ -334,13 +334,13 @@ export default function GroupDialog(props) {
                             </span>
                           }
                         >
-                          <Icon icon="info_outline" className="Hand Gray_9e ThemeHoverColor3 Font16 pRight20" />
+                          <Icon icon="info_outline" className="Hand textTertiary ThemeHoverColor3 Font16 pRight20" />
                         </Tooltip>
                       )}
                       {_.get(item, `fields[${i}].name`) && (
                         <Icon
                           icon="cancel"
-                          className="Gray_9e mLeft8 clearField"
+                          className="textTertiary mLeft8 clearField"
                           onClick={e => {
                             e.stopPropagation();
                             let newFields = fields || [];
@@ -353,12 +353,12 @@ export default function GroupDialog(props) {
                           }}
                         />
                       )}
-                      <Icon icon="arrow-down-border" className="mLeft5 Font16 Hand Gray_9e" />
+                      <Icon icon="arrow-down-border" className="mLeft5 Font16 Hand textTertiary" />
                     </div>
                   </Trigger>
                   {i < sourceInfos.length - 1 && (
                     <div className="joinCon flexRow alignItemsCenter justifyContentCenter">
-                      <Icon icon="more_horiz" className="Font20 Gray_bd" />
+                      <Icon icon="more_horiz" className="Font20 textDisabled" />
                     </div>
                   )}
                 </React.Fragment>

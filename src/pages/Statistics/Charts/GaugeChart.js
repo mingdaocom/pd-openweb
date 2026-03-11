@@ -174,7 +174,7 @@ export default class extends Component {
   getComponentConfig(props) {
     const { themeColor, projectId, customPageConfig = {}, reportData, isThumbnail } = props;
     const { chartColor, chartColorIndex = 1, pageStyleType = 'light' } = customPageConfig;
-    const isDark = pageStyleType === 'dark' && isThumbnail;
+    const isDark = window.themeMode === 'dark' || (pageStyleType === 'dark' && isThumbnail);
     const { map, yaxisList, displaySetup } = reportData;
     const { showChartType, showDimension, showNumber, colorRules } = displaySetup;
     const showPercent = displaySetup.percent.enable;

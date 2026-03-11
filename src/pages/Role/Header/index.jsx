@@ -74,7 +74,7 @@ export default function RoleHeader(props) {
 
   return (
     <TopBar className={cx('', { mBottom0: editType === 1 })}>
-      <div className="flexRow pointer Gray_bd mLeft16" onClick={() => backToApp()}>
+      <div className="flexRow pointer textDisabled mLeft16" onClick={() => backToApp()}>
         <Tooltip placement="bottomLeft" title={_l('应用：%0', name)}>
           <div className="flexRow alignItemsCenter">
             <i className="icon-navigate_before Font20" />

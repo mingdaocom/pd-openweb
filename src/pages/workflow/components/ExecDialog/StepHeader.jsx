@@ -8,8 +8,8 @@ import FlowChart, { MobileFlowChart } from '../FlowChart';
 
 const Btn = styled.div`
   &:hover {
-    .Gray_bd {
-      color: #1677ff !important;
+    .textDisabled {
+      color: var(--color-primary) !important;
     }
   }
 `;
@@ -32,13 +32,16 @@ export default ({
     <div className={cx('flexRow mTop16 mRight20 mBottom5', isMobile ? 'pLeft10' : 'pLeft16')}>
       <Btn className={cx('flexRow alignItemsCenter mRight15 ellipsis', { pointer: hasBack })} onClick={onClose}>
         {hasBack && (
-          <Icon className={cx('Font20 Gray_bd', isMobile ? 'mRight5' : 'mRight10')} icon="arrow-left-border" />
+          <Icon className={cx('Font20 textDisabled', isMobile ? 'mRight5' : 'mRight10')} icon="arrow-left-border" />
         )}
         <div className="Font17 bold">{processName}</div>
       </Btn>
       <div className="flex" />
       {isApproval && !hideStep && (
-        <div className="flexRow pointer alignItemsCenter Gray_75 ThemeHoverColor3" onClick={() => setVisible(true)}>
+        <div
+          className="flexRow pointer alignItemsCenter textSecondary ThemeHoverColor3"
+          onClick={() => setVisible(true)}
+        >
           <Icon className="Font16 mRight5" icon="department" />
           <div className="bold">{_l('流转图')}</div>
         </div>

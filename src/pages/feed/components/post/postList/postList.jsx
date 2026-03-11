@@ -85,7 +85,7 @@ class PostList extends React.Component {
                 <span className="statusIcon" />
               </div>
               {this.props.options.accountId && this.props.options.accountId !== md.global.Account.accountId ? (
-                <p>暂无可见动态</p>
+                <p>{_l('暂无可见动态')}</p>
               ) : (
                 <p>
                   {

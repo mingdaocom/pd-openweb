@@ -61,10 +61,10 @@ export default function RowDetailModal(props) {
       actions: [],
       extra: (
         <div className="flexColumn w100">
-          <div className="bold Gray Font17 pTop10">{_l('是否保存当前记录?')}</div>
+          <div className="bold textPrimary Font17 pTop10">{_l('是否保存当前记录?')}</div>
           <div className="valignWrapper flexRow confirm mTop24">
             <Button
-              className="flex mRight6 bold Gray_75 flex ellipsis Font13"
+              className="flex mRight6 bold textSecondary flex ellipsis Font13"
               onClick={() => {
                 closeConfirmFunc.close();
                 onClose();
@@ -100,7 +100,7 @@ export default function RowDetailModal(props) {
         )}
         {allowCopy && (
           <i
-            className="icon icon-copy Font18 ThemeColor mLeft10"
+            className="icon icon-copy Font18 colorPrimary mLeft10"
             onClick={() => {
               const rowData = formContent.current.isVerified();
               rowData && copyRow(rowData);
@@ -110,7 +110,7 @@ export default function RowDetailModal(props) {
         <div className="flex"></div>
         {type === 'edit' && !disabled ? (
           <span
-            className="ThemeColor Font16 bold"
+            className="colorPrimary Font16 bold"
             onClick={() => {
               if ($('.mobileChildTableRowDetailDialog').find('.fileUpdateLoading').length) {
                 alert(_l('附件正在上传，请稍后'), 3);
@@ -125,11 +125,11 @@ export default function RowDetailModal(props) {
             {_l('保存')}
           </span>
         ) : (
-          <i className="headerBtn icon icon-cancel Gray_9e Font20" onClick={() => handleClose(data.rowid)}></i>
+          <i className="headerBtn icon icon-cancel textTertiary Font20" onClick={() => handleClose(data.rowid)}></i>
         )}
       </div>
       <div className="forCon flex leftAlign">
-        <div className="flexRow Font18 Gray bold leftAlign mBottom10 pLeft20 pRight20">{title}</div>
+        <div className="flexRow Font18 textPrimary bold leftAlign mBottom10 pLeft20 pRight20">{title}</div>
         <RowDetail
           isMobile
           from={5}
@@ -142,7 +142,10 @@ export default function RowDetailModal(props) {
       {type === 'new' ? (
         <div className="footer btnsWrapper valignWrapper flexRow">
           {!isExceed && (
-            <Button className="flex mRight6 bold Gray_75 Font13" onClick={() => formContent.current.handleSave(true)}>
+            <Button
+              className="flex mRight6 bold textSecondary Font13"
+              onClick={() => formContent.current.handleSave(true)}
+            >
               {_l('继续创建')}
             </Button>
           )}
@@ -157,13 +160,13 @@ export default function RowDetailModal(props) {
       ) : (
         <div className="footer btnsWrapper switchWrapper valignWrapper flexRow">
           <Button
-            className={`flex mRight6 bold Font13 ${switchDisabled.prev ? 'Gray_df' : 'Gray_75'}`}
+            className={`flex mRight6 bold Font13 ${switchDisabled.prev ? 'textPlaceholder' : 'textSecondary'}`}
             onClick={() => handleSwitch('prev')}
           >
             {_l('上一条')}
           </Button>
           <Button
-            className={`flex mLeft6 mRight6 Font13 bold ${switchDisabled.next ? 'Gray_df' : 'Gray_75'}`}
+            className={`flex mLeft6 mRight6 Font13 bold ${switchDisabled.next ? 'textPlaceholder' : 'textSecondary'}`}
             onClick={() => handleSwitch('next')}
           >
             {_l('下一条')}

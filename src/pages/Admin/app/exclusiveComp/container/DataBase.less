@@ -28,7 +28,7 @@
 
   .dataBaseExplain {
     width: 100%;
-    background: #f2fafe;
+    background: var(--color-primary-transparent);
     border-radius: 3px;
     font-size: 13px;
     padding: 14px 22px 14px 12px;
@@ -37,16 +37,16 @@
     display: flex;
     justify-content: space-between;
     .createDataBaseButton {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 
   .exclusiveCompList {
     li {
       padding: 18px 19px 18px 23px;
-      background: #ffffff;
+      background: var(--color-background-primary);
       border-radius: 3px 3px 3px 3px;
-      border: 1px solid #e6e6e6;
+      border: 1px solid var(--color-border-secondary);
       margin-bottom: 22px;
       .header {
         display: flex;
@@ -70,15 +70,15 @@
         }
         .manageBtn {
           cursor: pointer;
-          background: #ffffff;
-          border: 1px solid #eaeaea;
+          background: var(--color-background-primary);
+          border: 1px solid var(--color-border-secondary);
           font-weight: 600;
-          color: #1677ff;
+          color: var(--color-primary);
           padding: 8px 18px;
           border-radius: 16px;
           margin-left: 24px;
           &:hover {
-            border: 1px solid #1677ff;
+            border: 1px solid var(--color-primary);
           }
         }
       }
@@ -99,5 +99,5 @@
 }
 
 .allowCreateColor {
-  color: #47b14b;
+  color: var(--color-success);
 }

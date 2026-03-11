@@ -7,19 +7,19 @@ import { LoadDiv } from 'ming-ui';
 
 const Popup = styled.div`
   position: relative;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   padding: 15px 15px 12px;
   width: 230px;
   box-shadow: 0px 1px 6px 1px rgba(0, 0, 0, 0.24);
   border-radius: 6px;
   .error {
-    color: #f44336;
+    color: var(--color-error);
     text-align: center;
     line-height: 130px;
   }
   .tip {
     font-size: 14px;
-    color: #333;
+    color: var(--color-text-primary);
     margin-bottom: 10px;
     font-weight: bold;
     text-align: center;
@@ -38,7 +38,7 @@ const Popup = styled.div`
     height: 0px;
     border-left: 12px solid transparent;
     border-right: 12px solid transparent;
-    border-bottom: 11px solid #eee;
+    border-bottom: 11px solid var(--color-border-secondary);
     top: -11px;
     left: calc(50% - 12px);
   }
@@ -49,20 +49,20 @@ const Popup = styled.div`
     height: 0px;
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
-    border-bottom: 10px solid #fff;
+    border-bottom: 10px solid var(--color-white);
     top: -10px;
     left: calc(50% - 10px);
   }
   &.top {
     &::before {
       border-bottom: none;
-      border-top: 11px solid #eee;
+      border-top: 11px solid var(--color-border-secondary);
       top: auto;
       bottom: -11px;
     }
     &::after {
       border-bottom: none;
-      border-top: 10px solid #fff;
+      border-top: 10px solid var(--color-white);
       top: auto;
       bottom: -10px;
     }

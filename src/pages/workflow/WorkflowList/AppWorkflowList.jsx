@@ -36,7 +36,7 @@ import { emitter } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import Search from '../components/Search';
-import { APP_TYPE } from '../WorkflowSettings/enum';
+import { APP_TYPE, RELATION_TYPE } from '../WorkflowSettings/enum';
 import CopyFlowBtn from './components/CopyFlowBtn';
 import CreateWorkflow from './components/CreateWorkflow';
 import DeleteFlowBtn from './components/DeleteFlowBtn';
@@ -49,7 +49,7 @@ const HeaderWrap = styled.div`
   height: 50px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
   z-index: 15;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   padding: 0 24px 0 16px;
   .applicationIcon {
     width: 28px;
@@ -61,23 +61,23 @@ const HeaderWrap = styled.div`
     line-height: normal;
     margin-left: -3px;
   }
-  .Gray_bd {
+  .textDisabled {
     &:hover {
-      color: #757575 !important;
+      color: var(--color-text-secondary) !important;
       .applicationIcon {
         box-shadow: 0 0 20px 20px rgb(0 0 0 / 10%) inset;
       }
     }
   }
   .trash {
-    color: #757575;
+    color: var(--color-text-secondary);
     .trashIcon {
-      color: #757575;
+      color: var(--color-text-secondary);
     }
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
       .trashIcon {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
@@ -113,14 +113,14 @@ const CreateBtnBig = styled.div`
   }
   .flowSupport {
     line-height: 34px !important;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     margin-left: 16px;
-    border: 1px solid #bdbdbd;
+    border: 1px solid var(--color-text-disabled);
     span {
       margin-left: 0 !important;
       font-size: 13px;
       font-weight: bold;
-      color: #151515 !important;
+      color: var(--color-text-title) !important;
     }
   }
 `;
@@ -128,10 +128,10 @@ const CreateBtnBig = styled.div`
 const DropdownBox = styled.div`
   &.active {
     .Dropdown--border {
-      border-color: #1677ff !important;
-      background: #e3f2fd;
+      border-color: var(--color-primary) !important;
+      background: var(--color-primary-transparent);
       .value {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     &:hover {
@@ -148,9 +148,9 @@ const DropdownBox = styled.div`
     display: none;
     top: 10px;
     right: 6px;
-    color: #757575;
+    color: var(--color-text-secondary);
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
@@ -158,7 +158,7 @@ const DropdownBox = styled.div`
 const ArrowUp = styled.span`
   border-width: 5px;
   border-style: solid;
-  border-color: transparent transparent #757575 transparent;
+  border-color: transparent transparent var(--color-text-secondary) transparent;
   cursor: pointer;
   &:hover,
   &.active {
@@ -169,12 +169,12 @@ const ArrowUp = styled.span`
 const ArrowDown = styled.span`
   border-width: 5px;
   border-style: solid;
-  border-color: #757575 transparent transparent transparent;
+  border-color: var(--color-text-secondary) transparent transparent transparent;
   cursor: pointer;
   margin-top: 2px;
   &:hover,
   &.active {
-    border-color: #1677ff transparent transparent transparent;
+    border-color: var(--color-primary) transparent transparent transparent;
   }
 `;
 
@@ -265,7 +265,7 @@ class AppWorkflowList extends Component {
   checkIsAppAdmin() {
     const appId = this.props.match.params.appId;
 
-    processVersion.getProcessRole({ relationType: 2, relationId: appId }).then(result => {
+    processVersion.getProcessRole({ relationType: RELATION_TYPE.APP, relationId: appId }).then(result => {
       if (result) {
         this.getList(this.state.type);
         this.getCount();
@@ -329,7 +329,7 @@ class AppWorkflowList extends Component {
     processVersion
       .count({
         relationId: this.props.match.params.appId,
-        relationType: 2,
+        relationType: RELATION_TYPE.APP,
       })
       .then(result => {
         this.setState({ count: result });
@@ -347,7 +347,7 @@ class AppWorkflowList extends Component {
       <HeaderWrap className="flexRow alignItemsCenter">
         <Tooltip placement="bottomLeft" title={_l('应用：%0', appDetail.name)}>
           <div
-            className="flexRow pointer Gray_bd alignItemsCenter"
+            className="flexRow pointer textDisabled alignItemsCenter"
             onClick={() => {
               window.disabledSideButton = true;
 
@@ -376,7 +376,7 @@ class AppWorkflowList extends Component {
         <div className="flex nativeTitle Font17 bold mLeft16">{_l('自动化工作流')}</div>
 
         <Support
-          className="pointer Gray_75 mRight15"
+          className="pointer textSecondary mRight15"
           href={
             type === FLOW_TYPE.PBC
               ? 'https://help.mingdao.com/workflow/pbp'
@@ -441,14 +441,18 @@ class AppWorkflowList extends Component {
     return (
       <ul className="workflowHeader flexColumn">
         <ScrollView className="pLeft8 pRight8">
-          {TYPES.filter(o => o.value !== FLOW_TYPE.EVENT_PUSH || count[o.value]).map(item => (
+          {TYPES.filter(
+            o =>
+              !(md.global.SysSettings.hideAIBasicFun && o.value === FLOW_TYPE.AI_ACTIONS) &&
+              (o.value !== FLOW_TYPE.EVENT_PUSH || count[o.value]),
+          ).map(item => (
             <Fragment key={item.value}>
               {item.value === FLOW_TYPE.APP && (
-                <div className="bold Font12 Gray_75 mTop15 mBottom15 mLeft16">{_l('触发方式')}</div>
+                <div className="bold Font12 textSecondary mTop15 mBottom15 mLeft16">{_l('触发方式')}</div>
               )}
 
               {item.value === FLOW_TYPE.LOOP && (
-                <div className="bold Font12 Gray_75 mTop15 mBottom15 mLeft16">{_l('调用流程')}</div>
+                <div className="bold Font12 textSecondary mTop15 mBottom15 mLeft16">{_l('调用流程')}</div>
               )}
 
               <MdLink
@@ -457,16 +461,16 @@ class AppWorkflowList extends Component {
                 key={item.value}
               >
                 <li className={cx({ 'active ThemeColor3': type === item.value })}>
-                  <i className={cx('Font18', item.icon, type === item.value ? 'ThemeColor3' : 'Gray_75')} />
+                  <i className={cx('Font18', item.icon, type === item.value ? 'ThemeColor3' : 'textSecondary')} />
                   <span className="flex ellipsis mLeft10">{item.text}</span>
-                  <span className="Gray_9e mLeft10 Font13">
+                  <span className="textTertiary mLeft10 Font13">
                     {(item.value ? count[item.value] : _.sum(Object.values(count))) || ''}
                   </span>
                 </li>
               </MdLink>
 
               {item.value === FLOW_TYPE.PBC && (
-                <div className="bold Font12 Gray_75 mTop15 mBottom15 mLeft16">{_l('其他')}</div>
+                <div className="bold Font12 textSecondary mTop15 mBottom15 mLeft16">{_l('其他')}</div>
               )}
             </Fragment>
           ))}
@@ -481,7 +485,7 @@ class AppWorkflowList extends Component {
                 this.setState({ showTrash: true });
               }}
             >
-              <i className="Font18 icon-knowledge-recycle Gray_75" />
+              <i className="Font18 icon-knowledge-recycle textSecondary" />
               <span className="flex ellipsis mLeft10">
                 {_l('回收站')}
                 {isFree && <UpgradeIcon />}
@@ -637,7 +641,7 @@ class AppWorkflowList extends Component {
                     ]}
                     value={displayType}
                     renderTitle={() => (
-                      <span className="Gray_75 bold">
+                      <span className="textSecondary bold">
                         {displayType === 'createdDate' ? _l('状态 / 创建时间') : _l('状态 / 更新时间')}
                       </span>
                     )}
@@ -664,7 +668,7 @@ class AppWorkflowList extends Component {
           {!list.length && (
             <div className="flowEmptyWrap flexColumn">
               <div className="flowEmptyPic flowEmptyPic-search" />
-              <div className="Gray_75 Font17 mTop20">{_l('没有搜索到流程')}</div>
+              <div className="textSecondary Font17 mTop20">{_l('没有搜索到流程')}</div>
             </div>
           )}
           {list.map(item => this.renderListItem(item))}
@@ -692,9 +696,14 @@ class AppWorkflowList extends Component {
               {type !== FLOW_TYPE.OTHER_APP && item.groupId !== 'otherSubProcess' && (
                 <Fragment>
                   {item.iconUrl ? (
-                    <SvgIcon url={item.iconUrl} fill="#757575" size={20} addClassName="mTop2 mRight5" />
+                    <SvgIcon
+                      url={item.iconUrl}
+                      fill="var(--color-text-secondary)"
+                      size={20}
+                      addClassName="mTop2 mRight5"
+                    />
                   ) : (
-                    <i className={cx('Gray_75 Font20 mRight5', ICON[item.groupId] || 'icon-worksheet')} />
+                    <i className={cx('textSecondary Font20 mRight5', ICON[item.groupId] || 'icon-worksheet')} />
                   )}
                 </Fragment>
               )}
@@ -713,17 +722,29 @@ class AppWorkflowList extends Component {
             <div
               className={cx('iconWrap mLeft10', { unable: !data.enabled })}
               style={{
-                backgroundColor: (START_APP_TYPE[data.child ? 'subprocess' : data.startAppType] || {}).iconColor,
+                backgroundColor: (
+                  START_APP_TYPE[
+                    data.child ? 'subprocess' : data.moduleType === 1 ? 'ai_actions' : data.startAppType
+                  ] || {}
+                ).iconColor,
               }}
             >
-              <Icon icon={(START_APP_TYPE[data.child ? 'subprocess' : data.startAppType] || {}).iconName} />
+              <Icon
+                icon={
+                  (
+                    START_APP_TYPE[
+                      data.child ? 'subprocess' : data.moduleType === 1 ? 'ai_actions' : data.startAppType
+                    ] || {}
+                  ).iconName
+                }
+              />
             </div>
             <div className="flex name mLeft10 mRight20">
               <ListName item={data} type={this.state.type} />
             </div>
             <div className="w180 pRight20">{getActionTypeContent(this.state.type, data)}</div>
             <div className="w270 pRight20">{this.column3Content(data)}</div>
-            <div className="w120 Gray_75 flexRow">
+            <div className="w120 textSecondary flexRow">
               <UserHead
                 projectId={appDetail.projectId}
                 size={28}
@@ -734,7 +755,7 @@ class AppWorkflowList extends Component {
             <div className="w20 mRight20 TxtCenter relative">
               <Icon
                 type="more_horiz"
-                className="Gray_75 ThemeHoverColor3 pointer Font16 listBtn"
+                className="textSecondary ThemeHoverColor3 pointer Font16 listBtn"
                 onClick={() => this.setState({ selectFlowId: data.id })}
               />
               {selectFlowId === data.id && this.renderMoreOptions(data)}
@@ -809,7 +830,7 @@ class AppWorkflowList extends Component {
       >
         <MenuItem>
           <MdLink to={`/workflowedit/${data.id}/2`}>
-            <span className="icon-restore2 Gray_75 Font16 pLeft12 mRight10" />
+            <span className="icon-restore2 textSecondary Font16 pLeft12 mRight10" />
             {_l('历史')}
           </MdLink>
         </MenuItem>
@@ -822,6 +843,7 @@ class AppWorkflowList extends Component {
             FLOW_TYPE.EVENT_PUSH,
             FLOW_TYPE.LOOP,
             FLOW_TYPE.CHATBOT,
+            FLOW_TYPE.AI_ACTIONS,
           ],
           type,
         ) && (
@@ -858,12 +880,12 @@ class AppWorkflowList extends Component {
         {_.includes([APP_TYPE.LOOP, APP_TYPE.WEBHOOK, APP_TYPE.PBC, APP_TYPE.USER], data.startAppType) &&
           type !== FLOW_TYPE.SUB_PROCESS && (
             <MenuItem onClick={() => this.setState({ selectItem: data })}>
-              <span className="icon-swap_horiz Gray_75 Font16 pLeft12 mRight10" />
+              <span className="icon-swap_horiz textSecondary Font16 pLeft12 mRight10" />
               {_l('移至其他应用')}
             </MenuItem>
           )}
 
-        {_.includes([FLOW_TYPE.OTHER_APP, FLOW_TYPE.CUSTOM_ACTION, FLOW_TYPE.CHATBOT], type) ||
+        {_.includes([FLOW_TYPE.OTHER_APP, FLOW_TYPE.CUSTOM_ACTION, FLOW_TYPE.CHATBOT, FLOW_TYPE.AI_ACTIONS], type) ||
         (type === FLOW_TYPE.APPROVAL && data.triggerId) ? null : (
           <MenuItem>
             <DeleteFlowBtn
@@ -888,7 +910,7 @@ class AppWorkflowList extends Component {
       .addProcess({
         companyId: '',
         relationId: appId,
-        relationType: 2,
+        relationType: RELATION_TYPE.APP,
         startEventAppType: 17,
         name: _l('未命名业务流程'),
       })
@@ -1114,7 +1136,7 @@ class AppWorkflowList extends Component {
               {_l('创建工作流')}
             </Button>
             <Support
-              className="pointer Gray_75 flowSupport"
+              className="pointer textSecondary flowSupport"
               href="https://help.mingdao.com/workflow/create"
               type={3}
               text={_l('了解更多')}
@@ -1142,7 +1164,7 @@ class AppWorkflowList extends Component {
     return (
       <div className="flowEmptyWrap flexColumn">
         <div className={cx('flowEmptyPic', `flowEmptyPic-${FLOW_TYPE_NULL[type].icon}`)} />
-        <div className="Gray_75 Font17 mTop20">{FLOW_TYPE_NULL[type].text}</div>
+        <div className="textSecondary Font17 mTop20">{FLOW_TYPE_NULL[type].text}</div>
       </div>
     );
   }

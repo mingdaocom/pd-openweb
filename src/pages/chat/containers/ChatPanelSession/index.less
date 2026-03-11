@@ -1,10 +1,8 @@
-@disableBgColor: #f5f5f5;
-
 &-sessionWrapper {
   display: flex;
   flex-direction: column;
   flex: 1;
-  border-right: 1px solid #ddd;
+  border-right: 1px solid var(--color-border-primary);
   overflow: hidden;
 }
 
@@ -22,11 +20,11 @@
 
   .disable {
     position: relative;
-    background-color: @disableBgColor !important;
+    background-color: var(--color-background-secondary) !important;
     .addToolbarHover:not(:hover),
     textarea,
     .mentions-input-box {
-      background-color: @disableBgColor !important;
+      background-color: var(--color-background-secondary) !important;
     }
     [class^='icon-'] {
       opacity: 0.5;
@@ -46,7 +44,7 @@
   cursor: pointer;
 }
 &-messageInfo {
-  color: #999;
+  color: var(--color-text-tertiary);
   display: flex;
   height: 50px;
   justify-content: center;

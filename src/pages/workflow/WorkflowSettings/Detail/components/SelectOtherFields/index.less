@@ -12,14 +12,14 @@
     box-sizing: border-box;
     border-top-right-radius: 4px;
     border-bottom-right-radius: 4px;
-    border-color: #ddd;
+    border-color: var(--color-border-primary);
     font-size: 20px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     &:not(:hover) {
-      color: #757575 !important;
+      color: var(--color-text-secondary) !important;
     }
   }
   .clearAllFields {
@@ -38,7 +38,7 @@
       }
       &:not(:hover) {
         i {
-          color: #757575;
+          color: var(--color-text-secondary);
         }
       }
     }

@@ -3,21 +3,21 @@
     height: 32px;
     line-height: 30px;
     padding: 0 26px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     font-size: 13px;
-    color: #151515;
-    border: 1px solid #eaeaea;
+    color: var(--color-text-title);
+    border: 1px solid var(--color-border-secondary);
     margin-right: -1px;
     cursor: pointer;
     display: inline-block;
     box-sizing: border-box;
     &.active {
-      color: #fff;
-      background-color: #1677ff;
-      border-color: #1677ff;
+      color: var(--color-white);
+      background-color: var(--color-primary);
+      border-color: var(--color-primary);
     }
     &:hover:not(.active) {
-      color: #1677ff;
+      color: var(--color-primary);
     }
     &:first-child {
       border-radius: 3px 0 0 3px;

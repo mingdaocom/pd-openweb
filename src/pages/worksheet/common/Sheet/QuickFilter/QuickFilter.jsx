@@ -23,7 +23,7 @@ const Empty = styled.div`
   width: 100%;
   text-align: center;
   padding: 12px 0 20px;
-  color: #bdbdbd;
+  color: var(--color-text-disabled);
 `;
 
 function isFullLine(filter) {

@@ -36,7 +36,7 @@ export default function DropConfig(props) {
             <span>{_l('为选项赋分值')}</span>
           </Checkbox>
           {!!enumDefault && (
-            <div className="pointer Gray_75 ThemeHoverColor3" onClick={() => setVisible(true)}>
+            <div className="pointer textSecondary ThemeHoverColor3" onClick={() => setVisible(true)}>
               {hasScore && <span className="mRight6">{_l('已设置')}</span>}
               <span className="icon-settings Font15"></span>
             </div>
@@ -79,7 +79,7 @@ export default function DropConfig(props) {
                 '勾选后，用户填写时可输入不在备选项中的内容，并添加至选项列表。若不勾选，通过工作流、API写入、批量导入等操作仍可将新的选项添加至选项列表。',
               )}
             >
-              <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
+              <i className="icon-help tipsIcon textTertiary Font16 pointer"></i>
             </Tooltip>
           </Checkbox>
         </div>

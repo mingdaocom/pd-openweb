@@ -26,8 +26,8 @@ const Wrap = styled.div`
       }
       span.addIcon {
         position: relative;
-        background: #f8f8f8;
-        color: #1677ff;
+        background: var(--color-background-secondary);
+        color: var(--color-primary);
         border-radius: 3px;
         display: block;
         padding: 12px 0;
@@ -38,8 +38,8 @@ const Wrap = styled.div`
           font-size: 20px;
         }
         &:hover {
-          color: #1565c0;
-          background: #f5f5f5;
+          color: var(--color-link-hover);
+          background: var(--color-background-secondary);
         }
       }
     }
@@ -75,9 +75,9 @@ const Wrap = styled.div`
       }
       span.addIcon {
         position: relative;
-        background: #1677ff;
+        background: var(--color-primary);
         border-radius: 3px;
-        color: #fff;
+        color: var(--color-white);
         display: inline-block;
         padding: 12px 32px;
         cursor: pointer;
@@ -86,7 +86,7 @@ const Wrap = styled.div`
           font-size: 20px;
         }
         &:hover {
-          background: #1565c0;
+          background: var(--color-link-hover);
         }
       }
     }

@@ -31,7 +31,7 @@ const Drag = styled.div(
   height: 100%;
   cursor: ew-resize;
   &:hover {
-    border-left: 1px solid #ddd;
+    border-left: 1px solid var(--color-border-primary);
   }
 `,
 );
@@ -64,7 +64,7 @@ export default function Resource(props) {
     getTimeList(() => {
       !!dataSource &&
         isSameType([29], (controls || []).find(o => o.controlId === props.view.viewControl) || {}) &&
-        getRelationControls(dataSource);
+        getRelationControls(props.appId, dataSource);
       fetchRows();
     });
   };

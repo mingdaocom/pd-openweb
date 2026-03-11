@@ -102,7 +102,7 @@ export default class RecommendsList extends React.Component {
       <React.Fragment>
         <div className="list-header mBottom10 Font15">{_l('推荐好友')}</div>
         <table className="list-content Font12">
-          <thead className="LineHeight30 Gray_6 TxtLeft">
+          <thead className="LineHeight30 textSecondary TxtLeft">
             <tr>
               <th>{_l('联系人')}</th>
               <th>{_l('手机联系人')}</th>
@@ -112,7 +112,7 @@ export default class RecommendsList extends React.Component {
               </th>
             </tr>
           </thead>
-          <tbody className="Gray_6">
+          <tbody className="textSecondary">
             {listData.length &&
               listData.map(item => {
                 return (
@@ -123,7 +123,7 @@ export default class RecommendsList extends React.Component {
                       </a>
                       <a
                         href={'/user_' + item.accountId}
-                        className="Bold Hand overflow_ellipsis Gray mLeft8"
+                        className="Bold Hand overflow_ellipsis textPrimary mLeft8"
                         title={item.fullname}
                       >
                         {item.fullname || ''}
@@ -146,7 +146,7 @@ export default class RecommendsList extends React.Component {
                       </td>
                     ) : (
                       <td className="TxtCenter">
-                        <span className="Gray_6">{item.added ? _l('已添加') : _l('忽略')}</span>
+                        <span className="textSecondary">{item.added ? _l('已添加') : _l('忽略')}</span>
                       </td>
                     )}
                   </tr>

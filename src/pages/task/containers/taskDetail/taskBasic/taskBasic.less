@@ -3,13 +3,13 @@
     padding: 0 20px;
     height: 34px;
     align-items: center;
-    background: #e8e8e8;
+    background: var(--color-border-secondary);
     font-size: 13px;
     i {
-      color: #9d9d9d;
+      color: var(--color-text-tertiary);
     }
     span:not(:hover) {
-      color: #757575 !important;
+      color: var(--color-text-secondary) !important;
     }
   }
   .detailFolder {
@@ -23,23 +23,23 @@
     .taskNullFolder {
       font-size: 15px;
       height: 19px;
-      color: #757575;
-      border-bottom-color: #757575;
+      color: var(--color-text-secondary);
+      border-bottom-color: var(--color-text-secondary);
       border-width: 0;
       border-bottom-width: 1px;
       border-style: dotted;
       &:not(:hover) {
-        color: #757575 !important;
-        border-bottom-color: #757575 !important;
+        color: var(--color-text-secondary) !important;
+        border-bottom-color: var(--color-text-secondary) !important;
       }
     }
     .detailFolderName {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
     .taskDeatilFolderName {
       font-size: 13px;
       &:not(:hover) {
-        color: #9e9e9e !important;
+        color: var(--color-text-tertiary) !important;
       }
     }
     .taskDeatilFolderStage {
@@ -52,7 +52,7 @@
         background: rgba(0, 0, 0, 0.13) !important;
       }
       .Dropdown--input {
-        color: #fff;
+        color: var(--color-white);
         padding: 3px 5px 2px 10px;
       }
       .icon-arrow-down-border {
@@ -64,7 +64,7 @@
       visibility: hidden;
       margin-left: 15px;
       &:not(:hover) {
-        color: #9e9e9e !important;
+        color: var(--color-text-tertiary) !important;
       }
     }
   }
@@ -84,8 +84,8 @@
         border-style: dotted;
         height: 20px;
         &:not(:hover) {
-          color: #757575 !important;
-          border-bottom-color: #757575 !important;
+          color: var(--color-text-secondary) !important;
+          border-bottom-color: var(--color-text-secondary) !important;
         }
       }
       .parentBtn {
@@ -93,7 +93,7 @@
         visibility: hidden;
         margin-left: 15px;
         &:not(:hover) {
-          color: #9e9e9e !important;
+          color: var(--color-text-tertiary) !important;
         }
       }
     }
@@ -110,21 +110,21 @@
     resize: none;
     border-width: 1px;
     border-style: solid;
-    background: #f7f7f7;
+    background: var(--color-background-secondary);
     margin-left: 10px;
     margin-right: 10px;
     &:hover:not(:focus) {
-      border-color: #e5e5e5 !important;
+      border-color: var(--color-border-secondary) !important;
     }
     &:not(:focus),
     &:disabled {
-      border-color: #f7f7f7 !important;
+      border-color: var(--color-background-secondary) !important;
     }
   }
   .detailStar {
     font-size: 20px;
     cursor: pointer;
-    color: #99a1ab;
+    color: var(--color-text-tertiary);
     height: 30px;
     .icon-task-star {
       color: #fbc02d;
@@ -133,8 +133,8 @@
   .taskContentBoxBG {
     box-sizing: border-box;
     width: 100%;
-    border: 1px solid #e0e0e0;
-    background: #fff;
+    border: 1px solid var(--color-border-secondary);
+    background: var(--color-background-primary);
     border-radius: 5px;
     .taskContentIcon {
       position: absolute;
@@ -142,7 +142,7 @@
       left: 12px;
       font-size: 16px;
       height: 16px;
-      color: #8f9093;
+      color: var(--color-text-secondary);
       i {
         vertical-align: top;
         display: inline-block;
@@ -157,7 +157,7 @@
     position: relative;
     margin-right: -1px;
     & > div {
-      background: #f7f7f7;
+      background: var(--color-background-secondary);
     }
     .ck-rounded-corners .ck.ck-editor__top .ck-sticky-panel .ck-toolbar {
       border-right: 0px !important;
@@ -168,14 +168,14 @@
         display: block !important;
       }
       .ck .ck-content {
-        background: #f7f7f7 !important;
-        border-left: 1px solid #dddddd !important;
-        border-top: 1px solid #f7f7f7 !important;
-        border-right: 1px solid #f7f7f7 !important;
-        border-bottom: 1px solid #f7f7f7 !important;
+        background: var(--color-background-secondary) !important;
+        border-left: 1px solid var(--color-border-primary) !important;
+        border-top: 1px solid var(--color-background-secondary) !important;
+        border-right: 1px solid var(--color-background-secondary) !important;
+        border-bottom: 1px solid var(--color-background-secondary) !important;
         &.ck-focused {
-          background: #fff !important;
-          border: 1px solid #1677ff !important;
+          background: var(--color-background-primary) !important;
+          border: 1px solid var(--color-primary) !important;
         }
       }
     }
@@ -184,7 +184,7 @@
       line-height: 51px;
       border: 0;
       padding: 0;
-      background-color: #fff;
+      background-color: var(--color-background-primary);
     }
     .mdEditorContent {
       overflow-x: hidden;
@@ -199,7 +199,7 @@
       line-height: 32px;
 
       &:not(:hover) {
-        color: #9e9e9e !important;
+        color: var(--color-text-tertiary) !important;
       }
     }
   }
@@ -208,27 +208,27 @@
     box-sizing: border-box;
     width: 100%;
     position: relative;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--color-border-secondary);
     min-height: 51px;
     .detailAttsBtn {
       height: 40px;
       line-height: 40px;
       cursor: pointer;
       &:not(:hover) {
-        color: #ccc !important;
+        color: var(--color-text-placeholder) !important;
       }
     }
     .detailAttsNull {
       height: 40px;
       line-height: 40px;
-      color: #ccc;
+      color: var(--color-text-placeholder);
     }
     .detailAttsPostBtn {
       margin: 10px 0 20px;
       text-align: right;
       .ThemeColor3 {
         &:not(:hover) {
-          color: #9e9e9e !important;
+          color: var(--color-text-tertiary) !important;
         }
       }
     }
@@ -243,7 +243,7 @@
       padding: 0 18px;
       cursor: pointer;
       text-align: center;
-      color: #fff;
+      color: var(--color-white);
       border-radius: 3px;
     }
   }
@@ -253,7 +253,7 @@
     width: 100%;
     min-height: 51px;
     position: relative;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--color-border-secondary);
     .tagsIcon {
       width: 10px;
       height: 10px;
@@ -267,7 +267,7 @@
       word-break: break-all;
       display: inline-flex;
       &.active {
-        background: #f2f2f2;
+        background: var(--color-background-disabled);
       }
     }
     .tagsIcon {
@@ -287,7 +287,7 @@
     box-sizing: border-box;
     width: 100%;
     position: relative;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid var(--color-border-secondary);
     min-height: 51px;
     .membersList {
       .detailAddMember {
@@ -299,7 +299,7 @@
         vertical-align: top;
         cursor: pointer;
         &:not(:hover) {
-          color: #aaa !important;
+          color: var(--color-text-tertiary) !important;
         }
       }
       .membersListItem {
@@ -324,15 +324,15 @@
   }
   .taskDetailEditBtn {
     height: 40px;
-    background-color: #f7f7f7;
-    border-left: 1px solid #ddd;
+    background-color: var(--color-background-secondary);
+    border-left: 1px solid var(--color-border-primary);
     span {
       font-size: 12px;
       cursor: pointer;
     }
     .taskDetailEditBtnSave {
       border-radius: 3px;
-      color: #fff;
+      color: var(--color-white);
       height: 24px;
       line-height: 24px;
       padding: 0 16px;

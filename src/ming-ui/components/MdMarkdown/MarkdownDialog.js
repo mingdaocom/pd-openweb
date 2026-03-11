@@ -21,7 +21,7 @@ const Header = styled.div`
   }
   .main {
     font-size: 17px;
-    color: #151515;
+    color: var(--color-text-title);
     font-weight: bold;
   }
 `;

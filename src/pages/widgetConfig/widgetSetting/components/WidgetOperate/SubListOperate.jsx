@@ -99,7 +99,7 @@ export default function SubListOperate(props) {
                   '如：在添加订单明细时需要先选择关联的产品。此时您可以设置为从产品字段添加明细。设置后，您可以直接一次选择多个产品，并为每个产品都添加一行订单明细',
                 )}
               >
-                <i className="icon-help Gray_bd Font16 pointer"></i>
+                <i className="icon-help textDisabled Font16 pointer"></i>
               </Tooltip>
             </Checkbox>
           </div>

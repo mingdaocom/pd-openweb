@@ -11,12 +11,11 @@ import { RecordInfoModal as MobileRecordInfoModal } from 'mobile/Record';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
 import ChildTableContext from 'worksheet/components/ChildTable/ChildTableContext';
 import { FROM } from 'src/components/Form/core/config';
-import { controlState, getTitleTextFromRelateControl } from 'src/components/Form/core/utils';
 import { getIsScanQR } from 'src/components/Form/MobileForm/components/ScanQRCode';
 import MobileNewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { getTranslateInfo } from 'src/utils/app';
-import { completeControls } from 'src/utils/control';
+import { completeControls, controlState, getTitleTextFromRelateControl } from 'src/utils/control';
 import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
 import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import { getCoverUrl } from '../../tools/utils';
@@ -48,10 +47,10 @@ export const LoadingButton = styled.div`
 
 const RelateScanQRCodeWrap = styled(RelateScanQRCode)`
   &.lineWrap {
-    color: #1677ff;
+    color: var(--color-primary);
     width: 100%;
     .scanIcon {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
       margin-right: 5px;
     }
     .scanButton {
@@ -65,14 +64,14 @@ const RelateScanQRCodeWrap = styled(RelateScanQRCode)`
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
     margin-left: 10px;
     border-radius: 3px;
   }
 `;
 
 const WithoutRowsWrap = styled.div`
-  background-color: #f8f8f8;
+  background-color: var(--color-background-secondary);
 `;
 
 const RecordTagsWrap = styled.div`
@@ -816,7 +815,7 @@ class RelateRecordCards extends Component {
     if (sheetTemplateLoading) {
       return null;
     }
-    const filterControls = getFilter({ control, formData });
+    const filterControls = getFilter({ control, formData, appId });
     const NewRecordComponent = MobileNewRecord;
     const { searchcontrol } = advancedSetting;
 
@@ -893,7 +892,7 @@ class RelateRecordCards extends Component {
                 <span className="flex customFormPlaceholder">{renderHint()}</span>
               )}
               {(!disabled || !formDisabled) && !onlyRelateByScanCode && (
-                <Icon icon="arrow-right-border" className="Font16 Gray_bd" />
+                <Icon icon="arrow-right-border" className="Font16 textDisabled" />
               )}
             </div>
           )}
@@ -919,7 +918,7 @@ class RelateRecordCards extends Component {
                 }}
               >
                 <div className="scanButton">
-                  <i className="scanIcon icon icon-qr_code_19 Font20 Gray_75"></i>
+                  <i className="scanIcon icon icon-qr_code_19 Font20 textSecondary"></i>
                   {!addRelationButtonVisible && _l('扫码关联%0', sourceEntityName || '')}
                 </div>
               </RelateScanQRCodeWrap>

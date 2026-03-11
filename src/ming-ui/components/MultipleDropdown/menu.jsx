@@ -407,11 +407,11 @@ class MultipleDropdownMenu extends Component {
             padding: '0 16px 0 14px',
             height: 36,
             alignItems: 'center',
-            borderBottom: '1px solid #e0e0e0',
+            borderBottom: '1px solid var(--color-border-secondary)',
             marginBottom: 5,
           }}
         >
-          <i className="icon-search Gray_75 Font14" />
+          <i className="icon-search textSecondary Font14" />
           <input
             type="text"
             ref={search => {

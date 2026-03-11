@@ -1,7 +1,7 @@
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+﻿import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
-import _, { get } from 'lodash';
+import _, { get, noop } from 'lodash';
 import styled from 'styled-components';
 import { FixedTable } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
@@ -9,6 +9,7 @@ import worksheetApi from 'src/api/worksheet';
 import DragMask from 'worksheet/common/DragMask';
 import { SHEET_VIEW_HIDDEN_TYPES, WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import { useRefStore } from 'worksheet/hooks';
+import useVerticalTableWidth from 'worksheet/hooks/userVerticalTableWidth';
 import useTableWidth from 'worksheet/hooks/useTableWidth';
 import { emitter } from 'src/utils/common';
 import { getScrollBarWidth } from 'src/utils/common';
@@ -38,7 +39,7 @@ const StyledFixedTable = styled(FixedTable)`
   .main-right,
   .bottom-right {
     .cell {
-      border-left: 1px solid rgba(0, 0, 0, 0.09) !important;
+      border-left: 1px solid var(--worksheet-table-border-color) !important;
     }
   }
   .cell.cellRight2px {
@@ -51,8 +52,8 @@ const StyledFixedTable = styled(FixedTable)`
     animation: rotate 0.6s infinite linear;
   }
   .cell {
-    background-color: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.09) !important;
+    background-color: var(--color-background-primary);
+    border: 1px solid var(--worksheet-table-border-color) !important;
     border-left: none !important;
     border-top: none !important;
     padding: 7px 6px;
@@ -65,16 +66,16 @@ const StyledFixedTable = styled(FixedTable)`
     }
     &:not(.showAsTextWithBg).highlight,
     &:not(.showAsTextWithBg).highlightFromProps {
-      background-color: #f5fbff !important;
+      background-color: var(--color-primary-transparent-light) !important;
       .editIcon {
-        background-color: #f5fbff !important;
+        background-color: var(--color-primary-transparent-light) !important;
       }
     }
     &.grayHover:not(.cellControlErrorStatus):not(.control-operates):not(.placeholder):not(.treeNode) {
-      box-shadow: inset 0 0 0 1px #e0e0e0 !important;
+      box-shadow: inset 0 0 0 1px var(--color-background-overlay-light) !important;
     }
     &.focus:not(.control-10.isediting):not(.control-11.isediting) {
-      box-shadow: inset 0 0 0 2px #2d7ff9 !important;
+      box-shadow: inset 0 0 0 2px var(--color-primary-focus) !important;
       z-index: 2;
     }
     &.treeNode {
@@ -84,22 +85,22 @@ const StyledFixedTable = styled(FixedTable)`
       border-right: none !important;
     }
     &.emptyForResize.row-id-groupTitle {
-      background-color: #fafafa !important;
+      background-color: var(--color-background-secondary) !important;
     }
   }
   .row-head {
-    background-color: #fafafa !important;
+    background-color: var(--color-background-tertiary) !important;
   }
   .cell.emptyForResize.row-foot {
-    background: #f6f6f6 !important;
+    background: var(--color-background-secondary) !important;
   }
   .readOnlyTip {
     position: absolute;
     display: none;
-    border: 2px solid #2d7ff9;
-    background: #fff;
+    border: 2px solid var(--color-primary-focus);
+    background: var(--color-background-primary);
     padding: 4px 5px;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
     z-index: 9;
     white-space: nowrap;
     overflow: hidden;
@@ -124,12 +125,12 @@ const StyledFixedTable = styled(FixedTable)`
   }
   &.showAsZebra {
     .cell.oddRow {
-      background-color: #fafafa;
+      background-color: var(--color-background-secondary);
     }
   }
   &:not(.classic) {
     .cell.hover:not(.isediting):not(.highlight):not(.highlightFromProps):not(.showAsTextWithBg):not(.rowIsEmpty) {
-      background-color: #f5f5f5 !important;
+      background-color: var(--color-background-secondary) !important;
     }
   }
   &.classic {
@@ -148,9 +149,9 @@ const StyledFixedTable = styled(FixedTable)`
     .editIcon,
     .OperateIcon,
     .addChildBtn {
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       &:hover {
-        background: #ebebeb;
+        background: var(--color-border-secondary);
       }
     }
   }
@@ -188,7 +189,9 @@ function WorksheetTable(props, ref) {
     enableRules = true,
     recordColorConfig,
     showHead = true,
+    direction = 'horizontal',
     // 相关 id
+    isCharge,
     view,
     appId,
     worksheetId,
@@ -227,6 +230,7 @@ function WorksheetTable(props, ref) {
     clearCellError = () => {},
     expandCellAppendWidth,
     treeLayerControlId,
+    isGroupTableView,
     fixedColumnCount = 0,
     rightFixedCount = 0,
     renderColumnHead,
@@ -247,6 +251,9 @@ function WorksheetTable(props, ref) {
     getRowHeight = () => props.rowHeight || 34,
     inView,
     onScroll = () => {},
+    cellProps = {},
+    // onHoverColumnChange = () => {},
+    renderCompInMainCenter,
   } = props;
   const { emptyIcon, emptyText, sheetIsFiltered, allowAdd, noRecordAllowAdd, showNewRecord } = props; // 空状态
   const { keyWords } = props; // 搜索
@@ -260,7 +267,13 @@ function WorksheetTable(props, ref) {
     headTitleCenter = false,
   } = props; // 显示
   const { rowHeadWidth = 70, renderRowHead, renderOperates, renderGroupTitle, renderGroupMore } = props;
-  const { onColumnWidthChange = () => {}, onCellClick, onFocusCell = () => {} } = props;
+  const {
+    onColumnWidthChange = () => {},
+    onCellClick,
+    onFocusCell = () => {},
+    onCellEnter = () => {},
+    onCellLeave = () => {},
+  } = props;
   const { masterFormData = () => [], masterData = () => {} } = props; // 获取子表所在记录表单数据
   const { updateCell } = props;
   const isRelateRecordTable = fromModule === WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD;
@@ -309,28 +322,57 @@ function WorksheetTable(props, ref) {
   }, []);
   const visibleColumns = useMemo(
     () =>
-      [{ type: 'rowHead', width: showRowHead ? rowHeadWidth : 10, empty: !showRowHead }]
+      (direction === 'horizontal'
+        ? [{ type: 'rowHead', width: showRowHead ? rowHeadWidth : 10, empty: !showRowHead }]
+        : []
+      )
         .concat(columns.filter(c => c.type !== 'operates'))
-        .concat(showEmptyForResize ? { type: 'emptyForResize', width: 10 } : [])
+        .concat(direction === 'horizontal' && showEmptyForResize ? { type: 'emptyForResize', width: 36 } : [])
         .concat(columns.filter(c => c.type === 'operates'))
         .filter(c => !_.includes(SHEET_VIEW_HIDDEN_TYPES, c.type)),
-    [columns, rowHeadWidth],
+    [direction, columns, rowHeadWidth],
   );
   let tableRowCount = rowCount || data.length;
   if (minRowCount && tableRowCount < minRowCount) {
     tableRowCount = minRowCount;
   }
+  let columnsCount = visibleColumns.length;
+  if (direction === 'vertical') {
+    columnsCount = tableRowCount + 1;
+    if (!readonly && lineEditable && cellProps.renderVerticalAddLine) {
+      columnsCount += 1;
+    }
+    tableRowCount = visibleColumns.length;
+  }
   const subListDataLength = isSubList && data.filter(r => r.rowid).length;
-  const cellColumnCount = visibleColumns.filter(c => c.type !== 'emptyForResize').length;
+  const cellColumnCount =
+    columnsCount -
+    (visibleColumns.filter(c => c.type === 'emptyForResize').length || 0) -
+    (direction === 'vertical' && cellProps.renderVerticalAddLine ? 1 : 0);
   let tableHeight = height;
   const YIsScroll =
-    _.sum(new Array(tableRowCount).fill(0).map((a, i) => getRowHeight(i) || 34)) > height - 34 - (showSummary ? 28 : 0);
-  const getColumnWidth = useTableWidth({
-    width: width - (YIsScroll ? getScrollBarWidth() : 0),
-    visibleControls: visibleColumns,
-    sheetColumnWidths,
-    xIsScroll,
-  });
+    _.sum(new Array(tableRowCount).fill(0).map((a, i) => getRowHeight(i) || 34)) >
+    height - (direction === 'vertical' ? 0 : 34) - (showSummary ? 28 : 0);
+  // 计算 useTableWidth 的参数
+  const tableWidthParams = useMemo(
+    () => ({
+      width: width - (YIsScroll ? getScrollBarWidth() : 0),
+      visibleControls: visibleColumns,
+      direction,
+      columnsCount,
+      sheetColumnWidths,
+      xIsScroll,
+    }),
+    [width, YIsScroll, visibleColumns, direction, columnsCount, sheetColumnWidths, xIsScroll],
+  );
+  // 两个 hooks 都必须在顶层调用
+  const getVerticalColumnWidth = useVerticalTableWidth({ visibleColumns, sheetColumnWidths });
+  const getHorizontalColumnWidth = useTableWidth(tableWidthParams);
+  // 根据 direction 选择使用哪个 hook 的结果
+  const getColumnWidth = useMemo(
+    () => (direction === 'vertical' ? getVerticalColumnWidth : getHorizontalColumnWidth),
+    [direction, getVerticalColumnWidth, getHorizontalColumnWidth],
+  );
   const columnHeadHeight = useMemo(() => {
     if (!wrapControlName) {
       return 34;
@@ -341,13 +383,18 @@ function WorksheetTable(props, ref) {
   }, [visibleColumns]);
   // 按照传入记录数计算宽度
   if (setHeightAsRowCount || !_.isUndefined(rowCount)) {
-    const XIsScroll = _.sum(visibleColumns.map((a, i) => getColumnWidth(i, true) || 200)) > width;
+    const XIsScroll =
+      _.sum(
+        new Array(direction === 'horizontal' ? visibleColumns.length : columnsCount)
+          .fill(0)
+          .map((a, i) => getColumnWidth(i, true) || 200),
+      ) > width;
     if (xIsScroll !== XIsScroll) {
       setXIsScroll(XIsScroll);
     }
     tableHeight =
       _.sum(new Array(tableRowCount).fill(0).map((a, i) => getRowHeight(i) || 34)) +
-      columnHeadHeight +
+      (showHead && direction === 'horizontal' ? columnHeadHeight : 0) +
       (XIsScroll ? getScrollBarWidth() : 0);
     if (showSummary) {
       tableHeight += 28;
@@ -388,20 +435,32 @@ function WorksheetTable(props, ref) {
     });
   }
   function addHighlightClassOfRow(rowIndex) {
-    [...tableRef.current.dom.current.querySelectorAll(`.cell.row-${rowIndex}`)].forEach(ele =>
-      ele.classList.add('highlight'),
-    );
+    const tableDom = tableRef.current && tableRef.current.dom && tableRef.current.dom.current;
+    if (!tableDom) {
+      return;
+    }
+    [
+      ...tableDom.querySelectorAll(direction === 'horizontal' ? `.cell.row-${rowIndex}` : `.cell.col-${rowIndex}`),
+    ].forEach(ele => ele.classList.add('highlight'));
     window[`activeRowIndex-${tableId}`] = rowIndex;
   }
   function removeHighlightClassOfRow() {
-    [...tableRef.current.dom.current.querySelectorAll('.cell')].forEach(ele => {
+    const tableDom = tableRef.current && tableRef.current.dom && tableRef.current.dom.current;
+    if (!tableDom) {
+      return;
+    }
+    [...tableDom.querySelectorAll('.cell')].forEach(ele => {
       ele.classList.remove('highlight');
     });
     window[`activeRowIndex-${tableId}`] = -10000;
   }
-  function focusCell(newIndex) {
+  function focusCell(newIndex, { noTriggerHandFocusCell = false } = {}) {
     setCache('focusIndex', newIndex > 0 ? newIndex : undefined);
-    [...tableRef.current.dom.current.querySelectorAll('.cell')].forEach(ele => {
+    const tableDom = tableRef.current && tableRef.current.dom && tableRef.current.dom.current;
+    if (!tableDom) {
+      return;
+    }
+    [...tableDom.querySelectorAll('.cell')].forEach(ele => {
       ele.classList.remove('focus');
       ele.classList.remove('highlight');
       ele.classList.remove('rowHadFocus');
@@ -419,16 +478,25 @@ function WorksheetTable(props, ref) {
       return;
     }
     window.activeTableId = tableId;
-    const focusElement = tableRef.current && tableRef.current.dom.current.querySelector(`.cell-${newIndex}`);
-    const focusRowHeadElement = tableRef.current.dom.current.querySelector(
-      `.cell-${newIndex - (newIndex % cellColumnCount)}`,
-    );
+    const focusElement = tableDom.querySelector(`.cell-${newIndex}`);
+    if (isSubList && !noTriggerHandFocusCell) {
+      if (focusElement.className.includes('lastRow') && focusElement.className.includes('col-1')) {
+        window.handFocusCell = true;
+      } else {
+        window.handFocusCell = false;
+      }
+    }
+    const focusRowHeadElement = tableDom.querySelector(`.cell-${newIndex - (newIndex % cellColumnCount)}`);
     if (focusElement) {
-      const rowIndex = _.get(focusElement.className.match(/row-(\d+)/), 1);
-      addHighlightClassOfRow(rowIndex);
+      const rowIndex = _.get(focusElement.className.match(direction === 'horizontal' ? /row-(\d+)/ : /col-(\d+)/), 1);
       const checkResult = checkCellFullVisible(focusElement);
       if (!checkResult.fullvisible) {
         tableRef.current.setScroll(checkResult.newLeft);
+        setTimeout(() => {
+          addHighlightClassOfRow(rowIndex);
+        }, 10);
+      } else {
+        addHighlightClassOfRow(rowIndex);
       }
       focusElement.classList.add('focus');
       if (focusElement.classList.contains('focusInput')) {
@@ -454,7 +522,9 @@ function WorksheetTable(props, ref) {
         };
         input.focus({ preventScroll: true });
       }
-      focusRowHeadElement.classList.add('rowHadFocus');
+      if (focusRowHeadElement) {
+        focusRowHeadElement.classList.add('rowHadFocus');
+      }
     }
   }
   function handleTableKeyDown(editIndex, e) {
@@ -489,9 +559,20 @@ function WorksheetTable(props, ref) {
       tableRef.current.setScroll(0, closeToBottom ? (rowIndex + 1) * rowHeight - contentHeight : rowIndex * rowHeight);
     }
   }
+  function onHoverColumnChange(columnIndex) {
+    if (typeof columnIndex === 'undefined') {
+      emitter.emit('TRIGGER_CELL_POPUP_OPERATE_VISIBLE_' + tableId, { visible: false });
+    } else {
+      emitter.emit('TRIGGER_CELL_POPUP_OPERATE_VISIBLE_' + tableId, {
+        newHoverColumnIndex: columnIndex,
+        visible: true,
+      });
+    }
+  }
   useImperativeHandle(ref, () => ({
     refs: tableRef.current,
     focusRow,
+    focusCell,
     rules,
   }));
   function loadRules() {
@@ -611,6 +692,7 @@ function WorksheetTable(props, ref) {
       },
       cache,
       tableType,
+      direction,
       isSubList,
       isRelateRecordList,
       showColumnWidthChangeMask,
@@ -619,6 +701,52 @@ function WorksheetTable(props, ref) {
       addNewRow,
       setScroll: (...args) => tableRef.current.setScroll(...args),
       setScrollX: left => tableRef.current.setScrollX(left),
+      onCellEnter,
+      onCellLeave,
+      onTableMouseLeave:
+        direction === 'horizontal'
+          ? noop
+          : () => {
+              if (cache.hoverColumnIndex) {
+                if (
+                  document.querySelector('.tableColumnsPopup:hover') ||
+                  document.querySelector('.relateRecordDropdownPopup')
+                ) {
+                  window.enterColumnPopup = true;
+                  return;
+                }
+                setCache('hoverColumnIndex', undefined);
+                onHoverColumnChange(undefined);
+              }
+            },
+      onTableMouseMove:
+        direction === 'horizontal'
+          ? noop
+          : e => {
+              let hoverCell = e.target.closest('.cell,.cellForOperate');
+              if (!hoverCell && e.target.previousSibling && e.target.previousSibling.classList.contains('cell')) {
+                hoverCell = e.target.previousSibling;
+              }
+              if (hoverCell) {
+                const columnIndex = hoverCell.className.match(/col-(\d+)/)?.[1];
+                if (columnIndex !== cache.hoverColumnIndex || window.enterColumnPopup) {
+                  if (window.enterColumnPopup) {
+                    window.enterColumnPopup = false;
+                  }
+                  setCache('hoverColumnIndex', columnIndex);
+                  onHoverColumnChange(columnIndex);
+                }
+              } else {
+                if (cache.hoverColumnIndex) {
+                  if (document.querySelector('.tableColumnsPopup:hover')) {
+                    window.enterColumnPopup = true;
+                    return;
+                  }
+                  setCache('hoverColumnIndex', undefined);
+                  onHoverColumnChange(undefined);
+                }
+              }
+            },
     }),
     [],
   );
@@ -632,6 +760,7 @@ function WorksheetTable(props, ref) {
     <React.Fragment>
       {maskVisible && <DragMask value={maskLeft} min={maskMinLeft} max={maskMaxLeft} onChange={maskOnChange} />}
       <StyledFixedTable
+        isGroupTableView={isGroupTableView}
         isSubList={isSubList}
         controlStyles={showControlStyle && getControlStyles(visibleColumns)}
         disablePanVertical={disablePanVertical}
@@ -646,6 +775,7 @@ function WorksheetTable(props, ref) {
           showAsZebra,
           isChangeColumnWidth,
           xIsScroll,
+          direction,
         })}
         width={width}
         height={tableHeight}
@@ -658,16 +788,18 @@ function WorksheetTable(props, ref) {
         onScroll={onScroll}
         getColumnWidth={getColumnWidth}
         getRowHeight={getRowHeight}
-        rowCount={(rowCount || data.length) > 0 ? tableRowCount : rowCount || data.length}
-        columnCount={visibleColumns.length}
+        rowCount={tableRowCount}
+        columnCount={columnsCount}
         leftFixedCount={fixedColumnCount >= cellColumnCount ? 1 : fixedColumnCount + 1}
         rightFixedCount={rightFixedCount}
         Cell={Cell}
-        showHead={showHead}
+        showHead={showHead && direction === 'horizontal'}
         showFoot={showSummary}
         tableData={{
+          isCharge,
           tableDataWithRowFormData,
           columnStyles,
+          direction,
           triggerClickImmediate,
           chatButton,
           masterRecord,
@@ -711,6 +843,7 @@ function WorksheetTable(props, ref) {
           cache,
           rows: data,
           headTitleCenter, // 列头垂直居中
+          cellProps,
           // functions
           clearCellError,
           inView,
@@ -754,9 +887,9 @@ function WorksheetTable(props, ref) {
               addHighlightClassOfRow(rowIndex);
             }
           },
-          onFocusCell: ({ row, cellIndex, rowIndex, columnIndex }) => {
+          onFocusCell: ({ row, cellIndex, rowIndex }) => {
             onFocusCell(row, cellIndex, rowIndex);
-            focusCell(rowIndex * cellColumnCount + columnIndex);
+            focusCell(cellIndex, { noTriggerHandFocusCell: true });
           },
           // 校验
           checkRulesErrorOfControl: ({ control, row, validateRealtime } = {}) => {
@@ -777,6 +910,7 @@ function WorksheetTable(props, ref) {
             const { cell } = args;
             updateCell(args, {
               ...options,
+              debounceTime: 0,
               updateSuccessCb: async newRow => {
                 if (rules.length && !_.isEqual(row[cell.controlId] || '', newRow[cell.controlId] || '')) {
                   handleUpdateRulePermissions(
@@ -826,6 +960,7 @@ function WorksheetTable(props, ref) {
           );
         }}
         tableFooter={tableFooter}
+        renderCompInMainCenter={renderCompInMainCenter}
       />
       {!data.length && showSearchEmpty && keyWords && (
         <NoSearch keyWords={keyWords} columnHeadHeight={columnHeadHeight} />

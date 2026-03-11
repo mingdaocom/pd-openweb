@@ -22,6 +22,7 @@ import { getFilledRequestParams } from 'src/utils/common';
 import { isLightColor } from 'src/utils/control';
 import { formatQuickFilter } from 'src/utils/filter';
 import { dateConvertToServerZone, dateConvertToUserZone } from 'src/utils/project';
+import { replaceControlsTranslateInfo } from 'src/utils/translate.js';
 
 export const initData = () => {
   return dispatch => {
@@ -162,7 +163,7 @@ export const fetchRowsByGroupId = (kanbanKey, kanbanIndex) => {
   };
 };
 
-export const getRelationControls = sourceId => {
+export const getRelationControls = (appId, sourceId) => {
   return dispatch => {
     if (sourceId) {
       sheetAjax
@@ -173,7 +174,10 @@ export const getRelationControls = sourceId => {
         .then(({ code, data }) => {
           if (code === 1) {
             const { controls } = data;
-            dispatch({ type: 'CHANGE_RESOURCE_RESOURCE_RELATION_CONTROLS', data: controls });
+            dispatch({
+              type: 'CHANGE_RESOURCE_RESOURCE_RELATION_CONTROLS',
+              data: replaceControlsTranslateInfo(appId, sourceId, controls),
+            });
           }
         });
     }
@@ -184,6 +188,7 @@ const formatByGroup = (info, view, controls, gridTimes, currentTime) => {
   const type =
     localStorage.getItem(`${view.viewId}_resource_type`) || types[_.get(view, 'advancedSetting.calendarType') || 0];
   const oneWidth = type !== 'Day' ? timeWidth : timeWidthHalf;
+  const groupControl = _.find(controls, { controlId: view.viewControl });
   return sortGrouping(
     info
       .filter(o => o.key !== '-1')
@@ -193,6 +198,9 @@ const formatByGroup = (info, view, controls, gridTimes, currentTime) => {
             ? formatRows(item, view, controls, gridTimes, true, currentTime)
             : [];
         const { data, totalHeight } = calculateTop(rows, view, gridTimes * oneWidth);
+        if (_.get(groupControl, 'options.length')) {
+          item.name = _.get(_.find(groupControl.options, { key: item.key }), 'value') || item.name;
+        }
         return {
           ...item,
           rows: data,

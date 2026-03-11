@@ -9,12 +9,12 @@ import flowNode from '../../../../api/flowNode';
 import { ACTION_ID, NODE_TYPE } from '../../../enum';
 
 const Footer = styled.div`
-  background: #f4f4f4;
+  background: var(--color-background-disabled);
   padding: 0 24px;
   align-items: center;
   height: 60px;
   &.workflowDetailFooterWhile {
-    background: #fff;
+    background: var(--color-background-primary);
   }
   .footerSaveBtn,
   .footerCancelBtn {
@@ -28,7 +28,7 @@ const Footer = styled.div`
     box-sizing: border-box;
   }
   .footerSaveBtn {
-    color: #fff;
+    color: var(--color-white);
   }
   .footerCancelBtn {
     border-width: 1px;

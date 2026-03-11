@@ -74,16 +74,15 @@ export default function DefCom(props) {
         data={{
           ...dataControls,
           type: [9, 10, 11].includes(dataType) && _.get(control, 'advancedSetting.allowitem') === '2' ? 10 : dataType,
-          enumDefault:
-            29 === dataType
+          enumDefault: _.includes([29, 35], dataType)
+            ? _.get(control, 'advancedSetting.allowitem') === '2'
+              ? 2
+              : 1
+            : [26, 27, 48].includes(dataType)
               ? _.get(control, 'advancedSetting.allowitem') === '2'
-                ? 2
-                : 1
-              : [26, 27, 48].includes(dataType)
-                ? _.get(control, 'advancedSetting.allowitem') === '2'
-                  ? 1
-                  : 0
-                : dataControls.enumDefault,
+                ? 1
+                : 0
+              : dataControls.enumDefault,
           advancedSetting: {
             ..._.omit(dataControls.advancedSetting, ['dynamicsrc', 'defaulttype']),
             ...advancedSetting,
@@ -241,7 +240,7 @@ export default function DefCom(props) {
         globalSheetInfo={_.pick(currentSheetInfo, ['appId', 'groupId', 'name', 'projectId', 'worksheetId'])}
       />
       {[6, 8, 15, 16, 17, 18, 9, 10, 11, 36, 46].includes(dataType) && (
-        <div className="Gray_75 Font13 mTop8">
+        <div className="textSecondary Font13 mTop8">
           {[6, 8].includes(dataType) && control.filterType === 11
             ? _l('选择链接参数时的参数格式：最小值-最大值')
             : [15, 16, 17, 18].includes(dataType)

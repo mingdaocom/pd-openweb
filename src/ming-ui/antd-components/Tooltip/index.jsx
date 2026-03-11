@@ -3,7 +3,15 @@ import { Tooltip } from 'antd';
 import './index.less';
 
 export default function (props) {
-  const { children, destroyTooltipOnHide = true, type = 'black', title, color, shortcut, maxWidth = 350 } = props;
+  const {
+    children,
+    destroyTooltipOnHide = true,
+    type = 'var(--color-background-inverse)',
+    title,
+    color,
+    shortcut,
+    maxWidth = 350,
+  } = props;
 
   const renderTitle = () => {
     let content = title;
@@ -20,7 +28,7 @@ export default function (props) {
     }
 
     if (type === 'white') {
-      return <div className="Gray">{content}</div>;
+      return <div className="textBlack">{content}</div>;
     }
 
     return content;
@@ -29,7 +37,7 @@ export default function (props) {
   return (
     <Tooltip
       {...props}
-      color={type === 'white' ? 'white' : color || 'black'}
+      color={type === 'white' ? 'white' : color || 'var(--color-background-inverse)'}
       title={renderTitle()}
       overlayClassName={`md-tooltip-overlay ${props.overlayClassName}`}
       overlayStyle={{ maxWidth, maxHeight: 300, whiteSpace: 'pre-wrap' }}

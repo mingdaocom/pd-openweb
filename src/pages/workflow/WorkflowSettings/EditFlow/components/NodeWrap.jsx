@@ -6,21 +6,21 @@ const Box = styled.div`
   min-width: 333px;
   border-radius: 24px 24px 24px 24px;
   padding: 0 12px;
-  background: #ededf4;
+  background: var(--color-border-secondary);
   .workflowBranch {
-    background: #ededf4 !important;
+    background: var(--color-border-secondary) !important;
     > .flexColumn {
       .clearLeftBorder::before,
       .clearLeftBorder::after,
       .clearRightBorder::before,
       .clearRightBorder::after {
-        background: #ededf4 !important;
+        background: var(--color-border-secondary) !important;
       }
     }
   }
   .workflowBranchBtn,
   .icon-custom_add_circle {
-    background: #ededf4 !important;
+    background: var(--color-border-secondary) !important;
   }
   .Menu.List {
     margin-top: -6px !important;
@@ -30,12 +30,12 @@ const Box = styled.div`
 const Title = styled.div`
   max-width: 261px;
   height: 40px;
-  background: #fff;
-  box-shadow: 0 1px 4px rgb(0 0 0 / 16%);
+  background: var(--color-background-primary);
+  box-shadow: var(--shadow-sm);
   border-radius: 20px;
   padding: 0 20px;
   position: relative;
-  border: 1px solid #fff;
+  border: 1px solid var(--color-border-primary);
   transform: translateY(-20px);
   margin-bottom: -20px;
 `;
@@ -46,9 +46,9 @@ const EmptyContent = styled.div`
   .workflowLineBtn {
     width: auto !important;
     .icon-custom_add_circle {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
       &:hover {
-        color: #1565c0 !important;
+        color: var(--color-link-hover) !important;
       }
     }
   }

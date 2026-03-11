@@ -27,7 +27,7 @@ export default function PublishFail(props) {
           return (
             <div className="mTop16">
               <i className="icon-report Font18 Red TxtMiddle"></i>{' '}
-              <span className="TxtMiddle Gray_75 mLeft8 Font14">{o}</span>
+              <span className="TxtMiddle textSecondary mLeft8 Font14">{o}</span>
             </div>
           );
         })}

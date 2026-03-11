@@ -235,7 +235,11 @@ export const getControls = ({ data = {}, controls, isCurrent, from }) => {
     controls = controls.map(c => (c.type === 30 ? { ...c, type: c.sourceControlType, originType: c.type } : c));
   }
   //文本字段值可选 关联记录自动编号，不能是当前表单,查询工作表都可
-  if (_.includes([2], type) && isCurrent && !_.includes([DYNAMIC_FROM_MODE.SEARCH_WORKSHEET], from)) {
+  if (
+    _.includes([2], type) &&
+    isCurrent &&
+    !_.includes([DYNAMIC_FROM_MODE.SEARCH_WORKSHEET, DYNAMIC_FROM_MODE.PRINT_TEMP], from)
+  ) {
     controls = controls.filter(con => con.type !== 33);
   }
   // 富文本不支持当前记录的自动编号、文本组合、条码

@@ -1,5 +1,5 @@
 ﻿.AppTaskPrint #containerBg {
-  background: #fff !important;
+  background: var(--color-background-primary) !important;
 }
 
 .printTask {
@@ -9,7 +9,7 @@
   }
   .printTaskHead {
     padding-bottom: 20px;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid var(--color-border-tertiary);
     text-align: right;
     .printTaskMain {
       height: 28px;
@@ -29,13 +29,13 @@
     height: 28px;
     line-height: 28px;
     border-radius: 3px;
-    color: #fff;
-    background: #0091ea;
+    color: var(--color-white);
+    background: var(--color-primary);
     display: inline-block;
     cursor: pointer;
   }
   .printTaskContent {
-    color: #151515;
+    color: var(--color-text-title);
     .flexRow {
       font-size: 12px;
       padding: 4px 0;
@@ -68,7 +68,7 @@
     }
   }
   .borderLine {
-    border-bottom: 1px solid #757575;
+    border-bottom: 1px solid var(--color-text-secondary);
     margin-bottom: 2px;
   }
   .printTaskName {
@@ -85,7 +85,7 @@
     border-collapse: collapse;
     border-width: 1;
     td {
-      border: 1px solid #757575;
+      border: 1px solid var(--color-text-secondary);
       word-break: break-all;
     }
     .printTaskTableW1 {
@@ -110,7 +110,7 @@
       bottom: 0;
       left: -1px;
       right: -1px;
-      background: #fff;
+      background: var(--color-background-primary);
     }
   }
 }

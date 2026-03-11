@@ -40,7 +40,7 @@ export default class ValidPassWord extends Component {
                 // 需要 注销网络 [即 他是最后一个成员 也是 最后的 管理员]
                 Dialog.confirm({
                   title: <spam className="Font15 Bold">{_l('您是组织【%0】超级管理员', companyName)}</spam>,
-                  description: <span className="Font13 Gray">{_l('请先注销组织或交接后方可注销。')}</span>,
+                  description: <span className="Font13 textPrimary">{_l('请先注销组织或交接后方可注销。')}</span>,
                   okText: _l('前往注销'),
                   showCancel: false,
                   onOk: () => {
@@ -74,7 +74,7 @@ export default class ValidPassWord extends Component {
     return (
       <div className="pTop15 pBottom15 TxtLeft">
         <div className="mBottom15">
-          <VerifyPasswordInput onChange={({ password }) => this.setState({ password })} />
+          <VerifyPasswordInput autoFocus onChange={({ password }) => this.setState({ password })} />
         </div>
         <div>
           <button

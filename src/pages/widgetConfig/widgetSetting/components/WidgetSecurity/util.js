@@ -17,30 +17,56 @@ const END_ENUM = {
   AFTER_AND_INCLUDE_APPOINT_CHAR: '3', // 指定字符和之后的字
 };
 
+// 格式化虚拟掩码长度
 const formatPad = (masklen, value) => {
   const num = parseInt(masklen);
   return value.replace(/\*+/g, '*'.repeat(num));
 };
 
-// 中间显示 + 虚拟掩码长度(配置 ｜ 原始值 ｜ 处理值)
-const getValueByMaskSetting = ({ maskmid = '', masklen = '', value = '', maskValue = '' }) => {
-  const maskMidArr = maskmid
-    ? maskmid
+// 自定义字符转正则
+const formatReg = str => {
+  const formatWord = str.replace(/(\(|\[|\{|\\|\^|\$|\||\)|\?|\*|\+|\.|\]|\}|\))+/, a => {
+    return a ? `\\${a[0]}{${a.length}}` : '';
+  });
+  return new RegExp(formatWord, 'g');
+};
+
+// 格式化自定义处理字符
+const formatWords = words => {
+  return words
+    ? words
         .replace(/，/g, ',')
         .split(',')
         .filter(i => i !== '')
     : [];
+};
+
+// 中间显示 + 始终掩码 + 虚拟掩码长度(配置 ｜ 原始值 ｜ 处理值)
+const getValueByMaskSetting = ({ maskmid = '', maskwords = '', masklen = '', value = '', maskValue = '' }) => {
+  // 中间显示
+  const maskMidArr = formatWords(maskmid);
   if (maskMidArr.length) {
     maskMidArr.forEach(mid => {
       let isGet = false;
-      const formatMid = mid.replace(/(\(|\[|\{|\\|\^|\$|\||\)|\?|\*|\+|\.|\]|\}|\))+/, a => {
-        return a ? `\\${a[0]}{${a.length}}` : '';
-      });
-      const reg = new RegExp(formatMid, 'g');
+      const reg = formatReg(mid);
       value.replace(reg, (a, b) => {
         if (maskValue[b] === '*' && !isGet) {
           isGet = true;
           maskValue = maskValue.slice(0, b) + a + maskValue.slice(a.length + b);
+        }
+      });
+    });
+  }
+
+  // 始终掩码
+  const maskWordsArr = formatWords(maskwords);
+  if (maskWordsArr.length) {
+    maskWordsArr.forEach(word => {
+      const reg = formatReg(word);
+      maskmid = maskmid.replace(reg, '');
+      value.replace(reg, (a, b) => {
+        if (b > -1) {
+          maskValue = maskValue.slice(0, b) + '*'.repeat(a.length) + maskValue.slice(a.length + b);
         }
       });
     });
@@ -96,6 +122,7 @@ export const dealMaskValue = (data = {}) => {
     mechar = '',
     maskmid = '',
     masklen = '',
+    maskwords = '',
   } = getAdvanceSetting(data);
   const value = data.value || '';
   if (datamask !== '1') return value;
@@ -248,5 +275,5 @@ export const dealMaskValue = (data = {}) => {
       break;
   }
 
-  return getValueByMaskSetting({ maskmid, masklen, value, maskValue });
+  return getValueByMaskSetting({ maskmid, masklen, value, maskValue, maskwords });
 };

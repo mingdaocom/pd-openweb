@@ -4,7 +4,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Icon, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { FilterDialog, FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import FilterDialog from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterDialog';
+import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/SelectWorksheet.jsx';
 import { getTranslateInfo } from 'src/utils/app';
 import { getSyncLicenseInfo } from 'src/utils/project';
@@ -30,7 +31,7 @@ export default function SourceCon(props) {
             <span className="Red Bold">{_l('字段已删除')}</span>
           ) : (
             <React.Fragment>
-              <Icon type="link_record" className="Font16 Gray_9e" />
+              <Icon type="link_record" className="Font16 textTertiary" />
               <span className="flex mLeft5 Bold WordBreak overflow_ellipsis">{dataInfo.controlName}</span>
             </React.Fragment>
           )}
@@ -58,13 +59,13 @@ export default function SourceCon(props) {
                     ? dataInfo.iconUrl
                     : `${md.global.FileStoreConfig.pubHost}/customIcon/${dataInfo.icon}.svg`
                 }
-                fill={'#9e9e9e'}
+                fill={'var(--color-text-tertiary)'}
                 size={16}
               />
               <Tooltip title={tableName ? (appName ? `${tableName} (${appName})` : tableName) : ''} placement="topLeft">
                 <span className="flex mLeft5 Bold WordBreak overflow_ellipsis">
                   {tableName}
-                  {appName && <span className="Gray_75 mLeft5">({appName})</span>}
+                  {appName && <span className="textSecondary mLeft5">({appName})</span>}
                 </span>
               </Tooltip>
             </React.Fragment>
@@ -73,7 +74,7 @@ export default function SourceCon(props) {
             <div
               className={cx(
                 'ming Icon icon icon-filter mLeft8 Hand Font16 ThemeHoverColor3',
-                filters.length > 0 ? 'ThemeColor3' : 'Gray_9e',
+                filters.length > 0 ? 'ThemeColor3' : 'textTertiary',
               )}
               onClick={e => {
                 e.stopPropagation();
@@ -95,7 +96,7 @@ export default function SourceCon(props) {
           {canChange && (
             <Tooltip title={_l('更改数据源')}>
               <div
-                className="ming Icon icon icon-swap_horiz mLeft8 Gray_9e Font16 Hand ThemeHoverColor3 mRight8"
+                className="ming Icon icon icon-swap_horiz mLeft8 textTertiary Font16 Hand ThemeHoverColor3 mRight8"
                 onClick={() => setState({ isChange: true })}
               />
             </Tooltip>
@@ -104,7 +105,7 @@ export default function SourceCon(props) {
             <Tooltip title={_l('删除')}>
               <Icon
                 icon="clear"
-                className="mLeft8 Font16 Hand Gray_9e del ThemeHoverColor3 mRight8"
+                className="mLeft8 Font16 Hand textTertiary del ThemeHoverColor3 mRight8"
                 onClick={e => {
                   e.stopPropagation();
                   const sourceTables = (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).filter(
@@ -231,8 +232,8 @@ export default function SourceCon(props) {
             <div className="topCon" onClick={e => e.stopPropagation()} />
             <WrapWorksheet className="hoverBoxShadow">
               <div className="Dropdown--input Dropdown--border">
-                <div className="Gray_a">{_l('请选择工作表')}</div>
-                <div className="ming Icon icon icon-arrow-down-border mLeft8 Gray_9e Font16 Hand mRight12 ThemeHoverColor3" />
+                <div className="textTertiary">{_l('请选择工作表')}</div>
+                <div className="ming Icon icon icon-arrow-down-border mLeft8 textTertiary Font16 Hand mRight12 ThemeHoverColor3" />
               </div>
             </WrapWorksheet>
           </React.Fragment>
@@ -248,7 +249,7 @@ export default function SourceCon(props) {
                 <div
                   className={cx(
                     'alignItemsCenter Bold flexRowCon',
-                    !canAdd || props.updateLoading ? 'Gray_bd' : 'Gray_75 ThemeHoverColor3 Hand',
+                    !canAdd || props.updateLoading ? 'textDisabled' : 'textSecondary ThemeHoverColor3 Hand',
                   )}
                   onClick={e => {
                     if (!canAdd) {

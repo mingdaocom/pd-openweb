@@ -13,7 +13,7 @@ import MobileDatePicker from 'src/ming-ui/components/MobileDatePicker';
 const ModalWrap = styled(Popup)`
   .description {
     font-size: 13px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     padding: 22px 16px;
   }
   .formInfo {
@@ -23,7 +23,7 @@ const ModalWrap = styled(Popup)`
     .formItem {
       .label {
         font-size: 14px;
-        color: #151515;
+        color: var(--color-text-title);
         font-weight: 600;
       }
     }
@@ -31,7 +31,7 @@ const ModalWrap = styled(Popup)`
       position: absolute;
       left: -10px;
       top: 3px;
-      color: #ff7272;
+      color: var(--color-error);
       font-size: 13px;
       font-weight: bold;
     }
@@ -39,17 +39,17 @@ const ModalWrap = styled(Popup)`
     .emptyAppWrap {
       height: 36px;
       padding: 0 10px;
-      border: 1px solid #eaeaea;
+      border: 1px solid var(--color-border-primary);
     }
     .selectedAppsWrap {
       flex-wrap: wrap;
-      border: 1px solid #eaeaea;
+      border: 1px solid var(--color-border-secondary);
       padding: 0 10px;
     }
     .appTags {
       height: 26px;
       border-radius: 26px;
-      background: #f7f7f7 !important;
+      background: var(--color-background-secondary) !important;
       display: inline-flex;
       align-items: center;
       margin: 4px 8px 4px 0;
@@ -59,7 +59,7 @@ const ModalWrap = styled(Popup)`
       max-width: 100%;
       .tagDel {
         cursor: pointer;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         position: absolute;
         top: -5px;
         right: -5px;
@@ -82,7 +82,7 @@ const ModalWrap = styled(Popup)`
       .fullName {
         height: 22px;
         line-height: 22px;
-        background: #f7f7f7;
+        background: var(--color-background-secondary);
         border-top-right-radius: 22px;
         border-bottom-right-radius: 22px;
         padding-left: 20px !important;
@@ -93,7 +93,7 @@ const ModalWrap = styled(Popup)`
       width: 26px;
       height: 26px;
       line-height: 26px;
-      border: 1px solid #ddd;
+      border: 1px solid var(--color-border-primary);
       border-radius: 50%;
       display: inline-flex;
       vertical-align: top;
@@ -118,7 +118,7 @@ const ModalWrap = styled(Popup)`
         height: 24px;
         text-align: center;
         border-radius: 50%;
-        background-color: #e6e6e6;
+        background-color: var(--color-border-secondary);
         .icon {
           line-height: 24px;
         }
@@ -245,8 +245,8 @@ export default function DelegationConfigModal(props) {
                 setSelectedApps([]);
               }}
             >
-              <div className="flex ellipsis Gray">{orgInfo.companyName || ''}</div>
-              <Icon icon="arrow-right-border" className="Gray_9d" />
+              <div className="flex ellipsis textPrimary">{orgInfo.companyName || ''}</div>
+              <Icon icon="arrow-right-border" className="textTertiary" />
             </div>
           </div>
           <div className="formItem">
@@ -259,7 +259,12 @@ export default function DelegationConfigModal(props) {
                 <div className="userItemWrapper">
                   <div className="pointer circle">
                     <img
-                      style={{ backgroundColor: '#f5f5f5', borderRadius: '50%', width: '22px', height: '22px' }}
+                      style={{
+                        backgroundColor: 'var(--color-background-secondary)',
+                        borderRadius: '50%',
+                        width: '22px',
+                        height: '22px',
+                      }}
                       placeholder={`${md.global.FileStoreConfig.pictureHost}/UserAvatar/default.gif`}
                       className="circle"
                       src={
@@ -274,7 +279,7 @@ export default function DelegationConfigModal(props) {
                       }
                     />
                   </div>
-                  <div className="Gray Font13 pRight10 pTop1 ellipsis fullName">{user.fullname}</div>
+                  <div className="textPrimary Font13 pRight10 pTop1 ellipsis fullName">{user.fullname}</div>
                 </div>
               )}
               <div className="addUserBtn" onClick={() => setSelectUserVisible(true)}>
@@ -284,7 +289,7 @@ export default function DelegationConfigModal(props) {
           </div>
           <div className="formItem mBottom24">
             <div className="label mBottom16">{_l('委托时间')}</div>
-            <div className="flexRow Gray Font13">
+            <div className="flexRow textPrimary Font13">
               <div className="flex mRight5">
                 <div>{_l('开始')}</div>
                 <div
@@ -293,21 +298,21 @@ export default function DelegationConfigModal(props) {
                     setStartDateVisible(true);
                   }}
                 >
-                  <div className="flex ellipsis Gray_bd">
+                  <div className="flex ellipsis textDisabled">
                     {formatDate(dateInfo.startDate) ? (
-                      <span className="Gray">{formatDate(dateInfo.startDate)}</span>
+                      <span className="textPrimary">{formatDate(dateInfo.startDate)}</span>
                     ) : (
                       _l('此刻')
                     )}
                   </div>
-                  <Icon icon="arrow-right-border" className="Gray_9d" />
+                  <Icon icon="arrow-right-border" className="textTertiary" />
                 </div>
                 {startDateVisible && (
                   <MobileDatePicker
                     customHeader={_l('开始时间')}
                     precision="minite"
                     isOpen={startDateVisible}
-                    value={dateInfo.startDate ? dateInfo.startDate : new Date()}
+                    value={dateInfo?.startDate}
                     min={new Date(minYear, minMouth, day, hour, minute, second)}
                     onClose={() => {
                       setStartDateVisible(false);
@@ -334,21 +339,21 @@ export default function DelegationConfigModal(props) {
                     setEndDateVisible(true);
                   }}
                 >
-                  <div className="flex ellipsis Gray_bd">
+                  <div className="flex ellipsis textDisabled">
                     {formatDate(dateInfo.endDate) ? (
-                      <span className="Gray">{formatDate(dateInfo.endDate)}</span>
+                      <span className="textPrimary">{formatDate(dateInfo.endDate)}</span>
                     ) : (
                       _l('请选择')
                     )}
                   </div>
-                  <Icon icon="arrow-right-border" className="Gray_9d" />
+                  <Icon icon="arrow-right-border" className="textTertiary" />
                 </div>
                 {endDateVisible && (
                   <MobileDatePicker
                     customHeader={_l('结束时间')}
                     precision="minite"
                     isOpen={endDateVisible}
-                    value={dateInfo.endDate || new Date()}
+                    value={dateInfo?.endDate}
                     min={dateInfo.startDate || new Date(minYear, minMouth, day, hour, minute, second)}
                     onClose={() => {
                       setEndDateVisible(false);
@@ -391,8 +396,8 @@ export default function DelegationConfigModal(props) {
               <Fragment>
                 {_.isEmpty(selectedApps) ? (
                   <div className="flexRow emptyAppWrap alignItemsCenter" onClick={() => setShowAppDialog(true)}>
-                    <div className="Gray_bd flex">{_l('所有应用')}</div>
-                    <Icon icon="arrow-right-border" className="Gray_9d" />
+                    <div className="textDisabled flex">{_l('所有应用')}</div>
+                    <Icon icon="arrow-right-border" className="textTertiary" />
                   </div>
                 ) : (
                   <div className="selectedAppsWrap flexRow">
@@ -409,7 +414,7 @@ export default function DelegationConfigModal(props) {
                         );
                       })}
                     </div>
-                    <div className="Gray_9d mTop7">
+                    <div className="textTertiary mTop7">
                       <Icon icon="arrow-right-border" onClick={() => setShowAppDialog(true)} />
                     </div>
                   </div>
@@ -419,7 +424,7 @@ export default function DelegationConfigModal(props) {
           </div>
         </div>
         <div className="actionButtons flexRow">
-          <Button className="flex mLeft6 mRight6 Font13 bold Gray_75 btn" onClick={onCancel}>
+          <Button className="flex mLeft6 mRight6 Font13 bold textSecondary btn" onClick={onCancel}>
             {_l('取消')}
           </Button>
           <Button
@@ -454,14 +459,14 @@ export default function DelegationConfigModal(props) {
           onClose={() => setProjectListVisible(false)}
         >
           <div className="flexRow header">
-            <div className="Font13 Gray_9e flex">{_l('选择组织')}</div>
+            <div className="Font13 textTertiary flex">{_l('选择组织')}</div>
             <div
               className="closeIcon"
               onClick={() => {
                 setProjectListVisible(false);
               }}
             >
-              <Icon icon="close" className="Font17 Gray_9e bold" />
+              <Icon icon="close" className="Font17 textTertiary bold" />
             </div>
           </div>
 
@@ -480,15 +485,15 @@ export default function DelegationConfigModal(props) {
                   }}
                 >
                   <div
-                    className={cx('flex Gray Font15 Bold ellipsis', {
-                      Gray_9e: _.includes(existCompanyIds, it.projectId),
+                    className={cx('flex textPrimary Font15 Bold ellipsis', {
+                      textTertiary: _.includes(existCompanyIds, it.projectId),
                     })}
                   >
                     {it.companyName}
                   </div>
                   {it.projectId === orgInfo.projectId && (
                     <div>
-                      <Icon icon="done" className="ThemeColor Font20 Bold" />
+                      <Icon icon="done" className="colorPrimary Font20 Bold" />
                     </div>
                   )}
                 </div>

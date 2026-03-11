@@ -16,7 +16,7 @@ class Feed extends React.Component {
   render() {
     return (
       <ScrollView className="feedApp clearfix feedAppScroll" scrollContentClassName="feedAppScrollContent">
-        <div className="mdLeftNav feedLeftNav ThemeBG  feedLeftNavGlass" />
+        <div className="mdLeftNav feedLeftNav bgTertiary  feedLeftNavGlass" />
         <FeedLeftNav defaultGroups={this.props.defaultExpandedGroup} />
         <div className="left feedContainer relative">
           <div className="contentLeft clearfix">

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { createParser } from 'eventsource-parser';
 import { find, findIndex, findLast, get, includes, isArray, isEmpty, last } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
@@ -134,6 +134,11 @@ function useChat({
             if (!noUpdateMessages) {
               setMessages(prev => {
                 let lastMessage = prev[prev.length - 1];
+                const prevMessage = prev[prev.length - 2];
+                if (prevMessage && data.instanceId) {
+                  prevMessage.id = data.instanceId;
+                  prevMessage.modelMessageId = data.instanceId;
+                }
                 lastMessage.usage = usage;
                 lastMessage.instanceId = data.instanceId;
                 lastMessage.workId = data.workId;

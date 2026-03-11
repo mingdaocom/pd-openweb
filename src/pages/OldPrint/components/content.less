@@ -1,0 +1,440 @@
+.printTem {
+  .printContent {
+    font-family: 'Arial,Microsoft YaHei,SimHei,SimSun' !important;
+    color: #000;
+    max-width: 800px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 18px 36px;
+    .listControls {
+      .controlDiv {
+        .embedContainer {
+          box-shadow: none;
+        }
+        &.remark {
+          //备注字段无标题
+          span.value {
+            padding: 5px !important;
+            width: 100% !important;
+          }
+        }
+        .richText {
+          ol {
+            list-style-type: decimal;
+            li {
+              list-style: decimal;
+              list-style-position: outside;
+            }
+          }
+          ul {
+            list-style-type: disc;
+            li {
+              list-style: disc;
+              list-style-position: outside;
+            }
+          }
+          span {
+            padding: 0 !important;
+          }
+          img {
+            max-width: 100%;
+          }
+        }
+        span {
+          b {
+            font-style: normal;
+            font-weight: normal;
+            width: 14px;
+            .zoomIcon {
+              font-style: normal;
+              font-weight: normal;
+              transform: scale(1.3);
+            }
+          }
+        }
+        .half {
+          vertical-align: top;
+          display: table-cell;
+        }
+        .half + .half {
+          border-left: 1px solid #dddddd;
+        }
+      }
+    }
+    td {
+      word-wrap: break-word;
+    }
+    .signatureContentWrapper {
+      > div {
+        width: 168px;
+        height: 100px;
+        img {
+          width: 100%;
+        }
+      }
+    }
+    .relaList {
+      .list {
+        display: flex;
+        .listText {
+          flex: 1;
+          padding-right: 22px;
+          > div {
+            margin-top: 5px;
+            word-break: break-word;
+            .listRight {
+              display: inline-block;
+              vertical-align: top;
+              overflow-wrap: break-word;
+            }
+          }
+          .tit {
+            display: inline-block;
+          }
+          .con {
+            display: inline-block;
+          }
+        }
+        .cover {
+          width: 100px;
+          height: 100px;
+        }
+        &.borderTop {
+          padding-top: 10px;
+          margin-top: 10px;
+          border-top: 1px solid #ddd;
+        }
+      }
+    }
+    .relationsTitle {
+      height: 34px;
+      ul > li {
+        &:hover {
+          color: #1677ff;
+        }
+        &:first-child {
+          border-top-left-radius: 3px;
+          border-bottom-left-radius: 3px;
+        }
+        &:last-child {
+          border-top-right-radius: 3px;
+          border-bottom-right-radius: 3px;
+        }
+      }
+      @media print {
+        ul {
+          display: none;
+        }
+      }
+    }
+    .relationsList {
+      .relationsListLi {
+        .value {
+          .richText {
+            img {
+              max-width: 100%;
+            }
+          }
+        }
+      }
+    }
+    .relaList {
+      .listTextDiv {
+        word-break: break-word;
+        .listRight {
+          display: inline-block;
+          vertical-align: top;
+          overflow-wrap: break-word;
+        }
+      }
+    }
+    .previewNone {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .statisticsCard {
+      font-variant: normal;
+      .header {
+        .operateIconWrap {
+          display: none !important;
+        }
+      }
+      .printStatisticSign {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        height: 34px;
+        > div:nth-child(2) {
+          height: 34px;
+          display: flex;
+          align-items: center;
+        }
+      }
+    }
+    table {
+      table-layout: fixed;
+      max-width: 100%;
+    }
+    .approvalSignatureTable {
+      td {
+        box-sizing: content-box;
+      }
+    }
+    .generalTitle {
+      word-break: break-word;
+    }
+    .printFormName {
+      white-space: break-spaces;
+    }
+    .sysField {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 24px;
+    }
+    .trFlex {
+      display: flex;
+      width: 728px !important;
+    }
+  }
+  .ant-table {
+    font-size: 12px;
+    color: #000;
+  }
+  .ant-table table {
+    border-radius: 0px;
+    border-top: 1px solid #151515;
+    border-bottom: 1px solid #151515;
+    border-right: 0px !important;
+    border-left: 0px;
+  }
+  .relationsTable + .controlDiv {
+    margin-top: 24px;
+  }
+  .relationsList + .controlDiv,
+  .relationsTable + .controlDiv {
+    border-top: 1px solid #ddd;
+  }
+  .ant-table tbody > tr.ant-table-row:hover > td {
+    background: #fff;
+  }
+  .ant-table thead > tr > th,
+  .ant-table tbody > tr > td,
+  .ant-table tfoot > tr > th,
+  .ant-table tfoot > tr > td {
+    padding: 5px;
+    border: 1px solid #ddd;
+  }
+  .ant-table-thead > tr > th {
+    background: #fafafa !important;
+  }
+  .ant-table tbody > tr:last-child > td {
+    border-bottom: 0;
+  }
+  .ant-table-container table > thead > tr:first-child th:first-child,
+  .ant-table-container table > thead > tr:first-child th:last-child,
+  .ant-table-container {
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+  }
+  .ant-table.ant-table-bordered thead > tr > th,
+  .ant-table.ant-table-bordered tbody > tr > td {
+    border-top: 0px;
+    border-right: 0px !important;
+    color: #000;
+    font-weight: normal;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .ant-table-container table > thead > tr:first-child th:first-child,
+  .ant-table.ant-table-bordered tbody > tr > td:first-child {
+    border-left: 0px;
+  }
+  .ant-table-container table > thead > tr:first-child th:last-child,
+  .ant-table.ant-table-bordered tbody > tr > td:last-child {
+    border-right: 0px !important;
+  }
+  .ant-table.ant-table-bordered .ant-table-container {
+    border-left: 0px;
+    border: 0px;
+    border-right: 0px !important;
+    border-bottom: 0px;
+  }
+  .relationsTable {
+    overflow: hidden;
+    &.noData {
+      .ant-table-tbody {
+        display: none;
+      }
+    }
+  }
+  @media print {
+    .react-resizable-handle {
+      display: none;
+    }
+    .ant-table .ant-table-container::before,
+    .ant-table .ant-table-container::after {
+      display: none;
+    }
+    .ant-table table {
+      border-radius: 0px;
+      border-top: 1px solid #151515;
+      border-bottom: 1px solid #151515;
+      border-right: 0px !important;
+      border-left: 0px !important;
+    }
+    table {
+      max-width: 100% !important;
+    }
+    img {
+      display: inline-block !important;
+      // page-break-before: auto!important;
+      // page-break-after: always!important;
+      page-break-inside: avoid !important;
+    }
+    p {
+      page-break-inside: avoid !important;
+    }
+  }
+  .recordAttachments {
+    .recordAttachmentPictures {
+      margin-top: -4px;
+      overflow: hidden;
+      .pictureAttachment {
+        box-sizing: border-box;
+        float: left;
+        width: 50%;
+        .imgCon {
+          max-width: 100%;
+          max-height: 158px;
+          margin: 10px auto;
+          justify-content: center;
+          align-items: center;
+          display: flex;
+          img {
+            max-width: 100%;
+            max-height: 158px;
+          }
+        }
+        &:nth-child(2n) {
+          padding-left: 10px;
+        }
+        &:nth-child(2n + 1) {
+          clear: both;
+          padding-right: 10px;
+        }
+      }
+      &.bottomNoLine {
+        margin-bottom: -9px;
+      }
+    }
+  }
+  .react-resizable {
+    position: relative;
+    background-clip: padding-box;
+  }
+
+  .react-resizable-handle {
+    position: absolute;
+    width: 10px;
+    height: 100%;
+    bottom: 0;
+    right: -5px;
+    cursor: col-resize;
+    z-index: 1;
+  }
+  thead > tr > th.orderNumber .react-resizable-handle,
+  thead > tr > th:last-child .react-resizable-handle {
+    cursor: initial;
+  }
+  .ant-table-cell {
+    .recordAttachments .recordAttachmentPictures {
+      .pictureAttachment {
+        float: initial;
+        position: relative;
+        vertical-align: top;
+        display: inline-block;
+        width: 148px;
+        padding-right: 8px;
+        .imgCon {
+          max-width: 140px;
+          img {
+            max-width: 140px;
+          }
+        }
+        &:nth-child(2n + 1) {
+          clear: initial;
+        }
+        &:nth-child(2n) {
+          padding-left: 0;
+        }
+      }
+    }
+  }
+  .worksTable {
+    .workDetail {
+      .workPersons {
+        table {
+          .person {
+            width: 25%;
+          }
+          .todo {
+            width: 22%;
+          }
+          .time {
+            width: 19%;
+          }
+          .opinion {
+            width: 300px;
+            white-space: pre-wrap;
+          }
+          tr.countersign {
+            td {
+              border-bottom: 0;
+            }
+          }
+          tr.countersign:last-child {
+            td {
+              border-bottom: 1px solid #ddd !important;
+            }
+          }
+          tr.endCountersign {
+            td {
+              border-bottom: 1px solid #ddd !important;
+            }
+          }
+        }
+      }
+    }
+  }
+  .ant-table.ant-table-bordered thead > tr > th,
+  .ant-table.ant-table-bordered tbody > tr > td {
+    &.borderLine {
+      border-right: 2px solid #1677ff !important;
+    }
+  }
+  .infoSignature {
+    height: 100px;
+    background-color: #fff;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    img {
+      max-width: 160px;
+      max-height: 45px;
+    }
+  }
+  .recordAttachmentPictures {
+    width: inherit;
+  }
+}
+
+.printPage {
+  @media print {
+    .ant-notification {
+      display: none;
+    }
+    * {
+      overflow: visible !important;
+    }
+  }
+}

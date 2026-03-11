@@ -32,7 +32,7 @@ export default function AddFields(props) {
         return (
           <DropdownOverlay>
             <div className="searchWrap" onClick={e => e.stopPropagation()}>
-              <i className="icon-search Font16 Gray_75"></i>
+              <i className="icon-search Font16 textSecondary"></i>
               <input
                 autoFocus
                 value={searchValue}

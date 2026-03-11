@@ -12,7 +12,7 @@ const SelectControlWrap = styled.div`
   width: 36px;
   height: 36px;
   border-radius: 0px 3px 3px 0px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-secondary);
   border-left: none;
 `;
 
@@ -22,7 +22,7 @@ const ContentWrap = styled.div`
       width: calc(100% - 36px);
       .ck .ck-blurred,
       .ck .ck-sticky-panel .ck-toolbar {
-        border-color: #e0e0e0 !important;
+        border-color: var(--color-border-secondary) !important;
       }
       .ck.ck-editor__top .ck-dropdown__panel.ck-dropdown__panel_sw {
         width: 521px;
@@ -36,7 +36,7 @@ const ContentWrap = styled.div`
     .inputCon {
       height: 36px;
       border-radius: 3px 0px 0px 3px;
-      border: 1px solid #dddddd;
+      border: 1px solid var(--color-border-primary);
       input {
         height: 100% !important;
       }
@@ -49,8 +49,8 @@ const ContentWrap = styled.div`
           line-height: 24px;
           border-radius: 24px;
           background: #d8eeff;
-          color: #174c76;
-          border: 1px solid #bbd6ea;
+          color: var(--color-link-hover);
+          border: 1px solid var(--color-primary-transparent);
           padding: 0px 12px;
           font-size: 12px;
           box-sizing: border-box;
@@ -61,13 +61,13 @@ const ContentWrap = styled.div`
 `;
 
 const PopupWrap = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 3px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.26);
   overflow: hidden;
   padding: 6px 0;
   .searchCon {
-    border-bottom: 1px solid #f5f5f5;
+    border-bottom: 1px solid var(--color-background-secondary);
   }
   ul {
     max-height: 200px;
@@ -76,15 +76,15 @@ const PopupWrap = styled.div`
     li {
       height: 36px;
       padding: 0 13px;
-      color: #151515;
+      color: var(--color-text-title);
       .Icon {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
       &:hover {
-        background: #1677ff;
-        color: #fff;
+        background: var(--color-primary);
+        color: var(--color-white);
         .Icon {
-          color: #fff;
+          color: var(--color-white);
         }
       }
     }
@@ -119,14 +119,14 @@ function ReceiptSettings(props) {
       <PopupWrap style={{ width: type ? 506 : 230 }}>
         {!!type && (
           <Fragment>
-            <div className="headerText mTop6 Gray_75 Font12 pLeft12 mBottom4">
+            <div className="headerText mTop6 textSecondary Font12 pLeft12 mBottom4">
               {_l('点击复制字段代码，粘贴到需要的位置')}
             </div>
             <div className="searchCon flexRow alignItemsCenter">
-              <Icon icon="search" className="mLeft8 Gray_9d Font14" />
+              <Icon icon="search" className="mLeft8 textTertiary Font14" />
               <Input
                 autoFocus
-                className="flex Border0 placeholderColor Gray Font12"
+                className="flex Border0 placeholderColor textPrimary Font12"
                 placeholder={_l('搜索')}
                 value={search}
                 onChange={value => {
@@ -170,7 +170,7 @@ function ReceiptSettings(props) {
           type,
         )}
       >
-        <SelectControlWrap className="valignWrapper justifyContentCenter Hand Gray_9e Hover_21">
+        <SelectControlWrap className="valignWrapper justifyContentCenter Hand textTertiary hoverColorPrimary">
           <Icon icon="workflow_other" className="Font20" />
         </SelectControlWrap>
       </Trigger>
@@ -189,14 +189,14 @@ function ReceiptSettings(props) {
                 <span className="tag">{content.value.controlName}</span>
                 <Icon
                   icon="delete"
-                  className="Hover_21 Hand Font16 Gray_75"
+                  className="hoverColorPrimary Hand Font16 textSecondary"
                   onClick={() => handleUpdate({ content: JSON.stringify({ isControl: false, value: '' }) })}
                 />
               </div>
             ) : (
               <Input
                 autoFocus
-                className="w100 Border0 placeholderColor Gray"
+                className="w100 Border0 placeholderColor textPrimary"
                 value={content.value}
                 onChange={value => {
                   handleUpdate({ content: JSON.stringify({ isControl: false, value: value }) });

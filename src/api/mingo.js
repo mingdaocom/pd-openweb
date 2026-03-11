@@ -132,11 +132,28 @@ export default {
    * @param {integer} args.type 1 生成推荐描述，2生成机器人信息 3生成机器人提示词
    * @param {} args.langType
    * @param {boolean} args.isReload 是否重新加载
+   * @param {boolean} args.hasIcon 是否需要ICON
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
    **/
   generateChatRobotInfo: function (args, options = {}) {
     return mdyAPI('Mingo', 'GenerateChatRobotInfo', args, options);
+  },
+  /**
+   * AI创建AI Action
+   * @param {Object} args 请求参数
+   * @param {string} args.appId Appid
+   * @param {string} args.worksheetId WorksheetId
+   * @param {string} args.name 生成的Action 名称
+   * @param {string} args.description 用户自己输入的描述
+   * @param {} args.langType
+   * @param {boolean} args.isReload 是否重新加载
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  generateAIActionInfo: function (args, options = {}) {
+    return mdyAPI('Mingo', 'GenerateAIActionInfo', args, options);
   },
 };

@@ -1,18 +1,18 @@
 .selectUserModal {
-  background-color: #f8f8f8;
+  background-color: var(--color-background-secondary);
   .searchWrapper {
     display: flex;
     align-items: center;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     border-radius: 24px;
     padding: 7px 10px;
     margin: 10px 15px;
     .icon-h5_search {
-      color: #757575;
+      color: var(--color-text-secondary);
       font-size: 14px;
     }
     .icon-workflow_cancel {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       font-size: 15px;
     }
     input {
@@ -22,18 +22,18 @@
     }
   }
   .selectedWrapper {
-    color: #151515;
+    color: var(--color-text-title);
     padding: 10px 10px 0;
     margin: 5px 0 10px;
     text-align: left;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
 
     .selectedItem {
       border-radius: 24px;
       padding: 0px 16px;
       height: 30px;
       line-height: 30px;
-      background-color: #f0f0f0;
+      background-color: var(--color-background-disabled);
       margin: 0 10px 10px 0;
       float: left;
     }
@@ -42,7 +42,7 @@
     }
   }
   .jobList {
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     .jobItem {
       height: 46px;
       line-height: 46px;
@@ -52,7 +52,7 @@
       }
       .jobName {
         text-align: left;
-        border-bottom: 1px solid #ddd;
+        border-bottom: 1px solid var(--color-border-primary);
         font-size: 15px;
       }
       .am-list-thumb {

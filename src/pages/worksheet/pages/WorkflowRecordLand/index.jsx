@@ -14,7 +14,7 @@ const Con = styled.div`
     height: 100%;
     border-radius: 4px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
 `;
 

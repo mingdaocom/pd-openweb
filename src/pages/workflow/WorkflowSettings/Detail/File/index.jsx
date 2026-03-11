@@ -117,14 +117,14 @@ export default class File extends Component {
 
     return (
       <Fragment>
-        <div className="Gray_75 workflowDetailDesc pTop15 pBottom15">
+        <div className="textSecondary workflowDetailDesc pTop15 pBottom15">
           {_l(
             '将记录转为PDF、Word或Excel文件，可以通过新增记录、更新记录或发送邮件节点将文件写入附件。注：文档大小不得超过100M，作为邮件附件发送时不得超过10M。',
           )}
         </div>
 
         <div className="mTop20 bold">{_l('打印对象')}</div>
-        <div className="Gray_75 mTop5">{_l('当前流程中的节点对象')}</div>
+        <div className="textSecondary mTop5">{_l('当前流程中的节点对象')}</div>
 
         <SelectNodeObject
           appList={data.flowNodeList}
@@ -134,14 +134,16 @@ export default class File extends Component {
         />
 
         <div className="mTop20 bold">{_l('打印模板')}</div>
-        <div className="Gray_75 mTop5">{_l('仅支持选择自定义打印模板（Word 或 Excel），暂不支持使用系统模板')}</div>
+        <div className="textSecondary mTop5">
+          {_l('仅支持选择自定义打印模板（Word 或 Excel），暂不支持使用系统模板')}
+        </div>
         <Dropdown
           className={cx('flowDropdown mTop10', { 'errorBorder errorBG': data.appId && !selectAppItem })}
           data={appList}
           value={data.appId}
           renderTitle={
             !data.appId
-              ? () => <span className="Gray_75">{_l('请选择')}</span>
+              ? () => <span className="textSecondary">{_l('请选择')}</span>
               : data.appId && !selectAppItem
                 ? () => <span className="errorColor">{_l('模板已删除')}</span>
                 : () => <span>{selectAppItem.text}</span>
@@ -153,7 +155,7 @@ export default class File extends Component {
         />
 
         <div className="mTop20 bold">{_l('文件名')}</div>
-        <div className="Gray_75 mTop5">
+        <div className="textSecondary mTop5">
           {_l('系统默认使用记录标题作为文件名，自定义名称时不得包含英文字符/:*?"<>|')}
         </div>
         <CustomTextarea
@@ -172,7 +174,7 @@ export default class File extends Component {
         <div className="Font13 mTop20 bold">
           {_l('其他')}
           <Tooltip title={_l('系统默认会生成 Word/Excel 文件，生成的文件后续流程节点可直接使用')}>
-            <Icon className="Font14 Gray_9e mLeft5" icon="info" />
+            <Icon className="Font14 textTertiary mLeft5" icon="info" />
           </Tooltip>
         </div>
         <div className="mTop10 flexRow">
@@ -184,9 +186,9 @@ export default class File extends Component {
             onClick={checked => this.updateSource({ pdf: !checked })}
           />
         </div>
-        {!data.wpsConfig && <div className="mTop5 Gray_75">{_l('未配置 PDF 转换服务')}</div>}
-        {(!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal) && data.pdf && (
-          <div className="mTop5 Gray_75">
+        {!data.wpsConfig && <div className="mTop5 textSecondary">{_l('未配置 PDF 转换服务')}</div>}
+        {window.platformENV.isPlatform && data.pdf && (
+          <div className="mTop5 textSecondary">
             <PriceTip text={_l('生成PDF文件的费用将自动从组织信用点中扣除')} />
           </div>
         )}

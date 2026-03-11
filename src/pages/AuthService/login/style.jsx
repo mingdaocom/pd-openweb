@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import checkedIcon from './img/checkedIcon.png';
 import dingIcon from './img/ding.png';
 import feishuIcon from './img/feishu.png';
+import microsoftIcon from './img/microsoft.png';
 import personalQQIcon from './img/personalQQIcon.png';
 import ssoIcon from './img/ssoIcon.png';
 import unCheckedIcon from './img/unCheckedIcon.png';
@@ -24,16 +25,16 @@ export const Wrap = styled.div`
     text-align: center;
     .changeBtn {
       font-size: 14px;
-      color: #1677ff;
+      color: var(--color-primary);
       font-weight: bold;
       &:hover {
-        color: #1182dd;
+        color: var(--color-link-hover);
       }
     }
     .lineCenter {
       width: 1px;
       height: 11px;
-      border: 1px solid #e6e6e6;
+      border: 1px solid var(--color-border-secondary);
     }
   }
   .btnForLogin {
@@ -45,15 +46,15 @@ export const Wrap = styled.div`
     background: #2296f3;
     border-radius: 4px;
     font-size: 16px;
-    color: #fff;
+    color: var(--color-white);
     margin-top: 32px;
     text-align: center;
 
     &:hover {
-      background: #1182dd;
+      background: var(--color-link-hover);
     }
     &:active {
-      background: #1585dd;
+      background: var(--color-primary-focus);
     }
   }
 
@@ -63,9 +64,9 @@ export const Wrap = styled.div`
     line-height: 1.5;
   }
   .findPassword {
-    color: #151515 !important;
+    color: var(--color-text-title) !important;
     &:hover {
-      color: #1182dd !important;
+      color: var(--color-link-hover) !important;
     }
   }
   .cbRememberPasswordDiv {
@@ -91,7 +92,7 @@ export const Wrap = styled.div`
     .title {
       font-weight: bold;
       font-size: 14px;
-      color: #151515;
+      color: var(--color-text-title);
       margin: 32px auto 0;
       padding-bottom: 6px;
     }
@@ -100,9 +101,9 @@ export const Wrap = styled.div`
       width: 100%;
       line-height: 48px;
       height: 48px;
-      background: #ffffff;
+      background: var(--color-background-primary);
       border-radius: 3px;
-      border: 1px solid #e6e6e6;
+      border: 1px solid var(--color-border-secondary);
       display: block;
       text-decoration: none;
       text-align: center;
@@ -114,7 +115,7 @@ export const Wrap = styled.div`
       margin-top: 10px;
       font-weight: bold;
       font-size: 14px;
-      color: #151515;
+      color: var(--color-text-title);
 
       i {
         display: inline-block;
@@ -130,7 +131,7 @@ export const Wrap = styled.div`
       }
       &:hover {
         box-shadow: 0px 1px 2px #00000014;
-        background-color: #fafafa;
+        background-color: var(--color-background-secondary);
       }
       span.txt {
         max-width: 80%;
@@ -154,6 +155,9 @@ export const Wrap = styled.div`
   }
   .tpLogin .feishuIcon {
     background-image: url(${feishuIcon});
+  }
+  .tpLogin .microsoftIcon {
+    background-image: url(${microsoftIcon});
   }
   .tpLogin .ssoIcon {
     background-image: url(${ssoIcon});

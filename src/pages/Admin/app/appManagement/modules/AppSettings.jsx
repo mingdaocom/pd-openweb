@@ -47,7 +47,7 @@ export default class AppSettings extends React.Component {
               <div className="singleItemHeader mBottom10">
                 <div className="singleItemLeft">
                   <div className="mLeft35">{entity.worksheetName}</div>
-                  <div className="Font12 Gray_9e">{`（${entity.totalRecordNum}）`}</div>
+                  <div className="Font12 textTertiary">{`（${entity.totalRecordNum}）`}</div>
                 </div>
                 <div className="singleItemRight pLeft4">
                   {sheetTypeData.map(sheet => {
@@ -198,7 +198,7 @@ export default class AppSettings extends React.Component {
                   </Select>
                   <span
                     className={cx('mLeft10', {
-                      Gray_75: item.selectedCount && item.selectedCount <= 50000,
+                      textSecondary: item.selectedCount && item.selectedCount <= 50000,
                       overMax: item.selectedCount && item.selectedCount > 50000,
                     })}
                   >
@@ -206,7 +206,7 @@ export default class AppSettings extends React.Component {
                   </span>
                   {activeId !== item.appId && item.exampleType === 2 ? (
                     <span
-                      className="ThemeColor3 mLeft15 Hover_49 Hand"
+                      className="ThemeColor3 mLeft15 hoverTextPrimaryLight Hand"
                       onClick={() => this.setState({ activeId: item.appId })}
                     >
                       {_l('设置')}

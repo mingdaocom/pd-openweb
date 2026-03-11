@@ -49,7 +49,9 @@ RegExpValidator.getExtOfFileName = (fileName = '') => {
  * @returns {string} - 文件名（不包含扩展名）
  */
 RegExpValidator.getNameOfFileName = (fileName = '') => {
-  return String(fileName).replace(/\.[0-9a-zA-Z]+$/, '');
+  const base = String(fileName).split(/[\\/]/).pop();
+  const dot = base.lastIndexOf('.');
+  return dot > 0 ? base.slice(0, dot) : base;
 };
 
 /**

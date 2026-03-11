@@ -21,7 +21,7 @@ export default function (props) {
   });
   return (
     <>
-      <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('登录设置')}</h6>
+      <h6 className="Font16 textPrimary Bold mBottom0 mTop24">{_l('登录设置')}</h6>
       <div className="mTop12">
         <SwitchStyle>
           <Icon
@@ -36,14 +36,14 @@ export default function (props) {
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
+          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">
             {_l('登录时需同意用户协议和隐私条款')}
           </div>
         </SwitchStyle>
         <div style={{ 'margin-left': '44px' }}>
           {!!portalSetModel.termsAndAgreementEnable && (
             <React.Fragment>
-              <p className="Gray_9e LineHeight18 mBottom8 Font13">
+              <p className="textTertiary LineHeight18 mBottom8 Font13">
                 {_l(
                   '平台已预置了通用协议内容（无公司主体），因各门户的具体业务不同收集的用户信息不同，请您务必根据公司实际业务重新上传符合规定的协议内容',
                 )}
@@ -72,8 +72,8 @@ export default function (props) {
           )}
         </div>
       </div>
-      {/* 私有部署不提供是否需要关注服务号的配置 */}
-      {!md.global.Config.IsLocal && (
+
+      {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
         <div className="mTop5">
           <SwitchStyle>
             <Icon
@@ -91,7 +91,7 @@ export default function (props) {
                 });
               }}
             />
-            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
+            <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">
               {_l('通过微信扫码登录时，需先关注服务号')}
             </div>
           </SwitchStyle>
@@ -115,7 +115,7 @@ export default function (props) {
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
+          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">
             {_l('外部用户注册开始/停止时间')}
           </div>
         </SwitchStyle>
@@ -152,7 +152,7 @@ export default function (props) {
                 });
               }}
             />
-            <span className="pLeft5 pRight5 Gray_d">—</span>
+            <span className="pLeft5 pRight5 textPlaceholder">—</span>
             <DatePicker
               showTime={true}
               locale={locale}
@@ -204,10 +204,10 @@ export default function (props) {
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">{_l('两步验证')}</div>
+          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">{_l('两步验证')}</div>
         </SwitchStyle>
         {portalSetModel.twoAuthenticationEnabled && (
-          <div style={{ 'margin-left': '44px' }} className="Gray_9e Font13">
+          <div style={{ 'margin-left': '44px' }} className="textTertiary Font13">
             {_l('外部用户通过账号密码或微信扫码登录后，需要额外进行验证码验证，验证通过后才能成功登录')}
           </div>
         )}
@@ -229,10 +229,10 @@ export default function (props) {
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">{_l('7天免登录')}</div>
+          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">{_l('7天免登录')}</div>
         </SwitchStyle>
         {portalSetModel.autoLogin && (
-          <div style={{ 'margin-left': '44px' }} className="Gray_9e Font13">
+          <div style={{ 'margin-left': '44px' }} className="textTertiary Font13">
             {_l('登录页面是否显示 7 天免登录的选项')}
           </div>
         )}
@@ -254,12 +254,12 @@ export default function (props) {
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
+          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">
             {_l('登录后需绑定手机号或者邮箱')}
           </div>
         </SwitchStyle>
         {portalSetModel.doubleBinding && (
-          <div style={{ 'margin-left': '44px' }} className="Gray_9e Font13">
+          <div style={{ 'margin-left': '44px' }} className="textTertiary Font13">
             {_l('开启后，登录后需用户再额外绑定邮箱或者手机号，绑定后方可使用应用')}
           </div>
         )}

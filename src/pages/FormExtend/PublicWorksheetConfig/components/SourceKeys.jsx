@@ -26,7 +26,7 @@ const No = styled.span`
     cursor: pointer;
     display: none;
     font-size: 18px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 `;
 
@@ -35,7 +35,7 @@ const ThemeBox = styled.div`
   height: 36px;
   width: 36px;
   line-height: 36px;
-  background-color: #f1f1f1;
+  background-color: var(--color-background-disabled);
   text-align: center;
   margin-left: 6px;
 `;
@@ -80,7 +80,7 @@ export default function ({
         </TextBlock>
         <ShareUrl className="flex overflowHidden" url={url + `?source=${encodeURIComponent(key)}`} />
         <ThemeBox className="Hand" onClick={() => setOpen(key)}>
-          <Icon icon="task-color" className="Gray_75 Font22 LineHeight36" />
+          <Icon icon="task-color" className="textSecondary Font22 LineHeight36" />
         </ThemeBox>
       </Con>
       <AppearanceConfig

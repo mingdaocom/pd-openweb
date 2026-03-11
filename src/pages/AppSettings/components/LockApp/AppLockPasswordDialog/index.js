@@ -22,25 +22,25 @@ const PasswordInputBox = styled.div`
   }
   .inputBox {
     border: none;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     padding-left: 16px;
     width: 200px;
     height: 36px;
     margin-right: 16px;
     &.editInput {
-      background: #fff;
-      border: 1px solid #1677ff;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-primary);
     }
   }
   .icon-edit,
   .icon-content-copy {
     &:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
   .error {
     font-size: 12px;
-    color: #f44336;
+    color: var(--color-error);
   }
 `;
 
@@ -55,7 +55,7 @@ const IconWrap = styled.div`
   height: 18px;
   width: 18px;
   font-size: 14px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   text-align: center;
   line-height: 18px;
   cursor: pointer;
@@ -144,7 +144,7 @@ function LockApp(props) {
     <Dialog
       width={670}
       visible={visible}
-      title={<div className="Black Font17">{_l('锁定应用')}</div>}
+      title={<div className="textPrimary Font17">{_l('锁定应用')}</div>}
       okText={_l('确定')}
       // okDisabled={!isAddLock}
       onCancel={onCancel}
@@ -162,7 +162,7 @@ function LockApp(props) {
           <span>{_l('设置锁定密码')}</span>
           {canEdit && (
             <span
-              className="ThemeColor Hand mLeft70"
+              className="colorPrimary Hand mLeft70"
               onClick={() => {
                 setPassword(generateRandomPassword(16));
                 setCanEdit(false);
@@ -197,7 +197,7 @@ function LockApp(props) {
             }}
           >
             <Tooltip title={_l('编辑')} placement="bottom">
-              <i className="icon-edit Gray_9e Font14" />
+              <i className="icon-edit textTertiary Font14" />
             </Tooltip>
           </IconWrap>
           <IconWrap>
@@ -208,7 +208,7 @@ function LockApp(props) {
             </Tooltip>
           </IconWrap>
         </div>
-        <div className="Gray_9e">
+        <div className="textTertiary">
           {_l('不推荐设置私人的常用密码。请妥善保管密码，如果忘记密码只能关闭锁定后重新设置')}
         </div>
       </PasswordInputBox>
@@ -246,12 +246,12 @@ class UnLockDialog extends Component {
           width={640}
           visible={visible}
           anim={false}
-          title={<div className="Black Font17">{isLock ? _l('解锁应用') : _l('恢复锁定')}</div>}
+          title={<div className="textPrimary Font17">{isLock ? _l('解锁应用') : _l('恢复锁定')}</div>}
           okText={!isLock ? _l('恢复锁定') : _l('确定')}
           onCancel={onCancel}
           footer={
             <UnLockFooter>
-              <div className="ThemeColor Font14">
+              <div className="colorPrimary Font14">
                 {isOwner && isLock && (
                   <span
                     className="Hand"
@@ -288,7 +288,7 @@ class UnLockDialog extends Component {
         >
           {isLock ? (
             <Fragment>
-              <div className="Gray_9e Font14 mBottom25">
+              <div className="textTertiary Font14 mBottom25">
                 {_l('当前应用为不可配置状态，验证应用锁密码后将会解锁您在该应用下的相关操作权限')}
               </div>
               <Input.Password
@@ -301,7 +301,7 @@ class UnLockDialog extends Component {
               />
             </Fragment>
           ) : (
-            <div className="Gray_9e Font14">
+            <div className="textTertiary Font14">
               {_l('您在当前应用下的相关权限已解锁。操作恢复锁定，将重新锁定您在当前应用下的权限。')}
             </div>
           )}
@@ -338,12 +338,12 @@ function AppLockPasswordDialog(props) {
     <Dialog
       width={480}
       visible={visible}
-      title={<div className="Black Font17">{_l('修改应用锁密码')}</div>}
+      title={<div className="textPrimary Font17">{_l('修改应用锁密码')}</div>}
       okText={_l('确定')}
       onCancel={onCancel}
       onOk={() => confirmModifyPassword(originPassword, newPassword)}
     >
-      <div className="Gray Font14 mBottom15">{_l('旧密码')}</div>
+      <div className="textPrimary Font14 mBottom15">{_l('旧密码')}</div>
       <Input.Password
         ref={passwordInput}
         placeholder={_l('旧密码')}
@@ -351,7 +351,7 @@ function AppLockPasswordDialog(props) {
         value={originPassword}
         onChange={e => setOriginPassword(e.target.value.trim())}
       />
-      <div className="Gray Font14 mBottom15 mTop50">{_l('新密码')}</div>
+      <div className="textPrimary Font14 mBottom15 mTop50">{_l('新密码')}</div>
       <Input.Password
         placeholder={_l('新密码')}
         autoComplete="new-password"
@@ -370,7 +370,7 @@ function CloseLock(props) {
     <Dialog
       width={640}
       visible={visible}
-      title={<div className="Black Font17">{_l('关闭应用锁定')}</div>}
+      title={<div className="textPrimary Font17">{_l('关闭应用锁定')}</div>}
       okText={_l('确定')}
       onCancel={onCancel}
       onOk={() => {
@@ -382,7 +382,9 @@ function CloseLock(props) {
         });
       }}
     >
-      <div className="Gray_9e Font14 mBottom16">{_l('关闭后将不再对应用进行锁定。关闭应用锁定，需验证您的身份。')}</div>
+      <div className="textTertiary Font14 mBottom16">
+        {_l('关闭后将不再对应用进行锁定。关闭应用锁定，需验证您的身份。')}
+      </div>
       <VerifyPasswordInput
         className="mBottom25"
         autoFocus={true}

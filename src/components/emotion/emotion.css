@@ -35,11 +35,8 @@
 }
 .mdEmotion {
   position: absolute;
-  background: #fff;
-  box-shadow:
-    0 4px 23px 5px rgba(0, 0, 0, 0.2),
-    0 2px 6px rgba(0, 0, 0, 0.15);
-  border: solid 1px #c7c7c7;
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-lg);
   z-index: 99999;
   height: 240px;
 }
@@ -75,10 +72,10 @@
   left: 50%;
   margin-left: -8px;
   top: -8px;
-  border-bottom-color: #c7c7c7;
+  border-bottom-color: var(--color-text-placeholder);
 }
 .mdEmotion.emotion-bottom .arrow:after {
-  border-bottom-color: #fff;
+  border-bottom-color: var(--color-background-primary);
   top: 1px;
   margin-left: -8px;
 }
@@ -93,10 +90,10 @@
   left: 50%;
   margin-left: -8px;
   bottom: -8px;
-  border-top-color: #c7c7c7;
+  border-top-color: var(--color-text-placeholder);
 }
 .mdEmotion.emotion-top .arrow:after {
-  border-top-color: #fff;
+  border-top-color: var(--color-background-primary);
   bottom: 1px;
   margin-left: -8px;
 }
@@ -111,10 +108,10 @@
   top: 50%;
   margin-top: -8px;
   right: -8px;
-  border-left-color: #c7c7c7;
+  border-left-color: var(--color-text-placeholder);
 }
 .mdEmotion.emotion-left .arrow:after {
-  border-left-color: #fff;
+  border-left-color: var(--color-background-primary);
   right: 1px;
   margin-top: -8px;
 }
@@ -129,19 +126,19 @@
   top: 50%;
   margin-top: -8px;
   left: -8px;
-  border-right-color: #c7c7c7;
+  border-right-color: var(--color-text-placeholder);
 }
 .mdEmotion.emotion-right .arrow:after {
   margin-top: -8px;
-  border-right-color: #fff;
+  border-right-color: var(--color-background-primary);
   left: 1px;
 }
 .mdEmotion .mdEmotionTab {
-  border-top: solid 1px #ececec;
+  border-top: solid 1px var(--color-border-secondary);
   margin-bottom: -9px;
   padding: 10px 6px;
   height: 50px;
-  background: #fff;
+  background: var(--color-background-primary);
   box-sizing: border-box;
   font-size: 0;
 }
@@ -151,12 +148,12 @@
   line-height: 100%;
   cursor: pointer;
   vertical-align: middle;
-  color: #666;
+  color: var(--color-text-secondary);
   padding: 4px;
   margin-right: 6px;
 }
 .mdEmotion .mdEmotionTab .tabItem:hover {
-  background: #efefef;
+  background: var(--color-border-secondary);
 }
 .mdEmotion .mdEmotionTab .tabItem-images {
   width: 22px;
@@ -164,7 +161,7 @@
 }
 .mdEmotion .mdEmotionTab .tabItem.active {
   color: #08f;
-  background: #f1f1f1;
+  background: var(--color-background-disabled);
 }
 .mdEmotion .mdEmotionWrapper .mdEmotionPanel {
   display: none;

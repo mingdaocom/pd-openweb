@@ -421,7 +421,9 @@ export default class MDTable extends React.Component {
           top,
           left,
           borderRight:
-            fixedColumnCount > 1 && !disableFrozen && className.match(/left-grid/) ? '1px solid rgba(0,0,0,0.16)' : '',
+            fixedColumnCount > 1 && !disableFrozen && className.match(/left-grid/)
+              ? '1px solid var(--color-border-primary)'
+              : '',
         }}
         ref={ref}
         virtualdom={virtualdom}
@@ -630,7 +632,7 @@ export default class MDTable extends React.Component {
                 top: FIXED_ROW_HEIGHT,
                 width: '100%',
                 height: '100%',
-                backgroundColor: '#fff',
+                backgroundColor: 'var(--color-background-primary)',
               }}
             >
               <Skeleton

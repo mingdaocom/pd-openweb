@@ -54,8 +54,11 @@ export default ({ data, updateSource, processId, selectNodeId, companyId, render
             />
             {item.value === TRIGGER_ID.DELETE && (
               <Tooltip title={_l('包括用户自行注销或被管理员注销')}>
-                <span className="Gray_75" style={{ marginLeft: -15, marginTop: 2, verticalAlign: 'top', height: 14 }}>
-                  <i className="Font14 icon-help Gray_9e" />
+                <span
+                  className="textSecondary"
+                  style={{ marginLeft: -15, marginTop: 2, verticalAlign: 'top', height: 14 }}
+                >
+                  <i className="Font14 icon-help textTertiary" />
                 </span>
               </Tooltip>
             )}

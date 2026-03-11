@@ -14,7 +14,7 @@ import 'rc-trigger/assets/index.css';
 const Con = styled(ScrollView)`
   width: 100%;
   height: 100%;
-  background: #fff;
+  background: var(--color-background-primary);
   .header {
     height: 50px;
     padding: 0 10px 0 16px;
@@ -26,7 +26,7 @@ const Con = styled(ScrollView)`
       width: 30px;
       height: 30px;
       font-size: 18px;
-      color: #757575;
+      color: var(--color-text-secondary);
     }
   }
   .chatHistoryList {
@@ -37,19 +37,19 @@ const Con = styled(ScrollView)`
       padding: 0 10px;
       height: 45px;
       font-size: 14px;
-      color: #151515;
+      color: var(--color-text-primary);
       .updateTime {
         margin-left: 6px;
         font-size: 12px;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
       .operateIcon {
         width: 24px;
         height: 24px;
         border-radius: 3px;
-        background: #fff;
+        background: var(--color-background-card);
         font-size: 14px;
-        color: #757575;
+        color: var(--color-text-secondary);
         cursor: pointer;
         display: none;
         justify-content: center;
@@ -68,7 +68,7 @@ const Con = styled(ScrollView)`
     .emptyStatus {
       padding: 12px 0;
       font-size: 14px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       text-align: center;
     }
   }
@@ -179,7 +179,7 @@ function ChatHistoryItem({
                     <Input
                       autoFocus
                       placeholder={_l('请输入对话名称')}
-                      className="w100 Gray"
+                      className="w100 textPrimary"
                       defaultValue={item.title}
                       manualRef={ref => (cache.current.input = ref)}
                     />
@@ -211,11 +211,13 @@ function ChatHistoryItem({
               </MenuItem>
             )}
             <MenuItem
-              icon={<Icon icon="trash" className="Font18 mLeft5" style={{ color: '#F44336' }} />}
+              icon={<Icon icon="trash" className="Font18 mLeft5" style={{ color: 'var(--color-error)' }} />}
               onClick={() => {
                 setMenuVisible(false);
                 Dialog.confirm({
-                  title: <span style={{ color: '#F44336', fontWeight: 'bold' }}>{_l('确定删除该对话')}</span>,
+                  title: (
+                    <span style={{ color: 'var(--color-error)', fontWeight: 'bold' }}>{_l('确定删除该对话')}</span>
+                  ),
                   width: window.innerWidth - 20 > 480 ? 480 : window.innerWidth - 20,
                   description: _l('删除后，聊天记录将不可恢复'),
                   buttonType: 'danger',
@@ -225,7 +227,7 @@ function ChatHistoryItem({
                 });
               }}
             >
-              <span className="mLeft10" style={{ color: '#F44336' }}>
+              <span className="mLeft10" style={{ color: 'var(--color-error)' }}>
                 {_l('删除')}
               </span>
             </MenuItem>
@@ -233,7 +235,7 @@ function ChatHistoryItem({
         }
       >
         <span className="operateIcon" onClick={e => e.stopPropagation()}>
-          <i className="icon icon-more_horiz Font18 Gray_9e Hand" />
+          <i className="icon icon-more_horiz Font18 textTertiary Hand" />
         </span>
       </Trigger>
     );
@@ -243,7 +245,7 @@ function ChatHistoryItem({
     return (
       <Fragment>
         <span className="operateIcon" onClick={() => setMobileMenuVisible(true)}>
-          <i className="icon icon-more_horiz Font18 Gray_9e Hand" />
+          <i className="icon icon-more_horiz Font18 textTertiary Hand" />
         </span>
         <PopupWrapper
           visible={mobileMenuVisible}

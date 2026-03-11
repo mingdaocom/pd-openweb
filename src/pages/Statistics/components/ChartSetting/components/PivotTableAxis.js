@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { Dropdown, Menu } from 'antd';
+import { Divider, Dropdown, Menu } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, SortableList } from 'ming-ui';
@@ -10,6 +10,7 @@ import {
   addCalculateControlHighlight,
   areaParticleSizeDropdownData,
   cascadeParticleSizeDropdownData,
+  displayModes,
   emptyShowTypes,
   filterAreaParticleSizeDropdownData,
   filterDisableParticleSizeTypes,
@@ -17,6 +18,7 @@ import {
   filterTimeGatherParticle,
   formatTimeFormats,
   isAreaControl,
+  isDisplayModes,
   isNumberControl,
   isTimeControl,
   textNormTypes,
@@ -26,6 +28,7 @@ import {
   timeParticleSizeDropdownData,
   xaxisEmptyShowTypes,
 } from 'statistics/common';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { ShowFormatDialog } from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/DateConfig';
 import { normTypes } from '../../../enum';
 import RenameModal from './RenameModal';
@@ -58,19 +61,24 @@ const renderOverlay = ({
   axis,
   control,
   type,
-  normType,
-  showFormat,
-  particleSizeType,
+  item,
   disableParticleSizeTypes,
-  xaxisEmpty,
-  xaxisEmptyType,
-  emptyShowType,
   onChangeData,
   onUpdateParticleSizeType,
   onSelectReNameId,
   onShowControl,
   verifyNumber,
 }) => {
+  const {
+    normType,
+    showFormat,
+    particleSizeType,
+    emptyShowType,
+    xaxisEmpty,
+    xaxisEmptyType,
+    hide,
+    displayMode = 'text',
+  } = item;
   const isNumber = isNumberControl(axis.type, false);
   const isTime = isTimeControl(axis.type);
   const isArea = isAreaControl(axis.type);
@@ -97,7 +105,7 @@ const renderOverlay = ({
             title={
               <div className="flexRow valignWrapper w100">
                 <div className="flex">{_l('统计空值')}</div>
-                <div className="Font12 Gray_75 emptyTypeName">
+                <div className="Font12 textSecondary emptyTypeName">
                   {xaxisEmpty ? _.find(xaxisEmptyShowTypes, { value: xaxisEmptyType }).text : _l('不显示')}
                 </div>
               </div>
@@ -105,7 +113,7 @@ const renderOverlay = ({
             popupOffset={[0, -15]}
           >
             <Menu.Item
-              style={{ width: 120, color: !xaxisEmpty ? '#1e88e5' : null }}
+              style={{ width: 120, color: !xaxisEmpty ? 'var(--color-primary) !important' : null }}
               onClick={() => {
                 onChangeData(axis.controlId, { xaxisEmpty: false });
               }}
@@ -114,7 +122,10 @@ const renderOverlay = ({
             </Menu.Item>
             {xaxisEmptyShowTypes.map(item => (
               <Menu.Item
-                style={{ width: 120, color: xaxisEmpty && item.value === xaxisEmptyType ? '#1e88e5' : null }}
+                style={{
+                  width: 120,
+                  color: xaxisEmpty && item.value === xaxisEmptyType ? 'var(--color-primary) !important' : null,
+                }}
                 key={item.value}
                 onClick={() => {
                   onChangeData(axis.controlId, {
@@ -135,7 +146,7 @@ const renderOverlay = ({
             title={
               <div className="flexRow valignWrapper w100">
                 <div className="flex">{_l('空值显示')}</div>
-                <div className="Font12 Gray_75 emptyTypeName">
+                <div className="Font12 textSecondary emptyTypeName">
                   {_.find(emptyShowTypes, { value: emptyShowType }).text}
                 </div>
               </div>
@@ -144,7 +155,7 @@ const renderOverlay = ({
           >
             {emptyShowTypes.map(item => (
               <Menu.Item
-                style={{ width: 120, color: item.value === emptyShowType ? '#1e88e5' : null }}
+                style={{ width: 120, color: item.value === emptyShowType ? 'var(--color-primary) !important' : null }}
                 key={item.value}
                 onClick={() => {
                   onChangeData(axis.controlId, { emptyShowType: item.value });
@@ -156,11 +167,41 @@ const renderOverlay = ({
           </Menu.SubMenu>
         )
       )}
+      {['lines'].includes(type) &&
+        isDisplayModes(axis.type) &&
+        (type === WIDGETS_TO_API_TYPE_ENUM.SWITCH ? _.get(axis.advancedSetting, 'showtype') === '0' : true) && (
+          <Menu.SubMenu
+            popupClassName="chartMenu"
+            title={
+              <div className="flexRow valignWrapper w100">
+                <div className="flex">{_l('显示方式')}</div>
+                <div className="Font12 textSecondary emptyTypeName">
+                  {_.find(displayModes, { value: displayMode }).text}
+                </div>
+              </div>
+            }
+            popupOffset={[0, -15]}
+          >
+            {displayModes.map(item => (
+              <Menu.Item
+                style={{ color: item.value === displayMode ? 'var(--color-primary) !important' : null }}
+                key={item.value}
+                onClick={() => {
+                  onChangeData(axis.controlId, {
+                    displayMode: item.value,
+                  });
+                }}
+              >
+                {item.text}
+              </Menu.Item>
+            ))}
+          </Menu.SubMenu>
+        )}
       {isNumber && verifyNumber && (
         <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
           {normTypes.map(item => (
             <Menu.Item
-              style={{ width: 120, color: item.value === normType ? '#1e88e5' : null }}
+              style={{ width: 120, color: item.value === normType ? 'var(--color-primary) !important' : null }}
               key={item.value}
               onClick={() => {
                 onChangeData(axis.controlId, { normType: item.value });
@@ -176,7 +217,7 @@ const renderOverlay = ({
           {(control.enumDefault === 1 ? normTypes : textNormTypes).map(item => (
             <Menu.Item
               className="valignWrapper"
-              style={{ width: 120, color: item.value === normType ? '#1e88e5' : null }}
+              style={{ width: 120, color: item.value === normType ? 'var(--color-primary) !important' : null }}
               key={item.value}
               onClick={() => {
                 onChangeData(axis.controlId, { normType: item.value });
@@ -185,7 +226,7 @@ const renderOverlay = ({
               <div className="flex">{item.text}</div>
               {item.value === 7 && (
                 <Tooltip title={_l('仅显示一个')}>
-                  <Icon icon="info" className="Font16 pointer Gray_9e" />
+                  <Icon icon="info" className="Font16 pointer textTertiary" />
                 </Tooltip>
               )}
             </Menu.Item>
@@ -202,7 +243,7 @@ const renderOverlay = ({
                   disabled={item.value === particleSizeType ? true : newDisableParticleSizeTypes.includes(item.value)}
                   style={{
                     width: 200,
-                    color: item.value === particleSizeType ? '#1e88e5' : null,
+                    color: item.value === particleSizeType ? 'var(--color-primary) !important' : null,
                   }}
                   key={item.value}
                   onClick={() => {
@@ -210,7 +251,7 @@ const renderOverlay = ({
                   }}
                 >
                   <div className="flex">{item.text}</div>
-                  <div className="Gray_75 Font12">{item.getTime()}</div>
+                  <div className="textSecondary Font12">{item.getTime()}</div>
                 </Menu.Item>
               ))}
             </Menu.ItemGroup>
@@ -226,7 +267,7 @@ const renderOverlay = ({
                       }
                       style={{
                         width: 200,
-                        color: item.value === particleSizeType ? '#1e88e5' : null,
+                        color: item.value === particleSizeType ? 'var(--color-primary) !important' : null,
                       }}
                       key={item.value}
                       onClick={() => {
@@ -234,7 +275,7 @@ const renderOverlay = ({
                       }}
                     >
                       <div className="flex">{item.text}</div>
-                      <div className="Gray_75 Font12">{item.getTime()}</div>
+                      <div className="textSecondary Font12">{item.getTime()}</div>
                     </Menu.Item>
                   ))}
                 </Menu.ItemGroup>
@@ -246,7 +287,7 @@ const renderOverlay = ({
               {formatTimeFormats(particleSizeType).map(item => (
                 <Menu.Item
                   className="valignWrapper"
-                  style={{ width: 200, color: item.value === showFormat ? '#1e88e5' : null }}
+                  style={{ width: 200, color: item.value === showFormat ? 'var(--color-primary) !important' : null }}
                   key={item.value}
                   onClick={() => {
                     onChangeData(axis.controlId, { showFormat: item.value });
@@ -257,7 +298,10 @@ const renderOverlay = ({
               ))}
               <Menu.Item
                 className="valignWrapper"
-                style={{ width: 200, color: !_.find(timeFormats, { value: showFormat }) ? '#1e88e5' : null }}
+                style={{
+                  width: 200,
+                  color: !_.find(timeFormats, { value: showFormat }) ? 'var(--color-primary) !important' : null,
+                }}
                 key="customShowFormat"
                 onClick={() => {
                   openShowFormatDialog({
@@ -280,7 +324,7 @@ const renderOverlay = ({
           {areaParticleSizeDropdownData.map(item => (
             <Menu.Item
               disabled={item.value === particleSizeType ? true : newDisableParticleSizeTypes.includes(item.value)}
-              style={{ width: 120, color: item.value === particleSizeType ? '#1e88e5' : null }}
+              style={{ width: 120, color: item.value === particleSizeType ? 'var(--color-primary) !important' : null }}
               key={item.value}
               onClick={() => {
                 onUpdateParticleSizeType(axis.controlId, particleSizeType, item.value);
@@ -296,7 +340,10 @@ const renderOverlay = ({
           {cascadeParticleSizeDropdownData.map(item => (
             <Menu.Item
               disabled={item.value === particleSizeType}
-              style={{ width: 120, color: item.value === (particleSizeType || 1) ? '#1e88e5' : null }}
+              style={{
+                width: 120,
+                color: item.value === (particleSizeType || 1) ? 'var(--color-primary) !important' : null,
+              }}
               key={item.value}
               onClick={() => {
                 onUpdateParticleSizeType(axis.controlId, particleSizeType, item.value);
@@ -315,6 +362,18 @@ const renderOverlay = ({
         >
           {_l('显示字段')}
         </Menu.Item>
+      )}
+      {verifyNumber && (
+        <Fragment>
+          <Divider className="mTop5 mBottom5" />
+          <Menu.Item
+            onClick={() => {
+              onChangeData(axis.controlId, { hide: !hide });
+            }}
+          >
+            {_l('在表格中%0', hide ? _l('显示') : _l('隐藏'))}
+          </Menu.Item>
+        </Fragment>
       )}
     </Menu>
   );
@@ -343,12 +402,7 @@ const renderSortableItem = props => {
     axis,
     control,
     type,
-    normType: item.normType,
-    particleSizeType: item.particleSizeType,
-    xaxisEmpty: item.xaxisEmpty,
-    emptyShowType: item.emptyShowType,
-    xaxisEmptyType: item.xaxisEmptyType,
-    showFormat: item.showFormat,
+    item,
     disableParticleSizeTypes,
     onUpdateParticleSizeType,
     onChangeData,
@@ -360,12 +414,12 @@ const renderSortableItem = props => {
   return (
     <SortableItemContent className="mBottom12">
       <DragHandle>
-        <Icon className="sortableDrag Font20 pointer Gray_bd ThemeHoverColor3" icon="drag" />
+        <Icon className="sortableDrag Font20 pointer textDisabled ThemeHoverColor3" icon="drag" />
       </DragHandle>
       <div className="flexRow valignWrapper fidldItem mBottom0" key={item.controlId}>
         {axis.controlId ? (
           <Tooltip title={tip}>
-            <span className="Gray flex ellipsis">
+            <span className="textPrimary flex ellipsis">
               {verifyNumber &&
                 ![10000000, 10000001].includes(axis.type) &&
                 `${_.get(_.find(normTypes.concat(textNormTypes), { value: item.normType }), 'text')}: `}
@@ -385,11 +439,12 @@ const renderSortableItem = props => {
             <span className="Red flex ellipsis">{_l('字段已删除')}</span>
           </Tooltip>
         )}
+        {item.hide && <Icon className="textTertiary Font18 mRight10" icon="workflow_hide" />}
         <Dropdown trigger={['click']} overlay={renderOverlay(overlayProps)} placement="bottomRight">
-          <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
+          <Icon className="textTertiary Font18 pointer" icon="arrow-down-border" />
         </Dropdown>
         <Icon
-          className="Gray_9e Font18 pointer mLeft10"
+          className="textTertiary Font18 pointer mLeft10"
           icon="close"
           onClick={() => {
             onClear(item);

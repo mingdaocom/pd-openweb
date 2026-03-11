@@ -126,7 +126,7 @@ export default class Plugin extends Component {
         <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">
-              {data.app.describe && <div className="Font14 Gray_75 workflowDetailDesc">{data.app.describe}</div>}
+              {data.app.describe && <div className="Font14 textSecondary workflowDetailDesc">{data.app.describe}</div>}
 
               <div style={{ marginTop: data.app.describe ? 0 : -15 }}>
                 <ProcessParameters

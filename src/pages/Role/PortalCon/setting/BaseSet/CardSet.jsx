@@ -27,8 +27,8 @@ export default function (props) {
   };
   return (
     <>
-      <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('名片配置')}</h6>
-      <p className="Font12 Gray_9e mTop4 LineHeight18">{_l('设置外部用户的名片层中可以被其他人查看到的信息')}</p>
+      <h6 className="Font16 textPrimary Bold mBottom0 mTop24">{_l('名片配置')}</h6>
+      <p className="Font12 textTertiary mTop4 LineHeight18">{_l('设置外部用户的名片层中可以被其他人查看到的信息')}</p>
       <div className="mTop12 mBottom6">{_l('组织成员查看')}</div>
       <Select
         mode="multiple"

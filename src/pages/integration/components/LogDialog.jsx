@@ -14,25 +14,30 @@ const TABLIST = [_l('请求参数'), _l('返回值')];
 
 const Wrap = styled.div`
   .tabCon {
-    border-bottom: 1px solid #f5f5f5;
+    border-bottom: 1px solid var(--color-background-secondary);
     li {
       font-size: 15px;
       font-weight: 600;
-      color: #151515;
+      color: var(--color-text-title);
       display: inline-block;
       margin: 0 18px;
       padding: 0 20px 10px;
       box-sizing: border-box;
       border-bottom: 3px solid rgba(0, 0, 0, 0);
       &.isCur {
-        color: #1677ff;
-        border-bottom: 3px solid #1677ff;
+        color: var(--color-primary);
+        border-bottom: 3px solid var(--color-primary);
       }
     }
   }
+
+  .logDetailCon {
+    height: 450px;
+  }
+
   .con {
     height: 380px;
-    background: #efffff;
+    background: var(--color-cyan-blue);
     overflow: auto;
     padding: 16px;
   }
@@ -131,61 +136,63 @@ export default function LogDialog(props) {
         ) : (
           <React.Fragment>
             {renderTabCon()}
-            <p className="Gray_9e mTop24 WordBreak">
-              {tab === 0 ? (
-                <React.Fragment>
-                  {`(${(METHODS_TYPE.find(o => o.value === data.method) || {}).text})`} {data.url}
-                </React.Fragment>
-              ) : (
-                <React.Fragment>
-                  {!_.get(data, 'json.code')
-                    ? _l(
-                        '请求时间 %0, 耗时 %1 秒',
-                        _.get(props, 'info.createDate'),
-                        !_.get(props, 'info.completeDate')
-                          ? ''
-                          : moment(_.get(props, 'info.completeDate')).diff(
-                              moment(_.get(props, 'info.createDate')),
-                              'seconds',
-                            ),
-                      )
-                    : _l(
-                        '请求时间 %0, 状态码 %1，耗时 %2 秒',
-                        _.get(props, 'info.createDate'),
-                        _.get(data, 'json.code'),
-                        !_.get(props, 'info.completeDate')
-                          ? ''
-                          : moment(_.get(props, 'info.completeDate')).diff(
-                              moment(_.get(props, 'info.createDate')),
-                              'seconds',
-                            ),
-                      )}
-                  ，{_l('请求结果')}
-                  <span className={cx('mLeft5', { Red: _.get(props, 'info.status') === 4 })}>
-                    {FLOW_STATUS[_.get(props, 'info.status')].text}
-                    {_.get(props, 'info.status') === 4
-                      ? _.get(props, ['info', 'instanceLog', 'causeMsg'])
-                        ? `: ${_.get(props, ['info', 'instanceLog', 'causeMsg'])}`
-                        : ''
-                      : ''}
-                  </span>
-                </React.Fragment>
-              )}
-            </p>
-            <div className="con mTop16">
-              <JsonView
-                src={
-                  tab !== 0
-                    ? getInfo(_.get(data, 'json.result'))
-                    : [1, 4, 5].includes(data.contentType) //contentType 1 4 5 请求使用这个requests
-                      ? data.requests
-                      : getInfo(data.body)
-                }
-                // theme="brewer"
-                displayDataTypes={false}
-                displayObjectSize={false}
-                // name={_l('成功')}
-              />
+            <div className="logDetailCon flexColumn">
+              <div className="textTertiary mTop24 WordBreak">
+                {tab === 0 ? (
+                  <React.Fragment>
+                    {`(${(METHODS_TYPE.find(o => o.value === data.method) || {}).text})`} {data.url}
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment>
+                    {!_.get(data, 'json.code')
+                      ? _l(
+                          '请求时间 %0, 耗时 %1 秒',
+                          _.get(props, 'info.createDate'),
+                          !_.get(props, 'info.completeDate')
+                            ? ''
+                            : moment(_.get(props, 'info.completeDate')).diff(
+                                moment(_.get(props, 'info.createDate')),
+                                'seconds',
+                              ),
+                        )
+                      : _l(
+                          '请求时间 %0, 状态码 %1，耗时 %2 秒',
+                          _.get(props, 'info.createDate'),
+                          _.get(data, 'json.code'),
+                          !_.get(props, 'info.completeDate')
+                            ? ''
+                            : moment(_.get(props, 'info.completeDate')).diff(
+                                moment(_.get(props, 'info.createDate')),
+                                'seconds',
+                              ),
+                        )}
+                    ，{_l('请求结果')}
+                    <span className={cx('mLeft5', { Red: _.get(props, 'info.status') === 4 })}>
+                      {FLOW_STATUS[_.get(props, 'info.status')].text}
+                      {_.get(props, 'info.status') === 4
+                        ? _.get(props, ['info', 'instanceLog', 'causeMsg'])
+                          ? `: ${_.get(props, ['info', 'instanceLog', 'causeMsg'])}`
+                          : ''
+                        : ''}
+                    </span>
+                  </React.Fragment>
+                )}
+              </div>
+              <div className="con mTop16 flex">
+                <JsonView
+                  src={
+                    tab !== 0
+                      ? getInfo(_.get(data, 'json.result'))
+                      : [1, 4, 5].includes(data.contentType) //contentType 1 4 5 请求使用这个requests
+                        ? data.requests
+                        : getInfo(data.body)
+                  }
+                  // theme="brewer"
+                  displayDataTypes={false}
+                  displayObjectSize={false}
+                  // name={_l('成功')}
+                />
+              </div>
             </div>
           </React.Fragment>
         )}

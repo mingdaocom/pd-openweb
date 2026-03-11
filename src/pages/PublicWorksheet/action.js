@@ -166,8 +166,14 @@ async function getStatus(data, shareId) {
         if (userInfo) {
           safeLocalStorageSetItem('wxUserInfo', JSON.stringify(userInfo || {}));
 
-          if (writeScope !== 1 && !md.global.Config.IsLocal && !!userInfo.state && weChatSetting.collectChannel === 1) {
-            //平台或组织用户，非私有部署环境，state不为空，服务号
+          if (
+            writeScope !== 1 &&
+            !window.platformENV.isOverseas &&
+            !window.platformENV.isLocal &&
+            !!userInfo.state &&
+            weChatSetting.collectChannel === 1
+          ) {
+            //平台或组织用户，非私有部署环境，state不为空，明道云服务号
             //走自动登录逻辑
             const loginResult = await loginApi.tPLogin({
               unionId: userInfo.unionId,
@@ -505,6 +511,8 @@ export function getPublicWorksheet(params, cb = () => {}) {
       );
       data.originalControls = replaceControlsTranslateInfo(data.appId, data.worksheetId, data.originalControls);
 
+      window[`timeZone_${data.appId}`] = data.appTimeZone;
+
       data.shareAuthor && (window.shareAuthor = data.shareAuthor);
       worksheetAjax
         .getControlRules({
@@ -526,8 +534,8 @@ export function getPublicWorksheet(params, cb = () => {}) {
           });
         });
     })
-    .catch(() => {
-      cb(false);
+    .catch(err => {
+      cb(err.errorCode === 300016 ? { status: 300016 } : false);
     });
 }
 

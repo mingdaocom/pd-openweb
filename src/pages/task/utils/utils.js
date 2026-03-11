@@ -129,11 +129,11 @@ export const formatTimeInfo = (time, isCompleteAppear) => {
   } else if (currentYear === timeYear) {
     // 本年
     text = isCompleteAppear ? time.format('MMMDo HH:mm') : time.format('MMMDo');
-    color = '#757575';
+    color = 'var(--color-text-secondary)';
   } else {
     // 跨年
     text = isCompleteAppear ? time.format('YYYY/MM/DD HH:mm') : time.format('YYYY/MM/DD');
-    color = '#757575';
+    color = 'var(--color-text-secondary)';
   }
 
   return {
@@ -169,7 +169,7 @@ const getTimeInfo = (start, end, isCompleteAppear) => {
   } else {
     const start = formatTimeInfo(startTime, isCompleteAppear);
     const end = formatTimeInfo(endTime, isCompleteAppear);
-    let color = '#757575'; // 默认灰色
+    let color = 'var(--color-text-secondary)'; // 默认灰色
 
     if (start.color == '#4caf50' || end.color == '#4caf50') {
       // 如果有绿色
@@ -198,11 +198,11 @@ export const formatTaskTime = (status, startTime, endTime, actualStartTime, comp
   const currentTime = getCurrentTime();
   const render = (text, color, className = '') => `<span style="color:${color};" class="${className}">${text}</span>`;
   const COLORS = {
-    gray: '#757575',
+    gray: 'var(--color-text-secondary)',
     blue: '#1677ff',
-    green: '#4caf50',
-    red: '#ff0000',
-    yellow: '#ffa414',
+    green: 'var(--color-success)',
+    red: 'var(--color-error)',
+    yellow: 'var(--color-warning)',
   };
   let diff;
   let day;
@@ -366,7 +366,7 @@ export const taskStatusDialog = (status, callback) => {
     Dialog.confirm({
       title: _l('将任务设为未完成'),
       children: (
-        <div style={{ color: '#999' }}>
+        <div style={{ color: 'var(--color-text-tertiary)' }}>
           {_l('您在修改一个已被标记为完成的任务，若将其设为未完成，则当前的“任务完成时间”数据将被删除。是否确认修改？')}
         </div>
       ),

@@ -119,7 +119,7 @@ export default class FileList extends Component {
     return files.length ? (
       <UploadFiles column={3} isUpload={false} attachmentData={files} />
     ) : (
-      <div className="Gray_c pTop10 pBottom10 noneContent">{_l('暂无文件')}</div>
+      <div className="textPlaceholder pTop10 pBottom10 noneContent">{_l('暂无文件')}</div>
     );
   }
 

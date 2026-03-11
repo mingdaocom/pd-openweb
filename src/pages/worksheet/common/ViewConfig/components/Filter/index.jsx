@@ -34,9 +34,9 @@ const Wrap = styled.div`
   }
   .cancelBtn {
     font-size: 14px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     &:hover {
-      background: #eaeaea;
+      background: var(--color-border-secondary);
     }
     font-weight: bold;
     display: inline-block;
@@ -105,7 +105,7 @@ export default function ViewFilter(props) {
     <Wrap className="flexColumn">
       <div className="viewSetTitle">{_l('过滤')}</div>
       <div className="flexRow commonConfigItem">
-        <div className="Gray_75 mTop8 flex">{_l('添加筛选条件，在视图中显示符合筛选条件的记录')}</div>
+        <div className="textSecondary mTop8 flex">{_l('添加筛选条件，在视图中显示符合筛选条件的记录')}</div>
         {existingFilters.length ? (
           <Trigger
             popupVisible={showMoreMenu}
@@ -180,7 +180,7 @@ export default function ViewFilter(props) {
               {_l('保存')}
             </Button>
             <div
-              className="cancelBtn Hand Gray_75 mLeft16"
+              className="cancelBtn Hand textSecondary mLeft16"
               onClick={() => {
                 if (_.isEqual(appearFilters, view.filters)) {
                   props.onClose();

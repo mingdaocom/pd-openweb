@@ -16,7 +16,7 @@ const SearchContainer = styled.div`
     height: 50%;
     .userTxt {
       font-size: 14px;
-      color: #757575;
+      color: var(--color-text-secondary);
       margin-bottom: 8px;
       padding-left: 24px;
     }
@@ -30,20 +30,20 @@ const SearchContainer = styled.div`
     padding-top: 10px;
     .departmentTxt {
       font-size: 14px;
-      color: #757575;
+      color: var(--color-text-secondary);
       padding-left: 24px;
     }
     .searchResult {
       width: 100%;
       flex: 1;
       .departmentItem {
-        color: #151515;
+        color: var(--color-text-title);
         font-size: 13px;
         padding-left: 24px;
         line-height: 32px;
         .icon {
           line-height: 32px;
-          color: #bdbdbd;
+          color: var(--color-text-disabled);
         }
         .departmentName {
           overflow: hidden;
@@ -52,7 +52,7 @@ const SearchContainer = styled.div`
         }
       }
       .departmentItem:hover {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-hover);
       }
     }
   }

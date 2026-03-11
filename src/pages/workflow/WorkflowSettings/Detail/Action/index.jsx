@@ -9,6 +9,7 @@ import CreateCalendar from './CreateCalendar';
 import CreateRecordAndTask from './CreateRecordAndTask';
 import DeleteNodeObj from './DeleteNodeObj';
 import RefreshData from './RefreshData';
+import Refund from './Refund';
 import RelationFields from './RelationFields';
 import UpdateGlobalVariable from './UpdateGlobalVariable';
 import UpdateSheetRecord from './UpdateSheetRecord';
@@ -53,6 +54,19 @@ export default class Action extends Component {
       .then(result => {
         if (result.appType === APP_TYPE.CALENDAR) {
           result.fields = this.handleCalendarDefault(result.fields);
+        }
+
+        if (result.appType === APP_TYPE.REFUND && !result.fields.length) {
+          result.fields = result.controls.map(o => {
+            return {
+              fieldId: o.controlId,
+              fieldName: o.controlName,
+              type: o.type,
+              fieldValue: o.controlId === 'refundType' ? '1' : '',
+              fieldValueId: '',
+              nodeId: '',
+            };
+          });
         }
 
         this.setState({ data: result, cacheKey: +new Date() }, () => {
@@ -165,6 +179,16 @@ export default class Action extends Component {
       }
     }
 
+    // 部分退款 退款金额不能为空
+    if (data.actionId === ACTION_ID.REFUND && fields.find(o => o.fieldId === 'refundType').fieldValue === '2') {
+      const amountObj = fields.find(o => o.fieldId === 'amount');
+
+      if (!amountObj.nodeId && !amountObj.fieldValue && !amountObj.fieldValueId) {
+        alert(_l('部分退款金额不能为空'), 2);
+        return;
+      }
+    }
+
     if (saveRequest) {
       return;
     }
@@ -229,7 +253,7 @@ export default class Action extends Component {
       return <CreateCalendar key={cacheKey} {...this.props} data={data} updateSource={this.updateSource} />;
     }
 
-    // 新增工作表记录 || 创建任务 || 邀请外部用户
+    // 新增工作表记录 || 创建任务 || 邀请外部用户 || 电子开票
     if (data.actionId === ACTION_ID.ADD) {
       return (
         <CreateRecordAndTask
@@ -301,6 +325,20 @@ export default class Action extends Component {
         />
       );
     }
+
+    /**
+     * 支付订单退款
+     */
+    if (data.actionId === ACTION_ID.REFUND) {
+      return (
+        <Refund
+          {...this.props}
+          data={data}
+          SelectNodeObjectChange={this.SelectNodeObjectChange}
+          updateSource={this.updateSource}
+        />
+      );
+    }
   }
   /**
    * 下拉框更改
@@ -324,7 +362,9 @@ export default class Action extends Component {
                 nodeId: '',
               },
             ]
-          : [],
+          : data.actionId === ACTION_ID.REFUND
+            ? data.fields
+            : [],
       },
       () => {
         if (data.actionId !== ACTION_ID.DELETE) {
@@ -366,7 +406,10 @@ export default class Action extends Component {
   render() {
     const { selectNodeType } = this.props;
     const { data } = this.state;
-    const bgClassName = _.includes([APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE], data.appType)
+    const bgClassName = _.includes(
+      [APP_TYPE.INVOICE, APP_TYPE.REFUND, APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE],
+      data.appType,
+    )
       ? 'BGBlueAsh'
       : data.appType === APP_TYPE.TASK || data.actionId === ACTION_ID.REFRESH_SINGLE_DATA
         ? 'BGGreen'
@@ -389,44 +432,7 @@ export default class Action extends Component {
         />
         <div className="flex overflowHidden">
           <ScrollView>
-            <div className="workflowDetailBox">
-              {this.renderContent()}
-
-              {((!data.selectNodeId &&
-                !data.appId &&
-                !_.includes([ACTION_ID.DELETE, ACTION_ID.REFRESH_SINGLE_DATA], data.actionId) &&
-                !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR], data.appType)) ||
-                (data.actionId === ACTION_ID.EDIT &&
-                  data.selectNodeId &&
-                  !data.selectNodeObj.nodeName &&
-                  !data.selectNodeObj.appName) ||
-                (data.actionId === ACTION_ID.ADD &&
-                  !_.includes([APP_TYPE.EXTERNAL_USER, APP_TYPE.CALENDAR], data.appType) &&
-                  ((data.appId && !_.find(data.appList, item => item.id === data.appId)) || !data.appId))) && (
-                <div className="Gray_75 Font13 flexRow flowDetailTips">
-                  <i className="icon-error1 Font16 Gray_9e" />
-                  <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置可执行的动作')}</div>
-                </div>
-              )}
-
-              {data.actionId === ACTION_ID.EDIT &&
-                data.selectNodeId &&
-                data.selectNodeObj.nodeName &&
-                !data.selectNodeObj.appName && (
-                  <div className="Gray_75 Font13 flexRow flowDetailTips">
-                    <i className="icon-error1 Font16 Gray_9e" />
-                    <div
-                      className="flex mLeft10"
-                      dangerouslySetInnerHTML={{
-                        __html: _l(
-                          '节点所使用的数据来源%0中的应用数据实体已删除。必须修复此节点中的错误，或重新指定一个有效的节点对象后才能设置可执行的动作',
-                          `<span class="mLeft5 mRight5 flowDetailTipsColor">“${data.selectNodeObj.nodeName}”</span>`,
-                        ),
-                      }}
-                    />
-                  </div>
-                )}
-            </div>
+            <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>
         </div>
         <DetailFooter
@@ -434,7 +440,7 @@ export default class Action extends Component {
           isCorrect={
             (data.actionId === ACTION_ID.ADD && data.appId) ||
             (_.includes(
-              [ACTION_ID.EDIT, ACTION_ID.DELETE, ACTION_ID.RELATION, ACTION_ID.REFRESH_SINGLE_DATA],
+              [ACTION_ID.EDIT, ACTION_ID.DELETE, ACTION_ID.REFRESH_SINGLE_DATA, ACTION_ID.REFUND, ACTION_ID.RELATION],
               data.actionId,
             ) &&
               data.selectNodeId) ||

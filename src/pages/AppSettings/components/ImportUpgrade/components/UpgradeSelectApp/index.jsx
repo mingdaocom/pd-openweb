@@ -14,7 +14,7 @@ const Wrap = styled.div`
   min-height: 0;
   border-radius: 8px;
   overflow-y: auto;
-  border: 1px dashed #eaeaea;
+  border: 1px dashed var(--color-border-secondary);
   box-sizing: border-box;
   margin-bottom: 20px;
   flex: 1;
@@ -31,18 +31,18 @@ const Wrap = styled.div`
       display: flex;
       align-items: center;
       &.leftBox {
-        background: #f5f5f5;
+        background: var(--color-background-secondary);
       }
       &.rightBox {
-        border: 1px solid #eaeaea;
+        border: 1px solid var(--color-border-secondary);
       }
       .iconWrap {
         width: 40px;
         height: 40px;
         display: inline-block;
-        background: #fff;
+        background: var(--color-background-primary);
         border-radius: 4px 4px 4px 4px;
-        color: #fff;
+        color: var(--color-white);
         text-align: center;
         line-height: 40px;
         .icon,
@@ -59,8 +59,8 @@ const Wrap = styled.div`
     }
     .selectAppBtn {
       &:hover {
-        border: 1px solid #1677ff;
-        color: #1677ff !important;
+        border: 1px solid var(--color-primary);
+        color: var(--color-primary) !important;
       }
     }
   }
@@ -72,20 +72,20 @@ const Wrap = styled.div`
 const SelectWrap = styled.ul`
   width: 174px;
   padding: 7px 0;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
   border-radius: 3px;
   font-size: 13px;
-  color: #151515;
+  color: var(--color-text-title);
   li {
     padding: 10px 20px;
     cursor: pointer;
     &:not(.disabled):hover {
-      color: #1677ff;
-      background: #e6f2fd;
+      color: var(--color-primary);
+      background: var(--color-primary-transparent);
     }
     &.disabled {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       cursor: not-allowed;
     }
   }
@@ -188,7 +188,7 @@ export default function UpgradeSelectApp(props) {
         <span className="flex name overflow_ellipsis Font15">
           {item.type === 1 && !isLeft ? _l('生成为新应用') : appInfo.name || appInfo.appName}
         </span>
-        {!isLeft && renderSelectBtn(item, <Icon icon="swap_horiz" className="Gray_bd Font18" />)}
+        {!isLeft && renderSelectBtn(item, <Icon icon="swap_horiz" className="textDisabled Font18" />)}
       </div>
     );
   };
@@ -201,20 +201,20 @@ export default function UpgradeSelectApp(props) {
             {renderBox(item)}
             <Icon
               icon="arrow_down"
-              className={cx('Font26 rotate90', item.type === undefined ? 'Gray_bd' : 'ThemeColor')}
+              className={cx('Font26 rotate90', item.type === undefined ? 'textDisabled' : 'colorPrimary')}
             />
             <div>
               {item.type === undefined
                 ? renderSelectBtn(
                     item,
                     <div className="box Hand selectAppBtn rightBox">
-                      <Icon icon="add-member2" className="Gray_bd Font18 mRight10" />
-                      <span className="flex name overflow_ellipsis Font15 Gray_bd">{_l('选择')}</span>
+                      <Icon icon="add-member2" className="textDisabled Font18 mRight10" />
+                      <span className="flex name overflow_ellipsis Font15 textDisabled">{_l('选择')}</span>
                     </div>,
                   )
                 : renderBox(item, 'rightBox')}
               {!!item.tradeRecordId && (
-                <div className="Gray_75 mTop8 tips">
+                <div className="textSecondary mTop8 tips">
                   {_l('从市场购买的应用在组织下已存在/在回收站中，不允许生成为新的应用')}
                 </div>
               )}

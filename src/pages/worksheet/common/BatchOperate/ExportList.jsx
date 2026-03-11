@@ -3,7 +3,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, Menu, MenuItem } from 'ming-ui';
 import { exportAttachment } from 'worksheet/common/ExportAttachment';
-import { exportSheet } from 'worksheet/common/ExportSheet';
+import exportSheet from 'worksheet/common/ExportSheet';
 import IconText from 'worksheet/components/IconText';
 import { canEditData } from 'worksheet/redux/actions/util';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';

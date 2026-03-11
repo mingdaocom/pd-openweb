@@ -251,7 +251,7 @@ export default class ImportConfig extends Component {
               {hasSheetImport && importSheetIndex >= 0 ? (
                 <div className="importInfo mLeft24 mRight24 flex flexColumn">
                   <div className="excelTitle mTop10">
-                    <span className="mRight12 Gray_9e">{_l('选择表头:')}</span>
+                    <span className="mRight12 textTertiary">{_l('选择表头:')}</span>
                     <span>{_l('第')}</span>
                     <input
                       value={titleLine}
@@ -269,7 +269,7 @@ export default class ImportConfig extends Component {
                       placement="bottom"
                     >
                       <span className="label">
-                        <Icon icon="error1" className="Font15 Gray_9e" />
+                        <Icon icon="error1" className="Font15 textTertiary" />
                       </span>
                     </Tooltip>
                     {this.renderSelectLine()}

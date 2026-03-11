@@ -1,10 +1,11 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { Button, Dialog, Popup, SpinLoading } from 'antd-mobile';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Textarea } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import FixedPage from 'src/pages/Mobile/App/FixedPage';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 import { getAppLangDetail } from 'src/utils/app';
@@ -18,9 +19,9 @@ const ApplyJoinAppPopup = styled(Popup)`
     border-radius: 8px 8px 0 0;
     padding: 16px 15px 7px;
     .ming.Textarea {
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border-secondary);
       &::-webkit-input-placeholder {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
     }
   }
@@ -85,7 +86,7 @@ export class AppPermissionsInfo extends React.Component {
         />
         <div className="flexRow mTop16">
           <Button
-            className="flex mRight6 Font14 bold Gray_75"
+            className="flex mRight6 Font14 bold textSecondary"
             onClick={() => this.setState({ applyJoinAppVisible: false, remark: '' })}
           >
             <span>{_l('取消')}</span>
@@ -102,12 +103,17 @@ export class AppPermissionsInfo extends React.Component {
     const { appStatus } = this.props;
     const { isAppActioning } = this.state;
     const info = STATUS_TO_TEXT[appStatus] || STATUS_TO_TEXT[2];
+
+    if (appStatus === 300016) {
+      return <RestrictAccessStatus />;
+    }
+
     return (
-      <div className="WhiteBG TxtCenter overflowHidden h100 flexRow alignItemsCenter justifyContentCenter">
+      <div className="bgPrimary TxtCenter overflowHidden h100 flexRow alignItemsCenter justifyContentCenter">
         <div className="flex">
           <img src={info.src} className="InlineBlock" width="110" />
           <br />
-          <p className="mTop25 mBottom25 TxtCenter Gray Font17 hintInfo">{info.text}</p>
+          <p className="mTop25 mBottom25 TxtCenter textPrimary Font17 hintInfo">{info.text}</p>
           {appStatus === 4 && (
             <div>
               <Button
@@ -167,10 +173,16 @@ const appPermissions = Component => {
           .then(data => {
             const { wsType } = data;
             if (wsType === 1) {
-              window.mobileNavigateTo(`/mobile/customPage/${appId}/${params.groupId}/${params.worksheetId}${location.search}`, true);
+              window.mobileNavigateTo(
+                `/mobile/customPage/${appId}/${params.groupId}/${params.worksheetId}${location.search}`,
+                true,
+              );
             }
             if (wsType === 3) {
-              window.mobileNavigateTo(`/mobile/chatbot/${appId}/${params.groupId}/${params.worksheetId}${location.search}`, true);
+              window.mobileNavigateTo(
+                `/mobile/chatbot/${appId}/${params.groupId}/${params.worksheetId}${location.search}`,
+                true,
+              );
             }
           });
       }

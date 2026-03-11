@@ -13,10 +13,10 @@ const Wrap = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   .recordList {
     overflow-y: auto;
-    background: #fff;
+    background: var(--color-background-primary);
     .recordItem {
       height: 48px;
       align-items: center;
@@ -37,7 +37,7 @@ const Wrap = styled.div`
       min-width: 0;
       height: 100%;
       line-height: 48px;
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-secondary);
     }
   }
 `;
@@ -147,7 +147,7 @@ export default class RecordCollect extends Component {
                   </div>
                   <div className="recordTitle flex pRight12 Font15 ellipsis">
                     {title}
-                    {/* <div className="Font13 Gray_9e mLeft20">{createTimeSpan(createTime)}</div> */}
+                    {/* <div className="Font13 textTertiary mLeft20">{createTimeSpan(createTime)}</div> */}
                   </div>
                 </div>
               );

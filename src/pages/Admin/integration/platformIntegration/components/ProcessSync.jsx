@@ -57,7 +57,7 @@ export default function ProcessSync(props) {
 
   return (
     <div className="stepItem">
-      <h3 className="stepTitle Font16 Gray mBottom24">
+      <h3 className="stepTitle Font16 textPrimary mBottom24">
         {isLark ? _l('流程待办同步至Lark审批中心') : _l('流程待办同步至飞书审批中心')}
       </h3>
       <div style={{ width: 50 }}>
@@ -69,7 +69,7 @@ export default function ProcessSync(props) {
       </div>
 
       <div className="mTop16 syncBox">
-        <span className="Font14 Gray_75">
+        <span className="Font14 textSecondary">
           {isLark
             ? _l('开启后，我的流程中的待办（待审批、待填写）同时会进入Lark待办任务，处理状态会同步更新')
             : _l('开启后，我的流程中的待办（待审批、待填写）同时会进入飞书待办任务，处理状态会同步更新')}

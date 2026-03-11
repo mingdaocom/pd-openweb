@@ -16,7 +16,7 @@ const FixedContent = styled.div`
     height: 110px;
     border-radius: 50%;
     text-align: center;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
     margin-top: 110px;
     .Font48 {
       font-size: 48px;
@@ -26,16 +26,16 @@ const FixedContent = styled.div`
     }
   }
   .fixeding {
-    color: #151515;
+    color: var(--color-text-title);
     font-size: 17px;
   }
   .fixedInfo {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     font-size: 14px;
   }
   .fixRemark {
     font-size: 13px;
-    color: #151515;
+    color: var(--color-text-title);
   }
 `;
 
@@ -47,7 +47,7 @@ export default class FixedPage extends Component {
       return (
         <FixedContent>
           <div className="iconInfo mBottom18" style={{ marginTop: document.body.clientHeight / 4 }}>
-            <Icon className="Font56 Gray_75" icon="computer" />
+            <Icon className="Font56 textSecondary" icon="computer" />
           </div>
           <div className="Font18 mBottom20 centerAlign fixeding">
             <div>{_l('应用未在此平台发布')}</div>

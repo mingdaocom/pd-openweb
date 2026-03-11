@@ -371,7 +371,7 @@ class SearchWorksheetActionDialog extends Component {
               });
             }}
           >
-            <i className="icon-trash Font17 Gray_9d ThemeHoverColor3"></i>
+            <i className="icon-trash Font17 textTertiary ThemeHoverColor3"></i>
           </span>
         </div>
         {showSelect && (
@@ -495,11 +495,11 @@ class SearchWorksheetActionDialog extends Component {
                                 padding: '0 16px 0 14px',
                                 height: 36,
                                 alignItems: 'center',
-                                borderBottom: '1px solid #e0e0e0',
+                                borderBottom: '1px solid var(--color-border-tertiary)',
                                 marginBottom: 5,
                               }}
                             >
-                              <i className="icon-search Gray_75 Font14" />
+                              <i className="icon-search textSecondary Font14" />
                               <input
                                 type="text"
                                 autoFocus
@@ -535,7 +535,7 @@ class SearchWorksheetActionDialog extends Component {
                               );
                             })
                           ) : (
-                            <MenuItem className="Gray_9">{_l('暂无搜索结果')}</MenuItem>
+                            <MenuItem className="textTertiary">{_l('暂无搜索结果')}</MenuItem>
                           )}
                         </Menu>
                         <div
@@ -563,12 +563,12 @@ class SearchWorksheetActionDialog extends Component {
                   {isSheetDelete ? (
                     <span className="Red">{_l('工作表已删除')}</span>
                   ) : sheetName ? (
-                    <span className="Gray">
+                    <span className="textPrimary">
                       {sheetName}
                       {appName && <span>（{appName}）</span>}
                     </span>
                   ) : (
-                    <span className="Gray_bd">{_l('选择工作表')}</span>
+                    <span className="textDisabled">{_l('选择工作表')}</span>
                   )}
                 </div>
                 <div className="edit">
@@ -610,7 +610,7 @@ class SearchWorksheetActionDialog extends Component {
 
           <SettingItem className="mTop12">
             <div className="settingItemTitle">{_l('赋值')}</div>
-            <div className="Gray_75 mBottom12">{_l('将查询到的记录值写入当前当前表单字段。')}</div>
+            <div className="textSecondary mBottom12">{_l('将查询到的记录值写入当前表单字段。')}</div>
             <div className="mappingItem mBottom0">
               <div className="mappingTitle">{_l('当前表单字段')}</div>
               <div className="mappingTitle">{_l('查询表字段')}</div>

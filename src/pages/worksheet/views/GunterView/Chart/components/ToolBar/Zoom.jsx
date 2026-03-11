@@ -16,7 +16,7 @@ const IconWrap = styled(Icon)`
     cursor: inherit;
   }
   &.hoverColor:hover:not(.disable) {
-    color: #1677ff !important;
+    color: var(--color-primary) !important;
   }
 `;
 
@@ -83,7 +83,7 @@ export default class Zoom extends Component {
       <Fragment>
         <Tooltip title={this.isMobile ? '' : <span>{_l('缩小')}</span>}>
           <IconWrap
-            className={cx('Font18 Gray_75 pointer mRight12 mLeft12', {
+            className={cx('Font18 textSecondary pointer mRight12 mLeft12', {
               disable: reduceDisable,
               hoverColor: !this.isMobile,
             })}
@@ -93,7 +93,7 @@ export default class Zoom extends Component {
         </Tooltip>
         <Tooltip title={this.isMobile ? '' : <span>{_l('放大')}</span>}>
           <IconWrap
-            className={cx('Font18 Gray_75 pointer mLeft6', { disable: addDisable, hoverColor: !this.isMobile })}
+            className={cx('Font18 textSecondary pointer mLeft6', { disable: addDisable, hoverColor: !this.isMobile })}
             icon="add1"
             onClick={addDisable ? _.noop : this.handleAdd}
           />

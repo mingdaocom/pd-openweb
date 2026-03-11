@@ -223,7 +223,7 @@ export default class AddUser extends Component {
         ? !!checkForm['userName'](userName) || !!checkForm['mobile'](mobile, this.iti)
         : !!checkForm['userName'](userName) || !!checkForm['email'](email);
 
-    if (md.global.Config.IsLocal && _.isEmpty(user)) {
+    if ((window.platformENV.isOverseas || window.platformENV.isLocal) && _.isEmpty(user)) {
       check = _.includes(['mobile', 'email'], inviteType)
         ? check
         : inviteType === 'autonomously' &&
@@ -251,7 +251,8 @@ export default class AddUser extends Component {
         contactPhone,
         fullname: !_.isEmpty(user) ? user.fullname : userName,
         account: inviteType === 'mobile' ? mobile : email,
-        accountId: !md.global.Config.IsLocal || !_.isEmpty(user) ? user.accountId : '',
+        accountId:
+          (!window.platformENV.isOverseas && !window.platformENV.isLocal) || !_.isEmpty(user) ? user.accountId : '',
         orgRoleIds: orgRoles.map(l => l.id).join(';'),
         useMultiJobs,
         departmentJobIdMaps: departmentJobInfos.map(item => ({
@@ -259,7 +260,7 @@ export default class AddUser extends Component {
           jobIds: item.jobIds,
         })),
       };
-      if (md.global.Config.IsLocal) {
+      if (window.platformENV.isOverseas || window.platformENV.isLocal) {
         params.verifyType = _.includes(['mobile', 'email'], inviteType) ? 0 : 1;
         if (inviteType === 'autonomously') {
           params.account = _.isEmpty(user)
@@ -370,7 +371,7 @@ export default class AddUser extends Component {
               <span className="userLabel">
                 <img src={user.avatar} />
                 <span className="userLabelName">{user.fullname}</span>
-                <span className="mLeft5 icon-cancel Font14 Gray_c Hand" onClick={this.clearSelectUser} />
+                <span className="mLeft5 icon-cancel Font14 textPlaceholder Hand" onClick={this.clearSelectUser} />
               </span>
               <Tooltip title={_l('从通讯录添加')}>
                 <span
@@ -388,15 +389,16 @@ export default class AddUser extends Component {
               <RadioGroup
                 checkedValue={inviteType}
                 data={[
-                  { text: md.global.Config.IsLocal ? _l('邮箱邀请') : _l('邮箱'), value: 'email' },
-                  { text: md.global.Config.IsLocal ? _l('手机号邀请') : _l('手机'), value: 'mobile' },
+                  {
+                    text: window.platformENV.isOverseas || window.platformENV.isLocal ? _l('邮箱邀请') : _l('邮箱'),
+                    value: 'email',
+                  },
+                  {
+                    text: window.platformENV.isOverseas || window.platformENV.isLocal ? _l('手机号邀请') : _l('手机'),
+                    value: 'mobile',
+                  },
                   { text: _l('自主创建'), value: 'autonomously' },
-                ].filter(item => {
-                  if (!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal)
-                    return item.value !== 'autonomously';
-                  if (!md.global.SysSettings.enableSmsCustomContent) return item.value !== 'mobile';
-                  return true;
-                })}
+                ].filter(item => (window.platformENV.isPlatform ? item.value !== 'autonomously' : true))}
                 onChange={val => {
                   setTimeout(() => {
                     this.itiFn();
@@ -413,7 +415,7 @@ export default class AddUser extends Component {
               ></RadioGroup>
             </div>
             {inviteType === 'mobile' && (
-              <div className="prompt flexRow mBottom20 Gray mTop10">
+              <div className="prompt flexRow mBottom20 textPrimary mTop10">
                 <div className="mRight3">
                   <Icon icon="info" className="Font16" />
                 </div>
@@ -595,12 +597,12 @@ export default class AddUser extends Component {
                   onClose();
                 }}
               >
-                <Icon icon="close" className="Font24 Gray_9e LineHeight36" />
+                <Icon icon="close" className="Font24 textTertiary LineHeight36" />
               </span>
             </div>
 
-            {(!md.global.Config.IsLocal || (md.global.Config.IsLocal && md.global.Config.IsPlatformLocal)) && (
-              <div className="Gray_9e mLeft24">{_l('姓名、手机和邮箱为个人账户信息，组织中无法修改')}</div>
+            {window.platformENV.isPlatform && (
+              <div className="textTertiary mLeft24">{_l('姓名、手机和邮箱为个人账户信息，组织中无法修改')}</div>
             )}
             {isUploading ? (
               <div className="flex flexRow justifyContentCenter alignItemsCenter">

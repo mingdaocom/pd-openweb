@@ -88,7 +88,7 @@ export default class extends Component {
           <Select
             className="chartSelect w100"
             value={scopeLevel}
-            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={this.handleChangeParticleSizeType}
           >
             {this.filterArea().map(item => (

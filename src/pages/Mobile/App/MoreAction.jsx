@@ -19,7 +19,7 @@ const ModalWrap = styled(Popup)`
         height: 24px;
         text-align: center;
         border-radius: 50%;
-        background-color: #e6e6e6;
+        background-color: var(--color-border-secondary);
         .icon {
           line-height: 24px;
         }
@@ -27,7 +27,7 @@ const ModalWrap = styled(Popup)`
     }
     .actionContent {
       padding: 0 20px 15px;
-      color: #000;
+      color: var(--color-text-primary);
       line-height: 50px;
       text-align: left;
       font-weight: 600;
@@ -41,10 +41,10 @@ const ModalWrap = styled(Popup)`
       overflow-y: auto;
     }
     .active {
-      color: #ffd800 !important;
+      color: var(--color-yellow) !important;
     }
     .lightColor {
-      color: #ffa700 !important;
+      color: var(--color-warning) !important;
     }
   }
 `;
@@ -179,15 +179,18 @@ export default function MoreAction(props) {
         onMaskClick={onClose}
       >
         <div className="flexRow header">
-          <div className="Font13 Gray_9e flex">{_l('应用操作')}</div>
+          <div className="Font13 textTertiary flex">{_l('应用操作')}</div>
           <div className="closeIcon" onClick={onClose}>
-            <Icon icon="close" className="Font17 Gray_9e bold" />
+            <Icon icon="close" className="Font17 textTertiary bold" />
           </div>
         </div>
         <div className="actionContent">
           {!window.isPublicApp && (
             <div className="flexCenter" onClick={() => dealMarked(!detail.isMarked)}>
-              <Icon icon="star_3" className={cx('Gray_9e mRight24 Font20 TxtMiddle', { active: detail.isMarked })} />
+              <Icon
+                icon="star_3"
+                className={cx('textTertiary mRight24 Font20 TxtMiddle', { active: detail.isMarked })}
+              />
               <span className="Font15">{detail.isMarked ? _l('取消收藏') : _l('收藏应用')}</span>
             </div>
           )}
@@ -199,13 +202,13 @@ export default function MoreAction(props) {
                 onClose();
               }}
             >
-              <Icon icon="group" className="Gray_9e mRight24 Font20 TxtMiddle" />
+              <Icon icon="group" className="textTertiary mRight24 Font20 TxtMiddle" />
               <span className="Font15">{_l('人员管理')}</span>
             </div>
           )}
           {appLangs.length > 0 && (
             <div className="flexCenter" onClick={() => setLanguageVisible(true)}>
-              <Icon icon="language" className="Gray_9e mRight24 Font20 TxtMiddle" />
+              <Icon icon="language" className="textTertiary mRight24 Font20 TxtMiddle" />
               <span className="Font15">{_l('应用语言')}</span>
             </div>
           )}
@@ -219,7 +222,7 @@ export default function MoreAction(props) {
             >
               <Icon
                 icon={viewHideNavi ? 'public-folder-hidden' : 'visibility'}
-                className={'Gray_9e mRight24 Font20 TxtMiddle'}
+                className={'textTertiary mRight24 Font20 TxtMiddle'}
               />
               <span className="Font15">{viewHideNavi ? _l('不显示隐藏的应用项') : _l('显示隐藏的应用项')}</span>
             </div>
@@ -233,16 +236,16 @@ export default function MoreAction(props) {
         onMaskClick={handleLanguageClose}
       >
         <div className="flexRow header">
-          <div className="Font13 Gray_9e flex">{_l('应用语言')}</div>
+          <div className="Font13 textTertiary flex">{_l('应用语言')}</div>
           <div className="closeIcon" onClick={handleLanguageClose}>
-            <Icon icon="close" className="Font17 Gray_9e bold" />
+            <Icon icon="close" className="Font17 textTertiary bold" />
           </div>
         </div>
         <div className="actionContent languageActionContent">
           {appLangs.map(item => (
             <div className="flexCenter langItem" key={item.langCode} onClick={() => handleSetLang(item.langCode)}>
               <span className="Font15">{_.get(langList[item.langCode], 'localLang')}</span>
-              {item.langCode === md.global.Account.appLang && <Icon icon="done" className="ThemeColor Font30" />}
+              {item.langCode === md.global.Account.appLang && <Icon icon="done" className="colorPrimary Font30" />}
             </div>
           ))}
           <div className="flexCenter langItem" onClick={() => handleSetLang('')}>
@@ -250,7 +253,7 @@ export default function MoreAction(props) {
               {_l('基准语言')}
               {originalLang && `(${_.get(langList[originalLang], 'localLang')})`}
             </span>
-            {!md.global.Account.appLang && <Icon icon="done" className="ThemeColor Font30" />}
+            {!md.global.Account.appLang && <Icon icon="done" className="colorPrimary Font30" />}
           </div>
         </div>
       </ModalWrap>

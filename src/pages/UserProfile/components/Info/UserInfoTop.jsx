@@ -7,7 +7,7 @@ import PersonalStatus from 'src/pages/chat/components/MyStatus/PersonalStatus';
 import * as actions from 'src/pages/chat/redux/actions';
 
 const InfoTopWrap = styled.div`
-  color: #151515;
+  color: var(--color-text-title);
   .userAvatar {
     width: 58px;
     height: 58px;
@@ -48,9 +48,9 @@ class InfoTop extends React.PureComponent {
           <div className="flex mLeft12" title={userInfo.fullname}>
             <div className="bold">{userInfo.fullname}</div>
             {userInfo.accountId !== md.global.Account.accountId && commonOrg.length > 0 ? (
-              <div className="ThemeColor">{_l('%0个共同组织', commonOrg.length)}</div>
+              <div className="colorPrimary">{_l('%0个共同组织', commonOrg.length)}</div>
             ) : userInfo.companyName ? (
-              <div className="Gray_75">{userInfo.companyName}</div>
+              <div className="textSecondary">{userInfo.companyName}</div>
             ) : (
               ''
             )}

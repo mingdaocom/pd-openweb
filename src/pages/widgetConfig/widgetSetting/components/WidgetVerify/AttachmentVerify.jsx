@@ -53,7 +53,7 @@ export default function AttachmentVerify(props) {
               </span>
             }
           >
-            <i className="icon-help Gray_9e Font16 Hand"></i>
+            <i className="icon-help textTertiary Font16 Hand"></i>
           </Tooltip>
         </Checkbox>
       </div>

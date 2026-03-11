@@ -5,7 +5,6 @@ import moment from 'moment';
 import Trigger from 'rc-trigger';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { controlState } from 'src/utils/control';
-import { dateConvertToServerZone } from 'src/utils/project';
 import { WrapChoose } from './styles';
 
 export default function (props) {
@@ -75,11 +74,11 @@ export default function (props) {
         : '';
       let data = selectTimeInfo.startStr
         ? {
-            [o.begin]: dateConvertToServerZone(startT),
-            [o.end]: dateConvertToServerZone(endT),
+            [o.begin]: startT,
+            [o.end]: endT,
           }
         : {
-            [o.begin]: dateConvertToServerZone(startT),
+            [o.begin]: startT,
           };
       addRecordInfo(data);
       onChangeState({ selectTimeInfo: {} });

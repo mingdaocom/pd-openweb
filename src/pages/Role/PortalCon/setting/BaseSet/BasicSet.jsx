@@ -8,7 +8,7 @@ export default function (props) {
   const { noticeScope = {} } = portalSetModel;
   return (
     <>
-      <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('功能设置')}</h6>
+      <h6 className="Font16 textPrimary Bold mBottom0 mTop24">{_l('功能设置')}</h6>
       <div className="mTop12">
         <SwitchStyle>
           <Icon
@@ -35,7 +35,7 @@ export default function (props) {
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">{_l('允许参与记录讨论')}</div>
+          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">{_l('允许参与记录讨论')}</div>
         </SwitchStyle>
         <div style={{ 'margin-left': '36px' }}>
           {portalSetModel.allowExAccountDiscuss && (
@@ -98,7 +98,7 @@ export default function (props) {
                           });
                         }}
                       />
-                      <p className="Gray_9e mTop6 mLeft30 Font13">
+                      <p className="textTertiary mTop6 mLeft30 Font13">
                         {i === 0
                           ? _l('外部用户与成员共用一个讨论区域，可见全部讨论内容')
                           : _l('分为内部和外部两个讨论区，外部用户不可见内部讨论区')}
@@ -125,7 +125,9 @@ export default function (props) {
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">{_l('允许查看审批流转详情')}</div>
+          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">
+            {_l('允许查看审批流转详情')}
+          </div>
         </SwitchStyle>
       </div>
       <div className="mTop5">
@@ -142,10 +144,10 @@ export default function (props) {
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">{_l('水印设置')}</div>
+          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">{_l('水印设置')}</div>
         </SwitchStyle>
         {portalSetModel.watermark === 1 && (
-          <div style={{ 'margin-left': '44px' }} className="Gray_9e Font13">
+          <div style={{ 'margin-left': '44px' }} className="textTertiary Font13">
             {_l('启用水印配置后，将在外部门户内显示当前使用者的姓名+手机号后4位或邮箱前缀')}
           </div>
         )}

@@ -45,7 +45,7 @@ class WidgetsDesc extends React.Component {
 
     if (hintShowAsText) {
       return (
-        <p className="descBox pAll0 mAll0 mBottom0 mTop6 Font12 Gray_75 w100 WordBreak">
+        <p className="descBox pAll0 mAll0 mBottom0 mTop6 Font12 textSecondary w100 WordBreak">
           <span className="descTxt" ref={formcon => (this.formconBox = formcon)}>
             <span ref={formcon => (this.formcon = formcon)} className="descText">
               <Linkify properties={{ target: '_blank' }}>{item.desc}</Linkify>
@@ -91,7 +91,7 @@ class WidgetsDesc extends React.Component {
           placement="topLeft"
           align={{ offset: [-12, 0] }}
         >
-          <i className="icon-info_outline pointer Font16 Gray_9e mLeft3 InlineBlock" />
+          <i className="icon-info_outline pointer Font16 textTertiary mLeft3 InlineBlock" />
         </Tooltip>
       </span>
     );

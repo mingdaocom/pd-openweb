@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import { humanFileSize } from 'src/pages/kc/utils';
 import * as Actions from '../actions/action';
 import { PREVIEW_TYPE } from '../constant/enum';
 import ThumbnailItem from '../thumbnailItem';
@@ -40,9 +41,9 @@ class ThumbnailGuide extends React.Component {
     attachments: PropTypes.array,
     index: PropTypes.number,
     changeIndex: PropTypes.func,
-    showThumbnail: PropTypes.bool,
     toggleThumbnail: PropTypes.func,
     className: PropTypes.string,
+    isShare: PropTypes.bool,
   };
 
   state = {
@@ -50,7 +51,7 @@ class ThumbnailGuide extends React.Component {
     marginLeft: 0,
     fitited: false,
     tip: '',
-    showThumbnail: false,
+    showThumbnail: this.props.isShare,
   };
 
   componentDidMount() {
@@ -134,6 +135,10 @@ class ThumbnailGuide extends React.Component {
       <div className={cx('thumbnailGuide', this.props.className)} ref={guide => (this.thumbnailGuide = guide)}>
         <div className="statusBar fle" onClick={this.foldThumbnail}>
           <div className="fold">
+            <div className="Left AttachmentInfo">
+              {currentAttachment.ext.toUpperCase()}
+              {currentAttachment.size ? ` - ${humanFileSize(currentAttachment.size)}` : ''}
+            </div>
             <div
               className="InlineBlock"
               onClick={evt => {
@@ -245,7 +250,6 @@ class ThumbnailGuide extends React.Component {
 function mapStateToProps(state) {
   return {
     attachments: state.attachments,
-    showThumbnail: state.showThumbnail,
     index: state.index,
   };
 }

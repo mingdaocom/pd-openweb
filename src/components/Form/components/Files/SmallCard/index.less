@@ -15,11 +15,11 @@
   flex: 1;
   margin: 0 6px 6px 0;
   border-radius: 4px;
-  background: #fafafa;
+  background: var(--color-background-secondary);
   position: relative;
   &:hover,
   &.hover {
-    background: #f2f2f2;
+    background: var(--color-background-disabled);
     .operateBtns {
       display: flex;
     }
@@ -49,7 +49,7 @@
       background-position: center;
     }
     .kcIcon {
-      color: #fff;
+      color: var(--color-white);
       height: 20px;
       width: 20px;
       position: absolute;
@@ -80,12 +80,12 @@
     .btnWrap {
       padding: 0 5px;
       .icon:hover {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
     .delete {
       .icon:hover {
-        color: #f44336 !important;
+        color: var(--color-error) !important;
       }
     }
     .cancelBtn,

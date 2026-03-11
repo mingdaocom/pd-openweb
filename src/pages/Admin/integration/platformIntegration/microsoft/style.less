@@ -1,0 +1,48 @@
+.microsoftMainContent {
+  .linkPageWrapper {
+    height: 100%;
+    padding: 0 200px;
+    .microsoftLogo {
+      width: 55px;
+      height: 55px;
+    }
+  }
+
+  .stepTitle {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 12px;
+  }
+  .stepDesc {
+    font-size: 14px;
+    color: #757575;
+  }
+
+  .enableBtn {
+    background: #4caf50;
+    &:hover {
+      background: #45a049;
+    }
+
+    &.Button--disabled {
+      background: rgba(76, 175, 80, 0.6);
+      &:hover {
+        background: rgba(76, 175, 80, 0.6);
+      }
+    }
+  }
+  .closeBtn {
+    border-color: var(--color-error);
+    color: var(--color-error);
+    &:hover {
+      background: var(--color-error);
+    }
+  }
+  .syncBtn {
+    &.Button--disabled {
+      background: var(--color-primary) !important;
+      opacity: 0.5;
+    }
+  }
+}

@@ -16,11 +16,11 @@ const RecorderContent = styled.div`
     width: 36px;
     height: 36px;
     border-radius: 36px;
-    color: #757575;
+    color: var(--color-text-secondary);
     font-size: 22px;
     cursor: pointer;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
   .recorderStatus {
@@ -31,7 +31,7 @@ const RecorderContent = styled.div`
   }
   .recordTime {
     font-size: 13px;
-    color: #151515;
+    color: var(--color-text-title);
     margin: 0 15px 0 8px;
     font-weight: 500;
     transition: color 0.2s ease;
@@ -51,29 +51,29 @@ const RecorderContent = styled.div`
     height: 28px;
     border-radius: 28px;
     font-size: 20px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     cursor: pointer;
     margin-right: 6px;
     &:hover {
-      background: #fff;
+      background: var(--color-background-primary);
     }
   }
   .error {
     font-size: 13px;
-    color: #151515;
+    color: var(--color-text-title);
     padding: 0 12px;
     .icon {
       font-size: 16px;
-      color: #f44336;
+      color: var(--color-error);
       margin-right: 6px;
     }
   }
   &.error-status {
-    background: #fff0ef;
+    background: var(--color-error-bg);
   }
 `;
 
-function getRecorderAuthConfig() {
+export function getRecorderAuthConfig() {
   const authConfig = localStorage.getItem('RECORDER_AUTH_CONFIG');
   if (authConfig) {
     const authConfigObj = safeParse(authConfig);

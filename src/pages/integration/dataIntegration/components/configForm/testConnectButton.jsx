@@ -6,10 +6,10 @@ import { TEST_STATUS } from '../../constant';
 const TestButton = styled.div`
   display: inline-block;
   vertical-align: middle;
-  border: 1px solid #1677ff;
+  border: 1px solid var(--color-primary);
   border-radius: 3px;
-  color: #1677ff;
-  background-color: #fff;
+  color: var(--color-primary);
+  background-color: var(--color-background-primary);
   font-size: 14px;
   line-height: 18px;
   height: 36px;
@@ -19,16 +19,16 @@ const TestButton = styled.div`
   &.lightHover {
     &.default {
       &:hover {
-        color: #1677ff;
-        background: #f4f8fb;
+        color: var(--color-primary);
+        background: var(--color-background-secondary);
       }
     }
   }
 
   &.default {
     &:hover {
-      color: #fff;
-      background-color: #1677ff;
+      color: var(--color-white);
+      background-color: var(--color-primary);
     }
   }
 
@@ -38,23 +38,23 @@ const TestButton = styled.div`
   }
 
   &.testSuccess {
-    color: #4caf50;
-    border-color: #4caf50;
+    color: var(--color-success);
+    border-color: var(--color-success);
     i {
       width: 14px;
       height: 14px;
       border-radius: 50%;
       margin-right: 5px;
-      background: #4caf50;
-      color: #fff;
+      background: var(--color-success);
+      color: var(--color-white);
     }
   }
 
   &.testFailed {
-    color: #f44336;
-    border-color: #f44336;
+    color: var(--color-error);
+    border-color: var(--color-error);
     i {
-      color: #f44336;
+      color: var(--color-error);
       margin-right: 5px;
     }
   }

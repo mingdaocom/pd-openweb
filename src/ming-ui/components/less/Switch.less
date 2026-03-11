@@ -27,7 +27,7 @@
     top: 2px;
     content: '';
     border-radius: 50%;
-    background: #fff;
+    background: var(--color-white);
     box-shadow:
       0px 3px 6px rgba(0, 0, 0, 0.12),
       0px 1px 2px rgba(0, 0, 0, 0.16);
@@ -35,14 +35,14 @@
   .txt {
     width: 28px;
     text-align: center;
-    color: #fff;
+    color: var(--color-white);
     display: inline-block;
     line-height: 24px;
     padding-left: 8px;
     box-sizing: initial;
   }
   &--on {
-    background: #01ca83;
+    background: var(--color-task);
     .dot {
       left: 26px;
     }
@@ -58,7 +58,7 @@
     }
   }
   &--off {
-    background: #ccc;
+    background: var(--color-text-placeholder);
     .dot {
       left: 2px;
     }

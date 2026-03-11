@@ -121,7 +121,6 @@ class ExportAttachment extends Component {
 
     return (
       <Dialog
-        className="exportSheet"
         visible
         anim={false}
         title={_l('批量导出附件')}
@@ -131,7 +130,7 @@ class ExportAttachment extends Component {
         onOk={this.handleExport}
       >
         <Container>
-          <div className="Gray_9e mBottom30">
+          <div className="textTertiary mBottom30">
             {_l('选择需要导出的附件字段，导出附件总数不超过1000个，总大小不超过1GB')}
           </div>
           <div className="bold mBottom10">{_l('选择导出的附件字段')}</div>
@@ -144,7 +143,7 @@ class ExportAttachment extends Component {
                   <Fragment>
                     {item.controlName || ''}
                     {isCharge && !this.checkControlVisible(item) && (
-                      <Icon type="workflow_hide" className="Font14 Gray_9e mLeft5" />
+                      <Icon type="workflow_hide" className="Font14 textTertiary mLeft5" />
                     )}
                   </Fragment>
                 }
@@ -205,7 +204,7 @@ class ExportAttachment extends Component {
             )}
           </div>
           {!_.isEmpty(nameMethodValues) && (
-            <div className="Gray_9e mTop10 Font13">
+            <div className="textTertiary mTop10 Font13">
               {_l('示例：')}
               {exampleArr.map((v, i) => {
                 return (
@@ -224,7 +223,9 @@ class ExportAttachment extends Component {
             checked={generateFolder}
             onClick={checked => this.setState({ generateFolder: !checked })}
           />
-          <div className="Gray_9e Font13">{_l('文件夹名和附件名的最大长度为90个汉字。超限的文件不会被导出。')}</div>
+          <div className="textTertiary Font13">
+            {_l('文件夹名和附件名的最大长度为90个汉字。超限的文件不会被导出。')}
+          </div>
         </Container>
       </Dialog>
     );

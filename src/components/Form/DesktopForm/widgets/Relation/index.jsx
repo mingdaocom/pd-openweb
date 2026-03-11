@@ -60,7 +60,8 @@ const Relation = props => {
   };
 
   // 私有部署没有申请单，兼容到全部
-  const finalEnumDefault = md.global.Config.IsLocal && enumDefault === 5 ? 0 : enumDefault;
+  const finalEnumDefault =
+    (window.platformENV.isOverseas || window.platformENV.isLocal) && enumDefault === 5 ? 0 : enumDefault;
 
   const text = getRelationText(finalEnumDefault);
 
@@ -68,7 +69,7 @@ const Relation = props => {
     <div className={cx({ controlDisabled: disabled })} style={{ height: 'auto' }}>
       {!disabled && (
         <button className="customFormRelationBtn pointer" onClick={handleAdd}>
-          <Icon icon="plus" className="mRight5 Gray_9e Font16" />
+          <Icon icon="plus" className="mRight5 textTertiary Font16" />
           <span>{text}</span>
         </button>
       )}

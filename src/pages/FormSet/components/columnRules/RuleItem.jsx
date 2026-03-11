@@ -7,7 +7,7 @@ import Trigger from 'rc-trigger';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
-import { isRelateMoreList } from 'src/components/Form/core/formUtils';
+import { isRelateMoreList } from 'src/components/Form/core/formUtils/helper';
 import DynamicText from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/components/DynamicText';
 import {
   checkRuleEnableLimit,
@@ -44,7 +44,7 @@ function renderFilterItemTexts(filters = [], disabled = false, worksheetControls
     return (
       <span key={index}>
         {index ? (
-          <span className="mLeft10 mRight10 gray_9e Font13">{item.spliceType === 2 ? _l('或') : _l('且')}</span>
+          <span className="mLeft10 mRight10 textTertiary Font13">{item.spliceType === 2 ? _l('或') : _l('且')}</span>
         ) : null}
         {item.id ? (
           <Fragment>
@@ -69,12 +69,12 @@ function renderFilterItemTexts(filters = [], disabled = false, worksheetControls
     <React.Fragment>
       {filterItemTexts.map((item, index) => {
         return (
-          <span className={cx({ Gray_bd: disabled })}>
-            {filterItemTexts.length > 1 ? <span className="gray_9e mRight2">(</span> : null}
+          <span className={cx({ textDisabled: disabled })}>
+            {filterItemTexts.length > 1 ? <span className="textTertiary mRight2">(</span> : null}
             {(item.groupFilters || []).map((child, childIdx) => {
               return renderItemText(child, childIdx);
             })}
-            {filterItemTexts.length > 1 ? <span className="gray_9e mLeft2">)</span> : null}
+            {filterItemTexts.length > 1 ? <span className="textTertiary mLeft2">)</span> : null}
             {index !== filterItemTexts.length - 1 ? (
               <span className="mLeft10 mRight10">{item.spliceType === 2 ? _l('或') : _l('且')}</span>
             ) : null}
@@ -128,7 +128,7 @@ class RuleItems extends React.Component {
       }
       if (actionItem.type === 9) {
         return (
-          <span className={cx('detailValue mTop6', { Gray_bd: disabled })}>
+          <span className={cx('detailValue mTop6', { textDisabled: disabled })}>
             {currentArr.map(cur => {
               if (cur.isDel) {
                 return <span className="detailValueCon LineHeight30 Red">{_l('字段已删除')}</span>;
@@ -163,13 +163,13 @@ class RuleItems extends React.Component {
             text = currentArr.map(cur => cur.name).join(', ');
           }
         }
-        return <span className={cx('rightLabel WordBreak', { Gray_bd: disabled })}>{text}</span>;
+        return <span className={cx('rightLabel WordBreak', { textDisabled: disabled })}>{text}</span>;
       }
     };
 
     return (
       <span className={cx('ruleItemTextRow', { mTop10: actionItem.type !== 9 })}>
-        <span className={cx('leftLabel', { Gray_bd: disabled, mTop10: actionItem.type === 9 })}>{leftText}</span>
+        <span className={cx('leftLabel', { textDisabled: disabled, mTop10: actionItem.type === 9 })}>{leftText}</span>
         {renderDetailValue()}
       </span>
     );
@@ -199,7 +199,7 @@ class RuleItems extends React.Component {
         <div className="ruleNameInputBox" onClick={e => e.stopPropagation()}>
           {type === 1 && <div className={cx('ruleTypeIcon', { isWarning: checkType === 3 })}></div>}
           <input
-            className={cx('ruleNameInput', { Gray_bd: disabled })}
+            className={cx('ruleNameInput', { textDisabled: disabled })}
             style={{ width: getNameWidth(name) }}
             value={name}
             onFocus={e => {
@@ -213,7 +213,7 @@ class RuleItems extends React.Component {
             }}
           />
         </div>
-        <span className={cx('ruleItemTextRow', { Gray_bd: disabled })}>
+        <span className={cx('ruleItemTextRow', { textDisabled: disabled })}>
           <span className="leftLabel">{_l('当满足条件')}</span>
           <span className="rightLabel">{renderFilterItemTexts(filters, disabled, worksheetControls)}</span>
         </span>
@@ -224,7 +224,7 @@ class RuleItems extends React.Component {
             <Icon
               className="Font24 Hand"
               icon={ruleData.disabled ? 'ic_toggle_off' : 'ic_toggle_on'}
-              style={{ color: ruleData.disabled ? '#bdbdbd' : '#43bd36' }}
+              style={{ color: ruleData.disabled ? 'var(--color-text-disabled)' : 'var(--color-success)' }}
               onClick={() => {
                 if (ruleData.disabled && !checkRuleEnableLimit(columnRulesListData)) {
                   return;
@@ -235,7 +235,11 @@ class RuleItems extends React.Component {
           </Tooltip>
           {type !== TAB_TYPES.LOCK_RULE && (
             <Tooltip placement="bottom" title={_l('复制')}>
-              <Icon icon="copy" className="Font16 Hand Gray_9e Hover_49" onClick={() => copyControlRules(ruleData)} />
+              <Icon
+                icon="copy"
+                className="Font16 Hand textTertiary hoverTextPrimaryLight"
+                onClick={() => copyControlRules(ruleData)}
+              />
             </Tooltip>
           )}
           <Trigger
@@ -250,7 +254,7 @@ class RuleItems extends React.Component {
               <div className="DropdownDeleteRuleTrigger">
                 <div className="title">{_l('确定要删除此规则？')}</div>
                 <div className="deleteGroupBtns">
-                  <div className="Gray_9e Hand" onClick={() => this.setState({ showDeleteBox: null })}>
+                  <div className="textTertiary Hand" onClick={() => this.setState({ showDeleteBox: null })}>
                     {_l('取消')}
                   </div>
                   <div

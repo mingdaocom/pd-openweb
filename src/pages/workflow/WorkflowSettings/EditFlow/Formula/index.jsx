@@ -48,7 +48,7 @@ export default class Formula extends Component {
         );
       }
 
-      return <div className="pLeft8 pRight8 ellipsis Gray_75">{_l('获取数据条数')}</div>;
+      return <div className="pLeft8 pRight8 ellipsis textSecondary">{_l('获取数据条数')}</div>;
     }
 
     if (isException) {
@@ -126,7 +126,9 @@ export default class Formula extends Component {
     return (
       <Fragment>
         <div className="pLeft8 pRight8 breakAll">
-          <span className="Gray_75">{actionId === ACTION_ID.FUNCTION_CALCULATION ? _l('计算：') : _l('运算：')}</span>
+          <span className="textSecondary">
+            {actionId === ACTION_ID.FUNCTION_CALCULATION ? _l('计算：') : _l('运算：')}
+          </span>
           {fieldValue + fieldControlName + formulaValue}
         </div>
       </Fragment>
@@ -161,7 +163,11 @@ export default class Formula extends Component {
             </div>
             <NodeOperate nodeClassName="BGGreen" {...this.props} />
             <div className="workflowContent Font13">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? (
+                <span className="pLeft8 pRight8 textSecondary">{_l('加载中...')}</span>
+              ) : (
+                this.renderContent()
+              )}
             </div>
           </div>
           <CreateNode {...this.props} />

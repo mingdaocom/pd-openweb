@@ -11,7 +11,7 @@ const EditingCardWrap = styled.div`
   position: absolute;
   width: ${porps => `${porps.width ? porps.width : 280}px`};
   border-radius: 3px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 3px;
   .editTitleTextInput {
     border: none;

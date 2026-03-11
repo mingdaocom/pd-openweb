@@ -70,7 +70,7 @@ const Base = () => {
           </tbody>
         </table>
       ) : (
-        <div className="flexRow justifyContentCenter alignItemsCenter mHeight200 Font14 Gray_9e">
+        <div className="flexRow justifyContentCenter alignItemsCenter mHeight200 Font14 textTertiary">
           {_l('暂无基础功能数据')}
         </div>
       )}

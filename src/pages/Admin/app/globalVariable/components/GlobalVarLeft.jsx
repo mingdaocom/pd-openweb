@@ -60,14 +60,16 @@ export default function GlobalVarLeft(props) {
         {_l('组织')}
       </div>
       <SearchInput className="searchCon mLeft18" placeholder={_l('搜索应用')} onChange={onSearch} />
-      <div className="Gray_9e mBottom8 pLeft30">{_l('按应用')}</div>
+      <div className="textTertiary mBottom8 pLeft30">{_l('按应用')}</div>
       <ScrollView className="flex" onScrollEnd={onScrollEnd}>
         {fetchState.pageIndex === 1 && fetchState.loading ? (
           <LoadDiv className="mTop10" />
         ) : (
           <div>
             {!appList.length ? (
-              <div className="mTop10 pLeft30 Gray_9e">{fetchState.keyWords ? _l('暂无搜索结果') : _l('暂无应用')}</div>
+              <div className="mTop10 pLeft30 textTertiary">
+                {fetchState.keyWords ? _l('暂无搜索结果') : _l('暂无应用')}
+              </div>
             ) : (
               appList.map(app => {
                 return (

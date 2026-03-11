@@ -19,11 +19,11 @@ const ConfigWrap = styled.div`
   height: 36px;
   line-height: 36px;
   padding: 0 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   border-radius: 4px;
   cursor: pointer;
   &:hover {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
   }
 `;
 
@@ -129,11 +129,11 @@ export default function Area(props) {
         filterCommonData.length === COMMON_DEFAULT_COUNTRY.length &&
         _.isEqual(filterCommonData, COMMON_DEFAULT_COUNTRY)
       ) {
-        return <div className="text Gray_75">{_l('默认')}</div>;
+        return <div className="text textSecondary">{_l('默认')}</div>;
       }
       return <div className="text">{_l('%0个', filterCommonData.length)}</div>;
     }
-    return <div className="text Gray_bd">{_l('请选择')}</div>;
+    return <div className="text textDisabled">{_l('请选择')}</div>;
   };
 
   return (

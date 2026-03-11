@@ -39,21 +39,21 @@ const ControlItem = styled.div`
   padding: 0 20px;
   cursor: pointer;
   &:hover {
-    background: #e8e8e8;
+    background: var(--color-border-secondary);
   }
 `;
 
 const ExpandIcon = styled.i`
   display: inline-block;
   font-size: 16px;
-  color: #9d9d9d;
+  color: var(--color-text-tertiary);
   vertical-align: middle !important;
   transform: ${({ isActive }) => `rotate(${isActive ? 0 : -90}deg)`};
 `;
 
 const Icon = styled.i`
   font-size: 18px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   margin-right: 8px;
   line-height: 36px;
 `;

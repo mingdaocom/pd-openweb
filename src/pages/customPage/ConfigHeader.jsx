@@ -1,5 +1,4 @@
 import React, { useRef, useState } from 'react';
-import store from 'redux/configureStore';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -9,6 +8,7 @@ import appManagementAjax from 'src/api/appManagement';
 import { updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
 import ConfigSideWrap from 'src/pages/customPage/components/ConfigSideWrap';
 import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
+import store from 'src/redux/configureStore';
 import { FlexCenter } from './util';
 
 const DisplayType = [
@@ -23,15 +23,15 @@ const ConfigHeader = styled(FlexCenter)`
   height: 50px;
   padding: 0 24px;
   z-index: 9;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.24);
   .iconWrap {
     padding-right: 24px;
     cursor: pointer;
     .back {
-      color: #757575;
+      color: var(--color-text-secondary);
       &:hover {
-        color: #151515;
+        color: var(--color-text-title);
       }
     }
   }
@@ -44,13 +44,13 @@ const ConfigHeader = styled(FlexCenter)`
       max-width: 240px;
       margin-top: 1px;
       padding: 0 10px;
-      border-bottom: 1px dashed #9e9e9e;
+      border-bottom: 1px dashed var(--color-text-tertiary);
       cursor: pointer;
     }
     input {
       border: none;
       font-size: 17px;
-      border-bottom: 2px solid #1677ff;
+      border-bottom: 2px solid var(--color-primary);
     }
   }
   .displayType {
@@ -66,14 +66,14 @@ const ConfigHeader = styled(FlexCenter)`
       cursor: pointer;
       transition: all 0.25s;
       font-size: 22px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       border-radius: 4px;
       margin-right: 4px;
       &.highlight {
-        background-color: #efefef;
+        background-color: var(--color-background-hover);
       }
       &:hover {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-hover);
       }
     }
     &::after {
@@ -82,21 +82,21 @@ const ConfigHeader = styled(FlexCenter)`
       right: -11px;
       width: 1px;
       height: 12px;
-      background: #dfdfdf;
+      background: var(--color-border-primary);
     }
   }
   .pageSetting {
     &:hover * {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
   .close {
-    background-color: #f5f5f5;
-    color: #9e9e9e;
+    background-color: var(--color-background-secondary);
+    color: var(--color-text-tertiary);
     margin-right: 10px;
     &:hover {
-      background-color: #eaeaea;
-      color: #9e9e9e;
+      background-color: var(--color-border-secondary);
+      color: var(--color-text-tertiary);
     }
   }
   .complete {
@@ -213,7 +213,7 @@ export default props => {
         ))}
       </ul>
       <div className="flexRow alignItemsCenter pointer mRight20 pageSetting" onClick={() => setConfigVisible(true)}>
-        <Icon className="Font20 Gray_75" icon="design-services" />
+        <Icon className="Font20 textSecondary" icon="design-services" />
         <div className="mLeft5 Font13 bold">{_l('页面配置')}</div>
       </div>
       {apk.appId && (

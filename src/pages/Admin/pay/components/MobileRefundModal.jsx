@@ -15,15 +15,15 @@ const Wrap = styled(Popup)`
 `;
 
 const InputWrap = styled.div`
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-secondary);
   border-radius: 3px;
   &.focusWrap {
-    border: 1px solid #1e88e5;
+    border: 1px solid var(--color-primary);
   }
   .ming.Input {
     border: none;
     &::placeholder {
-      color: #bfbfbf;
+      color: var(--color-text-disabled);
     }
   }
 `;
@@ -35,11 +35,11 @@ function AgreeOrRefuseRefund(props) {
   return (
     <Wrap bodyClassName="popupContent" visible={visible} onClose={onClose}>
       <div className="Font17 bold mBottom16">{isRefund ? _l('是否拒绝退款?') : _l('是否同意退款?')}</div>
-      <div className="Font12 Gray_9e mBottom24">
+      <div className="Font12 textTertiary mBottom24">
         {isRefund ? '' : _l('同意退款后，申请的退款金额 ¥%0 将原路退回到用户账户中', amount)}
       </div>
       <div className="flexRow">
-        <Button className="flex mRight5 Font14 bold Gray_75" onClick={onClose}>
+        <Button className="flex mRight5 Font14 bold textSecondary" onClick={onClose}>
           <span>{_l('取消')}</span>
         </Button>
         <Button
@@ -156,12 +156,12 @@ function RefundConfirm(props) {
           onBlur={onBlur}
           onFocus={() => setIsFocus(true)}
         />
-        <div className="Hand ThemeColor Hover_51 Font14" onClick={() => setAmount(max > 0 ? max : 0)}>
+        <div className="Hand colorPrimary Hover_51 Font14" onClick={() => setAmount(max > 0 ? max : 0)}>
           {_l('全部退款')}
         </div>
       </InputWrap>
       <div className="flexRow">
-        <Button className="flex mRight5 Font14 bold Gray_75" onClick={onClose}>
+        <Button className="flex mRight5 Font14 bold textSecondary" onClick={onClose}>
           <span>{_l('取消')}</span>
         </Button>
         <Button className="flex mLeft5 Font14 bold" color="danger" onClick={onOk}>

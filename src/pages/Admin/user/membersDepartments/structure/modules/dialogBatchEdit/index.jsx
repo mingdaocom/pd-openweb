@@ -18,7 +18,7 @@ const options = [
   {
     text: _l('密码'),
     value: 4,
-    className: md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? 'show' : 'hide',
+    className: !window.platformENV.isPlatform ? 'show' : 'hide',
   },
 ];
 // const checkedOptions = [
@@ -190,13 +190,17 @@ export default class DialogBatchEdit extends Component {
         onCancel={this.props.onCancel}
         onOk={this.submit}
       >
-        <div className="Gray_75 Bold ">{_l('选择编辑字段')}</div>
+        <div className="textSecondary Bold ">{_l('选择编辑字段')}</div>
         <RadioGroup
-          data={options.filter(it => (md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? true : it.value !== 4))}
+          data={options.filter(it =>
+            !window.platformENV.isOverseas && window.platformENV.isLocal && !window.platformENV.isPlatform
+              ? true
+              : it.value !== 4,
+          )}
           onChange={this.changeRadio}
           checkedValue={filedValue}
         />
-        <div className="Gray_75 Bold mTop20 mBottom12">{_l('设为')}</div>
+        <div className="textSecondary Bold mTop20 mBottom12">{_l('设为')}</div>
         {filedValue === 1 &&
           departmentInfos.map((item, i) => {
             return (
@@ -205,7 +209,7 @@ export default class DialogBatchEdit extends Component {
                 {i === 0 && <span className="isTopIcon">{_l('主')}</span>}
                 <div className="moreOption">
                   <Icon
-                    className="Font14 Hand Gray_bd"
+                    className="Font14 Hand textDisabled"
                     icon="moreop"
                     onClick={() => {
                       this.setState({
@@ -257,7 +261,7 @@ export default class DialogBatchEdit extends Component {
                 {item.jobName}
                 <div className="moreOption">
                   <Icon
-                    className="Font14 Hand Gray_bd"
+                    className="Font14 Hand textDisabled"
                     icon="moreop"
                     onClick={() => {
                       this.setState({
@@ -294,7 +298,7 @@ export default class DialogBatchEdit extends Component {
         {(filedValue === 1 || filedValue === 2) && (
           <Icon
             icon="task_add-02"
-            className="Font26 Hand Gray_9e mAll5 TxtMiddle"
+            className="Font26 Hand textTertiary mAll5 TxtMiddle"
             onClick={e => {
               let { filedValue } = this.state;
               if (filedValue === 1) {
@@ -319,25 +323,21 @@ export default class DialogBatchEdit extends Component {
             ))}
           </Select>
         )}
-        {filedValue === 4 && md.global.Config.IsLocal && (
-          <Input
-            className="w100"
-            type="password"
-            value={password}
-            autoComplete="new-password"
-            placeholder={passwordRegexTip || _l('密码，8-20位，必须含字母+数字')}
-            onChange={value => {
-              this.setState({ password: value });
-            }}
-          />
-        )}
-
-        {/* filedValue === 4 && md.global.Config.IsLocal && (
-          <div>
-            <div className="Gray_75 Bold mTop35">{_l('通知用户新密码')}</div>
-            <Checkbox.Group value={messageWay} options={checkedOptions} onChange={this.chnageMessageWay} />
-          </div>
-        ) */}
+        {filedValue === 4 &&
+          !window.platformENV.isOverseas &&
+          window.platformENV.isLocal &&
+          !window.platformENV.isPlatform && (
+            <Input
+              className="w100"
+              type="password"
+              value={password}
+              autoComplete="new-password"
+              placeholder={passwordRegexTip || _l('密码，8-20位，必须含字母+数字')}
+              onChange={value => {
+                this.setState({ password: value });
+              }}
+            />
+          )}
       </Dialog>
     );
   }

@@ -55,11 +55,11 @@ export default class SheetSetName extends Component {
         onCancel={this.props.onHide}
         onOk={this.handleSave.bind(this)}
       >
-        <div className="Gray_75">
+        <div className="textSecondary">
           {_l('修改添加按钮、消息通知等指代记录时所使用的名称。例如：可以修改“客户管理”表的记录名称为“客户”')}
         </div>
         <div className="inputItem flexRow valignWrapper mTop25">
-          <span className="Gray_75">{_l('记录名称')}</span>
+          <span className="textSecondary">{_l('记录名称')}</span>
           <Input
             className="flex"
             value={entityName}
@@ -71,7 +71,7 @@ export default class SheetSetName extends Component {
           />
         </div>
         {/* <div className="inputItem flexRow valignWrapper mTop15">
-          <span className="Gray_75">{_l('添加按钮名称')}</span>
+          <span className="textSecondary">{_l('添加按钮名称')}</span>
           <Input
             className="flex"
             value={btnName}

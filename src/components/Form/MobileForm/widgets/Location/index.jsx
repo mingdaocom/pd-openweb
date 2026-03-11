@@ -39,8 +39,7 @@ const LocationWrap = styled.div`
   }
 `;
 
-const { IsLocal } = md.global.Config;
-const isWx = window.isWeiXin && !IsLocal && !window.isWxWork;
+const isWx = window.isWeiXin && !window.platformENV.isOverseas && !window.platformENV.isLocal && !window.isWxWork;
 const isApp = window.isWxWork || isWx || window.isWeLink || window.isDingTalk || window.isFeiShu || window.isMingDaoApp;
 
 export default class Widgets extends Component {
@@ -184,8 +183,15 @@ export default class Widgets extends Component {
           Toast.clear();
         },
         fail(res) {
-          const { errMsg } = res;
-          if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
+          const { errMsg, errString } = res;
+          if (
+            !(
+              errMsg.includes('cancel') ||
+              errMsg.includes('canceled') ||
+              errString.includes('cancel') ||
+              errString.includes('canceled')
+            )
+          ) {
             window.nativeAlert(JSON.stringify(res));
           }
           Toast.clear();
@@ -200,8 +206,15 @@ export default class Widgets extends Component {
           onChange(JSON.stringify({ x: longitude, y: latitude, address, title: name }));
         },
         fail(res) {
-          const { errMsg } = res;
-          if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
+          const { errMsg, errString } = res;
+          if (
+            !(
+              errMsg.includes('cancel') ||
+              errMsg.includes('canceled') ||
+              errString.includes('cancel') ||
+              errString.includes('canceled')
+            )
+          ) {
             window.nativeAlert(JSON.stringify(res));
           }
         },

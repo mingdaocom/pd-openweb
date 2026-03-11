@@ -31,7 +31,7 @@ export default class SubProcess extends Component {
         <div className="ellipsis">
           {item.subProcessName ? (
             <Fragment>
-              <span className="Gray_75">{_l('执行流程：')}</span>
+              <span className="textSecondary">{_l('执行流程：')}</span>
               {item.subProcessName}
             </Fragment>
           ) : (
@@ -76,7 +76,11 @@ export default class SubProcess extends Component {
             </div>
             <NodeOperate nodeClassName="BGBlueAsh" {...this.props} />
             <div className="workflowContent Font13">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? (
+                <span className="pLeft8 pRight8 textSecondary">{_l('加载中...')}</span>
+              ) : (
+                this.renderContent()
+              )}
             </div>
           </div>
           <CreateNode {...this.props} />

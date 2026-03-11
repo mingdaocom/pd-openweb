@@ -6,7 +6,7 @@ export const Wrap = styled.div`
     flex-shrink: 0;
     min-width: 0;
   }
-  background: #fff;
+  background: var(--color-background-primary);
   min-height: 68px;
   padding: 12px 0;
   margin: 0 40px;
@@ -16,12 +16,12 @@ export const Wrap = styled.div`
     border-radius: 5px;
     flex-shrink: 0;
     min-width: 0;
-    background: #bdbdbd;
+    background: var(--color-text-disabled);
     &.isRun {
-      background: #1677ff;
+      background: var(--color-primary);
     }
     .iconTitle {
-      color: #fff;
+      color: var(--color-white);
     }
   }
   .moreActive {
@@ -31,13 +31,13 @@ export const Wrap = styled.div`
     }
   }
   &:hover {
-    background: #fafafa;
+    background: var(--color-background-secondary);
     .moreActive {
       opacity: 1;
     }
   }
   .ant-switch-checked {
-    background-color: #01ca83;
+    background-color: var(--color-task);
   }
 `;
 
@@ -46,17 +46,17 @@ export const WrapS = styled(Menu)`
     left: 15px;
   }
   .ming.MenuItem .Item-content:not(.disabled):hover {
-    background: #f5f5f5 !important;
+    background: var(--color-background-secondary) !important;
     color: initial !important;
     .icon {
-      color: #9e9e9e !important;
+      color: var(--color-text-tertiary) !important;
     }
     .Red {
-      color: red !important;
+      color: var(--color-error) !important;
     }
   }
   .Red.ming.MenuItem .Item-content:not(.disabled):hover {
-    color: red !important;
+    color: var(--color-error) !important;
   }
 `;
 export const WrapDialog = styled.div`
@@ -66,7 +66,7 @@ export const WrapDialog = styled.div`
       border-radius: 3px;
       margin-left: -6px;
       &:hover {
-        background: #f5f5f5;
+        background: var(--color-background-hover);
       }
     }
   }

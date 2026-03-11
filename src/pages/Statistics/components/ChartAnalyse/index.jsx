@@ -193,7 +193,7 @@ export default class ChartAnalyse extends Component {
   renderExpandIcon(panelProps) {
     return (
       <Icon
-        className={cx('Font18 mRight5 Gray_9e', { 'icon-arrow-active': panelProps.isActive })}
+        className={cx('Font18 mRight5 textTertiary', { 'icon-arrow-active': panelProps.isActive })}
         icon="arrow-down-border"
       />
     );

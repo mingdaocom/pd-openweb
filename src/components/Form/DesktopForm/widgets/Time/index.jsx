@@ -99,7 +99,7 @@ const Time = props => {
       open={open}
       format={unit === '6' ? 'HH:mm:ss' : 'HH:mm'}
       placeholder={isFocus ? (unit === '6' ? 'HH:mm:ss' : 'HH:mm') : _l('请选择时间')}
-      suffixIcon={!disabled ? <Icon icon="access_time" className="Font14 Gray_bd" /> : null}
+      suffixIcon={!disabled ? <Icon icon="access_time" className="Font14 textDisabled" /> : null}
       hideDisabledOptions
       minuteStep={timeInterval}
       onKeyDown={event => {

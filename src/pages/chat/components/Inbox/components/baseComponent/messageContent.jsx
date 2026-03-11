@@ -146,7 +146,7 @@ export default class BaseMessageComponent extends React.Component {
           <span className="LineHeight25 WordBreak" dangerouslySetInnerHTML={{ __html: xss(message, xssOptions) }} />
         );
       } else {
-        return <span className="LineHeight25 Gray_c">{_l('该评论已被删除')}</span>;
+        return <span className="LineHeight25 textPlaceholder">{_l('该评论已被删除')}</span>;
       }
     }
   }
@@ -198,11 +198,11 @@ export default class BaseMessageComponent extends React.Component {
     return (
       <div className="mTop10 pBottom10">
         {sourceId ? (
-          <a href={fromLink} target="_blank" className="Gray_a NoUnderline">
+          <a href={fromLink} target="_blank" className="textTertiary NoUnderline">
             {formatMsgDate(dateConvertToUserZone(createTime))}
           </a>
         ) : (
-          <span className="Gray_a">{formatMsgDate(dateConvertToUserZone(createTime))}</span>
+          <span className="textTertiary">{formatMsgDate(dateConvertToUserZone(createTime))}</span>
         )}
       </div>
     );
@@ -244,7 +244,7 @@ export default class BaseMessageComponent extends React.Component {
               <a href={fromLink} target="_blank">
                 {_l('点击这里')}
               </a>
-              <span className="Gray_9 mLeft5">{_l('申请任务查看和回复权限')}</span>
+              <span className="textTertiary mLeft5">{_l('申请任务查看和回复权限')}</span>
             </div>
           );
         case SOURCE_TYPE.FOLDER:
@@ -253,11 +253,11 @@ export default class BaseMessageComponent extends React.Component {
               <a href={fromLink} target="_blank">
                 {_l('点击这里')}
               </a>
-              <span className="Gray_9 mLeft5">{_l('申请项目查看和回复权限')}</span>
+              <span className="textTertiary mLeft5">{_l('申请项目查看和回复权限')}</span>
             </div>
           );
         default:
-          return <div className="Gray_9">{_l('没有回复权限')}</div>;
+          return <div className="textTertiary">{_l('没有回复权限')}</div>;
       }
     }
   }

@@ -85,12 +85,12 @@ const SettingWrap = styled.div`
     line-height: 32px;
     padding: 0 20px 0 16px;
     border-radius: 18px;
-    background-color: #fff;
+    background-color: var(--color-background-card);
     font-weight: bold;
-    color: #1677ff;
+    color: var(--color-primary);
     &:hover {
-      background-color: rgba(255, 255, 255, 1);
-      color: #1079cc;
+      background-color: var(--color-background-card);
+      color: var(--color-primary-dark);
     }
   }
   .btnGroupSettingWrap {
@@ -105,7 +105,7 @@ const SettingWrap = styled.div`
       display: flex;
       border-radius: 3px;
       padding: 3px;
-      background-color: #e7e7e7;
+      background-color: var(--color-border-secondary);
       li {
         display: flex;
         align-items: center;
@@ -115,16 +115,16 @@ const SettingWrap = styled.div`
         width: max-content;
         height: 30px;
         line-height: 30px;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         font-size: 20px;
         cursor: pointer;
         &:last-child {
           border: none;
         }
         &.active {
-          color: #1677ff;
+          color: var(--color-primary);
           border-radius: 3px;
-          background-color: #fff;
+          background-color: var(--color-background-card);
         }
       }
     }

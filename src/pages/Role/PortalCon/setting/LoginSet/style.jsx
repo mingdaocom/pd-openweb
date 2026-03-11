@@ -16,26 +16,26 @@ export const Wrap = styled.div`
   .pageTitle {
     width: 592px;
     height: 36px;
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-secondary);
     border-radius: 3px;
     padding: 0 14px;
     &:hover {
-      border: 1px solid #bdbdbd;
+      border: 1px solid var(--color-text-disabled);
     }
     &:focus {
-      border: 1px solid #1677ff;
+      border: 1px solid var(--color-primary);
     }
   }
   .uploadLogo {
     width: 240px;
     height: 80px;
-    background: #ffffff;
-    border: 2px dashed #e0e0e0;
+    background: var(--color-background-primary);
+    border: 2px dashed var(--color-border-secondary);
     border-radius: 4px;
     line-height: 80px;
     position: relative;
-    color: #1677ff;
+    color: var(--color-primary);
     padding: 6px;
     .upload_logo {
       height: 100%;
@@ -57,17 +57,17 @@ export const Wrap = styled.div`
       position: absolute;
       right: -9px;
       top: -9px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       display: none;
-      background: #fff;
+      background: var(--color-background-primary);
       border-radius: 50%;
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     &:hover {
       background: rgba(33, 150, 243, 0.1);
-      border: 2px dashed #1677ff;
+      border: 2px dashed var(--color-primary);
       .delete {
         display: block;
       }
@@ -84,7 +84,7 @@ export const Wrap = styled.div`
       .iconBox {
         width: 80px;
         height: 58px;
-        background: #f7f7f7;
+        background: var(--color-background-secondary);
         border-radius: 6px;
         position: relative;
         background: url(${cbg}) no-repeat;
@@ -94,7 +94,7 @@ export const Wrap = styled.div`
           position: absolute;
           right: -9px;
           top: -9px;
-          background: #fff;
+          background: var(--color-background-primary);
           border-radius: 50%;
         }
       }
@@ -133,8 +133,8 @@ export const Wrap = styled.div`
     .bgTypeUlLi {
       height: 36px;
       padding: 0 20px;
-      background: #ffffff;
-      border: 1px solid #f5f5f5;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-background-secondary);
       border-radius: 0px 3px 3px 0px;
       line-height: 34px;
       text-align: center;
@@ -143,8 +143,8 @@ export const Wrap = styled.div`
         border-radius: 3px 0px 0px 3px;
       }
       &.current {
-        background: #1677ff;
-        color: #fff;
+        background: var(--color-primary);
+        color: var(--color-white);
         position: relative;
         z-index: 1;
       }
@@ -166,29 +166,29 @@ export const Wrap = styled.div`
     }
 
     .check {
-      color: #fff;
+      color: var(--color-white);
       vertical-align: middle;
       font-size: 18px;
     }
   }
   .upload_imageBg {
     padding: 0 16px;
-    background: #f3faff;
+    background: var(--color-primary-transparent);
     border-radius: 6px;
-    color: #1677ff;
+    color: var(--color-primary);
     display: inline-block;
     height: 44px;
     line-height: 44px;
     min-width: 240px;
     font-weight: 500;
     &:hover {
-      background: #ebf6fe;
+      background: var(--color-primary-transparent);
     }
   }
   .hideUploadBgTxt {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     a {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .loginDemo {
@@ -223,7 +223,7 @@ export const WrapDemo = styled.div`
   }
 `;
 export const WrapCon = styled.div`
-  background: #ffffff;
+  background: var(--color-background-primary);
   width: 50%;
   padding: 50px;
   p {
@@ -263,7 +263,7 @@ export const WrapCon = styled.div`
   .txtMobilePhone {
     max-width: 360px;
     height: 32px;
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     border-radius: 3px;
     max-width: 100%;
   }
@@ -271,7 +271,7 @@ export const WrapCon = styled.div`
     max-width: 360px;
     width: 100%;
     height: 32px;
-    background: #d3ebff;
+    background: var(--color-primary-transparent);
     opacity: 1;
     border-radius: 3px;
   }

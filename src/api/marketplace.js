@@ -155,6 +155,7 @@ export default {
    * @param {integer} args.goodsPushType 商品发布类型, 0 = 产品，1 = 模板
    * @param {integer} args.productType 商品类型 1 = 应用，2 = 视图插件
    * @param {string} args.viewUrl 插件预览地址
+   * @param {boolean} args.exported 是否允许导出
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -170,6 +171,7 @@ export default {
    * @param {boolean} args.onShelves 审核通过后是否直接上架
    * @param {} args.editLicense
    * @param {} args.editVersion
+   * @param {boolean} args.exported 是否允许导出
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -289,6 +291,8 @@ export default {
    * @param {integer} args.status 状态  11 = 审核中，12 = 已上架，13 = 未通过，14 = 已下架,15 = 待上架
    * @param {string} args.keywords 关键字
    * @param {integer} args.productType 1= 应用，2 = 插件, 100 = 全部
+   * @param {integer} args.licenseType 付费类型：  免费 = 0，付费 = 1 （不传不筛选）
+   * @param {integer} args.goodsPushType 发布类型：0 = 产品型，1 = 模板型 （不传不筛选）
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -305,6 +309,8 @@ export default {
    * @param {integer} args.status 状态  11 = 审核中，12 = 已上架，13 = 未通过，14 = 已下架,15 = 待上架
    * @param {string} args.keywords 关键字
    * @param {integer} args.productType 1= 应用，2 = 插件, 100 = 全部
+   * @param {integer} args.licenseType 付费类型：  免费 = 0，付费 = 1 （不传不筛选）
+   * @param {integer} args.goodsPushType 发布类型：0 = 产品型，1 = 模板型 （不传不筛选）
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

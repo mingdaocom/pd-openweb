@@ -13,7 +13,7 @@ import './SelectWorksheet.less';
 
 const SearchWrap = styled.div`
   padding: 0 40px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-border-primary);
   padding-bottom: 6px;
   margin-bottom: 6px;
   input.Input {
@@ -49,7 +49,7 @@ function WorksheetList(props) {
         <div className="worksheetList">
           {searchable && (
             <SearchWrap>
-              <i className="icon-search Gray_9e"></i>
+              <i className="icon-search textTertiary"></i>
               <Input autoFocus placeholder={_l('搜索工作表')} value={searchValue} onChange={setSearchValue} />
             </SearchWrap>
           )}
@@ -250,7 +250,7 @@ export default class SelectWroksheet extends React.Component {
               <React.Fragment>
                 <span>
                   {!loading && !selectedWorksheet && (
-                    <div className="Gray_a">
+                    <div className="textTertiary">
                       {hint || (worksheetType === 1 ? _l('选择您管理的自定义页面') : _l('选择您管理的工作表'))}
                     </div>
                   )}
@@ -263,7 +263,7 @@ export default class SelectWroksheet extends React.Component {
                     worksheetType !== 1 &&
                     _l('（本表）')}
                 </span>
-                <div className="ming Icon icon icon-arrow-down-border mLeft8 Gray_9e" />
+                <div className="ming Icon icon icon-arrow-down-border mLeft8 textTertiary" />
               </React.Fragment>
             </div>
           )}

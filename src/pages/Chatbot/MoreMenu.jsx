@@ -7,8 +7,8 @@ import styled from 'styled-components';
 import { Icon, RichText } from 'ming-ui';
 import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
 import appManagementApi from 'src/api/appManagement';
-import SelectIcon from 'worksheet/common/SelectIcon';
 import SheetDesc from 'worksheet/common/SheetDesc';
+import selectIconDialog from 'worksheet/components/selectIconDialog';
 import * as actions from 'worksheet/redux/actions/sheetList';
 import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
 
@@ -18,14 +18,13 @@ const MenuWrap = styled(Menu)`
     padding: 7px 12px;
   }
   .danger {
-    color: #f44336;
+    color: var(--color-error) !important;
   }
 `;
 
 const MoreMenu = props => {
   const { base, data, appPkg, isLand } = props;
   const { desc, onChangeDesc } = props;
-  const [editNameVisible, setEditNameVisible] = useState(false);
   const [editIntroVisible, setEditIntroVisible] = useState(false);
   const [descIsEditing, setDescIsEditing] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
@@ -39,7 +38,7 @@ const MoreMenu = props => {
       title: <span className="Bold">{_l('删除对话机器人 “%0”', data.name)}</span>,
       description: (
         <div>
-          <span style={{ color: '#151515', fontWeight: 'bold' }}>
+          <span style={{ color: 'var(--color-text-title)', fontWeight: 'bold' }}>
             {_l('注意：对话机器人下所有配置和数据将被删除。')}
           </span>
           {_l('请务必确认所有应用成员都不再需要此对话机器人后，再执行此操作。')}
@@ -98,7 +97,7 @@ const MoreMenu = props => {
         >
           <Icon
             icon="info"
-            className="Font20 Gray_9e pointer mRight6"
+            className="Font20 textTertiary pointer mRight6"
             onClick={() => {
               if (isLand) return;
               setDescIsEditing(false);
@@ -117,12 +116,23 @@ const MoreMenu = props => {
               <Menu.Item
                 key="edit"
                 onClick={() => {
-                  setEditNameVisible(true);
                   setPopupVisible(false);
+                  selectIconDialog({
+                    isActive: true,
+                    style: { top: 50 },
+                    projectId: projectId,
+                    appId: appId,
+                    groupId: groupId,
+                    workSheetId: data.chatbotId,
+                    appItem: data,
+                    name: data.name,
+                    icon: data.icon,
+                    updateSheetListAppItem: props.updateSheetListAppItem,
+                  });
                 }}
               >
                 <div className="flexRow valignWrapper">
-                  <Icon icon="edit" className="Font18 mLeft5 mRight10 Gray_9e" />
+                  <Icon icon="edit" className="Font18 mLeft5 mRight10 textTertiary" />
                   <div>{_l('修改名称和图标')}</div>
                 </div>
               </Menu.Item>
@@ -134,7 +144,7 @@ const MoreMenu = props => {
                 }}
               >
                 <div className="flexRow valignWrapper">
-                  <Icon icon="info" className="Font18 mLeft5 mRight10 Gray_9e" />
+                  <Icon icon="info" className="Font18 mLeft5 mRight10 textTertiary" />
                   <div>{_l('说明')}</div>
                 </div>
               </Menu.Item>
@@ -171,23 +181,6 @@ const MoreMenu = props => {
           setEditIntroVisible(false);
         }}
       />
-      {editNameVisible && (
-        <SelectIcon
-          isActive
-          style={{ top: 50 }}
-          projectId={projectId}
-          appId={appId}
-          groupId={groupId}
-          workSheetId={data.chatbotId}
-          appItem={data}
-          name={data.name}
-          icon={data.icon}
-          updateSheetListAppItem={props.updateSheetListAppItem}
-          onCancel={() => {
-            setEditNameVisible(false);
-          }}
-        />
-      )}
     </Fragment>
   );
 };

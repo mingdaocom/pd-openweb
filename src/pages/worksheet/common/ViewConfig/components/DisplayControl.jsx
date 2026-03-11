@@ -22,7 +22,7 @@ export const SwitchStyle = styled.div`
       color: #00c345;
     }
     &-ic_toggle_off {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
   }
 `;
@@ -80,7 +80,7 @@ export default function DisplayControl(props) {
   return (
     <div className="mTop32">
       <div className="title Font13 bold">{_l('显示字段')}</div>
-      {text && <p className="mTop6 Gray_75 viewSetText">{text}</p>}
+      {text && <p className="mTop6 textSecondary viewSetText">{text}</p>}
       <div className="settingContent mTop8">
         <SortColumns
           sortAutoChange

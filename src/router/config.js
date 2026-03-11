@@ -105,6 +105,10 @@ export const ROUTE_CONFIG = {
   },
   printForm: {
     path: '/printForm/:appId/:printType/:type/:from/:key?',
+    component: () => import('src/pages/OldPrint'),
+  },
+  printFormBatch: {
+    path: '/printFormBatch/:appId/:printType/:type/:from/:key?',
     component: () => import('src/pages/Print'),
   },
   printPivotTable: {
@@ -274,7 +278,7 @@ export const ROUTE_CONFIG = {
   },
   certificationDetail: {
     path: '/certificationDetail/:certSource/:projectId?',
-    component: () => import('src/pages/certification/CertificationDetail'),
+    component: () => import('src/pages/certification/components/CertificationDetail'),
     title: _l('我的认证'),
   },
   approveInvoice: {

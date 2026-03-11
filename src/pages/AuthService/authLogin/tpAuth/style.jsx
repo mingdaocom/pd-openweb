@@ -4,25 +4,25 @@ export const Wrap = styled.div`
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: #f2f5f7;
+  background-color: var(--color-background-secondary);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-  background-color: #f2f5f7;
+  background-color: var(--color-background-secondary);
 
   .tpLoginContent {
     a {
-      color: #1677ff;
+      color: var(--color-primary);
     }
     a:hover {
       text-decoration: none;
-      color: #1565c0;
+      color: var(--color-link-hover);
     }
     .contianerBGStyle {
       -moz-border-radius: 2px;
       -webkit-border-radius: 2px;
       border-radius: 2px;
-      background-color: #fff;
+      background-color: var(--color-background-primary);
       box-shadow: 0 2px 6px 0px rgba(0, 0, 0, 0.15);
       -weblit-box-shadow: 0 2px 6px 0px rgba(0, 0, 0, 0.15);
       -moz-box-shadow: 0 2px 6px 0px rgba(0, 0, 0, 0.15);
@@ -49,10 +49,10 @@ export const Wrap = styled.div`
   }
   .tpAutoBind .txt {
     line-height: 32px;
-    color: #999;
+    color: var(--color-text-tertiary);
     font-size: 16px;
   }
   @media screen and (max-width: 500px) {
-    background-color: #eef1f6;
+    background-color: var(--color-border-secondary);
   }
 `;

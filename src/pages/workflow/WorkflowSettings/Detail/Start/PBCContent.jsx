@@ -16,10 +16,10 @@ const GenerateJSONBox = styled.textarea`
   height: 340px;
   overflow: auto;
   width: 100%;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   resize: none;
   &:focus {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
   }
 `;
 
@@ -31,7 +31,7 @@ const Header = styled.div`
     width: 120px;
   }
   .red {
-    color: #f44336;
+    color: var(--color-error);
   }
 `;
 
@@ -341,7 +341,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
             <div className="mLeft10">{renderControlRequired(item)}</div>
             <Tooltip title={_l('编辑')}>
               <span
-                className="Font16 Gray_75 ThemeHoverColor3 pointer mLeft2"
+                className="Font16 textSecondary ThemeHoverColor3 pointer mLeft2"
                 onClick={() => {
                   setControlId(item.controlId);
                   cacheItem = _.cloneDeep(item);
@@ -352,7 +352,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
             </Tooltip>
             <Tooltip title={_l('删除')}>
               <span
-                className="Font16 Gray_75 ThemeHoverColor3 pointer mLeft10"
+                className="Font16 textSecondary ThemeHoverColor3 pointer mLeft10"
                 onClick={() => {
                   let controls = [].concat(data.controls);
                   let objArrayIds = [];
@@ -377,7 +377,10 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
               </span>
             </Tooltip>
             <Tooltip title={_l('添加')}>
-              <span className="Font16 Gray_75 ThemeHoverColor3 pointer mLeft10" onClick={() => addParameters(item)}>
+              <span
+                className="Font16 textSecondary ThemeHoverColor3 pointer mLeft10"
+                onClick={() => addParameters(item)}
+              >
                 <i className="icon-add" />
               </span>
             </Tooltip>
@@ -419,7 +422,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
       <div className={cx('workflowDetailBox', { mTop20: !isIntegration && !isPlugin })}>
         <div className="Font13 bold">{_l('输入参数')}</div>
         {isIntegration && !data.controls.length && (
-          <div className="Font13 Gray_75 mTop20">{_l('没有输入参数的 API 请直接保存完成配置')}</div>
+          <div className="Font13 textSecondary mTop20">{_l('没有输入参数的 API 请直接保存完成配置')}</div>
         )}
 
         <Header className="flexRow mTop15">
@@ -441,7 +444,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
             {_l('添加参数')}
           </span>
           {!isPlugin && (
-            <div className="ThemeHoverColor3 pointer Gray_75" onClick={() => generateJSON(data, updateSource)}>
+            <div className="ThemeHoverColor3 pointer textSecondary" onClick={() => generateJSON(data, updateSource)}>
               <i className="Font14 icon-file_upload" />
               {_l('从JSON示例生成')}
             </div>
@@ -452,7 +455,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
           <Fragment>
             <div className="Font13 bold mTop30">{_l('在本组织下，正在被以下事件调用')}</div>
             {!data.processList.length && (
-              <div className="Font12 Gray_75 workflowDetailDesc mTop10 subProcessDesc">
+              <div className="Font12 textSecondary workflowDetailDesc mTop10 subProcessDesc">
                 {_l('未被任何流程或按钮调用')}
               </div>
             )}
@@ -460,12 +463,15 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
               return (
                 <div className="workflowDetailDesc mTop10 subProcessDesc" key={i}>
                   <div className="Font13">
-                    <span className="ThemeColor3 ThemeHoverColor2 pointer" onClick={() => openPage(item)}>
+                    <span
+                      className="ThemeColor3 ThemeHoverColor2 pointer pointerEventsAuto"
+                      onClick={() => openPage(item)}
+                    >
                       {PROCESS_TYPE[item.type].title}：{item.processName}
                     </span>
                   </div>
                   <div className="Font12">
-                    <span className="Gray_75">{PROCESS_TYPE[item.type].desc}：</span>
+                    <span className="textSecondary">{PROCESS_TYPE[item.type].desc}：</span>
                     <span>{item.flowNodes.map(obj => `${obj.name}`).join('、')}</span>
                   </div>
                 </div>
@@ -510,15 +516,15 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
             <div className="flex">
               <div className="bold">
                 {_l('字段名')}
-                <span style={{ color: '#f44336' }}>*</span>
+                <span style={{ color: 'var(--color-error)' }}>*</span>
               </div>
               <div className="mTop10 flexRow">{renderControlName(selectItem)}</div>
-              <div className="mTop5 Gray_75">{_l('在用户输入时字段的显示名称。如：请输入手机号')}</div>
+              <div className="mTop5 textSecondary">{_l('在用户输入时字段的显示名称。如：请输入手机号')}</div>
             </div>
             <div className="flex mLeft10">
               <div className="bold">{_l('参数名')}</div>
               <div className="mTop10 flexRow">{renderControlAlias(selectItem)}</div>
-              <div className="mTop5 Gray_75">
+              <div className="mTop5 textSecondary">
                 {_l('在节点、API调用时使用的参数名称，如：phone。未填写时，使用字段名')}
               </div>
             </div>
@@ -546,7 +552,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
                     onBlur={evt => updateOptions('key', evt.target.value.trim(), selectItem, index, true)}
                   />
                   <i
-                    className="icon-trash Font16 Gray_75 ThemeHoverColor3 mLeft10 pointer"
+                    className="icon-trash Font16 textSecondary ThemeHoverColor3 mLeft10 pointer"
                     onClick={() => {
                       let newOptions = selectItem.options.filter((o, i) => i !== index);
 
@@ -558,7 +564,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
                     }}
                   />
                   <i
-                    className="icon-add Font16 Gray_75 ThemeHoverColor3 mLeft10 pointer"
+                    className="icon-add Font16 textSecondary ThemeHoverColor3 mLeft10 pointer"
                     onClick={() =>
                       updateControls('options', selectItem.options.concat({ key: '', value: '' }), selectItem)
                     }
@@ -640,13 +646,13 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
                   </Fragment>
                 )}
               </div>
-              <div className="mTop5 Gray_75">{_l('添加默认值，如果用户未输入或映射任何数据，则使用此内容')}</div>
+              <div className="mTop5 textSecondary">{_l('添加默认值，如果用户未输入或映射任何数据，则使用此内容')}</div>
             </Fragment>
           )}
 
           <div className="mTop20 bold">{_l('填写说明')}</div>
           <div className="mTop10 flexRow">{renderControlDesc(selectItem)}</div>
-          <div className="mTop5 Gray_75">{_l('为用户输入此参数时提供必要的帮助说明')}</div>
+          <div className="mTop5 textSecondary">{_l('为用户输入此参数时提供必要的帮助说明')}</div>
 
           {isPlugin && _.includes([9, 36], selectItem.type) && (
             <Fragment>
@@ -733,7 +739,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
                       }}
                     />
                   </div>
-                  <div className="mTop5 Gray_75 mLeft25">{_l('在查看执行历史时，使用此字段作为数据标题')}</div>
+                  <div className="mTop5 textSecondary mLeft25">{_l('在查看执行历史时，使用此字段作为数据标题')}</div>
                 </Fragment>
               )}
             </Fragment>

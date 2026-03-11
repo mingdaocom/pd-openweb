@@ -3,12 +3,11 @@ import { HTML5Backend } from 'react-dnd-html5-backend-latest';
 import { DndProvider, useDrag, useDrop } from 'react-dnd-latest';
 import cx from 'classnames';
 import _ from 'lodash';
-import Trigger from 'rc-trigger';
 import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
+import { dialogSelectIcon } from 'ming-ui/functions';
 import appManagementApi from 'src/api/appManagement';
 import homeAppApi from 'src/api/homeApp';
-import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 import { getTranslateInfo } from 'src/utils/app';
 
 const dndAccept = 'navigationGroup';
@@ -84,12 +83,7 @@ const Group = props => {
   const [activeGroup, setActiveGroup] = useState(false);
   const [activeFirst, setActiveFirst] = useState(false);
   const [childrenVisible, setChildrenVisible] = useState(true);
-  const [edit, setEdit] = useState(data.edit);
   const isChildren = !!items.length;
-
-  useEffect(() => {
-    setEdit(data.edit);
-  }, [data.edit]);
 
   const [collectProps, drop] = useDrop({
     accept: dndAccept,
@@ -197,6 +191,20 @@ const Group = props => {
 
   const status = data.status === 2 || data.parentStatus === 2;
 
+  const onEditIcon = () => {
+    dialogSelectIcon({
+      projectId: app.projectId,
+      name: data.name,
+      icon: data.icon,
+      hideColor: true,
+      onChange: ({ name, icon }) => {
+        if ((name && name !== data.name) || icon) {
+          onUpdateAppItem(data, { name, icon: icon || data.icon });
+        }
+      },
+    });
+  };
+
   return (
     <div
       ref={ref}
@@ -218,59 +226,34 @@ const Group = props => {
             })}
           >
             <div ref={drag} onMouseDown={() => setChildrenVisible(false)}>
-              <Icon icon="drag" className="Gray_9e pointer operateIcon mRight5" />
+              <Icon icon="drag" className="textTertiary pointer operateIcon mRight5" />
             </div>
             <Icon
               icon={childrenVisible ? 'arrow-down' : 'arrow-right-tip'}
-              className="Gray_9e pointer mRight5"
+              className="textTertiary pointer mRight5"
               onClick={() => setChildrenVisible(!childrenVisible)}
             />
             <SvgIcon
               url={`${md.global.FileStoreConfig.pubHost}/customIcon/${data.icon || '8_4_folder'}.svg`}
-              fill="#9e9e9e"
+              fill="var(--color-text-tertiary)"
               className="mRight10"
             />
             <span className="flex name ellipsis" onClick={() => setChildrenVisible(!childrenVisible)}>
               {getTranslateInfo(app.id, null, id).name || name}
             </span>
-            <Trigger
-              action={['click']}
-              popupVisible={edit}
-              onPopupVisibleChange={visible => {
-                setEdit(visible);
-                edit && onUpdateAppItem(data, { edit: false });
-              }}
-              destroyPopupOnHide={true}
-              popupAlign={{ points: ['tr', 'br'], offset: [0, 5], overflow: { adjustX: true, adjustY: true } }}
-              popup={
-                <SelectIcon
-                  projectId={app.projectId}
-                  name={data.name}
-                  icon={data.icon}
-                  hideColor={true}
-                  className="Relative"
-                  onChange={({ name, icon }) => {
-                    if ((name && name !== data.name) || icon) {
-                      onUpdateAppItem(data, { name, icon: icon || data.icon, edit: false });
-                    }
-                  }}
-                />
-              }
-            >
-              <Tooltip title={_l('修改')} placement="bottom">
-                <Icon
-                  className="Gray_9e pointer Font17 operateIcon"
-                  icon="sp_edit_white"
-                  onClick={() => setEdit(true)}
-                />
-              </Tooltip>
-            </Trigger>
+            <Tooltip title={_l('修改')} placement="bottom">
+              <Icon className="textTertiary pointer Font17 operateIcon" icon="sp_edit_white" onClick={onEditIcon} />
+            </Tooltip>
             <Tooltip title={_l('删除')} placement="bottom">
-              <Icon className="Gray_9e pointer Font17 operateIcon" icon="trash" onClick={() => onDeleteGroup(data)} />
+              <Icon
+                className="textTertiary pointer Font17 operateIcon"
+                icon="trash"
+                onClick={() => onDeleteGroup(data)}
+              />
             </Tooltip>
             <Tooltip title={_l('新建子分组')} placement="bottom">
               <Icon
-                className="Gray_9e pointer Font20 operateIcon"
+                className="textTertiary pointer Font20 operateIcon"
                 icon="add"
                 onClick={() => {
                   setChildrenVisible(true);
@@ -278,7 +261,7 @@ const Group = props => {
                 }}
               />
             </Tooltip>
-            {!isChildren && <span className="Gray_75 withoutChildrenHint">{_l('没有应用项')}</span>}
+            {!isChildren && <span className="textSecondary withoutChildrenHint">{_l('没有应用项')}</span>}
           </div>
           {renderChildrenGroup()}
         </Fragment>
@@ -286,29 +269,31 @@ const Group = props => {
         <Fragment>
           <div
             className={cx('flexRow alignItemsCenter groupWrap', {
-              hover: edit,
               activeGroup: collectProps.isOver && activeGroup,
             })}
           >
             <div ref={drag} onMouseDown={() => setChildrenVisible(false)}>
-              <Icon icon="drag" className="Gray_9e pointer operateIcon mRight0" />
+              <Icon icon="drag" className="textTertiary pointer operateIcon mRight0" />
             </div>
             <div
               className="flexRow alignItemsCenter w100"
               style={{ paddingLeft: data.isAppItem ? (layerIndex === 1 ? 19 : 51) : 0 }}
             >
               {data.isAppItem ? (
-                <SvgIcon url={`${md.global.FileStoreConfig.pubHost}/customIcon/${data.icon}.svg`} fill="#9e9e9e" />
+                <SvgIcon
+                  url={`${md.global.FileStoreConfig.pubHost}/customIcon/${data.icon}.svg`}
+                  fill="var(--color-text-tertiary)"
+                />
               ) : (
                 <Fragment>
                   <Icon
                     icon={childrenVisible ? 'arrow-down' : 'arrow-right-tip'}
-                    className="Gray_9e pointer mRight5"
+                    className="textTertiary pointer mRight5"
                     onClick={() => setChildrenVisible(!childrenVisible)}
                   />
                   <SvgIcon
                     url={`${md.global.FileStoreConfig.pubHost}/customIcon/${data.icon || '8_4_folder'}.svg`}
-                    fill="#9e9e9e"
+                    fill="var(--color-text-tertiary)"
                   />
                 </Fragment>
               )}
@@ -318,42 +303,13 @@ const Group = props => {
               >
                 {getTranslateInfo(app.id, null, id).name || name}
               </span>
-              <Trigger
-                action={['click']}
-                popupVisible={edit}
-                onPopupVisibleChange={visible => {
-                  setEdit(visible);
-                  edit && onUpdateAppItem(data, { edit: false });
-                }}
-                destroyPopupOnHide={true}
-                popupAlign={{ points: ['tr', 'br'], offset: [0, 5], overflow: { adjustX: true, adjustY: true } }}
-                popup={
-                  <SelectIcon
-                    projectId={app.projectId}
-                    name={data.name}
-                    icon={data.icon}
-                    hideColor={true}
-                    className="Relative"
-                    onChange={({ name, icon }) => {
-                      if ((name && name !== data.name) || icon) {
-                        onUpdateAppItem(data, { name, icon: icon || data.icon, edit: false });
-                      }
-                    }}
-                  />
-                }
-              >
-                <Tooltip title={_l('修改')} placement="bottom">
-                  <Icon
-                    className="Gray_9e pointer Font17 operateIcon"
-                    icon="sp_edit_white"
-                    onClick={() => setEdit(true)}
-                  />
-                </Tooltip>
-              </Trigger>
+              <Tooltip title={_l('修改')} placement="bottom">
+                <Icon className="textTertiary pointer Font17 operateIcon" icon="sp_edit_white" onClick={onEditIcon} />
+              </Tooltip>
               {!data.isAppItem && (
                 <Tooltip title={_l('删除')} placement="bottom">
                   <Icon
-                    className="Gray_9e pointer Font17 operateIcon"
+                    className="textTertiary pointer Font17 operateIcon"
                     icon="trash"
                     onClick={() => onDeleteGroup(data, parentId)}
                   />
@@ -362,7 +318,7 @@ const Group = props => {
               <Tooltip title={status ? _l('取消隐藏') : _l('隐藏')} placement="bottom">
                 <Icon
                   icon="visibility_off"
-                  style={{ color: status ? '#ee6f09' : '#9e9e9e' }}
+                  style={{ color: status ? 'var(--color-warning)' : 'var(--color-text-tertiary)' }}
                   className={cx('pointer Font17', status ? 'mRight16' : 'operateIcon')}
                   onClick={() => {
                     if (data.parentStatus === 2) {
@@ -606,7 +562,7 @@ const Container = props => {
     const icon = target ? '8_4_folder' : undefined;
 
     if (!target && navigationGroup.length === 1 && _.isEmpty(navigationGroup[0].name)) {
-      handleSetNavigationGroup(navigationGroup.map(data => Object.assign(data, { edit: true, name })));
+      handleSetNavigationGroup(navigationGroup.map(data => Object.assign(data, { name })));
       return;
     }
 
@@ -626,14 +582,7 @@ const Container = props => {
                 const { items = [] } = data;
                 return {
                   ...data,
-                  items: items.concat({
-                    id: result.data,
-                    name,
-                    icon,
-                    edit: true,
-                    type: 2,
-                    items: [],
-                  }),
+                  items: items.concat({ id: result.data, name, icon, type: 2, items: [] }),
                 };
               } else {
                 return data;
@@ -641,15 +590,7 @@ const Container = props => {
             });
             handleSetNavigationGroup(newNavigationGroup);
           } else {
-            handleSetNavigationGroup(
-              navigationGroup.concat({
-                id: result.data,
-                name,
-                edit: true,
-                type: 2,
-                items: [],
-              }),
-            );
+            handleSetNavigationGroup(navigationGroup.concat({ id: result.data, name, type: 2, items: [] }));
           }
         }
       });
@@ -705,7 +646,7 @@ const Container = props => {
     return <LoadDiv />;
   }
 
-  const hideAppSection = navigationGroup.length === 1 && _.isEmpty(navigationGroup[0].name) && !navigationGroup[0].edit;
+  const hideAppSection = navigationGroup.length === 1 && _.isEmpty(navigationGroup[0].name);
 
   const renderGroup = (item, index) => {
     item.layerIndex = 0;
@@ -729,7 +670,7 @@ const Container = props => {
   return (
     <DndProvider key="navigation" context={window} backend={HTML5Backend}>
       <div>{navigationGroup.map((item, i) => renderGroup(item, i))}</div>
-      <div className="flexRow alignItemsCenter ThemeColor bold mBottom12">
+      <div className="flexRow alignItemsCenter colorPrimary bold mBottom12">
         <div className="pointer" onClick={() => handleAddGroup()}>
           <Icon icon="add" />
           <span>{_l('分组')}</span>

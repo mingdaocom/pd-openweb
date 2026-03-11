@@ -24,14 +24,14 @@ const Item = styled.div`
 const Title = styled.div`
   font-weight: 500;
   .required {
-    color: #f44336;
+    color: var(--color-error);
     margin-top: -10px;
   }
 `;
 
 const Desp = styled.div`
   margin: 10px 0 15px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
 `;
 
 const TagCon = styled.ul`
@@ -44,12 +44,12 @@ const TagCon = styled.ul`
     border-radius: 3px;
     height: 24px;
     padding: 6px 5px 6px 10px;
-    background-color: #f5f5f5;
-    border: 1px solid #ddd;
+    background-color: var(--color-background-secondary);
+    border: 1px solid var(--color-border-primary);
     &.error {
-      background-color: #fef3f2;
-      border-color: #e8dbd9;
-      color: #b53026;
+      background-color: var(--color-error-bg);
+      border-color: var(--color-error-bg);
+      color: var(--color-error);
     }
     .tag {
       margin-right: 5px;

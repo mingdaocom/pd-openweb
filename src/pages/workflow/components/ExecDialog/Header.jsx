@@ -321,7 +321,7 @@ export default class Header extends Component {
 
     return (
       <span
-        className={cx('refreshBtn Font20 Gray_9e ThemeHoverColor3 Hand mRight10', {
+        className={cx('refreshBtn Font20 textTertiary ThemeHoverColor3 Hand mRight10', {
           isLoading,
         })}
         onClick={onRefresh}
@@ -354,7 +354,7 @@ export default class Header extends Component {
       return (
         <header className="flexRow workflowStepHeader">
           {this.renderRefreshBtn()}
-          <div className="stepTitle flexRow errorHeader Gray_75">
+          <div className="stepTitle flexRow errorHeader textSecondary">
             <Icon icon="error1" className="Font18" />
             <span className="Font14 ellipsis mLeft6">{errorMsg || 'text'}</span>
           </div>
@@ -387,16 +387,16 @@ export default class Header extends Component {
             {noAuth ? null : (
               <Fragment>
                 {currentWorkItem && currentWorkItem.operationTime && !!operationTypeList[0].length && urgeTime && (
-                  <div className="operationTime flexRow Gray_75 Font14">
+                  <div className="operationTime flexRow textSecondary Font14">
                     {createTimeSpan(urgeTime)}
-                    <span className="mLeft5 Gray_75">{_l('已催办')}</span>
+                    <span className="mLeft5 textSecondary">{_l('已催办')}</span>
                   </div>
                 )}
 
                 {currentWorkItem && currentWorkItem.operationTime && !operationTypeList[0].length ? (
-                  <div className="operationTime flexRow Gray_75 Font14">
+                  <div className="operationTime flexRow textSecondary Font14">
                     {createTimeSpan(urgeTime || currentWorkItem.operationTime)}
-                    {!!urgeTime && <span className="mLeft5 Gray_75">{_l('已催办')}</span>}
+                    {!!urgeTime && <span className="mLeft5 textSecondary">{_l('已催办')}</span>}
                     {text && !urgeTime && (
                       <span className="mLeft5" style={{ color: shallowBg || color }}>
                         {text}
@@ -443,7 +443,7 @@ export default class Header extends Component {
                 >
                   <Tooltip title={_l('更多操作')} placement="bottom">
                     <div className="iconWrap flexRow">
-                      <Icon icon="more_horiz Gray_75 ThemeHoverColor3" />
+                      <Icon icon="more_horiz textSecondary ThemeHoverColor3" />
                     </div>
                   </Tooltip>
 

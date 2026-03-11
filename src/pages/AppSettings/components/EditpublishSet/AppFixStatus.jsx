@@ -5,7 +5,7 @@ import homeApp from 'src/api/homeApp';
 
 const TextareaWrapper = styled(Textarea)`
   &::placeholder {
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
 `;
 
@@ -96,7 +96,7 @@ export default class AppFixStatus extends Component {
     };
     return (
       <Dialog {...options}>
-        <div className="mBottom20 Gray_75 Font13">
+        <div className="mBottom20 textSecondary Font13">
           {fixed
             ? _l('若应用已更新维护完毕请结束维护使应用恢复正常，您也可以重新编辑公告内容。')
             : _l('应用设为维护状态后，普通成员无法使用应用，管理员可对应用进行更新维护。')}

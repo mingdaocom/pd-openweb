@@ -13,10 +13,10 @@ import copy from 'copy-to-clipboard';
 import { findLast, findLastIndex, includes, isEmpty, isFunction, last } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { BgIconButton, ScrollView, Skeleton } from 'ming-ui';
+import { BgIconButton, Checkbox, ScrollView, Skeleton } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import GetHelp from 'src/components/GetHelp';
-import { previewQiniuUrl } from 'src/components/previewAttachments';
+import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
 import mingoHead from 'src/pages/chat/containers/ChatList/Mingo/images/mingo.png';
 import LoadingDots from 'src/pages/widgetConfig/widgetSetting/components/DevelopWithAI/ChatBot/LoadingDots';
 import { SpeechSynthesizer } from 'src/utils/audio';
@@ -64,13 +64,14 @@ const MessageListWrap = styled(ScrollView)`
 
 export const MessageItemWrap = styled.div`
   position: relative;
+  margin-bottom: 10px;
   .tools {
     height: 32px;
     visibility: hidden;
     .splitter {
       width: 1px;
       height: 9px;
-      background: #bdbabd;
+      background: var(--color-text-disabled);
       margin: 0 6px;
     }
   }
@@ -83,23 +84,23 @@ export const MessageItemWrap = styled.div`
     height: 28px;
     border-radius: 50%;
     object-fit: cover;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
   }
   .messageContentWrap {
     display: flex;
   }
   .statusText {
     font-size: 14px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   .messageContent {
     position: relative;
     overflow: hidden;
     display: inline-block;
     max-width: 100%;
-    padding: 8px 0;
+    padding: 5px 0;
     font-size: 15px;
-    color: #151515;
+    color: var(--color-text-primary);
     input,
     select,
     img,
@@ -121,12 +122,12 @@ export const MessageItemWrap = styled.div`
     margin-left: 5px;
     font-size: 15px;
     font-weight: bold;
-    color: #151515;
+    color: var(--color-text-primary);
   }
   .tokenUsage {
     cursor: pointer;
     &:hover {
-      color: #757575 !important;
+      color: var(--color-text-secondary) !important;
     }
   }
   &.isEditing,
@@ -148,13 +149,13 @@ export const MessageItemWrap = styled.div`
       justify-content: end;
     }
     .messageContent {
-      background: #6e09f912;
+      background: var(--color-mingo-transparent);
       padding: 8px 10px;
       border-radius: 5px;
     }
     &.useAppThemeColor {
       .messageContent {
-        background: var(--app-highlight-color, #6e09f912);
+        background: var(--app-highlight-color, var(--color-mingo-transparent));
       }
     }
     &.isMobile {
@@ -170,15 +171,32 @@ export const MessageItemWrap = styled.div`
   }
   .is-editing-message {
     font-size: 12px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     .icon {
       font-size: 15px;
     }
   }
+  &.isShareMode {
+    border-radius: 8px;
+    display: flex;
+    margin-left: -41px;
+    .shareMode {
+      margin: 15px 15px 0 0;
+    }
+    .messageContentContent {
+      flex: 1;
+    }
+    &.needPaddingLeft {
+      padding-left: 41px;
+    }
+  }
+  &.allowShare {
+    padding: 0 15px;
+  }
 `;
 
 const MessageEditTextarea = styled(AutoHeightTextArea)`
-  border: 2px solid var(--ai-primary-color) !important;
+  border: 2px solid var(--color-mingo) !important;
   border-radius: 5px !important;
   width: 100% !important;
   padding: 7px 12px !important;
@@ -189,9 +207,9 @@ const ScrollToBottom = styled.div`
   width: 36px;
   height: 36px;
   border-radius: 36px;
-  background: #fff;
-  color: #757575;
-  border: 1px solid #ddd;
+  background: var(--color-background-primary);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -209,8 +227,8 @@ const ScrollToBottom = styled.div`
   }
   &:not(.isMobile) {
     &:hover {
-      color: var(--ai-primary-color);
-      background: #f7f0ff;
+      color: var(--color-mingo);
+      background: var(--color-mingo-transparent);
     }
   }
   &.fadeOut {
@@ -234,14 +252,14 @@ const FilesCon = styled.div`
 const ClearedLine = styled.div`
   position: relative;
   text-align: center;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   font-size: 13px;
   margin: 16px 0;
   .text {
     z-index: 2;
     position: relative;
     padding: 0 8px;
-    background: #fff;
+    background: var(--color-background-primary);
   }
   &:before {
     position: absolute;
@@ -252,12 +270,14 @@ const ClearedLine = styled.div`
     display: block;
     width: 100%;
     height: 1px;
-    background: #eaeaea;
+    background: var(--color-border-secondary);
   }
 `;
 
 function MessageItem({
+  checked = false,
   loading = false,
+  width,
   activeMessageId,
   id,
   instanceId,
@@ -270,6 +290,8 @@ function MessageItem({
   files = [],
   role,
   isLastAssistantMessage,
+  allowShare = false,
+  shareMode = false,
   allowEdit = true,
   showAssistantAvatar = true,
   assistantOperatesPlacement = 'bottom',
@@ -284,6 +306,8 @@ function MessageItem({
   allowRegenerate = false,
   showTokenUsage = false,
   openMessageLog = () => {},
+  onBeginShare = () => {},
+  onClick = () => {},
   chatbotId,
   showFeedback = false,
   useAppThemeColor = false,
@@ -326,7 +350,7 @@ function MessageItem({
     );
   }
   const assistantOperatesComp = (
-    <div className="assistantOperates t-flex t-items-center">
+    <div className="assistantOperates t-flex t-items-center" onClick={e => e.stopPropagation()}>
       <div className={cx('tools t-flex t-items-center', { noAvatar: !showAssistantAvatar })}>
         <BgIconButton.Group className="t-items-center" gap={6}>
           <BgIconButton
@@ -340,31 +364,33 @@ function MessageItem({
               alert(_l('复制成功'));
             }}
           />
-          <BgIconButton
-            size="small"
-            icon="bofang"
-            iconComponent={isPlaying ? <img width={16} height={16} src={PlayAnimation} alt="" /> : null}
-            iconStyle={{
-              ...iconStyle,
-              ...(isPlaying ? { color: 'var(--ai-primary-color)' } : {}),
-            }}
-            popupPlacement="top"
-            tooltip={isPlaying ? _l('停止朗读') : _l('朗读')}
-            onClick={() => {
-              if (isPlaying) {
-                speechSynthesizer.current.clear();
-                setIsPlaying(false);
-                return;
-              }
-              const text = getContentFromMessage(content);
-              speechSynthesizer.current.speak(text.replace(/#/g, ''), {
-                onEnd: () => {
+          {window.speechSynthesis && (
+            <BgIconButton
+              size="small"
+              icon="bofang"
+              iconComponent={isPlaying ? <img width={16} height={16} src={PlayAnimation} alt="" /> : null}
+              iconStyle={{
+                ...iconStyle,
+                ...(isPlaying ? { color: 'var(--color-mingo)' } : {}),
+              }}
+              popupPlacement="top"
+              tooltip={isPlaying ? _l('停止朗读') : _l('朗读')}
+              onClick={() => {
+                if (isPlaying) {
+                  speechSynthesizer.current.clear();
                   setIsPlaying(false);
-                },
-              });
-              setIsPlaying(true);
-            }}
-          />
+                  return;
+                }
+                const text = getContentFromMessage(content);
+                speechSynthesizer.current.speak(text.replace(/#/g, ''), {
+                  onEnd: () => {
+                    setIsPlaying(false);
+                  },
+                });
+                setIsPlaying(true);
+              }}
+            />
+          )}
           {!window.isMingoShare && allowRegenerate && (
             <BgIconButton
               size="small"
@@ -372,9 +398,24 @@ function MessageItem({
               iconStyle={iconStyle}
               popupPlacement="top"
               tooltip={_l('重新生成')}
-              disabled={loading}
+              disabled={loading || shareMode}
               onClick={() => {
                 sendMessageFromMessage({ isRegenerate: true });
+              }}
+            />
+          )}
+          {allowShare && (
+            <BgIconButton
+              disabled={shareMode}
+              size="small"
+              icon="share"
+              iconStyle={iconStyle}
+              popupPlacement="top"
+              tooltip={_l('分享')}
+              nativeOnClick={e => {
+                e.stopPropagation();
+                e.preventDefault();
+                onBeginShare(modelMessageId);
               }}
             />
           )}
@@ -397,7 +438,7 @@ function MessageItem({
           )}
           {showTokenUsage && usage && usage.total_tokens && (
             <Tooltip title={_l('消耗 %0 个token', usage.total_tokens)}>
-              <div className="tokenUsage Font12 Gray_bd">Token</div>
+              <div className="tokenUsage Font12 textDisabled">Token</div>
             </Tooltip>
           )}
         </BgIconButton.Group>
@@ -431,190 +472,201 @@ function MessageItem({
         isSmall: window.innerWidth < 500,
         alwaysShowTool: isLastAssistantMessage,
         useAppThemeColor,
+        isShareMode: shareMode,
+        needPaddingLeft: width <= 890,
+        allowShare,
       })}
       data-id={id}
+      onClick={onClick}
     >
-      {role === 'assistant' && showAssistantAvatar && (
-        <div className="assistantOperates t-flex t-items-center">
-          <img src={mingoHead} className="avatar" alt="" />
-          <div className="avatarName">Mingo</div>
+      {shareMode && (
+        <div className="shareMode">
+          <Checkbox checked={checked} />
         </div>
       )}
-      {role === 'assistant' && assistantOperatesPlacement === 'top' && !isEmpty(content) && assistantOperatesComp}
-      {role === 'user' && !!files.length && (
-        <FilesCon>
-          {files.map(file => (
-            <FileCard isMessageList key={file.id} {...file} />
-          ))}
-        </FilesCon>
-      )}
-      {showLoading && (
-        <div className="t-flex t-items-center mTop10">
-          {customLoadingComp || (
-            <Fragment>
-              <LoadingDots dotNumber={3} />
-              {statusText && <div className="statusText mLeft5">{statusText}</div>}
-            </Fragment>
-          )}
-        </div>
-      )}
-      {!showLoading && (
-        <div className="messageContentWrap">
-          {!isEditing ? (
-            !isEmpty(content) && (
-              <div className="messageContent">
-                {role === 'user' ? (
-                  <div>{getContentFromMessage(content)}</div>
-                ) : // <ReactRemarkable markdown={content} style={{ backgroundColor: 'transparent' }} />
-                typeof content === 'string' ? (
-                  <ReactRemarkable
-                    markdown={content}
-                    isStreaming={isStreaming}
-                    flag={JSON.stringify({ taskStatus, disabled: !isLastAssistantMessage })}
-                    renderCustomBlock={
-                      renderCustomBlock &&
-                      (({ type, content }) =>
-                        renderCustomBlock({
-                          type,
-                          content,
-                          deactivated,
-                          isStreaming,
-                          isLastAssistantMessage,
-                          messageId: id,
-                        }))
-                    }
-                  />
-                ) : (
-                  content.map((part, key) => {
-                    if (part.type === 'text') {
-                      return (
-                        <ReactRemarkable
-                          markdown={part.text}
-                          isStreaming={isStreaming}
-                          flag={JSON.stringify({ taskStatus, disabled: !isLastAssistantMessage })}
-                          renderCustomBlock={
-                            renderCustomBlock &&
-                            (({ type, content }) =>
-                              renderCustomBlock({
-                                type,
-                                content,
-                                deactivated,
-                                isStreaming,
-                                isLastAssistantMessage,
-                                messageId: id,
-                              }))
-                          }
-                        />
-                      );
-                    } else if (part.type === 'image_url') {
-                      return <img key={key} src={part.image_url} alt="" />;
-                    } else if (part.type === 'tool_calls') {
-                      const lastToolIndex = findLastIndex(content, item => item.type === 'tool_calls');
-                      return renderToolCalls ? (
-                        renderToolCalls(part.toolCalls, {
-                          modelMessageId: modelMessageId,
-                          messageId: id,
-                          needConfirm: hasSubmit,
-                          isLastAssistantMessage,
-                          isLastPart: key === lastToolIndex,
-                        })
-                      ) : (
-                        <div key={key}>{JSON.stringify(part.toolCalls)}</div>
-                      );
-                    }
-                  })
-                )}
-              </div>
-            )
-          ) : (
-            <MessageEditTextarea
-              ref={messageContentRef}
-              minHeight={38}
-              rows={1}
-              value={messageTempValue}
-              onChange={e => {
-                setMessageTempValue(e.target.value);
-              }}
-              onKeyDown={e => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  sendMessageFromMessage();
-                }
-              }}
-            />
-          )}
-        </div>
-      )}
-      {role === 'user' && !isEmpty(content) && (
-        <div className="user-tools t-flex t-items-center t-justify-between">
-          <div>
-            {isEditing && (
-              <div className="is-editing-message t-flex t-items-center t-justify-end">
-                <div className="icon icon-edit_17"></div>
-                {_l('正在编辑问题')}
-              </div>
+      <div className="messageContentContent">
+        {role === 'assistant' && showAssistantAvatar && (
+          <div className="assistantOperates t-flex t-items-center">
+            <img src={md.global.SysSettings.aiBrandLogoUrl || mingoHead} className="avatar" alt="" />
+            <div className="avatarName">{md.global.SysSettings.aiBrandName || 'Mingo'}</div>
+          </div>
+        )}
+        {role === 'assistant' && assistantOperatesPlacement === 'top' && !isEmpty(content) && assistantOperatesComp}
+        {role === 'user' && !!files.length && (
+          <FilesCon>
+            {files.map(file => (
+              <FileCard isMessageList key={file.id} {...file} />
+            ))}
+          </FilesCon>
+        )}
+        {showLoading && (
+          <div className="t-flex t-items-center mTop10">
+            {customLoadingComp || (
+              <Fragment>
+                <LoadingDots dotNumber={3} />
+                {statusText && <div className="statusText mLeft5">{statusText}</div>}
+              </Fragment>
             )}
           </div>
-          {!isEditing ? (
-            <BgIconButton.Group gap={6}>
-              <BgIconButton
-                size="small"
-                icon="copy_custom"
-                iconStyle={iconStyle}
-                popupPlacement="top"
-                tooltip={_l('复制')}
-                onClick={() => {
-                  copy(getContentFromMessage(content));
-                  alert(_l('复制成功'));
+        )}
+        {!showLoading && (
+          <div className="messageContentWrap">
+            {!isEditing ? (
+              !isEmpty(content) && (
+                <div className="messageContent">
+                  {role === 'user' ? (
+                    <div>{getContentFromMessage(content)}</div>
+                  ) : // <ReactRemarkable markdown={content} style={{ backgroundColor: 'transparent' }} />
+                  typeof content === 'string' ? (
+                    <ReactRemarkable
+                      markdown={content}
+                      isStreaming={isStreaming}
+                      flag={JSON.stringify({ taskStatus, disabled: !isLastAssistantMessage })}
+                      renderCustomBlock={
+                        renderCustomBlock &&
+                        (({ type, content }) =>
+                          renderCustomBlock({
+                            type,
+                            content,
+                            deactivated,
+                            isStreaming,
+                            isLastAssistantMessage,
+                            messageId: id,
+                          }))
+                      }
+                    />
+                  ) : (
+                    content.map((part, key) => {
+                      if (part.type === 'text') {
+                        return (
+                          <ReactRemarkable
+                            markdown={part.text}
+                            isStreaming={isStreaming}
+                            flag={JSON.stringify({ taskStatus, disabled: !isLastAssistantMessage })}
+                            renderCustomBlock={
+                              renderCustomBlock &&
+                              (({ type, content }) =>
+                                renderCustomBlock({
+                                  type,
+                                  content,
+                                  deactivated,
+                                  isStreaming,
+                                  isLastAssistantMessage,
+                                  messageId: id,
+                                }))
+                            }
+                          />
+                        );
+                      } else if (part.type === 'image_url') {
+                        return <img key={key} src={part.image_url} alt="" />;
+                      } else if (part.type === 'tool_calls') {
+                        const lastToolIndex = findLastIndex(content, item => item.type === 'tool_calls');
+                        return renderToolCalls ? (
+                          renderToolCalls(part.toolCalls, {
+                            modelMessageId: modelMessageId,
+                            messageId: id,
+                            needConfirm: hasSubmit,
+                            isLastAssistantMessage,
+                            isLastPart: key === lastToolIndex,
+                          })
+                        ) : (
+                          <div key={key}>{JSON.stringify(part.toolCalls)}</div>
+                        );
+                      }
+                    })
+                  )}
+                </div>
+              )
+            ) : (
+              <MessageEditTextarea
+                ref={messageContentRef}
+                minHeight={38}
+                rows={1}
+                value={messageTempValue}
+                onChange={e => {
+                  setMessageTempValue(e.target.value);
+                }}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    sendMessageFromMessage();
+                  }
                 }}
               />
-              {allowEdit && (
+            )}
+          </div>
+        )}
+        {role === 'user' && !isEmpty(content) && (
+          <div className="user-tools t-flex t-items-center t-justify-between" onClick={e => e.stopPropagation()}>
+            <div>
+              {isEditing && (
+                <div className="is-editing-message t-flex t-items-center t-justify-end">
+                  <div className="icon icon-edit_17"></div>
+                  {_l('正在编辑问题')}
+                </div>
+              )}
+            </div>
+            {!isEditing ? (
+              <BgIconButton.Group gap={6}>
                 <BgIconButton
                   size="small"
-                  icon="edit_17"
+                  icon="copy_custom"
                   iconStyle={iconStyle}
                   popupPlacement="top"
-                  tooltip={_l('修改')}
+                  tooltip={_l('复制')}
                   onClick={() => {
-                    setIsEditing(true);
-                    setTimeout(() => {
-                      messageContentRef.current?.focus();
-                    }, 100);
+                    copy(getContentFromMessage(content));
+                    alert(_l('复制成功'));
                   }}
                 />
-              )}
-            </BgIconButton.Group>
-          ) : (
-            <BgIconButton.Group gap={6}>
-              <BgIconButton
-                size="small"
-                iconStyle={{
-                  ...iconStyle,
-                  color: '#F44336',
-                }}
-                icon="close"
-                popupPlacement="top"
-                onClick={() => setIsEditing(false)}
-              />
-              <BgIconButton
-                size="small"
-                iconStyle={{
-                  ...iconStyle,
-                  color: '#4caf50',
-                }}
-                icon="hr_ok"
-                popupPlacement="top"
-                onClick={sendMessageFromMessage}
-              />
-            </BgIconButton.Group>
-          )}
-        </div>
-      )}
-      {!isStreaming &&
-        role === 'assistant' &&
-        assistantOperatesPlacement === 'bottom' &&
-        !isEmpty(content) &&
-        assistantOperatesComp}
-      {!!isLastAssistantMessage && lastAssistantMessageFooterComp}
+                {allowEdit && (
+                  <BgIconButton
+                    size="small"
+                    icon="edit_17"
+                    iconStyle={iconStyle}
+                    popupPlacement="top"
+                    tooltip={_l('修改')}
+                    onClick={() => {
+                      setIsEditing(true);
+                      setTimeout(() => {
+                        messageContentRef.current?.focus();
+                      }, 100);
+                    }}
+                  />
+                )}
+              </BgIconButton.Group>
+            ) : (
+              <BgIconButton.Group gap={6}>
+                <BgIconButton
+                  size="small"
+                  iconStyle={{
+                    ...iconStyle,
+                    color: 'var(--color-error)',
+                  }}
+                  icon="close"
+                  popupPlacement="top"
+                  onClick={() => setIsEditing(false)}
+                />
+                <BgIconButton
+                  size="small"
+                  iconStyle={{
+                    ...iconStyle,
+                    color: 'var(--color-success)',
+                  }}
+                  icon="hr_ok"
+                  popupPlacement="top"
+                  onClick={sendMessageFromMessage}
+                />
+              </BgIconButton.Group>
+            )}
+          </div>
+        )}
+        {!isStreaming &&
+          role === 'assistant' &&
+          assistantOperatesPlacement === 'bottom' &&
+          !isEmpty(content) &&
+          assistantOperatesComp}
+        {!!isLastAssistantMessage && lastAssistantMessageFooterComp}
+      </div>
     </MessageItemWrap>
   );
 }
@@ -631,9 +683,15 @@ MessageItem.propTypes = {
 
 function MessageList(
   {
+    width,
     isMobile = false,
     loading = false,
     allowRegenerate = false,
+    allowShare = false,
+    shareMode = false,
+    isSelectAll = false,
+    selectedMessageIds = [],
+    setSelectedMessageIds = () => {},
     showFeedback,
     useAppThemeColor,
     assistantAvatar,
@@ -673,6 +731,8 @@ function MessageList(
     chatbotId,
     handleRegenerate,
     onScrollToTop = () => {},
+    setShareMode = () => {},
+    setIsSelectAll = () => {},
   },
   ref,
 ) {
@@ -680,6 +740,12 @@ function MessageList(
   const scrollViewRef = useRef(null);
   const messagesEndRef = useRef(null);
   const scrollToBottomRef = useRef(null);
+  const handleSelectMessage = useCallback((ids = []) => {
+    setSelectedMessageIds(prev => [...prev, ...ids]);
+  }, []);
+  const handleUnselectMessage = useCallback((ids = []) => {
+    setSelectedMessageIds(prev => prev.filter(id => !ids.includes(id)));
+  }, []);
   const uiMessages = useMemo(() => {
     return messages
       .map(message => convertModelMessageToUIMessage(message))
@@ -726,14 +792,18 @@ function MessageList(
   const handleMessageClick = useCallback(e => {
     if (e.target.tagName.toLowerCase() === 'img') {
       e.stopPropagation();
-      previewQiniuUrl(e.target.src, { disableDownload: true, ext: 'png' });
+      previewAttachments(transformQiniuUrl(e.target.src, { disableDownload: true, ext: 'png' }));
       return;
     }
   }, []);
   if (isLoadingChat) {
     return (
       <MessageListWrap className="t-flex-1">
-        <Skeleton active style={{ maxWidth, margin: '0 auto', padding: 0 }} widths={[100, '100%', '100%', '50%']} />
+        <Skeleton
+          active
+          style={{ maxWidth, margin: '0 auto', padding: 0, background: 'transparent' }}
+          widths={[100, '100%', '100%', '50%']}
+        />
       </MessageListWrap>
     );
   }
@@ -757,8 +827,12 @@ function MessageList(
               <MessageItemWrap>
                 <div className="assistantOperates t-flex t-items-center">
                   <Fragment>
-                    <img src={assistantAvatar || mingoHead} className="avatar" alt="" />
-                    <div className="avatarName">{assistantName || 'Mingo'}</div>
+                    <img
+                      src={assistantAvatar || md.global.SysSettings.aiBrandLogoUrl || mingoHead}
+                      className="avatar"
+                      alt=""
+                    />
+                    <div className="avatarName">{assistantName || md.global.SysSettings.aiBrandName || 'Mingo'}</div>
                   </Fragment>
                 </div>
                 {messageRecommendComp}
@@ -770,6 +844,14 @@ function MessageList(
           .filter(message => includes(allowedRoles, message.role))
           .map(message => (
             <MessageItem
+              width={width}
+              checked={
+                isSelectAll ||
+                selectedMessageIds.includes(message.modelMessageId) ||
+                selectedMessageIds.includes(message.id)
+              }
+              allowShare={allowShare}
+              shareMode={shareMode}
               loading={loading}
               showLoadingWhenContentIsEmpty={showLoadingWhenContentIsEmpty}
               showFeedback={showFeedback}
@@ -826,6 +908,46 @@ function MessageList(
               onBeginCreateWorksheet={onBeginCreateWorksheet}
               onBeginGenerateWidgets={onBeginGenerateWidgets}
               chatbotId={chatbotId}
+              onClick={() => {
+                if (!shareMode) return;
+                const ids = [message.modelMessageId];
+                if (message.role === 'user') {
+                  const nextMessage =
+                    messages[findLastIndex(messages, item => item.modelMessageId === message.modelMessageId) + 1];
+                  if (nextMessage) {
+                    ids.push(nextMessage.modelMessageId);
+                  }
+                } else {
+                  const prevMessage =
+                    messages[findLastIndex(messages, item => item.modelMessageId === message.modelMessageId) - 1];
+                  if (prevMessage) {
+                    ids.push(prevMessage.modelMessageId);
+                  }
+                }
+                if (isSelectAll) {
+                  setIsSelectAll(false);
+                  setSelectedMessageIds(
+                    messages
+                      .filter(message => !ids.includes(message.modelMessageId))
+                      .map(message => message.modelMessageId),
+                  );
+                } else {
+                  if (selectedMessageIds.includes(message.modelMessageId)) {
+                    handleUnselectMessage(ids);
+                  } else {
+                    handleSelectMessage(ids);
+                  }
+                }
+              }}
+              onBeginShare={modelMessageId => {
+                const messageIndex = findLastIndex(
+                  messages,
+                  item => (item.modelMessageId || item.id) === modelMessageId,
+                );
+                const prevMessage = messages[messageIndex - 1] || {};
+                setShareMode(true);
+                setSelectedMessageIds([modelMessageId, prevMessage.modelMessageId || prevMessage.id].filter(Boolean));
+              }}
             />
           ))}
 
@@ -836,8 +958,8 @@ function MessageList(
                 <div className="assistantOperates t-flex t-items-center">
                   {showAssistantAvatar && (
                     <Fragment>
-                      <img src={mingoHead} className="avatar" alt="" />
-                      <div className="avatarName">Mingo</div>
+                      <img src={md.global.SysSettings.aiBrandLogoUrl || mingoHead} className="avatar" alt="" />
+                      <div className="avatarName">{md.global.SysSettings.aiBrandName || 'Mingo'}</div>
                     </Fragment>
                   )}
                 </div>
@@ -858,7 +980,7 @@ function MessageList(
           <div>
             <div className="t-flex t-items-center mTop10" style={loadingStatus.style}>
               <LoadingDots dotNumber={3} />
-              {<div className="statusText mLeft5 Gray_75">{loadingStatus.statusText}</div>}
+              {<div className="statusText mLeft5 textSecondary">{loadingStatus.statusText}</div>}
             </div>
           </div>
         )}

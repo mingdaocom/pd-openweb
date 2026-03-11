@@ -137,7 +137,7 @@ export default class CardToolbar extends Component {
         {this.toolItems.map((item, index) => (
           <div
             key={index}
-            className={cx('menuItem ThemeBGColor3', {
+            className={cx('menuItem', {
               hide:
                 (item.icon === 'icon-chat-inputer-post' || item.icon === 'icon-votenobg') &&
                 !this.props.session.isGroup,
@@ -170,7 +170,7 @@ export default class CardToolbar extends Component {
         popupAlign={{ offset: [64, -10] }}
         getPopupContainer={() => document.querySelector('.ChatPanel-wrapper')}
       >
-        <div className={cx('ChatPanel-addToolbar ThemeBorderColor3 ThemeBGColor3', { addToolbarHover: !visible })}>
+        <div className={cx('ChatPanel-addToolbar addToolbarHover')}>
           <i className="icon-plus" />
         </div>
       </Trigger>

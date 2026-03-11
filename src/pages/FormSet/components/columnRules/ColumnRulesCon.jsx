@@ -4,7 +4,8 @@ import { bindActionCreators } from 'redux';
 import { Drawer } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Button, Icon, ScrollView, SortableList, Support } from 'ming-ui';
+import { Icon, ScrollView, SortableList, Support } from 'ming-ui';
+import DrawerFooter from '../DrawerFooter';
 import { hasRuleChanged, TAB_TYPES, TABS_DISPLAY } from './config';
 import EditBox from './EditBox';
 import * as actions from './redux/actions/columnRules';
@@ -32,9 +33,9 @@ class ColumnRulesCon extends React.Component {
       return (
         <div className="emptyColumnRules">
           <span className="emptyIcon">
-            <Icon icon="list" className="Gray_bd" />
+            <Icon icon="list" className="textDisabled" />
           </span>
-          <span className="Font15 Gray_9e mTop20">{_l('暂无业务规则')}</span>
+          <span className="Font15 textTertiary mTop20">{_l('暂无业务规则')}</span>
           <div className="addEmptyRules" onClick={() => addColumnRules()}>
             <Icon icon="plus" className="mRight3" />
             {_l('添加规则')}
@@ -65,6 +66,7 @@ class ColumnRulesCon extends React.Component {
 
   render() {
     const {
+      saveLoading,
       addColumnRules,
       saveControlRules,
       clearColumnRules,
@@ -110,7 +112,7 @@ class ColumnRulesCon extends React.Component {
             })}
           </div>
           <div className="columnRuleDesc">
-            <span className="Gray_9e">
+            <span className="textTertiary">
               {activeTab === TAB_TYPES.NORMAL_RULE
                 ? _l('交互规则可根据条件控制字段的显隐、是否可编辑和是否必填，并支持为字段赋值。')
                 : activeTab === TAB_TYPES.CHECK_RULE
@@ -137,14 +139,12 @@ class ColumnRulesCon extends React.Component {
             getContainer={false}
             closeIcon={<i className="icon-close Font20" />}
             footer={
-              <div className="ruleFooter">
-                <Button className="mRight15 saveBtn" size="medium" onClick={() => saveControlRules()}>
-                  {_l('确定')}
-                </Button>
-                <Button size="medium" type="secondary" className="closeBtn" onClick={() => clearColumnRules()}>
-                  {_l('取消')}
-                </Button>
-              </div>
+              <DrawerFooter
+                saveLoading={saveLoading}
+                disabled={saveLoading || !hasRuleChanged(columnRulesListData, selectRules, true)}
+                onCancel={() => clearColumnRules()}
+                handleSave={() => saveControlRules()}
+              />
             }
           >
             <EditBox />
@@ -159,6 +159,7 @@ const mapStateToProps = state => ({
   columnRulesListData: state.formSet.columnRulesListData,
   selectRules: state.formSet.selectRules,
   activeTab: state.formSet.activeTab,
+  saveLoading: state.formSet.saveLoading,
 });
 const mapDispatchToProps = dispatch => bindActionCreators({ ...actions, ...columnRules }, dispatch);
 

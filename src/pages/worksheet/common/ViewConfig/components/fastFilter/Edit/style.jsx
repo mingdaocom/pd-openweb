@@ -16,7 +16,7 @@ export const Wrap = styled.div`
     top: 0;
     bottom: 0;
     width: 400px;
-    background: #fff;
+    background: var(--color-background-primary);
     box-shadow: 0px 8px 36px 0px rgba(0, 0, 0, 0.24);
     right: 0;
     z-index: 12;
@@ -35,16 +35,16 @@ export const Wrap = styled.div`
       display: flex;
       align-items: center;
       justify-content: start;
-      border-bottom: 1px solid #ededed;
+      border-bottom: 1px solid var(--color-border-secondary);
       font-size: 16px;
       font-weight: 500;
       span {
         flex: 1;
       }
       .icon-close {
-        color: #9d9d9d !important
+        color: var(--color-text-tertiary) !important
         &:hover {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }
@@ -63,7 +63,7 @@ export const Wrap = styled.div`
       }
       .active {
         .inputBox {
-          border: 1px solid #1677ff;
+          border: 1px solid var(--color-primary);
         }
       }
       .inputBox {
@@ -72,8 +72,8 @@ export const Wrap = styled.div`
         line-height: 36px;
         height: 36px;
         opacity: 1;
-        background: #ffffff;
-        border: 1px solid #dddddd;
+        background: var(--color-background-primary);
+        border: 1px solid var(--color-border-primary);
         border-radius: 4px;
         padding: 0 12px 0 12px;
         .icon {
@@ -120,7 +120,7 @@ export const Wrap = styled.div`
         line-height: 36px;
         height: 36px;
         opacity: 1;
-        background: #fff;
+        background: var(--color-background-primary);
         border-radius: 4px;
         margin-top: 8px;
         box-sizing: border-box;
@@ -131,11 +131,11 @@ export const Wrap = styled.div`
           padding: 0 8px 0 12px;
           width: 100%;
           display: flex;
-          border: 1px solid #dddddd;
+          border: 1px solid var(--color-border-primary);
           border-radius: 4px;
           height: 36px;
           &.active {
-            border: 1px solid #1677ff;
+            border: 1px solid var(--color-primary);
           }
           .value,
           .Dropdown--placeholder {
@@ -183,7 +183,7 @@ export const Wrap = styled.div`
         height: 1px;
         margin-top: 6px;
         margin-bottom: 6px;
-        background: #ddd;
+        background: var(--color-border-primary);
         &:last-child {
           display: none;
         }
@@ -205,5 +205,16 @@ export const Wrap = styled.div`
   }
   .disabledBtn {
     cursor: not-allowed;
+  }
+  .loadingMask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.3);
+    z-index: 1000;
+    cursor: not-allowed;
+    pointer-events: all;
   }
 `;

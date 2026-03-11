@@ -7,7 +7,7 @@ export const BaseSelectedItem = styled.div`
   height: 24px;
   line-height: 24px;
   border-radius: 24px;
-  background: #e5e5e5;
+  background: var(--color-border-secondary);
   max-width: 100%;
   font-size: 13px;
   .name {

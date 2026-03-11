@@ -32,10 +32,10 @@ const TransactionDetailsWrap = styled.div`
     padding-top: 0 !important;
   }
   .color_47 {
-    color: #47b14b;
+    color: var(--color-success);
   }
   .color_f4 {
-    color: #f44336;
+    color: var(--color-error);
   }
 `;
 
@@ -53,7 +53,7 @@ const IncomeWrap = styled.div`
   }
   .dateTxt:hover {
     .icon {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
 `;
@@ -108,7 +108,7 @@ export default class TransactionDetails extends Component {
           <Fragment>
             <span className="TxtMiddle">{_l('结算金额')}</span>
             <Tooltip title={_l('微信/支付宝直连无法获取结算金额')}>
-              <i className="icon icon-info Gray_9e Font14 mLeft5 TxtMiddle" />
+              <i className="icon icon-info textTertiary Font14 mLeft5 TxtMiddle" />
             </Tooltip>
           </Fragment>
         ),
@@ -124,7 +124,7 @@ export default class TransactionDetails extends Component {
           <Fragment>
             <span className="TxtMiddle">{_l('结算手续费')}</span>
             <Tooltip title={_l('微信/支付宝直连无法获取手续费')}>
-              <i className="icon icon-info Gray_9e Font14 mLeft5 TxtMiddle" />
+              <i className="icon icon-info textTertiary Font14 mLeft5 TxtMiddle" />
             </Tooltip>
           </Fragment>
         ),
@@ -140,7 +140,7 @@ export default class TransactionDetails extends Component {
           <Fragment>
             <span className="TxtMiddle">{_l('结算手续费率')}</span>
             <Tooltip title={_l('微信/支付宝直连无法获取手续费率')}>
-              <i className="icon icon-info Gray_9e Font14 mLeft5 TxtMiddle" />
+              <i className="icon icon-info textTertiary Font14 mLeft5 TxtMiddle" />
             </Tooltip>
           </Fragment>
         ),
@@ -200,7 +200,7 @@ export default class TransactionDetails extends Component {
                 <div className="pLeft5">{fullname}</div>
               ) : (
                 <UserName
-                  className="Gray Font13 pLeft5 pRight10 pTop3 flex ellipsis"
+                  className="textPrimary Font13 pLeft5 pRight10 pTop3 flex ellipsis"
                   projectId={props.projectId}
                   user={{
                     userName: fullname,
@@ -267,7 +267,7 @@ export default class TransactionDetails extends Component {
           return (
             <span
               title={workSheetName}
-              className="Hand Hover_21"
+              className="Hand hoverColorPrimary"
               onClick={() => navigateTo(`/worksheet/${worksheetId}`)}
             >
               {workSheetName}
@@ -305,7 +305,7 @@ export default class TransactionDetails extends Component {
           return (
             <Fragment>
               <span
-                className="ThemeColor Hand mRight24 Hover_51"
+                className="colorPrimary Hand mRight24 Hover_51"
                 onClick={() => {
                   const { projectId, featureType } = props;
                   if (featureType === '2') {
@@ -355,7 +355,7 @@ export default class TransactionDetails extends Component {
                 </span>
               )}
               {/* {(_.includes([3, 4], invoicingStatus) || status === 2) && (
-                <span className="ThemeColor Hand">{_l('开票')}</span>
+                <span className="colorPrimary Hand">{_l('开票')}</span>
               )} */}
             </Fragment>
           );
@@ -582,7 +582,7 @@ export default class TransactionDetails extends Component {
         allowClear: true,
         options: appList,
         value: appIds,
-        notFoundContent: loadingApp ? <LoadDiv /> : <span className="Gray_9e">{_l('无搜索结果')}</span>,
+        notFoundContent: loadingApp ? <LoadDiv /> : <span className="textTertiary">{_l('无搜索结果')}</span>,
         maxTagCount: 'responsive',
         onFocus: () => !appList.length && this.getAppList(),
         onSearch: _.debounce(val => this.setState({ keyword: val, appPageIndex: 1 }, this.getAppList), 500),
@@ -625,7 +625,7 @@ export default class TransactionDetails extends Component {
               .indexOf(inputValue.toLowerCase()) > -1
           );
         },
-        notFoundContent: <span className="Gray_9e">{_l('无搜索结果')}</span>,
+        notFoundContent: <span className="textTertiary">{_l('无搜索结果')}</span>,
         maxTagCount: 'responsive',
       },
       {
@@ -666,7 +666,7 @@ export default class TransactionDetails extends Component {
         maxTagCount: 'responsive',
         options: merchantList,
         onFocus: () => !merchantList.length && this.getMerchantList(),
-        notFoundContent: merchantListLoading ? <LoadDiv /> : <span className="Gray_9e">{_l('无搜索结果')}</span>,
+        notFoundContent: merchantListLoading ? <LoadDiv /> : <span className="textTertiary">{_l('无搜索结果')}</span>,
       },
       {
         key: 'sourceType',
@@ -836,7 +836,7 @@ export default class TransactionDetails extends Component {
       return (
         <Empty
           className="flex"
-          descClassName="Gray_bd"
+          descClassName="textDisabled"
           detail={{
             desc: _l('您的账户目前暂无订单明细'),
             customIcon: <img className="customIcon" src={transactionEmptyImg} />,
@@ -848,7 +848,9 @@ export default class TransactionDetails extends Component {
     return (
       <TransactionDetailsWrap className="flex">
         <IncomeWrap className="pLeft16">
-          {INCOME_INFO.filter(v => (md.global.Config.IsLocal ? v.id !== 'realAmount' : true)).map(item => {
+          {INCOME_INFO.filter(v =>
+            window.platformENV.isOverseas || window.platformENV.isLocal ? v.id !== 'realAmount' : true,
+          ).map(item => {
             const { id, text } = item;
             const dateTxt =
               dateItem !== 'custom'
@@ -888,7 +890,7 @@ export default class TransactionDetails extends Component {
                   >
                     <span className="dateTxt">
                       <span>{`${dateTxt} ¥`}</span>
-                      <Icon icon="arrow-down-border" className=" Gray_9e Hand mLeft6 mRight12" />
+                      <Icon icon="arrow-down-border" className=" textTertiary Hand mLeft6 mRight12" />
                     </span>
                   </Trigger>
                 )}
@@ -903,7 +905,7 @@ export default class TransactionDetails extends Component {
                             : _l('总收入-手续费-退款金额，微信/支付宝直连无法获取手续费')
                         }
                       >
-                        <i className="icon icon-info Gray_9e Font14 mRight5" />
+                        <i className="icon icon-info textTertiary Font14 mRight5" />
                       </Tooltip>
                     )}
                     <span className="mLeft3">¥</span>
@@ -911,7 +913,7 @@ export default class TransactionDetails extends Component {
                 )}
                 <span
                   className={cx('Font26 bold mLeft10', {
-                    ThemeColor: _.includes(['totalAmount', 'dateRangeTotalAmount', 'realAmount'], id),
+                    colorPrimary: _.includes(['totalAmount', 'dateRangeTotalAmount', 'realAmount'], id),
                   })}
                   zw
                 >

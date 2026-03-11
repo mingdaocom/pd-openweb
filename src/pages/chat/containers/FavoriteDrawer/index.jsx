@@ -10,11 +10,11 @@ const Collect = props => {
   const { toolbarConfig, setToolbarConfig } = props;
   const { favoriteFixing } = toolbarConfig;
   return (
-    <div className="flexColumn h100 WhiteBG pLeft20 pRight20 pTop15 pBottom15">
+    <div className="flexColumn h100 bgPrimary pLeft20 pRight20 pTop15 pBottom15">
       <div className="header flexRow alignItemsCenter justifyContentBetween">
         <Icon
           icon="set_top"
-          className={cx('Font22 pointer', favoriteFixing ? 'Gray_75' : 'Gray_c')}
+          className={cx('Font22 pointer', favoriteFixing ? 'textSecondary' : 'textPlaceholder')}
           onClick={() => {
             setToolbarConfig({ favoriteFixing: !favoriteFixing });
             localStorage.setItem('favoriteFixing', !favoriteFixing);
@@ -22,7 +22,7 @@ const Collect = props => {
         />
         <Icon
           icon="close"
-          className="Font22 pointer Gray_75"
+          className="Font22 pointer textSecondary"
           onClick={() => {
             setToolbarConfig({ favoriteVisible: false });
             localStorage.removeItem('toolBarOpenType');

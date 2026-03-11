@@ -46,7 +46,7 @@ export default class Link extends Component {
     return (
       <Fragment>
         <WorksheetMessage item={{ ...item, appTypeName: _l('工作表') }} />
-        <div className={cx('workflowContentInfo ellipsis Gray_75 mTop4 pBottom5', { yellow: item.isException })}>
+        <div className={cx('workflowContentInfo ellipsis textSecondary mTop4 pBottom5', { yellow: item.isException })}>
           {item.isException ? (
             <Fragment>
               <i className="icon-info_outline Font18 mRight5" />
@@ -86,7 +86,11 @@ export default class Link extends Component {
             </div>
             <NodeOperate nodeClassName="BGBlueAsh" {...this.props} />
             <div className="workflowContent Font13">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? (
+                <span className="pLeft8 pRight8 textSecondary">{_l('加载中...')}</span>
+              ) : (
+                this.renderContent()
+              )}
             </div>
           </div>
           <CreateNode {...this.props} />

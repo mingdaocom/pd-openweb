@@ -82,7 +82,7 @@ export default function RoleItem(props) {
         setPopupVisibleId(null);
         Dialog.confirm({
           title: <span className="Red">{_l('确定删除角色') + `"${role.roleName}"?`}</span>,
-          description: <span className="Gray">{_l('删除后无法恢复')}</span>,
+          description: <span className="textPrimary">{_l('删除后无法恢复')}</span>,
           buttonType: 'danger',
           onOk: () => {
             roleApi
@@ -138,7 +138,7 @@ export default function RoleItem(props) {
           <div className="roleOperation">
             <span
               onClick={e => !hasApply && onClickHandle(e, 'applyRole')}
-              className={cx(hasApply ? 'Gray_bd' : 'ThemeColor3 adminHoverColor Hand')}
+              className={cx(hasApply ? 'textDisabled' : 'ThemeColor3 adminHoverColor Hand')}
             >
               {_l('申请')}
             </span>
@@ -174,7 +174,7 @@ export default function RoleItem(props) {
               >
                 <Icon
                   icon="moreop"
-                  className="Gray_9e Hand Font18 Hover_49 TxtMiddle"
+                  className="textTertiary Hand Font18 hoverTextPrimaryLight TxtMiddle"
                   onClick={e => e.stopPropagation()}
                 />
               </Trigger>

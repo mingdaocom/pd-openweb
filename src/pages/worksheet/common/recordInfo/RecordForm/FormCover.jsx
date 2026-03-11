@@ -25,7 +25,7 @@ const FormCoverWrap = styled.div`
       width: 100%;
       height: 100%;
       ${props => (props.coverType === '1' ? '' : 'padding-left: 2px;')}
-      background: ${props => props.bgColor || '#151515'};
+      background: ${props => props.bgColor || 'var(--color-text-title)'};
     }
   }
 `;
@@ -41,7 +41,7 @@ const CoverImgWrap = styled.div`
   cursor: pointer;
   box-sizing: border-box;
   ${props => (props.fromThumbnail ? 'border: 3px solid transparent;' : '')}
-  ${props => (props.isActive ? 'border-color: #1677ff;' : '')}
+  ${props => (props.isActive ? 'border-color: var(--color-primary);' : '')}
   ${({ fromThumbnail, coverType }) => (fromThumbnail && coverType !== '1' ? 'margin: 1px 0' : '')}
   &:first-child {
     margin-top: 0px;
@@ -104,19 +104,18 @@ const CarouselComponent = styled(Carousel)`
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      border: 1px solid #fff;
+      border: 1px solid var(--color-white);
       background-color: transparent;
       opacity: 1;
       &:hover {
         opacity: 1;
-        background-color: #fff;
+        background-color: var(--color-background-primary);
       }
     }
     &.slick-active {
       width: 10px;
       button {
         opacity: 1;
-        background-color: #fff !important;
       }
     }
   }
@@ -167,7 +166,7 @@ const CarouselComponent = styled(Carousel)`
   &.slick-slider .slick-prev:hover {
     left: 0;
     z-index: 3;
-    color: white;
+    color: var(--color-white);
     border-radius: 0px 6px 6px 0px;
   }
 
@@ -175,7 +174,7 @@ const CarouselComponent = styled(Carousel)`
   &.slick-slider .slick-next:hover {
     right: 0;
     z-index: 3;
-    color: white;
+    color: var(--color-white);
     border-radius: 6px 0px 0px 6px;
   }
 `;
@@ -194,7 +193,7 @@ const CarouseWrap = styled.div`
     border-bottom-left-radius: 12px;
     border-top-left-radius: 12px;
     background: rgba(0, 0, 0, 0.6);
-    color: #fff;
+    color: var(--color-white);
     text-align: center;
   }
   .maskDotBg {

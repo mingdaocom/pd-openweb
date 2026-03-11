@@ -26,7 +26,7 @@ export default function ListNull(props) {
       return (
         <div className="list-null">
           <div className="list-null-icon newfriends" />
-          <div className="mTop20 Font17 Gray_9e">{_l('暂无新的好友')}</div>
+          <div className="mTop20 Font17 textTertiary">{_l('暂无新的好友')}</div>
         </div>
       );
     }

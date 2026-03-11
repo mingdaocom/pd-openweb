@@ -31,7 +31,7 @@ export const RecordBoardWrap = styled.div`
       width: 1px;
       bottom: 0;
       content: '';
-      background: #ddd;
+      background: var(--color-border-primary);
     }
   }
   .boardListWrap {

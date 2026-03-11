@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -129,7 +129,7 @@ export default function (props) {
 
   const tipTxt = forBoard
     ? _l('将所选字段的字段值作为分组显示记录。看板添加分组后最多加载1000条记录')
-    : _l('将所选字段的字段值作为分组显示记录');
+    : _l('将所选字段的字段值作为分组显示记录（显示前50个）');
 
   const groupControlId = getGroupControlId(view);
   const groupControl = _.find(worksheetControls, { controlId: groupControlId });
@@ -140,10 +140,10 @@ export default function (props) {
       {_.get(safeParse(_.get(view, 'advancedSetting.groupsetting'), 'array'), '[0].controlId') ? (
         <div className="hasData">
           <div className="viewSetTitle">{_l('分组')}</div>
-          <div className="Gray_75 mTop8 mBottom4">{tipTxt}</div>
+          <div className="textSecondary mTop8 mBottom4">{tipTxt}</div>
           <React.Fragment>
             <div className="con">
-              <div className="title mTop25 Gray Bold">{_l('分组字段')}</div>
+              <div className="title mTop25 textPrimary Bold">{_l('分组字段')}</div>
               <div className="settingContent">
                 <Dropdown
                   cancelAble
@@ -237,7 +237,7 @@ export default function (props) {
               </div>
             )}
             <div className="">
-              <div className="title mTop30 Gray Bold">{_l('分组默认状态')}</div>
+              <div className="title mTop30 textPrimary Bold">{_l('分组默认状态')}</div>
               <div className="flexRow cardWidthWrap">
                 <ButtonTabs
                   className="mTop8 w100"
@@ -259,7 +259,7 @@ export default function (props) {
             <img src={bg} alt="" srcset="" />
           </div>
           <h6 className="">{_l('分组')}</h6>
-          <p className="text Gray_75">{tipTxt}</p>
+          <p className="text textSecondary">{tipTxt}</p>
           {renderAdd({
             comp: () => {
               return (

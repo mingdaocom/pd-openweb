@@ -349,7 +349,7 @@ export default class SendToolbar extends Component {
     return (
       <div className="ChatPanel-addToolbar-menu ChatPanel-addToolbar-KnowledgeMenu">
         <div
-          className="menuItem ThemeBGColor3"
+          className="menuItem"
           onClick={this.handleLocalFile.bind(this)}
           ref={uploadFile => {
             this.uploadFile = uploadFile;
@@ -359,7 +359,7 @@ export default class SendToolbar extends Component {
           <i className="icon-local_file" />
           <div className="menuItem-text">{_l('本地文件')}</div>
         </div>
-        <div className="menuItem ThemeBGColor3" onClick={this.handleKnowledgeFile.bind(this)}>
+        <div className="menuItem" onClick={this.handleKnowledgeFile.bind(this)}>
           <i className="icon-knowledge_file" />
           <div className="menuItem-text">{_l('知识中心')}</div>
         </div>

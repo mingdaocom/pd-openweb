@@ -468,7 +468,7 @@ export default class GlobalSearch extends Component {
                   />
                   <Checkbox
                     text={_l('只搜索记录标题')}
-                    className="Gray_9e"
+                    className="textTertiary"
                     checked={onlyTitle}
                     onClick={() => {
                       this.setState({ onlyTitle: !onlyTitle }, () => this.updateSearchApp({ type: 8 }));
@@ -633,7 +633,7 @@ export default class GlobalSearch extends Component {
                           />
                           <Checkbox
                             text={_l('只搜索记录标题')}
-                            className="Gray_9e mLeft20"
+                            className="textTertiary mLeft20"
                             checked={onlyTitle}
                             onClick={() => {
                               this.updateSearchParam({ onlyTitle: !onlyTitle, pageIndex: 1 });
@@ -680,7 +680,7 @@ export default class GlobalSearch extends Component {
                         title={{ width: '250px' }}
                         active={true}
                       >
-                        <p className="allCount mTop16 Gray_9e mLeft10">
+                        <p className="allCount mTop16 textTertiary mLeft10">
                           {searchType === 'record' && !allowSuperSearch
                             ? _l('“%0”功能不可用', companyName)
                             : searchAppResCode === 2 && searchType === 'record'

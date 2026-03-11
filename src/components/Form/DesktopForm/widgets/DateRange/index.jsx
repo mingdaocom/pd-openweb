@@ -67,12 +67,12 @@ const DateRange = props => {
       onClear={() => handleChange('')}
     >
       <div className={cx('customFormControlBox customFormButton flexRow', { controlDisabled: disabled })}>
-        <span className={cx('flex mRight20 ellipsis', { Gray_bd: !start })}>
+        <span className={cx('flex mRight20 ellipsis', { textDisabled: !start })}>
           {start && end ? `${start.format(formatText)} ~ ${end.format(formatText)}` : _l('请选择日期')}
           {durationText && <span className="mLeft5">{durationText}</span>}
         </span>
 
-        {!disabled && <Icon icon="bellSchedule" className="Font16 Gray_bd" />}
+        {!disabled && <Icon icon="bellSchedule" className="Font16 textDisabled" />}
       </div>
     </DateTimeRange>
   );

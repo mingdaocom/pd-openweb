@@ -60,6 +60,7 @@ export const TYPES = {
   WorkFlowUserTaskMessage: '46',
   WorkFlowSendTaskMessage: '47',
   FocusMessage: '48',
+  WorkFlowSendMessage: '49',
 };
 
 /**
@@ -165,6 +166,8 @@ export const MSGTYPES = {
   WorkFlowSendTaskMessage: 47,
   // 关注消息
   FocusMessage: 48,
+  // 工作流通知系统消息
+  WorkFlowSendMessage: 49,
 };
 
 // Code Enums 代码枚举
@@ -252,6 +255,7 @@ export const TYPE_GROUP = {
     [TYPES.WorkFlowUserTaskMessage]: _l('审批'),
     [TYPES.WorkFlowTaskMessage]: _l('填写'),
     [TYPES.WorkFlowSendTaskMessage]: _l('抄送'),
+    [TYPES.WorkFlowSendMessage]: _l('通知'),
   },
 };
 
@@ -281,6 +285,7 @@ export const DROPDOWN_GROUPLIST = {
     TYPES.WorkFlowUserTaskMessage,
     TYPES.WorkFlowTaskMessage,
     TYPES.WorkFlowSendTaskMessage,
+    TYPES.WorkFlowSendMessage,
   ],
 };
 

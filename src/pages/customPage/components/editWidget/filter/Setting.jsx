@@ -20,7 +20,7 @@ const Wrap = styled.div`
   width: 360px;
   display: flex;
   flex-direction: column;
-  background-color: #f8f8f8;
+  background-color: var(--color-background-secondary);
   overflow: auto;
   position: relative;
 
@@ -32,12 +32,12 @@ const Wrap = styled.div`
       flex: 1;
       padding-bottom: 16px;
       text-align: center;
-      border-bottom: 3px solid #eee;
+      border-bottom: 3px solid var(--color-border-secondary);
       transition: all 0.25s;
       cursor: pointer;
       &.active {
-        color: #1677ff;
-        border-bottom-color: #1677ff;
+        color: var(--color-primary);
+        border-bottom-color: var(--color-primary);
       }
     }
   }
@@ -61,7 +61,7 @@ const Wrap = styled.div`
     }
   }
   .icon-trash:hover {
-    color: #1677ff;
+    color: var(--color-primary);
   }
 `;
 
@@ -109,7 +109,7 @@ function Setting(props) {
       Dialog.confirm({
         title: null,
         description: (
-          <span className="Gray Font17" style={{ lineHeight: '26px' }}>
+          <span className="textPrimary Font17" style={{ lineHeight: '26px' }}>
             {_l('将当前所选的筛选对象用于整个组件，其他筛选器的对象将会被重置。')}
           </span>
         ),
@@ -169,7 +169,7 @@ function Setting(props) {
       </ul>
       {displayType === 'setting' ? (
         <div className="settingsBox Relative">
-          <div className="flexRow valignWrapper Gray_9e">
+          <div className="flexRow valignWrapper textTertiary">
             <div className="flex Font13">{_l('设置筛选器')}</div>
             <Tooltip title={_l('删除')}>
               <div>
@@ -228,7 +228,7 @@ function Setting(props) {
             <div className="flexRow valignWrapper flex bold">
               {_l('在执行筛选查询后显示数据')}
               <Tooltip title={_l('勾选后，进入页面初始不显示数据，查询后显示符合筛选条件的数据。')} placement="bottom">
-                <Icon className="Font17 pointer Gray_9e mLeft10" icon="help" />
+                <Icon className="Font17 pointer textTertiary mLeft10" icon="help" />
               </Tooltip>
             </div>
             <Switch

@@ -22,11 +22,18 @@ const NATIVE_APP_ITEM = [
 ];
 
 const NATIVE_INTERAGION_ITEM = [
-  { id: 'api', icon: 'connect', color: '#AF52DE', text: _l('API集成'), href: '/integration/connect', key: 1 },
+  {
+    id: 'api',
+    icon: 'connect',
+    color: 'var(--color-mingo)',
+    text: _l('API集成'),
+    href: '/integration/connect',
+    key: 1,
+  },
   {
     id: 'datapipeline',
     icon: 'a-Data_integration1',
-    color: '#00C7BE',
+    color: 'var(--color-cyan)',
     text: _l('数据集成'),
     href: '/integration/dataConnect',
     key: 2,
@@ -38,6 +45,15 @@ const Con = styled.div`
   background-color: ${({ themeBgColor }) => themeBgColor};
   transition: width 0.2s;
   width: 68px;
+  position: relative;
+  .sideNavMask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
   &.isExpanded {
     width: 180px;
     .moduleEntry,
@@ -85,7 +101,7 @@ const BaseEntry = styled.a`
   }
   &:hover {
     color: inherit;
-    background: #fff;
+    background: var(--color-background-primary);
   }
 `;
 
@@ -97,16 +113,16 @@ const ModuleEntry = styled(BaseEntry)`
   position: relative;
   .entryIcon {
     font-size: 24px;
-    color: rgba(0, 0, 0, 0.65);
+    color: var(--color-text-secondary);
   }
   .name {
     font-size: 12px;
+    color: var(--color-text-primary);
+    opacity: 0.8;
   }
   .fullName {
     font-size: 14px;
-  }
-  .name {
-    color: rgba(0, 0, 0, 0.4);
+    color: var(--color-text-primary);
   }
   &.isExpanded {
     width: 164px;
@@ -138,7 +154,7 @@ const DashboardEntry = styled.div`
   position: relative;
   .count {
     cursor: pointer;
-    color: #fff;
+    color: var(--color-white);
     position: absolute;
     right: 0px;
     top: -2px;
@@ -149,7 +165,7 @@ const DashboardEntry = styled.div`
     line-height: 20px;
     width: 20px;
     height: 20px;
-    background-color: #ff0000;
+    background-color: var(--color-error);
     z-index: 1;
     &.isExpanded {
       right: 12px;
@@ -164,7 +180,7 @@ const DashboardEntry = styled.div`
     height: 7px;
     width: 7px;
     border-radius: 20px;
-    background-color: #ff0000;
+    background-color: var(--color-error);
     position: absolute;
     left: 31px;
     top: 5px;
@@ -195,7 +211,7 @@ const moduleEntries = [
     fullName: _l('收藏'),
     href: '/favorite',
   },
-  !md.global.Config.IsLocal
+  !window.platformENV.isOverseas && !window.platformENV.isLocal
     ? {
         type: 'market',
         icon: 'merchant',
@@ -247,13 +263,11 @@ export default function SideNav(props) {
       _.find(md.global.Account.projects, item => item.projectId === projectId),
       'allowPlugin',
     ) || hasPermission(myPermissions, [PERMISSION_ENUM.DEVELOP_PLUGIN, PERMISSION_ENUM.MANAGE_PLUGINS]);
-  const hasDataIntegrationAuth =
-    !_.get(window, 'md.global.SysSettings.hideDataPipeline') &&
-    hasPermission(myPermissions, [
-      PERMISSION_ENUM.CREATE_SYNC_TASK,
-      PERMISSION_ENUM.MANAGE_SYNC_TASKS,
-      PERMISSION_ENUM.MANAGE_DATA_SOURCES,
-    ]);
+  const hasDataIntegrationAuth = hasPermission(myPermissions, [
+    PERMISSION_ENUM.CREATE_SYNC_TASK,
+    PERMISSION_ENUM.MANAGE_SYNC_TASKS,
+    PERMISSION_ENUM.MANAGE_DATA_SOURCES,
+  ]);
 
   useEffect(() => {
     privateSource.getSources({ status: 1 }).then(result => {
@@ -403,7 +417,11 @@ export default function SideNav(props) {
   };
 
   return (
-    <Con className={cx({ isExpanded })} themeBgColor={hasBgImg ? 'unset' : dashboardColor.bgColor}>
+    <Con
+      className={cx('sideNavWrapper', { isExpanded })}
+      themeBgColor={hasBgImg ? 'unset' : 'var(--color-background-primary)'}
+    >
+      <div className="sideNavMask" />
       <ScrollView className="h100">
         <Content>
           {thirdPartyAppVisible && <ThirdApp onCancel={() => setThirdPartyAppVisible(false)} />}
@@ -428,8 +446,8 @@ export default function SideNav(props) {
             {sourcesList.map((entry, index) => renderResourceItem(entry, index))}
 
             <div className="flexRow alignItemsCenter">
-              {md.global.Config.IsLocal && isExpanded && (
-                <div className="flex mTop6 Font12 Gray_9e" style={{ marginLeft: 44 }}>
+              {(window.platformENV.isOverseas || window.platformENV.isLocal) && isExpanded && (
+                <div className="flex mTop6 Font12 textTertiary" style={{ marginLeft: 44 }}>
                   {'v' + md.global.Config.Version}
                 </div>
               )}
@@ -442,10 +460,10 @@ export default function SideNav(props) {
                     safeLocalStorageSetItem('homeNavIsExpanded', !isExpanded ? '1' : '');
                   }}
                 >
-                  <span className="fullName Font12 Gray_9e flex" style={{ marginLeft: '25px' }}>
+                  <span className="fullName Font12 textSecondary flex" style={{ marginLeft: '25px' }}>
                     {'v' + md.global.Config.Version}
                   </span>
-                  <i className={`entryIcon icon ${isExpanded ? 'icon-menu_left' : 'icon-menu_right'} Gray_75`} />
+                  <i className={`entryIcon icon ${isExpanded ? 'icon-menu_left' : 'icon-menu_right'} textSecondary`} />
                 </ResourceEntry>
               </Tooltip>
             </div>

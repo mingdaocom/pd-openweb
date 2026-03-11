@@ -14,17 +14,17 @@ const PublicqueryHeader = styled.div`
     margin-top: 9px;
     height: 36px;
     opacity: 1;
-    background: #1677ff;
+    background: var(--color-primary);
     border-radius: 3px;
     font-size: 13px;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-white);
     line-height: 36px;
     width: 103px;
     vertical-align: top;
     float: right;
     &:hover {
-      background: #2365c0;
+      background: var(--color-link-hover);
     }
   }
   .download {
@@ -35,7 +35,7 @@ const PublicqueryHeader = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #151515;
+    color: var(--color-text-title);
   }
 `;
 class WorksheetShareHeader extends React.Component {
@@ -119,7 +119,7 @@ class WorksheetShareHeader extends React.Component {
               <div className="download" onClick={() => this.exportExcel()}>
                 <Icon
                   style={{ float: 'right', lineHeight: '100%' }}
-                  className="Gray_9e ThemeHoverColor3 pointer"
+                  className="textTertiary ThemeHoverColor3 pointer"
                   icon="download"
                 ></Icon>
               </div>

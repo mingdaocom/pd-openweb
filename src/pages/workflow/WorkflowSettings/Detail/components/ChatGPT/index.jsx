@@ -27,7 +27,7 @@ const Null = styled.div`
   .exampleBox {
     width: 480px;
     min-height: 48px;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     border-radius: 10px;
     padding: 0 14px;
   }
@@ -53,9 +53,9 @@ const Footer = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #1677ff;
+    background: var(--color-primary);
     font-size: 26px;
-    color: #fff;
+    color: var(--color-white);
   }
   .sendBtn {
     position: absolute;
@@ -71,17 +71,17 @@ const Footer = styled.div`
     font-size: 20px;
     &.active {
       .icon-airplane {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       .icon-airplane {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     .icon-airplane {
-      color: #ddd;
+      color: var(--color-border-primary);
     }
   }
   .stopBtn {
@@ -89,19 +89,19 @@ const Footer = styled.div`
     top: -48px;
     left: 50%;
     transform: translateX(-50%);
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     height: 32px;
     border-radius: 18px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #fff;
+    background: var(--color-background-primary);
     padding: 0 16px;
-    color: #757575;
+    color: var(--color-text-secondary);
     &:hover {
-      border-color: #1677ff;
-      color: #1677ff;
+      border-color: var(--color-primary);
+      color: var(--color-primary);
     }
   }
 `;
@@ -113,8 +113,8 @@ const Avatar = styled.div`
   margin-right: 8px;
   border-radius: 50%;
   font-size: 24px;
-  color: #fff;
-  background: #f2f2f2;
+  color: var(--color-white);
+  background: var(--color-background-disabled);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -127,7 +127,7 @@ const Avatar = styled.div`
 
 const ListContent = styled.div`
   padding: 6px;
-  border: 1px solid #eaeaea;
+  border: 1px solid var(--color-border-secondary);
   border-radius: 10px;
   max-width: 100%;
   display: inline-block;
@@ -172,7 +172,7 @@ const UseBtn = styled.span`
   height: 32px;
   align-items: center;
   &:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
 `;
 
@@ -180,7 +180,7 @@ const Cursor = styled.span`
   display: inline-block;
   width: 10px;
   height: 16px;
-  background: #151515;
+  background: var(--color-background-inverse);
   animation: fadeIn 0.6s ease-in-out infinite;
   margin-top: 3px;
   vertical-align: top;
@@ -206,7 +206,9 @@ const NullContent = ({ codeType }) => {
         <div className="exampleBox mTop15 flexRow alignItemsCenter">
           {_l('处理掉输入的字符串中开头和结尾的所有换行符号')}
         </div>
-        <div className="Gray_75 mTop15">{_l('如果遇到问题，您可以将代码报错信息发送给我，我会为您提供修改建议。')}</div>
+        <div className="textSecondary mTop15">
+          {_l('如果遇到问题，您可以将代码报错信息发送给我，我会为您提供修改建议。')}
+        </div>
       </div>
     </Null>
   );
@@ -357,7 +359,7 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
                         className={cx(
                           'chatGPTElement',
                           {
-                            'ThemeBorderColor3 ThemeBGColor3 White Font14': item.role === 'user',
+                            'ThemeBorderColor3 ThemeBGColor3 textWhite Font14': item.role === 'user',
                           },
                           { w100: item.role !== 'user' },
                         )}

@@ -22,7 +22,7 @@ const Wrap = styled.div`
     width: 180px;
     padding: 6px 0;
     font-size: 13px;
-    background: #fff;
+    background: var(--color-background-primary);
     max-height: 189px;
     overflow-y: scroll;
     box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.16);
@@ -33,8 +33,8 @@ const Wrap = styled.div`
       padding: 0 17px;
       &:hover,
       &.current {
-        background: #1677ff;
-        color: #fff !important;
+        background: var(--color-primary);
+        color: var(--color-white) !important;
       }
     }
   }
@@ -72,7 +72,7 @@ function Search(props) {
       <Input
         className="searchWorksheet Font14"
         size="large"
-        prefix={<Icon icon="search" className="Gray_9e Font18" />}
+        prefix={<Icon icon="search" className="textTertiary Font18" />}
         value={searchValue}
         placeholder={_l('搜索工作表')}
         onChange={e => setSearchValue(e.target.value.trim())}
@@ -84,7 +84,7 @@ function Search(props) {
           .map(l => {
             return (
               <li
-                className="overflow_ellipsis Gray Hand"
+                className="overflow_ellipsis textPrimary Hand"
                 key={`erSearchItem-${l.value}`}
                 onClick={() => clickWorksheet(l.value)}
               >
@@ -93,7 +93,7 @@ function Search(props) {
             );
           })}
         {options.filter(l => l.label.toLowerCase().includes(searchValue.toLowerCase())).length === 0 && (
-          <div className="emptyWrap Font13 Gray_bd">{_l('无匹配结果')}</div>
+          <div className="emptyWrap Font13 textDisabled">{_l('无匹配结果')}</div>
         )}
       </ul>
     </Wrap>

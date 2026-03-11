@@ -15,16 +15,16 @@ const Wrap = styled.div`
     display: block;
   }
   .memberTag {
-    background: #f4f4f4;
+    background: var(--color-background-disabled);
     border-radius: 10px;
-    color: #757575;
+    color: var(--color-text-secondary);
     display: inline-block;
     line-height: 18px;
     padding: 0 6px;
   }
   .ownerTag {
-    color: #fff;
-    background: #1677ff;
+    color: var(--color-white);
+    background: var(--color-primary);
     border-radius: 10px;
     display: inline-block;
     line-height: 18px;
@@ -34,7 +34,7 @@ const Wrap = styled.div`
     min-height: 36px;
     height: auto;
     border-radius: 3px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
   }
   .ant-select-focused:not(.ant-select-disabled) {
     .ant-select-selector {
@@ -42,7 +42,7 @@ const Wrap = styled.div`
     }
   }
   .ant-select-multiple .ant-select-selection-item {
-    background: #e5e5e5 !important;
+    background: var(--color-border-secondary) !important;
     border-radius: 11px !important;
   }
 `;

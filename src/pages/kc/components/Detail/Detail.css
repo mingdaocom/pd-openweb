@@ -5,7 +5,7 @@
   height: 100%;
 }
 .slideDetail .greyColor {
-  color: #999;
+  color: var(--color-text-tertiary);
 }
 .slideDetailTitle {
   padding: 20px 22px 0;
@@ -24,22 +24,22 @@
 }
 .detailType {
   height: 46px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-border-primary);
   margin-bottom: 5px;
 }
 .detailType li {
   font-size: 13px;
-  border-bottom: 3px solid #fff;
+  border-bottom: 3px solid transparent;
   height: 43px;
   line-height: 46px;
   text-align: center;
   width: 148px;
   float: left;
   cursor: pointer;
-  color: #aaa;
+  color: var(--color-text-tertiary);
 }
 .detailType li:hover {
-  border-bottom-color: #aaa;
+  border-bottom-color: var(--color-border-primary);
 }
 .detailType li:first-child {
   margin-left: 20px;
@@ -58,7 +58,7 @@
 }
 .attributeList {
   width: 100%;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-border-primary);
   padding-bottom: 15px;
 }
 .attributeList.removeBorder {
@@ -71,13 +71,13 @@
   position: relative;
 }
 .attributeList li a {
-  color: #151515 !important;
+  color: var(--color-text-title) !important;
 }
 .attributeLeft {
   width: 50px;
   display: inline-flex;
   justify-content: space-between;
-  color: #999;
+  color: var(--color-text-tertiary);
   margin-right: 18px;
 }
 .attributeList .createHeadImg {
@@ -92,8 +92,8 @@
   width: 215px;
   padding: 4px;
   height: 32px;
-  background: #eee;
-  border: 1px solid #ddd;
+  background: var(--color-border-secondary);
+  border: 1px solid var(--color-border-primary);
   margin-left: -5px;
 }
 
@@ -120,7 +120,7 @@
   margin-top: 15px;
   margin-bottom: 15px;
   padding-top: 15px;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid var(--color-border-primary);
 }
 .detailAuth .detailAuthM {
   display: block;
@@ -142,10 +142,10 @@
   -moz-box-sizing: border-box;
   box-sizing: border-box;
   position: relative;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 .detailLog li:hover {
-  background: #f4f4f5;
+  background: var(--color-background-secondary);
 }
 
 .detailLog .detailLogType {
@@ -153,7 +153,7 @@
   left: 20px;
   top: 11px;
   font-size: 13px;
-  color: #b7b7b7;
+  color: var(--color-text-disabled);
 }
 .detailLog .detailLogType.icon-edit {
   top: 13px;
@@ -168,17 +168,17 @@
   word-break: break-all;
 }
 .detailLog li.notHover a {
-  color: #666 !important;
+  color: var(--color-text-secondary) !important;
 }
 .detailLog .detailLogTime {
-  color: #b7b7b7;
+  color: var(--color-text-disabled);
 }
 
 .slideDetailNoItem,
 .slideDetailItem {
   width: 100%;
   margin-top: 170px;
-  color: #666;
+  color: var(--color-text-secondary);
   text-align: center;
   line-height: 26px;
 }
@@ -221,7 +221,7 @@
   width: 14px !important;
 }
 .pinDetail {
-  color: #ccc;
+  color: var(--color-text-placeholder);
   font-size: 18px;
   cursor: pointer;
 }

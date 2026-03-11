@@ -21,7 +21,7 @@ const VerticalSortableRecordItemWrap = styled.div`
     right: -10px;
     position: absolute;
     height: 2px;
-    background: #d3d3d3;
+    background: var(--color-border-primary);
     content: '';
   }
   &::after {
@@ -30,7 +30,7 @@ const VerticalSortableRecordItemWrap = styled.div`
     position: absolute;
     width: 2px;
     height: 20px;
-    background: #d3d3d3;
+    background: var(--color-border-primary);
     content: '';
   }
 `;

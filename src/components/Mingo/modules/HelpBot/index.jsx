@@ -34,7 +34,7 @@ const MingoContentWrap = styled.div`
     font-weight: bold;
     margin: 26px 0 6px;
     font-size: 15px;
-    color: #151515;
+    color: var(--color-text-title);
   }
   .sendCon {
     position: relative;
@@ -71,6 +71,7 @@ function MingoContent(props, ref) {
     allowEdit = false,
     onUpdateChatId = () => {},
     onUpdateTaskType = () => {},
+    onUpdateBase = () => {},
   } = props;
   const cache = useRef({});
   const messageListRef = useRef(null);
@@ -262,6 +263,9 @@ function MingoContent(props, ref) {
   }));
   const handleStartPendingTask = useCallback(() => {
     if (window.mingoPendingStartTask) {
+      if (window.mingoPendingStartTask.base) {
+        onUpdateBase(window.mingoPendingStartTask.base);
+      }
       setIsChatting(true);
       updateIsChatting(true);
       onUpdateTaskType(window.mingoPendingStartTask.type);

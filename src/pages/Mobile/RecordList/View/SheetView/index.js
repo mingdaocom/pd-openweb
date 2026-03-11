@@ -26,7 +26,7 @@ const BatchOptBtn = styled.div`
   padding-bottom: calc(env(safe-area-inset-bottom) - 20px);
   font-weight: 700;
   box-shadow: 0 -6px 12px rgba(0, 0, 0, 0.12);
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   font-size: 15px;
   border-radius: 8px 8px 0 0;
   z-index: 1;
@@ -34,7 +34,7 @@ const BatchOptBtn = styled.div`
   bottom: 0;
   width: 100%;
   .deleteOpt {
-    color: #f44336;
+    color: var(--color-error);
   }
   .disabledDel {
     color: rgba(244, 67, 54, 0.5);
@@ -42,7 +42,7 @@ const BatchOptBtn = styled.div`
   .extraOpt {
     text-align: right;
     i {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       vertical-align: middle;
     }
   }
@@ -56,12 +56,12 @@ const BatchOptBtn = styled.div`
 `;
 
 const Btn = styled(Button)`
-  border: 1px solid #eee !important;
-  background-color: #fff !important;
+  border: 1px solid var(--color-border-secondary) !important;
+  background-color: var(--color-background-primary) !important;
   &.delete {
-    background-color: #f44336 !important;
-    border: 1px solid #f44336;
-    color: #fff;
+    background-color: var(--color-error) !important;
+    border: 1px solid var(--color-error);
+    color: var(--color-white);
   }
 `;
 
@@ -128,7 +128,7 @@ class SheetView extends Component {
                   window.mobileNavigateTo(`/mobile/addRecord/${appId}/${worksheetInfo.worksheetId}/${view.viewId}`);
                 }}
               >
-                <Icon icon="add" className="Font22 White" />
+                <Icon icon="add" className="Font22 textWhite" />
                 {worksheetInfo.entityName}
               </Button>
             )
@@ -469,13 +469,13 @@ class SheetView extends Component {
             bodyClassName="pTop10 pBottom10 pLeft15 pRight15"
           >
             <div className="Font16 bold mBottom10">{_l('确认删除%0?', worksheetInfo.entityName)}</div>
-            <div className="Font13 Gray_9e mBottom10">
+            <div className="Font13 textTertiary mBottom10">
               {_l('60天内可在 回收站 内找回已删除%0，无编辑权限及锁定记录无法删除。', worksheetInfo.entityName)}
             </div>
             <div className="flexRow mBottom10">
               <Btn
                 radius
-                className="flex mRight6 bold Gray_75 Font13"
+                className="flex mRight6 bold textSecondary Font13"
                 onClick={() => this.setState({ deleteVisible: false })}
               >
                 {_l('取消')}

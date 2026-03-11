@@ -566,14 +566,17 @@ export default class RowBlock extends Component {
     );
   }
   renderTitle() {
-    const { row, controls, viewConfig } = this.props;
+    const { row, controls, viewConfig, base } = this.props;
     const titleControl = _.find(controls, { attribute: 1 });
     const value = row[titleControl?.controlId] || row.titleValue;
     const emptyValue = _l('未命名');
     const title = _.get(viewConfig, 'viewtitle')
-      ? renderTitleByViewtitle(row, controls, { advancedSetting: { viewtitle: _.get(viewConfig, 'viewtitle') } })
+      ? renderTitleByViewtitle(row, controls, {
+          advancedSetting: { viewtitle: _.get(viewConfig, 'viewtitle') },
+          appId: base.appId,
+        })
       : titleControl
-        ? renderCellText({ ...titleControl, value })
+        ? renderCellText({ ...titleControl, value }, { appId: base.appId })
         : emptyValue;
     return <span className="recordTitle overflow_ellipsis">{title || emptyValue}</span>;
   }

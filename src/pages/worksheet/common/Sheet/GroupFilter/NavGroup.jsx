@@ -37,7 +37,7 @@ export default function NavGroup(props) {
   if (!isOpenGroup) {
     return (
       <span
-        className="pLeft8 InlineBlock w100 pRight8 WordBreak Gray_9e TxtCenter Bold h100 Hand"
+        className="pLeft8 InlineBlock w100 pRight8 WordBreak textTertiary TxtCenter Bold h100 Hand"
         onClick={() => props.changeGroupStatus(!isOpenGroup)}
       />
     );
@@ -47,7 +47,7 @@ export default function NavGroup(props) {
     return <LoadDiv className="pTop16" />;
   }
   if (navGroupData && navGroupData.length <= 0 && keywords) {
-    return <div className="noData mTop35 TxtCenter Gray_9e">{_l('没有搜索结果')}</div>;
+    return <div className="noData mTop35 TxtCenter textTertiary">{_l('没有搜索结果')}</div>;
   }
   let navData = navGroupData;
   navData = sortDataByCustomNavs(navData, view, controls);
@@ -177,7 +177,7 @@ export default function NavGroup(props) {
 
   return (
     <ScrollView className="flex">
-      <div className={cx('groupWrap', { isTree: isSourceTree(source, navGroup, view) })}>
+      <div className={cx('groupWrap h100', { isTree: isSourceTree(source, navGroup, view) })}>
         {isSourceTree(source, navGroup, view) ? (
           <ul className={cx({ canScroll: isSourceTree(source, navGroup, view) })}>{renderTree(navData)}</ul>
         ) : (

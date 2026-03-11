@@ -307,7 +307,7 @@ class TaskCenter extends Component {
       <div className="taskMainBox flexRow borderContainer">
         {hideNavigation ? null : (
           <Fragment>
-            <div className="Fixed ThemeBG leftNavHairGlass" />
+            <div className="Fixed bgTertiary leftNavHairGlass" />
             <TaskNavigation />
           </Fragment>
         )}

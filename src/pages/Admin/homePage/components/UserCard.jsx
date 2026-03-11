@@ -1,5 +1,4 @@
 import React from 'react';
-import cx from 'classnames';
 import _ from 'lodash';
 import { Support } from 'ming-ui';
 import addFriends from 'src/components/addFriends';
@@ -13,13 +12,13 @@ export default function UserCard(props) {
   const isShowInviteUser = (md.global.Account.projects || []).some(it => it.licenseType === 1);
 
   return (
-    <div className={cx('infoCard', { row1: md.global.Config.IsPlatformLocal === false })}>
+    <div className="infoCard row1">
       <div>
-        <div className="Font16 bold Gray mBottom6 valignWrapper mBottom6">
+        <div className="Font16 bold textPrimary mBottom6 valignWrapper mBottom6">
           {_l('用户')}
           {!isLocal && (
             <Support
-              className="mLeft6 helpIcon Hover_21"
+              className="mLeft6 helpIcon hoverColorPrimary"
               type={1}
               title={_l('点击查看人数计算规则')}
               href="https://help.mingdao.com/purchase/user-billing"
@@ -27,14 +26,14 @@ export default function UserCard(props) {
           )}
         </div>
         <div className="mBottom6">
-          <span className="Font28 Gray Bold Hand" onClick={() => navigateTo(`/admin/structure/${projectId}`)}>
+          <span className="Font28 textPrimary Bold Hand" onClick={() => navigateTo(`/admin/structure/${projectId}`)}>
             {formatValue(getValue(data.effectiveUserCount || 0))}
           </span>
-          <span className="mLeft6 Black Font13">{_l('人')}</span>
+          <span className="mLeft6 textPrimary Font13">{_l('人')}</span>
         </div>
         {(!isTrial || isLocal) && !data.basicLoading && (
           <div className="Font14">
-            <span className="Gray_75">{_l('上限 %0 人', getValue(data.limitUserCount || 0))}</span>
+            <span className="textSecondary">{_l('上限 %0 人', getValue(data.limitUserCount || 0))}</span>
             {!isFree && !_.isUndefined(data.limitUserCount) && (
               <PurchaseExpandPack
                 className="mLeft8 hoverColor"

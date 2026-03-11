@@ -7,12 +7,12 @@ export const BillInfoWrap = styled.div`
   flex-direction: column;
   .billInfoHeader {
     .title {
-      color: '#151515';
+      color: 'var(--color-text-title)';
       font-size: 17px;
       font-weight: 600;
     }
     .invoiceSetting {
-      color: #1677ff;
+      color: var(--color-primary);
       margin: 0 8px;
     }
   }
@@ -21,7 +21,7 @@ export const BillInfoWrap = styled.div`
     align-items: center;
     i,
     .balance {
-      color: #1677ff;
+      color: var(--color-primary);
       margin: 0 8px;
     }
     .eyeIcon {
@@ -34,7 +34,7 @@ export const BillInfoWrap = styled.div`
       line-height: 20px;
       border-radius: 50%;
       &:hover {
-        background: #f5f5f5;
+        background: var(--color-background-hover);
       }
     }
     .recharge,
@@ -42,24 +42,24 @@ export const BillInfoWrap = styled.div`
       display: inline-block;
       height: 24px;
       line-height: 24px;
-      background-color: #1677ff;
-      color: #fff;
+      background-color: var(--color-primary);
+      color: var(--color-white);
       font-size: 12px;
       padding: 0 16px;
       border-radius: 3px;
       &:hover {
-        background-color: #1565c0;
+        background-color: var(--color-link-hover);
       }
     }
     .warningBtn {
-      background-color: #fff;
-      border: 1px solid #1677ff;
+      background-color: var(--color-background-primary);
+      border: 1px solid var(--color-primary);
       line-height: 22px;
-      color: #1677ff;
+      color: var(--color-primary);
       &:hover {
-        background-color: #fff;
-        border: 1px solid #1565c0;
-        color: #1565c0;
+        background-color: var(--color-background-primary);
+        border: 1px solid var(--color-link-hover);
+        color: var(--color-link-hover);
       }
     }
   }
@@ -83,7 +83,7 @@ export const BillInfoWrap = styled.div`
         padding: 6px;
         &.active,
         &:hover {
-          border-bottom-color: #1677ff;
+          border-bottom-color: var(--color-primary);
         }
       }
     }
@@ -100,8 +100,8 @@ export const BillInfoWrap = styled.div`
       }
       .dateRange {
         margin: 0 8px;
-        background: #e2f2fd;
-        color: #1677ff;
+        background: var(--color-primary-transparent);
+        color: var(--color-primary);
         padding: 0 12px;
         border-radius: 4px;
         display: inline-block;
@@ -126,7 +126,7 @@ export const BillInfoWrap = styled.div`
       .prevPage,
       .nextPage {
         &.disable {
-          color: #757575;
+          color: var(--color-text-secondary);
           cursor: not-allowed;
         }
       }
@@ -141,8 +141,8 @@ export const BillInfoWrap = styled.div`
     display: flex;
     align-items: center;
     padding: 12px 0;
-    border-top: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
+    border-top: 1px solid var(--color-border-primary);
+    border-bottom: 1px solid var(--color-border-primary);
     .item {
       text-align: left;
       width: 10%;
@@ -175,7 +175,7 @@ export const BillInfoWrap = styled.div`
       cursor: pointer;
       transition: all 0.25s;
       &:hover {
-        background-color: #f8f8f8;
+        background-color: var(--color-background-hover);
       }
 
       .item {
@@ -221,8 +221,8 @@ export const BillInfoWrap = styled.div`
 
   .goToPay {
     padding: 0 12px;
-    background-color: #fd9c27;
-    color: #fff;
+    background-color: var(--color-warning);
+    color: var(--color-white);
     line-height: 24px;
     border-radius: 12px;
   }
@@ -247,7 +247,7 @@ export const AccountIdOperation = styled.ul`
   padding: 6px 0;
   border-radius: 3px;
   min-width: 120px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
   position: relative;
   input {
@@ -259,8 +259,8 @@ export const AccountIdOperation = styled.ul`
     line-height: 36px;
     transition: all 0.25s;
     &:hover {
-      background-color: #1677ff;
-      color: #fff;
+      background-color: var(--color-primary);
+      color: var(--color-white);
     }
   }
 `;

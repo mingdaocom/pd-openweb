@@ -150,7 +150,7 @@ export const replaceStructure =
       replacedAccountId,
       accountId,
     }).then(res => {
-      if (res) {
+      if (res === 1) {
         const { accountId } = account;
         callback && callback();
         // 添加实体
@@ -186,6 +186,10 @@ export const replaceStructure =
           },
         });
         dispatch(fetchSubordinates(parentId));
+      } else if (res === 10001) {
+        alert(_l('该员工已离职'), 2);
+      } else if (res === 10002) {
+        alert(_l('汇报关系已存在'), 2);
       } else {
         alert(_l('操作失败'), 2);
       }
@@ -202,7 +206,7 @@ export const removeStructure =
       projectId: Config.projectId,
       accountId,
     }).then(res => {
-      if (res) {
+      if (res === 1) {
         callback && callback();
         // 父实体修改
         dispatch({
@@ -224,6 +228,10 @@ export const removeStructure =
         } else {
           dispatch(fetchRootSubordinates(parentId, 1));
         }
+      } else if (res === 10001) {
+        alert(_l('该员工已离职'), 2);
+      } else if (res === 10002) {
+        alert(_l('汇报关系已存在'), 2);
       } else {
         alert(_l('操作失败'), 2);
       }

@@ -20,7 +20,7 @@ const WidgetIconStyle = styled.div`
     text-align: center;
     line-height: 34px;
     border-radius: 3px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     &:nth-child(8) {
       margin-right: 0px;
     }
@@ -28,11 +28,11 @@ const WidgetIconStyle = styled.div`
       margin-right: 0px;
     }
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
     &.active {
-      background: #9e9e9e;
-      color: #fff;
+      background: var(--color-text-tertiary);
+      color: var(--color-white);
     }
   }
 `;
@@ -40,7 +40,7 @@ const WidgetIconStyle = styled.div`
 const DropdownInput = styled.div`
   border-width: 1px;
   border-style: solid;
-  border-color: #ccc;
+  border-color: var(--color-border-tertiary);
   height: 36px;
   padding: 0 12px;
   box-sizing: border-box;
@@ -76,8 +76,8 @@ export default function WidgetIcon({ data, onChange }) {
         }
       >
         <DropdownInput>
-          <Icon icon={itemicon} className="Font22 Gray_9e" />
-          <span className="icon-arrow-down-border mLeft8 Gray_9e" />
+          <Icon icon={itemicon} className="Font22 textTertiary" />
+          <span className="icon-arrow-down-border mLeft8 textTertiary" />
         </DropdownInput>
       </DropdownWrapper>
     </SettingItem>

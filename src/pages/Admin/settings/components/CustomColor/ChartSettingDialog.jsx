@@ -16,7 +16,7 @@ const CustomChartContentWrap = styled.div`
     font-family: FZLanTingHeiS;
     font-weight: 600;
     line-height: 13px;
-    color: #151515;
+    color: var(--color-text-title);
   }
   .nameInput {
     width: 100%;
@@ -27,7 +27,7 @@ const CustomChartContentWrap = styled.div`
     flex: 1;
     overflow-y: scroll;
     min-height: 200px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 4px;
     max-height: 285px;
     overflow-y: scroll;
@@ -45,26 +45,26 @@ const CustomChartContentWrap = styled.div`
         display: inline-block;
         border-radius: 2px;
         &.border {
-          border: 1px solid #e6e6e6;
+          border: 1px solid var(--color-border-secondary);
         }
       }
       .deleteIcon {
         display: none;
         &:hover {
-          color: #f44338 !important;
+          color: var(--color-error) !important;
         }
       }
       &.addItem {
         .item {
-          background: #fff;
-          border: 1px solid #e6e6e6;
+          background: var(--color-background-primary);
+          border: 1px solid var(--color-border-secondary);
           text-align: center;
           line-height: 24px;
         }
       }
       &:hover,
       &.active {
-        background: #f5f5f5;
+        background: var(--color-background-secondary);
         .deleteIcon {
           display: inline-block;
         }
@@ -74,8 +74,8 @@ const CustomChartContentWrap = styled.div`
   .colorSelectWrap {
     width: 80px;
     height: 36px;
-    background: #ffffff;
-    border: 1px solid #e6e6e6;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-secondary);
     border-radius: 3px;
     display: flex;
     align-items: center;
@@ -85,11 +85,11 @@ const CustomChartContentWrap = styled.div`
       width: 24px;
       height: 24px;
       border-radius: 4px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border-secondary);
       box-sizing: content-box;
     }
     &.disableColorSelectWrap {
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
     }
   }
   .themeList {
@@ -99,8 +99,8 @@ const CustomChartContentWrap = styled.div`
     .colorItem {
       width: 36px;
       height: 36px;
-      background: #ffffff;
-      border: 1px solid #e6e6e6;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-secondary);
       border-radius: 4px;
       padding: 5px;
       display: flex;
@@ -113,7 +113,7 @@ const CustomChartContentWrap = styled.div`
         border-radius: 4px;
       }
       &.disable {
-        background: #f5f5f5;
+        background: var(--color-background-secondary);
       }
       &:hover {
         .removeIcon {
@@ -125,21 +125,21 @@ const CustomChartContentWrap = styled.div`
         font-size: 16px;
         top: 0;
         right: 0;
-        background: #fff;
+        background: var(--color-background-primary);
         transform: translate(50%, -50%);
         border-radius: 50%;
         opacity: 0;
         cursor: pointer;
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
         &:hover {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }
     .addColorWrap:hover {
-      border: 1px solid #1677ff;
+      border: 1px solid var(--color-primary);
       .icon {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
@@ -150,8 +150,8 @@ const CustomChartContentWrap = styled.div`
 
 const CustomColorsWrap = styled.div`
   width: 360px;
-  background: #fff;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.24);
+  background: var(--color-background-primary);
+  box-shadow: var(--shadow-lg);
   opacity: 1;
   border-radius: 5px;
   padding: 24px;
@@ -163,8 +163,8 @@ const CustomColorsWrap = styled.div`
     .colorItem {
       width: 34px;
       height: 34px;
-      background: #ffffff;
-      border: 1px solid #e0e0e0;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-secondary);
       border-radius: 4px;
       padding: 2px;
       cursor: pointer;
@@ -179,11 +179,11 @@ const CustomColorsWrap = styled.div`
       }
       &.isDark {
         .selectIcon {
-          color: #fff;
+          color: var(--color-white);
         }
       }
       &.selected {
-        border: 1px solid #1677ff;
+        border: 1px solid var(--color-primary);
       }
       &.disabled {
         cursor: not-allowed;
@@ -191,7 +191,7 @@ const CustomColorsWrap = styled.div`
           content: '';
           width: 1px;
           height: 28px;
-          background: #151515;
+          background: var(--color-background-inverse);
           display: inline-block;
           position: absolute;
           top: 2px;
@@ -202,7 +202,7 @@ const CustomColorsWrap = styled.div`
 
       &.disabled.isDark {
         &::after {
-          background: #fff;
+          background: var(--color-background-primary);
         }
       }
     }
@@ -263,7 +263,7 @@ export default function ChartSettingDialog(props) {
   const renderMenu = colors => {
     return (
       <CustomColorsWrap>
-        <div className="title Font14 bold Gray">{_l('自定义主题颜色')}</div>
+        <div className="title Font14 bold textPrimary">{_l('自定义主题颜色')}</div>
         <div className="customColors">
           {colors.map(item => {
             const selected = themeColors.includes(item.color);
@@ -323,7 +323,7 @@ export default function ChartSettingDialog(props) {
         <div className="label mBottom12">
           {_l('名称')}
           <Tooltip title={_l('最多15个字符')}>
-            <Icon icon="info_outline" className="Font16 Gray_bd mLeft4" />
+            <Icon icon="info_outline" className="Font16 textDisabled mLeft4" />
           </Tooltip>
         </div>
         <Input
@@ -345,7 +345,7 @@ export default function ChartSettingDialog(props) {
                 <Tooltip title={_l('删除')}>
                   <Icon
                     icon="delete_12"
-                    className="Gray_9e deleteIcon"
+                    className="textTertiary deleteIcon"
                     onClick={() => setColors(colors.filter((l, i) => i !== index))}
                   />
                 </Tooltip>
@@ -355,16 +355,16 @@ export default function ChartSettingDialog(props) {
           {editable && colors.length < 18 && (
             <div className="colorSelectItem addItem Hand" onClick={onAdd}>
               <div className="item">
-                <Icon icon="add" className="Gray_9e Font16" />
+                <Icon icon="add" className="textTertiary Font16" />
               </div>
-              <div className="Font13 Gray_9e Hover_21">{_l('添加颜色')}</div>
+              <div className="Font13 textTertiary hoverColorPrimary">{_l('添加颜色')}</div>
             </div>
           )}
         </div>
         <IllustrationTrigger type="chart">
           <div className="label mBottom16 mTop32 valignWrapper fitContent">
             {_l('主题颜色（只可选择自定义主题色）')}
-            <Icon icon="info_outline" className="Font16 Gray_bd mLeft4" />
+            <Icon icon="info_outline" className="Font16 textDisabled mLeft4" />
           </div>
         </IllustrationTrigger>
         <div className="themeList">
@@ -396,7 +396,7 @@ export default function ChartSettingDialog(props) {
               }}
             >
               <div className="colorItem addColorWrap">
-                <Icon icon="add" className="Font16 Gray_9e" />
+                <Icon icon="add" className="Font16 textTertiary" />
               </div>
             </Trigger>
           )}

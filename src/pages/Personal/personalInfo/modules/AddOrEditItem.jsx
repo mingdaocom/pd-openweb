@@ -140,7 +140,7 @@ export default class AddOrEditItem extends React.Component {
     const { baseInfo, errorList } = this.state;
     const { type } = this.props;
     return (
-      <div className="baseInfoEditContent Gray">
+      <div className="baseInfoEditContent textPrimary">
         {/**学校名称或组织名称 */}
         <div className="Bold">
           {type === 1 ? _l('组织名称') : _l('学校名称')}
@@ -238,7 +238,7 @@ export default class AddOrEditItem extends React.Component {
         <div className="mTop20 flexEnd">
           <button
             type="button"
-            className="ming Button Button--link Gray_9e mRight30"
+            className="ming Button Button--link textTertiary mRight30"
             onClick={() => this.props.closeDialog()}
           >
             {_l('取消')}

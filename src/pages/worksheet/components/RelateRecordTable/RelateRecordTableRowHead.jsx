@@ -3,16 +3,17 @@ import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Checkbox, ConfirmPanel } from 'ming-ui';
+import { Checkbox, ConfirmPanel, Dialog } from 'ming-ui';
 import { FlexCenter } from 'worksheet/components/Basics';
 import ChangeSheetLayout from 'worksheet/components/ChangeSheetLayout';
 import RecordOperate from 'worksheet/components/RecordOperate';
+import { emitter } from 'src/utils/common';
 
 const Con = styled.span`
   padding: 0 16px !important;
   text-align: center;
   line-height: 34px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   .moreOperate,
   .openRecord,
   .deleteRowIcon {
@@ -45,7 +46,7 @@ const Con = styled.span`
       top: 0;
       bottom: 0;
       width: 2px;
-      background: #1677ff;
+      background: var(--color-primary);
     }
   }
   &.hover,
@@ -66,13 +67,31 @@ const Con = styled.span`
   }
 `;
 
+const ColumnPopupCon = styled.div`
+  .deleteRowIcon {
+    cursor: pointer;
+    text-align: center;
+    border-radius: 3px;
+    line-height: 24px;
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    color: var(--color-text-tertiary);
+    font-size: 18px;
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+      color: var(--color-primary);
+    }
+  }
+`;
+
 const OpenRecordBtn = styled(FlexCenter)`
   display: inline-flex;
   margin-left: 8px;
   font-size: 16px;
   width: 24px;
   height: 24px;
-  color: #1677ff;
+  color: var(--color-primary);
   border-radius: 4px;
   &:hover {
     background: rgba(0, 0, 0, 0.05);
@@ -82,6 +101,8 @@ export default function RowHead(props) {
   const [confirmVisible, setConfirmVisible] = useState();
   const [moreOperateVisible, setMoreOperateVisible] = useState(false);
   const {
+    tableId,
+    isColumnPopup,
     tableType,
     showNumber = true,
     isBatchEditing,
@@ -122,7 +143,97 @@ export default function RowHead(props) {
     openRecord = () => {},
   } = props;
   const isShareState = !!_.get(window, 'shareState.shareId');
-  return (
+  const operateContent =
+    row.rowid &&
+    !(!showQuickFromSetting && !allowDelete && !allowRemoveRelation) &&
+    relateRecordControlPermission.editable &&
+    allowEdit &&
+    (recordId && !isShareState ? (
+      <RecordOperate
+        {...{ appId, viewId, worksheetId, recordId: row.rowid, projectId }}
+        relateRecordControlId={relateRecordControlId}
+        allowCopy={allowAdd}
+        allowAdd={allowAdd}
+        allowRecreate={allowAdd}
+        isRelateRecordTable
+        disableCustomButtons={!showQuickFromSetting}
+        isDraft={isDraft}
+        from={from}
+        shows={
+          showQuickFromSetting
+            ? cx('share', 'print', 'copy', 'recreate', 'fav', {
+                openinnew: viewId && allowOpenRecord,
+                removeRelation: allowRemoveRelation,
+              })
+            : cx({ removeRelation: allowRemoveRelation })
+        }
+        formdata={tableControls.map(c => ({ ...c, value: row[c.controlId] }))}
+        allowDelete={allowDelete && row.allowdelete}
+        showTask={false}
+        sheetSwitchPermit={sheetSwitchPermit}
+        popupAlign={{
+          offset: !isColumnPopup ? [0, 4] : [-2, 0],
+          points: !isColumnPopup ? ['tl', 'bl'] : ['tr', 'tl'],
+        }}
+        onPopupVisibleChange={visible => {
+          if (isColumnPopup && !visible) {
+            emitter.emit('TRIGGER_CELL_POPUP_OPERATE_VISIBLE_' + tableId, { visible: false });
+          }
+          setMoreOperateVisible(visible);
+        }}
+        onRemoveRelation={({ confirm = true } = {}) => {
+          if (confirm) {
+            if (isColumnPopup) {
+              Dialog.confirm({
+                onlyClose: true,
+                title: _l('你确定要取消关联吗？'),
+                buttonType: 'danger',
+                onOk: () => deleteRelateRow(row.rowid),
+              });
+            } else {
+              setConfirmVisible(true);
+            }
+          } else {
+            deleteRelateRow(row.rowid);
+          }
+        }}
+        onCopySuccess={addRecord}
+        onDeleteSuccess={() => {
+          removeRecords([row]);
+        }}
+        onRecreate={onRecreate}
+        onUpdate={(rowdata, row) => {
+          updateRows(_.omit(row, ['allowedit', 'allowdelete']));
+        }}
+      />
+    ) : (
+      allowRemoveRelation && (
+        <div
+          className="deleteRowIcon"
+          key="deleteRowIcon"
+          onClick={() => {
+            if (isColumnPopup) {
+              Dialog.confirm({
+                onlyClose: true,
+                title: _l('你确定要取消关联吗？'),
+                buttonType: 'danger',
+                onOk: () => deleteRelateRow(row.rowid),
+              });
+            } else {
+              setConfirmVisible(true);
+            }
+          }}
+        >
+          <i className="icon icon-close deleteRow Font18 Hand"></i>
+        </div>
+      )
+    ));
+  if (isColumnPopup && !operateContent) {
+    return null;
+  }
+  return isColumnPopup ? (
+    <ColumnPopupCon className="box">{operateContent}</ColumnPopupCon>
+  ) : (
     <ConfirmPanel
       visible={confirmVisible}
       angleLeft={style.width / 2 - 8}
@@ -172,61 +283,7 @@ export default function RowHead(props) {
                 {(pageIndex - 1) * pageSize + rowIndex + 1}
               </span>
             )}
-            {row.rowid &&
-              !(!showQuickFromSetting && !allowDelete && !allowRemoveRelation) &&
-              relateRecordControlPermission.editable &&
-              allowEdit &&
-              (recordId && !isShareState ? (
-                <RecordOperate
-                  {...{ appId, viewId, worksheetId, recordId: row.rowid, projectId }}
-                  relateRecordControlId={relateRecordControlId}
-                  allowCopy={allowAdd}
-                  allowAdd={allowAdd}
-                  allowRecreate={allowAdd}
-                  isRelateRecordTable
-                  disableCustomButtons={!showQuickFromSetting}
-                  isDraft={isDraft}
-                  from={from}
-                  shows={
-                    showQuickFromSetting
-                      ? cx('share', 'print', 'copy', 'recreate', 'fav', {
-                          openinnew: viewId && allowOpenRecord,
-                          removeRelation: allowRemoveRelation,
-                        })
-                      : cx({ removeRelation: allowRemoveRelation })
-                  }
-                  formdata={tableControls.map(c => ({ ...c, value: row[c.controlId] }))}
-                  allowDelete={allowDelete && row.allowdelete}
-                  showTask={false}
-                  sheetSwitchPermit={sheetSwitchPermit}
-                  popupAlign={{
-                    offset: [0, 4],
-                    points: ['tl', 'bl'],
-                  }}
-                  onPopupVisibleChange={setMoreOperateVisible}
-                  onRemoveRelation={({ confirm = true } = {}) => {
-                    if (confirm) {
-                      setConfirmVisible(true);
-                    } else {
-                      deleteRelateRow(row.rowid);
-                    }
-                  }}
-                  onCopySuccess={addRecord}
-                  onDeleteSuccess={() => {
-                    removeRecords([row]);
-                  }}
-                  onRecreate={onRecreate}
-                  onUpdate={(rowdata, row) => {
-                    updateRows(_.omit(row, ['allowedit', 'allowdelete']));
-                  }}
-                />
-              ) : (
-                allowRemoveRelation && (
-                  <div className="deleteRowIcon" key="deleteRowIcon" onClick={() => setConfirmVisible(true)}>
-                    <i className="icon icon-close deleteRow Font18 Hand"></i>
-                  </div>
-                )
-              ))}
+            {operateContent}
             {row.rowid && allowOpenRecord && tableType === 'classic' && (
               <OpenRecordBtn className="openRecord allowOutClick" onClick={() => openRecord(row.rowid)}>
                 <i className="icon icon-worksheet_enlarge allowOutClick Hand ThemeHoverColor3" />

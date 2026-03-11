@@ -1,20 +1,20 @@
 .roleManageContainer {
   height: 100%;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   display: flex;
   overflow: hidden;
 
   .roleManageLeft {
     width: 250px;
     min-width: 250px;
-    border-right: 1px solid #eaeaea;
+    border-right: 1px solid var(--color-border-secondary);
     display: flex;
     flex-direction: column;
     padding: 0 0 20px 8px;
 
     .searchContainer {
       box-sizing: border-box;
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       border-radius: 15px;
       margin: 0 12px 24px;
 
@@ -34,7 +34,7 @@
       }
 
       .searchResult {
-        background: #fff;
+        background: var(--color-background-primary);
         position: absolute;
         z-index: 1;
         top: 33px;
@@ -46,7 +46,7 @@
           0 4px 23px 5px rgba(0, 0, 0, 0.2),
           0 2px 6px rgba(0, 0, 0, 0.15);
         overflow: auto;
-        background: #fff;
+        background: var(--color-background-primary);
 
         .userItem,
         .deptItem {
@@ -54,7 +54,7 @@
           cursor: pointer;
 
           &:hover {
-            background: #e4e4e4;
+            background: var(--color-border-secondary);
           }
         }
 
@@ -83,7 +83,7 @@
 
         .title {
           padding: 5px 10px;
-          color: #757575;
+          color: var(--color-text-secondary);
           margin-top: 10px;
         }
 
@@ -114,7 +114,7 @@
       }
 
       &:hover {
-        background-color: #ebebeb;
+        background-color: var(--color-border-secondary);
       }
     }
 
@@ -122,7 +122,7 @@
       padding: 0 0px 12px 16px;
 
       .iconHover:hover {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
 
       .creatRole {
@@ -130,13 +130,13 @@
         height: 28px;
         border-radius: 3px;
         display: flex;
-        background: #fff;
+        background: var(--color-background-primary);
         justify-content: center;
         align-items: center;
-        border: 1px solid #e0e0e0;
+        border: 1px solid var(--color-border-secondary);
 
         &:hover {
-          background: #f5f5f5;
+          background: var(--color-background-hover);
         }
 
         .icon-add {
@@ -169,11 +169,11 @@
         }
 
         .remarkTooptip {
-          color: #bdbdbd;
+          color: var(--color-text-disabled);
           margin-right: 0 !important;
 
           &:hover {
-            color: #1677ff;
+            color: var(--color-primary);
           }
         }
 
@@ -182,7 +182,7 @@
           line-height: 30px;
 
           &:hover {
-            color: #1677ff !important;
+            color: var(--color-primary) !important;
           }
         }
 
@@ -192,7 +192,7 @@
 
         &.current {
           background-color: rgba(33, 150, 243, 0.11);
-          color: #1677ff !important;
+          color: var(--color-primary) !important;
           font-weight: bold;
 
           &:hover {
@@ -200,7 +200,7 @@
           }
 
           .roleName {
-            color: #1677ff !important;
+            color: var(--color-primary) !important;
           }
         }
 
@@ -233,7 +233,7 @@
         &:hover {
           .ant-tree-draggable-icon {
             opacity: 1;
-            color: #9e9e9e;
+            color: var(--color-text-tertiary);
           }
         }
 
@@ -257,7 +257,7 @@
       }
 
       .ant-tree-switcher {
-        color: #757575;
+        color: var(--color-text-secondary);
       }
     }
 
@@ -267,7 +267,7 @@
       height: 26px;
 
       &:hover {
-        background: #f5f5f5;
+        background: var(--color-background-hover);
       }
     }
   }
@@ -290,40 +290,40 @@
         border-radius: 3px;
         line-height: 30px;
         text-align: center;
-        border: 1px solid #eaeaea;
-        background-color: #fff;
+        border: 1px solid var(--color-border-secondary);
+        background-color: var(--color-background-primary);
         margin-right: 8px;
         padding: 0 16px;
         font-size: 14px;
 
         &.addUser {
-          color: #fff;
-          background: #1677ff;
-          border: 1px solid #1677ff;
+          color: var(--color-white);
+          background: var(--color-primary);
+          border: 1px solid var(--color-primary);
         }
 
         &:hover {
-          color: #1565c0;
-          border: 1px solid #1565c0;
+          color: var(--color-link-hover);
+          border: 1px solid var(--color-link-hover);
           cursor: pointer;
         }
 
         &.addUser:hover {
-          color: #fff;
-          background: #1565c0;
-          border: 1px solid #1565c0;
+          color: var(--color-white);
+          background: var(--color-link-hover);
+          border: 1px solid var(--color-link-hover);
         }
 
         &.disabledBtn {
           cursor: not-allowed;
-          color: #9e9e9e;
+          color: var(--color-text-tertiary);
         }
 
         &.disabledBtn:hover {
           cursor: not-allowed;
-          color: #9e9e9e;
-          background-color: #fff;
-          border: 1px solid #eaeaea;
+          color: var(--color-text-tertiary);
+          background-color: var(--color-background-primary);
+          border: 1px solid var(--color-border-secondary);
         }
       }
     }
@@ -367,8 +367,8 @@
         tr {
           th,
           td {
-            border-bottom: 1px solid #eaeaea;
-            color: #757575;
+            border-bottom: 1px solid var(--color-border-secondary);
+            color: var(--color-text-secondary);
             font-size: 13px;
             font-weight: 400;
             // padding: 10px 0 12px;
@@ -377,13 +377,13 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             overflow: hidden;
-            background: #fff;
+            background: var(--color-background-primary);
 
             &.fixedLeft:after {
               content: '';
               width: 1px;
               height: 100%;
-              background: #eaeaea;
+              background: var(--color-border-secondary);
               display: inline-block;
               right: 0;
               position: absolute;
@@ -394,7 +394,7 @@
               content: '';
               width: 1px;
               height: 100%;
-              background: #eaeaea;
+              background: var(--color-border-secondary);
               display: inline-block;
               left: 0;
               position: absolute;
@@ -406,7 +406,7 @@
             border: none;
             padding: 0;
             height: 50px;
-            color: #151515;
+            color: var(--color-text-title);
             padding-right: 10px;
           }
 
@@ -464,21 +464,21 @@
             text-align: center;
 
             .settingButton {
-              color: #1e88e5;
+              color: var(--color-primary);
 
               &:hover {
-                color: #49adfc;
+                color: var(--color-primary-light);
               }
             }
           }
 
           &:hover {
             td {
-              background-color: #f7f7f7;
+              background-color: var(--color-background-hover);
             }
 
             .name {
-              color: #1677ff !important;
+              color: var(--color-primary) !important;
             }
           }
         }
@@ -487,7 +487,7 @@
   }
 
   .themeColor {
-    color: #1677ff !important;
+    color: var(--color-primary) !important;
   }
 }
 
@@ -507,12 +507,12 @@
 }
 
 .delRole {
-  color: #f51744 !important;
+  color: var(--color-error) !important;
 }
 
 .delConfirmWrap {
   width: 320px;
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.24);
   padding: 22px 24px;
   border-radius: 3px;
@@ -532,12 +532,12 @@
 
 .disabledOrgRoleDialog {
   .mui-dialog-desc {
-    color: #151515 !important;
+    color: var(--color-text-title) !important;
   }
   .orgRoleStatusWrap {
     display: inline-block;
     padding: 0px 10px;
     border-radius: 22px;
-    background: #f7f7f7;
+    background: var(--color-background-secondary);
   }
 }

@@ -14,7 +14,7 @@ const Wrap = styled.div`
   align-items: center;
   justify-content: center;
   flex: 1;
-  background-color: #eaeaea;
+  background-color: var(--color-border-secondary);
   padding: 24px;
   min-width: 0;
 
@@ -22,7 +22,7 @@ const Wrap = styled.div`
     border-radius: 4px;
     box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
 `;
 
@@ -40,7 +40,7 @@ const ViewWrap = styled.div`
     height: 50px;
     padding: 10px 16px;
     align-items: center;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     .searchInputComp {
       background-color: transparent;
     }
@@ -168,7 +168,7 @@ export function View(props) {
   if (_.isEmpty(viewId)) {
     return (
       <EmptyView className="SingleViewWrap valignWrapper emptyView">
-        <div className="Font15 Gray_9e">{_l('请先选择一个视图')}</div>
+        <div className="Font15 textTertiary">{_l('请先选择一个视图')}</div>
       </EmptyView>
     );
   }
@@ -209,7 +209,7 @@ export function View(props) {
             </span>
             {config.desc && (
               <Tooltip title={config.desc} placement="bottom">
-                <Icon icon="info" className="Font18 pointer Gray_9e mLeft7" />
+                <Icon icon="info" className="Font18 pointer textTertiary mLeft7" />
               </Tooltip>
             )}
           </div>

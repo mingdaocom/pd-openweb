@@ -28,7 +28,7 @@ const Wrap = styled.div`
       left: -2px;
       width: calc(100% + 4px);
       height: calc(100% + 4px);
-      border: 1px solid #1677ff;
+      border: 1px solid var(--color-primary);
       border-radius: 3px;
     }
   }

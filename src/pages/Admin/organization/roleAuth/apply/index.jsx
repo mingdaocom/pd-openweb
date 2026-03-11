@@ -7,7 +7,7 @@ const Wrap = styled.div`
   border-radius: 4px;
   flex: 1;
   min-height: 0;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -17,7 +17,7 @@ const Wrap = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     box-sizing: border-box;
     .detailTitle {
       display: flex;
@@ -34,17 +34,17 @@ const Wrap = styled.div`
         margin-right: 4px;
         padding: 0 16px;
         &:hover {
-          background-color: #f5f5f5;
+          background-color: var(--color-background-hover);
         }
         a {
           font-weight: 600;
-          color: #151515 !important;
+          color: var(--color-text-title) !important;
           font-size: 17px;
         }
         &.menuTab-active {
-          border-bottom-color: #1677ff;
+          border-bottom-color: var(--color-primary);
           a {
-            color: #1677ff !important;
+            color: var(--color-primary) !important;
           }
         }
       }

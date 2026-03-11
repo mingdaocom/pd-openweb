@@ -7,7 +7,7 @@ const SearchInputCon = styled(VerticalMiddle)`
   width: 220px;
   height: 36px;
   border-radius: 36px;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
   padding-left: 10px;
   overflow: hidden;
   input {
@@ -17,7 +17,7 @@ const SearchInputCon = styled(VerticalMiddle)`
     background-color: inherit;
   }
   &:hover {
-    background-color: #eaeaea;
+    background-color: var(--color-border-secondary);
   }
 `;
 
@@ -28,7 +28,7 @@ const BaseBtnCon = styled(FlexCenter)`
   border-radius: 28px;
   margin-right: 2px;
   &:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
 `;
 
@@ -58,13 +58,13 @@ export default function SearchInput(props) {
   if (clickShowInput && !isFocus) {
     return (
       <FocusBtn onClick={() => setIsFocus(true)}>
-        <i className="icon icon-search Font20 Gray_9d"></i>
+        <i className="icon icon-search Font20 textTertiary"></i>
       </FocusBtn>
     );
   }
   return (
     <SearchInputCon className={props.className}>
-      <i className="icon icon-search Font18 Gray_9d"></i>
+      <i className="icon icon-search Font18 textTertiary"></i>
       <input
         ref={inputRef}
         type="text"
@@ -87,13 +87,14 @@ export default function SearchInput(props) {
       />
       {value && (
         <BaseBtnCon
+          className="searchClearIcon"
           onClick={() => {
             inputRef.current.value = '';
             setIsFocus(false);
             onChange('');
           }}
         >
-          <i className="icon icon-cancel Gray_9e Font16"></i>
+          <i className="icon icon-cancel textTertiary Font16"></i>
         </BaseBtnCon>
       )}
     </SearchInputCon>

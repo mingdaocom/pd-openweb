@@ -12,8 +12,8 @@ const Con = styled.div`
   height: 26px;
   line-height: 26px;
   font-size: 12px;
-  color: #fff;
-  background-color: ${({ color }) => color || '#f44336'};
+  color: var(--color-white);
+  background-color: ${({ color }) => color || 'var(--color-error)'};
   .delIcon {
     cursor: pointer;
     color: rgba(0, 0, 0, 0.24);
@@ -29,9 +29,11 @@ const Angle = styled.div`
   ${({ pos }) => `${pos === 'top' ? 'bottom' : 'top'}: -6px;`}
   left: 0;
   border: 3px solid transparent;
-  border-left-color: ${({ color }) => color || '#f44336'};
+  border-left-color: ${({ color }) => color || 'var(--color-error)'};
   ${({ pos, color }) =>
-    pos === 'top' ? `border-top-color: ${color || '#f44336'};` : `border-bottom-color: ${color || '#f44336'};`}
+    pos === 'top'
+      ? `border-top-color: ${color || 'var(--color-error)'};`
+      : `border-bottom-color: ${color || 'var(--color-error)'};`}
 `;
 
 export default function CellErrorTip(props) {

@@ -28,11 +28,11 @@ const Box = styled.div`
   align-items: center;
   margin: 10px 24px 0;
   > a {
-    color: #151515;
-    border-bottom: 1px dashed #757575;
+    color: var(--color-text-title);
+    border-bottom: 1px dashed var(--color-text-secondary);
     margin: 0 3px;
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
@@ -172,7 +172,7 @@ export default class HistoryList extends Component {
     const discardFun = () => {
       Dialog.confirm({
         className: 'deleteApprovalProcessDialog',
-        title: <span style={{ color: '#f44336' }}>{_l('丢弃排队中的执行')}</span>,
+        title: <span style={{ color: 'var(--color-error)' }}>{_l('丢弃排队中的执行')}</span>,
         description: _l('这些已触发的流程实例将不会被执行'),
         onOk: () => {
           processVersion.remove({ processIds: [processId] }).then(() => {
@@ -204,13 +204,13 @@ export default class HistoryList extends Component {
               <HistoryListItem key={index} index={index} {...item} {...res} />
             ))}
             {!hasMoreData && data.length > 20 && (
-              <div className="noMoreDataText Font16 Gray_75">{_l('没有更多数据')}</div>
+              <div className="noMoreDataText Font16 textSecondary">{_l('没有更多数据')}</div>
             )}
           </ul>
         ) : (
           <div className="emptyListWrap">
             <div className="imgWrap" />
-            <div className="text Gray_75 Font16">{_l('暂无数据运行记录')}</div>
+            <div className="text textSecondary Font16">{_l('暂无数据运行记录')}</div>
           </div>
         )}
         {hasMoreData && (
@@ -230,7 +230,7 @@ export default class HistoryList extends Component {
     return (
       <div className="historyListWrap">
         <ul className="historyListTitle">
-          <li style={{ fontWeight: 600 }} className="Gray_75 Font14 batch">
+          <li style={{ fontWeight: 600 }} className="textSecondary Font14 batch">
             <Tooltip
               placement="bottomLeft"
               align={{ offset: [-10, 0] }}
@@ -265,7 +265,7 @@ export default class HistoryList extends Component {
               <li
                 key={id}
                 style={{ fontWeight: 600 }}
-                className={cx('Gray_75 Font14', id, { flex: _.includes(['cause', 'triggerData'], id) })}
+                className={cx('textSecondary Font14', id, { flex: _.includes(['cause', 'triggerData'], id) })}
               >
                 {isChatbot && id === 'triggerData' ? _l('用户消息') : text}
               </li>

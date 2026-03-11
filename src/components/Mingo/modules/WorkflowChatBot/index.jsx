@@ -1,4 +1,5 @@
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { useMeasure } from 'react-use';
 import cx from 'classnames';
 import { chain, findLast, findLastIndex, flatten, get, identity, isArray, isEmpty, omit } from 'lodash';
 import PropTypes from 'prop-types';
@@ -15,6 +16,8 @@ import { AI_FEATURE_TYPE } from 'src/utils/enum';
 import MessageList from '../../ChatBot/components/MessageList';
 import ResponseError from '../../ChatBot/components/ResponseError';
 import Send from '../../ChatBot/components/Send';
+import MobileShareOperate from '../MobileShareOperate';
+import ShareOperate from '../ShareOperate';
 import Guide from './Guide';
 import { filterToolCalls, renderToolCalls } from './ToolCalls';
 
@@ -25,19 +28,19 @@ const MingoContentWrap = styled.div`
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #fff;
+  background: var(--color-background-primary);
   .sectionName {
     font-weight: bold;
     margin: 26px 0 6px;
     font-size: 15px;
-    color: #151515;
+    color: var(--color-text-title);
   }
   .sendCon {
     position: relative;
     padding: 0 16px;
     margin: 0 auto;
     width: 100%;
-    background: #fff;
+    background: var(--color-background-primary);
     .abort-button {
       position: absolute;
       top: -30px;
@@ -57,7 +60,7 @@ const MingoContentWrap = styled.div`
     }
     .try-tip {
       font-size: 14px !important;
-      color: #757575 !important;
+      color: var(--color-text-secondary) !important;
       margin-bottom: 12px !important;
     }
     .presetQuestions {
@@ -80,13 +83,13 @@ const ChatBotHeader = styled.div`
   margin: 16px 0 10px;
   .welcomeText {
     font-size: 15px;
-    color: #333;
+    color: var(--color-text-primary);
   }
   .tryTry {
     margin-top: 15px;
     .try-tip {
       font-size: 13px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       margin-bottom: 10px;
     }
   }
@@ -96,15 +99,15 @@ const ChatBotHeader = styled.div`
     gap: 10px;
     .presetQuestion {
       font-size: 14px;
-      color: #152525;
+      color: var(--color-text-primary);
       cursor: pointer;
       border-radius: 36px;
       height: 36px;
       line-height: 34px;
       padding: 0 16px;
-      border: 1px solid #eaeaea;
+      border: 1px solid var(--color-border-secondary);
       &:hover {
-        background: #f4f4f4;
+        background: var(--color-background-disabled);
       }
     }
   }
@@ -187,6 +190,22 @@ export function formatMessage(message) {
 
 export function formatMessages(messages) {
   let result = [];
+  let latestMessageId;
+  messages.forEach(message => {
+    if (message.role === 'user') {
+      message.workId = message.id;
+      latestMessageId = undefined;
+    } else if (!latestMessageId) {
+      latestMessageId = message.id;
+      if (message.workId === null) {
+        message.workId = latestMessageId;
+      }
+    } else {
+      if (message.workId === null) {
+        message.workId = latestMessageId;
+      }
+    }
+  });
   chain(messages.map(message => ({ ...message, workId: message.workId || message.id })))
     .groupBy('workId')
     .map(items => items)
@@ -219,7 +238,9 @@ function getLoadingText(name = '') {
 
 function MingoContent(props, ref) {
   const {
+    appId,
     chatbotId,
+    isCharge,
     isMobile,
     isTest,
     showOperateHeader = false,
@@ -238,11 +259,15 @@ function MingoContent(props, ref) {
     onClose = () => {},
   } = props;
   const shareId = new URLSearchParams(window.location.search).get('share');
+  const ShareOperateComponent = isMobile ? MobileShareOperate : ShareOperate;
   const messageListRef = useRef(null);
   const sendRef = useRef(null);
   const cache = useRef({});
   const [isGuideVisible, setIsGuideVisible] = useState(!!sessionStorage.getItem(`chatbotNewCreate-${chatbotId}`));
   const [loadingStatus, setLoadingStatus] = useState();
+  const [shareMode, setShareMode] = useState();
+  const [selectedMessageIds, setSelectedMessageIds] = useState([]);
+  const [isSelectAll, setIsSelectAll] = useState(false);
   const [conversationId, setConversationId] = useState(props.conversationId);
   const [isLoadingMessages, setIsLoadingMessages] = useState(!!props.conversationId && !showMessagesOnly);
   const [error, setError] = useState();
@@ -254,6 +279,7 @@ function MingoContent(props, ref) {
   const presetQuestionsList = presetQuestion?.split('\n').filter(item => item.trim()) || [];
   const showChatBotHeader = !!welcomeText || !!presetQuestionsList.length;
   const speechSynthesizer = useRef(new SpeechSynthesizer({ bufferDelay: 2000 }));
+  const [conRef, { width }] = useMeasure();
   const [pageIndex, setPageIndex] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -401,6 +427,11 @@ function MingoContent(props, ref) {
       handleScrollToBottom();
     }, 100);
   };
+  const filteredMessages = messages.filter(item => {
+    if (item.hidden) return false;
+    if (contentIsEmpty(item.content) && isEmpty(item.media)) return false;
+    return true;
+  });
   useImperativeHandle(ref, () => ({
     destroy: () => {
       abortRequest();
@@ -422,6 +453,9 @@ function MingoContent(props, ref) {
     setError();
     abortRequest();
     setLoadingStatus();
+    setIsSelectAll(false);
+    setSelectedMessageIds([]);
+    setShareMode(false);
     if (props.conversationId || shareId) {
       if (props.conversationId == cache.current.conversationId && !shareId) return;
 
@@ -492,7 +526,7 @@ function MingoContent(props, ref) {
     cache.current.didMount = true;
   }, []);
   return (
-    <MingoContentWrap className={cx(className, { isMobile })}>
+    <MingoContentWrap className={cx(className, { isMobile })} ref={conRef}>
       {showOperateHeader && (
         <OperateHeader>
           <span />
@@ -522,6 +556,12 @@ function MingoContent(props, ref) {
         </OperateHeader>
       )}
       <MessageList
+        width={width}
+        allowShare={!get(window, 'shareState.isPublicChatbot') && !shareId}
+        shareMode={shareMode}
+        isSelectAll={isSelectAll}
+        selectedMessageIds={selectedMessageIds}
+        setSelectedMessageIds={setSelectedMessageIds}
         loading={loading}
         isMobile={isMobile}
         allowRegenerate={!showMessagesOnly}
@@ -542,11 +582,7 @@ function MingoContent(props, ref) {
         isLoadingChat={infoLoading || isLoadingMessages}
         onScrollToTop={loadMoreMessages}
         isLoadingMore={isLoadingMore}
-        messages={messages.filter(item => {
-          if (item.hidden) return false;
-          if (contentIsEmpty(item.content) && isEmpty(item.media)) return false;
-          return true;
-        })}
+        messages={filteredMessages}
         messageListHeader={messageListHeader}
         openMessageLog={({ messageId, instanceId, workId }) => {
           onOpenMessageLog({
@@ -655,8 +691,10 @@ function MingoContent(props, ref) {
           });
           handleFetch([], { prevUserMessageId });
         }}
+        setShareMode={setShareMode}
+        setIsSelectAll={setIsSelectAll}
       />
-      {!disabled && !showMessagesOnly && (
+      {!disabled && !showMessagesOnly && !shareMode && (
         <div className="sendCon" style={{ maxWidth: maxWidth + 16 * 2 }}>
           {isGuideVisible && <Guide style={{ position: 'absolute', marginTop: -60 }} />}
           <Send
@@ -670,17 +708,17 @@ function MingoContent(props, ref) {
               {
                 11: _l('支持图片和文档类型的附件：PNG、JPG、JPEG、PDF、Word、Excel。一次消息最多上传 5 个附件'),
                 '01': _l('仅支持文档类型的附件：PDF、Word、Excel。一次消息最多上传 5 个附件'),
-                10: _l('仅支持图片类型的附件：PNG、JPG、JPEG。一次消息最多上传 5 个附件'),
+                10: _l('仅支持图片类型的附件：PNG、JPG、JPEG、HEIC。一次消息最多上传 5 个附件'),
               }[uploadPermission]
             }
             allowMimeTypes={
               {
                 11: [
-                  { title: 'image', extensions: 'jpg,jpeg,png' },
+                  { title: 'image', extensions: 'jpg,jpeg,png,heic' },
                   { title: 'office', extensions: 'pdf,doc,docx,xls,xlsx' },
                 ],
                 '01': [{ title: 'office', extensions: 'pdf,doc,docx,xls,xlsx' }],
-                10: [{ title: 'image', extensions: 'jpg,jpeg,png' }],
+                10: [{ title: 'image', extensions: 'jpg,jpeg,png,heic' }],
               }[uploadPermission]
             }
             ref={sendRef}
@@ -699,6 +737,22 @@ function MingoContent(props, ref) {
             onSend={handleSend}
           />
         </div>
+      )}
+      {shareMode && (
+        <ShareOperateComponent
+          from="chatbot"
+          appId={appId}
+          chatbotId={chatbotId}
+          conversationId={conversationId}
+          isCharge={isCharge}
+          messages={filteredMessages}
+          selectedMessageIds={selectedMessageIds}
+          setSelectedMessageIds={setSelectedMessageIds}
+          maxWidth={maxWidth + 16 * 2}
+          setShareMode={setShareMode}
+          isSelectAll={isSelectAll}
+          setIsSelectAll={setIsSelectAll}
+        />
       )}
     </MingoContentWrap>
   );

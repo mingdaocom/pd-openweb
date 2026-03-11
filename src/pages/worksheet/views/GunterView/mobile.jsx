@@ -43,7 +43,7 @@ export default class MobileGunter extends Component {
     const isDeleteEnd = enddate && !timeControlsIds.includes(enddate);
 
     if (isDelete || !begindate || !enddate || isDeleteEnd) {
-      return <ViewErrorPage icon="gantt" viewName={_l('甘特图')} color="#01BCD5" />;
+      return <ViewErrorPage icon="gantt" viewName={_l('甘特图')} color="var(--color-cyan)" />;
     }
 
     return <Gunter view={view} />;

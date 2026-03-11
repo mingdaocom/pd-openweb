@@ -38,6 +38,6 @@ export const GROUPLIMITTYPES = [9, 10, 11, 26, 27, 48];
 
 export const GROUPMAX = 8;
 //归组 关联记录数组类型字段最多3个 私有部署5个
-export const GROUPMAXBYREL = !md.global.Config.IsLocal ? 3 : 5;
+export const GROUPMAXBYREL = !window.platformENV.isOverseas && !window.platformENV.isLocal ? 3 : 5;
 
 export const AGG_CONTROL_MAX = 20;

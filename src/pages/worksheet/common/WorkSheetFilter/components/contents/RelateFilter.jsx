@@ -60,7 +60,7 @@ export default class RelateFilter extends Component {
       );
     }
     return (
-      <span>
+      <span className="breakAll">
         {nameList.controlName}
         {isParent && <i>{_l('主记录')}</i>}
         <i
@@ -125,7 +125,7 @@ export default class RelateFilter extends Component {
                   return this.renderName(item, nameList, i, _.includes(['parent'], item.rcid));
                 }
               })}
-          <Icon icon={'expand_more'} className="Gray_9e moreIntro Font16" />
+          <Icon icon={'expand_more'} className="textTertiary moreIntro Font16" />
         </div>
         {this.state.showUl && (
           <RelateBox

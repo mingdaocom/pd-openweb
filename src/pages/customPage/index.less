@@ -9,21 +9,15 @@
   padding: 7px 12px;
   &.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
     font-weight: unset;
-    color: #fff;
-    background-color: #1677ff;
+    color: var(--color-white);
     .icon {
-      color: #fff !important;
+      color: var(--color-white) !important;
     }
   }
 }
 
 .selectTitleOptionWrapper {
   padding: 7px 12px;
-  &.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
-    font-weight: unset;
-    color: #1677ff;
-    background-color: #efefef !important;
-  }
 }
 
 .editWidgetDialogWrap {
@@ -55,7 +49,7 @@
     display: none;
   }
   .icon-close:hover {
-    color: #1677ff !important;
+    color: var(--color-primary) !important;
   }
   button.save {
     font-weight: bold;
@@ -65,7 +59,7 @@
     &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
     &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input)
       .ant-select-selector {
-      border-color: #1677ff !important;
+      border-color: var(--color-primary) !important;
     }
     .ant-select-selector {
       border-radius: 4px !important;
@@ -92,7 +86,7 @@
 .customPageWrap,
 .customPageContent {
   .react-grid-item.react-grid-placeholder {
-    background: #e3f2fd;
+    background: #acdcff;
   }
   .empty {
     .addWidgetPic {
@@ -112,7 +106,7 @@
     border-radius: 50%;
     width: 64px;
     height: 64px;
-    background: #fff;
+    background: var(--color-background-primary);
     z-index: 2;
     box-shadow:
       0 4px 20px rgba(0, 0, 0, 0.13),
@@ -134,5 +128,9 @@
 }
 
 .mui-dialog-dialog .confirmInput::placeholder {
-  color: #ddd;
+  color: var(--color-border-primary);
+}
+
+.pageNoSelect .componentsWrap .pageDragLine {
+  display: block;
 }

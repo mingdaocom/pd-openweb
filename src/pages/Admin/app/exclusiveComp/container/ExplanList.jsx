@@ -21,32 +21,32 @@ import EXCLUSIVE_EXPLAN_HUI_IMG from '../images/exclusive_explan_hui.png';
 import '../index.less';
 
 const MoreOperateMenu = styled.ul`
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
   border-radius: 3px 3px 3px 3px;
   width: 160px;
   font-size: 13px;
-  color: #151515;
+  color: var(--color-text-title);
   padding: 4px 0;
   li {
     line-height: 36px;
     padding: 0 24px;
     cursor: pointer;
     a {
-      color: #151515;
+      color: var(--color-text-title);
       transition: none !important;
     }
     .renewal {
-      color: #151515 !important;
+      color: var(--color-text-title) !important;
     }
     &:hover {
-      background-color: #1677ff;
-      color: #fff;
+      background-color: var(--color-primary);
+      color: var(--color-white);
       a {
-        color: #fff;
+        color: var(--color-white);
       }
       .renewal {
-        color: #fff !important;
+        color: var(--color-white) !important;
       }
     }
   }
@@ -65,7 +65,7 @@ const EmptyWrap = styled.div`
   .desc {
     width: 448px;
     font-size: 14px;
-    color: #151515;
+    color: var(--color-text-title);
     line-height: 25px;
     margin-bottom: 70px;
     text-align: center;
@@ -180,7 +180,7 @@ function ExplanList(props) {
           )}
         </div>
         <Button radius className="exclusiveCompButton Font14" onClick={goToPurchase}>
-          {md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? _l('创建专属算力') : _l('购买专属算力')}
+          {window.platformENV.isPlatform ? _l('购买专属算力') : _l('创建专属算力')}
         </Button>
       </EmptyWrap>
     );
@@ -218,7 +218,7 @@ function ExplanList(props) {
               <Tooltip
                 title={
                   <div>
-                    <div className="Gray_bd">{_l('资源ID')}</div>
+                    <div className="textDisabled">{_l('资源ID')}</div>
                     <div className="mTop9">
                       {item.resourceId}
                       <Tooltip title={_l('复制资源ID')} placement="top">
@@ -228,14 +228,14 @@ function ExplanList(props) {
                           data-clipboard-text={item.resourceId}
                           onSuccess={() => alert(_l('复制成功'))}
                         >
-                          <span className="icon-content-copy mLeft8 Gray_bd Hover_49 Hand"></span>
+                          <span className="icon-content-copy mLeft8 textDisabled hoverTextPrimaryLight Hand"></span>
                         </ClipboardButton>
                       </Tooltip>
                     </div>
                   </div>
                 }
               >
-                <span className="icon-info_outline Font16 Gray_bd mLeft4"></span>
+                <span className="icon-info_outline Font16 textDisabled mLeft4"></span>
               </Tooltip>
             </span>
             <Status value={item.status} />
@@ -243,7 +243,7 @@ function ExplanList(props) {
           <div
             className="actionsRight Font13 "
             style={{
-              color: '#AEAEAE',
+              color: 'var(--color-text-tertiary)',
             }}
           >
             {item.creator && (
@@ -251,7 +251,7 @@ function ExplanList(props) {
                 <UserName
                   className="mRight5"
                   style={{
-                    color: '#AEAEAE',
+                    color: 'var(--color-text-tertiary)',
                   }}
                   projectId={projectId}
                   user={{ userName: item.creator.fullname, accountId: item.creator.accountId }}
@@ -272,7 +272,9 @@ function ExplanList(props) {
               COMPUTING_INSTANCE_STATUS.Stopping,
               COMPUTING_INSTANCE_STATUS.Stopped,
               COMPUTING_INSTANCE_STATUS.Restarting,
-            ].includes(item.status) && (
+            ]
+              .filter(v => (window.platformENV.isPlatform ? true : v !== COMPUTING_INSTANCE_STATUS.CreationFailed))
+              .includes(item.status) && (
               <Fragment>
                 {(![COMPUTING_INSTANCE_STATUS.Destroyed, COMPUTING_INSTANCE_STATUS.DestroyFailed].includes(
                   item.status,
@@ -327,7 +329,10 @@ function ExplanList(props) {
                           </Fragment>
                         )}
 
-                        {[COMPUTING_INSTANCE_STATUS.Destroyed].includes(item.status) && (
+                        {/* 非平台版创建失败的也可以删除 */}
+                        {[COMPUTING_INSTANCE_STATUS.Destroyed]
+                          .concat(!window.platformENV.isPlatform ? [COMPUTING_INSTANCE_STATUS.CreationFailed] : [])
+                          .includes(item.status) && (
                           <li
                             onClick={() => {
                               updateData({
@@ -344,7 +349,7 @@ function ExplanList(props) {
                     }
                     popupAlign={{ points: ['tr', 'bc'], offset: [15, 0] }}
                   >
-                    <Icon icon="moreop" className="Gray_bd Font20 mLeft24 Hover_49 Hand" />
+                    <Icon icon="moreop" className="textDisabled Font20 mLeft24 hoverTextPrimaryLight Hand" />
                   </Trigger>
                 )}
               </Fragment>
@@ -366,15 +371,16 @@ function ExplanList(props) {
                 '_'
               ) : item.expirationDatetime ? (
                 <Fragment>
-                  <span className={item.remainingDays < 1 ? 'Gray_75 mRight5' : 'Gray mRight5'}>
+                  <span className={item.remainingDays < 1 ? 'textSecondary mRight5' : 'textPrimary mRight5'}>
                     {moment(item.expirationDatetime).format(_l('YYYY-MM-DD'))}
                     {_l('到期')}
                   </span>
                   {item.remainingDays < 1 ? (
-                    <span style={{ color: '#F51744' }}>{_l('已过期')}</span>
+                    <span style={{ color: 'var(--color-error)' }}>{_l('已过期')}</span>
                   ) : (
                     <Fragment>
-                      {_l('剩余')} <span style={{ color: '#33B153' }}>{item.remainingDays}</span> {_l('天')}
+                      {_l('剩余')} <span style={{ color: 'var(--color-success)' }}>{item.remainingDays}</span>{' '}
+                      {_l('天')}
                     </Fragment>
                   )}
                 </Fragment>

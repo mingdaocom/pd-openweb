@@ -576,7 +576,7 @@ class TaskStage extends Component {
       const $this = $(this);
       // 去除窗体上 创建没有输入值的
       $('li.addNewTask').each(() => {
-        if (!$this.find('.teaStageName').val().trim()) {
+        if (!$this.find('.teaStageName')?.val()?.trim()) {
           that.canelCreateStageTask($this.closest('li.singleStage'));
         }
       });
@@ -713,12 +713,12 @@ class TaskStage extends Component {
       if (!$(item).find('.Score-wrapper').length) {
         const type = $(item).data('enum');
         const score = $(item).data('score');
-        let foregroundColor = '#f44336';
+        let foregroundColor = 'var(--color-error)';
 
         if (score === 6 || type === 1) {
           foregroundColor = '#fed156';
         } else if (score > 6) {
-          foregroundColor = '#4caf50';
+          foregroundColor = 'var(--color-success)';
         }
 
         const root = createRoot($(item)[0]);
@@ -728,7 +728,7 @@ class TaskStage extends Component {
             type={type === 1 ? 'star' : 'line'}
             score={score}
             foregroundColor={foregroundColor}
-            backgroundColor={type === 1 ? '#9e9e9e' : '#e0e0e0'}
+            backgroundColor={type === 1 ? 'var(--color-text-tertiary)' : 'var(--color-border-secondary)'}
             disabled
             count={type === 1 ? 5 : 10}
           />,

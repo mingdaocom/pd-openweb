@@ -4,6 +4,7 @@
     width: 250px;
     min-width: 250px;
     z-index: 6;
+    box-shadow: var(--shadow-md);
     .newTip {
       position: relative;
       width: 0;
@@ -32,23 +33,23 @@
     border: 1px solid transparent;
     border-width: 6px 15px 7px;
     .folderSearch {
-      border-bottom: 1px solid #fff;
+      border-bottom: 1px solid var(--color-white);
       height: 37px;
       transition: background-color 0.3s;
       &.inputActive {
-        background: #fff;
+        background: var(--color-background-primary);
       }
       .clearAutoSearch {
         margin-left: 25px;
       }
       .txtSearch.inputActive {
-        color: #999;
+        color: var(--color-text-tertiary);
       }
     }
     .btnFolderSearch {
       display: inline-block;
       font-size: 18px;
-      color: #fff;
+      color: var(--color-white);
       margin: 10px 5px;
       cursor: pointer;
       position: absolute;
@@ -69,12 +70,12 @@
     color: rgba(0, 0, 0, 0.7) !important;
   }
   .taskType {
-    border-bottom: 1px solid #fff;
+    border-bottom: 1px solid var(--color-border-secondary);
     padding-bottom: 6px;
     li {
       height: 40px;
       padding: 0 15px;
-      color: #fff;
+      color: var(--color-white);
       font-size: 0;
       cursor: pointer;
       .allCountTask {
@@ -93,15 +94,15 @@
       .typeIcon {
         display: inline-block;
         font-size: 18px;
-        color: #cfd1d5;
+        color: var(--color-text-placeholder);
         text-align: center;
         width: 24px;
         text-align: center;
         &.icon-task-star {
-          color: #ff9802 !important;
+          color: var(--color-warning) !important;
         }
         &.icon-charger {
-          color: #1677ff !important;
+          color: var(--color-primary) !important;
         }
       }
     }
@@ -121,7 +122,7 @@
         display: block;
       }
       .popTops {
-        color: #fff;
+        color: var(--color-white);
         height: 32px;
         line-height: 32px;
         padding-left: 15px;
@@ -149,6 +150,9 @@
       line-height: 40px;
       cursor: pointer;
       padding-left: 15px;
+      &.commFolder:hover {
+        background-color: var(--color-background-hover);
+      }
     }
     .folderList .folderCharge {
       width: 24px;
@@ -172,7 +176,7 @@
     .folderList .folderName,
     .folderList .pigeonholeFolderName {
       display: inline-block;
-      color: #fff;
+      color: var(--color-white);
       max-width: 113px;
       opacity: 0.87;
       vertical-align: top;
@@ -187,7 +191,7 @@
       display: inline-block;
     }
     .networkFolderList .allFolders {
-      color: #fff;
+      color: var(--color-white);
       height: 40px;
       line-height: 40px;
       padding-left: 15px;
@@ -248,7 +252,7 @@
     }
     .folderList .folderIcon {
       float: right;
-      color: #fff;
+      color: var(--color-white);
       font-size: 16px;
       padding-right: 15px;
     }
@@ -264,7 +268,7 @@
       font-size: 12px;
     }
     .folderList .nullFolderTask.lightBlueBg {
-      color: #fff;
+      color: var(--color-white);
     }
     .folderList .iconNullFolderTask {
       font-size: 16px;
@@ -350,7 +354,7 @@
       padding: 0 18px;
       height: 30px;
       line-height: 30px;
-      color: #fff;
+      color: var(--color-white);
       cursor: pointer;
       border-radius: 18px;
       border-width: 1px;
@@ -376,7 +380,7 @@
   .folderSettingsList,
   .projectFolderOp {
     position: absolute;
-    background-color: #fff;
+    background-color: var(--color-background-card);
     z-index: 30;
     padding: 6px 0px;
     left: 200px;
@@ -391,7 +395,7 @@
     box-sizing: initial;
     cursor: pointer;
     &:not(:hover):not(.dividerLine) {
-      background: #fff !important;
+      background: var(--color-background-card) !important;
     }
   }
   .folderSettingsList .arrorwRightColor {
@@ -402,21 +406,21 @@
   }
   .folderSettingsList li:hover,
   .projectFolderOp li:hover {
-    color: #fff;
+    color: var(--color-white);
   }
   .folderSettingsList li:hover i,
   .projectFolderOp li:hover i {
-    color: #fff;
+    color: var(--color-white);
   }
   .folderSettingsList .dividerLine {
     height: 1px !important;
-    background-color: #ccc !important;
+    background-color: var(--color-border-secondary) !important;
     margin: 5px 0;
   }
   .folderSettingsList .chargeAuth {
-    color: #f44336;
+    color: var(--color-error);
     i {
-      color: #f44336;
+      color: var(--color-error);
     }
   }
   .outsideColors {
@@ -429,19 +433,19 @@
   }
   #deleteFolder {
     .title {
-      color: #f44336;
+      color: var(--color-error);
     }
     .yesText {
-      background: #f44336 !important;
+      background: var(--color-error) !important;
       &:hover {
-        background: #e53935 !important;
+        background: var(--color-error) !important;
       }
     }
     .btnCk {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
     .deleteFolderColor {
-      color: #757575;
+      color: var(--color-text-secondary);
     }
   }
   #folderLoading {
@@ -455,7 +459,7 @@
 
   .folderSettingsList i {
     font-size: 14px;
-    color: #999;
+    color: var(--color-text-tertiary);
     display: inline-block;
     margin-right: 10px;
   }
@@ -463,7 +467,7 @@
     padding: 0;
     margin: 0px;
     border: 6px transparent solid;
-    border-left-color: #ccc;
+    border-left-color: var(--color-border-tertiary);
     margin-top: 10px;
     margin-right: 4px;
   }
@@ -483,7 +487,7 @@
   }
   #folderJoin .joinText,
   #projectSort .joinText {
-    color: #fff;
+    color: var(--color-white);
     line-height: 37px;
     margin-left: 10px;
     width: 190px;
@@ -526,7 +530,7 @@
   }
   .folderList .folderTitle .titleIcon:not(.Hidden) {
     display: inline-block;
-    color: #999;
+    color: var(--color-text-tertiary);
     font-size: 16px;
     line-height: 40px;
     margin-left: 4px;
@@ -555,14 +559,14 @@
   .insertCircle .littleCircle {
     width: 10px;
     height: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     display: inline-block;
   }
   .insertCircle .littleLine {
     display: inline-block;
     vertical-align: top;
     width: 185px;
-    border-top: 1px #ccc solid;
+    border-top: 1px var(--color-border-tertiary) solid;
     margin-top: 6px;
   }
   .addFileBox {
@@ -574,7 +578,7 @@
   }
   .addFileBox .fileFoldersBox .fileFolders {
     margin-left: 5px;
-    background-color: #fff;
+    background-color: var(--color-background-card);
     padding: 6px 0px;
   }
   .addFileBox .fileFoldersBox .fileFolders .moveToFileBox {
@@ -588,8 +592,8 @@
     border-top: 1px rgba(0, 0, 0, 0.15) solid;
   }
   .addFileBox .fileFoldersBox .fileFolders .moveToFile {
-    color: #ccc;
-    background-color: #fff !important;
+    color: var(--color-text-placeholder);
+    background-color: var(--color-background-primary) !important;
   }
   .fileFoldersBox .fileFolders .exitFile {
     border-bottom: 1px rgba(0, 0, 0, 0.15) solid;
@@ -617,7 +621,7 @@
   }
 
   .otherBox {
-    color: #fff;
+    color: var(--color-white);
     height: 48px;
     line-height: 48px;
     cursor: pointer;
@@ -626,7 +630,7 @@
     .closeOther {
       margin-left: 13px;
       &:not(:hover) {
-        color: #757575 !important;
+        color: var(--color-text-secondary) !important;
       }
       i {
         margin-right: 5px;

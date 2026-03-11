@@ -2,8 +2,8 @@ import _, { get, isEmpty, isNull, isUndefined } from 'lodash';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from 'src/components/Form/core/config';
 import DataFormat from 'src/components/Form/core/DataFormat';
 import { checkRuleLocked, checkValueByFilterRegex } from 'src/components/Form/core/formUtils';
-import { controlState } from 'src/components/Form/core/utils';
 import { browserIsMobile } from 'src/utils/common';
+import { controlState } from 'src/utils/control';
 import { checkCellIsEmpty } from 'src/utils/control';
 import { filterEmptyChildTableRows } from 'src/utils/record';
 import { checkRulesErrorOfRow } from 'src/utils/rule';
@@ -40,7 +40,7 @@ function getControlCompareValue(c, value) {
  * @param  {} data
  */
 
-export function getSubListError({ rows, rules }, controls = [], showControls = [], from = 3) {
+export function getSubListError({ rows, rules }, controls = [], showControls = [], from = 3, masterData) {
   const result = {};
   try {
     filterEmptyChildTableRows(rows).forEach(async row => {
@@ -70,6 +70,7 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
         ignoreHiddenRequired: true,
         data: controldata.map(c => ({ ...c, isSubList: true })),
         from: FROM.NEWRECORD,
+        masterData,
       });
       let errorItems = formdata.getErrorControls();
       rulesErrors.forEach(errorItem => {
@@ -133,6 +134,7 @@ export function getSubListErrorOfStore(store) {
     base.controls,
     control.showControls,
     recordId ? 3 : 2,
+    base.masterData,
   );
   if (!isEmpty(error)) {
     store.dispatch({

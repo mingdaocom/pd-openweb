@@ -458,7 +458,7 @@ export default class GlobalSearchAllContent extends Component {
                       />
                       <Checkbox
                         text={_l('只搜索记录标题')}
-                        className="Gray_9e"
+                        className="textTertiary"
                         checked={onlyTitle}
                         onClick={() => {
                           this.setState({ onlyTitle: !onlyTitle, loadAppData: true }, () =>
@@ -483,7 +483,7 @@ export default class GlobalSearchAllContent extends Component {
                       />
                       <Checkbox
                         text={_l('只搜索记录标题')}
-                        className="Gray_9e"
+                        className="textTertiary"
                         checked={onlyTitle}
                         onClick={() => {
                           this.setState({ onlyTitle: !onlyTitle, loadAppData: true }, () =>

@@ -26,6 +26,7 @@ class Detail extends Component {
     connectId: PropTypes.string,
     hasAuth: PropTypes.bool,
     isPlugin: PropTypes.bool,
+    isAIActions: PropTypes.bool,
   };
 
   static defaultProps = {

@@ -37,7 +37,7 @@ const CancelTextContent = styled.div`
   .icon {
     margin-right: 8px;
     font-size: 16px;
-    color: #f44336;
+    color: var(--color-error);
   }
 `;
 
@@ -52,7 +52,7 @@ const ButtonsCon = styled.div`
     left: 0px;
     width: 1px;
     height: 13px;
-    background-color: #ddd;
+    background-color: var(--color-border-primary);
   }
 `;
 class BatchOperate extends React.Component {
@@ -86,8 +86,16 @@ class BatchOperate extends React.Component {
     };
   }
 
+  componentDidMount() {
+    const { onlyShowCustomButtons } = this.props;
+    const selectedRow = this.props.selectedRows.length === 1 && this.props.selectedRows[0];
+    if (onlyShowCustomButtons) {
+      this.loadCustomButtons(selectedRow ? selectedRow.rowid : undefined);
+    }
+  }
+
   componentWillReceiveProps(nextProps) {
-    const { appId, worksheetId, viewId, permission, updateViewPermission } = this.props;
+    const { appId, worksheetId, viewId, permission, updateViewPermission = () => {} } = this.props;
     if (nextProps.worksheetId !== this.props.worksheetId || nextProps.viewId !== this.props.viewId) {
       this.setState({
         customButtons: [],
@@ -124,29 +132,31 @@ class BatchOperate extends React.Component {
       customButtonLoading: true,
     });
     if (viewId) {
-      worksheetAjax
-        .getWorksheetBtns({
-          appId,
-          worksheetId,
-          viewId,
-          rowId,
-        })
-        .then(data => {
-          this.setState({
-            customButtonLoading: false,
-            customButtons: replaceBtnsTranslateInfo(appId, data).filter(
-              btn =>
-                btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.IMMEDIATELY ||
-                btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM ||
-                (btn.writeObject === 1 && btn.writeType === 1),
-            ),
-          });
+      if (this.getWorksheetBtnsAjax && this.getWorksheetBtnsAjax.abort) {
+        this.getWorksheetBtnsAjax.abort();
+      }
+      this.getWorksheetBtnsAjax = worksheetAjax.getWorksheetBtns({
+        appId,
+        worksheetId,
+        viewId,
+        rowId,
+      });
+      this.getWorksheetBtnsAjax.then(data => {
+        this.setState({
+          customButtonLoading: false,
+          customButtons: replaceBtnsTranslateInfo(appId, data).filter(
+            btn =>
+              btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.IMMEDIATELY ||
+              btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.CONFIRM ||
+              (btn.writeObject === 1 && btn.writeType === 1),
+          ),
         });
+      });
     }
   }
 
   triggerCustomBtn(btn, isAll) {
-    const { worksheetId, viewId, selectedRows, filters, filtersGroup, quickFilter, navGroupFilters } = this.props;
+    const { worksheetId, viewId, selectedRows, filters = {}, filtersGroup, quickFilter, navGroupFilters } = this.props;
     const { filterControls, keyWords, searchType } = filters;
     let args = { isAll };
     if (isAll) {
@@ -353,12 +363,14 @@ class BatchOperate extends React.Component {
   render() {
     const {
       type,
+      buttonType,
+      buttonsConStyle = {},
       isCharge,
       pageSize,
       appId,
       worksheetId,
       viewId,
-      rows,
+      rows = [],
       view,
       controls,
       filters,
@@ -370,6 +382,7 @@ class BatchOperate extends React.Component {
       selectedRows,
       selectedLength,
       allWorksheetIsSelected,
+      onlyShowCustomButtons,
       permission,
       clearSelect,
       sheetSwitchPermit,
@@ -399,6 +412,27 @@ class BatchOperate extends React.Component {
     const canCopy =
       !_.isEmpty(permission) && permission.canEdit && isOpenPermit(permitList.copy, sheetSwitchPermit, viewId);
     const showCodePrint = isOpenPermit(permitList.QrCodeSwitch, sheetSwitchPermit, viewId);
+    const showSystemPrint = isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId);
+    const customButtonComp = (
+      <ButtonsCon className="flex" style={buttonsConStyle}>
+        <Buttons
+          type={buttonType}
+          isCharge={isCharge}
+          count={selectedLength}
+          buttons={customButtons}
+          appId={appId}
+          viewId={viewId}
+          recordId={selectedRows.length === 1 && selectedRows[0].rowid}
+          projectId={projectId}
+          worksheetId={worksheetId}
+          selectedRows={selectedRows}
+          isAll={allWorksheetIsSelected}
+          handleTriggerCustomBtn={this.handleTriggerCustomBtn}
+          handleUpdateWorksheetRow={this.handleUpdateWorksheetRow}
+          changeToSelectCurrentPageFromSelectAll={pageSize < count && changeToSelectCurrentPageFromSelectAll}
+        />
+      </ButtonsCon>
+    );
     const selectedTip = (
       <div className="selected">
         <span className="selectedStatus">
@@ -468,6 +502,10 @@ class BatchOperate extends React.Component {
         .catch(() => {
           alert(isLock ? _l('锁定失败') : _l('解锁失败'), 3);
         });
+    }
+
+    if (onlyShowCustomButtons) {
+      return !customButtonLoading && !!customButtons.length && customButtonComp;
     }
 
     return (
@@ -581,6 +619,7 @@ class BatchOperate extends React.Component {
               {...{
                 isCharge,
                 showCodePrint,
+                showSystemPrint,
                 appId,
                 worksheetId,
                 projectId,
@@ -590,6 +629,7 @@ class BatchOperate extends React.Component {
                 selectedRowIds: selectedRows.map(r => r.rowid),
                 count: count,
                 allowLoadMore: allWorksheetIsSelected,
+                selectedLength,
               }}
               {...this.getFilterArgs()}
             />
@@ -636,6 +676,7 @@ class BatchOperate extends React.Component {
                         );
                         args.navGroupFilters = navGroupFilters;
                         args.filterControls = filters.filterControls;
+                        args.filtersGroup = filters.filtersGroup;
                         args.keyWords = filters.keyWords;
                         args.searchType = filters.searchType;
                       } else {
@@ -710,14 +751,14 @@ class BatchOperate extends React.Component {
                         ),
                         description: (
                           <div style={{ marginLeft: 36 }}>
-                            <span style={{ color: '#151515', fontWeight: 'bold' }}>
+                            <span style={{ color: 'var(--color-text-title)', fontWeight: 'bold' }}>
                               {_l('此操作将彻底删除所有数据，不可从回收站中恢复！')}
                             </span>
                             {_l(
                               '当前所选记录数量超过%0行，数据不会进入回收站而直接进行彻底删除。此操作只有应用管理员可以执行。',
                               md.global.SysSettings.worktableBatchOperateDataLimitCount,
                             )}
-                            <div className="Bold Gray mTop18">{_l('注意:')}</div>
+                            <div className="Bold textPrimary mTop18">{_l('注意:')}</div>
                             <ul className="mTop10 9 mLeft4 Font14">
                               <li style={{ listStyle: 'inside' }}>{_l('将直接物理删除，永远无法恢复')}</li>
                               <li style={{ listStyle: 'inside' }}>{_l('所选记录中锁定或无删除权限的记录将被跳过')}</li>
@@ -726,7 +767,7 @@ class BatchOperate extends React.Component {
                               </li>
                               <li style={{ listStyle: 'inside' }}>{_l('彻底删除不触发工作流、同步任务')}</li>
                             </ul>
-                            {!isCharge && <div className="Gray mTop20">{_l('你没有权限进行此操作！')}</div>}
+                            {!isCharge && <div className="textPrimary mTop20">{_l('你没有权限进行此操作！')}</div>}
                           </div>
                         ),
                         data: isCharge ? [{ text: _l('我已了解注意事项，并确认彻底删除数据'), value: 1 }] : [],
@@ -746,31 +787,11 @@ class BatchOperate extends React.Component {
               />
             )}
 
-            {showCusTomBtn ? (
-              <ButtonsCon className="flex">
-                <Buttons
-                  isCharge={isCharge}
-                  count={selectedLength}
-                  buttons={customButtons}
-                  appId={appId}
-                  viewId={viewId}
-                  recordId={selectedRows.length === 1 && selectedRows[0].rowid}
-                  projectId={projectId}
-                  worksheetId={worksheetId}
-                  selectedRows={selectedRows}
-                  isAll={allWorksheetIsSelected}
-                  handleTriggerCustomBtn={this.handleTriggerCustomBtn}
-                  handleUpdateWorksheetRow={this.handleUpdateWorksheetRow}
-                  changeToSelectCurrentPageFromSelectAll={pageSize < count && changeToSelectCurrentPageFromSelectAll}
-                />
-              </ButtonsCon>
-            ) : (
-              <div className="flex" />
-            )}
+            {showCusTomBtn ? customButtonComp : <div className="flex" />}
             <Tooltip placement="bottom" title={_l('刷新视图')}>
               <i
                 className={cx(
-                  'refreshBtn icon icon-task-later refresh Gray_9e Font18 pointer ThemeHoverColor3 mTop5 mRight12',
+                  'refreshBtn icon icon-task-later refresh textTertiary Font18 pointer ThemeHoverColor3 mTop5 mRight12',
                 )}
                 onClick={() => {
                   refresh({ noClearSelected: true, updateWorksheetControls: true });
@@ -846,7 +867,7 @@ class BatchOperate extends React.Component {
                     : []),
                 ]}
               >
-                <i className="icon icon-more_horiz  Gray_9e Font18 pointer ThemeHoverColor3  mRight12" />
+                <i className="icon icon-more_horiz  textTertiary Font18 pointer ThemeHoverColor3  mRight12" />
               </SubButton>
             )}
           </div>

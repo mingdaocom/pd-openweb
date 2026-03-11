@@ -22,7 +22,7 @@ const Member = styled.span`
   vertical-align: top;
   margin-top: 10px;
   margin-right: 10px;
-  background: #f7f7f7;
+  background: var(--color-background-secondary);
   border-radius: 26px;
   padding-right: 10px;
   position: relative;
@@ -33,11 +33,11 @@ const Member = styled.span`
   }
   .icon-close {
     &:hover {
-      color: #f44336 !important;
+      color: var(--color-error) !important;
     }
   }
   .icon-info {
-    color: #ffa340;
+    color: var(--color-warning);
     position: absolute;
     left: -5px;
     top: -5px;
@@ -52,7 +52,7 @@ const Member = styled.span`
       right: 3px;
       bottom: 3px;
       content: '';
-      background: #fff;
+      background: var(--color-background-primary);
     }
   }
 `;
@@ -71,13 +71,13 @@ const TemplateList = styled.div`
     margin-top: 4px;
     margin-bottom: 4px;
     cursor: pointer;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     border-radius: 3px;
-    color: #757575;
+    color: var(--color-text-secondary);
     &:hover,
     &.active {
-      color: #1677ff;
-      background-color: #e8f5ff;
+      color: var(--color-primary);
+      background-color: var(--color-primary-transparent);
     }
   }
 `;
@@ -86,21 +86,21 @@ const AttachmentBtn = styled.span`
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border-tertiary);
   border-radius: 3px;
   margin-left: 10px;
   cursor: pointer;
   width: 36px;
   height: 36px;
   &:hover {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-hover);
   }
 `;
 
 const RequiredIcon = styled.div`
   position: absolute;
   margin: 1px 0 0 -8px;
-  color: #f44336;
+  color: var(--color-error);
 `;
 
 export default class OtherAction extends Component {
@@ -370,7 +370,7 @@ export default class OtherAction extends Component {
                 </span>
                 {_.includes(['after', 'before', 'addApprove', 'pass'], action) && (
                   <i
-                    className="icon-close Font14 mLeft5 Gray_75 pointer"
+                    className="icon-close Font14 mLeft5 textSecondary pointer"
                     onClick={() =>
                       this.setState({ selectedUsers: selectedUsers.filter(o => o.accountId !== user.accountId) })
                     }
@@ -384,23 +384,23 @@ export default class OtherAction extends Component {
                     align={{ offset: [5, 15] }}
                     title={() => (
                       <Fragment>
-                        <div className="Font15 bold Gray">
+                        <div className="Font15 bold textPrimary">
                           {_l('%0发起了委托', entrustList[user.accountId].principal.fullName)}
                         </div>
                         <div className="mTop10 flexRow alignItemsCenter">
-                          <div className="Gray_75 Font13">{_l('将委托给')}</div>
+                          <div className="textSecondary Font13">{_l('将委托给')}</div>
                           <div className="mLeft15">
                             <Member style={{ marginTop: 0 }}>
                               <img src={entrustList[user.accountId].trustee.avatar} />
-                              <span className="ellipsis mLeft8 Gray" style={{ maxWidth: 300 }}>
+                              <span className="ellipsis mLeft8 textPrimary" style={{ maxWidth: 300 }}>
                                 {entrustList[user.accountId].trustee.fullName}
                               </span>
                             </Member>
                           </div>
                         </div>
                         <div className="mTop10 flexRow Font13 alignItemsCenter">
-                          <div className="Gray_75">{_l('委托截止')}</div>
-                          <div className="mLeft15 Gray">{entrustList[user.accountId].endDate}</div>
+                          <div className="textSecondary">{_l('委托截止')}</div>
+                          <div className="mLeft15 textPrimary">{entrustList[user.accountId].endDate}</div>
                         </div>
                       </Fragment>
                     )}
@@ -414,7 +414,7 @@ export default class OtherAction extends Component {
 
           <i
             className={cx(
-              'Font26 Gray_75 ThemeHoverColor3 pointer mTop10 InlineBlock relative',
+              'Font26 textSecondary ThemeHoverColor3 pointer mTop10 InlineBlock relative',
               !_.includes(['after', 'before', 'addApprove', 'pass'], action) && !!selectedUsers.length
                 ? 'icon-task-folder-charge'
                 : 'icon-task-add-member-circle',
@@ -566,7 +566,7 @@ export default class OtherAction extends Component {
       <Fragment>
         {!!list.length && (
           <Fragment>
-            <div className="Gray_75 mTop15 mBottom6">{_l('选择预设')}</div>
+            <div className="textSecondary mTop15 mBottom6">{_l('选择预设')}</div>
             <TemplateList>
               {list.map((item, index) => (
                 <span
@@ -583,7 +583,7 @@ export default class OtherAction extends Component {
 
         {!!opinionList.length && (
           <Fragment>
-            <div className="Gray_75 mTop15 mBottom6">{_l('上次输入')}</div>
+            <div className="textSecondary mTop15 mBottom6">{_l('上次输入')}</div>
             <TemplateList>
               {opinionList.map((item, index) => (
                 <span
@@ -788,7 +788,7 @@ export default class OtherAction extends Component {
                           $('.approveDialog .customFieldsContainer .triggerTraget').click();
                         }}
                       >
-                        <i className="Font16 Gray_75 icon-attachment" />
+                        <i className="Font16 textSecondary icon-attachment" />
                       </AttachmentBtn>
                     </Tooltip>
                   )}
@@ -804,7 +804,7 @@ export default class OtherAction extends Component {
                     <Attachment
                       projectId={projectId}
                       appId={app.id}
-                      worksheetId={_.get(this.props, 'data.flowNode.appId')}
+                      worksheetIdForScan={_.get(this.props, 'data.flowNode.appId')}
                       value={files}
                       hint={_l('附件')}
                       canAddKnowledge={false}

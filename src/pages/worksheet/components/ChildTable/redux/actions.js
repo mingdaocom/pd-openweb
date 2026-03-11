@@ -331,9 +331,17 @@ export const addRows =
   };
 
 export const sortRows = ({ control, isAsc }) => {
-  return (dispatch, getState) => {
-    const { rows } = getState();
-    dispatch({ type: 'INIT_ROWS', rows: handleSortRows(rows, control, isAsc) });
+  return dispatch => {
+    // 只更新排序配置，不修改 rows 顺序
+    dispatch({
+      type: 'UPDATE_SORT_CONFIG',
+      sortConfig: _.isUndefined(isAsc)
+        ? null
+        : {
+            controlId: control.controlId,
+            isAsc,
+          },
+    });
   };
 };
 

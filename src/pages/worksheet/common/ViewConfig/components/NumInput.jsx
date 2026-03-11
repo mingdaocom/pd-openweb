@@ -24,19 +24,19 @@ const PointerConfigWrap = styled.div`
     flex-direction: column;
     .iconWrap {
       padding: 0 6px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border-secondary);
       border-left: none;
       height: 18px;
       &:first-child {
         border-bottom: none;
       }
       i {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
       &.disable {
         cursor: not-allowed;
         i {
-          color: #e5e5e5;
+          color: var(--color-border-secondary);
         }
       }
     }

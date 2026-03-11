@@ -12,7 +12,7 @@ import { addBehaviorLog } from 'src/utils/project';
 const AppItemWrap = styled.div`
   display: flex;
   align-items: center;
-  background-color: #f8f8f8;
+  background-color: var(--color-background-secondary);
   border-radius: 8px;
   width: calc(50% - 5px);
   height: 56px;
@@ -20,13 +20,13 @@ const AppItemWrap = styled.div`
   padding-left: 12px;
   position: relative;
   &.empty {
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
   .iconWrap {
     width: ${({ radius }) => radius + 'px'};
     height: ${({ radius }) => radius + 'px'};
     border-radius: 50%;
-    color: #fff;
+    color: var(--color-white);
     font-size: 32px;
     text-align: center;
     margin-right: 10px;
@@ -142,7 +142,7 @@ export default function ApplicationItem(props) {
         </div>
         <div className="appName flex">
           <div className={cx('name', { app: !type, ellipsis: type })}>{type ? itemName : name}</div>
-          {type ? <div className="des ellipsis Font12 Gray_9">{name}</div> : null}
+          {type ? <div className="des ellipsis Font12 textTertiary">{name}</div> : null}
         </div>
         {id === 'add' || (!fixed && !isUpgrade && !isNew && isGoodsStatus) ? null : (
           <AppStatus

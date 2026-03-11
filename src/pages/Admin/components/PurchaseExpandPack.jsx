@@ -17,7 +17,7 @@ export default function PurchaseExpandPack(props) {
     navigateTo(`/admin/${routePath}/${projectId}/${type}${extraParam ? '/' + extraParam : ''}`);
   };
 
-  if (md.global.Config.IsLocal) return null;
+  if (window.platformENV.isOverseas || window.platformENV.isLocal) return null;
 
   if ([0, 2].includes(licenseType) && type === 'aggregationtable') {
     //免费版和试用版 不支持扩充聚合表
@@ -30,7 +30,7 @@ export default function PurchaseExpandPack(props) {
   }
 
   return (
-    <span className={`Normal ThemeColor Hand ${className}`} onClick={handleClick}>
+    <span className={`Normal colorPrimary Hand ${className}`} onClick={handleClick}>
       {text}
     </span>
   );

@@ -382,8 +382,8 @@ export default class FileComponent extends Component {
           this.setState({ penelVisible: true });
         }}
         onMouseLeave={() => {
-          this.setState({ penelVisible: !!isEdit }),
-            this.editInput && this.props.resetFileName(fileResponse.fileID, this.editInput.value);
+          (this.setState({ penelVisible: !!isEdit }),
+            this.editInput && this.props.resetFileName(fileResponse.fileID, this.editInput.value));
         }}
       >
         <div className="UploadFiles-panelText">
@@ -544,8 +544,8 @@ export default class FileComponent extends Component {
           this.setState({ penelVisible: true });
         }}
         onMouseLeave={() => {
-          this.setState({ penelVisible: !!isEdit, menuVisible: false }),
-            this.editInput && this.props.resetFileName(fileResponse.fileID, this.editInput.value);
+          (this.setState({ penelVisible: !!isEdit, menuVisible: false }),
+            this.editInput && this.props.resetFileName(fileResponse.fileID, this.editInput.value));
         }}
       >
         <div className="UploadFiles-panelText">
@@ -920,8 +920,8 @@ export default class FileComponent extends Component {
                   isRound={false}
                   strokeWidth={3}
                   diameter={58}
-                  foregroundColor="#BDBDBD"
-                  backgroundColor="#fff"
+                  foregroundColor="var(--color-text-disabled)"
+                  backgroundColor="var(--color-background-primary)"
                   percent={parseInt(progress)}
                 />
               </div>

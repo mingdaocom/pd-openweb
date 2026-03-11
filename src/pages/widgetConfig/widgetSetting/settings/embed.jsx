@@ -9,6 +9,7 @@ import worksheetAjax from 'src/api/worksheet';
 import reportApi from 'statistics/api/report.js';
 import TextInput from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/inputTypes/TextInput';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import { SYSTEM_CONTROL } from '../../config/widget';
 import { DisplayMode, EditInfo, SettingItem } from '../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
@@ -16,7 +17,6 @@ import AttachmentConfig from '../components/AttachmentConfig';
 import FilterDialog from '../components/embed/filterDialog';
 import SelectStaticChartFromSheet from '../components/embed/SelectStaticChartFromSheet';
 import SelectViewFromSheet from '../components/embed/SelectViewFromSheet';
-import { FilterItemTexts } from '../components/FilterData';
 
 const EMBED_TYPES = [
   {
@@ -234,9 +234,9 @@ export default function Embed(props) {
                   {isDelete ? (
                     <span className="Red">{_l('%0已删除', modeInfo.headerText)}</span>
                   ) : sheetName ? (
-                    <span className="Gray">{_l('%0 - %1', sheetName, reportName)}</span>
+                    <span className="textPrimary">{_l('%0 - %1', sheetName, reportName)}</span>
                   ) : (
-                    <span className="Gray_9e">{_l('选择%0', modeInfo.headerText)}</span>
+                    <span className="textTertiary">{_l('选择%0', modeInfo.headerText)}</span>
                   )}
                 </div>
                 {!isDelete && sheetId && (

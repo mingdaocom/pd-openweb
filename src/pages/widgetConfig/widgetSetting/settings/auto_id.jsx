@@ -28,7 +28,7 @@ const RuleInfo = styled.li`
   .delWrap {
     display: flex;
     align-items: center;
-    color: #f44336;
+    color: var(--color-error);
     i {
       margin-right: 4px;
     }
@@ -36,7 +36,7 @@ const RuleInfo = styled.li`
   .relateControlInfo {
     line-height: 24px;
     margin: 6px 0;
-    color: #151515;
+    color: var(--color-text-title);
     i {
       vertical-align: text-bottom;
     }
@@ -45,7 +45,7 @@ const RuleInfo = styled.li`
     margin: 0 6px;
   }
   .controlInfo {
-    color: #151515;
+    color: var(--color-text-title);
     i {
       vertical-align: text-bottom;
     }
@@ -55,7 +55,7 @@ const RuleInfo = styled.li`
     margin-left: 8px;
     line-height: 36px;
     border-radius: 3px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
 
     .deleteRuleIcon {
       visibility: hidden;
@@ -78,7 +78,7 @@ const RuleInfo = styled.li`
         margin-top: 6px;
       }
       .errorHint {
-        color: #f44336;
+        color: var(--color-error);
       }
     }
     .ruleItem {
@@ -105,7 +105,7 @@ const RuleInfo = styled.li`
 
 const RuleList = styled.ul`
   .addRule {
-    color: #1677ff;
+    color: var(--color-primary);
     margin: 12px 0 0 20px;
     cursor: pointer;
     i {
@@ -168,7 +168,7 @@ function SortableItem({ data, rule, allControls, deleteRule, updateRule, renderD
     if (!controlName || (!rcid && isEmpty(getControlByControlId(allControls, controlId)))) {
       return (
         <div className="delWrap">
-          <AutoIcon style={{ color: '#f44336' }} icon="delete" type="delete" />
+          <AutoIcon style={{ color: 'var(--color-error)' }} icon="delete" type="delete" />
           <span>{_l('字段已删除')}</span>
         </div>
       );
@@ -178,7 +178,7 @@ function SortableItem({ data, rule, allControls, deleteRule, updateRule, renderD
         <div className="relateControlInfo">
           <AutoIcon icon={getIconByType(controlType)} />
           <span className="controlName">{controlName}</span>
-          <span className="Gray_75">{relationControlName}</span>
+          <span className="textSecondary">{relationControlName}</span>
         </div>
       );
     }
@@ -200,7 +200,7 @@ function SortableItem({ data, rule, allControls, deleteRule, updateRule, renderD
     if (type === 1) {
       return (
         <InfoWrap className="ruleItem numberConfig">
-          <div className="text Gray">
+          <div className="text textPrimary">
             {rule.length > 0
               ? _l('%0位数, %1', rule.length, NUMBER_TYPE_TO_TEXT[repeatType])
               : _l('自然数编号,%0', NUMBER_TYPE_TO_TEXT[repeatType])}
@@ -250,7 +250,10 @@ function SortableItem({ data, rule, allControls, deleteRule, updateRule, renderD
             </Menu>
           }
         >
-          <DropdownPlaceholder color={format ? '#151515' : '#bdbdbd'} ref={$addTime}>
+          <DropdownPlaceholder
+            color={format ? 'var(--color-text-primary)' : 'var(--color-text-disabled)'}
+            ref={$addTime}
+          >
             {text || 'YYYYMMDD'} <AutoIcon icon="expand_more" />
           </DropdownPlaceholder>
         </Dropdown>
@@ -325,7 +328,7 @@ function SortableRules({ rules, data, deleteRule, updateRule, addRule, onSortEnd
               data={data}
               renderDragHandle={() => (
                 <DragHandle>
-                  <i className="icon-drag Gray_75 ThemeHoverColor3 pointer"></i>
+                  <i className="icon-drag textSecondary ThemeHoverColor3 pointer"></i>
                 </DragHandle>
               )}
               updateRule={obj => updateRule(index, obj)}

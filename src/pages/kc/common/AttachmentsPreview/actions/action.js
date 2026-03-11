@@ -359,7 +359,7 @@ export function init(options, extra) {
           attachment,
           index,
         });
-        if (!md.global.Config.IsLocal && defaultWpsPreview(attachment.ext)) {
+        if (!window.platformENV.isOverseas && !window.platformENV.isLocal && defaultWpsPreview(attachment.ext)) {
           dispatch({
             type: 'CHANGE_PREVIEW_SERVICE',
             previewService: 'wps',

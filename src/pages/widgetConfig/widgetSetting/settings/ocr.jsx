@@ -47,7 +47,7 @@ function OcrMapType({ data, allControls = [], onChange }) {
             onChange(handleAdvancedSettingChange(data, { ocrmaptype: value, ocrcid: '', ocrmap: '' }));
           }}
         />
-        <div className="mTop10 Gray_9e">
+        <div className="mTop10 textTertiary">
           {ocrmaptype === '2'
             ? _l('选择映射子表明细，可进行多个附件批量映射识别')
             : _l('选择映射当前记录，仅能进行单次映射识别')}
@@ -113,8 +113,8 @@ export default function OcrDisplay(props) {
             onChange(newData);
           }}
         />
-        {ocrapitype !== '1' && (!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && (
-          <div className="mTop10 Gray_9e">
+        {ocrapitype !== '1' && window.platformENV.isPlatform && (
+          <div className="mTop10 textTertiary">
             <PriceTip text={_l('使用系统集成的识别服务，费用自动从组织信用点中扣除')} />
           </div>
         )}
@@ -161,7 +161,7 @@ export default function OcrDisplay(props) {
                 <Button
                   style={{
                     borderStyle: isEmpty(ocrMap) ? 'dashed' : 'solid',
-                    color: batchDisabled ? 'rgba(51, 51, 51, 0.5)' : '#151515',
+                    color: batchDisabled ? 'rgba(51, 51, 51, 0.5)' : 'var(--color-text-title)',
                   }}
                   onClick={() => {
                     if (batchDisabled) return;

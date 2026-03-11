@@ -1,6 +1,6 @@
 .adminStructureBox {
   .chargeIcon {
-    color: #f9ce1d;
+    color: var(--color-yellow-dark);
     margin-top: 8px;
   }
   .chargeIcon:hover {
@@ -19,13 +19,15 @@
   min-width: 120px !important;
   max-width: 200px !important;
   .leaveText {
-    color: #f44439;
+    color: var(--color-error);
   }
 }
 
 .userItem.topUp {
-  background: #f7fbff;
-  td {
-    background: #f7fbff !important;
+  &.lastTopUp {
+    border-bottom: 1px solid var(--color-border-primary);
+    td {
+      border-bottom: 1px solid var(--color-border-primary);
+    }
   }
 }

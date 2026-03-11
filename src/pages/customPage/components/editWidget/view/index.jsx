@@ -10,7 +10,7 @@ import Preview from './Preview';
 import Setting from './Setting';
 
 const Wrap = styled.div`
-  background-color: #eee;
+  background-color: var(--color-border-secondary);
   height: 100%;
   display: flex;
 `;
@@ -60,7 +60,7 @@ export default function View(props) {
             </Button>
           </ConfigProvider>
           <Tooltip title={_l('关闭')} placement="bottom">
-            <Icon icon="close" className="Font24 pointer mLeft16 Gray_9e" onClick={onClose} />
+            <Icon icon="close" className="Font24 pointer mLeft16 textTertiary" onClick={onClose} />
           </Tooltip>
         </div>
       </Header>

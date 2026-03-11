@@ -1,6 +1,5 @@
 import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { ConfigProvider } from 'antd';
-import { left } from '@antv/x6/lib/registry/node-anchor/bbox';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -501,7 +500,7 @@ const Files = props => {
       ((onlyeditself === '1' && md.global.Account.accountId === file.accountId) || onlyeditself !== '1') &&
       isWpsPreview(RegExpValidator.getExtOfFileName(file.ext), true) &&
       !_.get(window, 'shareState.shareId') &&
-      (md.global.Config.IsLocal ? md.global.Config.EnableDocEdit : true)
+      (window.platformENV.isOverseas || window.platformENV.isLocal ? md.global.Config.EnableDocEdit : true)
     ) {
       let attachmentShareId;
       if (!controlId) {
@@ -596,7 +595,7 @@ const Files = props => {
             )}
             onClick={() => setViewMore(!viewMore)}
           >
-            <span className="ThemeColor pointer">{viewMore ? _l('查看更多') : _l('收起')}</span>
+            <span className="colorPrimary pointer">{viewMore ? _l('查看更多') : _l('收起')}</span>
           </div>
         </Fragment>
       )}

@@ -21,14 +21,14 @@ import { getDefaultCompCode, getEnvControls, getFormData } from './util';
 
 const Con = styled.div`
   height: 100vh;
-  background: #f5f5f9;
+  background: var(--color-background-secondary);
   display: flex;
   flex-direction: column;
 `;
 
 const Header = styled.div`
   height: 50px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.08);
   flex-shrink: 0;
   padding: 0 16px;
@@ -58,7 +58,7 @@ const PreviewAndEditor = styled.div`
 `;
 
 const Card = styled.div`
-  background: white;
+  background: var(--color-background-primary);
   border-radius: 10px;
   box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.08);
   overflow-y: auto;
@@ -81,7 +81,7 @@ const Editor = styled(Card)`
   hr {
     margin: 0 20px;
     border: none;
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-primary);
   }
 `;
 
@@ -111,13 +111,13 @@ const Terminal = styled.div`
     flex-direction: row;
     align-items: center;
     margin: 0 20px;
-    border-top: 1px solid #eaeaea;
-    border-bottom: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-primary);
+    border-bottom: 1px solid var(--color-border-primary);
   }
   .content {
     flex: 1;
     padding: 4px 20px;
-    color: #af0f00;
+    color: var(--color-error);
   }
 `;
 
@@ -144,13 +144,13 @@ const ExitButton = styled.div`
   font-weight: bold;
   border-radius: 4px;
   padding: 0 20px;
-  background: #f5f5f4;
+  background: var(--color-background-secondary);
   height: 34px;
   line-height: 34px;
   font-size: 13px;
-  color: #1677ff;
+  color: var(--color-primary);
   &:hover {
-    background: #efefef;
+    background: var(--color-border-secondary);
   }
 `;
 
@@ -222,7 +222,7 @@ export default function DevelopWithAI(props) {
     <Modal visible fullScreen bodyStyle={{ padding: 0 }} closeIcon={<span />}>
       <Con>
         <Header>
-          <i className="icon-backspace Font16 mRight12 Gray_75 ThemeHoverColor3 pointer" onClick={handleExit} />
+          <i className="icon-backspace Font16 mRight12 textSecondary ThemeHoverColor3 pointer" onClick={handleExit} />
           <EditableText
             value={control.controlName}
             onChange={(newName = '') => {
@@ -264,7 +264,7 @@ export default function DevelopWithAI(props) {
             </Preview>
             <Editor>
               <EditorHeader>
-                <Icon className="icon icon-react" color="#9e9e9e" size={24} />
+                <Icon className="icon icon-react" color="var(--color-text-tertiary)" size={24} />
                 <span className="file-name">{codeFileName}</span>
                 <div style={{ flex: 1 }}></div>
                 <IconButton
@@ -276,7 +276,7 @@ export default function DevelopWithAI(props) {
                     }
                   }}
                 >
-                  <Icon className="icon icon-play_circle_filled" color="#01ca83" />
+                  <Icon className="icon icon-play_circle_filled" color="var(--color-task)" />
                   <span className="text">{_l('运行')} </span>
                 </IconButton>
                 <IconButton
@@ -290,15 +290,18 @@ export default function DevelopWithAI(props) {
                       : undefined
                   }
                 >
-                  <Icon className="icon icon-rotate" color="#9e9e9e" />
+                  <Icon className="icon icon-rotate" color="var(--color-text-tertiary)" />
                   <span className="text">{_l('撤销')} </span>
                 </IconButton>
                 <IconButton
                   className="mLeft15"
-                  textColor={terminalVisible ? '#1677ff' : '#151515'}
+                  textColor={terminalVisible ? 'var(--color-primary)' : 'var(--color-text-title)'}
                   onClick={() => setTerminalVisible(prevVisible => !prevVisible)}
                 >
-                  <Icon className="icon icon-fact_check_black" color={terminalVisible ? '#1677ff' : '#9e9e9e'} />
+                  <Icon
+                    className="icon icon-fact_check_black"
+                    color={terminalVisible ? 'var(--color-primary)' : 'var(--color-text-tertiary)'}
+                  />
                   <span className="text">{_l('控制台')} </span>
                 </IconButton>
                 <DevelopGuide />
@@ -309,11 +312,11 @@ export default function DevelopWithAI(props) {
               {terminalVisible && (
                 <Terminal height={window.innerHeight - 50 - 10 - 240 - 6 - 200 < 200 ? 100 : 200}>
                   <div className="header">
-                    <Icon className="icon icon-fact_check_black" color="#9e9e9e" />
-                    <span className="text mLeft4 Gray_75">{_l('控制台')} </span>
+                    <Icon className="icon icon-fact_check_black" color="var(--color-text-tertiary)" />
+                    <span className="text mLeft4 textSecondary">{_l('控制台')} </span>
                     <div className="flex"></div>
                     <IconButton
-                      textColor="#757575"
+                      textColor="var(--color-text-secondary)"
                       className={error ? '' : 'disabled'}
                       onClick={() => {
                         if (!error) {
@@ -325,21 +328,21 @@ export default function DevelopWithAI(props) {
                         }
                       }}
                     >
-                      <Icon className="icon icon-ai1" color="#757575" />
+                      <Icon className="icon icon-ai1" color="var(--color-text-secondary)" />
                       <span className="text">{_l('修复建议')} </span>
                     </IconButton>
                     <IconButton
-                      textColor="#757575"
+                      textColor="var(--color-text-secondary)"
                       className={cx('mLeft15 Hand', { disabled: !error })}
                       onClick={() => setError('')}
                     >
-                      <Icon className="icon icon-block" color="#9e9e9e" />
+                      <Icon className="icon icon-block" color="var(--color-text-tertiary)" />
                       <span className="text">{_l('清除')} </span>
                     </IconButton>
                     <Icon
                       className="icon icon-close mLeft15 mRight2 Hand"
                       fontSize={20}
-                      color="#9e9e9e"
+                      color="var(--color-text-tertiary)"
                       onClick={() => setTerminalVisible(false)}
                     />
                   </div>
@@ -403,7 +406,7 @@ export default function DevelopWithAI(props) {
             {md.global.SysSettings.hideAIBasicFun ? (
               <LLM className="alignItemsCenter justifyContentCenter TxtCenter flexColumn">
                 <img src={noAiPng} width={209} alt="placeholder" />
-                <p className="mTop36 TxtCenter Gray_75 Font16">
+                <p className="mTop36 TxtCenter textSecondary Font16">
                   {!md.global.Account.superAdmin
                     ? _l('AI服务未配置，AI对话生成代码暂不可用，请联系管理员反馈')
                     : _l('AI服务未配置，AI对话生成代码暂不可用')}

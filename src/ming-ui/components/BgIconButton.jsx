@@ -18,11 +18,11 @@ const Con = styled.div`
   justify-content: center;
   .btnIcon {
     font-size: 20px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   .btnText {
     font-size: 13px;
-    color: #515151;
+    color: var(--color-text-title);
     margin-left: 4px;
   }
   &.size-small {
@@ -35,7 +35,7 @@ const Con = styled.div`
   }
   &:not(.isMobile) {
     &:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
     }
   }
   ${({ disabled }) =>
@@ -43,10 +43,10 @@ const Con = styled.div`
     `
       cursor: not-allowed;
       .btnIcon {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
       .btnText {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
       &:hover {
         background-color: transparent;
@@ -65,6 +65,7 @@ function BgIconButton({
   iconComponent,
   text,
   onClick,
+  nativeOnClick,
   tooltip,
   popupPlacement = 'bottom',
   shortcut,
@@ -80,7 +81,8 @@ function BgIconButton({
         className={cx(className, `size-${size}`, { disabled, isMobile })}
         disabled={disabled}
         style={style}
-        onMouseDown={disabled ? null : onClick}
+        onMouseDown={disabled || nativeOnClick ? null : onClick}
+        onClick={nativeOnClick}
       >
         {iconComponent ? (
           iconComponent

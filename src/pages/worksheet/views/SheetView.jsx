@@ -28,7 +28,6 @@ import * as sheetviewActions from 'worksheet/redux/actions/sheetview';
 import { isHaveCharge } from 'worksheet/redux/actions/util';
 import DataFormat from 'src/components/Form/core/DataFormat';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/components/Form/core/enum';
-import { controlState } from 'src/components/Form/core/utils';
 import { openMingoCreateRecord } from 'src/components/Mingo/modules/CreateRecordBot';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -37,6 +36,7 @@ import { renderBatchSetDialog } from 'src/pages/worksheet/common/ViewConfig/comp
 import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/enum';
 import { getUserRole } from 'src/pages/worksheet/redux/actions/util';
 import { browserIsMobile, emitter, getLRUWorksheetConfig } from 'src/utils/common';
+import { controlState } from 'src/utils/control';
 import { getAdvanceSetting, getHighAuthControls } from 'src/utils/control';
 import { addBehaviorLog } from 'src/utils/project';
 import { getRecordColorConfig, handleRecordClick } from 'src/utils/record';
@@ -49,6 +49,7 @@ import {
   getSheetOperatesButtonsStyle,
 } from 'src/utils/worksheet';
 import SheetContext from '../common/Sheet/SheetContext';
+import ColumnVisibilityControl from './components/ColumnVisibilityControl';
 import ToolBar from './HierarchyView/ToolBar';
 
 function setRowIndexForSheetView(rows) {
@@ -153,7 +154,7 @@ const GroupTitleCell = React.memo(
         newClassName += ' cellRight2px';
       }
       newStyle.width = getColumnWidth(0) + getColumnWidth(1);
-      newStyle.backgroundColor = '#fafafa';
+      newStyle.backgroundColor = 'var(--color-background-secondary)';
       return (
         <GroupByControl
           view={view}
@@ -403,6 +404,7 @@ class TableView extends React.Component {
     this.state = {
       disableMaskDataControls: {},
       buttonsCheckStatus: {},
+      columnHeadHeight: 34,
     };
     this.tableId = uuidv4();
     this.shiftActiveRowIndex = 0;
@@ -650,6 +652,7 @@ class TableView extends React.Component {
           'printList',
           'worksheetInfo.isRequestingRelationControls',
           'operateButtonLoading',
+          'saveViewSetLoading',
           'foldedMap',
         ],
         key => !_.isEqual(get(nextProps, key), get(this.props, key)),
@@ -786,6 +789,12 @@ class TableView extends React.Component {
     setHighLight(this.tableId, rowIndex);
   };
 
+  handleColumnHeadHeightUpdate = height => {
+    if (height && height !== this.state.columnHeadHeight) {
+      this.setState({ columnHeadHeight: height });
+    }
+  };
+
   get levelCount() {
     const levelCount = get(this, 'props.treeTableViewData.levelCount');
     if (levelCount && Number(levelCount) <= 5) {
@@ -821,6 +830,7 @@ class TableView extends React.Component {
       sheetHiddenColumns: get(this.props, 'sheetViewConfig.sheetHiddenColumns', []),
       sysids: get(view, 'advancedSetting.sysids'),
       syssort: get(view, 'advancedSetting.syssort'),
+      personal_setting: get(view, 'advancedSetting.personal_setting'),
       isTreeTableView,
       viewId: view?.viewId,
       showControlsLength: view?.showControls?.length,
@@ -855,6 +865,7 @@ class TableView extends React.Component {
     const controls = isShowWorkflowSys
       ? this.props.controls
       : this.props.controls.filter(it => !_.includes(WORKFLOW_SYSTEM_FIELDS_SORT, it.controlId));
+
     const { sheetHiddenColumns } = this.props.sheetViewConfig;
 
     if (showControlIds && showControlIds.length) {
@@ -862,14 +873,14 @@ class TableView extends React.Component {
     }
 
     let columns = [];
+    const hiddenColumnIds = (this.showColumnControl ? [] : sheetHiddenColumns).concat(view.controls || []); //view.controls 为视图配置的隐藏列，需始终过滤
     let filteredControls = controls
       .map(c => ({ ...c }))
       .filter(
         control =>
           !_.includes(SHEET_VIEW_HIDDEN_TYPES, control.type) &&
           (this.isManageView ||
-            (!_.find(sheetHiddenColumns.concat(view.controls), cid => cid === control.controlId) &&
-              controlState(control).visible)),
+            (!_.find(hiddenColumnIds, cid => cid === control.controlId) && controlState(control).visible)),
       );
     let { showControls = [] } = view || {};
     let { customdisplay = '0', sysids = '[]', syssort = '[]' } = getAdvanceSetting(view); // '0':表格显示列与表单中的字段保持一致 '1':自定义显示列
@@ -944,6 +955,21 @@ class TableView extends React.Component {
       });
       columns = (titleControl ? [titleControl] : []).concat(newColumns);
     }
+    this.columnsNoPersonalSetting = columns;
+    const personalSetting = safeParse(get(view, 'advancedSetting.personal_setting'));
+    // 如果有 controls，先过滤出显示的列
+    if (typeof personalSetting?.controls !== 'undefined') {
+      columns = columns.filter(c => !personalSetting?.controls?.includes(c.controlId));
+    }
+    // 如果有 controlsSorts controlsSorts 的顺序排序，未在 controlsSorts 中的列保持原顺序
+    if (typeof personalSetting?.controlsSorts !== 'undefined' && personalSetting?.controlsSorts?.length > 0) {
+      const showControls = _.cloneDeep(columns) || [];
+      const controlsSorts = personalSetting?.controlsSorts || [];
+      columns = [
+        ...controlsSorts.map(id => showControls.find(c => c.controlId === id)).filter(o => !!o),
+        ...showControls.filter(c => !controlsSorts.includes(c.controlId)),
+      ];
+    }
     if (isTreeTableView && columns[0]) {
       const appendWidth = getTreeExpandCellWidth(maxLevel, rows.length);
       this.expandCellAppendWidth = appendWidth;
@@ -990,6 +1016,11 @@ class TableView extends React.Component {
 
   get rowHeadOnlyNum() {
     return !!this.chartId;
+  }
+
+  get showColumnControl() {
+    const { type } = this.props;
+    return type !== 'single' && !get(window, 'shareState.shareId') && md.global.Account.accountId && !this.chartId;
   }
 
   get highLightRows() {
@@ -1148,6 +1179,33 @@ class TableView extends React.Component {
     const { disableMaskDataControls } = this.state;
 
     const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, this.sheetSwitchPermit);
+
+    let param = {};
+    if (this.showColumnControl) {
+      const { personal_setting } = getAdvanceSetting(view);
+      const personalSetting = safeParse(personal_setting || '{}');
+      param.sheetHiddenColumns = personalSetting?.controls;
+      param.hideColumn = id => {
+        const { personal_setting } = getAdvanceSetting(view);
+        const personalSetting = safeParse(personal_setting || '{}');
+        saveView(
+          viewId,
+          {
+            controls: _.union(personalSetting?.controls || [], [id]),
+            editAttrs: ['personal_setting', 'controls'],
+          },
+          () => {
+            this.forceUpdate();
+          },
+        );
+      };
+
+      param.clearHiddenColumn = () => {
+        saveView(viewId, { controls: [], editAttrs: ['personal_setting', 'controls'] }, () => {
+          this.forceUpdate();
+        });
+      };
+    }
     return (
       <ColumnHead
         isDraft={isDraft}
@@ -1171,7 +1229,7 @@ class TableView extends React.Component {
         disabledFunctions={this.disabledFunctions}
         readonly={this.readonly}
         disabled={(this.needClickToSearch && _.isEmpty(quickFilter)) || control.type === 'operates'}
-        isLast={control.controlId === _.last(this.columns).controlId}
+        isLast={control.controlId === _.last(this.columns)?.controlId}
         isTreeTableView={isTreeTableView}
         columnIndex={columnIndex}
         fixedColumnCount={fixedColumnCount}
@@ -1244,6 +1302,7 @@ class TableView extends React.Component {
           }
         }}
         {...rest}
+        {...param}
       />
     );
   };
@@ -1348,6 +1407,7 @@ class TableView extends React.Component {
 
     const handleOpenRecord = () => {
       this.handleCellClick(undefined, data[rowIndex], rowIndex);
+      setHighLight(this.tableId, rowIndex);
     };
 
     return (
@@ -1394,7 +1454,7 @@ class TableView extends React.Component {
         printCharge={printCharge}
         layoutChangeVisible={
           isCharge &&
-          (!!sheetHiddenColumns.length ||
+          ((!this.showColumnControl ? !!sheetHiddenColumns.length : false) ||
             Number(localLayoutUpdateTime) >
               Number(view.advancedSetting.layoutupdatetime || view.advancedSetting.layoutUpdateTime || 0) ||
             !!getLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_STYLES', viewId))
@@ -1499,7 +1559,7 @@ class TableView extends React.Component {
       return (
         <div style={style} className={newClassName}>
           <div
-            className="Gray_75 Font13 Hand valignWrapper"
+            className="textSecondary Font13 Hand valignWrapper"
             style={{ marginLeft: 40, height: '100%' }}
             onClick={() => {
               if (groupFetchParams[row.groupKey]?.isLoading) {
@@ -1511,7 +1571,7 @@ class TableView extends React.Component {
             {groupFetchParams[row.groupKey]?.isLoading ? (
               <>
                 {_l('加载中')}
-                <i className="icon icon-loading_button groupLoading InlineBlock mLeft5 Gray_9e Font18"></i>{' '}
+                <i className="icon icon-loading_button groupLoading InlineBlock mLeft5 textTertiary Font18"></i>{' '}
               </>
             ) : (
               <span className="ThemeHoverColor3">{_l('加载更多')}</span>
@@ -1659,6 +1719,7 @@ class TableView extends React.Component {
       printCharge,
       operateButtonLoading,
       updateDefaultScrollLeft,
+      saveViewSetLoading,
     } = this.props;
     // function
     const {
@@ -1674,6 +1735,7 @@ class TableView extends React.Component {
       expandAllTreeTableViewNode,
       changeTreeTableViewLevelCount,
       isDraft,
+      saveView,
     } = this.props;
     const { readonly } = this;
     const { loading } = sheetViewData;
@@ -1735,6 +1797,7 @@ class TableView extends React.Component {
             enablePayment={worksheetInfo.enablePayment}
             tableType={this.tableType}
             widgetStyle={worksheetInfo.advancedSetting}
+            worksheetInfo={worksheetInfo}
             controls={this.isManageView ? getHighAuthControls(controls) : controls}
             sheetSwitchPermit={this.sheetSwitchPermit}
             projectId={projectId}
@@ -1799,151 +1862,167 @@ class TableView extends React.Component {
           </React.Fragment>
         )}
         {!loading && !(showOperatesInRow && operateButtonLoading) && (
-          <WorksheetTable
-            isDraft={isDraft}
-            inView={true}
-            showControlStyle={this.showControlStyle}
-            isTreeTableView={isTreeTableView}
-            treeTableViewData={treeTableViewData}
-            tableType={this.tableType}
-            readonly={readonly}
-            ref={this.table}
-            recordColorConfig={getRecordColorConfig(view)}
-            watchHeight={!browserIsMobile()}
-            setHeightAsRowCount={fullShowTable}
-            minRowCount={isTreeTableView ? rows.length + 2 : minRowCount}
-            tableId={this.tableId}
-            view={view}
-            viewId={viewId}
-            appId={appId}
-            enableRules={enableRules}
-            rules={this.isManageView ? [] : rules}
-            isCharge={isCharge}
-            worksheetId={worksheetId}
-            sheetViewHighlightRows={this.highLightRows}
-            showRowHead={!this.hideRowHead}
-            lineEditable={lineEditable}
-            disableQuickEdit={!isOpenPermit(permitList.quickSwitch, this.sheetSwitchPermit, viewId)}
-            fixedColumnCount={fixedColumnCount}
-            rightFixedCount={showOperatesInRow ? 1 : 0}
-            sheetColumnWidths={sheetColumnWidths}
-            columnStyles={columnStyles}
-            allowAdd={
-              this.isManageView || (isOpenPermit(permitList.createButtonSwitch, this.sheetSwitchPermit) && allowAdd)
-            }
-            canSelectAll={!!rows.length}
-            data={rows}
-            {...(ROW_HEIGHT[view.rowHeight] === 34 || !isGroupTableView
-              ? {}
-              : {
-                  getRowHeight,
-                })}
-            rowHeight={ROW_HEIGHT[view.rowHeight] || 34}
-            rowHeightEnum={view.rowHeight}
-            keyWords={filters.keyWords}
-            sheetIsFiltered={
-              !!(
-                filters.keyWords ||
-                get(filters, 'filterControls.length') ||
-                get(filters, 'filtersGroup.length') ||
-                !_.isEmpty(quickFilter) ||
-                !_.isEmpty(view?.filters)
-              )
-            }
-            showNewRecord={openNewRecord}
-            defaultScrollLeft={defaultScrollLeft}
-            onScroll={() => {
-              if (defaultScrollLeft) {
-                updateDefaultScrollLeft(0);
+          <>
+            {this.showColumnControl && (
+              <ColumnVisibilityControl
+                columns={(this.columnsNoPersonalSetting || columns).filter(c => !!c.controlId)}
+                view={view}
+                viewId={viewId}
+                appId={appId}
+                saveView={saveView}
+                disabled={saveViewSetLoading}
+                tableId={this.tableId}
+                columnHeadHeight={this.state.columnHeadHeight}
+              />
+            )}
+            <WorksheetTable
+              isGroupTableView={isGroupTableView}
+              isDraft={isDraft}
+              inView={true}
+              showControlStyle={this.showControlStyle}
+              isTreeTableView={isTreeTableView}
+              treeTableViewData={treeTableViewData}
+              tableType={this.tableType}
+              readonly={readonly}
+              ref={this.table}
+              recordColorConfig={getRecordColorConfig(view)}
+              watchHeight={!browserIsMobile()}
+              setHeightAsRowCount={fullShowTable}
+              minRowCount={isTreeTableView ? rows.length + 2 : minRowCount}
+              tableId={this.tableId}
+              view={view}
+              viewId={viewId}
+              appId={appId}
+              enableRules={enableRules}
+              rules={this.isManageView ? [] : rules}
+              isCharge={isCharge}
+              worksheetId={worksheetId}
+              sheetViewHighlightRows={this.highLightRows}
+              showRowHead={!this.hideRowHead}
+              lineEditable={lineEditable}
+              disableQuickEdit={!isOpenPermit(permitList.quickSwitch, this.sheetSwitchPermit, viewId)}
+              fixedColumnCount={fixedColumnCount}
+              rightFixedCount={showOperatesInRow ? 1 : 0}
+              sheetColumnWidths={sheetColumnWidths}
+              columnStyles={columnStyles}
+              allowAdd={
+                this.isManageView || (isOpenPermit(permitList.createButtonSwitch, this.sheetSwitchPermit) && allowAdd)
               }
-            }}
-            sheetSwitchPermit={this.sheetSwitchPermit}
-            noFillRows
-            selectedIds={sheetSelectedRows.map(r => r.rowid)}
-            lineNumberBegin={lineNumberBegin}
-            rowHeadOnlyNum={this.rowHeadOnlyNum}
-            rowHeadWidth={rowHeadWidth}
-            expandCellAppendWidth={this.expandCellAppendWidth}
-            controls={this.isManageView ? getHighAuthControls(controls) : controls}
-            columns={columns
-              .map(c =>
-                disableMaskDataControls[c.controlId]
-                  ? {
-                      ...c,
-                      advancedSetting: Object.assign({}, c.advancedSetting, {
-                        datamask: '0',
-                      }),
-                    }
-                  : c,
-              )
-              .concat(
-                showOperatesInRow
-                  ? [
-                      {
-                        type: 'operates',
-                        controlName: _l('操作'),
-                        width: operatesButtonsWidth,
-                      },
-                    ]
-                  : [],
-              )}
-            projectId={projectId}
-            // 表格样式
-            wrapControlName={wrapControlName}
-            headTitleCenter={headTitleCenter}
-            showSummary={
-              !this.chartId &&
-              showSummary &&
-              !(get(window, 'shareState.isPublicView') || get(window, 'shareState.isPublicPage'))
-            }
-            showGenDataFromMingo={
-              this.allowShowGenDataFromMingo &&
-              !get(md, 'global.Account.isPortal') &&
-              allowAdd &&
-              !this.chartId &&
-              !isDraft &&
-              type !== 'single' &&
-              (this.isManageView ||
-                (isOpenPermit(permitList.createButtonSwitch, this.sheetSwitchPermit) && allowAdd)) &&
-              !window.isPublicApp
-            }
-            showVerticalLine={showVerticalLine}
-            showAsZebra={showAsZebra && !isGroupTableView}
-            onCellClick={this.handleCellClick}
-            onCellMouseDown={this.handleCellMouseDown}
-            renderFooterCell={this.renderSummaryCell}
-            renderColumnHead={this.renderColumnHead}
-            renderRowHead={this.renderRowHead}
-            renderOperates={args => this.renderOperates({ ...args })}
-            renderGroupTitle={this.renderGroupTitle}
-            renderGroupMore={this.renderGroupMore}
-            noRecordAllowAdd={false}
-            emptyIcon={
-              (this.needClickToSearch && _.isEmpty(quickFilter)) ||
-              (this.navGroupToSearch() && _.isEmpty(navGroupFilters)) ? (
-                <span />
-              ) : undefined
-            }
-            showSearchEmpty={
-              !(
+              canSelectAll={!!rows.length}
+              data={rows}
+              {...(ROW_HEIGHT[view.rowHeight] === 34 || !isGroupTableView
+                ? {}
+                : {
+                    getRowHeight,
+                  })}
+              rowHeight={ROW_HEIGHT[view.rowHeight] || 34}
+              rowHeightEnum={view.rowHeight}
+              keyWords={filters.keyWords}
+              sheetIsFiltered={
+                !!(
+                  filters.keyWords ||
+                  get(filters, 'filterControls.length') ||
+                  get(filters, 'filtersGroup.length') ||
+                  !_.isEmpty(quickFilter) ||
+                  !_.isEmpty(view?.filters)
+                )
+              }
+              showNewRecord={openNewRecord}
+              defaultScrollLeft={defaultScrollLeft}
+              onScroll={() => {
+                if (defaultScrollLeft) {
+                  updateDefaultScrollLeft(0);
+                }
+              }}
+              sheetSwitchPermit={this.sheetSwitchPermit}
+              noFillRows
+              selectedIds={sheetSelectedRows.map(r => r.rowid)}
+              lineNumberBegin={lineNumberBegin}
+              rowHeadOnlyNum={this.rowHeadOnlyNum}
+              rowHeadWidth={rowHeadWidth}
+              expandCellAppendWidth={this.expandCellAppendWidth}
+              controls={this.isManageView ? getHighAuthControls(controls) : controls}
+              columns={columns
+                .map(c =>
+                  disableMaskDataControls[c.controlId]
+                    ? {
+                        ...c,
+                        advancedSetting: Object.assign({}, c.advancedSetting, {
+                          datamask: '0',
+                        }),
+                      }
+                    : c,
+                )
+                .concat(
+                  showOperatesInRow
+                    ? [
+                        {
+                          type: 'operates',
+                          controlName: _l('操作'),
+                          width: operatesButtonsWidth,
+                        },
+                      ]
+                    : [],
+                )}
+              projectId={projectId}
+              // 表格样式
+              wrapControlName={wrapControlName}
+              headTitleCenter={headTitleCenter}
+              showSummary={
+                !this.chartId &&
+                showSummary &&
+                !(get(window, 'shareState.isPublicView') || get(window, 'shareState.isPublicPage'))
+              }
+              showGenDataFromMingo={
+                this.allowShowGenDataFromMingo &&
+                !get(md, 'global.Account.isPortal') &&
+                allowAdd &&
+                !this.chartId &&
+                !isDraft &&
+                type !== 'single' &&
+                (this.isManageView ||
+                  (isOpenPermit(permitList.createButtonSwitch, this.sheetSwitchPermit) && allowAdd)) &&
+                !window.isPublicApp
+              }
+              showVerticalLine={showVerticalLine}
+              showAsZebra={showAsZebra && !isGroupTableView}
+              onCellClick={this.handleCellClick}
+              onCellMouseDown={this.handleCellMouseDown}
+              renderFooterCell={this.renderSummaryCell}
+              renderColumnHead={this.renderColumnHead}
+              renderRowHead={this.renderRowHead}
+              renderOperates={args => this.renderOperates({ ...args })}
+              renderGroupTitle={this.renderGroupTitle}
+              renderGroupMore={this.renderGroupMore}
+              noRecordAllowAdd={false}
+              emptyIcon={
                 (this.needClickToSearch && _.isEmpty(quickFilter)) ||
-                (this.navGroupToSearch() && _.isEmpty(navGroupFilters))
-              )
-            }
-            emptyText={
-              this.needClickToSearch && _.isEmpty(quickFilter) ? (
-                <span className="Font14">{_l('执行查询后显示结果')}</span>
-              ) : this.navGroupToSearch() && _.isEmpty(navGroupFilters) ? (
-                <span className="Font14">{_l('请从左侧选择一个%0查看', (navGroupData || {}).controlName)}</span>
-              ) : undefined
-            }
-            updateCell={({ cell, row }, options) => {
-              this.asyncUpdate(row, cell, options);
-            }}
-            onColumnWidthChange={updateSheetColumnWidths}
-            actions={{ updateTreeNodeExpansion }}
-            printCharge={printCharge}
-          />
+                (this.navGroupToSearch() && _.isEmpty(navGroupFilters)) ? (
+                  <span />
+                ) : undefined
+              }
+              showSearchEmpty={
+                !(
+                  (this.needClickToSearch && _.isEmpty(quickFilter)) ||
+                  (this.navGroupToSearch() && _.isEmpty(navGroupFilters))
+                )
+              }
+              emptyText={
+                this.needClickToSearch && _.isEmpty(quickFilter) ? (
+                  <span className="Font14">{_l('执行查询后显示结果')}</span>
+                ) : this.navGroupToSearch() && _.isEmpty(navGroupFilters) ? (
+                  <span className="Font14">{_l('请从左侧选择一个%0查看', (navGroupData || {}).controlName)}</span>
+                ) : undefined
+              }
+              updateCell={({ cell, row }, options) => {
+                this.asyncUpdate(row, cell, options);
+              }}
+              onColumnWidthChange={updateSheetColumnWidths}
+              onColumnHeadHeightUpdate={this.handleColumnHeadHeightUpdate}
+              actions={{ updateTreeNodeExpansion }}
+              printCharge={printCharge}
+            />
+          </>
         )}
         {isTreeTableView && sheetViewData.count <= 1000 && (
           <ToolBar
@@ -2033,6 +2112,7 @@ export default connect(
     sheetSearchConfig: state.sheet.sheetSearchConfig || [],
     chartIdFromUrl: get(state, 'sheet.base.chartId'),
     maxCount: get(state, 'sheet.base.maxCount'),
+    saveViewSetLoading: state.sheet.saveViewSetLoading,
     // sheetview
     sheetViewData: state.sheet.sheetview.sheetViewData,
     sheetFetchParams: state.sheet.sheetview.sheetFetchParams,

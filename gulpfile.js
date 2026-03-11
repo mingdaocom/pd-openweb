@@ -97,14 +97,6 @@ const blackWordList = ['http://hart-dev.com', 'batheticrecords.com', 'http://dev
 gulp.task('editCode', () => {
   return gulp
     .src(['./build/dist/**/*.js'])
-    .pipe(
-      each(function (content, file, callback) {
-        if (content.startsWith('var')) {
-          content = `(function(){\n${content}\n})()`;
-        }
-        callback(null, content);
-      }),
-    )
     .pipe($.replace(new RegExp(`(${blackWordList.join('|')})`, 'g'), '--****--'))
     .pipe(gulp.dest('./build/dist'));
 });

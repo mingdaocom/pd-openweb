@@ -23,15 +23,15 @@ const ToolBarWrap = styled.div`
   .toolItem {
     height: 32px;
     text-align: center;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 3px;
     .icon {
-      background: #fff;
+      background: var(--color-background-primary);
       width: 32px;
       line-height: 30px;
       border-radius: 3px;
       &.bL {
-        border-left: 1px solid #dddddd;
+        border-left: 1px solid var(--color-border-primary);
       }
     }
   }
@@ -39,7 +39,7 @@ const ToolBarWrap = styled.div`
     display: flex;
     align-items: center;
     .searchIcon {
-      color: #757575;
+      color: var(--color-text-secondary);
     }
   }
   .genScreenshot {
@@ -52,7 +52,7 @@ const ToolBarWrap = styled.div`
   .scale {
     width: 36px;
     font-size: 13px;
-    color: #515151;
+    color: var(--color-text-title);
   }
 `;
 
@@ -67,12 +67,16 @@ export default class ToolBar extends Component {
     return (
       <ToolBarWrap className={cx('flexRow valignWrappe', { isOpenEdit })}>
         <Tooltip title={_l('导出为图片')}>
-          <Icon icon="download" className="Gray_75 Font18 mRight14 pointer" onClick={() => onClick('genScreenshot')} />
+          <Icon
+            icon="download"
+            className="textSecondary Font18 mRight14 pointer"
+            onClick={() => onClick('genScreenshot')}
+          />
         </Tooltip>
         <div className="toolItem adjustScale mLeft16">
           <Tooltip title={_l('放大')}>
             <Icon
-              className={cx('Font19 Gray_75 pointer', {
+              className={cx('Font19 textSecondary pointer', {
                 disableAdjustSize: scale >= SCALE_LIMIT.max,
               })}
               icon="add"
@@ -81,7 +85,7 @@ export default class ToolBar extends Component {
           </Tooltip>
           <Tooltip title={_l('缩小')}>
             <Icon
-              className={cx('Font19 Gray_75 pointer bL', {
+              className={cx('Font19 textSecondary pointer bL', {
                 disableAdjustSize: scale <= SCALE_LIMIT.min,
               })}
               icon="minus"

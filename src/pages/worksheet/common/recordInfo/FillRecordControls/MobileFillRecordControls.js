@@ -26,10 +26,10 @@ const Con = styled.div`
   }
   .btnsWrapper {
     padding: 7px 10px;
-    border-top: 1px solid #f5f5f5;
-    background-color: #fff;
+    border-top: 1px solid var(--color-background-secondary);
+    background-color: var(--color-background-primary);
     .edit {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
@@ -322,11 +322,11 @@ class FillRecordControls extends React.Component {
             </LoadMask>
           )}
           <div className="flexRow valignWrapper pTop15 pLeft20 pRight20 pBottom8">
-            <div className="title Font18 Gray flex bold leftAlign ellipsis">{title}</div>
-            <i className="icon icon-close Gray_9e Font20" onClick={hideDialog}></i>
+            <div className="title Font18 textPrimary flex bold leftAlign ellipsis">{title}</div>
+            <i className="icon icon-close textTertiary Font20" onClick={hideDialog}></i>
           </div>
           {isBatchRecordLock && (
-            <div className="pLeft20 Gray_9e">
+            <div className="pLeft20 textTertiary">
               {_l('未填写时不会清空字段值。一次最多处理1000条未锁定且有编辑权限的记录。')}
             </div>
           )}
@@ -362,7 +362,7 @@ class FillRecordControls extends React.Component {
           </div>
         </div>
         <div className="btnsWrapper flexRow">
-          <Button className="flex mLeft6 mRight6 Font15 bold Gray_75" onClick={hideDialog}>
+          <Button className="flex mLeft6 mRight6 Font15 bold textSecondary" onClick={hideDialog}>
             <span>{_l('取消')}</span>
           </Button>
           <Button

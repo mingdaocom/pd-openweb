@@ -111,7 +111,7 @@ export function getDepartmentName(control = {}, value) {
 }
 
 export function handleSelectTagsValue(param) {
-  const { id, type, oldValue, newValue, control, requestType, oldText, newText, editType } = param;
+  const { id, type, oldValue, newValue, control, requestType, oldText, newText, editType, appId } = param;
   let onlyNew = false;
 
   if (id.startsWith('wf') && [16].includes(type)) {
@@ -161,8 +161,8 @@ export function handleSelectTagsValue(param) {
     case 46:
     case 15:
     case 53:
-      oldList = oldValue ? [renderText({ ...control, value: oldValue })] : [];
-      newList = newValue ? [renderText({ ...control, value: newValue })] : [];
+      oldList = oldValue ? [renderText({ ...control, value: oldValue }, { appId })] : [];
+      newList = newValue ? [renderText({ ...control, value: newValue }, { appId })] : [];
       break;
     case 29:
       const { advancedSetting = {} } = control || {};
@@ -280,7 +280,7 @@ export const renderTitleName = (data, isMobile) => {
 
   if (accountId === 'user-workflow') {
     return (
-      <span className="titleAvatarText workflow Gray_9e">
+      <span className="titleAvatarText workflow textTertiary">
         <span className={cx('accountName', { mobileAccountName: isMobile })}>{_l('工作流')} </span>
       </span>
     );
@@ -308,10 +308,10 @@ export const renderTitleAvatar = (data, isMobile) => {
     const _fullName = getExtendParams(child[0].operatContent.extendParams, 'workflow');
 
     return _fullName ? (
-      <span className="titleAvatarText workflow Gray_9e mRight5">
+      <span className="titleAvatarText workflow textTertiary mRight5">
         {accountId !== 'user-workflow' && <span className="mRight5">{_l('触发工作流')}</span>}
         {isMobile ? (
-          <span className="Gray">{_fullName.replace(reg, '')}</span>
+          <span className="textPrimary breakAll">{_fullName.replace(reg, '')}</span>
         ) : (
           <span dangerouslySetInnerHTML={{ __html: filterXSS(_fullName) }}></span>
         )}
@@ -322,8 +322,8 @@ export const renderTitleAvatar = (data, isMobile) => {
 
     return (
       <span className="titleAvatarText mRight5">
-        <span className="Gray_9e">{_l('操作按钮')}</span>
-        <span className="Gray"> {btn}</span>
+        <span className="textTertiary">{_l('操作按钮')}</span>
+        <span className="textPrimary"> {btn}</span>
       </span>
     );
   } else {
@@ -380,7 +380,7 @@ export const renderTitleText = (data, extendParam) => {
         content = (
           <span className="mLeft2">
             {editTypeText ? editTypeText : _l('更新%0个字段', count)}
-            {control && <span className="Gray mLeft8">{control.controlName}</span>}
+            {control && <span className="textPrimary mLeft8">{control.controlName}</span>}
           </span>
         );
         break;

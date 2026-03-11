@@ -12,11 +12,11 @@ import { Tooltip } from 'ming-ui/antd-components';
 import Statistics from 'statistics';
 import { BatchOperate } from 'worksheet/common';
 import Discussion from 'worksheet/common/Discussion';
-import SelectIcon from 'worksheet/common/SelectIcon';
 import SheetDesc from 'worksheet/common/SheetDesc';
 import WorkSheetFilter from 'worksheet/common/WorkSheetFilter';
 import RightInMotion from 'worksheet/components/Animations/RightInMotion';
 import SearchInput from 'worksheet/components/SearchInput';
+import selectIconDialog from 'worksheet/components/selectIconDialog';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import {
   addNewRecord,
@@ -46,7 +46,7 @@ const Con = styled.div`
   padding-left: 10px;
   padding-right: 20px;
   height: 38px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   align-items: center;
   position: relative;
 `;
@@ -61,9 +61,9 @@ const VerticalCenter = styled.div`
     margin-right: 8px;
     cursor: pointer;
     &:hover {
-      background: #f7f7f7 !important;
+      background: var(--color-background-secondary) !important;
       .icon {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
     &.draftEntry {
@@ -72,19 +72,19 @@ const VerticalCenter = styled.div`
       height: 28px;
       &:hover {
         .draftTxt {
-          color: #1677ff !important;
+          color: var(--color-primary) !important;
         }
       }
     }
   }
   .actionIcon {
-    color: #9e9e9e !important;
+    color: var(--color-text-tertiary) !important;
     border-radius: 5px;
 
     &:hover {
-      background: #f7f7f7 !important;
+      background: var(--color-background-secondary) !important;
       .icon {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
   }
@@ -141,7 +141,6 @@ function SheetHeader(props) {
   const [sheetDescVisible, setSheetDescVisible] = useState();
   const [statisticsVisible, setStatisticsVisible] = useState();
   const [discussionVisible, setDiscussionVisible] = useState();
-  const [editNameVisible, setEditNameVisible] = useState();
   const [descIsEditing, setDescIsEditing] = useState(false);
   const [inFull, setInFull] = useState(false);
   const [resumeInfo, setResumeInfo] = useState({});
@@ -156,6 +155,24 @@ function SheetHeader(props) {
   const showSelf = isOpenPermit(permitList.statisticsSelfSwitch, lastSheetSwitchPermit);
   const { rows, count, permission, rowsSummary, pageCountAbnormal } = sheetViewData;
   const { allWorksheetIsSelected, sheetSelectedRows = [] } = sheetViewConfig;
+  const selectIcon = () => {
+    selectIconDialog({
+      projectId,
+      className: 'sheetSelectIconWrap',
+      isActive: true,
+      name: worksheetInfo.name,
+      appItem: sheet,
+      icon: sheet.icon,
+      appId,
+      groupId,
+      workSheetId: worksheetId,
+      updateWorksheetInfo: (id, data) => {
+        updateWorksheetInfo(data);
+      },
+      updateSheetListAppItem: updateSheetListAppItem,
+      updateSheetList: updateSheetList,
+    });
+  };
 
   useEffect(() => {
     const resumeInfo = resume ? JSON.parse(resume) : {};
@@ -273,7 +290,7 @@ function SheetHeader(props) {
               </Tooltip>
             )}
           </span>
-          <span className="title ellipsis Font17 Gray Bold" title={name || ''}>
+          <span className="title ellipsis Font17 textPrimary Bold" title={name || ''}>
             {name || ''}
           </span>
           {desc && !resumeInfo.value ? (
@@ -342,7 +359,7 @@ function SheetHeader(props) {
               isCharge && setDescIsEditing(value);
               setSheetDescVisible(value);
             }}
-            setEditNameVisible={setEditNameVisible}
+            selectIcon={selectIcon}
             updateWorksheetInfo={updateWorksheetInfo}
             reloadWorksheet={() => refreshSheet(view)}
             isLock={_.get(appPkg, 'isLock')}
@@ -356,27 +373,6 @@ function SheetHeader(props) {
               }
             }}
           />
-          {editNameVisible && (
-            <SelectIcon
-              projectId={projectId}
-              className="sheetSelectIconWrap"
-              isActive={true}
-              name={worksheetInfo.name}
-              appItem={sheet}
-              icon={sheet.icon}
-              appId={appId}
-              groupId={groupId}
-              workSheetId={worksheetId}
-              updateWorksheetInfo={(id, data) => {
-                updateWorksheetInfo(data);
-              }}
-              updateSheetListAppItem={updateSheetListAppItem}
-              updateSheetList={updateSheetList}
-              onCancel={() => {
-                setEditNameVisible(false);
-              }}
-            />
-          )}
         </div>
         {viewId && (
           <VerticalCenter>
@@ -442,7 +438,7 @@ function SheetHeader(props) {
               <Tooltip placement="bottom" title={_l('统计')}>
                 <span className="actionWrap">
                   <Icon
-                    className={cx('openStatisticsBtn Gray_9e Font18 actionIcon', {
+                    className={cx('openStatisticsBtn textTertiary Font18 actionIcon', {
                       ThemeColor3: statisticsVisible,
                     })}
                     icon="worksheet_column_chart"
@@ -458,7 +454,7 @@ function SheetHeader(props) {
                 <Tooltip placement="bottom" title={_l('讨论')}>
                   <span className="actionWrap">
                     <Icon
-                      className="Font18 Gray_9e actionIcon"
+                      className="Font18 textTertiary actionIcon"
                       icon="discussion"
                       onClick={() => setDiscussionVisible(!discussionVisible)}
                     />
@@ -484,12 +480,12 @@ function SheetHeader(props) {
             {/* 显示创建按钮 */}
             {canNewRecord && !worksheetInfo.isRequestingRelationControls && (
               <span
-                style={{ backgroundColor: appPkg.iconColor || '#1677ff' }}
+                style={{ backgroundColor: appPkg.iconColor || 'var(--color-primary)' }}
                 className="addRow mLeft8 overflow_ellipsis WordBreak"
                 onClick={() => openNewRecord({ allowShowMingoCreate: true })}
               >
-                <span className="Icon icon icon-plus Font13 mRight5 White" />
-                <span className="White bold">{advancedSetting.btnname || entityName || _l('记录')}</span>
+                <span className="Icon icon icon-plus Font13 mRight5 textWhite" />
+                <span className="textWhite bold">{advancedSetting.btnname || entityName || _l('记录')}</span>
               </span>
             )}
           </VerticalCenter>
@@ -500,7 +496,7 @@ function SheetHeader(props) {
           <span style={{ color: resumeInfo.color }}>{resumeInfo.value}</span>
           {desc && (
             <span
-              className="ThemeColor pointer nowrap mLeft5"
+              className="colorPrimary pointer nowrap mLeft5"
               onClick={() => {
                 setDescIsEditing(false);
                 setSheetDescVisible(true);

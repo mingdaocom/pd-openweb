@@ -197,7 +197,10 @@ export default class MobileCityPicker extends Component {
                         >
                           <div
                             style={{
-                              color: select.length && select[select.length - 1].id === item.id ? '#1677ff' : '#151515',
+                              color:
+                                select.length && select[select.length - 1].id === item.id
+                                  ? 'var(--color-primary)'
+                                  : 'var(--color-text-title)',
                             }}
                           >
                             {showConfirmBtn && <Radio checked={(last || {}).id === item.id} />}
@@ -207,7 +210,9 @@ export default class MobileCityPicker extends Component {
                               className="popupListItemContent"
                               style={{
                                 color:
-                                  select.length && select[select.length - 1].id === item.id ? '#1677ff' : '#151515',
+                                  select.length && select[select.length - 1].id === item.id
+                                    ? 'var(--color-primary)'
+                                    : 'var(--color-text-title)',
                               }}
                             >
                               {!_.isArray(data[0]) ? item.path : item.name}
@@ -216,14 +221,16 @@ export default class MobileCityPicker extends Component {
                               level > indexLevel &&
                               _.isArray(data[0]) &&
                               (level === 2 ? !particularlyCity.includes(item.id) : true) && (
-                                <Icon className="Font20 Gray_9e" icon="navigate_next" />
+                                <Icon className="Font20 textTertiary" icon="navigate_next" />
                               )}
                           </div>
                         </div>
                       );
                     })
                   ) : (
-                    <div className="pTop30 pBottom30 TxtCenter Gray_9e Font15">{_l('无地区数据，请联系管理员')}</div>
+                    <div className="pTop30 pBottom30 TxtCenter textTertiary Font15">
+                      {_l('无地区数据，请联系管理员')}
+                    </div>
                   )}
                 </div>
               )}

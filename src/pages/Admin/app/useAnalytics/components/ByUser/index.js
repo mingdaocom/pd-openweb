@@ -9,17 +9,18 @@ import appManagementAjax from 'src/api/appManagement';
 import departmentAjax from 'src/api/department';
 import downloadAjax from 'src/api/download';
 import CustomSelectDate from 'src/pages/Admin/components/CustomSelectDate';
+import CustomTableCom from 'src/pages/Admin/components/CustomTableCom';
 import SelectUser from 'src/pages/Admin/components/SelectUser';
 import { formatFileSize } from 'src/utils/common';
 import { formatter, selectDateList } from '../../util';
-import TableCom from '../TableCom';
+import ViewInactive from '../ViewInactive';
 
 const ByUserWrap = styled.div`
   padding: 24px;
   height: 100%;
   display: flex;
   flex-direction: column;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   .searchWrap {
     .w200 {
       width: 200px;
@@ -263,11 +264,11 @@ export default class ByUser extends Component {
       });
   };
   render() {
-    const { projectId } = this.props;
+    const { projectId, appId } = this.props;
     let { list = [], loading, pageIndex, userInfo = [], total, disabledExportBtn, dateInfo = {} } = this.state;
     return (
       <ByUserWrap>
-        <div className="searchWrap flexRow">
+        <div className="searchWrap flexRow alignItemsCenter">
           <SelectUser
             className="userSelect mdAntSelect"
             style={{ width: '200px' }}
@@ -275,31 +276,35 @@ export default class ByUser extends Component {
             userInfo={userInfo}
             placeholder={_l('搜索成员')}
             maxCount={100}
+            isAdmin
             changeData={data => {
               this.setState({ userInfo: data, pageIndex: 1 }, () => {
                 this.getList();
               });
             }}
           />
-          <CustomSelectDate
-            className="mdAntSelect mLeft16 w200"
-            dateFormat={'YYYY-MM-DD HH:mm:ss'}
-            searchDateList={selectDateList}
-            dateInfo={dateInfo}
-            min={moment().subtract(1, 'year')}
-            changeDate={({ startDate, endDate, searchDateStr, dayRange }) => {
-              this.setState(
-                {
-                  dateInfo: { startDate, endDate, searchDateStr },
-                  selectedDate: dayRange,
-                  startTime: startDate,
-                  endTime: endDate,
-                },
-                this.getList,
-              );
-            }}
-          />
+          <div className="w200">
+            <CustomSelectDate
+              className="mdAntSelect mLeft16 w100"
+              dateFormat={'YYYY-MM-DD HH:mm:ss'}
+              searchDateList={selectDateList}
+              dateInfo={dateInfo}
+              min={moment().subtract(1, 'year')}
+              changeDate={({ startDate, endDate, searchDateStr, dayRange }) => {
+                this.setState(
+                  {
+                    dateInfo: { startDate, endDate, searchDateStr },
+                    selectedDate: dayRange,
+                    startTime: startDate,
+                    endTime: endDate,
+                  },
+                  this.getList,
+                );
+              }}
+            />
+          </div>
           <div className="flex"></div>
+          {!appId && <ViewInactive projectId={projectId} />}
           <Button
             type="primary"
             className="export"
@@ -312,7 +317,7 @@ export default class ByUser extends Component {
             {_l('导出')}
           </Button>
         </div>
-        <TableCom
+        <CustomTableCom
           dataSource={list}
           columns={this.columns}
           loadNextPage={this.getList}

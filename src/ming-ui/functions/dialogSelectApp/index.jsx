@@ -32,8 +32,8 @@ const AppDialog = styled(Dialog)`
       margin-top: 5px;
       font-size: 14px;
       font-weight: 600;
-      color: #757575;
-      border-bottom: 1px solid #eaeaea;
+      color: var(--color-text-secondary);
+      border-bottom: 1px solid var(--color-border-secondary);
     }
     .checkColumn {
       width: 35px;
@@ -60,7 +60,7 @@ const AppDialog = styled(Dialog)`
       display: flex;
       justify-content: center;
       align-items: center;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       font-size: 14px;
     }
     .appListWrapper {
@@ -69,7 +69,7 @@ const AppDialog = styled(Dialog)`
         display: flex;
         height: 64px;
         line-height: 64px;
-        border-bottom: 1px solid #eaeaea;
+        border-bottom: 1px solid var(--color-border-secondary);
         .appIcon {
           display: flex;
           justify-content: center;
@@ -86,7 +86,7 @@ const AppDialog = styled(Dialog)`
   }
   .selectedInfo {
     position: absolute;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     font-size: 14px;
     left: 24px;
     bottom: 26px;

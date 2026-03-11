@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { BarCode, Qr } from 'ming-ui';
-import { previewQiniuUrl } from 'src/components/previewAttachments';
+import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
 import { parseDataSource } from 'src/pages/widgetConfig/util';
 import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
 import { FROM } from '../../../core/config';
@@ -18,7 +18,7 @@ const QRErrorCorrectLevel = {
 const BarCodeWrap = styled.span`
   cursor: pointer;
   display: inline-block;
-  ${({ isRecord }) => isRecord && 'border: 1px solid #e6e6e6;'}
+  ${({ isRecord }) => isRecord && 'border: 1px solid var(--color-border-secondary);'}
   ${({ isView }) => (isView ? 'height: 170px;' : '')}
   &:hover {
     ${({ isRecord }) => isRecord && 'box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.12);'}
@@ -96,7 +96,7 @@ export default function BarCodeWidgets(props) {
     e.stopPropagation();
     const url = imgCodeRef.current?.childNodes[0] ? imgCodeRef.current.childNodes[0].src : '';
     if (!url) return;
-    previewQiniuUrl(url, { disableDownload: true, ext: 'png', name: 'code.png', theme: 'light' });
+    previewAttachments(transformQiniuUrl(url, { disableDownload: true, ext: 'png', name: 'code.png', theme: 'light' }));
   };
 
   const { width, faultrate } = advancedSetting || {};

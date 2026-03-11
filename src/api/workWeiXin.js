@@ -136,6 +136,20 @@ export default {
     return mdyAPI('WorkWeiXin', 'EditDDProjectTodoMessageEnabled', args, options);
   },
   /**
+   * 是否同步根部门
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络id
+   * @param {} args.projectIntergrationType
+   * @param {integer} args.status 1代表开通；2代表关闭
+   * @param {boolean} args.isProxy 是否使用代理
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  editProjectSyncRootDepartment: function (args, options = {}) {
+    return mdyAPI('WorkWeiXin', 'EditProjectSyncRootDepartment', args, options);
+  },
+  /**
    * 编辑应用钉钉消息通知
    * @param {Object} args 请求参数
    * @param {string} args.projectId 网络id
@@ -285,7 +299,7 @@ export default {
    * @param {string} args.projectId 网络id
    * @param {} args.projectIntergrationType
    * @param {string} args.name 自定义名称
-   * @param {string} args.icon
+   * @param {string} args.icon 自定义图标
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

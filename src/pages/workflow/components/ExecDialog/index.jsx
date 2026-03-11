@@ -128,6 +128,12 @@ export default class ExecDialog extends Component {
         app.name = getTranslateInfo(app.id, null, app.id).name || app.name;
         flowNode.name = getTranslateInfo(app.id, rest.parentId, flowNode.id).nodename || flowNode.name;
         rest.processName = getTranslateInfo(app.id, null, rest.parentId).name || rest.processName;
+        rest.backFlowNodes = rest.backFlowNodes.map(flowNode => {
+          return {
+            ...flowNode,
+            name: getTranslateInfo(app.id, rest.parentId, flowNode.id).nodename || flowNode.name,
+          };
+        });
 
         this.setState({
           data: Object.assign({}, rest, { status }),
@@ -269,8 +275,8 @@ export default class ExecDialog extends Component {
         renderAbnormal={() => {
           return (
             <Fragment>
-              <Icon type="info" style={{ color: '#ffa340' }} className="Font48" />
-              <div className="Font17 Bold mTop15 Gray">{_l('当前记录无权限，无法查看')}</div>
+              <Icon type="info" style={{ color: 'var(--color-warning)' }} className="Font48" />
+              <div className="Font17 Bold mTop15 textPrimary">{_l('当前记录无权限，无法查看')}</div>
               {!!data.operationTypeList[0].length && (
                 <div className="mTop15 ThemeColor3 ThemeHoverColor2 pointer Font14" onClick={this.ownerHandle}>
                   {_l('转交给流程拥有者处理')}

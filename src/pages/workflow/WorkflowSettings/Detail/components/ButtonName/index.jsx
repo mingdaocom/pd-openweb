@@ -6,12 +6,12 @@ import { Tooltip } from 'ming-ui/antd-components';
 
 const MessageBox = styled.div`
   height: 36px;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   border-radius: 4px;
   align-items: center;
   padding: 0 12px;
   .icon-trash:hover {
-    color: #f44336 !important;
+    color: var(--color-error) !important;
   }
 `;
 
@@ -45,7 +45,11 @@ export default ({ buttons = [], data, updateSource }) => {
         {!!buttonNames.length && (
           <Tooltip title={_l('清空')}>
             <span className="mRight15">
-              <Icon type="trash" className="Gray_75 Font14 pointer" onClick={() => updateSource(generateData(true))} />
+              <Icon
+                type="trash"
+                className="textSecondary Font14 pointer"
+                onClick={() => updateSource(generateData(true))}
+              />
             </span>
           </Tooltip>
         )}
@@ -54,7 +58,7 @@ export default ({ buttons = [], data, updateSource }) => {
           <span>
             <Icon
               type="edit"
-              className="Gray_75 ThemeHoverColor3 Font14 pointer"
+              className="textSecondary ThemeHoverColor3 Font14 pointer"
               onClick={() => {
                 setCacheData(generateData());
                 setVisible(true);
@@ -81,7 +85,7 @@ export default ({ buttons = [], data, updateSource }) => {
         >
           {buttons.map((o, i) => (
             <Fragment key={i}>
-              <div className={cx('Font13 Gray_75', { mTop20: i !== 0 })}>{o.title}</div>
+              <div className={cx('Font13 textSecondary', { mTop20: i !== 0 })}>{o.title}</div>
               <div className="flexRow">
                 <input
                   type="text"

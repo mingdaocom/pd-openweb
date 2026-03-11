@@ -19,13 +19,13 @@ const Con = styled.div`
     line-height: 32px;
     overflow: hidden;
     .ant-select-arrow {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
     .ant-select-clear {
       background: transparent !important;
     }
     &:hover {
-      border-color: #ccc !important;
+      border-color: var(--color-border-tertiary) !important;
     }
     &:not(.isEmpty):hover {
       .ant-select-arrow {
@@ -33,7 +33,7 @@ const Con = styled.div`
       }
     }
     &.ant-select-open {
-      border-color: #1677ff !important;
+      border-color: var(--color-primary) !important;
     }
     &.customAntSelect:not(.ant-select-open):not(.ant-select-disabled) .ant-select-selector {
       background-color: transparent !important;
@@ -47,7 +47,7 @@ const Con = styled.div`
       min-height: 30px;
       .customAntSelectPlaceHolder,
       .ant-select-selection-placeholder {
-        color: #bdbdbd !important;
+        color: var(--color-text-disabled) !important;
         font-size: 13px !important;
       }
       .ant-select-selection-search {

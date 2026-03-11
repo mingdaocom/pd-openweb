@@ -106,7 +106,7 @@ class NetState extends Component {
        * 2: 体验版
        */
       versionType = _.includes([1], licenseType)
-        ? md.global.Config.IsLocal
+        ? window.platformENV.isOverseas || window.platformENV.isLocal
           ? VERSION[licenseType]['3']
           : VERSION[licenseType][versionIdV2]
         : VERSION[licenseType];
@@ -151,14 +151,14 @@ class NetState extends Component {
       <div className="netStateWrap">
         <div className="imgWrap" />
         <div className="hint">{hint}</div>
-        {!md.global.Config.IsLocal && (
+        {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
           <div className="explain">
             {_.isNumber(Number(maxCount))
               ? explain.replace(/\d+/, maxCount >= 1000 ? maxCount / 10000 : maxCount)
               : explain}
           </div>
         )}
-        {!md.global.Config.IsLocal && (
+        {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
           <div className={cx('operationWrap', versionType)}>
             {btnText && (
               <div className={cx('operationBtn', versionType)} onClick={() => this.handleClick('operationBtn', para)}>

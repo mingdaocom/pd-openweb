@@ -30,7 +30,11 @@ function renderContent(data, recordInfo, extendParam) {
     SUBLIST_FILE_EDIT_TYPE.includes(editType) ||
     (type === 2 && control?.enumDefault === 2)
   ) {
-    const { newList = [], oldList = [], onlyNew = false } = handleSelectTagsValue({ ...data, control, requestType });
+    const {
+      newList = [],
+      oldList = [],
+      onlyNew = false,
+    } = handleSelectTagsValue({ ...data, control, requestType, appId: recordInfo?.appId });
     const { _oldValue, _newValue, _defaultValue } = diffSelectTagsValue({ newList, oldList, type, editType, control });
 
     return (
@@ -244,7 +248,7 @@ export default function WorksheetRecordLogItem(props) {
               !showFilter ||
               WORKFLOW_SYSTEM_CONTROL.find(l => l.controlId === item.id) ? (
                 <span className="selectTriggerChild WordBreak">
-                  <Icon className="Font16 Gray_9e" icon={widgetInfo.icon} />
+                  <Icon className="Font16 textTertiary" icon={widgetInfo.icon} />
                   <span className="flex">{item.name}</span>
                 </span>
               ) : (
@@ -256,7 +260,7 @@ export default function WorksheetRecordLogItem(props) {
                   }}
                 >
                   <span className="selectTriggerChild hasHover WordBreak">
-                    <Icon className="Font16 Gray_9e" icon={widgetInfo.icon} />
+                    <Icon className="Font16 textTertiary" icon={widgetInfo.icon} />
                     <span className="flex">{control.controlName || item.name}</span>
                   </span>
                 </TriggerSelect>
@@ -282,7 +286,7 @@ export default function WorksheetRecordLogItem(props) {
           onClick={() => {
             setMoreList(moreList.concat(operatContent.uniqueId));
           }}
-          className="moreLogData Gray_9e"
+          className="moreLogData textTertiary"
         >
           {_l('查看其他字段')} {operatContent.logData.length - logData.length}
         </span>

@@ -147,8 +147,12 @@ const SearchBox = props => {
     const titleValue = getShowValue(getMappingItem(itemtitle), item[itemtitle]);
     return (
       <Fragment>
-        <div className={cx('ellipsis Gray Font15', { Bold: itemDesc.length > 0 })}>{titleValue || _l('无标题')}</div>
-        {itemDescValues.length ? <span className={cx('Font12 Gray_75')}>{itemDescValues.join(' | ')}</span> : null}
+        <div className={cx('ellipsis textPrimary Font15', { Bold: itemDesc.length > 0 })}>
+          {titleValue || _l('无标题')}
+        </div>
+        {itemDescValues.length ? (
+          <span className={cx('Font12 textSecondary')}>{itemDescValues.join(' | ')}</span>
+        ) : null}
       </Fragment>
     );
   };

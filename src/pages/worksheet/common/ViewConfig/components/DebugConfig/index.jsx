@@ -12,12 +12,16 @@ import tailwindIcon from './tailwind.svg';
 import vueIcon from './vue.svg';
 
 const Wrap = styled.div`
+  --tabCon-bg: #e0efff;
+  [data-theme='dark'] & {
+    --tabCon-bg: #063554;
+  }
   li {
     .leftLine {
       width: 1px;
       height: 100%;
       position: absolute;
-      background: #eaeaea;
+      background: var(--color-border-secondary);
       left: 12px;
       top: 24px;
       z-index: -1;
@@ -25,25 +29,25 @@ const Wrap = styled.div`
     .tabCon {
       width: 24px;
       height: 24px;
-      background: #f0f0f0;
-      color: #757575;
+      background: var(--color-background-disabled);
+      color: var(--color-text-secondary);
       border-radius: 50%;
       text-align: center;
       line-height: 24px;
       margin-top: 14px;
       &.hs {
-        background: #e3f2fd;
-        color: #1677ff;
+        background: var(--tabCon-bg);
+        color: var(--color-primary);
       }
       &.cur {
-        background: #1677ff;
-        color: #fff;
+        background: var(--color-primary);
+        color: var(--color-white);
       }
     }
     .line {
       width: 100%;
       height: 1px;
-      background: #eaeaea;
+      background: var(--color-border-secondary);
     }
   }
   .con {
@@ -53,7 +57,7 @@ const Wrap = styled.div`
   }
   .nextStep {
     &:hover {
-      color: #1565c0;
+      color: var(--color-link-hover);
     }
   }
   .btn {
@@ -61,12 +65,12 @@ const Wrap = styled.div`
     height: 36px;
     line-height: 36px;
     border-radius: 3px 3px 3px 3px;
-    background: #1677ff;
-    color: #fff;
+    background: var(--color-primary);
+    color: var(--color-white);
     &.canClear {
-      background: #ffffff;
-      color: #757575;
-      border: 1px solid #dddddd;
+      background: var(--color-background-primary);
+      color: var(--color-text-secondary);
+      border: 1px solid var(--color-border-primary);
     }
   }
   .viewCodeTagTextarea {
@@ -77,16 +81,16 @@ const Wrap = styled.div`
     }
   }
   .ming.Input {
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     &:hover {
-      border-color: #bbb;
+      border-color: var(--color-text-disabled);
     }
     &:focus {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
   }
   .tagInputarea .tagInputareaIuput:not(.active) {
-    border: 1px solid #ddd !important;
+    border: 1px solid var(--color-border-primary) !important;
   }
 `;
 const OPTIONS = [
@@ -188,7 +192,9 @@ export default function DebugConfig(params) {
   };
   const renderTemplateTip = () => {
     const selectedTemplate = OPTIONS.find(o => o.value === (templateType || 1));
-    return selectedTemplate && selectedTemplate.tip && <div className="Gray_75 mTop5">{selectedTemplate.tip}</div>;
+    return (
+      selectedTemplate && selectedTemplate.tip && <div className="textSecondary mTop5">{selectedTemplate.tip}</div>
+    );
   };
   const renderHeader = (o, i) => {
     return (
@@ -270,6 +276,7 @@ export default function DebugConfig(params) {
         serverHost = window.__api_server__.main;
       }
     }
+    const lang = getCurrentLang().toLowerCase();
     switch (i) {
       case 0:
         return (
@@ -332,14 +339,14 @@ export default function DebugConfig(params) {
               {_l('开发前，你需要在本地计算机上安装插件开发专用的终端命令行工具(CLI)，用于创建插件开发环境。')}
             </div>
             <div className="mTop15">{_l('如果你已安装本工具，可以跳过此步骤。')}</div>
-            <div className="Gray_75 mTop28 Bold">{_l('前提条件')}</div>
+            <div className="textSecondary mTop28 Bold">{_l('前提条件')}</div>
             <div className="mTop4">{_l('已安装 16.20 或更高版本的 Node.js。')}</div>
-            <div className="Gray_75 mTop28 Bold">{_l('第1步')}</div>
+            <div className="textSecondary mTop28 Bold">{_l('第1步')}</div>
             <div className="mTop4">{_l('打开你计算机上的「终端(Mac OS)」或 「命令行(Windows)」。')}</div>
-            <div className="Gray_75 mTop28 Bold">{_l('第2步')}</div>
+            <div className="textSecondary mTop28 Bold">{_l('第2步')}</div>
             <div className="mTop4">{_l('输入以下命令安装命令行工具（Mac 需在命令前加 sudo）：')}</div>
             {renderText('npm install -g mdye-cli')}
-            <div className="Gray_75 mTop28 Bold">{_l('第3步')}</div>
+            <div className="textSecondary mTop28 Bold">{_l('第3步')}</div>
             <div className="mTop4">{_l('输入以下命令验证是否安装成功（正常显示版本号即为成功）：')}</div>
             {renderText('mdye --version')}
             {renderNextStep(i)}
@@ -349,26 +356,26 @@ export default function DebugConfig(params) {
         return (
           <React.Fragment>
             <div className="mTop20">{_l('安装完命令行工具 mdye-cli 后，即可按以下步骤初始化插件本地项目。')}</div>
-            <div className="Gray_75 mTop28 Bold">{_l('第1步')}</div>
+            <div className="textSecondary mTop28 Bold">{_l('第1步')}</div>
             <div className="mTop4">{_l('在终端命令行输入以下命令创建插件本地项目：')}</div>
             {renderText(
               `mdye init view --id ${worksheetId + '-' + viewId} --template ${
                 (OPTIONS.find(o => o.value === (templateType || 1)) || {}).template
               }${serverHost ? ` --host ${serverHost}` : ''}${
-                md.global.Config.IsLocal ? ` --webui ${md.global.Config.WebUrl}` : ''
-              }`,
+                window.platformENV.isOverseas || window.platformENV.isLocal ? ` --webui ${md.global.Config.WebUrl}` : ''
+              }${lang !== 'zh-hans' ? ` --tl ${lang}` : ''}`,
             )}
-            <div className="Gray_75 mTop28 Bold">{_l('第2步')}</div>
+            <div className="textSecondary mTop28 Bold">{_l('第2步')}</div>
             <div className="mTop4">
               {_l(
                 '项目创建成功后，输入以下命令进入插件项目文件夹。如果在终端里重新定义了文件夹名称，请使用您输入的名称：',
               )}
             </div>
             {renderText(`cd mdye_view_${viewId}`)}
-            <div className="Gray_75 mTop28 Bold">{_l('第3步')}</div>
+            <div className="textSecondary mTop28 Bold">{_l('第3步')}</div>
             <div className="mTop4">{_l('安装项目依赖：')}</div>
             {renderText('npm i')}
-            <div className="Gray_75 mTop28 Bold">{_l('第4步')}</div>
+            <div className="textSecondary mTop28 Bold">{_l('第4步')}</div>
             <div className="mTop4">{_l('启动项目开发环境：')}</div>
             {renderText('mdye start')}
             {renderNextStep(i)}
@@ -424,7 +431,7 @@ export default function DebugConfig(params) {
               </div>
             </div>
             <div className="mTop20">{_l('环境参数')}</div>
-            <div className="Gray_75">{_l('配置插件运行时所需要的参数，采用JSON格式')}</div>
+            <div className="textSecondary">{_l('配置插件运行时所需要的参数，采用JSON格式')}</div>
             <TagTextarea
               className={cx('flex mTop10 viewCodeTagTextarea')}
               defaultValue={configuration}

@@ -3,7 +3,7 @@
   height: 100%;
   padding: 20px 32px 0px;
   overflow-x: auto;
-  background-color: #f5f5f9;
+  background-color: var(--color-background-secondary);
   .backBtn {
     text-decoration: none;
     padding: 5px;
@@ -20,8 +20,8 @@
     width: 100%;
     height: 100%;
     border-radius: 4px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-    background-color: #fff;
+    box-shadow: var(--shadow-xl);
+    background-color: var(--color-background-primary);
     .ck-sticky-panel__content_sticky {
       top: 125px !important;
     }
@@ -36,19 +36,33 @@
     }
     .recordInfoBox {
       .excelTitle {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-secondary);
         .Right {
           height: 55px;
         }
       }
     }
     .discussLogFile {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-secondary);
     }
     .worksheetCancelBtn,
     .leftButtonBox,
     .rightButtonBox {
       display: none;
+    }
+  }
+  &.hasLandRightComp {
+    padding: 0px;
+    display: flex;
+    .workSheetRecordInfo {
+      flex: 1;
+      min-width: auto;
+      box-shadow: none;
+    }
+    .landRightComp {
+      border-left: 1px solid var(--color-border-primary);
+      height: 100%;
+      flex-shrink: 0;
     }
   }
 }

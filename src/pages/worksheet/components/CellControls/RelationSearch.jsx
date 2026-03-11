@@ -17,7 +17,7 @@ const Con = styled.div`
     cursor: pointer;
     .icon {
       font-size: 16px;
-      color: #9d9d9d;
+      color: var(--color-text-tertiary);
       margin-right: 5px;
       position: relative;
       top: 2px;

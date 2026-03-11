@@ -24,7 +24,7 @@ const StatusWrap = styled.ul`
   align-items: center;
   justify-content: space-between;
   padding: 0px 16%;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-border-primary);
   li {
     padding: 0 10px;
     font-size: 14px;
@@ -33,8 +33,8 @@ const StatusWrap = styled.ul`
     line-height: 36px;
     &.active,
     &:hover {
-      color: #1677ff;
-      border-bottom-color: #1677ff;
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
     }
   }
 `;
@@ -51,14 +51,14 @@ const WorkflowList = styled.ul`
     justify-content: space-between;
     cursor: pointer;
     &:nth-child(2n) {
-      background: #f0f0f0;
+      background: var(--color-background-disabled);
     }
     .success {
-      color: #4caf50;
+      color: var(--color-success);
     }
     .failure,
     .btnDisabled {
-      color: #f44336;
+      color: var(--color-error);
     }
   }
   .empty {
@@ -66,7 +66,7 @@ const WorkflowList = styled.ul`
     font-weight: bold;
     text-align: center;
     font-size: 14px;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
 `;
 const STATUS = [

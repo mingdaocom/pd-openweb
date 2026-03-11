@@ -420,7 +420,7 @@ export default function (props) {
       {/* 未指定登录方式的情况下，对应tab,以及头部显示内容 */}
       {loginForType && status !== -6 ? (
         <div
-          className="Font17 Hand back Gray_75"
+          className="Font17 Hand back textSecondary"
           onClick={() => {
             loginForTypeBack();
           }}
@@ -432,7 +432,7 @@ export default function (props) {
         <React.Fragment>
           {(paramForPcWx || (status === -6 && !request.mdAppId)) && (
             <div
-              className="Font17 Hand back Gray_75"
+              className="Font17 Hand back textSecondary"
               onClick={() => {
                 if (status === -6) {
                   //二步验证 -6
@@ -455,8 +455,12 @@ export default function (props) {
             </div>
           )}
           {(paramForPcWx || request.mdAppId || status === -6) && (
-            <p className="Gray mTop20 Bold mBottom5">
-              <Icon icon="check_circle" className="Font20 TxtMiddle mRight5" style={{ color: '#4CAF50' }} />
+            <p className="textPrimary mTop20 Bold mBottom5">
+              <Icon
+                icon="check_circle"
+                className="Font20 TxtMiddle mRight5"
+                style={{ color: 'var(--color-success)' }}
+              />
               {status === -6
                 ? _l('已开启登录保护，验证码登录')
                 : registerMode.email && registerMode.phone

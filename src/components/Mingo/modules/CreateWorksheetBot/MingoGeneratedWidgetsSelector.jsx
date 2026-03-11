@@ -17,19 +17,19 @@ import { parseStreamingJsonlData } from 'src/utils/sse';
 
 const Con = styled.div`
   border-radius: 8px;
-  border: 1px solid #dddddd;
+  border: 1px solid var(--color-border-primary);
   padding: 12px 0;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   .hr {
     height: 1px;
-    background-color: #dddddd;
+    background-color: var(--color-border-primary);
     margin: 10px;
   }
   .widget-item {
     padding: 8px 17px;
     .name {
       font-size: 13px;
-      color: #151515;
+      color: var(--color-text-title);
     }
     .Checkbox {
       font-size: 0px;
@@ -37,8 +37,8 @@ const Con = styled.div`
     .Checkbox.checked .Checkbox-box,
     .Checkbox.clearselected .Checkbox-box,
     .Checkbox.clearselected .Checkbox-box:hover {
-      border-color: var(--ai-primary-color) !important;
-      background-color: var(--ai-primary-color) !important;
+      border-color: var(--color-mingo) !important;
+      background-color: var(--color-mingo) !important;
     }
     .ming.Checkbox.Checkbox--disabled .Checkbox-box,
     .ming.Checkbox.Checkbox--disabled.clearselected .Checkbox-box {
@@ -49,7 +49,7 @@ const Con = styled.div`
     }
     .widget-name {
       font-size: 13px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
     .options {
       margin: 6px 0 0 31px;
@@ -65,28 +65,28 @@ const Con = styled.div`
           margin-right: 5px;
         }
         font-size: 12px;
-        color: #757575;
+        color: var(--color-text-secondary);
       }
     }
     .relate-worksheet-info {
       margin: 6px 0 0 31px;
       font-size: 12px;
-      color: #757575;
+      color: var(--color-text-secondary);
     }
     .relate-worksheet-new-worksheet {
       margin: 6px 0 0 31px;
       font-size: 12px;
-      color: #4caf50;
+      color: var(--color-success);
       cursor: pointer;
     }
     &.widget-list-title {
       padding: 8px 12px;
       .name {
-        color: var(--ai-primary-color);
+        color: var(--color-mingo);
         font-weight: bold;
       }
       .Checkbox .Checkbox-box {
-        border-color: var(--ai-primary-color) !important;
+        border-color: var(--color-mingo) !important;
       }
     }
   }
@@ -94,36 +94,36 @@ const Con = styled.div`
     width: 100%;
     border-radius: 32px;
     font-size: 13px;
-    color: #757575;
+    color: var(--color-text-secondary);
     line-height: 32px;
-    background: #ffffff;
+    background: var(--color-background-primary);
   }
   .add-widget-btn {
     height: 32px;
     line-height: 32px;
     width: 230px;
     text-align: center;
-    background: var(--ai-primary-color);
+    background: var(--color-mingo);
     border-radius: 32px;
     font-size: 14px;
     font-weight: bold;
-    color: #fff;
+    color: var(--color-white);
     cursor: pointer;
     &.disabled {
-      background: #f5f5f5;
-      color: #bdbdbd;
+      background: var(--color-background-secondary);
+      color: var(--color-text-disabled);
       cursor: not-allowed;
     }
   }
   &:not(.disabled) {
     .widget-item:hover {
       &:not(.add-widget, .widget-list-title) {
-        background: #f5f5f5;
+        background: var(--color-background-secondary);
       }
     }
   }
   &.disabled {
-    background: #f5f6f7;
+    background: var(--color-background-secondary);
   }
 `;
 
@@ -147,24 +147,24 @@ const CreateWorksheetOfRelateRecordCon = styled.div`
   width: 100%;
   height: 100%;
   z-index: 1;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--color-background-overlay);
   overflow: hidden;
   display: flex;
   align-items: end;
   .confirmContent {
     animation: ${slideUp} 0.3s ease-in-out;
     border-radius: 12px 12px 0 0;
-    background: #fff;
+    background: var(--color-background-primary);
     padding: 20px 20px 100px;
     .confirmContent-title {
       font-size: 17px;
       font-weight: bold;
-      color: #151515;
+      color: var(--color-text-title);
       margin-bottom: 6px;
     }
     .confirmContent-desc {
       font-size: 14px;
-      color: #151515;
+      color: var(--color-text-title);
     }
     .confirmContent-button-con {
       display: flex;
@@ -177,16 +177,16 @@ const CreateWorksheetOfRelateRecordCon = styled.div`
       line-height: 34px;
       width: 100%;
       text-align: center;
-      background: var(--ai-primary-color);
+      background: var(--color-mingo);
       border-radius: 34px;
       font-size: 14px;
       font-weight: bold;
-      color: rgb(255, 255, 255);
+      color: var(--color-white);
       cursor: pointer;
       &.secondary {
         background: transparent;
-        color: #151515;
-        border: 1px solid #bdbdbd;
+        color: var(--color-text-title);
+        border: 1px solid var(--color-text-disabled);
       }
       &.loading {
         opacity: 0.5;
@@ -202,7 +202,7 @@ const CreateWorksheetOfRelateRecordCon = styled.div`
 `;
 
 const Icon = styled.i`
-  color: #4caf50;
+  color: var(--color-success);
   font-size: 18px;
   margin-right: 2px !important;
 `;
@@ -249,7 +249,7 @@ function CreateWorksheetOfRelateRecord({
                       appId,
                       sourceType: 1,
                       name: needCreateWorksheet.name,
-                      iconColor: '#6e09f9',
+                      iconColor: '#8f62ff',
                       projectId,
                       description: needCreateWorksheet.description,
                       appSectionId: sectionId,
@@ -390,9 +390,11 @@ function WidgetList({
                   {!isExist ? (
                     <Checkbox checked={selectedWidgetIds.includes(item.id)} disabled={isDisabled} />
                   ) : (
-                    <i className="icon icon-ok Gray_9e Font18 mRight5"></i>
+                    <i className="icon icon-ok textTertiary Font18 mRight5"></i>
                   )}
-                  <i className={`icon icon-${getIconByType(mapWidgetTypeToControlType(item.type))} Font18 Gray_9e`} />
+                  <i
+                    className={`icon icon-${getIconByType(mapWidgetTypeToControlType(item.type))} Font18 textTertiary`}
+                  />
                   <div className="name">{item.name}</div>
                 </div>
                 <span className="widget-name">{DEFAULT_CONFIG[mapWidgetTypeToControlType(item.type)]?.widgetName}</span>
@@ -401,7 +403,10 @@ function WidgetList({
                 <div className="options">
                   {item.options.map((option, i) => (
                     <div className="option t-flex t-flex-row t-items-center" key={`${item.id}-option-${i}`}>
-                      <div className="circle" style={{ backgroundColor: option.color || '#bdbdbd' }} />
+                      <div
+                        className="circle"
+                        style={{ backgroundColor: option.color || 'var(--color-text-disabled)' }}
+                      />
                       {option.label}
                     </div>
                   ))}
@@ -653,7 +658,7 @@ export default function MingoGeneratedWidgetsSelector({
       {isStreaming && (
         <div className="t-flex t-items-center mTop10 mLeft16">
           <LoadingDots dotNumber={3} />
-          {<div className="statusText mLeft5 Gray_75">{_l('生成中')}</div>}
+          {<div className="statusText mLeft5 textSecondary">{_l('生成中')}</div>}
         </div>
       )}
     </Con>

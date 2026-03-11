@@ -59,7 +59,7 @@ export default function ApplyInvoiceBtn(props) {
         });
       }}
     >
-      {icon && <Icon icon={icon} className="Font15 Gray_75 mRight8" />}
+      {icon && <Icon icon={icon} className="Font15 textSecondary mRight8" />}
       {isApply ? _l('申请开票') : _l('查看开票进度')}
     </div>
   );

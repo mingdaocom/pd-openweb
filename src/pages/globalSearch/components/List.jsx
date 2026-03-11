@@ -23,7 +23,7 @@ const Box = styled.div`
   .list .listItem:hover,
   .list .listItem.highlight,
   .showMore.highlight {
-    background: #f7f7f7;
+    background: var(--color-background-hover);
   }
   .list .listItem .avatarCon {
     margin-right: 8px;
@@ -43,7 +43,7 @@ const Box = styled.div`
     position: absolute;
     width: 100%;
     font-size: 12px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   .list .listItem .listItemInfo .listItemInfoTitle {
     height: 20px;
@@ -56,7 +56,7 @@ const Box = styled.div`
     padding: 10px 0;
   }
   .showMore:hover {
-    background: #f7f7f7;
+    background: var(--color-background-secondary);
   }
   .list .listItem .avatarCon .fileIcon {
     width: 26px;
@@ -193,7 +193,7 @@ export default function List(props) {
     <Box className={`globalSearchAllList ${className}`}>
       {needTitle && (
         <div className="title Font14 Bold mBottom12 mTop20">
-          {settingInfo.label} <span className="Gray_75 Normal mLeft8">{data.count}</span>
+          {settingInfo.label} <span className="textSecondary Normal mLeft8">{data.count}</span>
         </div>
       )}
       <ul className="list">
@@ -229,7 +229,7 @@ export default function List(props) {
                       text={settingInfo.titleKey ? item[settingInfo.titleKey] || '' : item[prefix + 'UserName'] || ''}
                     />
                     {needTime && (
-                      <span className="mRight13 Gray_75 Font12 Normal">
+                      <span className="mRight13 textSecondary Font12 Normal">
                         {_l('更新时间：')}{' '}
                         {_.split(
                           item.nodeCreateTime || item.taskCreateTime || item.postCreateTime,
@@ -261,10 +261,10 @@ export default function List(props) {
       </ul>
       {viewAll && data.count > 5 && (
         <div className={cx('pLeft20 showMore', { highlight: start && current === -2 })}>
-          <Icon icon="more_horiz" className="Gray_9e Font18" />
+          <Icon icon="more_horiz" className="textTertiary Font18" />
           <a
             href={`/search?search_key=${searchKeyword}&search_type=${settingInfo.key}`}
-            className="text mLeft24 Gray_9e"
+            className="text mLeft24 textTertiary"
             onClick={clickShowHandle}
           >
             {_l('查看全部')}

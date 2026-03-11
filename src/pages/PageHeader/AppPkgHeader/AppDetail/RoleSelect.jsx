@@ -23,23 +23,23 @@ const RoleSelectWrap = styled.div`
   box-sizing: border-box;
   width: 400px;
   padding-bottom: 120px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.16);
   z-index: 20;
   padding: 16px 0;
   .roleSelectHeader {
     padding: 0 24px;
     .changeTypeCon:hover {
-      color: #0e65bc !important;
+      color: var(--color-link-hover) !important;
     }
   }
   .roleSelectSearch {
     padding: 0 15px 0 24px;
     .roleSearch {
       width: 100%;
-      background: #fff !important;
+      background: var(--color-background-primary) !important;
       border-radius: 0;
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-secondary);
     }
   }
   .roleSelectList {
@@ -50,27 +50,27 @@ const RoleSelectWrap = styled.div`
       border-radius: 3px;
       height: 42px;
       .icon {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
       &:hover {
-        background: #f7f7f7;
+        background: var(--color-background-hover);
       }
       &.active {
-        background: #e4f3fd;
+        background: var(--color-primary-transparent);
         font-weight: 600;
-        color: #1677ff;
+        color: var(--color-primary);
         .icon {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }
   }
   .roleMultipleValues {
     padding: 16px 24px;
-    border-top: 1px solid #e0e0e0;
-    border-bottom: 1px solid #e0e0e0;
+    border-top: 1px solid var(--color-border-secondary);
+    border-bottom: 1px solid var(--color-border-secondary);
     .clearAll:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
     .top {
       justify-content: space-between;
@@ -81,11 +81,11 @@ const RoleSelectWrap = styled.div`
       gap: 12px;
       li {
         padding: 6px;
-        background: #eaeaea;
+        background: var(--color-border-secondary);
         border-radius: 3px;
         max-width: 100px;
         .icon:hover {
-          color: #757575 !important;
+          color: var(--color-text-secondary) !important;
         }
       }
     }
@@ -151,10 +151,10 @@ function RoleSelect(props) {
     <RoleSelectWrap className="flexColumn">
       <div className="roleSelectHeader valignWrapper mBottom12">
         <span className="flex overflow_ellipsis Font17 Bold">{_l('选择角色')}</span>
-        <span className="ThemeColor Font12 Hand changeTypeCon" onClick={changeType}>
+        <span className="colorPrimary Font12 Hand changeTypeCon" onClick={changeType}>
           {type === 0 ? _l('多选模式') : _l('退出多选')}
         </span>
-        <Icon className="mLeft20 Font16 Gray_9d pointer" icon="clear_bold" onClick={() => handleClose()} />
+        <Icon className="mLeft20 Font16 textTertiary pointer" icon="clear_bold" onClick={() => handleClose()} />
       </div>
       {type === 1 && (
         <div className="roleMultipleValues">
@@ -163,7 +163,7 @@ function RoleSelect(props) {
               {_l('已选择')}
               {value.length ? `（${value.length}）` : ''}
             </span>
-            <span className="Gray_bd Hand clearAll" onClick={() => setValue([])}>
+            <span className="textDisabled Hand clearAll" onClick={() => setValue([])}>
               {_l('清空')}
             </span>
           </div>
@@ -173,7 +173,11 @@ function RoleSelect(props) {
               {value.map(roleId => (
                 <li className="Font12 overflow_ellipsis">
                   {(roleList.find(l => l.roleId === roleId) || {}).name}
-                  <Icon icon="clear" className="mLeft6 Gray_9d Hand icon" onClick={() => changeValue(roleId, false)} />
+                  <Icon
+                    icon="clear"
+                    className="mLeft6 textTertiary Hand icon"
+                    onClick={() => changeValue(roleId, false)}
+                  />
                 </li>
               ))}
             </ul>
@@ -195,7 +199,7 @@ function RoleSelect(props) {
           .map((item, index) => (
             <React.Fragment>
               {[0, 3].includes(index) && (
-                <p className="Font12 pLeft12 mBottom4 mTop10 Gray_9e">{index === 0 ? _l('系统') : _l('自定义')}</p>
+                <p className="Font12 pLeft12 mBottom4 mTop10 textTertiary">{index === 0 ? _l('系统') : _l('自定义')}</p>
               )}
               <li
                 className={cx('item Hand valignWrapper', {

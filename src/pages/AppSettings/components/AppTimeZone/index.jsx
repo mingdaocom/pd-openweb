@@ -7,7 +7,7 @@ import homeAppApi from 'src/api/homeApp';
 
 const AppTimeZoneDropdown = styled(Dropdown)`
   width: 500px;
-  color: #151515;
+  color: var(--color-text-title);
   .Dropdown--border {
     height: 32px;
   }
@@ -52,7 +52,7 @@ export default function AppTimeZone(props) {
   return (
     <div>
       <div className="Font17 bold">{_l('应用时区')}</div>
-      <div className="mTop8 Gray_9e">
+      <div className="mTop8 textTertiary">
         {_l('应用时区是整个应用中使用的统一时间标准，确保所有团队成员在数据筛选、统计时看到一致的时间信息')}
       </div>
       <div className="flexRow alignItemsCenter mTop32">

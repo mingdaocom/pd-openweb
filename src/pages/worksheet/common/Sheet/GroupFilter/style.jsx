@@ -6,6 +6,9 @@ export const Con = styled.div(
   transition: width 0.2s;
   position:relative;
   z-index: 3;
+  &.groupFilterWrapForSingle {
+    max-height: 1000px;
+  }
   .searchBar {
     width: ${width}px;
     padding: 0 12px;
@@ -13,17 +16,17 @@ export const Con = styled.div(
     .icon {
       line-height: 35px;
       font-size: 20px;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       &.icon-close {
         cursor: pointer;
       }
       &.icon-search{
         &:hover{
-          color:#bdbdbd;
+          color:var(--color-text-disabled);
         }
       }
       &:hover{
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     input {
@@ -44,14 +47,14 @@ export const Con = styled.div(
       .count {
         padding-left: 10px;
         font-size: 13px;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         line-height: 32px;
       }
       &.current {
         .gListDiv{
-          background: #e3f3ff;
+          background: var(--color-primary-transparent);
           &:hover{
-            background: #e3f3ff;
+            background: var(--color-primary-transparent);
           }
         }
       }
@@ -108,12 +111,12 @@ export const Con = styled.div(
         height: 18px;
         display: inline-block;
         line-height: 18px;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         text-align: center;
         border-radius: 4px;
         &:hover{
             background: rgba(0,0,0,0.06);
-            color: #757575;
+            color: var(--color-text-secondary);
           }
         }
       }

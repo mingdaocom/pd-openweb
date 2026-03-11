@@ -27,7 +27,7 @@ const RoleDrawer = styled(Drawer)`
   .permissionsHeader {
     display: flex;
     align-items: center;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     padding-bottom: 16px;
     padding-top: 24px;
     .Checkbox {
@@ -88,7 +88,7 @@ export default function CreateEditRole(props) {
       width={720}
       maskClosable={false}
       title={roleId ? (isEditHr ? _l('编辑人事权限') : _l('编辑权限')) : _l('新建管理员角色')}
-      extra={<Icon icon="close" className="Font20 Gray_9e Hand" onClick={onClose} />}
+      extra={<Icon icon="close" className="Font20 textTertiary Hand" onClick={onClose} />}
       footer={
         <div className="flexRow alignItemsCenter">
           <Button type="primary" onClick={onSave}>
@@ -114,7 +114,7 @@ export default function CreateEditRole(props) {
               onChange={roleName => setRoleInfo({ roleName })}
             />
             <div className="permissionsHeader">
-              <div className="bold flex Gray_75">{_l('分配权限')}</div>
+              <div className="bold flex textSecondary">{_l('分配权限')}</div>
               {!isEditHr && (
                 <React.Fragment>
                   <Checkbox
@@ -123,7 +123,7 @@ export default function CreateEditRole(props) {
                     onClick={() => setRoleInfo({ allowAddMembers: !roleInfo.allowAddMembers })}
                   />
                   <Tooltip title={_l('勾选后，角色下成员可以添加、移除其他成员')} placement="topLeft">
-                    <Icon icon="info_outline" className="Gray_9e Font16 mLeft4" />
+                    <Icon icon="info_outline" className="textTertiary Font16 mLeft4" />
                   </Tooltip>
                 </React.Fragment>
               )}

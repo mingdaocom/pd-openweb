@@ -16,12 +16,12 @@ const Wrap = styled.div`
     opacity: 1;
     border-radius: 4px;
     display: block;
-    color: #fff;
+    color: var(--color-white);
     line-height: 48px;
     text-decoration: none;
 
     &:hover {
-      background: #1e88e5;
+      background: var(--color-primary);
     }
   }
 `;
@@ -30,8 +30,8 @@ export default class InviteLinkExpirate extends React.Component {
     return (
       <Wrap>
         <div className="TxtCenter">
-          <div className="Font20 mTop40 Gray">{_l('链接已失效')}</div>
-          <div className="Gray_75 mTop16 Font15">{_l('邀请已取消或者过期，可通过快速注册联系邀请人')}</div>
+          <div className="Font20 mTop40 textPrimary">{_l('链接已失效')}</div>
+          <div className="textSecondary mTop16 Font15">{_l('邀请已取消或者过期，可通过快速注册联系邀请人')}</div>
           <a className="btnForLogin Hand" href="/register">
             {_l('快速注册')}
           </a>

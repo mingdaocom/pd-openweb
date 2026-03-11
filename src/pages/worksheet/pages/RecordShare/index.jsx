@@ -5,6 +5,7 @@ import { LoadDiv } from 'ming-ui';
 import sheetApi from 'src/api/worksheet';
 import { SHARE_STATE, ShareState, VerificationPass } from 'worksheet/components/ShareState';
 import preall from 'src/common/preall';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import globalEvents from 'src/router/globalEvents';
 import { shareGetAppLangDetail } from 'src/utils/app';
 import RecordShare from './RecordShare';
@@ -29,47 +30,60 @@ const Entry = () => {
     getShareInfoByShareId({
       clientId,
       printId,
-    }).then(async result => {
-      const { data } = result;
-      const { appId, projectId } = data || {};
-      if (!data.rowId) {
-        location.href = `/public/view/${shareId}`;
-        return;
-      }
-      localStorage.setItem('currentProjectId', projectId);
-      preall(
-        { type: 'function' },
-        {
-          allowNotLogin: true,
-          requestParams: { projectId },
-        },
-      );
-      window.appInfo = { id: appId };
-      setShare(result);
-      setLoading(false);
-      globalEvents();
-    });
+    })
+      .then(async result => {
+        const { data = {} } = result || {};
+        const { appId, projectId } = data;
+        if (!data || !data.rowId) {
+          location.href = `/public/view/${shareId}`;
+          return;
+        }
+        localStorage.setItem('currentProjectId', projectId);
+        preall(
+          { type: 'function' },
+          {
+            allowNotLogin: true,
+            requestParams: { projectId },
+          },
+        );
+        window.appInfo = { id: appId };
+        setShare(result);
+        setLoading(false);
+        globalEvents();
+      })
+      .catch(error => {
+        setLoading(false);
+        setShare({
+          resultCode: error.errorCode || -1,
+          errorMessage: error.errorMessage || _l('网络错误，请稍后重试'),
+        });
+      });
   }, []);
 
   const getShareInfoByShareId = data => {
-    return new Promise(async resolve => {
-      const result = await sheetApi.getShareInfoByShareId({ shareId, ...data });
-      const clientId = _.get(result, 'data.identity');
-      const printClientId = _.get(result, 'data.clientId');
-      const { appId, projectId } = result.data;
-      window.clientId = printClientId;
-      clientId && sessionStorage.setItem(shareId, clientId);
-      if (printClientId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const result = await sheetApi.getShareInfoByShareId({ shareId, ...data });
+        const clientId = _.get(result, 'data.identity');
+        const printClientId = _.get(result, 'data.clientId');
+        const { appId, projectId } = result.data || {};
         window.clientId = printClientId;
-        !sessionStorage.getItem('clientId') && sessionStorage.setItem('clientId', printClientId);
+        clientId && sessionStorage.setItem(shareId, clientId);
+        if (printClientId) {
+          window.clientId = printClientId;
+          !sessionStorage.getItem('clientId') && sessionStorage.setItem('clientId', printClientId);
+        }
+        if (result.resultCode === 1 && projectId && appId) {
+          await shareGetAppLangDetail({
+            projectId,
+            appId,
+          });
+        }
+
+        resolve(result);
+      } catch (error) {
+        reject(error);
       }
-      if (result.resultCode === 1) {
-        await shareGetAppLangDetail({
-          projectId,
-          appId,
-        });
-      }
-      resolve(result);
     });
   };
 
@@ -81,6 +95,10 @@ const Entry = () => {
     );
   }
 
+  if (share.resultCode === 300016) {
+    return <RestrictAccessStatus />;
+  }
+
   if ([14, 18, 19].includes(share.resultCode)) {
     return (
       <VerificationPass
@@ -90,14 +108,20 @@ const Entry = () => {
               getShareInfoByShareId({
                 password: value,
                 ...captchaResult,
-              }).then(data => {
-                if (data.resultCode === 1) {
-                  setShare(data);
-                  resolve(data);
-                } else {
-                  reject(SHARE_STATE[data.resultCode]);
-                }
-              });
+              })
+                .then(data => {
+                  if (data.resultCode === 1) {
+                    setShare(data);
+                    resolve(data);
+                  } else {
+                    reject(SHARE_STATE[data.resultCode]);
+                  }
+                })
+                .catch(error => {
+                  if (error.errorCode === 300016) {
+                    setShare({ resultCode: 300016 });
+                  }
+                });
             } else {
               reject();
             }

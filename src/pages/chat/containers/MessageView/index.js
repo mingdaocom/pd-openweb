@@ -235,7 +235,7 @@ class MessageView extends Component {
         res = _.isArray(res) ? res.reverse() : [];
         this.props.dispatch(actions.addPageMessage(session.id, utils.formatMessages(res)));
       });
-    } else if (scrollTop === maxScrollTop && isDownLoadingMessage) {
+    } else if (Math.ceil(scrollTop) === maxScrollTop && isDownLoadingMessage) {
       const { time } = messageList[messageList.length - 1] || {};
       if (loading || !time) {
         return;
@@ -404,11 +404,11 @@ class MessageView extends Component {
       </div>
     );
   }
-  handleLoadMore() {
+  handleLoadMore(direction) {
     const { session, messages } = this.props;
     const { loading, errorParam } = this.state;
     const messageList = messages[session.id] || [];
-    if (errorParam) {
+    if (errorParam && direction === 'up') {
       this.getMessage(errorParam, 'up').then(res => {
         res = _.isArray(res) ? res.reverse() : [];
         if (messageList.length) {
@@ -419,9 +419,13 @@ class MessageView extends Component {
       });
     } else {
       if (loading) return;
-      this.handleScroll({
-        scrollTop: 0,
-      });
+      if (direction === 'up') {
+        this.handleScroll({
+          scrollTop: 0,
+        });
+      } else {
+        this.handleScrollEnd();
+      }
     }
   }
   renderTopInfo() {
@@ -436,12 +440,12 @@ class MessageView extends Component {
       </div>
     );
   }
-  renderLoading() {
+  renderLoading(direction) {
     const { loading, errorParam } = this.state;
     return (
       <div
         className="ChatPanel-messageInfo ChatPanel-messageLoading ThemeColor3"
-        onClick={this.handleLoadMore.bind(this)}
+        onClick={this.handleLoadMore.bind(this, direction)}
       >
         {loading ? (errorParam ? _l('加载失败，点击重新加载') : _l('加载中...')) : _l('加载更多')}
       </div>
@@ -513,7 +517,7 @@ class MessageView extends Component {
             this.scrollView = scrollView;
           }}
         >
-          {isMore ? this.renderLoading() : this.renderTopInfo()}
+          {isMore ? this.renderLoading('up') : this.renderTopInfo()}
           {messageList.map((item, index) => (
             <Message
               key={item.id || item.waitingId}
@@ -523,7 +527,7 @@ class MessageView extends Component {
               onGotoMessage={this.handleGotoMessage.bind(this)}
             />
           ))}
-          {isMore && isDownLoadingMessage ? this.renderLoading() : undefined}
+          {isMore && isDownLoadingMessage ? this.renderLoading('down') : undefined}
         </ScrollView>
         {bottomUnread.length ? this.renderBottomUnread() : undefined}
         {this.renderIconBottom()}

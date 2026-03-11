@@ -113,7 +113,7 @@ export default class SpecificFieldsValue extends Component {
           {data.fieldValue ? (
             moment(data.fieldValue).format(timePicker ? 'YYYY-MM-DD HH:mm' : 'YYYY-MM-DD')
           ) : (
-            <span className="Gray_bd">{_l('请选择日期')}</span>
+            <span className="textDisabled">{_l('请选择日期')}</span>
           )}
         </DateTime>
       </div>

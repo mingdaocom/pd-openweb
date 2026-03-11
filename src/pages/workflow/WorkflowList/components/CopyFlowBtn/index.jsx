@@ -45,7 +45,7 @@ export default class CopyFlowBtn extends Component {
       <div onClick={this.copyFlow}>
         <span
           className={cx(
-            'Gray_75 Font16 pLeft12 mRight10',
+            'textSecondary Font16 pLeft12 mRight10',
             isConvertSubProcess || isConvertPBP ? 'icon-swap_horiz' : 'icon-content-copy',
           )}
         />

@@ -13,12 +13,12 @@ const EmptyWrap = styled.div`
     width: 132px;
     height: 132px;
     border-radius: 50%;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
     margin-bottom: 32px;
     position: relative;
     .icon {
       font-size: 50px;
-      color: #c2c3c3;
+      color: var(--color-text-placeholder);
       position: absolute;
       top: 50%;
       left: 50%;

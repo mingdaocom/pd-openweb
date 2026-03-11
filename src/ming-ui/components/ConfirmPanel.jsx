@@ -12,7 +12,7 @@ top: -16px;
 height: 0px;
 width: 0px;
 border: 8px solid transparent;
-border-bottom-color: #fff;
+border-bottom-color: var(--color-background-primary);
 > span {
   position: absolute;
   z-index: -1;
@@ -29,12 +29,12 @@ const Popup = styled.div`
   width: 280px;
   border-radius: 3px;
   padding: 20px;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.24);
-  background-color: #fff;
+  box-shadow: var(--shadow-lg);
+  background-color: var(--color-background-primary);
 `;
 const Title = styled.div`
   font-size: 14px;
-  color: #151515;
+  color: var(--color-text-title);
 `;
 const Footer = styled.div`
   overflow: hidden;

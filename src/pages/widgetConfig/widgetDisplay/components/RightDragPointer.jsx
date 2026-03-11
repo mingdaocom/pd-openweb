@@ -15,7 +15,7 @@ const DragPointer = styled.div`
   }
   &.isOver {
     .line {
-      background-color: #1677ff;
+      background-color: var(--color-primary);
     }
   }
 `;

@@ -112,7 +112,7 @@ export default function BaseSet(props) {
   return (
     <Wrap>
       <div className="content">
-        <h6 className="Font16 Gray Bold mBottom0">{_l('门户名称')}</h6>
+        <h6 className="Font16 textPrimary Bold mBottom0">{_l('门户名称')}</h6>
         <input
           type="text"
           className="pageTitle mTop6"
@@ -136,7 +136,7 @@ export default function BaseSet(props) {
             setcustomizeName(e.target.value);
           }}
         />
-        <h6 className={cx('Font16 Gray Bold mBottom0 mTop24', { mTop24: isFrontDomain })}>{_l('注册方式')}</h6>
+        <h6 className={cx('Font16 textPrimary Bold mBottom0 mTop24', { mTop24: isFrontDomain })}>{_l('注册方式')}</h6>
         <div className="">
           {REJISTER_WAY.map(o => {
             const { portalSet = {} } = props;
@@ -159,7 +159,7 @@ export default function BaseSet(props) {
             );
           })}
         </div>
-        <h6 className={cx('Font16 Gray Bold mBottom0 mTop24', { mTop24: isFrontDomain })}>{_l('登录方式')}</h6>
+        <h6 className={cx('Font16 textPrimary Bold mBottom0 mTop24', { mTop24: isFrontDomain })}>{_l('登录方式')}</h6>
         <div className="">
           {LOGIN_WAY_LIST.map(o => {
             const { portalSet = {} } = props;
@@ -182,7 +182,7 @@ export default function BaseSet(props) {
             <>
               <br />
               {_.get(props, ['portalSet', 'portalSetModel', 'loginMode', 'weChat']) && !loading && (
-                <div className={cx('Gray_9e mTop4 InlineBlock', { noWX: !isWXExist, WX: !!isWXExist })}>
+                <div className={cx('textTertiary mTop4 InlineBlock', { noWX: !isWXExist, WX: !!isWXExist })}>
                   {!isWXExist ? (
                     <React.Fragment>
                       {_l('暂未绑定服务号，请前往')}
@@ -203,7 +203,7 @@ export default function BaseSet(props) {
                   )}
                 </div>
               )}
-              <p className="Font12 Gray_9e mTop4 LineHeight18">
+              <p className="Font12 textTertiary mTop4 LineHeight18">
                 <PriceTip
                   text={_l(
                     '只勾选微信登录时首次扫码后需要输入手机号与微信绑定，后续可单独微信扫码快速登录。发送验证码的短信或邮件费用将自动从组织信用点中扣除。',
@@ -213,7 +213,7 @@ export default function BaseSet(props) {
             </>
           )}
         </div>
-        <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('允许访问的用户')}</h6>
+        <h6 className="Font16 textPrimary Bold mBottom0 mTop24">{_l('允许访问的用户')}</h6>
         <div className="mTop16">
           {ALLOW_TYPE.map((o, i) => {
             return (

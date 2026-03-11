@@ -81,23 +81,23 @@ const MyUpdater = {
 
         if (targetDivID == '#Attachment_updater') {
           $('#hidden_UpdaterType').val('9');
-          $(this).removeClass('Gray_c').addClass('ThemeColor3');
+          $(this).removeClass('textPlaceholder').addClass('ThemeColor3');
           if (
             $('#textarea_Updater') &&
             ($('#textarea_Updater').val().trim() == '' ||
               $('#textarea_Updater').val().trim() == _l('知会工作是一种美德') + '...')
           ) {
-            $('#textarea_Updater').val(langUploadFiles).addClass('Gray_a');
+            $('#textarea_Updater').val(langUploadFiles).addClass('textTertiary');
           }
         } else if (targetDivID == '#Link_updater') {
           $('#hidden_UpdaterType').val('1');
-          $(this).removeClass('Gray_c').addClass('ThemeColor3');
+          $(this).removeClass('textPlaceholder').addClass('ThemeColor3');
           if (
             $('#textarea_Updater') &&
             ($('#textarea_Updater').val().trim() == '' ||
               $('#textarea_Updater').val().trim() == _l('知会工作是一种美德') + '...')
           ) {
-            $('#textarea_Updater').val(langShareLink).addClass('Gray_a');
+            $('#textarea_Updater').val(langShareLink).addClass('textTertiary');
           }
           $('#Link_updater .visualDocTextBox').show();
           $('#text_LinkUrl').on('keydown', function (e) {
@@ -110,14 +110,14 @@ const MyUpdater = {
         } else if (targetDivID == '#Vote_updater') {
           $('#voteLastHour').val(new Date().getHours());
           $('#hidden_UpdaterType').val('7');
-          $(this).removeClass('Gray_c').addClass('ThemeColor3');
+          $(this).removeClass('textPlaceholder').addClass('ThemeColor3');
           $('#Vote_updaterOperator').show();
           if (
             $('#textarea_Updater') &&
             ($('#textarea_Updater').val().trim() == '' ||
               $('#textarea_Updater').val().trim() == _l('知会工作是一种美德') + '...')
           ) {
-            $('#textarea_Updater').val(langVoteQuestion).addClass('Gray_a');
+            $('#textarea_Updater').val(langVoteQuestion).addClass('textTertiary');
           }
           VoteUpdater.init($('#Vote_updater'));
         } else {
@@ -128,7 +128,7 @@ const MyUpdater = {
           if ($('#textarea_Updater')) {
             if (!$('#textarea_Updater').val().trim()) {
               $('#textarea_Updater').val(_l('知会工作是一种美德') + '...');
-              $('#textarea_Updater').addClass('Gray_a');
+              $('#textarea_Updater').addClass('textTertiary');
             }
           }
         }
@@ -157,18 +157,18 @@ const MyUpdater = {
         if (!$('#textarea_Updater').val().trim()) {
           $('#textarea_Updater')
             .val(_l('知会工作是一种美德') + '...')
-            .addClass('TextArea Gray_a');
+            .addClass('TextArea textTertiary');
         }
       });
 
     $('#Link_updater .linkTextBox').on({
       blur: function () {
         if (!$(this).val().trim()) {
-          $(this).val('http://').addClass('Gray_c');
+          $(this).val('http://').addClass('textPlaceholder');
         }
       },
       focus: function () {
-        $(this).removeClass('Gray_c');
+        $(this).removeClass('textPlaceholder');
       },
     });
     let $textareaUpdater = $('#textarea_Updater');
@@ -191,7 +191,7 @@ const MyUpdater = {
         ) {
           $textareaUpdater.val('');
         }
-        $textareaUpdater.removeClass('Gray_a');
+        $textareaUpdater.removeClass('textTertiary');
         MyUpdater.options.updaterInputAreaFocus = true;
         $('#myupdaterOP').slideDown(function () {
           $(this).attr('style', 'display: block');
@@ -211,7 +211,7 @@ const MyUpdater = {
       .blur(function () {
         textareaUpdaterEl.store();
         if (!$(this).val().trim()) {
-          $textareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('Gray_a');
+          $textareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('textTertiary');
         }
       });
 
@@ -225,10 +225,10 @@ const MyUpdater = {
       initCallback: () => {
         textareaUpdaterEl.restore(success => {
           if (success) {
-            $textareaUpdater.removeClass('Gray_a');
+            $textareaUpdater.removeClass('textTertiary');
             $('#myupdaterOP').show();
           } else {
-            $textareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('Gray_a');
+            $textareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('textTertiary');
           }
         });
       },
@@ -285,13 +285,15 @@ const MyUpdater = {
         $('#textarea_Updater').blur();
         $('#textarea_Updater')
           .val(_l('知会工作是一种美德') + '...')
-          .addClass('Gray_a');
+          .addClass('textTertiary');
       }
     }
 
     $('#hidden_UpdaterType').val('0');
-    $("div.myUpdateItem_Content a[targetdiv='#Attachment_updater']").removeClass('ThemeColor3').addClass('Gray_c');
-    $('div.myUpdateItem_Content a[targetdiv]').removeClass('ThemeColor3').addClass('Gray_c');
+    $("div.myUpdateItem_Content a[targetdiv='#Attachment_updater']")
+      .removeClass('ThemeColor3')
+      .addClass('textPlaceholder');
+    $('div.myUpdateItem_Content a[targetdiv]').removeClass('ThemeColor3').addClass('textPlaceholder');
     $('#Attachment_updater,#Link_updater,#Vote_updater,#Storage_updater').hide();
 
     $('#Attachment_updater')
@@ -314,7 +316,7 @@ const MyUpdater = {
     // 链接
     let $mdLinkUpdater = $('#Link_updater');
     $mdLinkUpdater.find('.updaterLinkView').empty();
-    $mdLinkUpdater.find('.linkTextBox').val('http://').addClass('Gray_c');
+    $mdLinkUpdater.find('.linkTextBox').val('http://').addClass('textPlaceholder');
     $mdLinkUpdater.find('.linkBtn').val(_l('预览')).attr('disabled', false).removeClass('Disabled');
     MyUpdater.options.linkViewData = null;
 
@@ -326,7 +328,7 @@ const MyUpdater = {
     // OnlyView 2012-5-29 John Add
     $('#check_OnlyView').prop('checked', false);
     if ($('#Vote_updater .voteOptions input').length > 0) {
-      $("#Vote_updater .voteOptions input[type = 'text']").addClass('Gray_c').val(_l('请输入投票项'));
+      $("#Vote_updater .voteOptions input[type = 'text']").addClass('textPlaceholder').val(_l('请输入投票项'));
       $('#Vote_updater .UploadSuccess').html('');
       $('#Vote_updater div[pluploadid]').show();
       $('#Vote_updater .voteOptions li:gt(1)').remove();

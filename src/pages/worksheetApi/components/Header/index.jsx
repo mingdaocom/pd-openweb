@@ -17,7 +17,7 @@ const HeaderWrap = styled.header`
   padding: 0 30px;
   font-size: 17px;
   height: 50px;
-  background: #fff;
+  background: var(--color-background-primary);
   align-items: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
   z-index: 1;
@@ -71,7 +71,7 @@ const HeaderWrap = styled.header`
       align-items: center;
       padding: 0 14px;
       font-size: 15px;
-      color: #151515;
+      color: var(--color-text-primary);
       cursor: pointer;
       font-weight: 500;
       transition: all 0.3s ease-out;
@@ -109,13 +109,14 @@ const getIconColor = ({ iconColor, navColor }) => {
 const CommonHeader = props => {
   const { data, dataApp, appId, isSharePage, appInfo, tabIndex, updateTabIndex, getId = () => {} } = props;
   const { backgroundColor, fillColor } = getIconColor(dataApp);
+  const theme = document.body.getAttribute('data-theme') || 'light';
   const [shareVisible, setShareVisible] = useState(false);
 
   const externalLink = e => {
     e.stopPropagation();
     const lang = window.getCurrentLang();
     window.open(
-      `${md.global.Config.OpenApiDocUrl}/${lang === 'zh-Hans' ? 'zh-Hans' : 'en'}/?ts=${Date.now()}`,
+      `${md.global.Config.OpenApiDocUrl}/${lang === 'zh-Hans' ? 'zh-Hans' : 'en'}?ts=${Date.now()}&theme=${theme}`,
       '_blank',
     );
   };
@@ -160,16 +161,19 @@ const CommonHeader = props => {
                 {item.name}
                 {item.tabIndex === TAB_TYPE.API_V3 && <Beta />}
               </span>
-              {item.tabIndex === TAB_TYPE.API_V3 && (
-                <Icon icon="external_collaboration" className="Font16 ThemeColor" onClick={externalLink} />
-              )}
             </div>
           ))}
       </div>
       <div className="shareButtonBox">
-        {!md.global.Config.IsLocal && (
+        {tabIndex === TAB_TYPE.API_V3 && (
+          <div className="shareButton Hand textSecondary flexRow valignWrapper mRight16" onClick={externalLink}>
+            <Icon icon="external_collaboration" className="mRight8 Font18" />
+            <span className="Font14">{_l('打开')}</span>
+          </div>
+        )}
+        {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
           <a
-            className="shareButton Hand Gray_75 flexRow valignWrapper"
+            className="shareButton Hand textSecondary flexRow valignWrapper"
             target="_blank"
             href="https://apifox.mingdao.com/"
           >
@@ -178,7 +182,10 @@ const CommonHeader = props => {
           </a>
         )}
         {!isSharePage && tabIndex !== TAB_TYPE.API_V3 && (
-          <div className="shareButton Hand Gray_75 flexRow valignWrapper mLeft16" onClick={() => setShareVisible(true)}>
+          <div
+            className="shareButton Hand textSecondary flexRow valignWrapper mLeft16"
+            onClick={() => setShareVisible(true)}
+          >
             <Icon icon="share" className="mRight8 Font18" />
             <span className="Font14">{_l('分享')}</span>
           </div>

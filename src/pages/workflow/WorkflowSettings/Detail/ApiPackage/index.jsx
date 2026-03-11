@@ -110,7 +110,7 @@ export default class ApiPackage extends Component {
         >
           {!data.appId ? (
             <span
-              className="Gray_75 ThemeHoverColor3 pointer alignItemsCenter"
+              className="textSecondary ThemeHoverColor3 pointer alignItemsCenter"
               style={{ display: 'inline-flex' }}
               onClick={() => this.setState({ visible: true })}
             >
@@ -124,7 +124,7 @@ export default class ApiPackage extends Component {
                 <span>
                   <Icon
                     icon="swap_horiz"
-                    className="Font20 Gray_75 ThemeHoverColor3 pointer"
+                    className="Font20 textSecondary ThemeHoverColor3 pointer"
                     onClick={() => this.setState({ visible: true })}
                   />
                 </span>
@@ -147,7 +147,7 @@ export default class ApiPackage extends Component {
                   />
                 </div>
                 {(data.app.explain || data.app.describe) && (
-                  <div className="Gray_75 ellipsis">{data.app.explain || data.app.describe}</div>
+                  <div className="textSecondary ellipsis">{data.app.explain || data.app.describe}</div>
                 )}
               </div>
               <div className="flex" />
@@ -155,7 +155,7 @@ export default class ApiPackage extends Component {
                 <span>
                   <Icon
                     icon="swap_horiz"
-                    className="Font20 Gray_75 ThemeHoverColor3 pointer"
+                    className="Font20 textSecondary ThemeHoverColor3 pointer"
                     onClick={() => this.setState({ visible: true })}
                   />
                 </span>
@@ -207,7 +207,7 @@ export default class ApiPackage extends Component {
         {nextNode.appType !== APP_TYPE.NO_AUTH && (
           <Fragment>
             <div className="flexColumn alignItemsCenter">
-              <Icon icon="arrow" className="Font20 Gray_bd" />
+              <Icon icon="arrow" className="Font20 textDisabled" />
             </div>
             <ConnectAuth
               className="w100 mTop0"

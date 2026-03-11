@@ -28,13 +28,13 @@ export default class SiderTabList extends React.Component {
   render() {
     const { name, children } = this.props;
     const { isOpen } = this.state;
-    const cls = cx('list-arrow', 'Gray_9e', 'TxtMiddle', {
+    const cls = cx('list-arrow', 'textTertiary', 'TxtMiddle', {
       'icon-arrow-right-tip': !isOpen,
       'icon-arrow-down': isOpen,
     });
     return (
       <div>
-        <div className="list-header Gray_75 Font12" onClick={this.toggleList}>
+        <div className="list-header textSecondary Font12" onClick={this.toggleList}>
           <i className={cls} />
           <span className="TxtMiddle">{name}</span>
         </div>

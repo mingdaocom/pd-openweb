@@ -70,7 +70,7 @@ export default class EditPassword extends Component {
           this.forbidRefresh();
           var message =
             _l('密码修改成功，请重新登录') +
-            '<div style="max-width:350px;" class="LineHeight20 Font12 Gray_a">' +
+            '<div style="max-width:350px;" class="LineHeight20 Font12 textTertiary">' +
             _l('为了保障账户安全，如果您有安装APP，%0APP将自动登出，建议您重新登录确保可以正常收到推送', '<br />') +
             '</div>';
           //  保存成功
@@ -118,7 +118,7 @@ export default class EditPassword extends Component {
       <div className="clearfix">
         {!isNullCredential && (
           <Fragment>
-            <div className="Gray">{_l('原有密码')}</div>
+            <div className="textPrimary">{_l('原有密码')}</div>
             <Input.Password
               id="originInput"
               autocomplete="new-password"
@@ -128,13 +128,13 @@ export default class EditPassword extends Component {
               onChange={e => this.setState({ originPassword: e.target.value })}
             />
             <div className="clearfix Block">
-              <a class="NoUnderline Right ThemeColor3 Hover_49" target="_blank" href="/findPassword">
+              <a class="NoUnderline Right ThemeColor3 hoverTextPrimaryLight" target="_blank" href="/findPassword">
                 {_l('忘记密码？')}
               </a>
             </div>
           </Fragment>
         )}
-        <div className="Gray mTop24">{_l('新密码')}</div>
+        <div className="textPrimary mTop24">{_l('新密码')}</div>
         <Input.Password
           id="newInput"
           autocomplete="new-password"
@@ -143,11 +143,11 @@ export default class EditPassword extends Component {
           placeholder={_l('新密码')}
           onChange={e => this.setState({ newPassword: e.target.value })}
         />
-        <div className="Gray_9e">{this.state.passwordRegexTip || _l('密码,8-20位，必须字母+数字')}</div>
+        <div className="textTertiary">{this.state.passwordRegexTip || _l('密码,8-20位，必须字母+数字')}</div>
 
         {isNullCredential && (
           <Fragment>
-            <div className="Gray mTop24">{_l('再次输入新密码')}</div>
+            <div className="textPrimary mTop24">{_l('再次输入新密码')}</div>
             <Input.Password
               id="confirmPassword"
               autocomplete="new-password"
@@ -160,7 +160,10 @@ export default class EditPassword extends Component {
         )}
 
         <div className="mTop40 Right mBottom24">
-          <span className="Font14 Gray_9e mRight32 Hover_49 Hand" onClick={() => this.props.closeDialog()}>
+          <span
+            className="Font14 textTertiary mRight32 hoverTextPrimaryLight Hand"
+            onClick={() => this.props.closeDialog()}
+          >
             {_l('取消')}
           </span>
           <button

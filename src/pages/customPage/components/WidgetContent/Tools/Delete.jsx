@@ -8,7 +8,7 @@ import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
 const DelVerify = styled.div`
   box-sizing: border-box;
   width: 240px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   padding: 16px;
   border-radius: 3px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
@@ -20,7 +20,7 @@ const DelVerify = styled.div`
   .delComponent {
     margin-top: 20px;
     text-align: right;
-    color: #f44336;
+    color: var(--color-error);
     cursor: pointer;
   }
   .btnGroup {
@@ -28,20 +28,20 @@ const DelVerify = styled.div`
     margin-top: 16px;
     cursor: pointer;
     span {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
     .cancel {
     }
     .del {
       margin-left: 12px;
-      background-color: #f44336;
-      color: #fff;
+      background-color: var(--color-error);
+      color: var(--color-white);
       padding: 6px 12px;
       border-radius: 3px;
       text-align: center;
       line-height: 36px;
       &:hover {
-        background-color: #ba160a;
+        background-color: var(--color-error-hover);
       }
     }
   }
@@ -66,7 +66,7 @@ export default props => {
         title: <div className="Bold">{_l('删除 “%0”', componentConfig.name)}</div>,
         description: (
           <div>
-            <span style={{ color: '#151515', fontWeight: 'bold' }}>
+            <span style={{ color: 'var(--color-text-title)', fontWeight: 'bold' }}>
               {_l('注意:%0下所有配置和数据将被删除。', name)}
             </span>
             {_l('请务必确认所有应用成员都不再需要此%0后, 再执行此操作。', name)}

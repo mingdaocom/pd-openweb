@@ -73,7 +73,7 @@ export default class SystemMessage extends Component {
           </div>
         )}
         {_.get(message.msg, 'oldCon') && message.type === Constant.MSGTYPE_TEXT && !isFileTransfer && (
-          <div className="Font13 pointer ThemeColor mLeft8" onClick={this.handleResetEdit}>
+          <div className="Font13 pointer colorPrimary mLeft8" onClick={this.handleResetEdit}>
             {_l('重新编辑')}
           </div>
         )}

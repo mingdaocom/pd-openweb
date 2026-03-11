@@ -22,7 +22,7 @@ export default ({
   return (
     <Fragment>
       <div className="mTop20 bold">{_l('筛选条件')}</div>
-      {filterText && <div className="Gray_75 mTop5 flexRow alignItemsCenter">{filterText}</div>}
+      {filterText && <div className="textSecondary mTop5 flexRow alignItemsCenter">{filterText}</div>}
 
       {!!data.conditions.length || !!data.filters.length ? (
         <TriggerCondition
@@ -55,7 +55,7 @@ export default ({
 
       {!!data.conditions.length && !disabledNewFilter && (
         <div className="workflowDetailDesc pTop15 pBottom15 mTop20" style={{ background: 'rgba(255, 163, 64, 0.12)' }}>
-          <div className="Gray_75 mBottom5">
+          <div className="textSecondary mBottom5">
             {_l('筛选器现已支持且或组合；手动切换后，不会丢失您现有的配置，可以直接在现有筛选条件的基础上进一步配置')}
           </div>
           <span
@@ -80,7 +80,7 @@ export default ({
               />
             )}
           </div>
-          {sortText && <div className="Gray_75 mTop5">{sortText}</div>}
+          {sortText && <div className="textSecondary mTop5">{sortText}</div>}
 
           <Sort sorts={data.sorts} controls={data.controls} updateSource={updateSource} />
         </Fragment>

@@ -31,6 +31,7 @@ export default function PublicQuery(props) {
     newVisibleType === VISIBLE_TYPE.PUBLIC
       ? checkCertification({
           projectId,
+          authType: 2,
           checkSuccess: () => {
             publicWorksheetAjax.editPublicQueryState({ worksheetId, visibleType: newVisibleType }).then(url => {
               setQueryInfo({ ...queryInfo, url, visibleType: newVisibleType });

@@ -9,7 +9,7 @@ import scheduleConfigApi from 'src/pages/integration/api/scheduleConfig.js';
 import TimingSetting from 'src/pages/integration/dataIntegration/components/TimingSetting';
 
 const TimingSettingListWrapper = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   min-height: 100%;
   padding: 40px 80px;
 
@@ -18,7 +18,7 @@ const TimingSettingListWrapper = styled.div`
     align-items: center;
     margin: 0;
     padding: 15px 8px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
 
     &.notHeader {
       .tableName {
@@ -26,9 +26,9 @@ const TimingSettingListWrapper = styled.div`
         font-weight: bold;
       }
       &:hover {
-        background: #f7f7f7;
+        background: var(--color-background-secondary);
         .tableName {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }
@@ -47,9 +47,9 @@ const TimingSettingListWrapper = styled.div`
       width: 64px;
       cursor: pointer;
       .icon {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         &:hover {
-          color: #f44336;
+          color: var(--color-error);
         }
       }
     }
@@ -70,10 +70,10 @@ const NoDataWrapper = styled.div`
     width: 130px;
     height: 130px;
     line-height: 130px;
-    background: #fbfbfb;
+    background: var(--color-background-secondary);
     border-radius: 50%;
     margin: 64px auto 0;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 `;
 
@@ -192,7 +192,7 @@ export default function TimingSettingList({ projectId, sourceId, onViewUseDetail
             <span className="iconCon InlineBlock TxtCenter ">
               <i className="icon-storage Font64 TxtMiddle" />
             </span>
-            <p className="Gray_9e mTop20 mBottom0">{_l('暂无数据')}</p>
+            <p className="textTertiary mTop20 mBottom0">{_l('暂无数据')}</p>
           </NoDataWrapper>
         )}
 
@@ -203,7 +203,7 @@ export default function TimingSettingList({ projectId, sourceId, onViewUseDetail
             placement="right"
             mask={false}
             title={_l('定时设置')}
-            extra={<Icon icon="close" className="Font20 Gray_9e Hand" onClick={() => setSettingDetail(null)} />}
+            extra={<Icon icon="close" className="Font20 textTertiary Hand" onClick={() => setSettingDetail(null)} />}
             footer={null}
             onClose={() => setSettingDetail(null)}
           >

@@ -135,7 +135,7 @@ export default function SheetField(props) {
     Dialog.confirm({
       title: <span className="Bold Font16">{_l('修改他表字段类型为：仅显示')}</span>,
       description: (
-        <span className="Gray_9e">
+        <span className="textTertiary">
           {_l(
             '修改后将清除此字段存储的数据。此字段将不能在用于搜索、筛选、公式、文本组合、统计。请确认以上位置都不再需要此字段的数据后执行操作。',
           )}
@@ -200,9 +200,9 @@ export default function SheetField(props) {
               {parsedDataSource ? (
                 <span>{sheetDel ? _l('关联记录已删除') : sheetName}</span>
               ) : (
-                <span className="Gray_9e">{_l('选择配置的 “关联记录” 字段')}</span>
+                <span className="textTertiary">{_l('选择配置的 “关联记录” 字段')}</span>
               )}
-              {!dataSourceDisabled && <i className="icon-arrow-down-border Font14 Gray_9e"></i>}
+              {!dataSourceDisabled && <i className="icon-arrow-down-border Font14 textTertiary"></i>}
             </DropdownPlaceholder>
           </Dropdown>
         )}
@@ -221,7 +221,7 @@ export default function SheetField(props) {
           overlay={
             <DropdownOverlay>
               <div className="searchWrap" onClick={e => e.stopPropagation()}>
-                <i className="icon-search Gray_9e" />
+                <i className="icon-search textTertiary" />
                 <input
                   autoFocus
                   value={searchValue}
@@ -272,9 +272,9 @@ export default function SheetField(props) {
                 <span className="breakAll">{controlDel ? _l('字段已删除') : controlName}</span>
               </Tooltip>
             ) : (
-              <span className="Gray_9e">{_l('请选择')}</span>
+              <span className="textTertiary">{_l('请选择')}</span>
             )}
-            {!sheetFieldDisabled && <i className="icon-arrow-down-border Font14 Gray_9e"></i>}
+            {!sheetFieldDisabled && <i className="icon-arrow-down-border Font14 textTertiary"></i>}
           </DropdownPlaceholder>
         </Dropdown>
       </SettingItem>
@@ -298,10 +298,10 @@ export default function SheetField(props) {
         />
       </SettingItem>
       {showType === '1' ? (
-        <div className="Gray_9e mTop10">{_l('在加载记录时实时获取数据。适合只需要显示字段的场景。')}</div>
+        <div className="textTertiary mTop10">{_l('在加载记录时实时获取数据。适合只需要显示字段的场景。')}</div>
       ) : (
         <div>
-          <div className="Gray_9e mTop10">
+          <div className="textTertiary mTop10">
             {_l(
               '在当前表中存储数据并保持同步，存储后他表字段可用于工作表搜索、筛选、排序、统计，或被公式、文本组合字段使用。',
             )}
@@ -312,7 +312,7 @@ export default function SheetField(props) {
                 '注意：1.存储的数据与实际数据存在一定延时；2.当显示字段的数据变更后，最大支持更新与之关联的1000行数据。',
               )}
             </span>
-            <span className="Gray_9e">
+            <span className="textTertiary">
               {_l('所以此方式适合显示字段的值不会变更，或虽然变更但关联的记录数量较少（不超过1000行）的场景。')}
             </span>
           </div>

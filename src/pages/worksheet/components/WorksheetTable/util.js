@@ -1,5 +1,6 @@
 import _, { get } from 'lodash';
-import { checkRuleLocked, updateRulesData } from 'src/components/Form/core/formUtils';
+import { checkRuleLocked } from 'src/components/Form/core/formUtils';
+import { updateRulesData } from 'src/components/Form/core/formUtils/updateRulesData';
 import { emitter } from 'src/utils/common';
 import { controlState, replaceByIndex } from 'src/utils/control';
 
@@ -15,6 +16,9 @@ const KEY_MAP = {
 };
 
 export function checkCellFullVisible(element) {
+  if (element.parentNode.className.includes('cellPopupCon')) {
+    element = element.parentNode;
+  }
   const left = element.offsetLeft;
   const top = element.offsetTop;
   const width = element.offsetWidth;
@@ -58,6 +62,9 @@ export function handleLifeEffect(
     cache = {},
     onCellEnter = () => {},
     onCellLeave = () => {},
+    onTableMouseEnter = () => {},
+    onTableMouseLeave = () => {},
+    onTableMouseMove = () => {},
     addNewRow = () => {},
     setScroll,
     focusCell,
@@ -94,8 +101,17 @@ export function handleLifeEffect(
       if (tableType === 'classic') {
         $tableElement.find('.cell').removeClass('grayHover');
       }
-      onCellLeave();
+      onCellLeave($tableElement.find('.cell')[0], e);
     }
+  }
+  function handleTableMouseEnter(e) {
+    onTableMouseEnter(e);
+  }
+  function handleTableMouseLeave(e) {
+    onTableMouseLeave(e);
+  }
+  function handleTableMouseMove(e) {
+    onTableMouseMove(e);
   }
   function handleSwitchCell(e) {
     let nextCellIsRowStart;
@@ -112,28 +128,30 @@ export function handleLifeEffect(
       e.stopPropagation();
       e.preventDefault();
     }
+    const columnCount = cache.columnCount;
+    const rowCount = cache.rowCount;
     switch (e.keyCode) {
       case KEY_MAP.LEFT:
         newIndex = cache.focusIndex - 1;
-        if (newIndex % cache.columnCount === 0) {
+        if (newIndex % columnCount === 0) {
           return;
         }
         if (fastSwitch) {
           nextCellIsRowStart = true;
-          newIndex = cache.focusIndex - (cache.focusIndex % cache.columnCount) + 1;
+          newIndex = cache.focusIndex - (cache.focusIndex % columnCount) + 1;
         }
         break;
       case KEY_MAP.TOP:
-        newIndex = cache.focusIndex - cache.columnCount;
+        newIndex = cache.focusIndex - columnCount;
         if (fastSwitch) {
           nextCellIsColumnStart = true;
-          newIndex = cache.focusIndex % cache.columnCount;
+          newIndex = cache.focusIndex % columnCount;
         }
         break;
       case KEY_MAP.RIGHT:
       case KEY_MAP.TAB:
         newIndex = cache.focusIndex + 1;
-        if (newIndex % cache.columnCount === 0) {
+        if (newIndex % columnCount === 0) {
           if (e.keyCode === KEY_MAP.TAB) {
             newIndex += 1;
             nextCellIsRowStart = true;
@@ -143,18 +161,18 @@ export function handleLifeEffect(
         }
         if (fastSwitch) {
           nextCellIsRowEnd = true;
-          newIndex = Math.ceil(cache.focusIndex / cache.columnCount) * cache.columnCount - 1;
+          newIndex = Math.ceil(cache.focusIndex / columnCount) * rowCount - 1;
         }
-        if ((newIndex % cache.columnCount) - 1 === cache.fixedColumnCount) {
+        if ((newIndex % columnCount) - 1 === cache.fixedColumnCount) {
           // 冻结列下一列可能不可见
           nextCellIsRowStart = true;
         }
         break;
       case KEY_MAP.BOTTOM:
-        newIndex = cache.focusIndex + cache.columnCount;
+        newIndex = cache.focusIndex + columnCount;
         if (fastSwitch) {
           nextCellIsColumnEnd = true;
-          newIndex = (cache.rowCount - 1) * cache.columnCount + (cache.focusIndex % cache.columnCount);
+          newIndex = (rowCount - 1) * columnCount + (cache.focusIndex % columnCount);
         }
         break;
       default:
@@ -163,11 +181,11 @@ export function handleLifeEffect(
     if (newIndex < 1) {
       return;
     }
-    if (newIndex > cache.rowCount * cache.columnCount - 1) {
+    if (newIndex > rowCount * columnCount - 1) {
       if (e.action === 'text_enter_to_next' && isSubList) {
         addNewRow();
         setTimeout(() => {
-          focusCell(newIndex);
+          focusCell(newIndex, { noTriggerHandFocusCell: e.action === 'text_enter_to_next' });
         }, 100);
         return;
       }
@@ -193,7 +211,7 @@ export function handleLifeEffect(
     if (nextCellIsColumnEnd) {
       setScroll(undefined, 10000);
     }
-    focusCell(newIndex);
+    focusCell(newIndex, { noTriggerHandFocusCell: e.action === 'text_enter_to_next' });
     e.stopPropagation();
     e.preventDefault();
   }
@@ -264,7 +282,9 @@ export function handleLifeEffect(
   emitter.addListener('TRIGGER_CHANGE_COLUMN_WIDTH_MASK_' + tableId, showColumnWidthChangeMask);
   $tableElement.on('mouseenter', '.cell:not(.row-id-groupTitle)', handleCellEnter);
   $tableElement.on('mouseleave', '.cell:not(.row-id-groupTitle)', handleCellLeave);
-
+  $tableElement.on('mouseenter', handleTableMouseEnter);
+  $tableElement.on('mouseleave', handleTableMouseLeave);
+  $tableElement.on('mousemove', handleTableMouseMove);
   emitter.addListener('TRIGGER_TABLE_KEYDOWN_' + tableId, handleKeyDown);
   window.addEventListener('keydown', handleKeyDown);
   document.body.addEventListener('click', handleOuterClick);
@@ -272,6 +292,9 @@ export function handleLifeEffect(
     emitter.removeListener('TRIGGER_CHANGE_COLUMN_WIDTH_MASK_' + tableId, showColumnWidthChangeMask);
     $tableElement.off('mouseenter', '.cell:not(.row-id-groupTitle)', handleCellEnter);
     $tableElement.off('mouseleave', '.cell:not(.row-id-groupTitle)', handleCellLeave);
+    $tableElement.off('mouseenter', handleTableMouseEnter);
+    $tableElement.off('mouseleave', handleTableMouseLeave);
+    $tableElement.off('mousemove', handleTableMouseMove);
     window.removeEventListener('keydown', handleKeyDown);
     emitter.removeListener('TRIGGER_TABLE_KEYDOWN_' + tableId, handleKeyDown);
     document.body.removeEventListener('click', handleOuterClick);

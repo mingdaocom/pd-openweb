@@ -23,12 +23,11 @@ const Menu = styled.div`
     padding: 5px 10px;
   }
   .clearDate {
-    color: red;
+    color: var(--color-error);
   }
   .active:not(.clearDate),
   .item:not(.clearDate):hover {
-    color: #fff;
-    background-color: #1890ff;
+    background-color: var(--color-background-hover);
   }
 `;
 

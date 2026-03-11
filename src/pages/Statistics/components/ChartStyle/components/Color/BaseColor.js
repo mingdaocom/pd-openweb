@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import store from 'redux/configureStore';
 import { Button, ConfigProvider, Input, Modal, Radio } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -7,6 +6,7 @@ import { ColorPicker, Icon } from 'ming-ui';
 import webCacheApi from 'src/api/webCache';
 import { getPorjectChartColors, reportTypes } from 'statistics/Charts/common';
 import { getIsAlienationColor } from 'statistics/common';
+import store from 'src/redux/configureStore';
 import './BaseColor.less';
 
 export default class BaseColor extends Component {
@@ -141,7 +141,7 @@ export default class BaseColor extends Component {
                   window.open(`/admin/settings/${projectId}/customcolor`);
                 }}
               >
-                <span className="bold ThemeColor">{_l('前往组织后台编辑颜色')}</span>
+                <span className="bold colorPrimary hoverTextPrimaryDark">{_l('前往组织后台编辑颜色')}</span>
               </Button>
             )}
             {type === 2 && (
@@ -197,7 +197,7 @@ export default class BaseColor extends Component {
           <Icon className={cx('mLeft10 Font20', { Visibility: id !== colorGroupId })} icon="done" />
           {id && id.includes('personColor') && id !== colorGroupId && (
             <Icon
-              className="Gray_9e Font20 deleteIcon"
+              className="textTertiary Font20 deleteIcon"
               icon="trash"
               onClick={event => {
                 event.stopPropagation();
@@ -248,7 +248,7 @@ export default class BaseColor extends Component {
         {customColors.length > 8 && (
           <Icon
             icon="trash"
-            className="Gray_9e Font20 deleteIcon"
+            className="textTertiary Font20 deleteIcon"
             onClick={() => {
               this.setState({
                 customColors: customColors.filter((c, i) => i !== index),
@@ -277,7 +277,7 @@ export default class BaseColor extends Component {
           visible={visible}
           centered={true}
           destroyOnClose={true}
-          closeIcon={<Icon icon="close" className="Font20 pointer Gray_9e" />}
+          closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
           footer={this.renderBaseColorFooter()}
           onCancel={onCancel}
         >
@@ -287,17 +287,17 @@ export default class BaseColor extends Component {
             <Radio value={1}>{_l('色板')}</Radio>
             <Radio value={2}>{_l('自定义')}</Radio>
           </Radio.Group>
-          {type === 0 && <div className="mTop20 Gray_75">{_l('选项色是使用工作表该选项字段所配置的颜色')}</div>}
+          {type === 0 && <div className="mTop20 textSecondary">{_l('选项色是使用工作表该选项字段所配置的颜色')}</div>}
           {type === 1 && (
             <div className="colorSwatches">
-              <div className="Gray_75 pLeft20 pRight20">{_l('组织')}</div>
+              <div className="textSecondary pLeft20 pRight20">{_l('组织')}</div>
               {adaptThemeColors.map((item, index) =>
                 this.renderColorGroup({ ...item, id: 'adaptThemeColor', name: _l('适应主题') }, index, true),
               )}
               {this.chartColors
                 .filter(item => !adaptThemeId.includes(item.id))
                 .map((item, index) => this.renderColorGroup(item, index))}
-              {!!personColors.length && <div className="Gray_75 mTop6 pLeft20 pRight20">{_l('个人')}</div>}
+              {!!personColors.length && <div className="textSecondary mTop6 pLeft20 pRight20">{_l('个人')}</div>}
               {personColors.map((item, index) => this.renderColorGroup(item, index))}
             </div>
           )}
@@ -307,7 +307,7 @@ export default class BaseColor extends Component {
               {customColors.length < 18 && (
                 <div className="flexRow valignWrapper colorItem hoverText" onClick={this.handleAddCustomColor}>
                   <div className="addWrap flexRow alignItemsCenter justifyContentCenter">
-                    <Icon icon="add" className="Font20 Gray_9d" />
+                    <Icon icon="add" className="Font20 textTertiary" />
                   </div>
                   <div className="Font13 mLeft5">{_l('添加颜色')}</div>
                 </div>
@@ -322,7 +322,7 @@ export default class BaseColor extends Component {
           visible={savePersonColorVisible}
           centered={true}
           destroyOnClose={true}
-          closeIcon={<Icon icon="close" className="Font20 pointer Gray_9e" />}
+          closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
           footer={
             <div className="mTop20 mBottom10 pRight8">
               <ConfigProvider autoInsertSpaceInButton={false}>

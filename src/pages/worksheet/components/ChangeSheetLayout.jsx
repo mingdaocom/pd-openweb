@@ -9,12 +9,12 @@ const ChangeSheetLayout = styled.span`
   left: 12px;
   cursor: pointer;
   font-size: 15px;
-  color: #1677ff;
+  color: var(--color-primary);
   .icon {
     font-size: 16px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
@@ -24,15 +24,15 @@ const PopupCon = styled.div`
   border-radius: 2px;
   padding: 20px;
   box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.16);
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   .title {
     font-size: 15px;
-    color: #151515;
+    color: var(--color-text-title);
     font-weight: 500;
   }
   .description {
     font-size: 13px;
-    color: #757575;
+    color: var(--color-text-secondary);
     line-height: 1.8em;
     margin: 10px 0 26px;
   }
@@ -79,7 +79,7 @@ export default function LayoutChangedIcon(props) {
                   </div>
                   <div className="flexCenter mTop20">
                     <Checkbox
-                      className="InlineBlock"
+                      className="InlineBlock textSecondary"
                       defaultChecked={applyToAllChecked}
                       text={_l('同时将列样式应用到其它所有表格视图')}
                       onClick={() => (cache.current.isApplyAll = !cache.current.isApplyAll)}

@@ -1,5 +1,4 @@
-@primary-color: #bdbdbd;
-@primary-bg: #fff;
+@primary-color: var(--color-border-tertiary);
 
 @node-vertical-gap: 10px; // 节点上下 间距
 @node-width: 240px; // 节点宽度
@@ -7,7 +6,7 @@
 @node-border-color: @primary-color;
 @list-indent: 80px; // 列表缩进
 
-@line-color: #d3d3d3; // 连接线 颜色
+@line-color: var(--color-border-tertiary); // 连接线 颜色
 @line-horizontal-width: 40px; // 连接线 横向长度
 @line-vertical-height: @node-vertical-gap + (@node-height / 2); // 连接线 垂直长度
 
@@ -22,10 +21,10 @@
   .loadMore {
     padding: 8px 0 8px 40px;
     margin-top: 20px;
-    color: #1677ff;
+    color: var(--color-primary);
     &:hover {
-      background: #f5f5f5;
-      color: #1185e2;
+      background: var(--color-background-secondary);
+      color: var(--color-link-hover);
     }
   }
   // 垫片
@@ -112,7 +111,7 @@
     width: @toggle-button-size;
     line-height: @toggle-button-size - 2;
     color: @primary-color;
-    background-color: @primary-bg;
+    background-color: var(--color-background-secondary);
   }
 
   .toggleButton {
@@ -143,8 +142,8 @@
     width: @width;
     position: absolute;
     z-index: 1;
-    background: #fff;
-    box-shadow: 0px 2px 5px 3px #ddd;
+    background: var(--color-background-primary);
+    box-shadow: var(--shadow-md);
     border-radius: 2px;
     line-height: 30px;
     padding: 6px 0;
@@ -153,7 +152,7 @@
     li {
       padding: 0px 10px;
       &:hover {
-        color: #fff;
+        color: var(--color-white);
       }
     }
   }

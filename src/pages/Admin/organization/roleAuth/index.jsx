@@ -78,9 +78,12 @@ export default class RoleAuth extends React.Component {
           {_l('允许申请管理员')}
         </Checkbox>
         <Tooltip title={_l('勾选后，组织下所有人都可查看组织中的管理员角色（除超级管理员外），并申请加入')}>
-          <Icon icon="help" className="Font16 Gray_9e" />
+          <Icon icon="help" className="Font16 textTertiary" />
         </Tooltip>
-        <div className="Hand Gray_75 bold mRight32 mLeft32" onClick={() => this.setState({ showApplyForRole: true })}>
+        <div
+          className="Hand textSecondary bold mRight32 mLeft32"
+          onClick={() => this.setState({ showApplyForRole: true })}
+        >
           {_l('申请角色请求')}
           {applyCount ? <span className="applyRecordCount">{applyCount}</span> : null}
         </div>

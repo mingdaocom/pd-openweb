@@ -10,13 +10,13 @@ import { isFullLineControl, isHaveGap } from '../../util/widgets';
 const ArrangeBtn = styled.div`
   cursor: pointer;
   font-weight: bold;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   &:hover {
-    color: #1677ff;
+    color: var(--color-primary);
   }
   &.disabled {
     cursor: not-allowed;
-    color: #bdbdbd !important;
+    color: var(--color-text-disabled) !important;
   }
 `;
 

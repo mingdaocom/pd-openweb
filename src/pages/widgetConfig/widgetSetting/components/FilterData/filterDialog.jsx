@@ -13,7 +13,7 @@ import 'src/pages/worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
 import { filterControlsFromAll } from '../../../util';
 import { getAdvanceSetting, isSingleRelateSheet } from '../../../util/setting';
 import EmptyRuleConfig from '../EmptyRuleConfig';
-import './filterDialog.less';
+import './FilterDialog.less';
 
 export default function FilterDialog(props) {
   const {
@@ -120,7 +120,9 @@ export default function FilterDialog(props) {
       }}
     >
       <Fragment>
-        {showSubtotalTip && <div className="Gray_9e">{_l('设置筛选字段后，汇总结果需要在表单提交后才能显示')}</div>}
+        {showSubtotalTip && (
+          <div className="textTertiary">{_l('设置筛选字段后，汇总结果需要在表单提交后才能显示')}</div>
+        )}
         <FilterConfig
           supportGroup={supportGroup}
           canEdit

@@ -26,7 +26,7 @@ import { isRelateRecordTableControl } from 'src/utils/control';
 import { compatibleMDJS } from 'src/utils/project';
 import { formatRecordToRelateRecord, getRecordTempValue, parseRecordTempValue } from 'src/utils/record';
 import RecordInfoContext from '../recordInfo/RecordInfoContext';
-import MobileRecordRecoverConfirm from './MobileRecordRecoverConfirm';
+import MobileRecordRecoverConfirm from './MobileNewRecord/components/RecordRecoverConfirm';
 import './NewRecord.less';
 
 const Con = styled.div`
@@ -160,108 +160,112 @@ function NewRecordForm(props) {
   }, [formdata]);
 
   function newRecord(options = {}) {
-    if (!customwidget.current) return;
-    if (options.rowStatus === 21) {
-      // 存草稿
-      onSubmitBegin();
-      const { data } = customwidget.current.getSubmitData({ ignoreAlert: true, silent: true });
-      if (requesting) {
-        return false;
-      }
-      setRequesting(true);
-      submitNewRecord({
-        appId,
-        projectId,
-        viewId,
-        worksheetId,
-        formdata: !isMobile
-          ? data
-          : data
-              .filter(c => (isMobile ? true : !isRelateRecordTableControl(c)))
-              .concat(
-                _.keys(relateRecordData)
-                  .map(key => ({
-                    ...relateRecordData[key],
-                    value: JSON.stringify(
-                      formatRecordToRelateRecord(worksheetInfo.template.controls, relateRecordData[key].value),
-                    ),
-                  }))
-                  .filter(_.identity),
-              ),
-        customwidget,
-        rowStatus: 21,
-        setRequesting,
-        onSubmitSuccess: ({ rowData, isOverLimit }) => {
-          handOverNavigation(true);
-          removeTempRecordValueFromLocal(saveKey, worksheetId);
-          if (_.isFunction(_.get(cache, 'current.tempSaving.cancel'))) {
-            _.get(cache, 'current.tempSaving.cancel')();
-          }
-          setRestoreVisible(false);
-          if (isOverLimit) {
-            if (isMobile) {
-              Dialog.alert({
+    function handleSubmit() {
+      if (!customwidget.current) return;
+      if (options.rowStatus === 21) {
+        // 存草稿
+        onSubmitBegin();
+        const { data } = customwidget.current.getSubmitData({ ignoreAlert: true, silent: true });
+        if (requesting) {
+          return false;
+        }
+        setRequesting(true);
+        submitNewRecord({
+          appId,
+          projectId,
+          viewId,
+          worksheetId,
+          formdata: !isMobile
+            ? data
+            : data
+                .filter(c => (isMobile ? true : !isRelateRecordTableControl(c)))
+                .concat(
+                  _.keys(relateRecordData)
+                    .map(key => ({
+                      ...relateRecordData[key],
+                      value: JSON.stringify(
+                        formatRecordToRelateRecord(worksheetInfo.template.controls, relateRecordData[key].value),
+                      ),
+                    }))
+                    .filter(_.identity),
+                ),
+          customwidget,
+          rowStatus: 21,
+          setRequesting,
+          onSubmitSuccess: ({ rowData, isOverLimit }) => {
+            handOverNavigation(true);
+            removeTempRecordValueFromLocal(saveKey, worksheetId);
+            if (_.isFunction(_.get(cache, 'current.tempSaving.cancel'))) {
+              _.get(cache, 'current.tempSaving.cancel')();
+            }
+            setRestoreVisible(false);
+            if (isOverLimit) {
+              if (isMobile) {
+                Dialog.alert({
+                  title: _l('您的草稿箱已满，无法保存'),
+                  content: _l('草稿箱中的数量已达到10条'),
+                  confirmText: _l('我知道了'),
+                });
+                return;
+              }
+              Confirm({
+                className: '',
                 title: _l('您的草稿箱已满，无法保存'),
-                content: _l('草稿箱中的数量已达到10条'),
-                confirmText: _l('我知道了'),
+                description: _l('草稿箱中的草稿数量已经达到10条'),
+                okText: _l('查看草稿箱'),
+                buttonType: 'primary',
+                cancelText: _l('我知道了'),
+                onOk: () => {
+                  openWorkSheetDraft({
+                    showFillNext: true,
+                    appId,
+                    projectId,
+                    viewId,
+                    worksheetId,
+                    worksheetInfo,
+                    isCharge,
+                    needCache: false,
+                    addNewRecord,
+                  });
+                },
               });
               return;
             }
-            Confirm({
-              className: '',
-              title: _l('您的草稿箱已满，无法保存'),
-              description: _l('草稿箱中的草稿数量已经达到10条'),
-              okText: _l('查看草稿箱'),
-              buttonType: 'primary',
-              cancelText: _l('我知道了'),
-              onOk: () => {
-                openWorkSheetDraft({
-                  showFillNext: true,
-                  appId,
-                  projectId,
-                  viewId,
-                  worksheetId,
-                  worksheetInfo,
-                  isCharge,
-                  needCache: false,
-                  addNewRecord,
-                });
+            updateDraftTotalInfo({
+              worksheetId,
+              isAdd: true,
+              callback: total => {
+                emitter.emit('UPDATE_DRAFT_TOTAL', { worksheetId, total });
               },
             });
-            return;
-          }
-          updateDraftTotalInfo({
-            worksheetId,
-            isAdd: true,
-            callback: total => {
-              emitter.emit('UPDATE_DRAFT_TOTAL', { worksheetId, total });
-            },
-          });
-          onCancel();
-          if (offlineUpload === '1') {
-            compatibleMDJS(
-              'offlineDataSaved',
-              {
-                tempId: offlineTempId,
-                sheetId: props.worksheetId,
-                recordId: rowData.rowid,
-                draft: true,
-              },
-              () => {},
-            );
-          }
-        },
-        onSubmitEnd: () => {
-          onSubmitEnd();
-          setRequesting(false);
-        },
-        ..._.pick(props, ['notDialog', 'addWorksheetRow', 'masterRecord', 'addType', 'updateWorksheetControls']),
-      });
-      return;
+            onCancel();
+            if (offlineUpload === '1') {
+              compatibleMDJS(
+                'offlineDataSaved',
+                {
+                  tempId: offlineTempId,
+                  sheetId: props.worksheetId,
+                  recordId: rowData.rowid,
+                  draft: true,
+                },
+                () => {},
+              );
+            }
+          },
+          onSubmitEnd: () => {
+            onSubmitEnd();
+            setRequesting(false);
+          },
+          ..._.pick(props, ['notDialog', 'addWorksheetRow', 'masterRecord', 'addType', 'updateWorksheetControls']),
+        });
+        return;
+      }
+      onSubmitBegin();
+      cache.current.newRecordOptions = options;
+      customwidget.current.submitFormData();
     }
-    onSubmitBegin();
-    cache.current.newRecordOptions = options;
-    customwidget.current.submitFormData();
+
+    setTimeout(handleSubmit, this.hasFocusingRelateRecordTags || window.cellTextIsBlurring ? 1000 : 0);
   }
   async function onSave(error, { data, handleRuleError, handleServiceError, alertLockError } = {}) {
     if (error) {
@@ -433,6 +437,7 @@ function NewRecordForm(props) {
                   viewId: openViewId,
                   from: 3,
                   enablePayment: worksheetInfo.enablePayment,
+                  filledByAiMap: props.mobileFilledByAiMap,
                 });
               } else {
                 openRecordInfo({
@@ -621,6 +626,9 @@ function NewRecordForm(props) {
     function handle() {
       if (action === 'fillValueByAi') {
         const { controlId } = params;
+        if (params.worksheetId !== worksheetId) {
+          return;
+        }
         let value = params.value;
         const control = find(cache.current.originFormdata, { controlId });
         if (control && control.type === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST && !isEmpty(value)) {
@@ -634,7 +642,7 @@ function NewRecordForm(props) {
           });
           value = value.length;
         }
-        if (control.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET && typeof value === 'undefined') {
+        if (control && control.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET && typeof value === 'undefined') {
           value = '[]';
         }
         setFilledByAiMap(prev => ({
@@ -836,6 +844,7 @@ function NewRecordForm(props) {
               <RecordForm
                 from={2}
                 isDraft={isDraft}
+                isMingoCreate={isMingoCreate}
                 type="new"
                 loading={formLoading || loading || isSettingTempData}
                 recordbase={{
@@ -875,7 +884,7 @@ function NewRecordForm(props) {
                 relateRecordData={relateRecordData}
                 worksheetId={worksheetId}
                 showError={errorVisible}
-                filledByAiMap={filledByAiMap}
+                filledByAiMap={isMobile ? props.mobileFilledByAiMap : filledByAiMap}
                 onChange={(data, ids, { noSaveTemp } = {}) => {
                   setFilledByAiMap(prev => ({
                     ...prev,

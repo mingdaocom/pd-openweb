@@ -8,14 +8,14 @@ const Wrap = styled.div`
   .searchWrap {
     padding: 7px 15px;
     border-radius: 25px;
-    background-color: #f6f6f6;
+    background-color: var(--color-background-secondary);
     position: relative;
     margin: 10px;
     input {
       width: 100%;
       border: none;
       padding-left: 10px;
-      background-color: #f6f6f6;
+      background-color: var(--color-background-secondary);
     }
     .icon-close {
       position: absolute;
@@ -27,7 +27,7 @@ const Wrap = styled.div`
     padding: 0 10px;
     .opinionItem {
       padding: 10px 0;
-      border-bottom: 1px solid #f6f6f6;
+      border-bottom: 1px solid var(--color-background-secondary);
     }
   }
 `;
@@ -43,7 +43,7 @@ class ModalWrap extends Component {
     const { searchValue } = this.state;
     return (
       <div className="searchWrap valignWrapper">
-        <Icon icon="search" className="Gray_9e Font20 pointer" />
+        <Icon icon="search" className="textTertiary Font20 pointer" />
         <input
           value={searchValue}
           type="text"
@@ -57,7 +57,7 @@ class ModalWrap extends Component {
         {searchValue && (
           <Icon
             icon="close"
-            className="Gray_75 Font20 pointer"
+            className="textSecondary Font20 pointer"
             onClick={() => {
               this.setState({
                 searchValue: '',
@@ -79,7 +79,7 @@ class ModalWrap extends Component {
           <div className="flex opinionsWrap">
             {inputType === 2 && (
               <div
-                className="opinionItem ThemeColor"
+                className="opinionItem colorPrimary"
                 onClick={() => {
                   onSelect('');
                   onClose();
@@ -95,7 +95,7 @@ class ModalWrap extends Component {
                 <Fragment key={index}>
                   {index === 0 && <div className="opinionItem bold Font14">{_l('选择预设')}</div>}
                   <div
-                    className="opinionItem Gray"
+                    className="opinionItem textPrimary"
                     onClick={() => {
                       onSelect(data.value);
                       onClose();
@@ -112,7 +112,7 @@ class ModalWrap extends Component {
                 <Fragment key={index}>
                   {index === 0 && <div className="opinionItem bold Font14">{_l('上次输入')}</div>}
                   <div
-                    className="opinionItem Gray"
+                    className="opinionItem textPrimary"
                     onClick={() => {
                       onSelect(data.opinion);
                       onClose();

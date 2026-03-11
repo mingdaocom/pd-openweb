@@ -8,14 +8,14 @@ import Base from './components/Base';
 
 const PageWrap = styled.div`
   min-height: 100vh;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   padding: 32px 0 60px;
   font-size: 14px;
   .cardWrap {
     width: auto;
     padding: 30px;
     border-radius: 4px;
-    background-color: rgb(255, 255, 255);
+    background-color: var(--color-background-primary);
     box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px 1px;
     min-width: 840px;
     max-width: 1000px;
@@ -33,7 +33,7 @@ const TitleBar = styled.div`
   }
 
   .pageTitle {
-    color: #151515;
+    color: var(--color-text-title);
   }
 `;
 

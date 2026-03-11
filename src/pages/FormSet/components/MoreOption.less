@@ -1,7 +1,7 @@
 .moreOptionTrigger {
   position: relative;
   padding: 6px 0;
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow: 0px 4px 16px #0000003d;
   border-radius: 2px;
   z-index: 1;
@@ -14,20 +14,20 @@
     line-height: 36px;
     padding: 0 17px;
     box-sizing: border-box;
-    color: #151515;
+    color: var(--color-text-title);
     cursor: pointer;
 
     &:hover {
-      background: #f5f5f5;
-      // color: #fff;
+      background: var(--color-background-secondary);
+      // color: var(--color-white);
     }
 
     &.red {
-      color: #f44336;
+      color: var(--color-error);
 
       &:hover {
-        background: #f44336;
-        color: #fff;
+        background: var(--color-error);
+        color: var(--color-white);
       }
     }
   }

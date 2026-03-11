@@ -11,7 +11,7 @@ import { isValidName } from '../../constant';
 
 const NewItem = styled.div`
   padding: 5px 12px;
-  color: #1677ff;
+  color: var(--color-primary);
   cursor: pointer;
 `;
 
@@ -60,9 +60,9 @@ export default function SelectTables(props) {
                 label:
                   isSameTable || !isValidTable ? (
                     <div className="flexRow alignItemsCenter">
-                      <span className="Gray_9e">{item.workSheetName}</span>
+                      <span className="textTertiary">{item.workSheetName}</span>
                       <Tooltip title={isSameTable ? _l('不可选与数据源相同的表') : _l('名称包含特殊字符，无法同步')}>
-                        <Icon icon="info" className="Gray_bd mLeft24 pointer" />
+                        <Icon icon="info" className="textDisabled mLeft24 pointer" />
                       </Tooltip>
                     </div>
                   ) : (
@@ -113,7 +113,7 @@ export default function SelectTables(props) {
               label:
                 isSameTable || !isValidTable || !pgSqlValid ? (
                   <div className="flexRow alignItemsCenter">
-                    <span className="Gray_9e">{item}</span>
+                    <span className="textTertiary">{item}</span>
                     <Tooltip
                       title={
                         isSameTable
@@ -123,7 +123,7 @@ export default function SelectTables(props) {
                             : _l('名称包含特殊字符，无法同步')
                       }
                     >
-                      <Icon icon="info" className="Gray_bd mLeft24 pointer" />
+                      <Icon icon="info" className="textDisabled mLeft24 pointer" />
                     </Tooltip>
                   </div>
                 ) : (

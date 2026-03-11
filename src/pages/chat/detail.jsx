@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
-import store from 'redux/configureStore';
 import DocumentTitle from 'react-document-title';
 import qs from 'query-string';
 import ConnectChatWindow from 'src/pages/chat/containers/ChatWindow';
+import store from 'src/redux/configureStore';
 
 export default class ChatWindowEntrypoint extends Component {
   constructor(props) {

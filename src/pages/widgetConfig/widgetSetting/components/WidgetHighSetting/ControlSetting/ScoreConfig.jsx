@@ -26,14 +26,14 @@ const ItemName = styled.div`
     line-height: 34px;
     padding-left: 14px;
     box-sizing: border-box;
-    background: #f5f5f5;
-    border: 1px solid #e0e0e0;
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-border-primary);
     border-radius: 3px;
   }
   .scoreText {
     flex: 1;
     height: 36px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-primary);
     border-radius: 3px;
     padding: 0 12px;
   }
@@ -110,7 +110,7 @@ export default function ScoreConfig({ data, onChange }) {
 
       {itemnames.length > 0 && (
         <EditInfo style={{ marginTop: '8px' }} onClick={() => setVisible({ visible: true })}>
-          <div className="text overflow_ellipsis Gray">
+          <div className="text overflow_ellipsis textPrimary">
             {itemnames
               .filter(i => i.value)
               .map(i => i.value)
@@ -136,7 +136,7 @@ export default function ScoreConfig({ data, onChange }) {
         }}
       >
         <Fragment>
-          <div className="Gray_9e mBottom24">
+          <div className="textTertiary mBottom24">
             {_l('为每个等级设置说明文案。当鼠标悬停在对应等级或在选中后，显示对等级的描述文案。')}
           </div>
           <ItemName style={{ marginBottom: 0 }}>

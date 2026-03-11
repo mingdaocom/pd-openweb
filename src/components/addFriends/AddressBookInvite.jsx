@@ -67,7 +67,7 @@ export default class AddressBookInvite extends Component {
     const { selectUsers, loading, showDialogSettingInviteRules } = this.state;
     return (
       <div className="addFriendsContent">
-        <div className="Gray_75 mBottom12">{_l('从联系人中选择用户，邀请加入到当前组织')}</div>
+        <div className="textSecondary mBottom12">{_l('从联系人中选择用户，邀请加入到当前组织')}</div>
 
         <div className="resultContent" style={{ minHeight: 280 }}>
           {selectUsers.map(user => {
@@ -88,7 +88,7 @@ export default class AddressBookInvite extends Component {
         </div>
 
         <div className="footContainer">
-          <div className="addBox Gray_9e">
+          <div className="addBox textTertiary">
             {showInviteRules && (
               <span onClick={() => this.setState({ showDialogSettingInviteRules: true })}>
                 <Icon icon="settings" />

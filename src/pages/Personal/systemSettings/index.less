@@ -2,7 +2,7 @@
   flex: 1;
   min-height: 0;
   box-sizing: border-box;
-  background-color: #ffffff;
+  background-color: var(--color-background-primary);
   overflow-x: hidden;
   padding: 0 40px;
   .languagueSetting {
@@ -14,17 +14,17 @@
       height: 32px;
       line-height: 30px;
       text-align: center;
-      border: 1px solid #eaeaea;
+      border: 1px solid var(--color-border-secondary);
       margin-right: -1px;
-      color: #151515;
+      color: var(--color-text-title);
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
       &.active {
-        color: #ffffff;
+        color: var(--color-white);
         font-weight: bold;
-        background: #1677ff;
-        border-color: #1677ff;
+        background: var(--color-primary);
+        border-color: var(--color-primary);
       }
       &:first-child {
         border-radius: 3px 0 0 3px;
@@ -37,7 +37,7 @@
   .systemSettingItem {
     display: flex;
     padding: 30px 0;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     .systemSettingsLabel {
       width: 140px;
       text-align: left;
@@ -80,7 +80,7 @@
       .systemSettingsZoneDesc {
         max-width: 600px;
         padding: 6px 14px;
-        background: #fbefe0;
+        background: var(--color-warning-bg);
         border-radius: 4px;
       }
     }

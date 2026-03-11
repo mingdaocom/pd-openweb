@@ -1,6 +1,6 @@
 .orgDrowSelectCon {
-  background: #ffffff;
-  box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-lg);
   border-radius: 3px;
   width: 280px;
   .orgSearchCon {
@@ -8,7 +8,7 @@
     padding: 0 16px;
     display: flex;
     align-items: center;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     input {
       border: none;
       font-size: 13px;
@@ -16,7 +16,7 @@
     input::-webkit-input-placeholder,
     input::-moz-placeholder,
     input:-ms-input-placeholder {
-      color: #9d9d9d;
+      color: var(--color-text-tertiary);
     }
   }
   .orgList {
@@ -29,11 +29,11 @@
       line-height: 48px;
     }
     .orgListItem:hover {
-      background: #f7f7f7;
+      background: var(--color-background-hover);
     }
     .orgListItem.active {
-      background: #e4f3fd;
-      color: #1677ff;
+      background: var(--color-primary-transparent);
+      color: var(--color-primary);
       font-weight: 600;
     }
   }

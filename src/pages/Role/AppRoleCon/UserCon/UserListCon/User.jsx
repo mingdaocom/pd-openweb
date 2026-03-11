@@ -26,9 +26,9 @@ const Wrap = styled.div`
     padding: 20px 0;
   }
   .toRole {
-    color: #5a5a5a;
+    color: var(--color-text-title);
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .wrapTr:not(.checkBoxTr):not(.optionWrapTr) {
@@ -46,15 +46,15 @@ const Wrap = styled.div`
     padding: 0 !important;
   }
   .isCurmemberType {
-    color: #1677ff;
+    color: var(--color-primary);
   }
   .isMyRoleW {
     padding: 0px 7px;
     line-height: 18px;
     height: 18px;
-    background: #1677ff;
+    background: var(--color-primary);
     border-radius: 9px 9px 9px 9px;
-    color: #fff;
+    color: var(--color-white);
     .tag {
       font-size: 12px;
       font-weight: 400;
@@ -76,31 +76,31 @@ const WrapBar = styled.div`
   .toRole {
     border-radius: 3px 3px 3px 3px;
     padding: 0 12px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     line-height: 34px;
     display: inline-block;
     &:hover {
-      border: 1px solid #1677ff;
-      color: #1677ff;
+      border: 1px solid var(--color-primary);
+      color: var(--color-primary);
     }
   }
   .addUser {
     line-height: 36px;
-    background: #1677ff;
+    background: var(--color-primary);
     border-radius: 3px;
-    color: #fff;
+    color: var(--color-white);
     padding: 0 12px;
     display: inline-block;
     &:hover {
-      background: #0065bc;
+      background: var(--color-link-hover);
     }
   }
   .search .roleSearch {
     width: 244px;
     height: 37px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     border-radius: 3px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
   }
 `;
 
@@ -300,7 +300,7 @@ function User(props) {
               </Tooltip>
               {isHead && (
                 <Tooltip title={_l('角色负责人')}>
-                  <i className="icon-people_5 Font14 mLeft7" style={{ color: '#FBBB44' }} />
+                  <i className="icon-people_5 Font14 mLeft7" style={{ color: 'var(--color-warning-border)' }} />
                 </Tooltip>
               )}
               {[2].includes(data.memberType) && (
@@ -460,7 +460,7 @@ function User(props) {
                       className: '',
                       title: <span className="Bold Font17">{_l('确认设置为角色负责人？')}</span>,
                       description: (
-                        <div className="Gray_75 Font15 mBottom6 WordBreak">
+                        <div className="textSecondary Font15 mBottom6 WordBreak">
                           {_l('角色负责人可添加、移出当前角色下的成员')}
                         </div>
                       ),
@@ -600,7 +600,10 @@ function User(props) {
           <span className="Font17 Bold WordBreak overflow_ellipsis" title={props.title}>
             {props.title}
           </span>
-          <span className="Gray_9e mLeft15 TxtMiddle mRight8 overflow_ellipsis breakAll flex-shrink-0" title={countTxt}>
+          <span
+            className="textTertiary mLeft15 TxtMiddle mRight8 overflow_ellipsis breakAll flex-shrink-0"
+            title={countTxt}
+          >
             {countTxt}
           </span>
         </div>

@@ -111,7 +111,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                 {isTitle && (
                   <span>
                     <Tooltip title={_l('标题字段无法取消')}>
-                      <Icon icon="info_outline" className="Gray_bd Hand Font15" />
+                      <Icon icon="info_outline" className="textDisabled Hand Font15" />
                     </Tooltip>
                   </span>
                 )}
@@ -249,7 +249,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
             <span>
               {isTitle && (
                 <Tooltip title={_l('标题字段无法取消')}>
-                  <Icon icon="info_outline" className="Gray_bd Hand Font15 disabledCellIcon" />
+                  <Icon icon="info_outline" className="textDisabled Hand Font15 disabledCellIcon" />
                 </Tooltip>
               )}
             </span>
@@ -260,7 +260,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
   };
 
   renderHeader = rowItem => {
-    const { currentSheetInfo = {}, worksheetList = [], createType, projectId } = this.props;
+    const { currentSheetInfo = {}, worksheetList = [], createType, projectId, appId } = this.props;
     const { matchControl = [], rowNum, selectCells = [] } = currentSheetInfo;
     const rowItemCells = rowItem.cells.filter(it => _.includes(selectCells, it.columnNumber));
     return (
@@ -277,8 +277,8 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
             return (
               <td key={'td-' + it.columnNumber}>
                 <span className="flexRow alignItemsCenter">
-                  {control.attribute === 1 && <Icon icon="ic_title " className="ThemeColor mRight5 Font16" />}
-                  <Icon icon={cellIcon} className="Gray_9d Font16" />
+                  {control.attribute === 1 && <Icon icon="ic_title " className="colorPrimary mRight5 Font16" />}
+                  <Icon icon={cellIcon} className="textTertiary Font16" />
                   <Trigger
                     popupClassName="excelControlSettingWrap"
                     popupVisible={it.editFieldVisible}
@@ -298,6 +298,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                         data={{ ...control }}
                         createType={createType}
                         projectId={projectId}
+                        appId={appId}
                         onChange={newControl => {
                           const copyMatchControl = _.map(matchControl, i =>
                             i.controlId === newControl.controlId ? newControl : i,
@@ -347,7 +348,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                     action={['click']}
                     popup={() => this.renderSetCell(it)}
                   >
-                    <Icon icon="arrow-down" className="Gray_9d Font12 Hand Hover_21" />
+                    <Icon icon="arrow-down" className="textTertiary Font12 Hand hoverColorPrimary" />
                   </Trigger>
                 </span>
               </td>
@@ -397,7 +398,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
           onCancel={this.props.onCancel}
           footer={
             <div className="flexRow footerContent">
-              <div className="Gray_9e">
+              <div className="textTertiary">
                 {_.isEmpty(selectedImportSheetIds)
                   ? ''
                   : _l(
@@ -411,7 +412,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                   type={2}
                   text={_l('帮助')}
                   href="https://help.mingdao.com/worksheet/import-excel-create"
-                  className="Gray_bd mRight30"
+                  className="textDisabled mRight30"
                 />
                 <Button type="link" className="mRight15 cancelBtn" onClick={this.props.onCancel}>
                   {_l('取消')}
@@ -444,7 +445,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
               updateExcelDetailData={this.props.updateExcelDetailData}
             />
             {_.isEmpty(selectedImportSheetIds) ? (
-              <div className="flexColumn h100 Gray_75 Font16 alignItemsCenter justifyContentCenter">
+              <div className="flexColumn h100 textSecondary Font16 alignItemsCenter justifyContentCenter">
                 <div>{_l('没有可导入Sheet')}</div>
                 <div>{_l('请检查导入文件')}</div>
               </div>
@@ -474,7 +475,7 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                         '只有表头下方的数据才会被导入;表头字段不得为空，否则将导致空值字段之后的字段无法被导入。',
                       )}
                     >
-                      <Icon icon="info_outline" className="Gray_bd mLeft8 Hand Font16" />
+                      <Icon icon="info_outline" className="textDisabled mLeft8 Hand Font16" />
                     </Tooltip>
                   </div>
                   <div className="exportCol Hand">
@@ -488,13 +489,13 @@ export default class SetImportExcelCreateWorksheetOrApp extends Component {
                       popup={this.renderCells}
                     >
                       <span>
-                        <Icon icon="tune_new" className="Gray_75 mRight5" />
+                        <Icon icon="tune_new" className="textSecondary mRight5" />
                         <span>
                           {selectCells.length === cells.length
                             ? _l('导入所有列')
                             : _l('导入%0/%1列', selectCells.length, cells.length)}
                         </span>
-                        <Icon icon="arrow-down-border" className="mLeft5 Gray_9e" />
+                        <Icon icon="arrow-down-border" className="mLeft5 textTertiary" />
                       </span>
                     </Trigger>
                   </div>

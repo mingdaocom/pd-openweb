@@ -12,12 +12,12 @@ const PopupWrapper = styled.div`
     gap: 5px;
     margin-top: 20px;
     .cancelBtn {
-      background: #fff !important;
-      border: 1px solid #e0e0e0;
-      color: #757575;
+      background: var(--color-background-primary) !important;
+      border: 1px solid var(--color-border-secondary);
+      color: var(--color-text-secondary);
       &:hover {
-        color: #1677ff;
-        border-color: #1677ff;
+        color: var(--color-primary);
+        border-color: var(--color-primary);
       }
     }
   }

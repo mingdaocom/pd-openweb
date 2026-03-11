@@ -11,12 +11,12 @@ const Wrapper = styled.div`
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    color: #9e9e9e;
-    background-color: #fff;
+    color: var(--color-text-tertiary);
+    background-color: var(--color-background-primary);
 
     &:hover {
-      color: #1677ff;
-      background-color: #f5f5f5;
+      color: var(--color-primary);
+      background-color: var(--color-background-hover);
     }
   }
 `;
@@ -27,7 +27,7 @@ const OptionMenu = styled.div`
   padding: 6px 0 !important;
   box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.16);
   border-radius: 3px;
-  background: #fff;
+  background: var(--color-background-primary);
 `;
 
 const MenuItem = styled.div`
@@ -35,12 +35,12 @@ const MenuItem = styled.div`
   line-height: 36px;
   cursor: pointer;
   &:hover {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-hover);
   }
 `;
 
 const RedMenuItem = styled(MenuItem)`
-  color: #f44336;
+  color: var(--color-error);
 `;
 
 export default function OptionColumn(props) {

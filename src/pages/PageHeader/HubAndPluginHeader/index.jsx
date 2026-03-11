@@ -15,15 +15,15 @@ const HomeEntry = styled.div`
   width: 28px;
   height: 28px;
   border-radius: 14px;
-  border: 1px solid #eaeaea;
+  border: 1px solid var(--color-border-secondary);
   margin: 0 12px 0 16px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   text-align: center;
   line-height: 29px;
   cursor: pointer;
   &:hover {
-    border-color: #ddd;
-    color: #1677ff;
+    border-color: var(--color-border-primary);
+    color: var(--color-primary);
   }
 `;
 const Wrap = styled.div`
@@ -42,7 +42,7 @@ const Wrap = styled.div`
     background: #9d27b0;
     border-radius: 5px 5px 5px 5px;
     border-radius: 6px;
-    color: #fff;
+    color: var(--color-white);
     line-height: 30px;
   }
 `;

@@ -24,24 +24,14 @@
     <span class="timezone boderRadAll_3 Font14 ThemeBorderColor3 ThemeColor3">{{= _l('时区')}}</span>
 </div>
 <div id="selectTimezone"></div>
-<div class="allDay pointer">
-    <label for="allDay">
-        <input id="allDay" type="checkbox" />
-        <span class="pointer">{{= _l("全天日程")}}</span>
-    </label>
-</div>
+<div id="allDay"></div>
 <div class="createCalendarBox calendarRemind Font14">
     <div class="createCalendarLabel">{{= _l('提醒%19000')}}</div>
     <span class="remindTextLable" id="remindTextLableCreate">{{= _l('提前%19001') }}</span>
     <input type="text" id="remindTextCreate" class="remindText Font14 pointer ThemeColor3" value="15" />
     <input type="hidden" id="remindSelectCreate" />
     <span class="InlineBlock" id="remindSelectCreateBox" style="margin-top: -5px; margin-left: -12px"></span>
-    <div class="telRemindLabel InlineBlock mLeft25 Gray_9e">
-        <label class="Hand"> <span class="chekboxIcon"></span> {{= _l('电话提醒')}} </label>
-        <span class="iconHelp" title="{{= _l('勾选电话提醒，将以电话语音形式通知日程参与人员') }}">
-            <i class="icon-help"></i>
-        </span>
-    </div>
+    <span class="mLeft25 TxtTop" id="telRemindLabel"></span>
 </div>
 <div class="createCalendarBox Font14 Hidden" id="repeatContent">
     <div class="createCalendarLabel"><span class="chekboxIcon"></span>{{= _l('重复')}}</div>
@@ -83,12 +73,7 @@
     <span data-type="address" class="ThemeBorderColor3 ThemeColor3">{{= _l('会议地点')}}</span>
     <span data-type="repeat" class="ThemeBorderColor3 ThemeColor3 InlineBlock">{{= _l('重复')}}</span>
 </div>
-<div class="createCalendarBox Font14 calendarPrivate" id="calendarPrivate">
-    <label class="pointer isPrivateLabel"> <span class="chekboxIcon"></span> {{= _l('私密日程')}} </label>
-    <span class="iconHelp" title="{{= _l('日程内容默认公开给所有同事，勾选私密日程，将仅对参与人员公开。')}}">
-        <i class="icon-help"></i>
-    </span>
-</div>
+<div class="createCalendarBox Font14 calendarPrivate" id="calendarPrivate"></div>
 <div class="box-sizing createCalendarOperator">
     <span class="boderRadAll_3 ThemeBGColor3" id="calendarSubmitBtn">{{= _l('创建')}}</span>
 </div>

@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 const IconBtn = styled.span`
-  color: #757575;
+  color: var(--color-text-secondary);
   height: 28px;
   font-size: 22px;
   line-height: 28px;
@@ -9,7 +9,7 @@ const IconBtn = styled.span`
   margin: 12px 0 12px 8px;
   border-radius: 5px;
   &:hover {
-    background: #f7f7f7;
+    background: var(--color-background-hover);
   }
 `;
 export default IconBtn;

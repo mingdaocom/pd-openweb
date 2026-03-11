@@ -7,6 +7,7 @@ import { reportTypes } from 'statistics/Charts/common';
 import {
   areaParticleSizeDropdownData,
   cascadeParticleSizeDropdownData,
+  displayModes,
   filterAreaParticleSizeDropdownData,
   filterTimeData,
   filterTimeGatherParticle,
@@ -248,14 +249,17 @@ export default class XAxis extends Component {
                     disabled={
                       item.value === xaxes.particleSizeType ? true : disableParticleSizeTypes.includes(item.value)
                     }
-                    style={{ width: 200, color: item.value === (xaxes.particleSizeType || 1) ? '#1e88e5' : null }}
+                    style={{
+                      width: 200,
+                      color: item.value === (xaxes.particleSizeType || 1) ? 'var(--color-primary) !important' : null,
+                    }}
                     key={item.value}
                     onClick={() => {
                       this.handleUpdateTimeParticleSizeType(item.value);
                     }}
                   >
                     <div className="flex">{item.text}</div>
-                    <div className="Gray_75 Font12">{item.getTime(xaxes.showFormat)}</div>
+                    <div className="textSecondary Font12">{item.getTime(xaxes.showFormat)}</div>
                   </Menu.Item>
                 ))}
               </Menu.ItemGroup>
@@ -269,14 +273,18 @@ export default class XAxis extends Component {
                         disabled={
                           item.value === xaxes.particleSizeType ? true : disableParticleSizeTypes.includes(item.value)
                         }
-                        style={{ width: 200, color: item.value === (xaxes.particleSizeType || 1) ? '#1e88e5' : null }}
+                        style={{
+                          width: 200,
+                          color:
+                            item.value === (xaxes.particleSizeType || 1) ? 'var(--color-primary) !important' : null,
+                        }}
                         key={item.value}
                         onClick={() => {
                           this.handleUpdateTimeParticleSizeType(item.value);
                         }}
                       >
                         <div className="flex">{item.text}</div>
-                        <div className="Gray_75 Font12">{item.getTime()}</div>
+                        <div className="textSecondary Font12">{item.getTime()}</div>
                       </Menu.Item>
                     ))}
                   </Menu.ItemGroup>
@@ -288,7 +296,10 @@ export default class XAxis extends Component {
                 {formatTimeFormats(xaxes.particleSizeType).map(item => (
                   <Menu.Item
                     className="valignWrapper"
-                    style={{ width: 200, color: item.value === xaxes.showFormat ? '#1e88e5' : null }}
+                    style={{
+                      width: 200,
+                      color: item.value === xaxes.showFormat ? 'var(--color-primary) !important' : null,
+                    }}
                     key={item.value}
                     onClick={() => {
                       this.handleChangeXaxes({ showFormat: item.value });
@@ -299,7 +310,10 @@ export default class XAxis extends Component {
                 ))}
                 <Menu.Item
                   className="valignWrapper"
-                  style={{ width: 200, color: !_.find(timeFormats, { value: xaxes.showFormat }) ? '#1e88e5' : null }}
+                  style={{
+                    width: 200,
+                    color: !_.find(timeFormats, { value: xaxes.showFormat }) ? 'var(--color-primary) !important' : null,
+                  }}
                   key="customShowFormat"
                   onClick={() => {
                     this.setState({ showFormatDialogVisible: true });
@@ -316,7 +330,10 @@ export default class XAxis extends Component {
             {areaParticleSizeDropdownData.map(item => (
               <Menu.Item
                 disabled={item.value === xaxes.particleSizeType ? true : disableParticleSizeTypes.includes(item.value)}
-                style={{ width: 120, color: item.value === (xaxes.particleSizeType || 1) ? '#1e88e5' : null }}
+                style={{
+                  width: 120,
+                  color: item.value === (xaxes.particleSizeType || 1) ? 'var(--color-primary) !important' : null,
+                }}
                 key={item.value}
                 onClick={() => {
                   this.handleUpdateTimeParticleSizeType(item.value);
@@ -332,7 +349,10 @@ export default class XAxis extends Component {
             {cascadeParticleSizeDropdownData.map(item => (
               <Menu.Item
                 disabled={item.value === xaxes.particleSizeType}
-                style={{ width: 120, color: item.value === (xaxes.particleSizeType || 1) ? '#1e88e5' : null }}
+                style={{
+                  width: 120,
+                  color: item.value === (xaxes.particleSizeType || 1) ? 'var(--color-primary) !important' : null,
+                }}
                 key={item.value}
                 onClick={() => {
                   this.handleUpdateTimeParticleSizeType(item.value);
@@ -349,7 +369,7 @@ export default class XAxis extends Component {
             title={
               <div className="flexRow valignWrapper w100">
                 <div className="flex">{_l('无记录的项目')}</div>
-                <div className="Font12 Gray_75 emptyTypeName">{xaxes.emptyType ? _l('显示') : _l('隐藏')}</div>
+                <div className="Font12 textSecondary emptyTypeName">{xaxes.emptyType ? _l('显示') : _l('隐藏')}</div>
               </div>
             }
             popupOffset={[0, -15]}
@@ -357,7 +377,7 @@ export default class XAxis extends Component {
             {getEmptyTypes(reportType).map(item => (
               <Menu.Item
                 key={item.value}
-                style={{ color: item.value === xaxes.emptyType ? '#1e88e5' : null }}
+                style={{ color: item.value === xaxes.emptyType ? 'var(--color-primary) !important' : null }}
                 onClick={() => {
                   this.handleChangeXaxes({ emptyType: item.value });
                 }}
@@ -378,6 +398,32 @@ export default class XAxis extends Component {
             {xaxes.xaxisEmpty && <Icon icon="done" className="Font17" />}
           </Menu.Item>
         )}
+        {reportType === reportTypes.TopChart && xaxes.controlType === 26 && (
+          <Menu.SubMenu
+            popupClassName="chartMenu"
+            title={
+              <div className="flexRow valignWrapper w100">
+                <div className="flex">{_l('显示方式')}</div>
+                <div className="Font12 textSecondary emptyTypeName">
+                  {_.get(_.find(displayModes, { value: xaxes.displayMode }), 'text')}
+                </div>
+              </div>
+            }
+            popupOffset={[0, -15]}
+          >
+            {displayModes.map(item => (
+              <Menu.Item
+                style={{ color: item.value === xaxes.displayMode ? 'var(--color-primary) !important' : null }}
+                key={item.value}
+                onClick={() => {
+                  this.handleChangeXaxes({ displayMode: item.value });
+                }}
+              >
+                {item.text}
+              </Menu.Item>
+            ))}
+          </Menu.SubMenu>
+        )}
       </Menu>
     );
   }
@@ -393,7 +439,7 @@ export default class XAxis extends Component {
       <div className="flexRow valignWrapper fidldItem">
         {axis ? (
           <Tooltip title={tip}>
-            <span className="Gray flex ellipsis">
+            <span className="textPrimary flex ellipsis">
               {xaxes.rename || xaxes.controlName}
               {isTime && ` (${_.find(timeParticleSizeDropdownData, { value: xaxes.particleSizeType || 1 }).text})`}
               {isArea && ` (${_.find(areaParticleSizeDropdownData, { value: xaxes.particleSizeType || 1 }).text})`}
@@ -407,9 +453,9 @@ export default class XAxis extends Component {
           </Tooltip>
         )}
         <Dropdown overlay={this.renderOverlay(axis || {})} trigger={['click']} placement="bottomRight">
-          <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
+          <Icon className="textTertiary Font18 pointer" icon="arrow-down-border" />
         </Dropdown>
-        <Icon className="Gray_9e Font18 pointer mLeft10" icon="close" onClick={this.props.removeXaxes} />
+        <Icon className="textTertiary Font18 pointer mLeft10" icon="close" onClick={this.props.removeXaxes} />
       </div>
     );
   }

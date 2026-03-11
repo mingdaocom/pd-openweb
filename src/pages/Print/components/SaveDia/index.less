@@ -1,0 +1,65 @@
+.saveDiaCon {
+  .list {
+    display: flex;
+    width: 100%;
+    .title {
+      width: 72px;
+      line-height: 36px;
+    }
+    .tepName {
+      flex: 1;
+      height: 36px;
+      background: var(--color-background-primary) 0% 0% no-repeat padding-box;
+      border: 1px solid var(--color-border-primary);
+      border-radius: 2px;
+      padding: 0 12px;
+      &:focus {
+        border: 1px solid var(--color-primary);
+      }
+    }
+    .viewBox {
+      flex: 1;
+      min-height: 36px;
+      background: var(--color-background-primary) 0% 0% no-repeat padding-box;
+      border: 1px solid var(--color-border-primary);
+      border-radius: 2px;
+      padding: 0 12px;
+      position: relative;
+      > span {
+        line-height: 36px;
+        display: block;
+      }
+      .moreList {
+        position: absolute;
+        right: 0;
+        top: 10px;
+        color: var(--color-text-tertiary);
+        &:hover {
+          color: var(--color-text-title);
+        }
+      }
+      .itemList {
+        // min-height: 36px;
+        .item {
+          line-height: 24px;
+          display: inline-block;
+          background: var(--color-border-secondary) 0% 0% no-repeat padding-box;
+          border-radius: 12px;
+          padding: 0px 10px;
+          margin-right: 10px;
+          line-height: 24px;
+          margin-top: 5px;
+          margin-bottom: 6px;
+          .remove {
+            margin-left: 10px;
+            color: var(--color-text-tertiary);
+            cursor: pointer;
+          }
+        }
+      }
+    }
+  }
+  .mui-dialog-body {
+    overflow: initial !important;
+  }
+}

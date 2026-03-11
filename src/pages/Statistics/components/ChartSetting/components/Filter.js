@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import store from 'redux/configureStore';
 import _ from 'lodash';
 import moment from 'moment';
 import { Dialog } from 'ming-ui';
@@ -7,8 +6,9 @@ import worksheetApi from 'src/api/worksheet';
 import { isTimeControl } from 'statistics/common';
 import FilterConfig from 'worksheet/common/WorkSheetFilter/common/FilterConfig';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config';
-import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import store from 'src/redux/configureStore';
 
 export default class Filter extends Component {
   constructor(props) {
@@ -51,7 +51,7 @@ export default class Filter extends Component {
       });
   };
   render() {
-    const { filter, projectId, worksheetInfo, filterItem, sourceType } = this.props;
+    const { filter = {}, projectId, worksheetInfo, filterItem, sourceType } = this.props;
     const urlParams = _.get(store.getState(), 'customPage.urlParams') || [];
     const { visible } = this.state;
     const urlParamsColumns = urlParams.map(i => ({ controlName: i, controlId: i }));
@@ -62,7 +62,7 @@ export default class Filter extends Component {
         <div className="Bold mBottom12 Font13">{_l('筛选')}</div>
         {filterItem.length ? (
           <FilterItemTexts
-            className="WhiteBG"
+            className="bgPrimary"
             loading={false}
             filterItemTexts={filterItemTexts}
             onClear={() => {
@@ -75,7 +75,7 @@ export default class Filter extends Component {
           />
         ) : (
           <div
-            className="filterWrapper flexRow alignItemsCenter Gray_bd Font13 Hover_21"
+            className="filterWrapper flexRow alignItemsCenter textDisabled Font13 hoverColorPrimary"
             onClick={() => this.setState({ visible: true })}
           >
             {_l('添加筛选字段')}

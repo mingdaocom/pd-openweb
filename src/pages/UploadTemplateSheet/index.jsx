@@ -6,7 +6,8 @@ import Trigger from 'rc-trigger';
 import { Dialog, Icon, Menu, MenuItem, Support } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
-import { APPROVAL_SYS, FILTER_SYS } from 'src/pages/Print/config';
+import { APPROVAL_SYS } from 'src/pages/Print/core/config';
+import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import { createEditFileLink } from './utils';
 import './index.less';
 
@@ -456,7 +457,7 @@ export default class UploadTemplateSheet extends React.Component {
         {/** 表单字段列表 */}
         <p className="line" />
         <div className="title">{_l('表单字段')}</div>
-        <p className="mTop12 Gray_75">
+        <p className="mTop12 textSecondary">
           {_l(
             '当表单字段包含多个值时，默认以逗号隔开列出所有值。如需将关联表（卡片、下拉框）以表格方式逐行向下列出所有记录的字段值，可将字段代码或字段ID中的“[S]”去掉，并放在表格中使用。',
           )}
@@ -465,7 +466,7 @@ export default class UploadTemplateSheet extends React.Component {
           if (
             !controlNo.includes(it.type) &&
             !systemControl.some(o => o.controlId == it.controlId) &&
-            !FILTER_SYS.includes(it.controlId) //排除部分系统字段
+            !ALL_SYS.filter(c => !['ownerid', 'caid', 'ctime', 'utime'].includes(c)).includes(it.controlId)
           )
             return this.renderItem(it);
           else return '';
@@ -476,41 +477,41 @@ export default class UploadTemplateSheet extends React.Component {
           <React.Fragment>
             <p className="line" />
             <div className="title">{_l('子表、关联记录、查询记录（列表）、审批明细')}</div>
-            <p className="mTop12 Gray_75">
+            <p className="mTop12 textSecondary">
               <span>
                 {_l(
                   '子表、关联记录（列表）、查询记录（列表）、审批明细中的字段支持四种打印方式。打印审批明细时，如果同一条审批流程被重复发起了多次，则只会打印发起时间最近的一次。',
                 )}
               </span>
               <ol>
-                <li className="Gray_75 pLeft12">
+                <li className="textSecondary pLeft12">
                   {_l(
                     '（1）表格打印（默认）：直接将字段代码放入表格中，在表格中逐行向下列出所有记录的字段值。如果要对相同值进行合并单元格，可在字段代码中加上“[M]”，如：#{客户.客户名称[M]}',
                   )}
                 </li>
-                <li className="Gray_75 pLeft12">
+                <li className="textSecondary pLeft12">
                   {_l(
                     '（2）拼接打印：以逗号隔开列出所有记录的字段值。可在字段代码中加上“[S]”，如#{客户.客户名称[S]}。',
                   )}
                 </li>
-                <li className="Gray_75 pLeft12">
+                <li className="textSecondary pLeft12">
                   {_l(
                     '（3）填充打印：在指定位置填充列表中固定某一行记录的字段，可在字段代码或字段ID的子表或关联表名后加索引值，如固定显示第一行记录的#{客户.客户名称}加索引号写法为#{客户[1].客户名称}；',
                   )}
                 </li>
-                <li className="Gray_75 pLeft12">
+                <li className="textSecondary pLeft12">
                   {_l(
                     '（4）逐条打印：关联记录（列表）中 每一条记录作为一个整体依次逐条打印。可以将以下代码插入到模板中，代码下方的内容将识别为记录的基本单元。',
                   )}
                 </li>
-                <li className="Gray_75 pLeft12">
+                <li className="textSecondary pLeft12">
                   {_l(
                     '（5）序号打印：如果需要在子表、关联记录、查询记录（列表）中打印系统自动生成的序号字段，可在代码中调用 sequencenumber 字段代码，例如 #{关联表字段代码.sequencenumber}。其中“关联表字段代码”为当前表中关联字段的字段代码，sequencenumber 为系统自动编号字段的固定代码',
                   )}
                 </li>
               </ol>
             </p>
-            <p className="mTop12 Gray_75">
+            <p className="mTop12 textSecondary">
               {_l('查看')}
               <Support
                 className="mRight5 supportVerticalTop"
@@ -750,67 +751,67 @@ export default class UploadTemplateSheet extends React.Component {
           <span className="Font17 Bold">{_l('制作模板: %0', worksheetName)}</span>
         </div>
         <div className="con">
-          <h5 className="pTop45 Font20 Gray">{_l('制作说明')}</h5>
+          <h5 className="pTop45 Font20 textPrimary">{_l('制作说明')}</h5>
           <div className="mTop20">
-            <p className="Gray_75">
+            <p className="textSecondary">
               {_l(
                 '1. 复制你需要的字段代码然后粘贴到您本地 Word 模板（只支持docx格式）或 Excel 模板（只支持xlsx格式）中相应的位置，打印时会获取实际数据中该字段填写的内容。',
               )}
             </p>
-            <p className="Gray_75">
+            <p className="textSecondary">
               {_l(
                 '2. 字段代码必须按照表中的格式填写，否则无法获取到对应字段的数据；如果某两个字段的字段名称相同，为了系统能够识别请选择复制字段ID/字段别名用于制作模板。',
               )}
             </p>
-            <p className="Gray_75">
+            <p className="textSecondary">
               <span>
                 {_l(
                   '3. 平铺类的选项字段如需打印未选中的选项，可在字段代码或ID/别名后加“_Alloptions”，例如：#{单选_Alloptions}。默认为横向平铺，如果要纵向平铺选项，可以添加[V]标记，如#{单选_Alloptions[V]}',
                 )}
               </span>
             </p>
-            <p className="Gray_75">
+            <p className="textSecondary">
               {_l(
                 '4. 可获取附件字段中的图片缩略图和文件名。字段代码为：#{附件$[90*auto_L]$_name}。其中：90*auto 表示图片宽/高尺寸（单位mm）；_L表示获取的图片质量；_name表示获取文件名。',
               )}
               <ol className="">
-                <li className="Gray_75 pLeft12">
+                <li className="textSecondary pLeft12">
                   {_l(
                     '（1）图片尺寸支持4种设置方式。[90*auto] 表示宽度固定为90，高度自适应。[auto*90] 表示宽度自适应，高度固定为90。[90*50_auto]表示宽高在90*50的范围内同时自适应。[90*50]表示宽高为固定尺寸。',
                   )}
                 </li>
-                <li className="Gray_75 pLeft12">
+                <li className="textSecondary pLeft12">
                   {_l(
                     '（2）图片质量支持低、中、高三种设置（默认为低）。低（L）—生成速度快，用于一般打印；中（M）—生成速度适中，打印较清晰；高（H）—生成速度慢，用于高质量彩色打印。',
                   )}
                 </li>
-                <li className="Gray_75 pLeft12">
+                <li className="textSecondary pLeft12">
                   {_l(
                     '（3）默认代码中不包含文件名，需要时可自行拼接_name。例如：#{附件$[90*auto_L]$_name}表示同时获取图片缩略图和文件名；#{附件_name}表示只获取文件名。备注：Excel模版不支持图片与文件名同步显示。',
                   )}
                 </li>
-                <li className="Gray_75 pLeft12">
+                <li className="textSecondary pLeft12">
                   {_l(
                     '（4）在打印 Excel 模板时，多张图片排列可能导致撑高合并单元格引起错位，此时可以加 F 启用图片填充模式，此模式下图片不会撑高单元格，例如：#{附件$[auto*20_F]$} 或 #{附件$[auto*90_HF]$}',
                   )}
                 </li>
               </ol>
             </p>
-            <p className="Gray_75">
+            <p className="textSecondary">
               <span>
                 {_l(
                   '5.可通过代码 #{[qrcode]字段名$[20*20]$} 或 #{[barcode]字段名$[40*10]$} 获取任意字段的二维码 或 条形码。二维码编码方式：QR-code，最大包含150个字（支持汉字）；条形码编码方式：code128，最大包含30个字符（仅支持数字、字母、符号）。',
                 )}
               </span>
             </p>
-            <p className="Gray_75">
+            <p className="textSecondary">
               <span>
                 {_l(
                   '6. 如需不打印没有数据的关联表/子表，请将代码：#NoDataNotPrint[start]# 和 #NoDataNotPrint[end]# 插入到模板中，代码之间的关联记录/子表没有数据则不会打印。',
                 )}
               </span>
             </p>
-            <p className="Gray_75">
+            <p className="textSecondary">
               <span>
                 {_l(
                   '7. 如需打印字段所选成员的工号、邮箱、手机号，请将代码：工号: _ID； 邮箱: _Email； 手机号: _Phone。插入到模版中，如#{[member]字段ID$[(_ID;_Email;_Phone)]$}  实现拼接样式：张三(888;1511515@qq.com;13475236985)',
@@ -818,7 +819,7 @@ export default class UploadTemplateSheet extends React.Component {
               </span>
             </p>
 
-            <p className="Gray_75">
+            <p className="textSecondary">
               <span>
                 {_l(
                   '8. 批量打印 Word 模板时，默认所有数据连续打印，如需实现分页功能（每条数据另起一页），需在模板中的第一个段落配置段前分页。设置方法可参考',
@@ -827,7 +828,7 @@ export default class UploadTemplateSheet extends React.Component {
               <Support type={3} href="https://help.mingdao.com/worksheet/batch-print" text={_l('这里')} />。
               <span>{_l('Excel 模板批量打印时会自动分页打印，无需特殊设置。')}</span>
             </p>
-            <p className="Gray_75">
+            <p className="textSecondary">
               <span>
                 {_l(
                   '9. 时间类型字段默认按照 yyyy-MM-dd HH:mm:ss（2025-01-01 12:00:00） 格式打印。可在字段代码后拼接格式代码来自定义打印时的方式。例：将#{ctime}拼接为#{ctime$[yyyy/M/d]$}，则创建时间打印为：2025/1/1。',
@@ -836,7 +837,7 @@ export default class UploadTemplateSheet extends React.Component {
               <Support type={3} href="https://help.mingdao.com/worksheet/date-format/" text={_l('查看格式规则')} />。
             </p>
             <br />
-            <p className="Gray_75">
+            <p className="textSecondary">
               <span>
                 {_l('查看')}
                 <Support
@@ -851,7 +852,7 @@ export default class UploadTemplateSheet extends React.Component {
               {this.renderDownloadBtn()}
             </p>
           </div>
-          <h5 className="mTop50 Font20 Gray">{_l('字段代码对照表')}</h5>
+          <h5 className="mTop50 Font20 textPrimary">{_l('字段代码对照表')}</h5>
           {this.renderList()}
           {this.renderApprovalList()}
         </div>

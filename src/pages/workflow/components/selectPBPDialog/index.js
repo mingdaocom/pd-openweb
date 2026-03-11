@@ -8,6 +8,7 @@ import process from '../../api/process';
 import processVersion from '../../api/processVersion';
 import ajaxRequest from 'src/api/appManagement';
 import appManagement from 'src/api/appManagement';
+import { RELATION_TYPE } from '../../WorkflowSettings/enum';
 
 const DialogWrapper = styled(Dialog)`
   .mui-dialog-header {
@@ -23,7 +24,7 @@ const DialogWrapper = styled(Dialog)`
 
 const NavBox = styled.div`
   width: 250px;
-  border-right: 1px solid #e0e0e0;
+  border-right: 1px solid var(--color-border-secondary);
   padding: 12px 0 24px;
   min-height: 0;
   ul {
@@ -37,18 +38,18 @@ const NavBox = styled.div`
     cursor: pointer;
     font-size: 13px;
     &:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
     }
     &.active {
       font-weight: bold;
-      background-color: #f5f5f5;
-      color: #2196f3;
+      background-color: var(--color-background-secondary);
+      color: var(--color-primary-focus);
     }
   }
   .createBtn {
     font-size: 13px;
     font-weight: bold;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 16px;
     height: 32px;
     line-height: 32px;
@@ -62,7 +63,7 @@ const ContentBox = styled.div`
   min-width: 0;
   .searchBox {
     height: 48px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     padding: 0 40px 0 20px;
     input {
       border: 0;
@@ -79,14 +80,14 @@ const ContentBox = styled.div`
     flex: 1;
     justify-content: center;
     font-size: 15px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .listItem {
     margin: 12px 13px;
     padding: 10px 15px;
     cursor: pointer;
     &:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
     }
     .listItemIcon {
       display: flex;
@@ -98,7 +99,7 @@ const ContentBox = styled.div`
       background-color: #4c7d9e;
       margin-right: 15px;
       i {
-        color: #fff;
+        color: var(--color-white);
       }
     }
     .listItemContent {
@@ -189,7 +190,7 @@ class SelectPBPDialog extends Component {
       .addProcess({
         companyId: '',
         relationId: appId,
-        relationType: 2,
+        relationType: RELATION_TYPE.APP,
         startEventAppType: 17,
         name: _l('未命名业务流程'),
       })
@@ -238,14 +239,17 @@ class SelectPBPDialog extends Component {
             </NavBox>
             <ContentBox className="flexColumn flex">
               <div className="searchBox flexRow alignItemsCenter">
-                <i className="icon-search Font18 Gray_9e" />
+                <i className="icon-search Font18 textTertiary" />
                 <input
                   value={keyword}
                   placeholder={_l('搜索')}
                   onChange={e => this.setState({ keyword: e.target.value })}
                 />
                 {keyword.trim() && (
-                  <i className="icon-cancel Gray_9e Font15 pointer" onClick={() => this.setState({ keyword: '' })}></i>
+                  <i
+                    className="icon-cancel textTertiary Font15 pointer"
+                    onClick={() => this.setState({ keyword: '' })}
+                  ></i>
                 )}
               </div>
               {list === null && <LoadDiv className="mTop15" />}
@@ -271,7 +275,7 @@ class SelectPBPDialog extends Component {
                       </div>
                       <div className="listItemContent flexColumn flex">
                         <div className="Font14 bold ellipsis">{o.title}</div>
-                        <div className="Font13 Gray_9e ellipsis">{o.desc}</div>
+                        <div className="Font13 textTertiary ellipsis">{o.desc}</div>
                       </div>
                       <i
                         className="Font14 icon-task-new-detail ThemeColor3 ThemeHoverColor2 pointer mLeft15"

@@ -23,7 +23,7 @@ const DialogWrap = styled(Dialog)`
       left: 0;
       right: 0;
       background: rgba(0, 0, 0, 0.4);
-      color: #fff;
+      color: var(--color-white);
       text-align: center;
       display: none !important;
       text-align: center;
@@ -36,7 +36,7 @@ const DialogWrap = styled(Dialog)`
     }
   }
   .ming.Input {
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
   }
 `;
 
@@ -115,7 +115,7 @@ export default class SettingIconAndName extends Component {
           <div className="footer flexRow alignItemsCenter">
             {iconUrl && (
               <div
-                className=" Hand TxtLeft Gray_75"
+                className=" Hand TxtLeft textSecondary"
                 onClick={() => this.setState({ name: defaultName, iconUrl: '', icon: undefined, file: {} })}
               >
                 {_l('恢复默认')}
@@ -146,18 +146,18 @@ export default class SettingIconAndName extends Component {
           </div>
         }
       >
-        <div className="Gray_75 pBottom20">{_l('可以自定义登录页面显示的图标和名称')}</div>
+        <div className="textSecondary pBottom20">{_l('可以自定义登录页面显示的图标和名称')}</div>
         <Wrap className="valignWrapper uploadWrapper Hand Position justifyContentCenter">
           {iconUrl ? (
             <img className="icon" src={iconUrl} />
           ) : (
-            <i className={`${iconClassName} defaultIcon Gray_75 Font30 mRight5`} />
+            <i className={`${iconClassName} defaultIcon textSecondary Font30 mRight5`} />
           )}
           <QiniuUpload {...uploadOptions} className="uploadBtn">
             <i className="icon icon-upload_pictures Font15 LineHeight40" />
           </QiniuUpload>
         </Wrap>
-        <div className="mTop10 mBottom40 Gray_75 Font12">
+        <div className="mTop10 mBottom40 textSecondary Font12">
           {_l('可上传PNG、JPG，图片格式推荐大小 48x48 px, 文件大小在128KB以内')}
         </div>
         <Input className="w100 input" value={name} onChange={value => this.setState({ name: value })} />
@@ -171,16 +171,16 @@ export default class SettingIconAndName extends Component {
 
     return (
       <Wrap className={`flexRow alignItemsCenter ${className}`}>
-        <span className="Gray_9e">{_l('自定义显示登录文案与图标：')}</span>
+        <span className="textTertiary">{_l('自定义显示登录文案与图标：')}</span>
         {initIonUrl ? (
           <img className="iconStyle mRight5" src={initIonUrl} />
         ) : (
-          <i className={`${iconClassName} Gray_75 Font20 mRight5`} />
+          <i className={`${iconClassName} textSecondary Font20 mRight5`} />
         )}
         <span className="name">{initName}</span>
         <Icon
           icon="edit"
-          className="Font12 mLeft8 Gray_9e Hover_21 Hand"
+          className="Font12 mLeft8 textTertiary hoverColorPrimary Hand"
           onClick={() => this.setState({ visible: true })}
         />
         {visible && this.renderDialog()}

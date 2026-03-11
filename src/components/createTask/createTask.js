@@ -1,6 +1,5 @@
 ﻿import React from 'react';
 import { createRoot } from 'react-dom/client';
-import Store from 'redux/configureStore';
 import doT from 'dot';
 import _ from 'lodash';
 import moment from 'moment';
@@ -16,6 +15,7 @@ import { expireDialogAsync } from 'src/components/upgradeVersion';
 import UploadFiles from 'src/components/UploadFiles';
 import { addTask } from 'src/pages/task/redux/actions';
 import { formatTaskTime } from 'src/pages/task/utils/utils';
+import Store from 'src/redux/configureStore';
 import { htmlEncodeReg } from 'src/utils/common';
 import taskHtml from './tpl/createTask.html';
 import './css/createTask.css';

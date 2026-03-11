@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
+import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
+import { navigateTo } from 'src/router/navigateTo';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import ByApp from './components/ByApp';
@@ -19,12 +21,17 @@ const TABS = [
 export default class UseAnalytics extends Component {
   constructor(props) {
     super(props);
+    const { type } = _.get(props, 'match.params');
     this.state = {
-      currentTab: 'overview',
+      currentTab: type || 'overview',
     };
   }
   changeTab = item => {
+    const { match = {} } = this.props;
+    const { params = {} } = match;
+
     this.setState({ currentTab: item.key });
+    navigateTo(`/admin/analytics/${params.projectId}/${item.key}`);
   };
 
   render() {
@@ -67,7 +74,7 @@ export default class UseAnalytics extends Component {
                 </span>
               }
             >
-              <Icon icon="info" className="Font16 Gray_9e hover_f3 mLeft5" />
+              <Icon icon="info" className="Font16 textTertiary hover_f3 mLeft5" />
             </Tooltip>
           </div>
         </div>

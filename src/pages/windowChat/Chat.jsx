@@ -10,7 +10,7 @@ import * as socket from 'src/pages/chat/utils/socketEvent';
 
 const Wrap = styled.div`
   .sessionListWrap {
-    border-right: 1px solid #ddd;
+    border-right: 1px solid var(--color-border-primary);
   }
   .noSession {
     height: 92px;
@@ -43,7 +43,7 @@ const Drag = styled.div(
   height: 100%;
   cursor: ew-resize;
   &:hover {
-    border-left: 1px solid #ddd;
+    border-left: 1px solid var(--color-border-primary);
   }
 `,
 );
@@ -87,7 +87,7 @@ export default class WindowChat extends Component {
             this.setState({ dragMaskVisible: true });
           }}
         />
-        <div className="flex GrayBGFA Relative">
+        <div className="flex bgSecondary Relative">
           <ChatPanel embed={true} />
           <div className="flexRow alignItemsCenter justifyContentCenter h100">
             <div className="noSession" />

@@ -21,10 +21,10 @@ const Con = styled.div`
   display: flex;
   align-items: center;
   height: 32px;
-  border: 1px solid ${({ active }) => (active ? '#1677ff' : 'var(--border-color)')} !important;
+  border: 1px solid ${({ active }) => (active ? 'var(--color-primary)' : 'var(--border-color)')} !important;
   border-radius: 4px 0 0 4px;
   &:hover {
-    border-color: #1677ff !important;
+    border-color: var(--color-primary) !important;
     .icon-cancel {
       display: inline-block;
     }
@@ -41,7 +41,7 @@ const InputCon = styled.div`
     box-sizing: border-box !important;
     line-height: inherit;
     &::placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
   }
 `;
@@ -54,11 +54,11 @@ const MultipleValue = styled.div`
 const ClearIcon = styled.i`
   display: none;
   font-size: 16px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   margin-right: 8px;
   cursor: pointer;
   &:hover {
-    color: #777;
+    color: var(--color-text-secondary);
   }
 `;
 
@@ -68,7 +68,7 @@ const AdvancePasteIcon = styled.span`
   border-left: none;
   border-radius: 0 4px 4px 0;
   font-size: 20px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   line-height: 30px;
   padding: 0 6px;
   > span {
@@ -84,14 +84,14 @@ const IconBtn = styled.span`
   justify-content: center;
   cursor: pointer;
   border-radius: 3px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   font-size: 18px;
   font-weight: bold;
   &.active {
-    color: #1677ff;
+    color: var(--color-primary);
   }
   &:hover {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-hover);
   }
 `;
 

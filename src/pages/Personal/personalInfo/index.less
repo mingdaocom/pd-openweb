@@ -3,12 +3,12 @@
   min-height: 0;
   padding: 24px 40px;
   box-sizing: border-box;
-  background-color: #ffffff;
+  background-color: var(--color-background-primary);
   overflow-x: hidden;
   border-radius: 4px;
   .personalTop {
     padding-bottom: 40px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     display: flex;
     .accountHeadBox,
     .personalEmblem,
@@ -18,7 +18,7 @@
     }
     .editfullNameInput {
       width: 100%;
-      border: 1px solid #2999f3;
+      border: 1px solid var(--color-primary-focus);
       border-radius: 3px;
       height: 32px;
       line-height: 30px;
@@ -55,7 +55,7 @@
         background: rgba(0, 0, 0, 0.4);
         text-align: center;
         line-height: 85px;
-        color: #ffffff;
+        color: var(--color-white);
         z-index: 2;
       }
       &:hover {
@@ -128,7 +128,7 @@
       padding: 2px 9px;
       border-radius: 12px;
       background-color: rgba(71, 177, 75, 0.08);
-      color: #47b14b;
+      color: var(--color-success);
       font-weight: bold;
     }
     .accountTag {
@@ -136,7 +136,7 @@
       padding: 2px 9px;
       border-radius: 12px;
       background-color: rgba(255, 154, 0, 0.08);
-      color: #ff9a00;
+      color: var(--color-warning);
       font-weight: bold;
     }
   }

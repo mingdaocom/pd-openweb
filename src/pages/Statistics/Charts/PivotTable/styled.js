@@ -1,6 +1,10 @@
 import styled from 'styled-components';
 
 const PivotTableContent = styled.div`
+  .ant-table {
+    color: var(--color-text-primary);
+    background: var(--color-background-primary);
+  }
   &.contentYAuto {
     overflow-y: auto;
   }
@@ -58,7 +62,7 @@ const PivotTableContent = styled.div`
       border-top: none !important;
     }
     thead tr:first-child th {
-      border-top: 1px solid #f0f0f0;
+      border-top: 1px solid --color-background-disabled;
     }
   }
   &.firefoxScroll {
@@ -112,7 +116,7 @@ const PivotTableContent = styled.div`
       position: absolute;
       top: 0;
       height: 100%;
-      border-left: 1px dashed #151515;
+      border-left: 1px dashed var(--color-text-title);
     }
     .ant-table-cell-fix-left {
       z-index: 3;
@@ -120,8 +124,25 @@ const PivotTableContent = styled.div`
   }
   .line-content {
     text-align: ${props => props.pivotTableStyle.lineTextAlign || 'left'};
-    color: ${props => props.pivotTableStyle.lineTextColor || '#000000d9'};
-    background-color: ${props => props.pivotTableStyle.lineBgColor || '#ffffffcc'} !important;
+    color: ${props => props.pivotTableStyle.lineTextColor || 'var(--color-text-primary)'};
+    background-color: ${props => props.pivotTableStyle.lineBgColor || 'var(--color-background-primary)'} !important;
+    .departmentWrap {
+      padding: 0 5px;
+      border-radius: 13px;
+      width: max-content;
+      background-color: rgba(80, 120, 150, 0.08);
+    }
+    .userWrap {
+      .userHead {
+        width: 30px;
+      }
+    }
+    .optionWrap {
+      color: var(--color-black);
+      padding: 3px 8px;
+      border-radius: 40px;
+      width: max-content;
+    }
   }
   .line-content,
   .cell-content {
@@ -134,8 +155,9 @@ const PivotTableContent = styled.div`
     }
     thead th {
       text-align: ${props => props.pivotTableStyle.columnTextAlign || 'left'} !important;
-      color: ${props => props.pivotTableStyle.columnTextColor || '#757575'};
-      background-color: ${props => props.pivotTableStyle.columnBgColor || '#fafafa'} !important;
+      color: ${props => props.pivotTableStyle.columnTextColor || 'var(--color-text-secondary)'};
+      background-color: ${props =>
+        props.pivotTableStyle.columnBgColor || 'var(--color-background-secondary)'} !important;
       font-weight: bold;
     }
   }
@@ -158,7 +180,7 @@ const PivotTableContent = styled.div`
   table,
   tr > th,
   tr > td {
-    border-color: #e0e0e0 !important;
+    border-color: var(--color-border-secondary) !important;
   }
   .ant-table-tbody > tr.ant-table-row:hover > td {
     background: initial;
@@ -168,10 +190,12 @@ const PivotTableContent = styled.div`
       color: ${props => props.pivotTableStyle.evenTextColor} !important;
       background-color: transparent !important;
     }
-    background-color: ${props => props.pivotTableStyle.evenBgColor || '#fafcfd'};
+    background-color: ${props => props.pivotTableStyle.evenBgColor || 'var(--color-background-secondary)'};
     &:hover {
       background-color: ${props =>
-        props.pivotTableStyle.evenBgColor ? `${props.pivotTableStyle.evenBgColor}e8` : '#fafafa'};
+        props.pivotTableStyle.evenBgColor
+          ? `${props.pivotTableStyle.evenBgColor}e8`
+          : 'var(--color-background-secondary)'};
     }
   }
   .ant-table-tbody > tr.ant-table-row:nth-child(${props => (props.isFreeze ? 'even' : 'odd')}) {
@@ -182,14 +206,16 @@ const PivotTableContent = styled.div`
     background-color: ${props => props.pivotTableStyle.oddBgColor || 'transparent'};
     &:hover {
       background-color: ${props =>
-        props.pivotTableStyle.oddBgColor ? `${props.pivotTableStyle.oddBgColor}e8` : '#fafafa'};
+        props.pivotTableStyle.oddBgColor
+          ? `${props.pivotTableStyle.oddBgColor}e8`
+          : 'var(--color-background-secondary)'};
     }
   }
   .ant-table-tbody tr:not(tr.sum-content) .contentValue {
     cursor: pointer;
     &:hover {
-      color: ${props => props.pivotTableStyle.lineTextColor || '#1677ff'} !important;
-      background-color: ${props => props.pivotTableStyle.lineBgColor || '#E3F2FD'} !important;
+      color: ${props => props.pivotTableStyle.lineTextColor || 'var(--color-primary)'} !important;
+      background-color: ${props => props.pivotTableStyle.lineBgColor || 'var(--color-primary-transparent)'} !important;
     }
   }
   .ant-table-tbody .sum-content .ant-table-cell {
@@ -203,9 +229,9 @@ const PivotTableContent = styled.div`
     height: 100%;
     width: 2px;
     cursor: ew-resize;
-    // background-color: red;
+    // background-color: var(--color-error);
   }
-  .dragLine {
+  .pivotTableDragLine {
     position: absolute;
     left: 0;
     top: 0;
@@ -213,7 +239,7 @@ const PivotTableContent = styled.div`
     height: 100%;
     width: 2px;
     cursor: ew-resize;
-    background-color: #0f8df2;
+    background-color: var(--color-primary);
   }
   thead {
     th,

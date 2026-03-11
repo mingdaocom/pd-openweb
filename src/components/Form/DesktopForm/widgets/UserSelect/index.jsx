@@ -225,7 +225,7 @@ const UserSelect = props => {
 
       {!disabled && (
         <div
-          className="TxtCenter Gray_75 ThemeHoverBorderColor3 ThemeHoverColor3 pointer addBtn"
+          className="TxtCenter textSecondary ThemeHoverBorderColor3 ThemeHoverColor3 pointer addBtn"
           ref={pickRef}
           onClick={() => pickUser()}
         >

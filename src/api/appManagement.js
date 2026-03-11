@@ -1007,6 +1007,7 @@ export default {
    * @param {boolean} args.isLine 线性图标或者面性图标 true表示线性，false表示面性，默认值为true
    * @param {boolean} args.iconType 图标类型 true-表示系统图标 false-自定义图标
    * @param {array} args.categories 分类数组
+   * @param {string} args.keyword 搜索关键字
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -1034,6 +1035,7 @@ export default {
    * @param {boolean} args.isLine 线性图标或者面性图标 true表示线性，false表示面性，默认值为true
    * @param {boolean} args.iconType 图标类型 true-表示系统图标 false-自定义图标
    * @param {array} args.categories 分类数组
+   * @param {string} args.keyword 搜索关键字
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -1049,6 +1051,7 @@ export default {
    * @param {boolean} args.isLine 线性图标或者面性图标 true表示线性，false表示面性，默认值为true
    * @param {boolean} args.iconType 图标类型 true-表示系统图标 false-自定义图标
    * @param {array} args.categories 分类数组
+   * @param {string} args.keyword 搜索关键字
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -1145,6 +1148,21 @@ export default {
     return mdyAPI('AppManagement', 'GetExportsByApp', args, options);
   },
   /**
+   * 组织获取导出日志
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {array} args.appIds 应用ids
+   * @param {string} args.operator 操作人
+   * @param {integer} args.pageIndex
+   * @param {integer} args.pageSize
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getExportsByProject: function (args, options = {}) {
+    return mdyAPI('AppManagement', 'GetExportsByProject', args, options);
+  },
+  /**
    * 导出密码
    * @param {Object} args 请求参数
    * @param {string} args.id 日志id
@@ -1175,6 +1193,7 @@ export default {
    * @param {string} args.sourceId 分享来源id （页面id，图标id等）
    * @param {} args.sourceType
    * @param {string} args.appId 应用id
+   * @param {string} args.worksheetId 表id
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -1417,6 +1436,51 @@ export default {
    **/
   usageStatisticsForDimension: function (args, options = {}) {
     return mdyAPI('AppManagement', 'UsageStatisticsForDimension', args, options);
+  },
+  /**
+   * 是否是 第一次查询 非活跃成员
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.toViewUrl 【前往查看】 Url 地址
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  isFirstInactiveUsers: function (args, options = {}) {
+    return mdyAPI('AppManagement', 'IsFirstInactiveUsers', args, options);
+  },
+  /**
+   * 异步查询 不活跃 成员
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.toViewUrl 【前往查看】 Url 地址
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  queryInactiveUsers: function (args, options = {}) {
+    return mdyAPI('AppManagement', 'QueryInactiveUsers', args, options);
+  },
+  /**
+  * 查询 不活跃 成员
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {integer} args.dayRange 天数范围 
+            0 = 最近7天，
+            1 = 最近一个月，
+            2 = 最近一个季度，
+            3 = 最近半年，
+            4 = 最近一年
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.pageSize 页大小
+  * @param {integer} args.orderBy 排序 MD.Entity.Mongo.Apk.InactiveUserSort
+  * @param {array} args.userIds 查询 指定用户
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+  pagedInactiveUsers: function (args, options = {}) {
+    return mdyAPI('AppManagement', 'PagedInactiveUsers', args, options);
   },
   /**
    * 获取应用日志
@@ -1697,6 +1761,22 @@ export default {
     return mdyAPI('AppManagement', 'GetUpgradeLogs', args, options);
   },
   /**
+   * 组织获取升级日志
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {array} args.appIds 应用ids
+   * @param {string} args.operator 操作人
+   * @param {integer} args.pageIndex
+   * @param {integer} args.pageSize
+   * @param {integer} args.status 不筛选就不传，状态 0=已完成， 1=进行中， 2=失败
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getUpgradeLogsByProject: function (args, options = {}) {
+    return mdyAPI('AppManagement', 'GetUpgradeLogsByProject', args, options);
+  },
+  /**
    * 获取mdy文件相关密码
    * @param {Object} args 请求参数
    * @param {string} args.projectId 组织id
@@ -1748,6 +1828,7 @@ export default {
    * 获取批量导入升级批次id
    * @param {Object} args 请求参数
    * @param {string} args.projectId 组织id
+   * @param {} args.upgradeModel
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -1759,6 +1840,7 @@ export default {
    * 校验批量升级mdy文件
    * @param {Object} args 请求参数
    * @param {string} args.projectId 组织id
+   * @param {} args.upgradeModel
    * @param {string} args.batchId
    * @param {string} args.url mdy链接（不要带token）
    * @param {string} args.password mdy密码
@@ -1774,6 +1856,7 @@ export default {
    * 批量导入升级
    * @param {Object} args 请求参数
    * @param {string} args.projectId 组织id
+   * @param {} args.upgradeModel
    * @param {string} args.batchId 批次id
    * @param {array} args.datas 批量导入升级业务数据
    * @param {boolean} args.matchOffice 是否匹配组织人员等信息
@@ -1840,6 +1923,30 @@ export default {
    **/
   getAppLangDetail: function (args, options = {}) {
     return mdyAPI('AppManagement', 'GetAppLangDetail', args, options);
+  },
+  /**
+   * 加载关联应用语言数据
+   * @param {Object} args 请求参数
+   * @param {string} args.appId
+   * @param {array} args.langIds
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  loadRelationLangData: function (args, options = {}) {
+    return mdyAPI('AppManagement', 'LoadRelationLangData', args, options);
+  },
+  /**
+   * 获取关联应用语言详情
+   * @param {Object} args 请求参数
+   * @param {string} args.appId
+   * @param {string} args.langCode
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getRelationAppLangDetail: function (args, options = {}) {
+    return mdyAPI('AppManagement', 'GetRelationAppLangDetail', args, options);
   },
   /**
    * 编辑应用语言详情

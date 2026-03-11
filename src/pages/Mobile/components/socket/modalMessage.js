@@ -8,35 +8,35 @@ const ModalWrap = styled(Popup)`
   overflow: hidden;
   .adm-popup-body {
     padding: 16px;
-    color: #151515;
+    color: var(--color-text-title);
     font-size: 13px;
     display: flex;
     flex-direction: column;
   }
   .success {
-    color: #4caf50;
+    color: var(--color-success);
     font-size: 20px;
   }
   .error {
-    color: #f44336;
+    color: var(--color-error);
   }
   .warning {
     color: #fb0;
   }
   .info {
-    color: #1c97f3;
+    color: var(--color-primary-focus);
   }
   .overflowAuto {
     overflow: auto;
   }
   .btnsWrap {
     .btnItem {
-      background-color: #1677ff;
+      background-color: var(--color-primary);
       height: 36px;
       border-radius: 18px;
       margin-right: 15px;
       text-align: center;
-      color: #fff;
+      color: var(--color-white);
       line-height: 36px;
       padding: 0 12px;
       &:last-child {
@@ -50,7 +50,7 @@ const ModalWrap = styled(Popup)`
     height: 24px;
     line-height: 24px;
     border-radius: 12px;
-    background-color: #e6e6e6;
+    background-color: var(--color-border-secondary);
   }
 `;
 
@@ -58,26 +58,26 @@ const BatchModalWrap = styled.div`
   padding: 0 8px;
   box-sizing: border-box;
   .success {
-    color: #4caf50;
+    color: var(--color-success);
     font-size: 20px;
   }
   .error {
-    color: #f44336;
+    color: var(--color-error);
   }
   .warning {
     color: #fb0;
   }
   .info {
-    color: #1c97f3;
+    color: var(--color-primary-focus);
   }
   .closeWrap {
     height: 50px;
     line-height: 50px;
     text-align: center;
-    border-top: 1px solid #eee;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--color-border-secondary);
+    border-top: 1px solid var(--color-border-secondary);
     margin: 20px -20px -19px;
-    color: #1c97f3;
+    color: var(--color-primary-focus);
   }
 `;
 
@@ -195,7 +195,7 @@ function MessageComp(props) {
           {!duration && (
             <div>
               <span className="closeIcon TxtCenter" onClick={hideModalMessage}>
-                <i className="icon icon-close Gray_9e" />
+                <i className="icon icon-close textTertiary" />
               </span>
             </div>
           )}

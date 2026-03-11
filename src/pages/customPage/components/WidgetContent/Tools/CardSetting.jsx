@@ -98,13 +98,13 @@ const Content = props => {
           <div className="bold mRight10">{_l('显示方式')}</div>
           <div className="typeSelect flex flexRow valignWrapper">
             <div
-              className={cx('centerAlign flex pointer Gray_75', { active: showType === 1 })}
+              className={cx('centerAlign flex pointer textSecondary', { active: showType === 1 })}
               onClick={() => handleChangeConfig({ showType: 1 })}
             >
               {_l('透明')}
             </div>
             <div
-              className={cx('centerAlign flex pointer Gray_75', { active: showType === 2 })}
+              className={cx('centerAlign flex pointer textSecondary', { active: showType === 2 })}
               onClick={() => handleChangeConfig({ showType: 2 })}
             >
               {_l('卡片')}

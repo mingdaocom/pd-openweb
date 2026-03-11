@@ -19,7 +19,7 @@ const ItemLayer = styled.div`
     z-index: 999;
     position: relative;
     > * {
-      background: #fff;
+      background: var(--color-background-card);
     }
   }
 `;

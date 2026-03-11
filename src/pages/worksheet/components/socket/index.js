@@ -75,10 +75,12 @@ export default function initWorksheetSocket() {
     }
 
     if (status === 2 || ((type === 4 || type === 3) && status === 1) || (type === 4 && status === 3)) {
-      emitter.emit('RELOAD_RECORD_INFO', {
-        worksheetId,
-        recordId,
-        closeWhenNotViewData: true,
+      recordId.split(',').forEach(id => {
+        emitter.emit('RELOAD_RECORD_INFO', {
+          worksheetId,
+          recordId: id,
+          closeWhenNotViewData: true,
+        });
       });
       if (window.customWidgetViewIsActive) {
         emitter.emit('POST_MESSAGE_TO_CUSTOM_WIDGET', {

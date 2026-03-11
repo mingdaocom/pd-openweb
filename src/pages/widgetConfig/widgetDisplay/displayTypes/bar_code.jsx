@@ -5,7 +5,7 @@ const EmptyTag = styled.div`
   border-radius: 6px;
   width: 22px;
   height: 6px;
-  background-color: #eaeaea;
+  background-color: var(--color-border-secondary);
   margin: 15px 0;
 `;
 

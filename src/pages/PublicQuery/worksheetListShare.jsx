@@ -3,12 +3,12 @@ import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Tooltip } from 'ming-ui/antd-components';
-import { controlState } from 'src/components/Form/core/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 import { browserIsMobile } from 'src/utils/common';
+import { controlState } from 'src/utils/control';
 import './worksheetListShare.less';
 
 const hiddenIds = WORKFLOW_SYSTEM_CONTROL.map(c => c.controlId);
@@ -130,7 +130,9 @@ class WorksheetListShare extends React.Component {
                             <i className="icon icon-ic_title"></i>
                           </Tooltip>
                         ) : (
-                          <span className="ellipsis Bold Font12 Gray_75 controlNameValue">{control.controlName}</span>
+                          <span className="ellipsis Bold Font12 textSecondary controlNameValue">
+                            {control.controlName}
+                          </span>
                         )}
                       </div>
                     );

@@ -14,24 +14,24 @@ export const TagWrap = styled.div`
     padding: 0 10px;
     height: 32px;
     max-width: 100%;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     border-radius: 15px;
-    background-color: #ffffff;
+    background-color: var(--color-background-primary);
     margin: 0 10px 10px 0;
     &.add {
-      color: #1677ff;
+      color: var(--color-primary);
       transition: all 0.3s;
       &:hover {
-        color: #1079cc;
+        color: var(--color-link-hover);
       }
     }
     &.warning {
-      border-color: #e5a39e;
-      background-color: #ffe5e3;
+      border-color: var(--color-error-border);
+      background-color: var(--color-error-bg);
     }
   }
   .icon-close:hover {
-    color: #757575 !important;
+    color: var(--color-text-secondary) !important;
   }
 `;
 
@@ -61,8 +61,8 @@ export const AddTagWrap = styled.div`
   width: 312px;
   border-radius: 3px;
   padding: 5px 0;
-  border: 1px solid #e5e5e5;
-  background-color: #fff;
+  border: 1px solid var(--color-border-secondary);
+  background-color: var(--color-background-card);
   .ant-radio-group,
   .ant-space {
     width: 100%;
@@ -71,7 +71,7 @@ export const AddTagWrap = styled.div`
     padding: 7px 16px;
     margin-bottom: 0 !important;
     &:hover {
-      background-color: #fafafa;
+      background-color: var(--color-background-hover);
     }
   }
 `;
@@ -158,7 +158,7 @@ export default function FilterObject(props) {
     return (
       <AddTagWrap>
         <div className="valignWrapper pLeft10 pRight10">
-          <Icon className="Gray_9e Font20" icon="search" />
+          <Icon className="textTertiary Font20" icon="search" />
           <Input
             autoFocus
             value={search}
@@ -219,7 +219,7 @@ export default function FilterObject(props) {
     const name = _.get(object, 'name');
     return (
       <div key={item.objectId} className={cx('tag valignWrapper', { warning: !sameWorksheet || !object })}>
-        <Icon className="Gray_75 Font17" icon={item.type === 1 ? 'worksheet_column_chart' : 'view_eye'} />
+        <Icon className="textSecondary Font17" icon={item.type === 1 ? 'worksheet_column_chart' : 'view_eye'} />
         {object ? (
           <Fragment>
             <span className="Font13 mLeft5 mRight5 ellipsis" title={name}>
@@ -235,7 +235,7 @@ export default function FilterObject(props) {
           <span className="Font13 Red mLeft5 mRight5">{_l('该筛选对象已删除')}</span>
         )}
         <Icon
-          className="Gray_9e Font16 pointer"
+          className="textTertiary Font16 pointer"
           icon="close"
           onClick={() => {
             removeFilterObject(item.objectId);
@@ -263,7 +263,7 @@ export default function FilterObject(props) {
           </Tooltip>
         </div>
       </div>
-      <div className="Gray_9e Font13 mBottom12 Font13">{_l('选择统计图表或视图组件')}</div>
+      <div className="textTertiary Font13 mBottom12 Font13">{_l('选择统计图表或视图组件')}</div>
       <TagWrap>
         {objectControls.map(item => renderObject(item))}
         <div

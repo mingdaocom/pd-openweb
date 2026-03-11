@@ -10,14 +10,14 @@ body {
   &.isGenerating {
     padding: 12px;
     border-radius: 6px;
-    background-color: #f8f0ff;
+    background-color: var(--color-mingo-transparent);
     > * {
       display: none;
     }
     #widgetConfigDisplayArea {
       display: flex !important;
       border-radius: 6px;
-      border: 2px solid var(--color-mingo-dark);
+      border: 2px solid var(--color-mingo);
     }
     .rowsWidgetContent {
       position: relative;
@@ -31,7 +31,7 @@ body {
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(255, 255, 255, 0.3);
+        background-color: var(--color-background-overlay-white);
         z-index: 1;
       }
     }
@@ -73,7 +73,7 @@ body {
 
 .textRegexpVerifyDialog {
   .mui-dialog-header {
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-primary);
   }
 }
 
@@ -94,7 +94,7 @@ body {
     width: 70px;
   }
   .TimePicker-input-container .ThemeHoverColor3:hover {
-    color: #151515 !important;
+    color: var(--color-text-title) !important;
   }
 }
 

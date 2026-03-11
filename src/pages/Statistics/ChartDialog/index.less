@@ -45,9 +45,9 @@
     width: 72px !important;
     &:hover,
     &:focus {
-      color: #fff;
-      background: #218de6;
-      border-color: #218de6;
+      color: var(--color-white);
+      background: var(--color-primary-focus);
+      border-color: var(--color-primary-focus);
     }
     .MdLoader-path {
       stroke: #fff;
@@ -69,7 +69,7 @@
     }
     .icon:hover,
     .active {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
 
@@ -77,7 +77,7 @@
   .icon-arrow-left-border,
   .icon-search {
     &:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
   .icon-call_to_action_on.vertical {
@@ -109,7 +109,7 @@
     align-items: center;
     justify-content: space-between;
     .icon:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
   .count {
@@ -158,7 +158,7 @@
   .setting {
     width: 320px;
     height: 100%;
-    background-color: #f8f8f8;
+    background-color: var(--color-background-secondary);
     box-sizing: border-box;
     transition: width 0.2s;
     &.small {
@@ -167,7 +167,7 @@
     .charts {
       flex-wrap: wrap;
       .chartItem {
-        color: #757575;
+        color: var(--color-text-secondary);
         font-size: 28px;
         cursor: pointer;
         display: flex;
@@ -178,45 +178,45 @@
         border: 1px solid transparent;
         border-radius: 4px;
         &:hover {
-          background-color: #ededed;
+          background-color: var(--color-background-hover);
         }
         &.active {
-          color: #1677ff;
-          border: 1px solid #1677ff;
+          color: var(--color-primary);
+          border: 1px solid var(--color-primary);
           border-radius: 3px;
-          background-color: #fff;
+          background-color: var(--color-background-primary);
         }
       }
     }
   }
   .displaySetup {
-    border: 1px solid #d8d8d8;
+    border: 1px solid var(--color-border-primary);
     border-radius: 4px;
     margin-right: 12px;
     &:last-child {
       margin-right: 0;
     }
     .item {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       font-size: 14px;
       padding: 5px 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-right: 1px solid #ccc;
+      border-right: 1px solid var(--color-border-tertiary);
       cursor: pointer;
       &:last-child {
         border-right: none;
       }
     }
-    .WhiteBG {
-      background-color: #fff;
+    .bgPrimary {
+      background-color: var(--color-background-primary);
     }
     .active {
-      color: #1e88e5 !important;
+      color: var(--color-primary) !important;
     }
     &:hover .icon {
-      color: #1e88e5 !important;
+      color: var(--color-primary) !important;
     }
   }
   .workSheetFilter {
@@ -224,7 +224,7 @@
   }
   .hoverHighlight {
     &:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
 }
@@ -238,7 +238,7 @@
     .ant-tabs-nav {
       margin: 0;
       &::before {
-        border-color: #ddd;
+        border-color: var(--color-border-primary);
       }
     }
     .ant-tabs-tab {
@@ -258,7 +258,7 @@
     font-size: 13px;
     border-radius: 3px;
     padding: 3px;
-    background-color: #eff0f0;
+    background-color: var(--color-background-disabled);
     > div {
       height: 25px;
       line-height: 25px;
@@ -267,11 +267,11 @@
       justify-content: center;
     }
     .active {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
       border-radius: 3px;
       padding: 3px 0;
       font-weight: bold;
-      background-color: #fff;
+      background-color: var(--color-background-card);
     }
   }
   .chartTypeImageSelect {
@@ -283,8 +283,8 @@
       }
       &:hover {
         .iconWrap {
-          background: #ededed;
-          border-color: #ededed;
+          background: var(--color-border-secondary);
+          border-color: var(--color-border-secondary);
         }
       }
       &:last-child {
@@ -293,10 +293,10 @@
     }
     .active {
       font-weight: bold;
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
       .iconWrap {
-        border-color: #1677ff !important;
-        background: #fff !important;
+        border-color: var(--color-primary) !important;
+        background: var(--color-background-primary) !important;
       }
     }
     .iconWrap {
@@ -316,18 +316,18 @@
     height: 20px;
     border-radius: 3px;
     &:hover {
-      background-color: #f6f6f6;
+      background-color: var(--color-background-hover);
     }
   }
   .entranceWrap {
-    border: 1px solid #d9d9d9;
+    border: 1px solid var(--color-border-primary);
     border-radius: 4px;
     height: 30px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     &.hover:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
       .highlightIcon {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
     &.ruleIcon {
@@ -335,7 +335,7 @@
       margin-left: 10px;
       justify-content: center;
       &:hover {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-hover);
       }
     }
   }
@@ -367,7 +367,7 @@
   .ant-modal-close-x {
     line-height: 66px;
     .icon-close:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
   .ant-modal-header {
@@ -397,23 +397,23 @@
   .ant-modal-header .icon-close,
   .hoverHighlight {
     &:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
   .ant-btn-link {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     &:hover {
-      color: #3196f3;
+      color: var(--color-primary-light);
     }
   }
   .ant-btn-primary {
     height: 36px;
     padding: 0 32px;
-    background: #3196f3;
-    border-color: #3196f3;
+    background: var(--color-primary);
+    border-color: var(--color-primary);
     &:hover {
-      background: #1d8cf2;
-      border-color: #1d8cf2;
+      background: var(--color-primary-dark);
+      border-color: var(--color-primary-dark);
     }
   }
   .ant-checkbox-input {
@@ -421,7 +421,7 @@
   }
   .hoverThemeColor {
     &:hover {
-      color: #0a88ec !important;
+      color: var(--color-link-hover) !important;
     }
   }
 }
@@ -430,15 +430,14 @@
   padding: 7px 12px 7px 20px;
   &.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
     font-weight: unset;
-    color: #fff;
-    background-color: #1677ff;
+    color: var(--color-white);
   }
 }
 
 .ghostSelectOptionWrapper {
   &.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
     font-weight: normal;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
   }
 }
 
@@ -447,7 +446,7 @@
     &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
     &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input)
       .ant-select-selector {
-      border-color: #1677ff !important;
+      border-color: var(--color-primary) !important;
     }
     .ant-select-selector {
       border-radius: 4px !important;
@@ -462,6 +461,9 @@
       width: auto;
       height: auto;
       top: 40%;
+    }
+    .ant-select-selection-placeholder {
+      line-height: 36px;
     }
     &.ant-select-single.ant-select-show-arrow .ant-select-selection-item,
     .ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {
@@ -498,7 +500,7 @@
     }
     &.ant-input-affix-wrapper:hover,
     &:hover {
-      border-color: #1677ff !important;
+      border-color: var(--color-primary) !important;
     }
     &.ant-input-affix-wrapper,
     &.ant-input-affix-wrapper-focused,
@@ -512,8 +514,8 @@
       align-items: center;
       justify-content: center;
       border-radius: 0 4px 4px 0;
-      border-left: 1px solid #d9d9d9;
-      background-color: #fff;
+      border-left: 1px solid var(--color-border-primary);
+      background-color: var(--color-background-primary);
     }
     .icon-expand_less,
     .icon-expand_more {
@@ -529,13 +531,13 @@
   .chartColorInput {
     &:hover,
     &:focus {
-      color: #1677ff;
-      border-color: #d9d9d9 !important;
+      color: var(--color-primary);
+      border-color: var(--color-border-primary) !important;
     }
   }
   .columnCountInput {
     .disabled {
-      color: #ddd;
+      color: var(--color-border-primary);
     }
     .ant-input-suffix {
       width: 38px !important;
@@ -546,7 +548,7 @@
     .ant-select {
       position: absolute;
       z-index: 1;
-      border-right: 1px solid #d9d9d9;
+      border-right: 1px solid var(--color-border-primary);
     }
     .ant-select-selector {
       width: 80px !important;
@@ -554,7 +556,7 @@
       background-color: transparent !important;
       height: 28px !important;
       &:hover {
-        border-color: #d9d9d9;
+        border-color: var(--color-border-primary);
       }
     }
     .ant-select-arrow {
@@ -569,8 +571,8 @@
     height: 32px;
     border-radius: 3px;
     padding: 4px;
-    border: 1px solid #dddddd;
-    background-color: #fff;
+    border: 1px solid var(--color-border-primary);
+    background-color: var(--color-background-primary);
     .colorBlock {
       width: 100%;
       height: 100%;

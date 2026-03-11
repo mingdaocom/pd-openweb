@@ -37,11 +37,11 @@ const Wrap = styled.div`
       border: none;
       outline: none;
       padding-left: 30px;
-      border: 1px solid #dddddd;
+      border: 1px solid var(--color-border-primary);
       opacity: 1;
       border-radius: 4px;
       &::placeholder {
-        color: #ccc;
+        color: var(--color-text-placeholder);
       }
     }
   }
@@ -49,11 +49,11 @@ const Wrap = styled.div`
     padding: 10px 16px;
     line-height: 16px;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
     &.hs {
-      background: #f5f5f5;
-      color: #1677ff;
+      background: var(--color-background-secondary);
+      color: var(--color-primary);
     }
     &.disable {
       cursor: not-allowed;
@@ -65,7 +65,7 @@ const WrapCon = styled.div`
     width: 0;
     // height: 100%;
     max-height: 500px;
-    border-left: 1px solid #dddddd;
+    border-left: 1px solid var(--color-border-primary);
   }
 `;
 
@@ -95,12 +95,12 @@ function ChooseControl(props) {
     );
     return (
       <React.Fragment>
-        <div className="title Bold Gray_75 Font13 WordBreak overflow_ellipsis">
+        <div className="title Bold textSecondary Font13 WordBreak overflow_ellipsis">
           {parentName ? `>${parentName}` : title}
           {parentName && <span className="ThemeColor3 pLeft5">{title}</span>}
         </div>
         <div className="search mTop8 mBottom6">
-          <i className="icon-search Gray_9e" />
+          <i className="icon-search textTertiary" />
           <input
             value={keywords}
             autofocus
@@ -111,7 +111,7 @@ function ChooseControl(props) {
         </div>
         <div className="flex controls">
           {controlsByKey.length <= 0 ? (
-            <div className="Gray_9e mTop40 pTop8 TxtCenter pBottom20">{_l('暂无相关字段')}</div>
+            <div className="textTertiary mTop40 pTop8 TxtCenter pBottom20">{_l('暂无相关字段')}</div>
           ) : (
             controlsByKey.map(o => {
               const isFull =
@@ -147,12 +147,12 @@ function ChooseControl(props) {
                   <div className={cx('flex flexRow alignItemsCenter', disable ? 'disable' : 'Hand')}>
                     <Icon
                       icon={o.controlId === 'rowscount' ? 'calculate' : getIconByType(o.type)}
-                      className={cx('Font16', hs ? 'ThemeColor3' : disable ? 'Gray_bd' : 'Hand Gray_9e')}
+                      className={cx('Font16', hs ? 'ThemeColor3' : disable ? 'textDisabled' : 'Hand textTertiary')}
                     />
                     <div
                       className={cx(
                         'flex mLeft8 WordBreak overflow_ellipsis',
-                        hs ? 'ThemeColor3' : disable ? 'Gray_bd' : 'Gray',
+                        hs ? 'ThemeColor3' : disable ? 'textDisabled' : 'textPrimary',
                       )}
                     >
                       {o.controlName}
@@ -161,7 +161,7 @@ function ChooseControl(props) {
                   {(o.relationControls || []).length > 0 && !parentName && showNext && (
                     <Icon
                       icon={'arrow-right-tip'}
-                      className={cx('mLeft10', disable ? 'Gray_bd' : 'Hand Gray_9e')}
+                      className={cx('mLeft10', disable ? 'textDisabled' : 'Hand textTertiary')}
                       onClick={e => {
                         if (disable) {
                           return;

@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
-import _ from 'lodash';
+import _, { isEmpty, isFunction } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Icon } from 'ming-ui';
+import { BgIconButton, Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import discussionAjax from 'src/api/discussion';
 import favoriteApi from 'src/api/favorite.js';
+import worksheetAjax from 'src/api/worksheet';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -64,8 +65,10 @@ export default function InfoHeader(props) {
     isDraft,
     updateDiscussCount = _.noop,
     printCharge,
+    recordTitle,
     isRecordLock,
     updateRecordLock,
+    setModalRightComp,
     // allowExAccountDiscuss = false, //允许外部用户讨论
     // exAccountDiscussEnum = 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
     // approved: false, //允许外部用户允许查看审批流转详情
@@ -74,7 +77,11 @@ export default function InfoHeader(props) {
   let { renderHeader } = props;
   const { isSmall, worksheetId, recordId, notDialog } = recordbase;
   const rowId = useRef(recordId);
+  const operatesRef = useRef(null);
   const [discussCount, setDiscussCount] = useState();
+  const [aiActionActive, setAiActionActive] = useState(false);
+  const [aiActionButtons, setAiActionButtons] = useState([]);
+  const [worksheetInfo, setWorksheetInfo] = useState(props.worksheetInfo);
   const [isFavorite, setIsFavorite] = useState(recordinfo.isFavorite);
   const discussVisible = isOpenPermit(permitList.recordDiscussSwitch, sheetSwitchPermit, viewId);
   const logVisible = isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId);
@@ -105,6 +112,33 @@ export default function InfoHeader(props) {
       (md.global.Account.isPortal && props.allowExAccountDiscuss && discussVisible) ||
       (md.global.Account.isPortal && props.approved && workflowVisible) ||
       from === RECORD_INFO_FROM.WORKFLOW);
+  useEffect(() => {
+    if (!isFunction(setModalRightComp)) {
+      return;
+    }
+    if (aiActionActive) {
+      import('src/components/Mingo/modules/AiActionChatBot').then(res => {
+        setModalRightComp(
+          <res.default
+            allowResize={!notDialog}
+            isCharge={isCharge}
+            appId={recordbase.appId}
+            worksheetId={worksheetId}
+            recordId={recordId}
+            buttons={aiActionButtons}
+            recordTitle={recordTitle}
+            worksheetInfo={worksheetInfo}
+            onReloadButtons={() => {
+              operatesRef.current.loadBtns();
+            }}
+            onClose={() => setAiActionActive(false)}
+          />,
+        );
+      });
+    } else {
+      setModalRightComp(null);
+    }
+  }, [aiActionActive, aiActionButtons, recordId, worksheetId, worksheetInfo.worksheetId, recordTitle]);
   function loadDiscussionsCount() {
     if (sideVisible || !discussVisible || portalNotHasDiscuss) {
       return;
@@ -140,6 +174,15 @@ export default function InfoHeader(props) {
 
   useEffect(() => {
     emitter.addListener('RELOAD_RECORD_INFO_DISCUSS', loadDiscussionsCount);
+    if (isEmpty(worksheetInfo)) {
+      worksheetAjax
+        .getWorksheetInfo({
+          worksheetId,
+        })
+        .then(data => {
+          setWorksheetInfo(data);
+        });
+    }
     return () => {
       emitter.removeListener('RELOAD_RECORD_INFO_DISCUSS', loadDiscussionsCount);
     };
@@ -236,7 +279,7 @@ export default function InfoHeader(props) {
     const btn = (
       <IconBtn
         className={cx('Hand favBtn', { ThemeHoverColor3: !isFavorite })}
-        style={{ color: isFavorite ? '#FFC402' : '#757575' }}
+        style={{ color: isFavorite ? 'var(--color-yellow)' : 'var(--color-text-secondary)' }}
         onClick={onFav}
       >
         <Icon className="Font22 Hand" icon={!isFavorite ? 'star_outline' : 'star'} />
@@ -267,7 +310,7 @@ export default function InfoHeader(props) {
             <SwitchRecord currentSheetRows={currentSheetRows} currentIndex={currentIndex} onSwitch={switchRecord} />
           )}
           <span
-            className={cx('refreshBtn Font20 Gray_9e ThemeHoverColor3 Hand', {
+            className={cx('refreshBtn Font20 textTertiary ThemeHoverColor3 Hand', {
               isLoading: refreshRotating,
               disable: iseditting,
             })}
@@ -282,6 +325,9 @@ export default function InfoHeader(props) {
           </span>
           {!isPublicShare ? (
             <Operates
+              setRef={target => {
+                operatesRef.current = target;
+              }}
               isCharge={isCharge}
               addRefreshEvents={addRefreshEvents}
               iseditting={iseditting}
@@ -297,9 +343,30 @@ export default function InfoHeader(props) {
               customBtnTriggerCb={customBtnTriggerCb}
               isDraft={isDraft}
               isRecordLock={isRecordLock}
+              updateAiActionButtons={newButtons => {
+                setAiActionButtons(newButtons);
+              }}
             />
           ) : (
             <div className="flex" />
+          )}
+          {!_.isEmpty(aiActionButtons) && isFunction(setModalRightComp) && !md.global.SysSettings.hideAIBasicFun && (
+            <div className="t-flex t-items-center">
+              <BgIconButton
+                iconStyle={{ fontSize: 18, color: 'var(--color-mingo-light)' }}
+                className="aiActionButtons"
+                text={
+                  <div className="t-flex">
+                    <span className="t-ml-2">{_l('AI 动作')}</span>
+                    <span className="aiButtonsCount">{aiActionButtons.length}</span>
+                  </div>
+                }
+                icon="auto_awesome"
+                onClick={() => {
+                  setAiActionActive(true);
+                }}
+              />
+            </div>
           )}
           {!isPublicShare && (
             <PrintList

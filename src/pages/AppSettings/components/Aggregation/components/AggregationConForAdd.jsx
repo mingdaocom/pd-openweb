@@ -48,7 +48,7 @@ export default function AddAggregation(props) {
           className={cx(
             'mTop16 Bold alignItemsCenter flexRow',
             (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length <= 0 ? '' : 'Hand',
-            isMax ? 'Gray_bd' : 'Gray_75 ThemeHoverColor3',
+            isMax ? 'textDisabled' : 'textSecondary ThemeHoverColor3',
           )}
         >
           <Icon icon="add" className="Font16" />
@@ -188,7 +188,7 @@ export default function AddAggregation(props) {
         </div>
       ) : props.updateLoading ? (
         <span className="InlineBlock">
-          <span className={cx('mTop16 Bold alignItemsCenter flexRow Gray_bd')}>{_l('加载中...')}</span>
+          <span className={cx('mTop16 Bold alignItemsCenter flexRow textDisabled')}>{_l('加载中...')}</span>
         </span>
       ) : (
         <Trigger
@@ -208,12 +208,14 @@ export default function AddAggregation(props) {
         (_.get(aggregateDt, 'nodeConfig.config.aggregateFields') || []).filter(o => !o.isCalculateField).length > 0 &&
         (props.updateLoading ? (
           <span className="InlineBlock">
-            <span className={cx('mTop16 Bold alignItemsCenter flexRow Gray_bd')}>{_l('加载中...')}</span>
+            <span className={cx('mTop16 Bold alignItemsCenter flexRow textDisabled')}>{_l('加载中...')}</span>
           </span>
         ) : (
           <span className="InlineBlock">
             <span
-              className={cx('Hand mTop16 Gray_75 ThemeHoverColor3 Bold flexRow alignItemsCenter', { mLeft25: !isMax })}
+              className={cx('Hand mTop16 textSecondary ThemeHoverColor3 Bold flexRow alignItemsCenter', {
+                mLeft25: !isMax,
+              })}
               onClick={() => {
                 setState({
                   showCalculation: true,

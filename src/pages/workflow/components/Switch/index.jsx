@@ -86,7 +86,7 @@ export default class Switch extends Component {
                 <div>{STATUS2TEXT[status]}</div>
               </div>
               <div className={cx('iconWrap', `iconWrap-${status}`)}>
-                <Icon icon="hr_ok" className={cx('Font20 Gray_bd', `workflowSwitchIcon-${status}`)} />
+                <Icon icon="hr_ok" className={cx('Font20 textDisabled', `workflowSwitchIcon-${status}`)} />
               </div>
             </div>
           </Fragment>

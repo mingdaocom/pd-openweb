@@ -48,6 +48,7 @@ function Edit(params) {
     activeFastFilterId,
     setActiveFastFilterId,
     currentSheetInfo,
+    saveViewSetLoading,
   } = params;
   let boxConT = useRef(null);
   const [{ fastFilters, control, advancedSetting, dataType, dataControls }, setState] = useSetState({
@@ -59,6 +60,7 @@ function Edit(params) {
   });
 
   useEffect(() => {
+    if (saveViewSetLoading) return;
     const d = view.fastFilters || [];
     let controlsFilter = d.map(o => {
       const c = worksheetControls.find(item => item.controlId === o.controlId) || {};
@@ -87,7 +89,7 @@ function Edit(params) {
     controlNew.type = getControlFormatType(dd);
     let advancedSetting = controlNew.advancedSetting || {};
     setState({ fastFilters: d, dataControls: dd, control: controlNew, advancedSetting, dataType: controlNew.type });
-  }, [activeFastFilterId, view.fastFilters]);
+  }, [activeFastFilterId, view.fastFilters, saveViewSetLoading]);
   if (!control) {
     return '';
   }
@@ -243,9 +245,9 @@ function Edit(params) {
             );
             return (
               <div className="inputBox mTop6" ref={boxConT}>
-                {iconName ? <Icon icon={iconName} className="mRight12 Font18 Gray_75" /> : null}
+                {iconName ? <Icon icon={iconName} className="mRight12 Font18 textSecondary" /> : null}
                 <div className="itemText">{control.controlName}</div>
-                <Icon icon={'arrow-down-border'} className="mLeft12 Font14 Gray_9e" />
+                <Icon icon={'arrow-down-border'} className="mLeft12 Font14 textTertiary" />
               </div>
             );
           }}
@@ -276,13 +278,13 @@ function Edit(params) {
           )}
         {TEXT_FILTER_TYPE.keys.includes(dataType) &&
         FILTER_CONDITION_TYPE.TEXT_ALLCONTAIN === control[TEXT_FILTER_TYPE.key] ? (
-          <div className="mTop10 Gray_75">
+          <div className="mTop10 textSecondary">
             {_l('- 使用同时包含时，搜索内容中的空格将用于分词')}
             <br />
             {_l('- 在大数据量时使用包含、同时包含条件可能非常缓慢，建议使用等于，并创建索引来优化性能。')}
           </div>
         ) : FILTER_CONDITION_TYPE.LIKE === control[TEXT_FILTER_TYPE.key] ? (
-          <div className="mTop10 Gray_75">
+          <div className="mTop10 textSecondary">
             {_l('默认方式下，用户可自行切换使用模糊匹配或精确匹配搜索，适合大多数筛选场景')}
           </div>
         ) : (
@@ -461,6 +463,7 @@ export default class EditFastFilter extends React.Component {
     if (!this.props.showFastFilter) {
       return '';
     }
+    const { saveViewSetLoading } = this.props;
     return (
       <Wrap>
         <div
@@ -480,6 +483,7 @@ export default class EditFastFilter extends React.Component {
             ></i>
           </div>
           <EditCon {...this.props} />
+          {saveViewSetLoading && <div className="loadingMask" />}
         </div>
       </Wrap>
     );

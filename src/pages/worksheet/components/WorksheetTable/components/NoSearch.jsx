@@ -9,9 +9,13 @@ const Con = styled.div`
   height: 36px;
   top: 35px;
   line-height: 34px;
-  background: #d8effe;
+  background: var(--color-primary-transparent);
+  .keyWords {
+    display: inline-block;
+    max-width: 300px;
+  }
   .green {
-    color: #30ae01;
+    color: var(--color-success);
   }
 `;
 
@@ -21,7 +25,7 @@ export default function NoSearch(props) {
     <Con style={{ top: columnHeadHeight }}>
       <div className="ThemeColor3">
         {_l('没有搜索到"')}
-        <span class="green">{props.keyWords}</span>
+        <span class="keyWords green ellipsis">{props.keyWords}</span>
         {_l('"相关的记录')}
       </div>
     </Con>

@@ -41,7 +41,7 @@ class MobileGunterView extends Component {
       isIllegal(controls.find(item => item.controlId === begindate) || {}) ||
       isIllegal(controls.find(item => item.controlId === enddate) || {})
     ) {
-      return <ViewErrorPage icon="gantt" viewName={_l('甘特图')} color="#01BCD5" />;
+      return <ViewErrorPage icon="gantt" viewName={_l('甘特图')} color="var(--color-cyan)" />;
     }
 
     if (!Component) return null;

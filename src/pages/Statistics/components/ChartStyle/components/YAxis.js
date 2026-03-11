@@ -18,7 +18,9 @@ class YAxis extends Component {
             <div className="mBottom8">{_l('图表类型')}</div>
             <div className="chartTypeSelect flexRow valignWrapper">
               <div
-                className={cx('flex centerAlign pointer Gray_75', { active: yreportType == reportTypes.BarChart })}
+                className={cx('flex centerAlign pointer textSecondary', {
+                  active: yreportType == reportTypes.BarChart,
+                })}
                 onClick={() => {
                   onChangeCurrentReport(
                     {
@@ -31,7 +33,9 @@ class YAxis extends Component {
                 {_l('柱图')}
               </div>
               <div
-                className={cx('flex centerAlign pointer Gray_75', { active: yreportType == reportTypes.LineChart })}
+                className={cx('flex centerAlign pointer textSecondary', {
+                  active: yreportType == reportTypes.LineChart,
+                })}
                 onClick={() => {
                   onChangeCurrentReport(
                     {
@@ -72,7 +76,7 @@ class YAxis extends Component {
               <Select
                 className="chartSelect w100"
                 value={ydisplay.lineStyle}
-                suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                 onChange={value => {
                   onChangeDisplayValue({
                     ...ydisplay,
@@ -200,7 +204,7 @@ export function bidirectionalBarChartYAxisPanelGenerator(props) {
             <Select
               className="chartSelect w100"
               value={ydisplay.lineStyle}
-              suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+              suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
               onChange={value => {
                 onChangeDisplayValue({
                   ...ydisplay,

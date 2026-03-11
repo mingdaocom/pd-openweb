@@ -140,7 +140,7 @@ export function renderLimitInfo(worksheetSettings) {
         <span className="pRight8">
           {linkSwitchTime.isShowCountDown ? (
             <CountDown
-              className="bold Gray mLeft5 mRight5"
+              className="bold textPrimary mLeft5 mRight5"
               endTime={linkSwitchTime.endTime}
               beforeText={_l('链接将于')}
               afterText={_l('后结束收集') + ';'}
@@ -149,7 +149,7 @@ export function renderLimitInfo(worksheetSettings) {
           ) : (
             <React.Fragment>
               <span> {_l('链接将于')}</span>
-              <span className="bold Gray mLeft5 mRight5">
+              <span className="bold textPrimary mLeft5 mRight5">
                 {moment(linkSwitchTime.endTime).format('YYYY-MM-DD HH:mm')}
               </span>
               <span>{_l('结束收集')};</span>
@@ -160,23 +160,23 @@ export function renderLimitInfo(worksheetSettings) {
       {limitWriteCount.isEnable && (
         <span className="pRight8">
           <span>{_l('已收集')}</span>
-          <span className="bold Gray mLeft5 mRight5">
+          <span className="bold textPrimary mLeft5 mRight5">
             {`${completeNumber || 0}/${limitWriteCount.limitWriteCount}`}
           </span>
           <span>{_l('份, 还剩')}</span>
-          <span className="bold Gray mLeft5 mRight5">{remainCount >= 0 ? remainCount : 0}</span>
+          <span className="bold textPrimary mLeft5 mRight5">{remainCount >= 0 ? remainCount : 0}</span>
           <span>{_l('份结束收集')};</span>
         </span>
       )}
       {limitWriteTime.isEnable && (
         <span>
-          <span className="bold Gray">{getLimitWriteTimeDisplayText(TIME_TYPE.MONTH, limitWriteTime)}</span>
+          <span className="bold textPrimary">{getLimitWriteTimeDisplayText(TIME_TYPE.MONTH, limitWriteTime)}</span>
           <span className="mLeft5 mRight5">{_l('的')}</span>
-          <span className="bold Gray">{getLimitWriteTimeDisplayText(TIME_TYPE.DAY, limitWriteTime)}</span>
+          <span className="bold textPrimary">{getLimitWriteTimeDisplayText(TIME_TYPE.DAY, limitWriteTime)}</span>
           {!!getLimitWriteTimeDisplayText(TIME_TYPE.HOUR, limitWriteTime) && (
             <span className="mLeft5 mRight5">{_l('的')}</span>
           )}
-          <span className="bold Gray">{getLimitWriteTimeDisplayText(TIME_TYPE.HOUR, limitWriteTime)}</span>
+          <span className="bold textPrimary">{getLimitWriteTimeDisplayText(TIME_TYPE.HOUR, limitWriteTime)}</span>
           <span className="mLeft5">{_l('可填写')}</span>
         </span>
       )}

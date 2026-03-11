@@ -23,18 +23,18 @@ const List = styled.div`
   .fieldName {
     padding: 5px 12px;
     border-radius: 4px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     height: 36px;
     line-height: 36px;
     font-size: 13px;
     &:focus {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
   }
   .fieldDelBtn {
     cursor: pointer;
     &:not(.disabled):hover {
-      color: #f44336 !important;
+      color: var(--color-error) !important;
     }
   }
   .startConditionWrap.actionFields {
@@ -58,7 +58,7 @@ export default props => {
   return (
     <Fragment>
       <div className="Font13 bold">{_l('参数设置')}</div>
-      <div className="Font13 mTop5 Gray_75">
+      <div className="Font13 mTop5 textSecondary">
         {_.includes([data.triggerId, data.actionId], ACTION_ID.CONDITION_LOOP)
           ? _l('定义循环中使用的参数，每次循环可以使用前一次循环中更新的参数值。“index”参数每次循环后自动加1。')
           : _l(
@@ -156,7 +156,7 @@ export default props => {
                   <div className="mLeft10 w45 flexRow mTop8 Font16 alignItemsCenter">
                     <Icon
                       icon={item.attribute === 1 ? 'ic_title' : 'title'}
-                      className={cx('Gray_75 ThemeHoverColor3 pointer', { ThemeColor3: item.attribute === 1 })}
+                      className={cx('textSecondary ThemeHoverColor3 pointer', { ThemeColor3: item.attribute === 1 })}
                       onClick={() => {
                         updateSource({
                           controls: data.controls.map(o => {
@@ -168,7 +168,7 @@ export default props => {
                     />
                     <Icon
                       icon="trash"
-                      className={cx('mLeft10 Gray_75 fieldDelBtn', { 'disabled Alpha5': isDisabled })}
+                      className={cx('mLeft10 textSecondary fieldDelBtn', { 'disabled Alpha5': isDisabled })}
                       onClick={() => {
                         if (item.processVariableType !== 3) {
                           updateSource({ controls: data.controls.filter(o => o.controlId !== item.controlId) });

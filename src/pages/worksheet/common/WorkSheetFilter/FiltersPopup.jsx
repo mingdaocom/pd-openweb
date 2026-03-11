@@ -20,8 +20,8 @@ const SelectedFilter = styled(FlexCenter)`
   line-height: 29px;
   margin-right: 16px;
   vertical-align: middle;
-  color: #1e88e5;
-  background-color: #e3f2fd;
+  color: var(--color-primary);
+  background-color: var(--color-primary-transparent);
   padding: 0 10px;
   .text {
     max-width: 160px;
@@ -34,7 +34,7 @@ const SelectedFilter = styled(FlexCenter)`
     font-size: 16px;
     margin-left: 6px;
     &:hover {
-      color: #1565c0;
+      color: var(--color-link-hover);
     }
   }
 `;
@@ -153,7 +153,7 @@ export default function FiltersPopup(props) {
         {!filteredText && (
           <Tooltip title={_l('筛选')} placement="bottom">
             <span className={className}>
-              <i className="icon icon-worksheet_filter Gray_9e Hand Font18 ThemeHoverColor3"></i>
+              <i className="icon icon-worksheet_filter textTertiary Hand Font18 ThemeHoverColor3"></i>
             </span>
           </Tooltip>
         )}

@@ -14,12 +14,12 @@ const AddActionBtn = styled.div`
     border-style: solid;
     border-radius: 4px;
     padding: 0 20px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     cursor: pointer;
     margin-right: 10px;
     box-sizing: border-box;
     &:not(:hover) {
-      border-color: #ddd !important;
+      border-color: var(--color-border-primary) !important;
     }
   }
 `;
@@ -71,7 +71,7 @@ const WorksheetFilter = props => {
       onCancel={onClose}
     >
       <div className="Font13 bold">{_l('查询范围')}</div>
-      <div className="Font13 Gray_75 mTop5">{_l('定义模型的查询范围，未配置时默认查询工作表的全部数据')}</div>
+      <div className="Font13 textSecondary mTop5">{_l('定义模型的查询范围，未配置时默认查询工作表的全部数据')}</div>
 
       {!controls.length ? (
         <LoadDiv className="mTop15" />

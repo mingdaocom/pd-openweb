@@ -38,7 +38,7 @@ export const WrapHeader = styled.div`
     position: relative;
     &.isMobile {
       height: 70px;
-      background: #fff;
+      background: var(--color-background-primary);
       .avatarM {
         line-height: 70px;
       }
@@ -93,7 +93,7 @@ export const WrapHeader = styled.div`
             box-sizing: border-box;
             white-space: nowrap;
             cursor: pointer;
-            color: #fff;
+            color: var(--color-white);
             flex-shrink: 0;
             font-weight: bold;
             padding: 0 20px;
@@ -107,7 +107,7 @@ export const WrapHeader = styled.div`
   }
   .appFixed {
     border-radius: 13px;
-    color: #fff;
+    color: var(--color-white);
     height: 22px;
     line-height: 22px;
     box-sizing: border-box;
@@ -182,16 +182,16 @@ export const Wrap = styled.div`
     height: 36px;
     width: 36px;
     margin: 16px 16px 16px 10px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     border-radius: 3px;
     .icon {
       margin: 0 auto;
-      color: #9d9d9d;
+      color: var(--color-text-tertiary);
       line-height: 36px;
     }
     &:hover {
       .icon {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
@@ -199,7 +199,7 @@ export const Wrap = styled.div`
     flex: 1;
     height: 36px;
     background: rgba(33, 150, 243, 0.1);
-    color: #1677ff;
+    color: var(--color-primary);
     border-radius: 3px;
     line-height: 36px;
     text-align: center;
@@ -208,7 +208,7 @@ export const Wrap = styled.div`
       vertical-align: middle;
     }
     &:hover {
-      background: #ebf6fe;
+      background: var(--color-primary-transparent);
     }
   }
   .userImage {
@@ -233,7 +233,7 @@ export const Wrap = styled.div`
       background: rgba(0, 0, 0, 0.4);
       text-align: center;
       line-height: 60px;
-      color: #ffffff;
+      color: var(--color-white);
       z-index: 2;
     }
     &:hover {
@@ -243,22 +243,22 @@ export const Wrap = styled.div`
     }
   }
   .languagueSetting {
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
     border-radius: 3px;
     overflow: hidden;
     .languagueItem {
       height: 32px;
       line-height: 32px;
       text-align: center;
-      border-right: 1px solid #e0e0e0;
-      background: #fff;
-      color: #bdbdbd;
+      border-right: 1px solid var(--color-border-secondary);
+      background: var(--color-background-primary);
+      color: var(--color-text-disabled);
       &:last-child {
         border-right: none;
       }
       &.active {
-        background: #1677ff;
-        color: #fff;
+        background: var(--color-primary);
+        color: var(--color-white);
       }
     }
   }
@@ -276,7 +276,7 @@ export const ModalWrap = styled(Popup)`
         height: 24px;
         text-align: center;
         border-radius: 50%;
-        background-color: #e6e6e6;
+        background-color: var(--color-border-secondary);
         .icon {
           line-height: 24px;
         }
@@ -284,23 +284,23 @@ export const ModalWrap = styled(Popup)`
     }
     .actionContent {
       padding-left: 20px;
-      color: #000;
+      color: var(--color-text-primary);
       line-height: 50px;
       text-align: left;
       font-weight: 600;
       padding-bottom: 15px;
     }
     .RedMenuItem {
-      color: #f44336 !important;
+      color: var(--color-error) !important;
     }
   }
 `;
 export const RedMenuItemWrap = styled(MenuItem)`
   &.RedMenuItem {
     .Item-content {
-      color: #f44336 !important;
+      color: var(--color-error) !important;
       .Icon {
-        color: #f44336 !important;
+        color: var(--color-error) !important;
       }
     }
   }

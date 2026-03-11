@@ -20,7 +20,7 @@ const Wrapper = styled.div`
     align-items: center;
     margin: 0;
     padding: 8px 0px 8px 8px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
 
     .checkColumn {
       width: 36px;
@@ -42,7 +42,7 @@ const Wrapper = styled.div`
       width: 20px;
       height: 20px;
       transform: rotate(-90deg);
-      color: #1677ff;
+      color: var(--color-primary);
     }
     .numberTips {
       width: 20px;
@@ -55,21 +55,21 @@ const Wrapper = styled.div`
     .isOperateCommonIcon {
       display: none;
       width: fit-content;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       cursor: pointer;
       &.isActive {
         display: block;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
     }
     &:hover {
-      background: #fafafa;
+      background: var(--color-background-secondary);
 
       .isOperateCommonIcon {
         display: block;
         i {
           &:hover {
-            color: #1677ff;
+            color: var(--color-primary);
           }
         }
       }
@@ -93,7 +93,7 @@ const Wrapper = styled.div`
       top: 16px;
       display: none;
       font-size: 16px;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       cursor: pointer;
       &:hover {
         color: #f00;
@@ -107,13 +107,13 @@ const Wrapper = styled.div`
   }
   .ant-select:not(.ant-select-customize-input) .ant-select-selector {
     border-radius: 3px;
-    /* border: 1px solid #ccc !important; */
+    /* border: 1px solid var(--color-border-tertiary) !important; */
   }
   .systemFieldsHeader {
     display: flex;
     align-items: center;
     padding: 24px 8px 8px 8px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
 
     .Checkbox {
       width: 36px;
@@ -124,14 +124,14 @@ const Wrapper = styled.div`
       align-items: center;
       cursor: pointer;
       i {
-        color: #ccc;
+        color: var(--color-text-placeholder);
         font-size: 15px;
         margin-left: 8px;
       }
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
         i {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }
@@ -267,7 +267,7 @@ export default function FieldMappingList(props) {
         <div className="numberTips">
           {!sourceData.isDbType && !destData.isDbType && destField.mdType === 6 && (
             <Tooltip title={_l('数值最大支持16位数字')} placement="top">
-              <Icon icon="info" className="Gray_bd mLeft5" />
+              <Icon icon="info" className="textDisabled mLeft5" />
             </Tooltip>
           )}
         </div>
@@ -284,9 +284,9 @@ export default function FieldMappingList(props) {
         label: (
           <div className="flexRow alignItemsCenter">
             {!destData.isDbType && (
-              <Icon icon={getIconByType(o.mdType, false)} className={cx('Font18 Gray_bd customIcon')} />
+              <Icon icon={getIconByType(o.mdType, false)} className={cx('Font18 textDisabled customIcon')} />
             )}
-            <span title={o.typeName.toLowerCase()} className="Gray mLeft8 w100 overflow_ellipsis">
+            <span title={o.typeName.toLowerCase()} className="textPrimary mLeft8 w100 overflow_ellipsis">
               {o.typeName.toLowerCase()}
             </span>
           </div>
@@ -354,14 +354,14 @@ export default function FieldMappingList(props) {
           label: (
             <div className="flexRow alignItemsCenter">
               {destData.isDbType ? (
-                <span className="Gray_bd">[{`${item.dataType}`}]</span>
+                <span className="textDisabled">[{`${item.dataType}`}]</span>
               ) : (
-                <Icon icon={getIconByType(item.mdType, false)} className="Gray_9e Font18" />
+                <Icon icon={getIconByType(item.mdType, false)} className="textTertiary Font18" />
               )}
-              <span title={item.name} className="mLeft8 overflow_ellipsis Gray">
+              <span title={item.name} className="mLeft8 overflow_ellipsis textPrimary">
                 {item.name}
               </span>
-              {destData.isDbType && item.isPk && <Icon icon="key1" className="Gray_bd Font14 mLeft8" />}
+              {destData.isDbType && item.isPk && <Icon icon="key1" className="textDisabled Font14 mLeft8" />}
             </div>
           ),
           value: item.id,
@@ -442,7 +442,7 @@ export default function FieldMappingList(props) {
         <div className="numberTips">
           {!destData.isDbType && destField.mdType === 6 && (
             <Tooltip title={_l('数值最大支持16位数字')} placement="top" autoAdjustOverflow={true}>
-              <Icon icon="info" className="Gray_bd mLeft5" />
+              <Icon icon="info" className="textDisabled mLeft5" />
             </Tooltip>
           )}
         </div>
@@ -468,14 +468,14 @@ export default function FieldMappingList(props) {
                   {sourceField.name}
                 </span>
                 {sourceField.aggFuncType && (
-                  <span className={`flexShrink0 ${sourceField.isDelete ? 'Red' : 'Gray_9e'}`}>
+                  <span className={`flexShrink0 ${sourceField.isDelete ? 'Red' : 'textTertiary'}`}>
                     ({ALL_OPERATION_TYPE_DATA.find(o => o.value === sourceField.aggFuncType).text})
                   </span>
                 )}
                 {sourceField.isPk && (
                   <Tooltip title={_l('主键')}>
                     <div>
-                      <Icon icon="key1" className="Gray_bd mLeft5" />
+                      <Icon icon="key1" className="textDisabled mLeft5" />
                     </div>
                   </Tooltip>
                 )}
@@ -483,7 +483,7 @@ export default function FieldMappingList(props) {
                   <Support
                     type={1}
                     title={_l('名称包含特殊字符，无法同步')}
-                    className="Gray_bd mLeft5"
+                    className="textDisabled mLeft5"
                     href="https://help.mingdao.com/integration/data-integration"
                   />
                 )}
@@ -497,7 +497,7 @@ export default function FieldMappingList(props) {
                 {isNotSupport && (
                   <Tooltip title={_l('暂不支持同步')}>
                     <div>
-                      <Icon icon="info" className="Gray_bd mLeft5" />
+                      <Icon icon="info" className="textDisabled mLeft5" />
                     </div>
                   </Tooltip>
                 )}
@@ -525,7 +525,7 @@ export default function FieldMappingList(props) {
           flex: 3,
           render: data => {
             const item = data.sourceField;
-            return item.isNotNull ? <span className="Gray_9e">{_l('是')}</span> : '';
+            return item.isNotNull ? <span className="textTertiary">{_l('是')}</span> : '';
           },
         },
       ];
@@ -542,7 +542,7 @@ export default function FieldMappingList(props) {
 
             return (
               <div className="flexRow alignItemsCenter">
-                <Icon icon={getIconByType(sourceField.mdType, false)} className={cx('Font18 Gray_9e')} />
+                <Icon icon={getIconByType(sourceField.mdType, false)} className={cx('Font18 textTertiary')} />
                 <span
                   title={sourceField.name}
                   className={`mLeft8 overflow_ellipsis ${sourceField.isDelete ? 'Red' : ''}`}
@@ -550,14 +550,14 @@ export default function FieldMappingList(props) {
                   {sourceField.name}
                 </span>
                 {sourceField.aggFuncType && (
-                  <span className={`flexShrink0 ${sourceField.isDelete ? 'Red' : 'Gray_9e'}`}>
+                  <span className={`flexShrink0 ${sourceField.isDelete ? 'Red' : 'textTertiary'}`}>
                     ({ALL_OPERATION_TYPE_DATA.find(o => o.value === sourceField.aggFuncType).text})
                   </span>
                 )}
                 {sourceField.isPk && (
                   <Tooltip title={_l('主键')}>
                     <div>
-                      <Icon icon="key1" className="Gray_bd mLeft5" />
+                      <Icon icon="key1" className="textDisabled mLeft5" />
                     </div>
                   </Tooltip>
                 )}
@@ -565,7 +565,7 @@ export default function FieldMappingList(props) {
                   <Support
                     type={1}
                     title={_l('名称包含特殊字符，无法同步')}
-                    className="Gray_bd mLeft5"
+                    className="textDisabled mLeft5"
                     href="https://help.mingdao.com/integration/data-integration"
                   />
                 )}
@@ -580,7 +580,7 @@ export default function FieldMappingList(props) {
                   <Support
                     type={1}
                     title={_l('暂不支持同步')}
-                    className="Gray_bd mLeft5"
+                    className="textDisabled mLeft5"
                     href="https://help.mingdao.com/integration/data-integration#field-sync-rule"
                   />
                 )}
@@ -623,7 +623,7 @@ export default function FieldMappingList(props) {
               return (isExistJoinPk ? sourceField.isUniquePk : destField.isPk) ? (
                 <Tooltip title={_l('主键')}>
                   <div>
-                    <Icon icon="key1" className="Font16 Gray_bd" />
+                    <Icon icon="key1" className="Font16 textDisabled" />
                   </div>
                 </Tooltip>
               ) : (
@@ -756,7 +756,7 @@ export default function FieldMappingList(props) {
             title: _l('不允许NULL'),
             flex: 3,
             render: item => {
-              return _.get(item, 'destField.isNotNull') ? <span className="Gray_9e">{_l('是')}</span> : '';
+              return _.get(item, 'destField.isNotNull') ? <span className="textTertiary">{_l('是')}</span> : '';
             },
           },
         ];
@@ -791,7 +791,7 @@ export default function FieldMappingList(props) {
           const sourceField = data.sourceField || {};
           const destField = data.destField || {};
           return (
-            <div className={sourceField.isDelete ? 'Red' : cx('arrowIcon', { Gray_c: !destField.isCheck })}>
+            <div className={sourceField.isDelete ? 'Red' : cx('arrowIcon', { textPlaceholder: !destField.isCheck })}>
               <Icon icon={sourceField.isDelete ? 'close' : 'arrow_down'} className="Font20" />
             </div>
           );

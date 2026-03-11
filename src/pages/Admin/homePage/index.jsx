@@ -19,7 +19,7 @@ export default function HomePage({ match, location: routerLocation, authority })
   const [data, setData] = useSetState({ basicLoading: true, hideBalance: true });
   const isTrial = data.licenseType === 2;
   const isFree = data.licenseType === 0;
-  const isLocal = md.global.Config.IsLocal;
+  const isLocal = window.platformENV.isOverseas || window.platformENV.isLocal;
   const trialAuthenticate = !isLocal && isTrial && !data.authType;
 
   useEffect(() => {
@@ -111,7 +111,7 @@ export default function HomePage({ match, location: routerLocation, authority })
       <div className="basicInfo">
         <VersionCard {...params} />
         <UserCard {...params} />
-        {md.global.Config.IsPlatformLocal && <AccountBalance {...params} />}
+        {window.platformENV.isPlatform && <AccountBalance {...params} />}
       </div>
       <OrgQuota {...params} />
       <QuickEntrance {...params} />

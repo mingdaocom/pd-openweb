@@ -52,14 +52,14 @@ const AccountWrap = styled.div`
     .telInput {
       flex: 1;
       height: 36px;
-      background: #fff;
-      border: 1px solid #e0e0e0;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-secondary);
       opacity: 1;
       border-radius: 3px;
       padding: 0 12px;
       line-height: 36px;
       &.telBox {
-        background: #f8f8f8;
+        background: var(--color-background-secondary);
       }
       &.hid {
         width: 0;
@@ -75,25 +75,25 @@ const AccountWrap = styled.div`
     .btnSendVerifyCode {
       width: 130px;
       height: 36px;
-      background: #1677ff;
+      background: var(--color-primary);
       opacity: 1;
       border-radius: 3px;
       border: 0;
-      color: #fff;
+      color: var(--color-white);
       &.btnEnabled {
-        background-color: #1677ff;
+        background-color: var(--color-primary);
         cursor: pointer;
         -webkit-transition: background-color 0.5s;
         transition: background-color 0.5s;
       }
 
       &.btnEnabled:hover {
-        background-color: #1565c0;
+        background-color: var(--color-link-hover);
         -webkit-transition: background-color 0.5s;
         transition: background-color 0.5s;
       }
       &.btnDisabled {
-        background-color: #ccc;
+        background-color: var(--color-text-placeholder);
         cursor: default;
       }
     }

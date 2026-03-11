@@ -7,7 +7,7 @@ import { UPGRADE_DETAIL_TYPE_LIST } from '../../../../config';
 import UpgradeItemWrap from '../UpgradeItemWrap';
 
 const TabWrap = styled.div`
-  background: #f0f0f0;
+  background: var(--color-background-disabled);
   padding: 3px 2px;
   width: max-content;
   border-radius: 3px;
@@ -17,11 +17,11 @@ const TabWrap = styled.div`
     font-size: 15px;
     font-weight: bold;
     border-radius: 3px;
-    color: #757575;
+    color: var(--color-text-secondary);
     &.active {
-      color: #2196f3;
-      background: #ffffff;
-      border: 1px solid #f5f5f5;
+      color: var(--color-link-hover);
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-background-secondary);
     }
   }
 `;
@@ -69,7 +69,7 @@ export default class UpgradeDetail extends Component {
         maskClosable={false}
         headerStyle={{}}
         width={520}
-        extra={<i className="icon-close Font20 Hand Gray_9e" onClick={onClose} />}
+        extra={<i className="icon-close Font20 Hand textTertiary" onClick={onClose} />}
       >
         <TabWrap className="flexRow">
           {[

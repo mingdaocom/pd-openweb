@@ -12,7 +12,7 @@ class Tab extends React.Component {
   render() {
     const { focused, className, children, ...rest } = this.props;
     return (
-      <li {...rest} className={cx('InlineBlock ThemeBorderColor4', { 'current ThemeColor3': focused }, className)}>
+      <li {...rest} className={cx('InlineBlock', { 'current ThemeColor3': focused }, className)}>
         {children}
       </li>
     );

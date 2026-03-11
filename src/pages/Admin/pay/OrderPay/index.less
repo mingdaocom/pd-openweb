@@ -1,5 +1,5 @@
-@weChartThemeColor: #28c445;
-@aliThemeColor: #1296db;
+@weChartThemeColor: var(--color-success);
+@aliThemeColor: var(--color-primary);
 
 #app {
   width: 100%;
@@ -13,7 +13,7 @@
     padding: 150px 80px 20px;
     box-sizing: border-box;
     margin: 0 auto;
-    background: #fff;
+    background: var(--color-background-primary);
     margin: auto;
     border-radius: 24px;
     position: absolute;
@@ -33,7 +33,7 @@
     height: 160px;
     padding: 10px;
     box-sizing: border-box;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
     border-radius: 6px;
     margin-bottom: 8px;
     overflow: hidden;
@@ -54,7 +54,7 @@
     height: 44px;
     line-height: 44px;
     border-radius: 25px !important;
-    color: #fff;
+    color: var(--color-white);
     padding: 0 24px;
     font-size: 15px;
   }
@@ -71,7 +71,7 @@
   &.mobileWrap {
     width: 100%;
     height: 100%;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     padding: 40px 24px 24px;
     box-sizing: border-box;
     display: flex;
@@ -98,10 +98,10 @@
       display: flex;
       align-items: center;
       padding: 0 16px;
-      background: #f8f8f8;
+      background: var(--color-background-secondary);
       border-radius: 3px;
       .am-list-item {
-        background-color: #f8f8f8;
+        background-color: var(--color-background-secondary);
       }
       .am-list-thumb {
         margin-right: 0;
@@ -121,7 +121,7 @@
   }
 
   .color_4c {
-    color: #4caf50;
+    color: var(--color-success);
   }
 }
 
@@ -147,16 +147,16 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #d1eaff;
+  background-color: var(--color-primary-transparent);
   .content {
     width: 500px;
     margin: 30px auto;
     padding: 70px 32px 50px;
     border-radius: 24px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
   .okIcon {
-    color: #fff;
+    color: var(--color-white);
     font-size: 30px;
     width: 44px;
     height: 44px;
@@ -166,7 +166,7 @@
     margin-bottom: 12px;
   }
   .overTimeIcon {
-    color: #ff9d00;
+    color: var(--color-warning);
     font-size: 70px;
     margin-bottom: 12px;
     transform: rotate(180deg);
@@ -176,27 +176,27 @@
     height: 36px;
     line-height: 36px;
     text-align: center;
-    background: #fff;
-    border: 1px solid #e0e0e0;
-    color: #333;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-secondary);
+    color: var(--color-text-primary);
     cursor: pointer;
     border-radius: 4px;
     font-weight: 600;
     margin-top: 40px;
     &:hover {
-      color: #1677ff;
-      border-color: #1677ff;
+      color: var(--color-primary);
+      border-color: var(--color-primary);
     }
   }
   &.mobileWrap {
     width: 100%;
     position: unset;
-    background: #fff;
+    background: var(--color-background-primary);
     .content {
       width: 100%;
       height: 100%;
       margin: 36px auto 0;
-      background-color: #fff;
+      background-color: var(--color-background-primary);
       padding: 0;
     }
     .invoiceBtn {

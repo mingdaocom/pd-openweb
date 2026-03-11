@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { Button, Dialog, RichText, ScrollView, Skeleton } from 'ming-ui';
 import { Absolute, FormTopImgCon } from 'worksheet/components/Basics';
 import { VerificationPass } from 'worksheet/components/ShareState';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import ShareCardConfig from 'src/components/ShareCardConfig';
 import { SHARECARDTYPS } from 'src/components/ShareCardConfig/config';
 import { themes } from 'src/pages/FormExtend/enum';
@@ -83,6 +84,10 @@ export default class PublicWorksheet extends React.Component {
           this.setState({ loading: false, ...info });
           if (info.status === FILL_STATUS.NOT_IN_FILL_TIME) {
             alert(_l('你访问的表单暂未开放!'), 3);
+          }
+
+          if (info.status === 300016) {
+            return;
           }
 
           if (window.isWeiXin) {
@@ -220,6 +225,10 @@ export default class PublicWorksheet extends React.Component {
     const bgShowTop = (layout === 2 || hideBg) && !loading;
     const theme = this.getThemeBgColor({ themeBgColor, themeColor });
 
+    if (status === 300016) {
+      return <RestrictAccessStatus />;
+    }
+
     const renderContent = () => {
       return (
         <React.Fragment>
@@ -327,7 +336,9 @@ export default class PublicWorksheet extends React.Component {
     return (
       <div
         className={cx('publicWorksheet', { hideBg })}
-        style={{ backgroundColor: loading ? '#f2f2f2' : !hideBg ? generate(theme)[0] : '#fff' }}
+        style={{
+          backgroundColor: loading ? 'var(--color-background-disabled)' : !hideBg ? generate(theme)[0] : '#fff',
+        }}
       >
         {!loading && (
           <DocumentTitle
@@ -375,7 +386,7 @@ export default class PublicWorksheet extends React.Component {
             ) : (
               <BgContainer
                 coverUrl={coverPic}
-                theme={loading ? '#f2f2f2' : theme}
+                theme={loading ? 'var(--color-background-disabled)' : theme}
                 isDisplayAvatar={!isPreview && writeScope !== 1 && !loading}
               >
                 {renderContent()}

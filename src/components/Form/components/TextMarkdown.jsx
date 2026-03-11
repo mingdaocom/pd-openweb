@@ -15,14 +15,21 @@ const TextMarkdownWrap = styled.div`
   min-height: ${props => `${props.minHeight}px`};
   height: auto;
   ${props => (props.maxHeight ? `max-height: ${props.maxHeight}px` : '')};
-  background: ${props => (props.disabled ? 'transparent' : props.isEditing ? '#fff' : '#f7f7f7')} !important;
+  background: ${props =>
+    props.disabled ? 'transparent' : props.isEditing ? '#fff' : 'var(--color-background-secondary)'} !important;
 
   .vditor {
     .vditor-reset {
-      background: ${props => (props.disabled ? 'transparent' : props.isEditing ? '#fff' : '#f7f7f7')} !important;
+      background: ${props =>
+        props.disabled ? 'transparent' : props.isEditing ? '#fff' : 'var(--color-background-secondary)'} !important;
       padding: ${props => (props.disabled && !props.isCreate ? '6px 0' : '6px 15px 6px 12px')} !important;
     }
-    border-color: ${props => (props.disabled ? 'transparent' : props.isEditing ? '#1677ff' : '#f7f7f7')} !important;
+    border-color: ${props =>
+      props.disabled
+        ? 'transparent'
+        : props.isEditing
+          ? 'var(--color-primary)'
+          : 'var(--color-background-secondary)'} !important;
   }
 
   .iconFullScreen {
@@ -31,10 +38,10 @@ const TextMarkdownWrap = styled.div`
     cursor: pointer;
     top: 7px;
     right: 7px;
-    color: #757575;
+    color: var(--color-text-secondary);
     z-index: 2;
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;

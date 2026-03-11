@@ -21,7 +21,7 @@ const SelectItem = styled.div`
 `;
 
 const SelectSheetWrap = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 4px;
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.2),
@@ -29,7 +29,7 @@ const SelectSheetWrap = styled.div`
   .tabNav {
     display: flex;
     padding-left: 20px;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid --color-background-disabled;
   }
   .navItem {
     margin-bottom: 0 !important;
@@ -40,11 +40,11 @@ const SelectSheetWrap = styled.div`
     font-size: 14px;
     font-weight: bold;
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
     &.active {
-      color: #1677ff;
-      border-bottom-color: #1677ff;
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
     }
     &:last-child {
       margin-left: 32px;
@@ -52,11 +52,11 @@ const SelectSheetWrap = styled.div`
   }
   .searchWrap {
     padding: 8px 10px 8px 20px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-primary);
     input {
       border: none;
       &::placeholder {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
     }
   }
@@ -67,7 +67,7 @@ const SelectSheetWrap = styled.div`
     .sheetItem {
       padding: 10px;
       &:hover {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-hover);
       }
     }
     .svgIconWrap div {
@@ -83,7 +83,7 @@ const SelectSheetWrap = styled.div`
     height: 110px;
     border-radius: 50%;
     justify-content: center;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
   }
 `;
 
@@ -134,7 +134,7 @@ export default function SelectSheetFromApp(props) {
         }}
       >
         {queryType === '0' ? (
-          <SvgIcon className="svgIconWrap" url={item.iconUrl} fill="#9e9e9e" size={18} />
+          <SvgIcon className="svgIconWrap" url={item.iconUrl} fill="var(--color-text-tertiary)" size={18} />
         ) : (
           <Icon className="Font20" icon="aggregate_table" />
         )}
@@ -168,7 +168,7 @@ export default function SelectSheetFromApp(props) {
           })}
         </div>
         <div className="searchWrap flexRow alignItemsCenter">
-          <Icon className="Font18 Gray_9e mRight3" icon="search" />
+          <Icon className="Font18 textTertiary mRight3" icon="search" />
           <input
             className="w100"
             placeholder={_l('搜索')}
@@ -189,9 +189,9 @@ export default function SelectSheetFromApp(props) {
             <div className="flexColumn alignItemsCenter justifyContentCenter h100">{_l('无内容')}</div>
           ) : (
             <div className="flexColumn alignItemsCenter justifyContentCenter h100">
-              <Icon className="Font50 Gray_9e" icon="aggregate_table" />
-              <span className="Font14 Gray_9e mTop12 ">{_l('将工作表数据预处理为聚合结果')}</span>
-              <span className="Font14 Gray_9e mBottom24">{_l('在表单、流程、统计中作为数据源使用')}</span>
+              <Icon className="Font50 textTertiary" icon="aggregate_table" />
+              <span className="Font14 textTertiary mTop12 ">{_l('将工作表数据预处理为聚合结果')}</span>
+              <span className="Font14 textTertiary mBottom24">{_l('在表单、流程、统计中作为数据源使用')}</span>
               {getFeatureStatus(projectId, VersionProductType.aggregation) == '1' && (
                 <ConfigProvider autoInsertSpaceInButton={false}>
                   <Button
@@ -330,10 +330,10 @@ export default function SelectSheetFromApp(props) {
                   _.get(selectSheet, 'text')
                 )
               ) : (
-                <span className="Gray_bd">{_l('请选择')}</span>
+                <span className="textDisabled">{_l('请选择')}</span>
               )}
             </span>
-            <div className="ming Icon icon icon-arrow-down-border mLeft8 Gray_9e" />
+            <div className="ming Icon icon icon-arrow-down-border mLeft8 textTertiary" />
           </DropdownPlaceholder>
         </Trigger>
       </SelectItem>

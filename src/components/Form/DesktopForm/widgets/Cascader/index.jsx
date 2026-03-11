@@ -1,30 +1,29 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Cascader, TreeSelect } from 'antd';
+import { TreeSelect } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { Icon } from 'ming-ui';
+import Cascader from 'ming-ui/antd-components/Cascader';
 import sheetAjax from 'src/api/worksheet';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { renderText as renderCellText } from 'src/utils/control';
 import { checkCellIsEmpty } from 'src/utils/control';
 import { useWidgetEvent } from '../../../core/useFormEventManager';
-import './index.less';
 
-const getItem = value => {
-  return checkCellIsEmpty(value)
-    ? { name: undefined, sid: '' }
-    : {
-        name: (safeParse(value)[0] || {}).name || _l('未命名'),
-        sid: (safeParse(value)[0] || {}).sid || '',
-      };
+const { SHOW_ALL } = TreeSelect;
+
+const dealValue = value => {
+  if (checkCellIsEmpty(value)) {
+    return [];
+  }
+  return safeParse(value, 'array') || [];
 };
 
-const inputValueReg = (inputValue, regType) => {
-  return new RegExp(inputValue.trim().replace(/([,.+?:()*[\]^$|{}\\-])/g, '\\$1'), regType || 'i');
-};
+const MAX_CASCADE_SELECT_COUNT = 20;
 
-export default function CascaderWidgets(props) {
+export default function CascaderWidget(props) {
   const {
     visible,
     disabled,
@@ -39,20 +38,21 @@ export default function CascaderWidgets(props) {
     viewId,
     advancedSetting,
     onPopupVisibleChange = () => {},
-    control,
     hint,
     formData,
     worksheetId,
     getType,
     formItemId,
+    enumDefault,
+    appId,
+    notLimitCount = false,
   } = props;
 
   const [popupVisible, setPopupVisible] = useState(false);
   const [options, setOptions] = useState(null);
   const [searchOptions, setSearchOptions] = useState(null);
-  const [widgetValue, setWidgetValue] = useState(getItem(value).name);
+  const [widgetValue, setWidgetValue] = useState(dealValue(value));
   const [keywords, setKeywords] = useState('');
-  const [selectedId, setSelectedId] = useState(getItem(value).sid);
   const [isError, setIsError] = useState(false);
   const [treeExpandedKeys, setTreeExpandedKeys] = useState([]);
 
@@ -63,14 +63,17 @@ export default function CascaderWidgets(props) {
   const treeSelectCompRef = useRef(null);
   const cascaderRef = useRef(null);
 
-  const { showtype = '3', anylevel = '0', searchcontrol } = advancedSetting || {};
+  const { showtype = '3', anylevel = '0' } = advancedSetting || {};
+  // 多转单后也按多选展示
+  const isShowMultiple = enumDefault === 2 || safeParse(value, 'array').length > 1;
+  const isMultiple = enumDefault === 2;
 
   /**
    * 缓存树形完整路径
    */
   const cacheTreePath = (data, title = '') => {
     data.forEach(item => {
-      sourcePathRef.current[item.value] = title + item.label;
+      sourcePathRef.current[item.value] = title + (item.title || item.label || '');
     });
   };
 
@@ -163,14 +166,14 @@ export default function CascaderWidgets(props) {
     }
 
     // 数据源筛选
-    const filterControls = getFilter({ control: props, formData }) || [];
+    const filterControls = getFilter({ control: props, formData, appId }) || [];
     let navGroupFilters = [];
     // 开始筛选范围处理
     if (topshow === '3' && !rowId) {
-      navGroupFilters = getFilter({ control: props, formData, filterKey: 'topfilters' }) || [];
+      navGroupFilters = getFilter({ control: props, formData, filterKey: 'topfilters', appId }) || [];
     }
 
-    ajaxRef.current = sheetAjax.getFilterRows({
+    ajaxRef.current = sheetAjax.chooseRelationRows({
       worksheetId: dataSource,
       viewId,
       filterControls,
@@ -185,63 +188,40 @@ export default function CascaderWidgets(props) {
       relationWorksheetId: worksheetId,
     });
 
-    ajaxRef.current.then(result => {
-      if (result.resultCode === 1) {
-        const { template } = result;
-        const control = template.controls.find(item => item.attribute === 1);
-        const data = result.data.map(item => {
-          return {
-            value: item.rowid,
-            label: control
-              ? renderCellText(Object.assign({}, control, { value: item[control.controlId] }), { noMask: true }) ||
-                _l('未命名')
-              : _l('未命名'),
-            path: currentKeywords ? item.path : item.childrenids || item.path,
-            isLeaf: currentKeywords || isEndLeaf(rowId) ? true : !item.childrenids,
-          };
-        });
+    ajaxRef.current
+      .then(result => {
+        if (result.resultCode === 1) {
+          const { template } = result;
+          const control = template.controls.find(item => item.attribute === 1);
+          const data = result.data.map(item => {
+            const isLeaf = currentKeywords || isEndLeaf(rowId) ? true : !item.childrenids;
+            return {
+              value: item.rowid,
+              [showtype === '4' ? 'title' : 'label']: control
+                ? renderCellText(Object.assign({}, control, { value: item[control.controlId] }), { noMask: true }) ||
+                  _l('未命名')
+                : _l('未命名'),
+              path: currentKeywords ? item.path : item.childrenids || item.path,
+              isLeaf,
+              ...(isMultiple && anylevel === '1' ? { checkable: isLeaf } : {}),
+            };
+          });
 
-        ajaxRef.current = '';
-        cacheDataRef.current = currentKeywords
-          ? result.data
-          : _.uniqBy(cacheDataRef.current.concat(result.data), 'rowid');
-        deepDataUpdate(currentKeywords ? 'searchOptions' : 'options', options, data, rowId);
-      } else {
-        setIsError(true);
-      }
-    });
-  };
-
-  /**
-   * 渲染label
-   */
-  const renderLabel = (item, control) => {
-    if (keywords) {
-      const path = JSON.parse(item.path);
-      return path.map((text = '', i) => {
-        const isLast = i === path.length - 1;
-
-        if (text.search(new RegExp(keywords.trim().replace(/([,.+?:()*[\]^$|{}\\-])/g, '\\$1'), 'i')) !== -1) {
-          return (
-            <React.Fragment key={i}>
-              <span className="ThemeColor3">{text}</span>
-              {!isLast && <span> / </span>}
-            </React.Fragment>
-          );
+          ajaxRef.current = '';
+          cacheDataRef.current = currentKeywords
+            ? result.data
+            : _.uniqBy(cacheDataRef.current.concat(result.data), 'rowid');
+          deepDataUpdate(currentKeywords ? 'searchOptions' : 'options', options, data, rowId);
+        } else {
+          setIsError(true);
         }
-
-        return (
-          <React.Fragment key={i}>
-            {text}
-            {!isLast && <span> / </span>}
-          </React.Fragment>
-        );
+      })
+      .catch(err => {
+        // 1 表示请求被取消，不设置错误状态
+        if (err.errorCode !== 1) {
+          setIsError(err.errorCode);
+        }
       });
-    }
-
-    return control
-      ? renderCellText(Object.assign({}, control, { value: item[control.controlId] }), { noMask: true }) || _l('未命名')
-      : _l('未命名');
   };
 
   /**
@@ -263,88 +243,138 @@ export default function CascaderWidgets(props) {
       }
       return true;
     } else {
-      return currentItem.isLeaf;
+      return _.isEmpty(currentItem) || currentItem.isLeaf;
     }
   };
 
   /**
    * 平铺更新
    */
-  const cascaderChange = (ids = [], selectedOptions = []) => {
+  const cascaderChange = (ids = []) => {
     const { allpath = '0' } = advancedSetting || {};
 
-    const lastIndex = ids.length - 1;
-    const id = ids[lastIndex];
-    let path;
-    let value;
+    if (_.isEmpty(ids)) {
+      onChange('');
+      setWidgetValue([]);
+      return;
+    }
 
-    if (!canUpdate(id)) {
+    const verifyIds = ids.filter(id => !widgetValue.find(item => item.sid === id.value));
+
+    if (verifyIds.some(id => !canUpdate(id.value))) {
       alert(_l('不在可选范围内'), 3);
       return;
     }
 
-    if (keywords) {
-      path = JSON.parse((cacheDataRef.current.find(item => item.rowid === id) || {}).path);
-      value = +allpath ? path.join(' / ') : path[path.length - 1];
-    } else {
-      value = id
-        ? selectedOptions
-            .slice(+allpath ? 0 : lastIndex)
-            .map(item => item.label)
-            .join(' / ')
-        : '';
+    const newValues = [];
+    ids.map(i => {
+      let path;
+      let newName;
+      if (i.value) {
+        const originCurItem = widgetValue.find(item => item.sid === i.value);
+
+        if (originCurItem) {
+          newValues.push(originCurItem);
+        } else {
+          if (keywords) {
+            const curItem = cacheDataRef.current.find(item => item.rowid === i.value);
+            if (curItem) {
+              path = JSON.parse(curItem.path || '[]');
+            } else {
+              path = originCurItem?.name?.split(' / ') || [];
+            }
+            newName = +allpath ? path.join(' / ') : path[path.length - 1];
+          } else {
+            const nameArr = (sourcePathRef.current[i.value] || '').split(' / ');
+            newName = nameArr.slice(+allpath ? 0 : nameArr.length - 1).join(' / ');
+          }
+          newValues.push({
+            sid: i.value,
+            name: newName,
+            sourcevalue: JSON.stringify(cacheDataRef.current.find(item => item.rowid === i.value)),
+          });
+        }
+      }
+    });
+
+    if (newValues.length > MAX_CASCADE_SELECT_COUNT && !notLimitCount) {
+      alert(_l('最多可选择20项'), 3);
+      return;
     }
 
-    onChange(
-      id
-        ? JSON.stringify([
-            {
-              sid: id,
-              name: value,
-              sourcevalue: JSON.stringify(cacheDataRef.current.find(item => item.rowid === id)),
-            },
-          ])
-        : '',
-    );
+    onChange(JSON.stringify(newValues));
 
     setKeywords('');
-    setWidgetValue(value);
+    setWidgetValue(newValues);
   };
 
   /**
    * 树形更新
    */
-  const treeSelectChange = (id, title) => {
+  const treeSelectChange = (ids, title = '') => {
     const { allpath = '0' } = advancedSetting || {};
-    let path;
-    let value;
+    ids = _.isArray(ids) ? ids : [{ value: ids, label: title.join() }];
 
-    if (!canUpdate(id)) {
+    if (_.isEmpty(ids)) {
+      onChange('');
+      setWidgetValue([]);
+      return;
+    }
+
+    const verifyIds = ids.filter(id => !widgetValue.find(item => item.sid === id.value));
+
+    if (verifyIds.some(i => !canUpdate(i.value))) {
       alert(_l('不在可选范围内'), 3);
       return;
     }
 
-    if (keywords) {
-      path = JSON.parse((cacheDataRef.current.find(item => item.rowid === id) || {}).path);
-      value = +allpath ? path.join(' / ') : path[path.length - 1];
-    } else {
-      value = +allpath ? sourcePathRef.current[id] : title;
+    const newValues = [];
+    ids.map(i => {
+      let path;
+      let newName;
+      if (i.value) {
+        const originCurItem = widgetValue.find(item => item.sid === i.value);
+
+        if (originCurItem) {
+          newValues.push(originCurItem);
+        } else {
+          if (keywords) {
+            const curItem = cacheDataRef.current.find(item => item.rowid === i.value);
+            if (curItem) {
+              path = JSON.parse(curItem.path || '[]');
+            } else {
+              path = originCurItem?.name?.split(' / ') || [];
+            }
+            newName = +allpath ? path.join(' / ') : path[path.length - 1];
+          } else {
+            const nameArr = (sourcePathRef.current[i.value] || '').split(' / ');
+            newName = nameArr.slice(+allpath ? 0 : nameArr.length - 1).join(' / ');
+          }
+          newValues.push({
+            sid: i.value,
+            name: newName,
+            sourcevalue: JSON.stringify(cacheDataRef.current.find(item => item.rowid === i.value)),
+          });
+        }
+      }
+    });
+
+    if (newValues.length > MAX_CASCADE_SELECT_COUNT && !notLimitCount) {
+      alert(_l('最多可选择20项'), 3);
+      return;
     }
 
-    onChange(
-      id
-        ? JSON.stringify([
-            {
-              sid: id,
-              name: value,
-              sourcevalue: JSON.stringify(cacheDataRef.current.find(item => item.rowid === id)),
-            },
-          ])
-        : '',
-    );
+    onChange(JSON.stringify(newValues));
 
     setKeywords('');
-    setWidgetValue(value);
+    setWidgetValue(newValues);
+
+    if (!isMultiple) {
+      setTimeout(() => {
+        setPopupVisible(false);
+        onPopupVisibleChange(false);
+      }, 0);
+    }
   };
 
   /**
@@ -353,11 +383,6 @@ export default function CascaderWidgets(props) {
   const getTreeSelectEl = () => {
     return $(`.treeSelect_${controlId} .ant-select-tree-list`)[0];
   };
-
-  /**
-   * 搜索
-   */
-  const handleSearch = _.throttle(() => loadData(), 500);
 
   // 初始化
   useEffect(() => {
@@ -402,6 +427,7 @@ export default function CascaderWidgets(props) {
               treeSelectCompRef.current && treeSelectCompRef.current.blur();
             } else {
               cascaderRef.current && cascaderRef.current.blur();
+              setPopupVisible(false);
             }
             break;
           default:
@@ -413,10 +439,9 @@ export default function CascaderWidgets(props) {
   );
 
   useEffect(() => {
-    const item = getItem(value);
-    if (item.sid !== selectedId) {
-      setWidgetValue(item.name);
-      setSelectedId(item.sid);
+    const newWidgetValue = dealValue(value);
+    if (!_.isEqual(newWidgetValue, widgetValue)) {
+      setWidgetValue(newWidgetValue);
     }
   }, [value]);
 
@@ -426,11 +451,14 @@ export default function CascaderWidgets(props) {
     }
   }, [controlId]);
 
+  /**
+   * 搜索
+   */
+  const handleSearch = _.throttle(() => loadData(), 500);
+
   // 监听 keywords 变化，调用搜索
   useEffect(() => {
-    if (keywords) {
-      handleSearch();
-    }
+    handleSearch();
   }, [keywords]);
 
   useEffect(() => {
@@ -451,23 +479,36 @@ export default function CascaderWidgets(props) {
         dropdownPopupAlign={treePopupAlign}
         ref={treeSelectCompRef}
         disabled={disabled}
+        {...(isShowMultiple
+          ? { multiple: true, treeCheckable: true, showCheckedStrategy: SHOW_ALL, treeCheckStrictly: true }
+          : {})}
         virtual={false}
         placeholder={hint || _l('请选择')}
         showSearch
-        allowClear={!!widgetValue}
-        value={widgetValue ? [widgetValue] : []}
+        allowClear={!_.isEmpty(widgetValue)}
+        value={
+          _.isEmpty(widgetValue) ? [] : widgetValue.map(item => ({ value: item.sid, label: item.name || _l('未命名') }))
+        }
         selectable={!+anylevel}
         notFoundContent={
-          <div className="Gray_9e pLeft12 pBottom5">
-            {keywords
-              ? searchOptions === null
-                ? _l('搜索中...')
-                : _l('请输入更多关键词')
-              : isError
-                ? _l('数据源异常')
-                : options === null
-                  ? _l('数据加载中...')
-                  : _l('无数据')}
+          <div className="textTertiary pLeft12 pBottom5">
+            {keywords ? (
+              searchOptions === null ? (
+                _l('搜索中...')
+              ) : (
+                _l('请输入更多关键词')
+              )
+            ) : isError ? (
+              isError === 300016 ? (
+                <RestrictAccessStatus />
+              ) : (
+                _l('数据源异常')
+              )
+            ) : options === null ? (
+              _l('数据加载中...')
+            ) : (
+              _l('无数据')
+            )}
           </div>
         }
         treeData={keywords ? searchOptions || [] : options || []}
@@ -483,7 +524,7 @@ export default function CascaderWidgets(props) {
         open={popupVisible}
         onChange={(id, title) => {
           if (id || !keywords.length) {
-            treeSelectChange(id, title[0]);
+            treeSelectChange(id, title);
           }
         }}
         onSearch={value => {
@@ -506,79 +547,51 @@ export default function CascaderWidgets(props) {
     <Cascader
       ref={cascaderRef}
       allowClear
-      showSearch={{
-        filter: (inputValue, result = []) => {
-          let filterResult = result;
-          if (+anylevel) {
-            filterResult = result.filter(i => !_.find(cacheDataRef.current, da => da.pid === i.value));
-          }
-          return filterResult.some(
-            option =>
-              !!searchcontrol ||
-              JSON.parse(option.path || '[]')
-                .join('/')
-                .search(inputValueReg(inputValue)) !== -1,
-          );
-        },
-        sort: (a, b, inputValue) => {
-          const reg = inputValueReg(inputValue, 'g');
-          const formatValue = value =>
-            JSON.parse(_.head(value).path || '[]').map(i => {
-              const idx = i.search(reg);
-              return idx === -1 ? 999 : idx;
-            });
-          const aIndexArr = formatValue(a);
-          const bIndexArr = formatValue(b);
-          const maxCount = Math.max(aIndexArr.length, bIndexArr.length);
-
-          for (let i = 0; i < maxCount; i++) {
-            if (_.isUndefined(bIndexArr[i]) || aIndexArr[i] < bIndexArr[i]) return -1;
-            if (_.isUndefined(aIndexArr[i]) || aIndexArr[i] > bIndexArr[i]) return 1;
-          }
-        },
-        render: (inputValue, resultArr = []) => {
-          return renderLabel({ path: resultArr[0].path }, control);
-        },
-        matchInputWidth: false,
-      }}
+      {...(isShowMultiple
+        ? { multiple: true, ...(notLimitCount ? {} : { maxTagCount: MAX_CASCADE_SELECT_COUNT }) }
+        : { changeOnSelect: !+anylevel })}
       searchValue={keywords}
       className="w100 customCascader"
       popupAlign={popupAlign}
       popupPlacement={popupPlacement}
       disabled={disabled}
-      placeholder={widgetValue ? '' : hint || _l('请选择')}
-      changeOnSelect={!+anylevel}
-      value={widgetValue ? [widgetValue] : []}
-      displayRender={() => <span className="breakAll">{widgetValue}</span>}
+      placeholder={_.isEmpty(widgetValue) ? hint || _l('请选择') : ''}
+      value={widgetValue.map(i => ({ value: i.sid, label: i.name || _l('未命名') }))}
       options={keywords ? searchOptions || [] : options || []}
       notFoundContent={
-        keywords
-          ? searchOptions === null
-            ? _l('搜索中...')
-            : _l('请输入更多关键词')
-          : isError
-            ? _l('数据源异常')
-            : options === null
-              ? _l('数据加载中...')
-              : _l('无数据')
+        keywords ? (
+          searchOptions === null ? (
+            _l('搜索中...')
+          ) : (
+            _l('请输入更多关键词')
+          )
+        ) : isError ? (
+          isError === 300016 ? (
+            <RestrictAccessStatus />
+          ) : (
+            _l('数据源异常')
+          )
+        ) : options === null ? (
+          _l('数据加载中...')
+        ) : (
+          _l('无数据')
+        )
       }
-      loadData={selectedOptions => loadData(selectedOptions[selectedOptions.length - 1].value)}
+      loadData={node => loadData(node.value)}
       onChange={cascaderChange}
       onSearch={value => {
         setKeywords(value);
       }}
-      suffixIcon={<Icon icon="arrow-down-border Font14" />}
       open={popupVisible}
       onDropdownVisibleChange={visible => {
         setPopupVisible(visible);
         onPopupVisibleChange(visible);
       }}
-      clearIcon={<Icon icon="cancel Font14 customCascaderDel"></Icon>}
     />
   );
 }
 
-CascaderWidgets.propTypes = {
+CascaderWidget.propTypes = {
   from: PropTypes.number,
   visible: PropTypes.bool,
   disabled: PropTypes.bool,

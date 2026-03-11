@@ -114,54 +114,58 @@ export default props => {
 
   return (
     <Fragment>
-      <div className="Gray Font14 bold mBottom10">{_l('风格')}</div>
-      <div className="typeSelect flexRow valignWrapper w100">
-        <div
-          className={cx('flex centerAlign pointer Gray_75', { active: pageStyleType === 'light' })}
-          onClick={() => {
-            handleChangeColor(lightColors[0].value, {
-              pageStyleType: 'light',
-              pivoTableColor: lightColors[0].value,
-              pivoTableColorIndex: pivoTableColorIndex + 1,
-              numberChartColor: 'iconColor',
-              numberChartColorIndex: numberChartColorIndex + 1,
-              titleStyles: {
-                ...titleStyles,
-                color: '#333',
-                index: Date.now(),
-              },
-            });
-          }}
-        >
-          <Icon className="Font15" icon="light_mode" />
-          <span className="mLeft5">{_l('浅色')}</span>
-        </div>
-        <div
-          className={cx('flex centerAlign pointer Gray_75', { active: pageStyleType === 'dark' })}
-          onClick={() => {
-            handleChangeColor(darkColors[0].value, {
-              pageStyleType: 'dark',
-              pivoTableColor: 'iconColor',
-              pivoTableColorIndex: pivoTableColorIndex + 1,
-              numberChartColor: lightColors[0].value,
-              numberChartColorIndex: numberChartColorIndex + 1,
-              titleStyles: {
-                ...titleStyles,
-                color: '#fff',
-                isInitial: true,
-                index: Date.now(),
-              },
-            });
-          }}
-        >
-          <Icon className="Font15" icon="dark_mode" />
-          <span className="mLeft5">{_l('深色')}</span>
-        </div>
-      </div>
-      <div className="Gray Font14 bold mTop20 mBottom10">{_l('背景')}</div>
+      {!window.themeModeVisible && (
+        <Fragment>
+          <div className="textPrimary Font14 bold mBottom10">{_l('风格')}</div>
+          <div className="typeSelect flexRow valignWrapper w100 mBottom20">
+            <div
+              className={cx('flex centerAlign pointer textSecondary', { active: pageStyleType === 'light' })}
+              onClick={() => {
+                handleChangeColor(lightColors[0].value, {
+                  pageStyleType: 'light',
+                  pivoTableColor: lightColors[0].value,
+                  pivoTableColorIndex: pivoTableColorIndex + 1,
+                  numberChartColor: 'iconColor',
+                  numberChartColorIndex: numberChartColorIndex + 1,
+                  titleStyles: {
+                    ...titleStyles,
+                    color: '#333',
+                    index: Date.now(),
+                  },
+                });
+              }}
+            >
+              <Icon className="Font15" icon="light_mode" />
+              <span className="mLeft5">{_l('浅色')}</span>
+            </div>
+            <div
+              className={cx('flex centerAlign pointer textSecondary', { active: pageStyleType === 'dark' })}
+              onClick={() => {
+                handleChangeColor(darkColors[0].value, {
+                  pageStyleType: 'dark',
+                  pivoTableColor: 'iconColor',
+                  pivoTableColorIndex: pivoTableColorIndex + 1,
+                  numberChartColor: lightColors[0].value,
+                  numberChartColorIndex: numberChartColorIndex + 1,
+                  titleStyles: {
+                    ...titleStyles,
+                    color: '#fff',
+                    isInitial: true,
+                    index: Date.now(),
+                  },
+                });
+              }}
+            >
+              <Icon className="Font15" icon="dark_mode" />
+              <span className="mLeft5">{_l('深色')}</span>
+            </div>
+          </div>
+        </Fragment>
+      )}
+      <div className="textPrimary Font14 bold mBottom10">{_l('背景')}</div>
       <div className="flexRow alignItemsCenter">
         <div className="flex flexRow alignItemsCenter">
-          <div className="Gray_75 Font13 bold mRight10">{_l('颜色')}</div>
+          <div className="textSecondary Font13 bold mRight10">{_l('颜色')}</div>
           <div className="flexRow alignItemsCenter pageBgColors">
             {colors.map(data =>
               data.title ? (
@@ -184,7 +188,7 @@ export default props => {
           </div>
         </div>
         <div className="flex flexRow alignItemsCenter">
-          <div className="Gray_75 Font13 bold mRight10">{_l('图形')}</div>
+          <div className="textSecondary Font13 bold mRight10">{_l('图形')}</div>
           <div className="flexRow alignItemsCenter">
             <Popover
               placement="bottomRight"
@@ -199,7 +203,7 @@ export default props => {
                         style={{
                           backgroundColor,
                           borderRadius: 6,
-                          border: `1px solid ${pageBgImage === item.name ? '#1677ff' : 'transparent'}`,
+                          border: `1px solid ${pageBgImage === item.name ? 'var(--color-primary)' : 'transparent'}`,
                         }}
                         onClick={() => {
                           handleChangeConfig({ pageBgImage: item.name });
@@ -242,14 +246,14 @@ export default props => {
                 </div>
               ) : (
                 <div className="colorWrap" style={{ width: 50 }}>
-                  <Icon icon="add" className="Font20 Gray_75 Hover_21" />
+                  <Icon icon="add" className="Font20 textSecondary hoverColorPrimary" />
                 </div>
               )}
             </Popover>
             {pageBgImage && (
               <Icon
                 icon="trash"
-                className="pointer Gray_9e Font20"
+                className="pointer textTertiary Font20"
                 onClick={() => {
                   handleChangeConfig({ pageBgImage: undefined });
                 }}

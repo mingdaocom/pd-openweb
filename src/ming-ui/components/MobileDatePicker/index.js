@@ -29,7 +29,9 @@ export default function MobileDatePicker(props) {
     minuteStep,
     ...rest
   } = props;
-  const clearDisable = /^[A-Za-z]{3} [A-Za-z]{3} \d{1,2} \d{4} \d{2}:\d{2}:\d{2} GMT[+-]\d{4} \(.+\)$/.test(value);
+
+  const clearDisable =
+    !value || /^[A-Za-z]{3} [A-Za-z]{3} \d{1,2} \d{4} \d{2}:\d{2}:\d{2} GMT[+-]\d{4} \(.+\)$/.test(value);
   const [dateTime, setDateTime] = useState(getDate(value, minuteStep));
   const year = {
     format: _l('YYYY 年'),

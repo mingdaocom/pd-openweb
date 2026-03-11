@@ -6,10 +6,10 @@ import SelectSheetFromApp from '../SelectSheetFromApp';
 
 const AddSubListWrap = styled.div`
   .intro {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     span {
       margin-left: 6px;
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   label {
@@ -35,7 +35,9 @@ const OPTIONS = [
   {
     text: _l('从空白添加'),
     value: '1',
-    children: <div className="radioIntro Font12 Gray_9e">{_l('之后您也可以将它转为一个实体工作表，显示在应用中')}</div>,
+    children: (
+      <div className="radioIntro Font12 textTertiary">{_l('之后您也可以将它转为一个实体工作表，显示在应用中')}</div>
+    ),
   },
   {
     text: _l('将已有工作表作为子表'),

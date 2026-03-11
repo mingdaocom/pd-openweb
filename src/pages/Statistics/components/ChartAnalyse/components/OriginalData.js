@@ -9,8 +9,8 @@ import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 const ShowControlIdWrapper = styled.div`
   border-radius: 4px;
   padding: 5px 9px;
-  border: 1px solid #dedede;
-  background-color: #efefef;
+  border: 1px solid var(--color-border-primary);
+  background-color: var(--color-border-secondary);
 `;
 
 export default class OriginalData extends Component {
@@ -122,7 +122,7 @@ export default class OriginalData extends Component {
             <ShowControlIdWrapper className="flexRow valignWrapper mTop10">
               <div className="flex">{_l('显示%0个字段', displaySetup.showControlIds.length)}</div>
               <Icon
-                className="Gray_9e pointer"
+                className="textTertiary pointer"
                 icon="edit"
                 onClick={() => {
                   this.setState({ showControlVisible: true });
@@ -138,7 +138,7 @@ export default class OriginalData extends Component {
           visible={showControlVisible}
           centered={true}
           destroyOnClose={true}
-          closeIcon={<Icon icon="close" className="Font20 pointer Gray_9e" />}
+          closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
           footer={this.renderFooter()}
           onCancel={() => {
             this.setState({
@@ -176,11 +176,11 @@ export default class OriginalData extends Component {
                 {_l('在图表中分栏查看')}
               </Radio>
               <Radio value={2} className="Font13" disabled={disabled}>
-                <span className="Gray">{_l('前往视图中查看')}</span>
+                <span className="textPrimary">{_l('前往视图中查看')}</span>
               </Radio>
             </Space>
           </Radio.Group>
-          <div className="Font12 mLeft25 mTop5 Gray_9e">
+          <div className="Font12 mLeft25 mTop5 textTertiary">
             {_l('需要在统计数据源中指定统计的视图（当前只支持表视图）')}
           </div>
         </div>

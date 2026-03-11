@@ -72,7 +72,7 @@ export default function TableSet(props) {
                 <div className="switchText InlineBlock Normal mLeft12 mTop8">{o.txt}</div>
                 {o.tips && (
                   <Tooltip title={o.tips}>
-                    <i className="icon-help Font16 Gray_9e mLeft3 TxtMiddle" />
+                    <i className="icon-help Font16 textTertiary mLeft3 TxtMiddle" />
                   </Tooltip>
                 )}
               </SwitchStyle>
@@ -112,7 +112,7 @@ export default function TableSet(props) {
                 handleChange({ sheettype: '0' }); ////表格交互
               }}
             />
-            <div className="txt Gray_75 mTop8" style={{ marginLeft: '28px' }}>
+            <div className="txt textSecondary mTop8" style={{ marginLeft: '28px' }}>
               {_l('点整行打开记录')}
             </div>
           </div>
@@ -125,7 +125,7 @@ export default function TableSet(props) {
                 handleChange({ sheettype: '1' });
               }}
             />
-            <div className="txt Gray_75 mTop8" style={{ marginLeft: '28px' }}>
+            <div className="txt textSecondary mTop8" style={{ marginLeft: '28px' }}>
               {_l('点单元格选中字段，按空格键打开记录')}
             </div>
           </div>
@@ -144,7 +144,7 @@ export default function TableSet(props) {
             </div>
             <div className="flexRow">
               <div className="w28" />
-              <div className="switchText InlineBlock Normal mLeft12 Gray_75 mTop4">
+              <div className="switchText InlineBlock Normal mLeft12 textSecondary mTop4">
                 {_l('无需打开记录详情，在表格行内直接编辑字段')}
               </div>
             </div>
@@ -168,7 +168,7 @@ export default function TableSet(props) {
             </div>
             <div className="flexRow">
               <div className="w28"></div>
-              <div className="switchText InlineBlock Normal mLeft12 Gray_75 mTop4">
+              <div className="switchText InlineBlock Normal mLeft12 textSecondary mTop4">
                 {_l('在表格中生效业务规则，但会影响表格性能')}
               </div>
             </div>

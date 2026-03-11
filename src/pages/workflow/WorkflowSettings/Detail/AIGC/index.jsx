@@ -183,13 +183,13 @@ export default class AIGC extends Component {
     return (
       <Fragment>
         <div className="Font13 bold">{_l('选择AI模型')}</div>
-        {md.global.Config.IsPlatformLocal ? (
-          <div className="Font13 Gray_75 mTop5">
+        {window.platformENV.isPlatform ? (
+          <div className="Font13 textSecondary mTop5">
             {_l('选择用于 AIGC 的大语言模型。Token 消耗将从组织信用点扣除')}
             <Support type={3} text={_l('了解模型价格')} href={md.global.Config.WebUrl + 'billingrules'} />
           </div>
         ) : (
-          <div className="Font13 Gray_75 mTop5">{_l('选择用于 AIGC 的大语言模型。')}</div>
+          <div className="Font13 textSecondary mTop5">{_l('选择用于 AIGC 的大语言模型。')}</div>
         )}
         <SelectAIModel
           data={{ ...data, model: data.appId }}
@@ -223,7 +223,7 @@ export default class AIGC extends Component {
         </div>
 
         {sendRequest ? (
-          <div className="Font13 workflowDetailDesc mTop25 subProcessDesc Gray_75">{_l('生成中...')}</div>
+          <div className="Font13 workflowDetailDesc mTop25 subProcessDesc textSecondary">{_l('生成中...')}</div>
         ) : (
           <Fragment>
             {data.actionId === ACTION_ID.AIGC_TEXT && data.result && (
@@ -246,8 +246,8 @@ export default class AIGC extends Component {
         )}
 
         {!!data.totalTokens && (
-          <div className="Font13 Gray_75 mTop5">
-            {md.global.Config.IsPlatformLocal
+          <div className="Font13 textSecondary mTop5">
+            {window.platformENV.isPlatform
               ? _l('本次测试消耗 %0 tokens， 计费 %1 信用点', data.totalTokens, data.price)
               : _l('本次测试消耗 %0 tokens', data.totalTokens)}
           </div>
@@ -328,7 +328,7 @@ export default class AIGC extends Component {
       <Fragment>
         <div className="Font13 bold mTop20">{source.title}</div>
         <div className="Font13 flexRow mTop5" style={{ alignItems: 'end' }}>
-          <div className="Gray_75" style={{ maxWidth: source.templateKey ? 600 : '100%' }}>
+          <div className="textSecondary" style={{ maxWidth: source.templateKey ? 600 : '100%' }}>
             {source.desc}
           </div>
           <div className="flex" />
@@ -367,7 +367,7 @@ export default class AIGC extends Component {
     return (
       <Fragment>
         <div className="Font13 bold mTop20">{_l('数据对象参数')}</div>
-        <div className="Font13 Gray_75 mTop5">
+        <div className="Font13 textSecondary mTop5">
           {_l('定义输出数据对象的参数，参数名称只能是英文、数字和下划线。参数名称和说明需要含义清晰以便 AI 识别。')}
         </div>
 

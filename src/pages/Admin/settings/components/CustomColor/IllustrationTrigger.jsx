@@ -5,7 +5,7 @@ import { CUSTOM_ILLUSTRATION } from '../../config';
 
 const GuildWrap = styled.div`
   width: 280px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 2px 16px 1px rgba(0, 0, 0, 0.16);
   border-radius: 3px;
   left: 100%;
@@ -31,7 +31,7 @@ function IllustrationTrigger(props) {
         <GuildWrap>
           <div className="top">
             <div className="Font14 Bold">{CUSTOM_ILLUSTRATION[type].title}</div>
-            <div className="mTop8 Gray_75 LineHeight20 Font13">{CUSTOM_ILLUSTRATION[type].desc}</div>
+            <div className="mTop8 textSecondary LineHeight20 Font13">{CUSTOM_ILLUSTRATION[type].desc}</div>
           </div>
           <div className="bottom">
             <img className="w100" src={CUSTOM_ILLUSTRATION[type].image} />

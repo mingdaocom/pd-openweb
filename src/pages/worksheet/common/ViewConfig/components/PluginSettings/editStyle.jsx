@@ -12,7 +12,7 @@ export const Wrap = styled.div`
     }
   }
   .fieldIdCon {
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     box-sizing: border-box;
     height: 36px;
     line-height: 36px;
@@ -20,7 +20,7 @@ export const Wrap = styled.div`
     padding: 0 12px;
     font-size: 14px;
     cursor: no-drop;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
   }
   width: 400px;
   height: 100%;
@@ -29,11 +29,11 @@ export const Wrap = styled.div`
   top: 0;
   bottom: 0;
   box-shadow: 0px 8px 36px 1px rgba(0, 0, 0, 0.24);
-  background: #fff;
+  background: var(--color-background-primary);
   .con {
     height: 100%;
     .headerCon {
-      border-bottom: 1px solid #ededed;
+      border-bottom: 1px solid var(--color-border-secondary);
       padding: 0 24px;
       height: 55px;
       line-height: 55px;
@@ -54,14 +54,14 @@ export const Wrap = styled.div`
     height: auto;
     min-height: 36px;
     .itemT {
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       border-radius: 4px 4px 4px 4px;
       padding: 3px 8px 3px 10px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border-secondary);
       i {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         &:hover {
-          color: #757575;
+          color: var(--color-text-secondary);
         }
       }
     }
@@ -83,12 +83,12 @@ export const Wrap = styled.div`
   .ming.Input,
   .Textarea {
     font-size: 13px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     &:hover {
-      border-color: #bbb;
+      border-color: var(--color-text-disabled);
     }
     &:focus {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
   }
   .cover {

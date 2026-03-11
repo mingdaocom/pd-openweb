@@ -245,7 +245,7 @@ export default {
    * @param {integer} args.pageIndex pageIndex
    * @param {integer} args.pageSize pageSize
    * @param {string} args.keywords 关键词
-   * @param {integer} args.keywordsType 关键词查询 类型（多字段[默认]=0、名称=1、工号=2）
+   * @param {integer} args.keywordsType 关键词查询 类型（多字段[默认]=0、名称=1、工号=2、手机号=3、邮箱=4）
    * @param {integer} args.sort 排序字段（默认 0=离职时间 倒序）
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
@@ -253,24 +253,6 @@ export default {
    **/
   pagedRemovedUsers: function (args, options = {}) {
     return mdyAPI('User', 'PagedRemovedUsers', args, options);
-  },
-  /**
-   * 获取用户列表
-   * @param {Object} args 请求参数
-   * @param {string} args.projectId 网络Id
-   * @param {integer} args.pageIndex pageIndex
-   * @param {integer} args.pageSize pageSize
-   * @param {string} args.keywords 关键词
-   * @param {integer} args.keywordsType 关键词查询 类型（多字段[默认]=0、名称=1、工号=2）
-   * @param {} args.userStatus
-   * @param {} args.sortField
-   * @param {} args.sortType
-   * @param {Object} options 配置参数
-   * @param {Boolean} options.silent 是否禁止错误弹层
-   * @returns {Promise<Boolean, ErrorModel>}
-   **/
-  getUserList: function (args, options = {}) {
-    return mdyAPI('User', 'GetUserList', args, options);
   },
   /**
    * 获取联系人在组织中的状态
@@ -317,12 +299,11 @@ export default {
   /**
    * 获取 待审批 或 已拒绝 的用户
    * @param {Object} args 请求参数
-   * @param {string} args.projectId 网络Id
-   * @param {integer} args.pageIndex 页码
-   * @param {integer} args.pageSize 页大小
+   * @param {string} args.projectId 组织Id
+   * @param {integer} args.pageIndex
+   * @param {integer} args.pageSize
    * @param {} args.userStatus
-   * @param {} args.sortField
-   * @param {} args.sortType
+   * @param {} args.orderBy
    * @param {string} args.keywords 关键司
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层

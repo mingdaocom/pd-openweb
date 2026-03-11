@@ -55,13 +55,13 @@ export default function Container(props) {
           <ChangeLang />
         </div>
         {logoImageUrl ? <img src={logoImageUrl} height={40} /> : ''}
-        <p className="Font26 Gray mAll0 mTop20 Bold pageTitle" style={{ WebkitBoxOrient: 'vertical' }}>
+        <p className="Font26 textPrimary mAll0 mTop20 Bold pageTitle" style={{ WebkitBoxOrient: 'vertical' }}>
           {pageTitle}
         </p>
         {status === 3 ? (
           <div className="tipConBox" style={tipStyle}>
             <div className="txtIcon">
-              <Icon type="check_circle" className="" style={{ color: '#4caf50' }} />
+              <Icon type="check_circle" className="" style={{ color: 'var(--color-success)' }} />
             </div>
             <p className="txtConsole">{_l('注册成功')}</p>
             <p className="txtConsole Font15 mTop6">{_l('请耐心等待运营方审核')}</p>

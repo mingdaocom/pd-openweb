@@ -12,7 +12,7 @@ const Wrap = styled.div`
     h6 {
     }
     .listLiHeader {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       font-size: 12px;
     }
     .listLi {
@@ -21,7 +21,7 @@ const Wrap = styled.div`
     .columnTxt {
       flex: 1;
       height: 36px;
-      background: #f8f8f8;
+      background: var(--color-background-secondary);
       border-radius: 3px;
     }
     .iconBox {
@@ -37,8 +37,8 @@ const Wrap = styled.div`
       display: flex;
       line-height: 36px;
       padding: 0 10px !important;
-      background: #ffffff;
-      border: 1px solid #e0e0e0;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-secondary);
       border-radius: 3px;
       .value,
       .Dropdown--placeholder {
@@ -100,7 +100,7 @@ export default function ReviewFreeMap(props) {
             return (
               <div className="listLi mBottom6" key={i}>
                 <span className="columnTxt InlineBlock LineHeight36">
-                  <Icon className="Font18 TxtMiddle Gray_9e mLeft15 mRight8" icon={getIconByType(o.type, false)} />
+                  <Icon className="Font18 TxtMiddle textTertiary mLeft15 mRight8" icon={getIconByType(o.type, false)} />
                   {o.controlName}
                 </span>
                 <span className="iconBox InlineBlock TxtBottom LineHeight36">

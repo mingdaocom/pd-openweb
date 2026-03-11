@@ -4,9 +4,9 @@
   width: 180px;
   padding: 5px 0;
   border-radius: 3px;
-  background: white;
+  background: var(--color-background-card);
   z-index: 11;
-  box-shadow: @shadow2;
+  box-shadow: var(--shadow-lg);
 
   &-hidden {
     display: none;
@@ -14,15 +14,19 @@
 }
 
 .MenuBox {
-  background: white;
-  box-shadow: @shadow2;
+  background: var(--color-background-card);
+  box-shadow: var(--shadow-lg);
   padding: 5px 0;
   border-radius: 3px;
   z-index: 11;
   width: 100%;
+  input {
+    background: transparent;
+  }
   .ming.Menu {
     position: relative;
     box-shadow: none;
     padding: 0;
+    background: transparent;
   }
 }

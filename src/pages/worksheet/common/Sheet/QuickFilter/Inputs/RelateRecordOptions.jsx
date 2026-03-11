@@ -5,7 +5,7 @@ import { arrayOf, bool, func, shape } from 'prop-types';
 import styled from 'styled-components';
 import worksheetAjax from 'src/api/worksheet';
 import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
-import { getTitleTextFromRelateControl } from 'src/components/Form/core/utils';
+import { getTitleTextFromRelateControl } from 'src/utils/control';
 import Option from './StyledOption';
 
 const Con = styled.div`
@@ -25,6 +25,7 @@ export default function RelateRecordOptions(props) {
     multiple,
     onChange,
     advancedSetting,
+    appId,
   } = props;
   const [records, setRecords] = useState(staticRecords || []);
   async function load() {
@@ -33,7 +34,7 @@ export default function RelateRecordOptions(props) {
     }
     let filterControls;
     if (control && control.advancedSetting.filters) {
-      filterControls = getFilter({ control, formData });
+      filterControls = getFilter({ control, formData, appId });
     }
     const args = {
       worksheetId: control.dataSource,

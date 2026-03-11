@@ -15,11 +15,11 @@ import ButtonTabs from './ButtonTabs';
 const SettingCon = styled.div`
   .ming.Dropdown.isDelete .Dropdown--input .value,
   .dropdownTrigger .Dropdown--input .value {
-    color: red;
+    color: var(--color-error);
   }
   .ming.Dropdown.isDelete .Dropdown--border,
   .dropdownTrigger .Dropdown--border {
-    border-color: red;
+    border-color: var(--color-error);
   }
   .navWidth {
     width: 48%;
@@ -36,12 +36,12 @@ const SettingCon = styled.div`
     }
     .ming.Input {
       font-size: 13px;
-      border: 1px solid #ddd;
+      border: 1px solid var(--color-border-primary);
       &:hover {
-        border-color: #1677ff;
+        border-color: var(--color-primary);
       }
       &:focus {
-        border-color: #1677ff;
+        border-color: var(--color-primary);
       }
     }
   }
@@ -176,7 +176,7 @@ export default class CoverSetting extends React.Component {
                 <CoverSettingCon>
                   <div style={{ marginRight: '28px' }}>
                     {/* coverposition 封面位置  上 左 右*/}
-                    <div className="subTitle Gray_75">{_l('位置')}</div>
+                    <div className="subTitle textSecondary">{_l('位置')}</div>
                     <ButtonTabs
                       className="mTop8"
                       disabled={coverValue === 'notDisplay'}
@@ -203,7 +203,7 @@ export default class CoverSetting extends React.Component {
                     />
                   </div>
                   <div>
-                    <div className="subTitle Gray_75">{_l('显示方式')}</div>
+                    <div className="subTitle textSecondary">{_l('显示方式')}</div>
                     <ButtonTabs
                       className="mTop8"
                       disabled={coverValue === 'notDisplay'}
@@ -223,7 +223,7 @@ export default class CoverSetting extends React.Component {
                     />
                   </div>
                   <div className="mTop20 w100">
-                    <div className="subTitle Gray_75">{_l('图片填充方式')}</div>
+                    <div className="subTitle textSecondary">{_l('图片填充方式')}</div>
                     <div className="InlineBlock">
                       <ButtonTabs
                         className="mTop8 flexRow"

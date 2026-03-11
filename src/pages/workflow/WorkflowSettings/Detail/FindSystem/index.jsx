@@ -250,15 +250,15 @@ export default class FindSystem extends Component {
 
     return (
       <Fragment>
-        <div className="Gray_75">{((TEXT[data.appType] || {})[data.actionId] || {}).title}</div>
-        <div className="Gray_75 workflowDetailDesc pTop15 pBottom15 mTop10">
+        <div className="textSecondary">{((TEXT[data.appType] || {})[data.actionId] || {}).title}</div>
+        <div className="textSecondary workflowDetailDesc pTop15 pBottom15 mTop10">
           {(DESC_TEXT[selectNodeType] || {})[data.appType]}
         </div>
 
         {_.includes([ACTION_ID.FROM_RECORD, ACTION_ID.RELATION], data.actionId) && (
           <Fragment>
             <div className="mTop20 bold">{_l('选择查找对象')}</div>
-            <div className="Gray_75 mTop5">{_l('当前流程中的节点对象')}</div>
+            <div className="textSecondary mTop5">{_l('当前流程中的节点对象')}</div>
             <SelectNodeObject
               appList={data.flowNodeList}
               selectNodeId={data.selectNodeId}
@@ -278,7 +278,7 @@ export default class FindSystem extends Component {
         )}
 
         <div className="mTop20 bold">{_l('筛选条件')}</div>
-        <div className="Gray_75 mTop5">{TEXT[data.appType][data.actionId].filterText}</div>
+        <div className="textSecondary mTop5">{TEXT[data.appType][data.actionId].filterText}</div>
         {!data.conditions.length ? (
           this.renderConditionBtn()
         ) : (
@@ -317,7 +317,7 @@ export default class FindSystem extends Component {
                 onClick={checked => this.updateSource({ relation: !checked })}
               />
             </div>
-            <div className="mLeft25 Gray_75">
+            <div className="mLeft25 textSecondary">
               {_l(
                 '包含人员的直属上司、直接下属、所有下属；如果您的使用场景无需汇报关系相关信息，推荐不勾选以提升您的查询效率',
               )}
@@ -344,7 +344,7 @@ export default class FindSystem extends Component {
     return (
       <div className="addActionBtn mTop25">
         <span
-          className={data.appId ? 'ThemeBorderColor3' : 'Gray_bd borderColor_c'}
+          className={data.appId ? 'ThemeBorderColor3' : 'textDisabled borderTertiary'}
           onClick={() => this.updateSource({ conditions: [[{}]] })}
         >
           <i className="icon-add Font16" />

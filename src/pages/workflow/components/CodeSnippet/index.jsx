@@ -15,13 +15,13 @@ const EditDialogBox = styled(Dialog)`
     width: 180px;
   }
   input {
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     padding: 9px 12px;
     height: 36px;
     line-height: 18px;
     border-radius: 3px;
     &:focus {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
   }
   .mRight90 {
@@ -34,14 +34,14 @@ const DialogBox = styled(Dialog)`
     padding-bottom: 0 !important;
   }
   .codeSnippetHeader {
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-primary);
     li {
       padding: 14px;
       font-size: 14px;
       cursor: pointer;
       position: relative;
       &:not(.active) {
-        color: #151515 !important;
+        color: var(--color-text-title) !important;
       }
       &.active:after {
         position: absolute;
@@ -50,7 +50,7 @@ const DialogBox = styled(Dialog)`
         right: 0;
         content: '';
         height: 3px;
-        background: #1677ff;
+        background: var(--color-primary);
       }
     }
     .codeSnippetSearch {
@@ -70,7 +70,7 @@ const DialogBox = styled(Dialog)`
         width: 220px;
         height: 32px;
         line-height: 18px;
-        background: #f5f5f5;
+        background: var(--color-background-secondary);
         border-radius: 16px;
         padding: 7px 32px 7px 32px;
         border: none;
@@ -80,10 +80,10 @@ const DialogBox = styled(Dialog)`
   .codeSnippetLeft {
     padding: 16px 0;
     width: 240px;
-    border-right: 1px solid #ddd;
+    border-right: 1px solid var(--color-border-primary);
     .codeSnippetLangType {
       height: 36px;
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       border-radius: 9px;
       padding: 2px;
       text-align: center;
@@ -93,10 +93,10 @@ const DialogBox = styled(Dialog)`
       }
       .active {
         height: 32px;
-        background: #fff;
+        background: var(--color-background-primary);
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
         border-radius: 7px;
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     li {
@@ -106,12 +106,12 @@ const DialogBox = styled(Dialog)`
       position: relative;
       cursor: pointer;
       &.active {
-        background: rgba(33, 150, 243, 0.08);
-        color: #1677ff;
+        background: var(--color-primary-transparent);
+        color: var(--color-primary);
         &:after {
           width: 3px;
           height: 18px;
-          background: #1677ff;
+          background: var(--color-primary);
           border-radius: 4px;
           position: absolute;
           content: '';
@@ -121,8 +121,8 @@ const DialogBox = styled(Dialog)`
         }
       }
       &:hover {
-        background: rgba(33, 150, 243, 0.08);
-        color: #1677ff;
+        background: var(--color-primary-transparent);
+        color: var(--color-primary);
         .codeSnippetOperator {
           display: flex;
         }
@@ -134,12 +134,12 @@ const DialogBox = styled(Dialog)`
         width: 28px;
         height: 28px;
         border-radius: 4px;
-        color: #757575;
+        color: var(--color-text-secondary);
         margin-right: 4px;
         display: none;
         &:hover {
-          background: #fff;
-          color: #1677ff;
+          background: var(--color-background-primary);
+          color: var(--color-primary);
         }
         &.active {
           display: flex;
@@ -160,10 +160,10 @@ const DialogBox = styled(Dialog)`
   .codeSnippetNull {
     width: 120px;
     height: 120px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     border-radius: 50%;
     font-size: 60px;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
 `;
 
@@ -252,7 +252,7 @@ export const CodeSnippetEdit = ({
 };
 
 const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {} }) => {
-  const [tabIndex, setTabIndex] = useState(md.global.Config.IsLocal ? 2 : 1);
+  const [tabIndex, setTabIndex] = useState(window.platformENV.isOverseas || window.platformENV.isLocal ? 2 : 1);
   const [keywords, setKeywords] = useState('');
   const [langType, setLangType] = useState(type === 2 ? '103' : '102');
   const [clearParams, setParams] = useState(false);
@@ -278,7 +278,7 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
     { text: _l('个人'), value: 3 },
   ];
 
-  if (md.global.Config.IsLocal) {
+  if (window.platformENV.isOverseas || window.platformENV.isLocal) {
     _.remove(TYPES, o => o.value === 1);
   }
 
@@ -392,7 +392,7 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
           </ul>
           <div className="flex" />
           <div className="codeSnippetSearch">
-            <i className="icon-search Font16 Gray_75"></i>
+            <i className="icon-search Font16 textSecondary"></i>
             <input
               type="text"
               placeholder={_l('搜索')}
@@ -401,7 +401,7 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
             />
             {keywords && (
               <i
-                className="icon-cancel Font16 Gray_75 ThemeHoverColor3"
+                className="icon-cancel Font16 textSecondary ThemeHoverColor3"
                 onClick={() => {
                   setKeywords('');
                   inputName.current.value = '';

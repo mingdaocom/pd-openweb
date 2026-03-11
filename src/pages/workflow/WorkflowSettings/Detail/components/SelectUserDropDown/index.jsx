@@ -71,10 +71,10 @@ export default class SelectUserDropDown extends Component {
       <ul className="flowDetailUserList">
         {(specialType === 3 || specialType === 5) && (
           <div className="explainHeader flexRow">
-            <i className={cx('Gray_75', specialType === 3 ? 'icon-phone' : 'icon-mailbox')} />
+            <i className={cx('textSecondary', specialType === 3 ? 'icon-phone' : 'icon-mailbox')} />
             <input
               type="text"
-              className="w100 Gray"
+              className="w100 textPrimary"
               autoFocus
               placeholder={specialType === 3 ? _l('输入手机号码') : _l('输入邮箱地址')}
               onClick={evt => evt.stopPropagation()}

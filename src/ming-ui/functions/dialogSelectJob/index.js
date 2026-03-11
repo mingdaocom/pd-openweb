@@ -111,7 +111,7 @@ class DialogSelectJob extends Component {
         <div className="GSelect-result-subItem" key={`subItem-${i}`}>
           <div
             className="GSelect-result-subItem__avatar"
-            style={isAppRole ? { background: 'unset', color: '#9e9e9e' } : {}}
+            style={isAppRole ? { background: 'unset', color: 'var(--color-text-tertiary)' } : {}}
           >
             <i className="icon-limit-principal" />
           </div>

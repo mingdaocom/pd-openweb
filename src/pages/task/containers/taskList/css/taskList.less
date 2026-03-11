@@ -8,15 +8,15 @@
   }
   #taskList .listStageTaskContent > table tr {
     cursor: pointer;
-    background-color: #fff;
+    background-color: var(--color-background-card);
   }
   #tasks .listStageTaskContent > table tr:hover {
-    background-color: #fafafa;
+    background-color: var(--color-background-hover);
   }
   #taskList .listStageTaskContent > table td {
     height: 46px;
     line-height: 46px;
-    border-bottom: 1px #e0e0e0 solid;
+    border-bottom: 1px var(--color-border-secondary) solid;
   }
   #taskList tr.animatedFarFast {
     background-color: transparent !important;
@@ -58,22 +58,22 @@
     font-size: 21px;
     height: 7px;
     margin-top: 17px;
-    color: #247e41;
+    color: var(--color-task);
   }
   #taskList .icon-task-card {
     display: inline-block;
     font-size: 14px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   #taskList .cardColor {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   /* 列表hover */
   #tasks .singleTreeTask:hover {
-    background-color: #f4f5f7;
+    background-color: var(--color-background-hover);
   }
   #tasks tr:hover .txtName {
-    border-color: #f7f8f9;
+    border-color: var(--color-primary-transparent);
   }
   #taskList .taskListDate {
     width: 280px;
@@ -86,7 +86,7 @@
   }
   .operation .subCounts,
   .taskListDate .subCounts {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     margin-left: 2px;
   }
   #taskList .markStar {
@@ -103,7 +103,7 @@
     display: none;
   }
   #taskList .markStar .icon-star-hollow:not(:hover) {
-    color: #99a1ab !important;
+    color: var(--color-text-tertiary) !important;
   }
   #taskList table tr:hover .icon-star-hollow {
     display: inline-block;
@@ -129,7 +129,7 @@
     height: 10px;
     display: inline-block;
     border-radius: 50%;
-    border: 1px solid #fff;
+    border: 1px solid var(--color-white);
     margin-left: -6px;
     position: relative;
   }
@@ -172,7 +172,7 @@
     border-color: #8db1c9;
   }
   #taskList .taskListName .txtName.selectName {
-    border-color: #c1dffa;
+    border-color: var(--color-primary-transparent);
   }
   #taskList .taskListName .completeTask,
   .listStageTaskName.completeTask {
@@ -182,14 +182,14 @@
   .listStageTaskContent .newTopic {
     display: inline-block;
     font-size: 16px;
-    color: #0091ea;
+    color: var(--color-primary);
     margin-top: 15px;
     vertical-align: top;
     margin-left: 5px;
   }
   .listStageTaskContent .newTopicCount {
     display: inline-block;
-    color: #0091ea;
+    color: var(--color-primary);
     font-size: 12px;
     margin-left: 5px;
     font-family: 'Hiragino Sans GB';
@@ -221,7 +221,7 @@
     height: 90px;
   }
   #taskSearchNullTask {
-    color: rgba(0, 0, 0, 0.54);
+    color: var(--color-text-tertiary);
     font-size: 16px;
   }
   #taskSearchNullTask .loadingCenter {
@@ -235,7 +235,6 @@
   #taskList .noCompleteTip,
   #taskList .filterNullTip {
     height: 320px;
-    background-color: rgba(255, 255, 255, 0.5);
     padding-top: 120px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     box-sizing: initial;
@@ -248,7 +247,6 @@
     height: 150px;
     background-size: 150px 150px;
     display: inline-block;
-    background-color: rgba(255, 255, 255, 0.5);
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
     border-radius: 50%;
     margin-bottom: 14px;
@@ -260,7 +258,7 @@
   /* taskList stage  */
   #taskList .taskListStageName,
   #taskList .taskListFolderName {
-    background: #fff;
+    background: var(--color-background-primary);
     font-size: 17px;
     height: 56px;
     line-height: 56px;
@@ -268,7 +266,7 @@
     cursor: pointer;
   }
   #taskList .taskListFolderName .stageTaskCount {
-    color: #aaa;
+    color: var(--color-text-tertiary);
   }
   #taskList .taskListStageName .listFolderNameText,
   #taskList .taskListFolderName .listFolderNameTextList {
@@ -279,7 +277,7 @@
     line-height: 56px;
     display: inline-block;
     vertical-align: top;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   #taskList .taskListStageName .arrow-down,
   #taskList .taskListFolderName .arrow-down {
@@ -300,9 +298,7 @@
   .createNewTask.boxShadw,
   #taskList .createNewSingle.boxShadw,
   #taskList .taskListStageName {
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
-    -moz-box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
-    -webkit-box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-sm);
   }
   #taskList .listStageTaskContent tr:last-child td {
     border-bottom: 0px;
@@ -310,7 +306,7 @@
   .newTaskTip {
     position: absolute;
     background-color: #ff6637;
-    color: #fff;
+    color: var(--color-white);
     display: inline-block;
     height: 22px;
     line-height: 22px;
@@ -325,7 +321,7 @@
     border-left: 58px transparent solid;
   }
   #taskList table tr.newTaskTipName {
-    background-color: #fffff9;
+    background-color: var(--color-yellow-black);
   }
   /* 项目成员  */
   #folderMember.dialogBox,
@@ -334,14 +330,14 @@
   }
   /*除成员列表滚动条 覆盖dialog.css*/
   #folderMember > .header {
-    background-color: #eee;
+    background-color: var(--color-border-secondary);
     margin-left: 0px;
     height: auto;
   }
   #folderMember > .header .title {
     font-size: 13px !important;
     margin: 16px 0px 16px 24px;
-    color: #999;
+    color: var(--color-text-tertiary);
     line-height: 1.5;
     width: 420px;
   }
@@ -382,14 +378,14 @@
   #folderMember .titleTip {
     margin-top: 16px;
     width: 440px;
-    color: #999;
+    color: var(--color-text-tertiary);
     line-height: 21px;
   }
   #folderMember .titles .memberCount {
-    color: #999;
+    color: var(--color-text-tertiary);
   }
   #folderMember .folderIconTip {
-    color: #999;
+    color: var(--color-text-tertiary);
     display: inline-block;
     vertical-align: top;
     margin-left: 6px;
@@ -409,7 +405,7 @@
     border: 6px #fff solid;
     padding: 0px;
     margin: 0px;
-    border-top-color: #aaa;
+    border-top-color: var(--color-text-tertiary);
     vertical-align: top;
     margin-top: 6px;
     margin-left: 5px;
@@ -435,7 +431,7 @@
     margin-top: 6px;
   }
   .memberBox li .userOp:not(:hover) {
-    color: #999 !important;
+    color: var(--color-text-tertiary) !important;
   }
   .memberBox li span.Hidden {
     display: none;
@@ -450,14 +446,14 @@
     margin-right: 30px;
   }
   .memberBox .userStatus.charge {
-    color: #00c957;
+    color: var(--color-success);
   }
   /* myTask */
   #taskList .markComplete.myTask {
     width: 70px;
   }
   #taskList .listStageTaskContent tr:not(.selectTask):not(:hover) .markComplete {
-    background: #fff;
+    background: var(--color-background-card);
   }
   #taskList .myTaskTag {
     display: inline-block;
@@ -469,7 +465,7 @@
     z-index: 10;
     width: 150px;
     padding: 6px 0;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
   .myTaskSettingList {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
@@ -480,24 +476,24 @@
     height: 22px;
     padding: 5px 0;
     cursor: pointer;
-    color: #151515;
+    color: var(--color-text-title);
   }
   .myTaskSettingList li:hover {
-    color: #fff;
+    color: var(--color-white);
   }
   .myTaskSettingList li i {
     font-size: 20px;
     margin: 0 6px 0 14px;
   }
   .myTaskSettingList li:not(:hover):not(.ThemeColor3) i {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .myTaskSettingList li:not(:hover),
   .myTaskSettingList li.ThemeColor3 {
-    background: #fff !important;
+    background: var(--color-background-primary) !important;
   }
   .myTaskIcon {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .myTaskIcon {
     display: inline-block;
@@ -532,7 +528,7 @@
     display: inline-block;
   }
   .updateChargeBtn:not(:hover) {
-    color: #151515 !important;
+    color: var(--color-text-title) !important;
   }
 
   .listCreateNew {
@@ -540,7 +536,6 @@
     padding-top: 120px;
     position: relative;
     box-sizing: initial;
-    background-color: rgba(255, 255, 255, 0.5);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   }
   .listCreateNew .creatNewContent {
@@ -550,7 +545,7 @@
     margin: 0 auto;
     cursor: pointer;
     text-align: center;
-    color: rgba(0, 0, 0, 0.6);
+    color: var(--color-text-tertiary);
   }
   .listCreateNew .taskQuickCreate {
     background: url('../images/createTask.png') no-repeat;
@@ -558,14 +553,9 @@
     height: 150px;
     background-size: 150px 150px;
     display: inline-block;
-    background-color: rgba(255, 255, 255, 0.5);
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
     border-radius: 50%;
     margin-bottom: 9px;
-  }
-  .listCreateNew .taskQuickCreate:hover {
-    background-color: #fff;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+    background-color: rgba(128, 128, 128, 0.16);
   }
   .listCreateNew .creatNewContent span {
     display: block;

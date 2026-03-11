@@ -45,7 +45,7 @@ export default function DialogMapping(props) {
         </span>
         {showSupport && (
           <Support
-            className="Gray_9e"
+            className="textTertiary"
             type={2}
             text={_l('映射规则')}
             href="https://help.mingdao.com/worksheet/control-api-query"
@@ -59,13 +59,13 @@ export default function DialogMapping(props) {
     if (!list.length) return null;
     return (
       <Fragment>
-        <div className="flexRow Relative Gray_9e">
+        <div className="flexRow Relative textTertiary">
           <div className="flex">{_l('参数名')}</div>
           <div className="controlSeparate" />
           <div className="flex">{_l('表单字段')}</div>
           {isBtn && (
             <Support
-              className="Absolute Gray_9e"
+              className="Absolute textTertiary"
               style={{ right: 0 }}
               type={2}
               text={_l('映射规则')}
@@ -224,16 +224,23 @@ export default function DialogMapping(props) {
 
     return (
       <div className="mappingItemBox" key={item.controlId}>
-        <div className="sourceControls flex">
+        <div className="sourceControls flex ellipsis">
           <div className={cx('controlItem flexRow', { childPadding: item.dataSource })}>
-            <Icon className="Font16 Gray_9e" icon={getIconByType(iconType)} />
-            <span className="mLeft10 ellipsis flex">{item.controlName}</span>
-            {item.type === 10000007 && <span className="Gray_9e">{_l('多条')}</span>}
+            <Icon className="Font16 textTertiary" icon={getIconByType(iconType)} />
+            <span className="mLeft10 flexCenter flex ellipsis">
+              <span className="ellipsis">{item.controlName}</span>
+              {item.desc && (
+                <Tooltip title={item.desc} placement="top">
+                  <span className="mLeft10 textTertiary ellipsis minWidth80 Font12 flex">{item.desc}</span>
+                </Tooltip>
+              )}
+            </span>
+            {item.type === 10000007 && <span className="textTertiary mLeft10">{_l('多条')}</span>}
           </div>
         </div>
 
         <div className="controlSeparate">
-          <i className={cx('icon-backspace Font18', showValue ? 'ThemeColor3' : 'Gray_bd')} />
+          <i className={cx('icon-backspace Font18', showValue ? 'ThemeColor3' : 'textDisabled')} />
         </div>
 
         <div className="mappingControl">
@@ -275,7 +282,7 @@ export default function DialogMapping(props) {
     return (
       <div className="mappingNoDataBox">
         <Support
-          className="Gray_9e Right"
+          className="textTertiary Right"
           type={2}
           text={_l('映射规则')}
           href="https://help.mingdao.com/worksheet/control-api-query"

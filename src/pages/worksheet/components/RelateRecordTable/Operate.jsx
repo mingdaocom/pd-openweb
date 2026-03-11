@@ -29,7 +29,6 @@ const Con = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  line-height: 36px;
   min-height: 38px;
   justify-content: space-between;
   flex-wrap: wrap;
@@ -49,6 +48,18 @@ const Con = styled.div`
   .filterTrigger {
     line-height: 1em;
   }
+  .actionWrap {
+    color: var(--color-text-tertiary);
+    display: inline-block;
+    height: 28px;
+    font-size: 20px;
+    line-height: 28px;
+    padding: 0 4px;
+    border-radius: 5px;
+    &:hover {
+      background: var(--color-background-hover);
+    }
+  }
   .searchIcon {
     position: relative;
     z-index: 2;
@@ -59,7 +70,7 @@ const Con = styled.div`
     .searchInput {
       font-size: 0px;
       overflow: hidden;
-      background: #eaeaea;
+      background: var(--color-border-secondary);
       height: 28px;
       border-radius: 28px;
       input {
@@ -83,7 +94,7 @@ const Con = styled.div`
 `;
 
 const IconBtn = styled.span`
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   display: inline-block;
   height: 28px;
   font-size: 20px;
@@ -94,14 +105,14 @@ const IconBtn = styled.span`
     background: rgba(33, 150, 243, 0.12);
   }
   &:hover {
-    background: #f7f7f7;
+    background: var(--color-background-hover);
   }
 `;
 
 const SearchInputCon = styled.div`
   width: 360px;
   height: 44px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 2px 8px 1px rgba(0, 0, 0, 0.24);
   border-radius: 4px;
   display: flex;
@@ -115,12 +126,22 @@ const SearchInputCon = styled.div`
     cursor: pointer;
     font-size: 20px;
     margin-left: 10px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     &:hover {
-      color: #757575;
+      color: var(--color-text-secondary);
     }
   }
 `;
+
+function getCount({ control, count, direction, searchMaxCount } = {}) {
+  if (direction === 'vertical') {
+    return count > 50 ? 50 : count;
+  }
+  if (control.type === 51 && !isUndefined(searchMaxCount) && count > searchMaxCount) {
+    return searchMaxCount;
+  }
+  return count;
+}
 
 export function SearchInput(props) {
   const { className, onSearch, entityName = '' } = props;
@@ -215,6 +236,7 @@ SearchInput.propTypes = {
 function Operate(props) {
   const {
     mode,
+    view,
     cache,
     tableId,
     smallMode,
@@ -227,6 +249,7 @@ function Operate(props) {
     changes = {},
     records,
     iseditting,
+    isMingoCreate,
     appendRecords,
     handleAddRelation,
     handleRemoveRelation,
@@ -239,6 +262,7 @@ function Operate(props) {
     handleOpenRecordInfo,
     updateWorksheetControls,
     deleteOriginalRecords,
+    updateRowsWithChanges,
     updateBase,
     batchUpdateRecords,
     isDraft,
@@ -256,6 +280,7 @@ function Operate(props) {
     worksheetId,
     recordId,
     isTreeTableView,
+    isTab,
     addVisible,
     relateWorksheetInfo,
     sheetSwitchPermit,
@@ -263,6 +288,7 @@ function Operate(props) {
     allowRemoveRelation,
     allowDeleteFromSetting,
     allowExportFromSetting,
+    direction,
   } = base;
   const {
     tableLoading,
@@ -280,7 +306,16 @@ function Operate(props) {
   const workSheetFilterContainerRef = useRef(null);
   const worksheetFilterRef = useRef(null);
   const columns = getVisibleControls(control, controls);
-  const { batchcancel = '1', batchdelete = '1', batchedit = '1', batchexport = '1' } = control.advancedSetting;
+  const {
+    batchcancel = '1',
+    batchdelete = '1',
+    batchedit = '1',
+    batchexport = '1',
+    batchprint = '0',
+    batchbtn = '0',
+    direction: defaultDirection = 'horizontal',
+    allowimport = '0',
+  } = control.advancedSetting;
   const handleBatchUpdateRecords = useCallback(
     ({ activeControl } = {}) => {
       batchUpdateRecords({ selectedRowIds, records, activeControl });
@@ -310,9 +345,23 @@ function Operate(props) {
     <Con className={className} style={style} smallMode={smallMode} ref={workSheetFilterContainerRef}>
       {(addVisible || selectVisible || allowBatchEdit) && (
         <RelateRecordBtn
+          records={records}
+          view={view}
+          isCharge={isCharge}
+          control={control}
+          worksheetId={control.dataSource}
+          masterWorksheetId={worksheetId}
+          viewId={control.viewId}
+          appId={relateWorksheetInfo.appId}
+          projectId={relateWorksheetInfo.projectId}
+          recordId={recordId}
+          worksheetInfo={relateWorksheetInfo}
+          sheetSwitchPermit={sheetSwitchPermit}
           btnVisible={{
-            enterBatchEdit: allowBatchEdit,
+            enterBatchEdit: allowBatchEdit && direction === 'horizontal',
             edit: allowEdit && batchedit === '1',
+            print: batchprint === '1',
+            customButton: batchbtn === '1',
             removeRelation: allowRemoveRelation && batchcancel === '1',
             deleteRecords: !!recordId && allowDeleteFromSetting && batchdelete === '1',
             exportRecords:
@@ -321,6 +370,7 @@ function Operate(props) {
               from !== RECORD_INFO_FROM.DRAFT &&
               control.recordInfoFrom !== RECORD_INFO_FROM.WORKFLOW &&
               batchexport === '1',
+            importFromFile: !isDraft && isTab && allowEdit && control.type !== 51 && allowimport === '1',
           }}
           isBatchEditing={isBatchEditing}
           btnName={_.get(relateWorksheetInfo, 'advancedSetting.btnname')}
@@ -328,8 +378,11 @@ function Operate(props) {
           addVisible={addVisible}
           selectVisible={selectVisible}
           selectedRowIds={selectedRowIds}
+          updateRowsWithChanges={updateRowsWithChanges}
+          refresh={refresh}
           onNew={() => {
             addRecord({
+              allowShowMingoCreate: !isMingoCreate,
               worksheetId: control.dataSource,
               masterRecord: base.saveSync
                 ? {
@@ -418,7 +471,7 @@ function Operate(props) {
                   Dialog.confirm({
                     onlyClose: true,
                     title: (
-                      <span className="Bold" style={{ color: '#f44336' }}>
+                      <span className="Bold" style={{ color: 'var(--color-error)' }}>
                         {_l('注意：此操作将删除原始记录')}
                       </span>
                     ),
@@ -476,6 +529,20 @@ function Operate(props) {
               onSearch={search}
               entityName={entityName}
             />
+          )}
+          {defaultDirection === '1' && (
+            <Tooltip title={_l('行列转置')} placement="bottom">
+              <IconBtn
+                className="Hand ThemeHoverColor3 mRight6"
+                onClick={() => {
+                  updateBase({
+                    direction: direction === 'horizontal' ? 'vertical' : 'horizontal',
+                  });
+                }}
+              >
+                <i className="icon icon-table_convert" />
+              </IconBtn>
+            </Tooltip>
           )}
           {!isTreeTableView &&
             !control.isCustomButtonFillRecord &&
@@ -586,16 +653,15 @@ function Operate(props) {
 
           {(!!recordId || control.type === 51) && (
             <Pagination
+              onlyShowCount={direction === 'vertical'}
               allowChangePageSize={base.isTab}
               disabled={tableLoading}
               className="pagination"
               pageIndex={pageIndex}
               pageSize={pageSize}
-              allCount={
-                control.type === 51 && !isUndefined(searchMaxCount) && count > searchMaxCount ? searchMaxCount : count
-              }
+              allCount={getCount({ control, count, direction, searchMaxCount })}
               showCount={!isTreeTableView}
-              countForShow={countForShow}
+              countForShow={getCount({ control, count: countForShow || count, direction, searchMaxCount })}
               changePageIndex={value => {
                 updatePageIndex(value);
               }}
@@ -655,5 +721,6 @@ export default connect(
     handleRemoveRelation: bindActionCreators(actions.handleRemoveRelation, dispatch),
     updateTableState: bindActionCreators(actions.updateTableState, dispatch),
     deleteOriginalRecords: bindActionCreators(actions.deleteOriginalRecords, dispatch),
+    updateRowsWithChanges: bindActionCreators(actions.updateRowsWithChanges, dispatch),
   }),
 )(Operate);

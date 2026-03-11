@@ -10,7 +10,7 @@ const SearchCom = styled.div`
   padding: 10px 10px 10px 12px;
   .searchWrap {
     height: 32px;
-    background-color: rgb(255, 255, 255);
+    background-color: var(--color-background-primary);
     border-radius: 24px;
     padding: 8px 14px;
   }
@@ -20,7 +20,7 @@ const SearchCom = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #ffffff;
+    background: var(--color-background-primary);
     border-radius: 50%;
     margin-left: 10px;
   }
@@ -38,7 +38,7 @@ const AppContent = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: var(--color-background-primary);
   padding: 18px 0 10px 16px;
   border-radius: 14px 0px 0px 14px;
   .closeIcon {
@@ -46,7 +46,7 @@ const AppContent = styled.div`
     height: 24px;
     text-align: center;
     line-height: 24px;
-    background: #e6e6e6;
+    background: var(--color-border-secondary);
     border-radius: 50%;
   }
   .appList {
@@ -69,7 +69,7 @@ export default function SearchWrap(props) {
   return (
     <SearchCom>
       <div className="searchWrap flexRow alignItemsCenter flex">
-        <i className="icon icon-h5_search Gray_9e Font16 mRight10" />
+        <i className="icon icon-h5_search textTertiary Font16 mRight10" />
         <input
           type="search"
           className="pAll0 Border0 w100"
@@ -95,8 +95,8 @@ export default function SearchWrap(props) {
       >
         <i
           className={cx('icon icon-filter Font20', {
-            Gray_9e: selectAppId === 'all',
-            ThemeColor: selectAppId !== 'all',
+            textTertiary: selectAppId === 'all',
+            colorPrimary: selectAppId !== 'all',
           })}
         />
       </div>
@@ -113,7 +113,7 @@ export default function SearchWrap(props) {
             <div className="header flexRow alignItemsCenter mBottom10 pRight16">
               <div className="Font17 bold flex">{_l('按应用')}</div>
               <div className="closeIcon" onClick={() => setDrawerVisible(false)}>
-                <i className="icon icon-close Gray_9e" />
+                <i className="icon icon-close textTertiary" />
               </div>
             </div>
             <div className="appList pRight16">
@@ -129,7 +129,7 @@ export default function SearchWrap(props) {
                     }}
                   >
                     <div className="flex ellipsis">{item.appName}</div>
-                    {selectAppId === item.appId && <i className="icon icon-done ThemeColor Font18" />}
+                    {selectAppId === item.appId && <i className="icon icon-done colorPrimary Font18" />}
                   </div>
                 );
               })}

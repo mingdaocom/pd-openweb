@@ -13,17 +13,17 @@ const OperateMenu = styled.div`
   padding: 6px 0 !important;
   box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.16);
   border-radius: 3px;
-  background: #fff;
+  background: var(--color-background-primary);
 `;
 const MenuItem = styled.div`
   padding: 0 20px;
   line-height: 36px;
   cursor: pointer;
   &.isDel {
-    color: #f44336;
+    color: var(--color-error);
   }
   &:hover {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-hover);
   }
 `;
 
@@ -36,10 +36,10 @@ const ConfirmDialog = styled(Dialog)`
     box-shadow: none !important;
     line-height: 28px !important;
     border-radius: 3px !important;
-    border: 1px solid #ccc !important;
+    border: 1px solid var(--color-border-tertiary) !important;
     padding: 3px 10px !important;
     &.ant-input-affix-wrapper-focused {
-      border-color: #1677ff !important;
+      border-color: var(--color-primary) !important;
     }
   }
 `;

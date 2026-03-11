@@ -19,7 +19,7 @@ const DialogWarp = styled(Dialog)`
   .list {
     display: flex;
     align-items: center;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-primary);
     .icon-delete {
       display: none;
     }
@@ -95,7 +95,7 @@ export default ({ processId, onClose = () => {} }) => {
       onCancel={onClose}
       footer={null}
     >
-      <div className="Gray_75 flexRow alignItemsCenter">
+      <div className="textSecondary flexRow alignItemsCenter">
         {_l('工作流配置为“严格串行”时，运行中的工作流需要等待前序的流程执行完毕')}
         <Support
           type={3}
@@ -110,7 +110,7 @@ export default ({ processId, onClose = () => {} }) => {
         <div className="icon-refresh1 Font16 ThemeHoverColor3 pointer mLeft15" onClick={() => getSerialList()}></div>
       </div>
 
-      <div className="list bold Gray_75 Font14 mTop30 pBottom5">
+      <div className="list bold textSecondary Font14 mTop30 pBottom5">
         <div className="w150 mLeft16">{_l('状态')}</div>
         <div className="flex">{_l('流程触发数据')}</div>
         <div className="w190">{_l('加入排队时间')}</div>
@@ -123,7 +123,7 @@ export default ({ processId, onClose = () => {} }) => {
       {!loading && !list.length && (
         <div className="emptyListWrap">
           <img src={emptyListPng} />
-          <div className="text Gray_75 Font16">{_l('没有串行等待中的流程')}</div>
+          <div className="text textSecondary Font16">{_l('没有串行等待中的流程')}</div>
         </div>
       )}
 
@@ -134,7 +134,7 @@ export default ({ processId, onClose = () => {} }) => {
               <div className="w150 mLeft16 bold flexRow alignItemsCenter">
                 <i
                   className="icon-play-circle Font24 mRight6"
-                  style={{ color: item.createDate ? '#1677ff' : '#00BCD7' }}
+                  style={{ color: item.createDate ? 'var(--color-primary)' : 'var(--color-cyan-dark)' }}
                 />
                 {item.createDate ? _l('运行中') : _l('等待中')}
               </div>
@@ -148,7 +148,7 @@ export default ({ processId, onClose = () => {} }) => {
                 {index === 0 && (
                   <Tooltip title={_l('中止')}>
                     <span onClick={() => removePendingProcess(item.id)}>
-                      <i className="icon-delete Font16 pointer ThemeHoverColor3 Gray_75" />
+                      <i className="icon-delete Font16 pointer ThemeHoverColor3 textSecondary" />
                     </span>
                   </Tooltip>
                 )}

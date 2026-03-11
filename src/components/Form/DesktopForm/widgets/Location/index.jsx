@@ -13,9 +13,7 @@ import { useWidgetEvent } from '../../../core/useFormEventManager';
 
 const LocationWrap = styled.div`
   .location {
-    box-shadow:
-      0 1px 4px rgba(0, 0, 0, 0.12),
-      0 0 2px rgba(0, 0, 0, 0.12);
+    border: 1px solid var(--color-border-secondary);
     border-radius: 4px;
     position: relative;
     &:hover {
@@ -137,8 +135,8 @@ const Widgets = props => {
             setVisible(true);
           }}
         >
-          <span className="flex mRight20 Gray_bd">{_l('请选择')}</span>
-          {!disabled && <Icon icon="location" className="Font16 Gray_bd" />}
+          <span className="flex mRight20 textDisabled">{_l('请选择')}</span>
+          {!disabled && <Icon icon="location" className="Font16 textDisabled" />}
         </div>
       ) : (
         <LocationWrap
@@ -181,7 +179,7 @@ const Widgets = props => {
                     <Tooltip title={_l('编辑定位')} placement="bottom">
                       <Icon
                         icon="Reposition-01"
-                        className="Gray_9e ThemeHoverColor3 pointer Font30"
+                        className="textTertiary ThemeHoverColor3 pointer Font30"
                         onClick={evt => {
                           evt.stopPropagation();
                           setVisible(true);

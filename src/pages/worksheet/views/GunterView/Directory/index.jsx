@@ -12,7 +12,7 @@ const More = styled.div`
   height: 32px;
   padding: 0 15px;
   .ant-dropdown-trigger:hover {
-    color: #1677ff !important;
+    color: var(--color-primary) !important;
   }
 `;
 
@@ -23,11 +23,8 @@ export const MenuOverlayWrapper = styled(Menu)`
   }
   .ant-dropdown-menu-item:hover,
   .ant-dropdown-menu-submenu-title:hover {
-    .icon {
-      color: #fff !important;
-    }
-    color: #fff;
-    background-color: #1677ff;
+    color: var(--color-white);
+    background-color: var(--color-primary);
   }
 `;
 
@@ -52,7 +49,7 @@ export default class GunterDirectory extends Component {
           }}
         >
           <Icon
-            className="Font18 mLeft4 mRight12 Gray_9e"
+            className="Font18 mLeft4 mRight12 textTertiary"
             icon={withoutArrangementVisible ? 'visibility_off' : 'visibility'}
           />
           <span className="Font14">{withoutArrangementVisible ? _l('隐藏未排期') : _l('显示未排期')}</span>
@@ -65,7 +62,7 @@ export default class GunterDirectory extends Component {
       <More className="flexRow valignWrapper">
         <div className="flex"></div>
         <Dropdown overlay={this.renderOverlay()} trigger={['click']}>
-          <Icon className="Gray_9e Font18 pointer" icon="more_horiz" />
+          <Icon className="textTertiary Font18 pointer" icon="more_horiz" />
         </Dropdown>
       </More>
     );

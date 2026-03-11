@@ -58,7 +58,7 @@ export default class InboxList extends React.Component {
   fetchInboxList() {
     const { pageIndex, list } = this.state;
     const { clearUnread, inboxFavorite, type, filter } = this.props;
-    const { user, startTime, endTime } = filter || {};
+    const { user, startTime, endTime, appId } = filter || {};
 
     this.setState({
       failed: false,
@@ -75,6 +75,7 @@ export default class InboxList extends React.Component {
       creatorId: user ? user.accountId : null,
       startTime,
       endTime,
+      appId,
     });
     this.ajaxRequest
       .then(({ inboxList }) => {
@@ -162,14 +163,14 @@ export default class InboxList extends React.Component {
       return (
         <div className="nullTip starMsg">
           <div className="Font18">{_l('在这里查看星标信息')}</div>
-          <div className="Font14 Gray_9">{_l('点击信息列表右上角的星号，为重要的信息打上星标')}</div>
+          <div className="Font14 textTertiary">{_l('点击信息列表右上角的星号，为重要的信息打上星标')}</div>
         </div>
       );
     } else {
       return (
         <div className="nullTip commMsg">
           <div className="Font18">{_l('还没有消息')}</div>
-          <div className="Font14 Gray_9">{_l('在这查看所有和%0相关的消息', NAMES[inboxType])}</div>
+          <div className="Font14 textTertiary">{_l('在这查看所有和%0相关的消息', NAMES[inboxType])}</div>
         </div>
       );
     }

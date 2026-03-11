@@ -7,11 +7,11 @@ const Con = styled.div`
   align-items: center;
   height: 32px;
   line-height: 32px;
-  border: 1px solid #ddd !important;
+  border: 1px solid var(--color-border-primary) !important;
   border-radius: 4px;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
   padding: 0 12px;
-  color: #bdbdbd;
+  color: var(--color-text-disabled);
   cursor: not-allowed;
 `;
 

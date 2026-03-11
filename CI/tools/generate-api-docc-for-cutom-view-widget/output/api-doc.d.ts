@@ -135,13 +135,15 @@ export const apis: {
    * 修改表格描述
    * @param params 参数
    * @param params.worksheetId 工作表id
-   * @param params.dec 描述
-   * @param params.resume 
+   * @param params.dec 详细说明
+   * @param params.resume 摘要
+   * @param params.remark 工作表描述（新加的 支持AI生成）
    */
   updateWorksheetDec: (params: {
     worksheetId: string;
     dec: string;
     resume: string;
+    remark: string;
   }) => any
 
 
@@ -333,6 +335,7 @@ export const apis: {
    * @param params.checkView 是否验证视图
    * @param params.relationWorksheetId 关联控件ID
    * @param params.discussId 讨论ID
+   * @param params.langType //语言类型
    */
   getRowByID: (params: {
     worksheetId: string;
@@ -346,6 +349,7 @@ export const apis: {
     checkView: boolean;
     relationWorksheetId: string;
     discussId: string;
+    langType: integer;
   }) => any
 
 
@@ -356,6 +360,42 @@ export const apis: {
    */
   getAttachmentDetail: (params: {
     attachmentShareId: string;
+  }) => any
+
+
+  /**
+   * 获取附件列表
+   * @param params 参数
+   * @param params.worksheetId 工作表id
+   * @param params.rowId 行id
+   * @param params.viewId 视图Id
+   * @param params.appId 应用Id
+   * @param params.instanceId 流程实例id
+   * @param params.workId 运行节点id
+   * @param params.getTemplate 是否获取模板
+   * @param params.shareId 分享页获取关联记录iD
+   * @param params.checkView 是否验证视图
+   * @param params.relationWorksheetId 关联控件ID
+   * @param params.discussId 讨论ID
+   * @param params.langType //语言类型
+   * @param params.controlId 预览附件的控件id
+   * @param params.fileId 当前预览的附件id
+   */
+  getAttachmentList: (params: {
+    worksheetId: string;
+    rowId: string;
+    viewId: string;
+    appId: string;
+    instanceId: string;
+    workId: string;
+    getTemplate: boolean;
+    shareId: string;
+    checkView: boolean;
+    relationWorksheetId: string;
+    discussId: string;
+    langType: integer;
+    controlId: string;
+    fileId: string;
   }) => any
 
 
@@ -397,6 +437,7 @@ export const apis: {
    * @param params.checkView 是否验证视图
    * @param params.relationWorksheetId 关联控件ID
    * @param params.discussId 讨论ID
+   * @param params.langType //语言类型
    */
   getRowDetail: (params: {
     worksheetId: string;
@@ -410,6 +451,7 @@ export const apis: {
     checkView: boolean;
     relationWorksheetId: string;
     discussId: string;
+    langType: integer;
   }) => any
 
 
@@ -959,6 +1001,7 @@ export const apis: {
    * @param params.reportId 统计图ID
    * @param params.notGetTotal 不获取总记录数
    * @param params.requestParams 请求参数
+   * @param params.langType //语言类型
    */
   getFilterRows: (params: {
     ticket: string;
@@ -992,6 +1035,79 @@ export const apis: {
     reportId: string;
     notGetTotal: boolean;
     requestParams: object;
+    langType: integer;
+  }) => any
+
+
+  /**
+   * 选择关联记录
+   * @param params 参数
+   * @param params.ticket 验证码返票据
+   * @param params.randStr 票据随机字符串
+   * @param params.clientId 客户端标识
+   * @param params.worksheetId 工作表id
+   * @param params.filterControls 查询列
+   * @param params.fastFilters 快速筛选
+   * @param params.navGroupFilters 导航分组筛选
+   * @param params.filtersGroup 筛选组件筛选
+   * @param params.sortControls 排序列
+   * @param params.keyWords 关键词
+   * @param params.pageSize 页大小
+   * @param params.pageIndex 页码
+   * @param params.isUnRead 是否已读
+   * @param params.isGetWorksheet 是否查询工作表的详情
+   * @param params.viewId 视图Id
+   * @param params.appId 应用Id
+   * @param params.relationWorksheetId relationWorksheetId
+   * @param params.relationViewId RelationViewId
+   * @param params.rowId 行id
+   * @param params.controlId 控件Id
+   * @param params.kanbanKey 全部看板，&#34;-1&#34;:无等于或无选项单看板，&#34;key&#34;:单看板数据,
+   * @param params.layer 层级视图加载层数
+   * @param params.beginTime 开始时间 日历视图
+   * @param params.endTime 结束时间 日历视图
+   * @param params.kanbanSize 页大小
+   * @param params.kanbanIndex 页码
+   * @param params.formId 公开表单ID
+   * @param params.linkId 填写链接id
+   * @param params.reportId 统计图ID
+   * @param params.notGetTotal 不获取总记录数
+   * @param params.requestParams 请求参数
+   * @param params.langType //语言类型
+   */
+  chooseRelationRows: (params: {
+    ticket: string;
+    randStr: string;
+    clientId: string;
+    worksheetId: string;
+    filterControls: Array;
+    fastFilters: Array;
+    navGroupFilters: Array;
+    filtersGroup: Array;
+    sortControls: Array;
+    keyWords: string;
+    pageSize: integer;
+    pageIndex: integer;
+    isUnRead: boolean;
+    isGetWorksheet: boolean;
+    viewId: string;
+    appId: string;
+    relationWorksheetId: string;
+    relationViewId: string;
+    rowId: string;
+    controlId: string;
+    kanbanKey: string;
+    layer: integer;
+    beginTime: string;
+    endTime: string;
+    kanbanSize: integer;
+    kanbanIndex: integer;
+    formId: string;
+    linkId: string;
+    reportId: string;
+    notGetTotal: boolean;
+    requestParams: object;
+    langType: integer;
   }) => any
 
 
@@ -1029,6 +1145,7 @@ export const apis: {
    * @param params.reportId 统计图ID
    * @param params.notGetTotal 不获取总记录数
    * @param params.requestParams 请求参数
+   * @param params.langType //语言类型
    * @param params.id 工作表查询id
    * @param params.getAllControls 是否返回所有控件返回值
    */
@@ -1064,6 +1181,7 @@ export const apis: {
     reportId: string;
     notGetTotal: boolean;
     requestParams: object;
+    langType: integer;
     id: string;
     getAllControls: boolean;
   }) => any
@@ -1103,6 +1221,7 @@ export const apis: {
    * @param params.reportId 统计图ID
    * @param params.notGetTotal 不获取总记录数
    * @param params.requestParams 请求参数
+   * @param params.langType //语言类型
    */
   getFilterRowsTotalNum: (params: {
     ticket: string;
@@ -1136,6 +1255,7 @@ export const apis: {
     reportId: string;
     notGetTotal: boolean;
     requestParams: object;
+    langType: integer;
   }) => any
 
 
@@ -1672,6 +1792,7 @@ export const apis: {
    * @param params.status 状态 1：正常 9：回收站
    * @param params.btnIds 批量获取按钮的id
    * @param params.rowIds 
+   * @param params.btnType -1:全部 0：按钮 1：AI Action
    */
   getWorksheetBtns: (params: {
     appId: string;
@@ -1682,6 +1803,7 @@ export const apis: {
     status: integer;
     btnIds: Array;
     rowIds: Array;
+    btnType: integer;
   }) => any
 
 
@@ -1696,6 +1818,7 @@ export const apis: {
    * @param params.status 状态 1：正常 9：回收站
    * @param params.btnIds 批量获取按钮的id
    * @param params.rowIds 
+   * @param params.btnType -1:全部 0：按钮 1：AI Action
    */
   checkWorksheetRowBtn: (params: {
     appId: string;
@@ -1706,6 +1829,7 @@ export const apis: {
     status: integer;
     btnIds: Array;
     rowIds: Array;
+    btnType: integer;
   }) => any
 
 
@@ -1720,6 +1844,7 @@ export const apis: {
    * @param params.status 状态 1：正常 9：回收站
    * @param params.btnIds 批量获取按钮的id
    * @param params.rowIds 
+   * @param params.btnType -1:全部 0：按钮 1：AI Action
    */
   checkWorksheetRowsBtn: (params: {
     appId: string;
@@ -1730,6 +1855,7 @@ export const apis: {
     status: integer;
     btnIds: Array;
     rowIds: Array;
+    btnType: integer;
   }) => any
 
 
@@ -1744,6 +1870,7 @@ export const apis: {
    * @param params.status 状态 1：正常 9：回收站
    * @param params.btnIds 批量获取按钮的id
    * @param params.rowIds 
+   * @param params.btnType -1:全部 0：按钮 1：AI Action
    */
   getWorksheetBtnByID: (params: {
     appId: string;
@@ -1754,6 +1881,7 @@ export const apis: {
     status: integer;
     btnIds: Array;
     rowIds: Array;
+    btnType: integer;
   }) => any
 
 
@@ -1779,6 +1907,7 @@ export const apis: {
    * @param params.btnId 
    * @param params.name 
    * @param params.worksheetId 
+   * @param params.btnType 按钮类型 1：AI Action
    * @param params.showType 1:一直 2：满足筛选条件
    * @param params.filters 筛选条件
    * @param params.displayViews 显示视图
@@ -1808,6 +1937,7 @@ export const apis: {
     btnId: string;
     name: string;
     worksheetId: string;
+    btnType: integer;
     showType: integer;
     filters: Array;
     displayViews: Array;
@@ -1983,29 +2113,33 @@ export const apis: {
    * 获取表控件
    * @param params 参数
    * @param params.worksheetId 工作表id
-   * @param params.relationWorksheetId 关联表的id
-   * @param params.getTemplate 是否获取Template
-   * @param params.getViews 是否获取Views
-   * @param params.appId 应用Id
-   * @param params.handleDefault 处理默认值
-   * @param params.worksheetIds 批量工作表id
-   * @param params.handControlSource 是否处理关联的原始类型
-   * @param params.getRules 是否需要验证规则
-   * @param params.getSwitchPermit 是否获取功能开关
+   * @param params.relationWorksheetId 
+   * @param params.controlIds 批量工作表id
    * @param params.getRelationSearch 获取查下记录控件
    * @param params.resultType 获取类型 0或者1：常规 2：简易模式 3:严格鉴权
    */
   getWorksheetControls: (params: {
     worksheetId: string;
     relationWorksheetId: string;
-    getTemplate: boolean;
-    getViews: boolean;
-    appId: string;
-    handleDefault: boolean;
-    worksheetIds: Array;
-    handControlSource: boolean;
-    getRules: boolean;
-    getSwitchPermit: boolean;
+    controlIds: Array;
+    getRelationSearch: boolean;
+    resultType: integer;
+  }) => any
+
+
+  /**
+   * 获取控件
+   * @param params 参数
+   * @param params.worksheetId 工作表id
+   * @param params.relationWorksheetId 
+   * @param params.controlIds 批量工作表id
+   * @param params.getRelationSearch 获取查下记录控件
+   * @param params.resultType 获取类型 0或者1：常规 2：简易模式 3:严格鉴权
+   */
+  getControlsByIds: (params: {
+    worksheetId: string;
+    relationWorksheetId: string;
+    controlIds: Array;
     getRelationSearch: boolean;
     resultType: integer;
   }) => any
@@ -2235,6 +2369,24 @@ export const apis: {
   getPrintList: (params: {
     worksheetId: string;
     viewId: string;
+    rowIds: Array;
+  }) => any
+
+
+  /**
+   * 获取系统打印详情页列表
+   * @param params 参数
+   * @param params.appId 
+   * @param params.worksheetId 
+   * @param params.viewId 
+   * @param params.printId 
+   * @param params.rowIds 
+   */
+  getPrintDetailList: (params: {
+    appId: string;
+    worksheetId: string;
+    viewId: string;
+    printId: string;
     rowIds: Array;
   }) => any
 
@@ -2478,6 +2630,16 @@ export const apis: {
 
 
   /**
+   * 复制打印模板
+   * @param params 参数
+   * @param params.id 
+   */
+  copyPrint: (params: {
+    id: string;
+  }) => any
+
+
+  /**
    * 获取 工作表 索引字段配置
    * @param params 参数
    * @param params.worksheetId 工作表Id
@@ -2637,11 +2799,13 @@ export const apis: {
    * @param params.worksheetId 工作表id
    * @param params.state 开关
    * @param params.viewIds 
+   * @param params.displayFlowChart 显示流转图 （0 = 显示，1 = 不显示）
    */
   editSwitch: (params: {
     worksheetId: string;
     state: boolean;
     viewIds: Array;
+    displayFlowChart: integer;
   }) => any
 
 
@@ -2680,6 +2844,18 @@ export const apis: {
     worksheetId: string;
     appId: string;
     version: integer;
+  }) => any
+
+
+  /**
+   * 格式化AI请求参数
+   * @param params 参数
+   * @param params.worksheetId 工作表id
+   * @param params.rows 
+   */
+  handleAIRequest: (params: {
+    worksheetId: string;
+    rows: Array;
   }) => any
 
 
@@ -2930,10 +3106,11 @@ export const apis: {
    * @param params.items 筛选条件
    * @param params.configs 映射字段
    * @param params.moreType 0 = 获取第一条时，按配置来，1= 不赋值
+   * @param params.recordsNotFound 0 = 赋空值 1 = 保留原值
    * @param params.moreSort 排序
    * @param params.queryCount 查询条数
    * @param params.resultType 结果类型 0=查询到记录，1=仅查询到一条记录，2=查询到多条记录，3=未查询到记录
-   * @param params.eventType 0 = 常规字段默认值，1 = 表单事件
+   * @param params.eventType 0 = 常规字段默认值，1 = 表单事件，2 = 业务规则设置字段默认值
    */
   saveQuery: (params: {
     id: string;
@@ -2944,6 +3121,7 @@ export const apis: {
     items: Array;
     configs: Array;
     moreType: integer;
+    recordsNotFound: integer;
     moreSort: Array;
     queryCount: integer;
     resultType: integer;
@@ -3036,6 +3214,7 @@ export const apis: {
    * @param params.apiEventId 动作事件id（不传默认识别为api查询字段）
    * @param params.authId 授权账户Id
    * @param params.actionType 事件执行类型 调用api 8 调用封装业务流程 13
+   * @param params.pushUniqueId 推送Id
    */
   excuteApiQuery: (params: {
     data: object;
@@ -3048,6 +3227,7 @@ export const apis: {
     apiEventId: string;
     authId: string;
     actionType: integer;
+    pushUniqueId: string;
   }) => any
 
 
@@ -3097,6 +3277,7 @@ export const apis: {
    * @param params.checkView 是否验证视图
    * @param params.relationWorksheetId 关联控件ID
    * @param params.discussId 讨论ID
+   * @param params.langType //语言类型
    * @param params.fileId 
    * @param params.fileName 
    * @param params.controlId 附件的控件id
@@ -3113,6 +3294,7 @@ export const apis: {
     checkView: boolean;
     relationWorksheetId: string;
     discussId: string;
+    langType: integer;
     fileId: string;
     fileName: string;
     controlId: string;
@@ -3142,6 +3324,10 @@ export const apis: {
    * @param params.edited 是否允许修改
    * @param params.sortRelationCids 强制排序导出的关联控件id集合
    * @param params.isNumber 控件是否以数值格式导出
+   * @param params.previewed 导出附件
+   * @param params.exportId 导出id
+   * @param params.exportJob 导出工号
+   * @param params.speed 加速导出
    */
   saveExportConfig: (params: {
     worksheetId: string;
@@ -3152,6 +3338,10 @@ export const apis: {
     edited: boolean;
     sortRelationCids: Array;
     isNumber: boolean;
+    previewed: boolean;
+    exportId: boolean;
+    exportJob: boolean;
+    speed: boolean;
   }) => any
 
 
@@ -3162,6 +3352,42 @@ export const apis: {
    */
   getWorksheetCurrencyInfos: (params: {
 
+  }) => any
+
+
+  /**
+   * 设置/取消关注
+   * @param params 参数
+   * @param params.worksheetId 表id
+   * @param params.rowId 记录id
+   * @param params.viewId 视图id
+   * @param params.checkView 是否校验视图权限
+   * @param params.setFollow 是否关注
+   */
+  setFollow: (params: {
+    worksheetId: string;
+    rowId: string;
+    viewId: string;
+    checkView: boolean;
+    setFollow: boolean;
+  }) => any
+
+
+  /**
+   * 关注的人
+   * @param params 参数
+   * @param params.worksheetId 表id
+   * @param params.rowId 记录id
+   * @param params.viewId 视图id
+   * @param params.checkView 是否校验视图权限
+   * @param params.setFollow 是否关注
+   */
+  getFollower: (params: {
+    worksheetId: string;
+    rowId: string;
+    viewId: string;
+    checkView: boolean;
+    setFollow: boolean;
   }) => any
 
 };
@@ -3184,6 +3410,7 @@ export const apis: {
    * @param params.sheets 工作表权限集合
    * @param params.userIds 角色成员id集合
    * @param params.pages 自定义页面
+   * @param params.chatbots 自定义 对话机器人
    * @param params.extendAttrs 用户扩展权限字段
    */
   addRole: (params: {
@@ -3196,6 +3423,7 @@ export const apis: {
     sheets: Array;
     userIds: Array;
     pages: Array;
+    chatbots: Array;
     extendAttrs: Array;
   }) => any
 
@@ -3791,6 +4019,22 @@ export const apis: {
 
 
   /**
+   * 批量获取应用下应用项
+   * @param params 参数
+   * @param params.projectId 组织id
+   * @param params.appIds 应用ids
+   * @param params.isFilterCustomPage 是否过滤自定义页面
+   * @param params.isFilterChatBot 是否过滤对话机器人
+   */
+  getAppItems: (params: {
+    projectId: string;
+    appIds: Array;
+    isFilterCustomPage: boolean;
+    isFilterChatBot: boolean;
+  }) => any
+
+
+  /**
    * 获取应用信息（批量）
    * @param params 参数
    * @param params.appIds 
@@ -3940,6 +4184,7 @@ export const apis: {
    * @param params.urlTemplate 链接
    * @param params.configuration 链接配置
    * @param params.resume 摘要
+   * @param params.sourceType 来源 1 = mingo修改
    */
   editWorkSheetInfoForApp: (params: {
     appId: string;
@@ -3951,6 +4196,7 @@ export const apis: {
     urlTemplate: string;
     configuration: object;
     resume: string;
+    sourceType: integer;
   }) => any
 
 
@@ -3972,21 +4218,45 @@ export const apis: {
    * @param params.appId 应用id
    * @param params.appSectionId SectionId
    * @param params.name 名称
+   * @param params.remark 描述
    * @param params.icon Logo
-   * @param params.type 类型 0=工作表 1=自定义页面
+   * @param params.type 类型 0=工作表 1=自定义页面,3 = 对话机器人
    * @param params.createType 创建类型（创建自定义页面得时候需要传）0-表示普通 1-表示外部链接
    * @param params.urlTemplate 链接
    * @param params.configuration 链接配置
+   * @param params.sourceType 创建来源类型（默认0，1= ai创建）
+   * @param params.prompt 创建机器人提示词
    */
   addWorkSheet: (params: {
     appId: string;
     appSectionId: string;
     name: string;
+    remark: string;
     icon: string;
     type: integer;
     createType: integer;
     urlTemplate: string;
     configuration: object;
+    sourceType: integer;
+    prompt: string;
+  }) => any
+
+
+  /**
+   * 更新对话机器人说明
+   * @param params 参数
+   * @param params.appId 应用id
+   * @param params.id 应用项id
+   * @param params.remark 描述
+   * @param params.desc 详细说明
+   * @param params.resume 说明
+   */
+  updateChatBotDesc: (params: {
+    appId: string;
+    id: string;
+    remark: string;
+    desc: string;
+    resume: string;
   }) => any
 
 
@@ -4029,6 +4299,22 @@ export const apis: {
    * @param params.id 自定义页面id
    */
   copyCustomPage: (params: {
+    appId: string;
+    appSectionId: string;
+    name: string;
+    id: string;
+  }) => any
+
+
+  /**
+   * 复制对话机器人
+   * @param params 参数
+   * @param params.appId 应用id
+   * @param params.appSectionId SectionId
+   * @param params.name 名称
+   * @param params.id 自定义页面id
+   */
+  copyChatBot: (params: {
     appId: string;
     appSectionId: string;
     name: string;
@@ -4214,6 +4500,7 @@ export const apis: {
    * @param params.isLine 线性图标或者面性图标 true表示线性，false表示面性，默认值为true
    * @param params.iconType 图标类型 true-表示系统图标 false-自定义图标
    * @param params.categories 分类数组
+   * @param params.keyword 搜索关键字
    */
   getIcon: (params: {
     fileNames: Array;
@@ -4221,6 +4508,7 @@ export const apis: {
     isLine: boolean;
     iconType: boolean;
     categories: Array;
+    keyword: string;
   }) => any
 
 
@@ -4244,6 +4532,7 @@ export const apis: {
    * @param params.isLine 线性图标或者面性图标 true表示线性，false表示面性，默认值为true
    * @param params.iconType 图标类型 true-表示系统图标 false-自定义图标
    * @param params.categories 分类数组
+   * @param params.keyword 搜索关键字
    */
   deleteCustomIcon: (params: {
     fileNames: Array;
@@ -4251,6 +4540,7 @@ export const apis: {
     isLine: boolean;
     iconType: boolean;
     categories: Array;
+    keyword: string;
   }) => any
 
 
@@ -4262,6 +4552,7 @@ export const apis: {
    * @param params.isLine 线性图标或者面性图标 true表示线性，false表示面性，默认值为true
    * @param params.iconType 图标类型 true-表示系统图标 false-自定义图标
    * @param params.categories 分类数组
+   * @param params.keyword 搜索关键字
    */
   getCustomIconByProject: (params: {
     fileNames: Array;
@@ -4269,6 +4560,7 @@ export const apis: {
     isLine: boolean;
     iconType: boolean;
     categories: Array;
+    keyword: string;
   }) => any
 
 
@@ -4365,6 +4657,24 @@ export const apis: {
 
 
   /**
+   * 组织获取导出日志
+   * @param params 参数
+   * @param params.projectId 组织id
+   * @param params.appIds 应用ids
+   * @param params.operator 操作人
+   * @param params.pageIndex 
+   * @param params.pageSize 
+   */
+  getExportsByProject: (params: {
+    projectId: string;
+    appIds: Array;
+    operator: string;
+    pageIndex: integer;
+    pageSize: integer;
+  }) => any
+
+
+  /**
    * 导出密码
    * @param params 参数
    * @param params.id 日志id
@@ -4381,7 +4691,7 @@ export const apis: {
   /**
    * 创建工作流CSM
    * @param params 参数
-   * @param params.projectId 网络id
+   * @param params.projectId 组织ID
    * @param params.name 实体名称
    */
   addWorkflow: (params: {
@@ -4406,7 +4716,7 @@ export const apis: {
    * 修改应用实体分享信息
    * @param params 参数
    * @param params.sourceId 分享来源id （页面id，图标id等）
-   * @param params.sourceType 分享类型  21 =自定义页面，31 = 图表
+   * @param params.sourceType 分享类型  21 =自定义页面，31 = 图表，70 = 对话机器人，71 = 对话机器人对话历史
    * @param params.status 状态  0 = 关闭，1 =启用
    * @param params.password 密码
    * @param params.validTime 有效时间
@@ -4618,6 +4928,8 @@ export const apis: {
    * @param params.dayRange 天数范围 0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年
    * @param params.dateDemension &#34;1h&#34;:1小时 &#34;1d&#34;:1天 &#34;1w&#34;:1周 &#34;1M&#34;:1月 &#34;1q&#34;:1季度 &#34;1y&#34;:1年
    * @param params.isApp 表示是否是应用的使用分析
+   * @param params.startTime 开始时间
+   * @param params.endTime 结束时间
    */
   allUsageOverviewStatistics: (params: {
     projectId: string;
@@ -4627,6 +4939,8 @@ export const apis: {
     dayRange: integer;
     dateDemension: string;
     isApp: boolean;
+    startTime: string;
+    endTime: string;
   }) => any
 
 
@@ -4664,6 +4978,9 @@ export const apis: {
    * @param params.sorted 排序方式
    * @param params.keyword 关键词查询
    * @param params.appId 应用id
+   * @param params.userIds 用户id列表
+   * @param params.startTime 开始时间
+   * @param params.endTime 结束时间
    */
   usageStatisticsForDimension: (params: {
     projectId: string;
@@ -4675,6 +4992,51 @@ export const apis: {
     sorted: boolean;
     keyword: string;
     appId: string;
+    userIds: Array;
+    startTime: string;
+    endTime: string;
+  }) => any
+
+
+  /**
+   * 是否是 第一次查询 非活跃成员
+   * @param params 参数
+   * @param params.projectId 组织id
+   * @param params.toViewUrl 【前往查看】 Url 地址
+   */
+  isFirstInactiveUsers: (params: {
+    projectId: string;
+    toViewUrl: string;
+  }) => any
+
+
+  /**
+   * 异步查询 不活跃 成员
+   * @param params 参数
+   * @param params.projectId 组织id
+   * @param params.toViewUrl 【前往查看】 Url 地址
+   */
+  queryInactiveUsers: (params: {
+    projectId: string;
+    toViewUrl: string;
+  }) => any
+
+
+  /**
+   * 查询 不活跃 成员
+   * @param params 参数
+   * @param params.projectId 组织id
+   * @param params.dayRange 天数范围
+   * @param params.pageIndex 当前页
+   * @param params.pageSize 页大小
+   * @param params.orderBy 排序 MD.Entity.Mongo.Apk.InactiveUserSort
+   */
+  pagedInactiveUsers: (params: {
+    projectId: string;
+    dayRange: integer;
+    pageIndex: integer;
+    pageSize: integer;
+    orderBy: integer;
   }) => any
 
 
@@ -4770,11 +5132,13 @@ export const apis: {
    * @param params.projectId 组织id
    * @param params.appIds 应用ids
    * @param params.isFilterCustomPage 是否过滤自定义页面
+   * @param params.isFilterChatBot 是否过滤对话机器人
    */
   getWorksheetsUnderTheApp: (params: {
     projectId: string;
     appIds: Array;
     isFilterCustomPage: boolean;
+    isFilterChatBot: boolean;
   }) => any
 
 
@@ -4913,6 +5277,7 @@ export const apis: {
    * @param params.upgradeTimeZone 是否升级时区
    * @param params.upgradeName 是否升级名称
    * @param params.upgradeHide 是否升级显影配置
+   * @param params.modelType 覆盖类型， 0 = 默认，1 = 全量
    */
   marketUpgrade: (params: {
     id: string;
@@ -4927,6 +5292,7 @@ export const apis: {
     upgradeTimeZone: boolean;
     upgradeName: boolean;
     upgradeHide: boolean;
+    modelType: integer;
   }) => any
 
 
@@ -4955,12 +5321,14 @@ export const apis: {
    * @param params.worksheetId 工作表id
    * @param params.appId 
    * @param params.batchId 批量升级批次id
+   * @param params.upgradeType 升级类型
    */
   getWorksheetUpgrade: (params: {
     id: string;
     worksheetId: string;
     appId: string;
     batchId: string;
+    upgradeType: integer;
   }) => any
 
 
@@ -4981,6 +5349,7 @@ export const apis: {
    * @param params.upgradeTimeZone 是否升级时区
    * @param params.upgradeName 是否升级名称
    * @param params.upgradeHide 是否升级显影配置
+   * @param params.modelType 覆盖类型， 0 = 默认，1 = 全量
    */
   upgrade: (params: {
     id: string;
@@ -4997,6 +5366,7 @@ export const apis: {
     upgradeTimeZone: boolean;
     upgradeName: boolean;
     upgradeHide: boolean;
+    modelType: integer;
   }) => any
 
 
@@ -5009,6 +5379,26 @@ export const apis: {
   getUpgradeLogs: (params: {
     appId: string;
     tradeId: string;
+  }) => any
+
+
+  /**
+   * 组织获取升级日志
+   * @param params 参数
+   * @param params.projectId 组织id
+   * @param params.appIds 应用ids
+   * @param params.operator 操作人
+   * @param params.pageIndex 
+   * @param params.pageSize 
+   * @param params.status 不筛选就不传，状态 0=已完成， 1=进行中， 2=失败
+   */
+  getUpgradeLogsByProject: (params: {
+    projectId: string;
+    appIds: Array;
+    operator: string;
+    pageIndex: integer;
+    pageSize: integer;
+    status: integer;
   }) => any
 
 
@@ -5111,6 +5501,7 @@ export const apis: {
    * @param params.upgradeTimeZone 是否升级时区
    * @param params.upgradeName 是否升级名称
    * @param params.upgradeHide 是否升级显影配置
+   * @param params.modelType 覆盖类型， 0 = 默认，1 = 全量
    */
   batchImport: (params: {
     projectId: string;
@@ -5123,6 +5514,7 @@ export const apis: {
     upgradeTimeZone: boolean;
     upgradeName: boolean;
     upgradeHide: boolean;
+    modelType: integer;
   }) => any
 
 
@@ -5175,6 +5567,30 @@ export const apis: {
   getAppLangDetail: (params: {
     appId: string;
     appLangId: string;
+  }) => any
+
+
+  /**
+   * 加载关联应用语言数据
+   * @param params 参数
+   * @param params.appId 
+   * @param params.langIds 
+   */
+  loadRelationLangData: (params: {
+    appId: string;
+    langIds: Array;
+  }) => any
+
+
+  /**
+   * 获取关联应用语言详情
+   * @param params 参数
+   * @param params.appId 
+   * @param params.langCode 
+   */
+  getRelationAppLangDetail: (params: {
+    appId: string;
+    langCode: string;
   }) => any
 
 
@@ -5281,7 +5697,7 @@ export const apis: {
   /**
    * 获取组织名称多语言(只能获取名称)
    * @param params 参数
-   * @param params.projectId 网络id
+   * @param params.projectId 组织ID
    */
   getProjectLang: (params: {
     projectId: string;
@@ -5391,6 +5807,7 @@ export const apis: {
    * @param params.webMobileDisplay web移动端显示
    * @param params.appDisplay app端显示
    * @param params.dbInstanceId 数据库实例id
+   * @param params.shortDesc 简短描述
    */
   createApp: (params: {
     projectId: string;
@@ -5406,6 +5823,7 @@ export const apis: {
     webMobileDisplay: boolean;
     appDisplay: boolean;
     dbInstanceId: string;
+    shortDesc: string;
   }) => any
 
 
@@ -5538,6 +5956,7 @@ export const apis: {
    * @param params.expandType 展开方式  0 = 默认，1 = 手风琴
    * @param params.hideFirstSection 隐藏首个分组
    * @param params.appNavItemIds 移动端导航应用项ids
+   * @param params.shortDesc 简短描述
    */
   editAppInfo: (params: {
     appId: string;
@@ -5564,6 +5983,7 @@ export const apis: {
     expandType: integer;
     hideFirstSection: boolean;
     appNavItemIds: Array;
+    shortDesc: string;
   }) => any
 
 
@@ -5724,6 +6144,18 @@ export const apis: {
 
 
   /**
+   * 批量获取应用下应用项信息
+   * @param params 参数
+   * @param params.appId 应用id（应用预览鉴权)
+   * @param params.itemIds 应用项id
+   */
+  getItemDetailByAppId: (params: {
+    appId: string;
+    itemIds: Array;
+  }) => any
+
+
+  /**
    * 获取应用详情（包含分组信息，请求参数可选）
    * @param params 参数
    * @param params.ticket 验证码返票据
@@ -5737,6 +6169,32 @@ export const apis: {
    * @param params.isMobile 是否是移动端
    */
   getApp: (params: {
+    ticket: string;
+    randStr: string;
+    clientId: string;
+    appId: string;
+    getSection: boolean;
+    getManager: boolean;
+    getProject: boolean;
+    getLang: boolean;
+    isMobile: boolean;
+  }) => any
+
+
+  /**
+   * 获取应用语言信息
+   * @param params 参数
+   * @param params.ticket 验证码返票据
+   * @param params.randStr 票据随机字符串
+   * @param params.clientId 客户端标识
+   * @param params.appId 应用id
+   * @param params.getSection 是否获取分组信息
+   * @param params.getManager 是否获取管理员列表信息
+   * @param params.getProject 获取组织信息
+   * @param params.getLang 是否获取应用语种信息
+   * @param params.isMobile 是否是移动端
+   */
+  getAppLangInfo: (params: {
     ticket: string;
     randStr: string;
     clientId: string;
@@ -6617,6 +7075,42 @@ export const apis: {
 
 
   /**
+   * 批量操作
+   * @param params 参数
+   * @param params.access_token 令牌
+   * @param params.request {apkId:应用id(string),archivedId:归档服务地址(string),batchOperationType:批量操作类型 可操作动作 3撤回 4通过 5拒绝 6转审 7加签 9提交 10转交 12打印(integer),complete:是否是已完成(boolean),createAccountId:发起人id(string),endDate:结束时间 yyyy-MM-dd(string),id:单个实例id(string),keyword:null(string),operationType:操作类型 默认0 1填写/通过 2加签 3委托 4否决 5取消（非会签用）WorkItemOperationType(integer),pageIndex:null(integer),pageSize:null(integer),processId:流程id(string),selects:批量选择(array),startAppId:触发器实体id(string),startDate:开始时间 yyyy-MM-dd(string),startSourceId:触发器数据源id(string),status:状态  1运行中，2完成，3否决，4 终止 失败(integer),type:0:我发起的 -1待处理 包含(3:待填写 4:待审批) 5:待查看(integer),workId:单个运行id(string),}
+   */
+  batch2: (params: {
+    access_token: string;
+    request: RequestBatch;
+  }) => any
+
+
+  /**
+   * 审批-通过
+   * @param params 参数
+   * @param params.access_token 令牌
+   * @param params.requestWork {backNodeId:退回节点ID(string),before:加签前后(boolean),countersignType:会签类型  1 全员通过 2 单个通过 3 或签 4 会签 投票(integer),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),nextUserRange:由上一审批节点选择(object),opinion:意见(object),opinionType:意见类型 (默认空或者0） 1自动通过 2限时自动通过 3批量处理(integer),signature:签名(ref),workId:workId(string),}
+   */
+  pass2: (params: {
+    access_token: string;
+    requestWork: 审批动作;
+  }) => any
+
+
+  /**
+   * 审批-否决
+   * @param params 参数
+   * @param params.access_token 令牌
+   * @param params.requestWork {backNodeId:退回节点ID(string),before:加签前后(boolean),countersignType:会签类型  1 全员通过 2 单个通过 3 或签 4 会签 投票(integer),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),nextUserRange:由上一审批节点选择(object),opinion:意见(object),opinionType:意见类型 (默认空或者0） 1自动通过 2限时自动通过 3批量处理(integer),signature:签名(ref),workId:workId(string),}
+   */
+  overrule2: (params: {
+    access_token: string;
+    requestWork: 审批动作;
+  }) => any
+
+
+  /**
    * 中止执行
    * @param params 参数
    * @param params.access_token 令牌
@@ -7046,6 +7540,26 @@ export const apis: {
   updateUseStatus: (params: {
     access_token: string;
     updateUseStatus: 更新流程状态;
+  }) => any
+
+
+  /**
+   * null
+   * @param params 参数
+   * @param params.chatbotId *null
+   */
+  getChatbotConfig: (params: {
+    chatbotId: string;
+  }) => any
+
+
+  /**
+   * null
+   * @param params 参数
+
+   */
+  saveChatbotConfig: (params: {
+
   }) => any
 
 };
@@ -7812,6 +8326,698 @@ export const apis: {
   stateRead: (params: {
     viewId: string;
     accountId: string;
+  }) => any
+
+};
+
+
+  /**
+   * 固定数据
+   */
+  fixedData: {
+
+  /**
+   * 加载省份信息
+   * @param params 参数
+
+   */
+  loadProvince: (params: {
+
+  }) => any
+
+
+  /**
+   * 加载城市或地区
+   * @param params 参数
+   * @param params.id 地区id
+   * @param params.textSplit 分割字符
+   */
+  loadCityCountyById: (params: {
+    id: string;
+    textSplit: string;
+  }) => any
+
+
+  /**
+   * 根据id获取城市信息
+   * @param params 参数
+
+   */
+  getCityByID: (params: {
+
+  }) => any
+
+
+  /**
+   * 加载城市
+   * @param params 参数
+   * @param params.parentId 上级ID
+   * @param params.keywords 关键词
+   * @param params.layer 层级 -1：不限制
+   * @param params.textSplit 分割字符
+   * @param params.isLast 是否最后一级
+   * @param params.langType 语言类型
+   * @param params.projectId 组织Id
+   * @param params.isGetCounty 返回path是否包含国家
+   * @param params.isReturnWithPhoneCode 返回值是否带上区号
+   */
+  getCitysByParentID: (params: {
+    parentId: string;
+    keywords: string;
+    layer: integer;
+    textSplit: string;
+    isLast: boolean;
+    langType: integer;
+    projectId: string;
+    isGetCounty: boolean;
+    isReturnWithPhoneCode: boolean;
+  }) => any
+
+
+  /**
+   * 根据城市id获取完整的城市层级路径
+   * @param params 参数
+   * @param params.cityId 城市ID
+   * @param params.textSplit 分割字符
+   * @param params.langType 语言类型
+   * @param params.projectId 组织Id
+   * @param params.isGetCounty 返回path是否包含国家
+   * @param params.isChooseCounty 是否需要返回第一级
+   */
+  getAllPathCitysByID: (params: {
+    cityId: string;
+    textSplit: string;
+    langType: integer;
+    projectId: string;
+    isGetCounty: boolean;
+    isChooseCounty: boolean;
+  }) => any
+
+
+  /**
+   * 根据组织Id或者地区Code获取地区默认配置信息
+   * @param params 参数
+
+   */
+  getRegionConfigInfos: (params: {
+
+  }) => any
+
+
+  /**
+   * 加载行业信息
+   * @param params 参数
+
+   */
+  loadIndustry: (params: {
+
+  }) => any
+
+
+  /**
+   * 校验敏感词
+   * @param params 参数
+
+   */
+  checkSensitive: (params: {
+
+  }) => any
+
+
+  /**
+   * 加载系统时区列表
+   * @param params 参数
+
+   */
+  loadTimeZones: (params: {
+
+  }) => any
+
+
+  /**
+   * 加载组织注册额外填充信息
+   * @param params 参数
+
+   */
+  loadExtraDatas: (params: {
+
+  }) => any
+
+
+  /**
+   * 加载语言列表
+   * @param params 参数
+   * @param params.langCodes 
+   */
+  loadLangList: (params: {
+    langCodes: Array;
+  }) => any
+
+
+  /**
+   * 加载系统快捷键列表
+   * @param params 参数
+
+   */
+  loadHostKeys: (params: {
+
+  }) => any
+
+};
+
+
+  /**
+   * 用户
+   */
+  user: {
+
+  /**
+   * 根据 AccountId 获取用户
+   * @param params 参数
+   * @param params.projectId 网络Id
+   * @param params.accountIds 用户Id集
+   */
+  getUserListByAccountId: (params: {
+    projectId: string;
+    accountIds: Array;
+  }) => any
+
+
+  /**
+   * 获取网络内用户信息
+   * @param params 参数
+   * @param params.projectId 网络Id
+   * @param params.accountId 用户Id
+   * @param params.setAcountPravite 是否设为私密
+   */
+  getUserCard: (params: {
+    projectId: string;
+    accountId: string;
+    setAcountPravite: boolean;
+  }) => any
+
+
+  /**
+   * 获取用户名片层账号基本信息
+   * @param params 参数
+   * @param params.onProjectId 使用的模块所在组织Id（可空），如应用
+   * @param params.appId 所在应用
+   * @param params.accountId 账号Id
+   * @param params.refresh 是否刷新读取
+   */
+  getAccountBaseInfo: (params: {
+    onProjectId: string;
+    appId: string;
+    accountId: string;
+    refresh: boolean;
+  }) => any
+
+
+  /**
+   * 验证对方用户是否是安全用户，优先确保是联系人
+   * @param params 参数
+   * @param params.onProjectId 使用的模块所在组织Id（可空），如应用
+   * @param params.appId 所在应用
+   * @param params.accountId 账号Id
+   * @param params.refresh 是否刷新读取
+   */
+  checkAccountSecured: (params: {
+    onProjectId: string;
+    appId: string;
+    accountId: string;
+    refresh: boolean;
+  }) => any
+
+
+  /**
+   * 获取用户详细信息
+   * @param params 参数
+   * @param params.accountId 用户Id
+   */
+  getAccountDetail: (params: {
+    accountId: string;
+  }) => any
+
+
+  /**
+   * mentionsInput 使用，@出来的用户和群组
+   * @param params 参数
+   * @param params.search 搜索类型
+   * @param params.keywords 关键词
+   * @param params.currentProjectId 当前组织（可不传）
+   * @param params.pageSize 页大小
+   */
+  getUsersByKeywords: (params: {
+    search: integer;
+    keywords: string;
+    currentProjectId: string;
+    pageSize: integer;
+  }) => any
+
+
+  /**
+   * 获取当前用户经常协作的用户
+   * @param params 参数
+   * @param params.count 页大小（经常协作用户的数量，不包含 prefixAccountIds 和未指定/我自己的数量）
+   * @param params.filterAccountIds 需要排除的帐号
+   * @param params.prefixAccountIds 需要插在前面的帐号，排在未指定和我自己后面
+   * @param params.includeUndefinedAndMyself 是否在前面插入未指定和我自己
+   * @param params.includeSystemField 是否包含系统预设账户
+   * @param params.oftenMetionedType 最常协作类型：-1：遵循用户的设置；0：系统推荐；1：用户自定义
+   * @param params.projectId 当前网络id
+   */
+  getOftenMetionedUser: (params: {
+    count: integer;
+    filterAccountIds: Array;
+    prefixAccountIds: Array;
+    includeUndefinedAndMyself: boolean;
+    includeSystemField: boolean;
+    oftenMetionedType: integer;
+    projectId: string;
+  }) => any
+
+
+  /**
+   * 获取用户列表（projectId不存在加载好友，projectId存在加载公司通讯录）
+   * @param params 参数
+   * @param params.pageIndex 页码
+   * @param params.pageSize 页大小
+   * @param params.keywords 关键司
+   * @param params.projectId 网络Id
+   * @param params.firstLetter 过滤的首字母
+   * @param params.filterAccountIds 过滤的需要排除的帐号
+   * @param params.prefixAccountIds 需要插在前面的帐号，排在未指定和我自己后面
+   * @param params.includeUndefinedAndMyself 是否在前面插入未指定和我自己
+   * @param params.includeMyself 是否在前面插入我自己
+   * @param params.includeSystemField 是否包含系统预设账户
+   * @param params.appointedAccountIds 指定的账户列表
+   * @param params.appointedDepartmentIds 指定的部门列表
+   * @param params.appointedOrganizeIds 指定的组织角色列表
+   * @param params.takeTotalCount 是否获取 总数
+   */
+  getContactUserList: (params: {
+    pageIndex: integer;
+    pageSize: integer;
+    keywords: string;
+    projectId: string;
+    firstLetter: string;
+    filterAccountIds: Array;
+    prefixAccountIds: Array;
+    includeUndefinedAndMyself: boolean;
+    includeMyself: boolean;
+    includeSystemField: boolean;
+    appointedAccountIds: Array;
+    appointedDepartmentIds: Array;
+    appointedOrganizeIds: Array;
+    takeTotalCount: boolean;
+  }) => any
+
+
+  /**
+   * 获取网络下已离职的用户信息
+   * @param params 参数
+   * @param params.pageIndex 页码
+   * @param params.pageSize 页大小
+   * @param params.keywords 关键司
+   * @param params.projectId 网络Id
+   */
+  getProjectResignedUserList: (params: {
+    pageIndex: integer;
+    pageSize: integer;
+    keywords: string;
+    projectId: string;
+  }) => any
+
+
+  /**
+   * 根据人员筛选条件获取人员列表
+   * @param params 参数
+   * @param params.pageIndex 页码
+   * @param params.pageSize 页大小
+   * @param params.keywords 关键司
+   * @param params.projectId 网络Id
+   * @param params.firstLetter 过滤的首字母
+   * @param params.filterAccountIds 过滤的需要排除的帐号
+   * @param params.prefixAccountIds 需要插在前面的帐号，排在未指定和我自己后面
+   * @param params.includeUndefinedAndMyself 是否在前面插入未指定和我自己
+   * @param params.includeMyself 是否在前面插入我自己
+   * @param params.includeSystemField 是否包含系统预设账户
+   * @param params.appointedAccountIds 指定的账户列表
+   * @param params.appointedDepartmentIds 指定的部门列表
+   * @param params.appointedOrganizeIds 指定的组织角色列表
+   * @param params.takeTotalCount 是否获取 总数
+   */
+  getProjectContactUserListByApp: (params: {
+    pageIndex: integer;
+    pageSize: integer;
+    keywords: string;
+    projectId: string;
+    firstLetter: string;
+    filterAccountIds: Array;
+    prefixAccountIds: Array;
+    includeUndefinedAndMyself: boolean;
+    includeMyself: boolean;
+    includeSystemField: boolean;
+    appointedAccountIds: Array;
+    appointedDepartmentIds: Array;
+    appointedOrganizeIds: Array;
+    takeTotalCount: boolean;
+  }) => any
+
+
+  /**
+   * 获取已离职的用户
+   * @param params 参数
+   * @param params.projectId 网络Id
+   * @param params.pageIndex 页码
+   * @param params.pageSize 页大小
+   * @param params.keywords 关键词
+   * @param params.firstLetter 首字母
+   * @param params.filterAccountIds 过滤哪些账号
+   */
+  getLeaveUserList: (params: {
+    projectId: string;
+    pageIndex: integer;
+    pageSize: integer;
+    keywords: string;
+    firstLetter: string;
+    filterAccountIds: Array;
+  }) => any
+
+
+  /**
+   * 提醒填写工作电话
+   * @param params 参数
+   * @param params.accountIds 账户Ids
+   * @param params.projectId 网络Id
+   */
+  sendNotice: (params: {
+    accountIds: Array;
+    projectId: string;
+  }) => any
+
+
+  /**
+   * 根据ProjectId检测当前用户是不是网络管理员
+   * @param params 参数
+   * @param params.projectId 网络Id
+   */
+  validateUserIsProjectAdmin: (params: {
+    projectId: string;
+  }) => any
+
+
+  /**
+   * 检查当前用户是否有好友
+   * @param params 参数
+
+   */
+  validateUserHaveFriend: (params: {
+
+  }) => any
+
+
+  /**
+   * 分页获取 Normal 用户列表
+   * @param params 参数
+   * @param params.projectId 网络Id
+   * @param params.pageIndex pageIndex
+   * @param params.pageSize pageSize
+   * @param params.keywords 关键词
+   */
+  pagedNormalUserList: (params: {
+    projectId: string;
+    pageIndex: integer;
+    pageSize: integer;
+    keywords: string;
+  }) => any
+
+
+  /**
+   * 获取 已删除的用户列表
+   * @param params 参数
+   * @param params.projectId 网络Id
+   * @param params.pageIndex pageIndex
+   * @param params.pageSize pageSize
+   * @param params.keywords 关键词
+   * @param params.keywordsType 关键词查询 类型（多字段[默认]=0、名称=1、工号=2、手机号=3、邮箱=4）
+   * @param params.sort 排序字段（默认 0=离职时间 倒序）
+   */
+  pagedRemovedUsers: (params: {
+    projectId: string;
+    pageIndex: integer;
+    pageSize: integer;
+    keywords: string;
+    keywordsType: integer;
+    sort: integer;
+  }) => any
+
+
+  /**
+   * 获取联系人在组织中的状态
+   * @param params 参数
+   * @param params.projectId 组织Id
+   * @param params.userContact 用户的联系方式
+   * @param params.accountId 用户的账号Id
+   * @param params.departmentId 部门Id
+   */
+  getUserOrgState: (params: {
+    projectId: string;
+    userContact: string;
+    accountId: string;
+    departmentId: string;
+  }) => any
+
+
+  /**
+   * 网络管理 - 获取网络下用户列表（projectId不存在加载好友，projectId存在加载公司通讯录）
+   * @param params 参数
+   * @param params.pageIndex 页码
+   * @param params.pageSize 页大小
+   * @param params.keywords 关键司
+   * @param params.projectId 网络Id
+   * @param params.firstLetter 过滤的首字母
+   * @param params.filterAccountIds 过滤的需要排除的帐号
+   * @param params.prefixAccountIds 需要插在前面的帐号，排在未指定和我自己后面
+   * @param params.includeUndefinedAndMyself 是否在前面插入未指定和我自己
+   * @param params.includeMyself 是否在前面插入我自己
+   * @param params.includeSystemField 是否包含系统预设账户
+   * @param params.appointedAccountIds 指定的账户列表
+   * @param params.appointedDepartmentIds 指定的部门列表
+   * @param params.appointedOrganizeIds 指定的组织角色列表
+   * @param params.takeTotalCount 是否获取 总数
+   */
+  getProjectContactUserList: (params: {
+    pageIndex: integer;
+    pageSize: integer;
+    keywords: string;
+    projectId: string;
+    firstLetter: string;
+    filterAccountIds: Array;
+    prefixAccountIds: Array;
+    includeUndefinedAndMyself: boolean;
+    includeMyself: boolean;
+    includeSystemField: boolean;
+    appointedAccountIds: Array;
+    appointedDepartmentIds: Array;
+    appointedOrganizeIds: Array;
+    takeTotalCount: boolean;
+  }) => any
+
+
+  /**
+   * 获取 待审批 或 已拒绝 的用户
+   * @param params 参数
+   * @param params.projectId 组织Id
+   * @param params.pageIndex 
+   * @param params.pageSize 
+   * @param params.keywords 关键司
+   */
+  getApprovalUser: (params: {
+    projectId: string;
+    pageIndex: integer;
+    pageSize: integer;
+    keywords: string;
+  }) => any
+
+
+  /**
+   * 设置 用户信息
+   * @param params 参数
+   * @param params.projectId 网络Id
+   * @param params.accountId 账号Id
+   * @param params.companyName 公司名
+   * @param params.jobNumber Job号
+   * @param params.contactPhone 联系号码
+   * @param params.workSiteId 工作地点
+   * @param params.useMultiJobs 使用 多职位（false 则 未使用；true 代表使用，则 只使用新 部门职位关系属性 入库）
+   * @param params.departmentIds 部门（第一个为主部门）
+   * @param params.jobIds 职位ids
+   * @param params.departmentJobIdMaps 任职信息（第一个 代表主部门）
+   * @param params.orgRoleIds 组织角色ids
+   */
+  updateUserCard: (params: {
+    projectId: string;
+    accountId: string;
+    companyName: string;
+    jobNumber: string;
+    contactPhone: string;
+    workSiteId: string;
+    useMultiJobs: boolean;
+    departmentIds: Array;
+    jobIds: Array;
+    departmentJobIdMaps: Array;
+    orgRoleIds: Array;
+  }) => any
+
+
+  /**
+   * 从组织中 移除用户
+   * @param params 参数
+   * @param params.projectId 网络Id
+   * @param params.accountId 账户Id
+   */
+  removeUser: (params: {
+    projectId: string;
+    accountId: string;
+  }) => any
+
+
+  /**
+   * 批量 从组织中 移除用户
+   * @param params 参数
+   * @param params.projectId 网络Id
+   * @param params.accountIds 账户Id
+   */
+  removeUsers: (params: {
+    projectId: string;
+    accountIds: Array;
+  }) => any
+
+
+  /**
+   * 从已 离职 中 恢复用户
+   * @param params 参数
+   * @param params.projectId 网络Id
+   * @param params.accountId 账户Id
+   */
+  recoveryUser: (params: {
+    projectId: string;
+    accountId: string;
+  }) => any
+
+
+  /**
+   * 批量更新 用户部门
+   * @param params 参数
+   * @param params.projectId 网络Id
+   * @param params.accountIds 账户Ids
+   * @param params.departmentIds 部门ids 第一个为主部门
+   */
+  updateDepartmentForUsers: (params: {
+    projectId: string;
+    accountIds: Array;
+    departmentIds: Array;
+  }) => any
+
+
+  /**
+   * 批量更新  用户职位
+   * @param params 参数
+   * @param params.projectId 网络Id
+   * @param params.accountIds 账户Ids
+   * @param params.jobIds 职位ids
+   */
+  updateJobForUsers: (params: {
+    projectId: string;
+    accountIds: Array;
+    jobIds: Array;
+  }) => any
+
+
+  /**
+   * 批量更新  用户工作地点
+   * @param params 参数
+   * @param params.projectId 网络Id
+   * @param params.accountIds 账户Ids
+   * @param params.worksiteId 工作地点id
+   */
+  updateWorkSiteForUsers: (params: {
+    projectId: string;
+    accountIds: Array;
+    worksiteId: string;
+  }) => any
+
+
+  /**
+   * 审批同意 用户 加入 组织
+   * @param params 参数
+   * @param params.projectId 网络Id
+   * @param params.accountId 账户Id
+   * @param params.departmentId 部门Id
+   * @param params.departmentIds 新部门Ids（第一个为主部门）
+   * @param params.workSiteId 工作地点
+   * @param params.jobId 职位
+   * @param params.jobIds 职位Ids
+   * @param params.orgRoleIds 组织角色Id
+   * @param params.jobNumber 工号
+   * @param params.contactPhone 联系号码
+   * @param params.useMultiJobs 使用 多职位（false 则 未使用；true 代表使用，则 只使用新 部门职位关系属性 入库）
+   * @param params.departmentJobIdMaps 任职信息（第一个 代表主部门）
+   */
+  agreeUserJoin: (params: {
+    projectId: string;
+    accountId: string;
+    departmentId: string;
+    departmentIds: Array;
+    workSiteId: string;
+    jobId: string;
+    jobIds: Array;
+    orgRoleIds: Array;
+    jobNumber: string;
+    contactPhone: string;
+    useMultiJobs: boolean;
+    departmentJobIdMaps: Array;
+  }) => any
+
+
+  /**
+   * 审批同意 用户加入 组织
+   * @param params 参数
+   * @param params.projectId 网络Id
+   * @param params.accountIds 账户Id
+   */
+  agreeUsersJoin: (params: {
+    projectId: string;
+    accountIds: Array;
+  }) => any
+
+
+  /**
+   * 审批拒绝 用户 加入 组织
+   * @param params 参数
+   * @param params.projectId 网络Id
+   * @param params.accountId 账户Id
+   * @param params.refuseMessage 拒绝消息
+   */
+  refuseUserJoin: (params: {
+    projectId: string;
+    accountId: string;
+    refuseMessage: string;
+  }) => any
+
+
+  /**
+   * 批量 审批拒绝 用户加入 组织
+   * @param params 参数
+   * @param params.projectId 网络Id
+   * @param params.accountIds 账户Id
+   * @param params.refuseMessage 拒绝消息
+   */
+  refuseUsersJoin: (params: {
+    projectId: string;
+    accountIds: Array;
+    refuseMessage: string;
   }) => any
 
 };

@@ -169,7 +169,7 @@ const DepartmentSelect = props => {
               }}
             >
               {displayName}
-              {item.deleteCount > 1 && <span className="Gray mLeft5">{item.deleteCount}</span>}
+              {item.deleteCount > 1 && <span className="textPrimary mLeft5">{item.deleteCount}</span>}
             </span>
 
             {((enumDefault === 0 && items.length === 1) || enumDefault !== 0) && !disabled && (
@@ -219,7 +219,7 @@ const DepartmentSelect = props => {
 
       {!disabled && (
         <div
-          className="TxtCenter Gray_75 ThemeHoverBorderColor3 ThemeHoverColor3 pointer addBtn"
+          className="TxtCenter textSecondary ThemeHoverBorderColor3 ThemeHoverColor3 pointer addBtn"
           onClick={() => pickDepartment()}
           ref={pickRef}
         >

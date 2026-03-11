@@ -24,7 +24,7 @@ const Con = styled.div`
 `;
 
 const IconBtn = styled.span`
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   cursor: pointer;
   display: inline-block;
   height: 28px;
@@ -33,7 +33,7 @@ const IconBtn = styled.span`
   padding: 0 4px;
   border-radius: 5px;
   &:hover {
-    background: #f7f7f7;
+    background: var(--color-background-hover);
   }
 `;
 
@@ -48,25 +48,25 @@ const Header = styled.div`
   }
   .main {
     font-size: 17px;
-    color: #151515;
+    color: var(--color-text-title);
     font-weight: bold;
   }
   .split {
     font-size: 16px;
     margin: 0 8px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .sec {
     font-size: 17px;
-    color: #757575;
+    color: var(--color-text-secondary);
     max-width: 600px;
     &:hover {
-      color: #151515;
+      color: var(--color-text-title);
     }
   }
   .openInNewTab {
     cursor: pointer;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     font-size: 14px;
     margin-left: 6px;
     line-height: 18px;
@@ -132,7 +132,6 @@ export default function ChildTableDialog(props) {
     projectId,
     mobileIsEdit,
     onClose,
-    onChange = () => {},
   } = props;
   const cache = useRef({});
   const callFromDialog = openFrom !== 'cell';
@@ -150,55 +149,58 @@ export default function ChildTableDialog(props) {
   const maxShowRowCount = Math.floor((maxHeight - 30 - 40) / rowHeight);
   const width = window.innerWidth - 32 * 2 > 1600 ? 1600 : window.innerWidth - 32 * 2;
   function handleSave(close) {
-    if (cache.current.isSaving) {
-      return;
-    }
-    const store = cache.current.comp.props.store;
-    const errors = getSubListErrorOfStore(store);
-    const validatedResult = onValidator({ item: { ...control, value } });
-    if (validatedResult.errorType) {
-      alert(validatedResult.errorText, 3);
-      return;
-    }
-    if (!_.isEmpty(errors)) {
-      alert(_l('请正确填写表单'), 3);
-      return;
-    } else {
-      store.clearSubListErrors();
-    }
-    cache.current.isSaving = true;
-    setIsSaving(true);
-    worksheetAjax
-      .updateWorksheetRow({
-        appId,
-        viewId,
-        worksheetId,
-        rowId: recordId,
-        newOldControl: [formatControlToServer({ ...control, store, value: { ...value, controls } })],
-      })
-      .then(data => {
-        if (!data.data) {
-          if (data.resultCode === 22) {
-            store.setUniqueError({ badData: data.badData });
+    function submit() {
+      if (cache.current.isSaving) {
+        return;
+      }
+      const store = cache.current.comp.props.store;
+      const errors = getSubListErrorOfStore(store);
+      const validatedResult = onValidator({ item: { ...control, value }, appId });
+      if (validatedResult.errorType) {
+        alert(validatedResult.errorText, 3);
+        return;
+      }
+      if (!_.isEmpty(errors)) {
+        alert(_l('请正确填写表单'), 3);
+        return;
+      } else {
+        store.clearSubListErrors();
+      }
+      cache.current.isSaving = true;
+      setIsSaving(true);
+      worksheetAjax
+        .updateWorksheetRow({
+          appId,
+          viewId,
+          worksheetId,
+          rowId: recordId,
+          newOldControl: [formatControlToServer({ ...control, store, value: { ...value, controls } })],
+        })
+        .then(data => {
+          if (!data.data) {
+            if (data.resultCode === 22) {
+              store.setUniqueError({ badData: data.badData });
+            }
+            cache.current.isSaving = false;
+            setIsSaving(false);
+          } else {
+            alert(_l('保存成功'));
+            cache.current.isSaving = false;
+            setChanged(false);
+            setIsSaving(false);
+            if (close) {
+              onClose();
+            }
+            setValue({});
+            setRefreshFlag(Math.random());
+            emitter.emit('RELOAD_RECORD_INFO', {
+              worksheetId,
+              recordId,
+            });
           }
-          cache.current.isSaving = false;
-          setIsSaving(false);
-        } else {
-          alert(_l('保存成功'));
-          cache.current.isSaving = false;
-          setChanged(false);
-          setIsSaving(false);
-          if (close) {
-            onClose();
-          }
-          setValue({});
-          setRefreshFlag(Math.random());
-          emitter.emit('RELOAD_RECORD_INFO', {
-            worksheetId,
-            recordId,
-          });
-        }
-      });
+        });
+    }
+    setTimeout(submit, window.cellTextIsBlurring ? 1000 : 0);
   }
   useEffect(() => {
     if (loading) {
@@ -281,7 +283,22 @@ export default function ChildTableDialog(props) {
           {openFrom === 'cell' && changed && (
             <Fragment>
               <div className="flex"></div>
-              <Button loading={isSaving} className="mRight35 flex-shrink-0" onClick={() => handleSave()}>
+              <Button
+                loading={isSaving}
+                className="mRight35 flex-shrink-0"
+                onClick={() => {
+                  handleSave();
+                  // try {
+                  //   if (includes(['input', 'textarea'], document.activeElement.tagName.toLowerCase())) {
+                  //     document.activeElement.blur();
+                  //     document.querySelector('.recordInfoForm').dispatchEvent(new MouseEvent('mousedown'));
+                  //   }
+                  // } catch (err) {
+                  //   console.error(err);
+                  // }
+                  // setTimeout(handleSave, window.cellTextIsBlurring ? 2000 : 0);
+                }}
+              >
                 {_l('保存')}
               </Button>
             </Fragment>

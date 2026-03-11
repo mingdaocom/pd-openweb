@@ -1,11 +1,11 @@
 .flowChartModal {
   .ant-modal-header {
-    border-bottom: 1px solid #eaeaea !important;
+    border-bottom: 1px solid var(--color-border-secondary) !important;
     padding: 15px 24px !important;
   }
   .ant-modal-body,
   .am-modal-body {
-    background-color: #f5f5f9;
+    background-color: var(--color-background-secondary);
     display: flex;
     padding: 0;
     .workflowItem {
@@ -49,21 +49,21 @@
       }
       .executed {
         > .workflowBox:before {
-          background-color: #1677ff;
+          background-color: var(--color-primary);
         }
       }
 
       &.workflowInclusionBranch {
         > .flexColumn.executed {
           .workflowBox:before {
-            background-color: #1677ff;
+            background-color: var(--color-primary);
           }
         }
       }
 
       &:not(.workflowInclusionBranch) {
         .workflowBox:before {
-          background-color: #ccc !important;
+          background-color: var(--color-text-placeholder) !important;
         }
       }
     }

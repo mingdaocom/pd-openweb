@@ -33,7 +33,7 @@ export default class QuerySheet extends Component {
       (project, i) =>
         project.worksheets.length > 0 && (
           <div className="projectSheetList" key={i}>
-            <div className="title Gray_bd"> {project.projectId ? project.name : _l('个人')} </div>
+            <div className="title textDisabled"> {project.projectId ? project.name : _l('个人')} </div>
             {project.worksheets.map((sheet, index) => (
               <WorkSheetItem
                 className="ThemeHoverBGColor3"
@@ -130,7 +130,7 @@ export default class QuerySheet extends Component {
               (workSheetList.filter(item => item.worksheets.length > 0).length > 0 ? (
                 <div className="sheetList">{this.renderSheetList()}</div>
               ) : (
-                <div className="empty Gray_bd">{_l('无匹配的工作表')}</div>
+                <div className="empty textDisabled">{_l('无匹配的工作表')}</div>
               ))}
           </ClickAwayable>
         )}

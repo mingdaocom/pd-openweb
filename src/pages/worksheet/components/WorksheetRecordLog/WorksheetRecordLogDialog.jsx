@@ -57,7 +57,7 @@ export default class WorksheetRecordLogDialog extends Component {
         >
           <div className="h100 flexColumn">
             <div className="flexRow alignItemsCenter mTop20 mRight20 mBottom5 pLeft10">
-              <Icon icon="arrow-left-border" className="Font20 Gray_bd mRight5" onClick={onClose} />
+              <Icon icon="arrow-left-border" className="Font20 textDisabled mRight5" onClick={onClose} />
               <div class="Font17 bold">{_l('更新记录')}</div>
             </div>
             {Content}

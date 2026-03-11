@@ -1,4 +1,3 @@
-import store from 'redux/configureStore';
 import update from 'immutability-helper';
 import { pick } from 'lodash';
 import _ from 'lodash';
@@ -15,6 +14,7 @@ import { updateAppGroup } from 'src/pages/PageHeader/redux/action';
 import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
 import { updateWorksheetInfo } from 'src/pages/worksheet/redux/actions/index';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
+import store from 'src/redux/configureStore';
 import { navigateTo } from 'src/router/navigateTo';
 import { emitter } from 'src/utils/common';
 import { moveSheetCache } from 'src/utils/worksheet';

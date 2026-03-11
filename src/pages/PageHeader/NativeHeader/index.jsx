@@ -43,7 +43,7 @@ export default class NativeHeader extends Component {
               style={{ flexWrap: 'nowrap' }}
               onClick={() => navigateTo('/dashboard')}
             >
-              <Icon className="Font20 Gray_75" icon="home_page" />
+              <Icon className="Font20 textSecondary" icon="home_page" />
             </div>
           ) : (
             <HomepageIcon

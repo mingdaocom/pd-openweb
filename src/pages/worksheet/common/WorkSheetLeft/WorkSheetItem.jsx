@@ -5,7 +5,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon, MdLink, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
-import { getEmbedValue } from 'src/components/Form/core/formUtils';
+import { getEmbedValue } from 'src/components/Form/core/formUtils/helper';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util';
 import { getTranslateInfo } from 'src/utils/app';
@@ -20,7 +20,7 @@ const Wrap = styled.div`
 `;
 
 export function convertColor(colorStr) {
-  return colorStr ? new TinyColor(colorStr).setAlpha(0.1) : '#bbdefb';
+  return colorStr ? new TinyColor(colorStr).setAlpha(0.1) : 'var(--color-primary-transparent)';
 }
 
 export default class WorkSheetItem extends Component {
@@ -34,9 +34,9 @@ export default class WorkSheetItem extends Component {
     if (darkColor) {
       return `rgba(255, 255, 255, ${isActive ? 1 : 0.9})`;
     } else if ([1, 3].includes(currentPcNaviStyle)) {
-      return isActive || ['light'].includes(themeType) ? iconColor : '#757575';
+      return isActive || ['light'].includes(themeType) ? iconColor : 'var(--color-text-secondary)';
     } else {
-      return isActive ? iconColor : '#757575';
+      return isActive ? iconColor : 'var(--color-text-secondary)';
     }
   }
   textColor(isActive) {
@@ -128,7 +128,12 @@ export default class WorkSheetItem extends Component {
             <Icon
               className="Font16 mRight10 visibilityIcon"
               icon={icon}
-              style={{ color: [1, 3].includes(currentPcNaviStyle) && themeType === 'theme' ? '#FCD8D3' : '#ee6f09' }}
+              style={{
+                color:
+                  [1, 3].includes(currentPcNaviStyle) && themeType === 'theme'
+                    ? 'var(--color-error-bg)'
+                    : 'var(--color-warning)',
+              }}
             />
           </Tooltip>
         )

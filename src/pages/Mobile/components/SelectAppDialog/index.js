@@ -72,7 +72,7 @@ export default function SelectAppDialog(props) {
       ) : (
         <Fragment>
           <div className="searchWrap flexRow">
-            <i className="icon icon-search Gray_9e" />
+            <i className="icon icon-search textTertiary" />
             <Input className="flex" placeholder={_l('搜索')} onChange={onSearch} />
           </div>
           <ScrollView className="appListWrap flex overflowHidden" onScrollEnd={onScrollEnd}>
@@ -98,7 +98,7 @@ export default function SelectAppDialog(props) {
                     <div className="mLeft15 flexRow flex appName h100 alignItemsCenter">
                       <div className="flex overflow_ellipsis">{item.appName}</div>
                       {_.includes(selectedAppIds, item.appId) && (
-                        <i className="icon icon-done ThemeColor Font18 mLeft10" />
+                        <i className="icon icon-done colorPrimary Font18 mLeft10" />
                       )}
                     </div>
                   </div>
@@ -107,7 +107,7 @@ export default function SelectAppDialog(props) {
             {loading && pageIndex > 1 && <LoadDiv />}
           </ScrollView>
           <div className="footer flexRow">
-            <Button className="flex mLeft6 mRight6 Font13 bold Gray_75" onClick={onClose}>
+            <Button className="flex mLeft6 mRight6 Font13 bold textSecondary" onClick={onClose}>
               {_l('取消')}
             </Button>
             <Button

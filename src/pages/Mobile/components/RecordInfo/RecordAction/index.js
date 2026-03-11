@@ -19,6 +19,7 @@ import { appendDataToLocalPushUniqueId, emitter, getRequest } from 'src/utils/co
 import { getCurrentProject, handlePushState } from 'src/utils/project';
 import { handleRecordError } from 'src/utils/record';
 import MobilePrintList from '../MobilePrintList';
+import AiActionButtons from './AiActionButtons';
 import CustomButtons from './CustomButtons';
 import { doubleConfirmFunc } from './DoubleConfirm';
 import './index.less';
@@ -472,12 +473,12 @@ class RecordAction extends Component {
       actions: [],
       extra: (
         <div className="flexColumn w100">
-          <div className="bold Gray Font17 pTop10">
+          <div className="bold textPrimary Font17 pTop10">
             {this.isSubList ? _l('是否删除子表记录 ?') : _l('是否删除此条记录 ?')}
           </div>
           <div className="valignWrapper flexRow mTop24">
             <Button
-              className="flex mRight6 bold Gray_75 flex ellipsis Font13"
+              className="flex mRight6 bold textSecondary flex ellipsis Font13"
               onClick={() => this.actionDeleteHandler.close()}
             >
               {_l('取消')}
@@ -677,6 +678,7 @@ class RecordAction extends Component {
       worksheetInfo = {},
       hideRecordActionVisible,
       customBtns,
+      aiActionBtns,
       viewId,
       appId,
       worksheetId,
@@ -721,8 +723,8 @@ class RecordAction extends Component {
         onMaskClick={hideRecordActionVisible}
         style={changeActionSheetModalIndex ? { '--z-index': 10001 } : {}}
       >
-        <React.Fragment>
-          <div className="flexRow header">
+        <div className="popupWrapper">
+          <div className="popupHeaderBox header">
             <span className="Font13">{!isBatchOperate ? _l('更多操作') : _l('对选中记录执行操作')}</span>
             <div className="closeIcon TxtCenter" onClick={hideRecordActionVisible}>
               <Icon icon="close" />
@@ -733,31 +735,60 @@ class RecordAction extends Component {
               <LoadDiv />
             </div>
           ) : _.isEmpty(customBtns) && !(appId && !isBatchOperate) ? (
-            <div className="Gray bold mBottom30 TxtLeft pLeft15">{_l('暂无按钮')}</div>
+            <div className="textPrimary bold mBottom30 TxtLeft pLeft15">{_l('暂无按钮')}</div>
           ) : (
-            <Fragment>
+            <div className="popupContentBox">
               {!_.isEmpty(customBtns) && (
-                <div className="flexRow customBtnLists Font13 flex">
-                  <CustomButtons
-                    isBatch={isBatchOperate}
-                    classNames="flex customBtnItem"
-                    customBtns={customBtns}
-                    btnDisable={btnDisable}
-                    isEditLock={isEditLock}
-                    isRecordLock={isRecordLock}
-                    entityName={sheetRow.entityName}
-                    handleClick={btn => {
-                      this.handleTriggerCustomBtn(btn);
-                    }}
-                  />
+                <div className="btnsBox">
+                  <div className="btnTypeLabel">{_l('自定义动作')}</div>
+                  <div className="customBtnLists">
+                    <CustomButtons
+                      isBatch={isBatchOperate}
+                      classNames="flex customBtnItem"
+                      customBtns={customBtns}
+                      btnDisable={btnDisable}
+                      isEditLock={isEditLock}
+                      isRecordLock={isRecordLock}
+                      entityName={sheetRow.entityName}
+                      viewId={viewId}
+                      handleClick={btn => {
+                        this.handleTriggerCustomBtn(btn);
+                      }}
+                    />
+                  </div>
                 </div>
+              )}
+              {!md.global.SysSettings.hideAIBasicFun && !_.isEmpty(aiActionBtns) && (
+                <Fragment>
+                  {!_.isEmpty(customBtns) && (
+                    <div className="splitLineBox">
+                      <div className="splitLine"></div>
+                    </div>
+                  )}
+                  <div className="btnsBox mTop10">
+                    <div className="btnTypeLabel">{_l('AI 动作')}</div>
+                    <div className="aiActionBtnsBox">
+                      <AiActionButtons
+                        appId={appId}
+                        aiActionBtns={aiActionBtns}
+                        worksheetId={worksheetId}
+                        recordInfo={!_.isEmpty(sheetRow) ? sheetRow : rowInfo}
+                        worksheetInfo={worksheetInfo}
+                        closeRecordAction={hideRecordActionVisible}
+                      />
+                    </div>
+                  </div>
+                </Fragment>
               )}
               {appId && !isBatchOperate ? (
                 <div className="extrBtnBox">
+                  <div className="splitLineBox">
+                    <div className="splitLine"></div>
+                  </div>
                   {allowShare && (
                     <div className="flexRow extraBtnItem">
-                      <Icon icon="shareLink" className="Font18 delIcon Gray_9e" />
-                      <div className="flex delTxt Font15 Gray" onClick={this.props.onShare}>
+                      <Icon icon="shareLink" className="Font18 delIcon textTertiary" />
+                      <div className="flex delTxt Font15 textPrimary" onClick={this.props.onShare}>
                         {_l('分享')}
                       </div>
                     </div>
@@ -769,8 +800,8 @@ class RecordAction extends Component {
                     !window.isWeLink &&
                     !window.isDingTalk && (
                       <div className="flexRow extraBtnItem">
-                        <Icon icon="archive" className="Font20 delIcon Gray_9e" />
-                        <div className="flex Font15 Gray" onClick={this.props.handlePrint}>
+                        <Icon icon="archive" className="Font20 delIcon textTertiary" />
+                        <div className="flex Font15 textPrimary" onClick={this.props.handlePrint}>
                           {_l('打印/导出')}
                         </div>
                       </div>
@@ -796,17 +827,20 @@ class RecordAction extends Component {
                     <div className="flexRow extraBtnItem">
                       <Icon
                         icon="star_3"
-                        className={cx('Font18 delIcon', { Gray_9e: !isFavorite, activeStar: isFavorite })}
+                        className={cx('Font18 delIcon', { textTertiary: !isFavorite, activeStar: isFavorite })}
                       />
-                      <div className="flex delTxt Font15 Gray" onClick={handleCollectRecord}>
-                        {isFavorite ? _l('取消收藏') : _l('收藏记录')}
+                      <div className="flex delTxt Font15 textPrimary" onClick={handleCollectRecord}>
+                        {isFavorite ? _l('取消收藏') : _l('收藏')}
                       </div>
                     </div>
                   )}
                   {roleType === 2 && (
                     <div className="flexRow extraBtnItem">
-                      <Icon icon={isRecordLock ? 'task-new-no-locked' : 'lock'} className="Font18 delIcon Gray_9e" />
-                      <div className="flex Font15 Gray" onClick={updateRecordLock}>
+                      <Icon
+                        icon={isRecordLock ? 'task-new-no-locked' : 'lock'}
+                        className="Font18 delIcon textTertiary"
+                      />
+                      <div className="flex Font15 textPrimary" onClick={updateRecordLock}>
                         {isRecordLock ? _l('解锁') : _l('锁定')}
                       </div>
                     </div>
@@ -821,9 +855,9 @@ class RecordAction extends Component {
                   )}
                 </div>
               ) : null}
-            </Fragment>
+            </div>
           )}
-        </React.Fragment>
+        </div>
       </Popup>
     );
   }

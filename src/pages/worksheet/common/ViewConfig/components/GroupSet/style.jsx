@@ -4,17 +4,17 @@ import { FlexCenter } from 'worksheet/styled';
 export const Wrap = styled.div`
   .hasData {
     .icon-rename_input {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       padding-right: 10px;
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     .cancle {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       cursor: pointer;
       &:hover {
-        color: #757575;
+        color: var(--color-text-secondary);
       }
     }
     .Dropdown {
@@ -23,7 +23,7 @@ export const Wrap = styled.div`
       line-height: 36px;
       height: 36px;
       opacity: 1;
-      background: #ffffff;
+      background: var(--color-background-primary);
       border-radius: 4px;
       margin: 8px 0;
       box-sizing: border-box;
@@ -40,11 +40,11 @@ export const Wrap = styled.div`
         padding: 0 12px 0 12px;
         width: 100%;
         display: flex;
-        border: 1px solid #dddddd;
+        border: 1px solid var(--color-border-primary);
         border-radius: 4px;
         height: 36px;
         &.active {
-          border: 1px solid #1677ff;
+          border: 1px solid var(--color-primary);
         }
         .value,
         .Dropdown--placeholder {
@@ -66,8 +66,8 @@ export const Wrap = styled.div`
       line-height: 36px;
       height: 36px;
       opacity: 1;
-      background: #ffffff;
-      border: 1px solid #dddddd;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-primary);
       border-radius: 4px;
       padding: 0 12px 0 12px;
       .icon {
@@ -85,7 +85,7 @@ export const Wrap = styled.div`
       vertical-align: middle;
     }
     .ming.Checkbox.Checkbox--disabled {
-      color: #151515;
+      color: var(--color-text-title);
     }
     .iconWrap {
       display: inline-block;
@@ -104,7 +104,7 @@ export const Wrap = styled.div`
     h6 {
       font-size: 20px;
       font-weight: 500;
-      color: #151515;
+      color: var(--color-text-title);
       text-align: center;
       padding: 0;
       padding-top: 32px;
@@ -113,7 +113,7 @@ export const Wrap = styled.div`
     .text {
       font-weight: 400;
       text-align: center;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       line-height: 20px;
       font-size: 13px;
       width: 80%;
@@ -137,9 +137,9 @@ export const Wrap = styled.div`
       }
       span.addIcon {
         position: relative;
-        background: #1677ff;
+        background: var(--color-primary);
         border-radius: 3px;
-        color: #fff;
+        color: var(--color-white);
         display: inline-block;
         padding: 12px 32px;
         cursor: pointer;
@@ -148,7 +148,7 @@ export const Wrap = styled.div`
           font-size: 20px;
         }
         &:hover {
-          background: #1565c0;
+          background: var(--color-link-hover);
         }
       }
     }
@@ -175,7 +175,7 @@ const DisplayControlOption = styled(FlexCenter)`
 export const SelectValue = styled(DisplayControlOption)`
   &：hover {
     .icon {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;

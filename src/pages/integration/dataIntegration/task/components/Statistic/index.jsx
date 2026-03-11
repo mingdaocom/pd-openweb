@@ -15,24 +15,24 @@ const StatisticContent = styled.div`
       align-items: center;
       height: 88px;
       padding: 0 24px;
-      background: #fafafa;
+      background: var(--color-background-secondary);
       border-radius: 4px;
 
       .titleText {
-        color: #757575;
+        color: var(--color-text-secondary);
         font-weight: 600;
       }
       .dataText {
-        color: #151515;
+        color: var(--color-text-title);
         font-size: 28px;
         font-weight: 600;
         line-height: 32px;
 
         &.running {
-          color: #01ca83;
+          color: var(--color-task);
         }
         &.error {
-          color: #f44336;
+          color: var(--color-error);
         }
       }
     }

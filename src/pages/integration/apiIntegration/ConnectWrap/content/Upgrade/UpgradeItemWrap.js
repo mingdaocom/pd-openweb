@@ -5,7 +5,7 @@ import styled from 'styled-components';
 const UpgradeContentItem = styled.div`
   padding: 0 12px;
   border-radius: 3px 3px 3px 3px;
-  border: 1px solid #dddddd;
+  border: 1px solid var(--color-border-primary);
   margin-bottom: 30px;
   .itemTitle {
     height: 52px;
@@ -13,9 +13,9 @@ const UpgradeContentItem = styled.div`
   }
   .rowItem {
     height: 44px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     &.hoverRowItem:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
       margin: 0 -12px;
       padding: 0 12px;
     }
@@ -24,15 +24,15 @@ const UpgradeContentItem = styled.div`
     border: none !important;
   }
   .addTxtColor {
-    color: #4caf50;
+    color: var(--color-success);
   }
   .w50 {
     width: 50px;
   }
   .partialChanges {
     font-size: 12px;
-    color: #757575;
-    background-color: #eaeaea;
+    color: var(--color-text-secondary);
+    background-color: var(--color-border-secondary);
     padding: 0 7px;
     border-radius: 12px;
   }
@@ -44,7 +44,7 @@ export default function UpgradeItemWrap(props) {
   return (
     <UpgradeContentItem>
       <Fragment>
-        <div className="flexRow alignItemsCenter Gray_9e bold rowItem">
+        <div className="flexRow alignItemsCenter textTertiary bold rowItem">
           <div className="flex flexRow name">
             <span>{_l('API 名称')}</span>
           </div>
@@ -56,7 +56,7 @@ export default function UpgradeItemWrap(props) {
           return (
             <div
               key={it.id}
-              className={cx('flexRow alignItemsCenter Gray rowItem hoverRowItem', {
+              className={cx('flexRow alignItemsCenter textPrimary rowItem hoverRowItem', {
                 noBorder: i === itemList.length - 1,
               })}
             >

@@ -197,7 +197,7 @@ export default class Authentication extends Component {
     return (
       <Fragment>
         <div className="Font16 bold">{_l('Basic Auth 认证')}</div>
-        <div className="mTop5 Gray_75">{_l('将返回计算后的 Basic Auth 参数供 API 请求参数使用')}</div>
+        <div className="mTop5 textSecondary">{_l('将返回计算后的 Basic Auth 参数供 API 请求参数使用')}</div>
         {data.fields.map((item, i) => {
           const singleObj = _.find(data.controls, obj => obj.controlId === item.fieldId) || {};
 
@@ -248,7 +248,7 @@ export default class Authentication extends Component {
         {_.includes([ACTION_ID.CREDENTIALS, ACTION_ID.REFRESH_CREDENTIALS], data.actionId) ? (
           <Fragment>
             <div className="Font16 bold">{_l('OAuth 2.0 认证（授权码）')}</div>
-            <div className="mTop5 Gray_75">
+            <div className="mTop5 textSecondary">
               {data.actionId === ACTION_ID.CREDENTIALS
                 ? _l('根据 code 获取access_token')
                 : _l('根据 Refresh token 刷新 Access Token')}
@@ -257,7 +257,7 @@ export default class Authentication extends Component {
         ) : (
           <Fragment>
             <div className="Font16 bold">{_l('OAuth 2.0 认证（客户端凭证 client credentials）')}</div>
-            <div className="mTop5 Gray_75">{_l('将返回获取到的 Access Token 值供 API 请求参数使用')}</div>
+            <div className="mTop5 textSecondary">{_l('将返回获取到的 Access Token 值供 API 请求参数使用')}</div>
           </Fragment>
         )}
 
@@ -310,19 +310,19 @@ export default class Authentication extends Component {
         {data.actionId === ACTION_ID.CREDENTIALS ? (
           <Fragment>
             <div className="Font13 bold mTop20">{_l('返回 Access Token 值')}</div>
-            <div className="mTop10 Gray_75">{_l('向 Access Token URL 发送请求并接收返回值')}</div>
+            <div className="mTop10 textSecondary">{_l('向 Access Token URL 发送请求并接收返回值')}</div>
           </Fragment>
         ) : (
           <Fragment>
             <div className="Font13 bold mTop20">{_l('返回参数列表')}</div>
-            <div className="mTop10 Gray_75">{_l('向 Access Token URL 发送请求并返回参数列表')}</div>
+            <div className="mTop10 textSecondary">{_l('向 Access Token URL 发送请求并返回参数列表')}</div>
           </Fragment>
         )}
 
         {!!(data.controls || []).length && (
           <Fragment>
             <ParameterList controls={data.controls} />
-            <div className="mTop20 Gray_75">{_l('重新发送请求获取 Access Token')}</div>
+            <div className="mTop20 textSecondary">{_l('重新发送请求获取 Access Token')}</div>
           </Fragment>
         )}
 
@@ -335,7 +335,7 @@ export default class Authentication extends Component {
             <div className="Font13 bold mTop20">
               {data.actionId === ACTION_ID.REFRESH_CREDENTIALS ? _l('自动刷新频率') : _l('Access Token 过期时间')}
             </div>
-            <div className="mTop10 Gray_75">
+            <div className="mTop10 textSecondary">
               {_l('系统将依据这里的时长设置来判断自动刷新 Access Token 的频率，为 0 则不自动刷新')}
             </div>
             <div className="mTop15 flexRow alignItemsCenter">
@@ -620,7 +620,7 @@ export default class Authentication extends Component {
             }
           />
         </div>
-        <div className="Font13 mTop5 Gray_75">{_l('根据 API 状态码/错误码，设置判断刷新Access Token的条件')}</div>
+        <div className="Font13 mTop5 textSecondary">{_l('根据 API 状态码/错误码，设置判断刷新Access Token的条件')}</div>
 
         {!!(data.webHookNodes[this.testIndex].retryControls || []).length && (
           <div className="flexRow mTop10">
@@ -726,6 +726,7 @@ export default class Authentication extends Component {
             }
             testMap={data.webHookNodes[this.testIndex].testMap}
             isSingleKey={data.appType === APP_TYPE.BASIC_AUTH}
+            connectId={this.props.connectId}
           />
         )}
       </Fragment>

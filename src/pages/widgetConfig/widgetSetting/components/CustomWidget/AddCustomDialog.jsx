@@ -95,7 +95,7 @@ export default function AddCustomDialog(props) {
         <div className="flexCenter flexColumn">
           <span className="icon-custom-01 titleIcon"></span>
           <span className="Font17 mTop20 Bold">{_l('添加自定义字段')}</span>
-          <div className="Gray_75 mTop8 ">{_l('与 AI 对话生成代码，创建一个完全自定义样式与交互的字段')}</div>
+          <div className="textSecondary mTop8 ">{_l('与 AI 对话生成代码，创建一个完全自定义样式与交互的字段')}</div>
         </div>
 
         <SettingItem>
@@ -115,7 +115,7 @@ export default function AddCustomDialog(props) {
                   }
                 }}
               >
-                <div className="Gray_75 pLeft28">{desc}</div>
+                <div className="textSecondary pLeft28">{desc}</div>
               </Radio>
             );
           })}

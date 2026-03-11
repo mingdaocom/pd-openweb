@@ -24,21 +24,21 @@ const EXPORT_OPTIONS = [
 const Wrap = styled.div`
   width: 220px;
   padding: 4px 0;
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 4px;
-  box-shadow: 0px 3px 6px 1px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
   .exportItem {
     padding: 0 20px;
     line-height: 44px;
     .Icon {
-      color: #757575;
+      color: var(--color-text-secondary);
     }
     &:hover {
-      background: #1677ff;
-      color: #fff;
+      background: var(--color-primary);
+      color: var(--color-white);
       .Icon {
-        color: #fff;
+        color: var(--color-white);
       }
     }
   }
@@ -95,7 +95,9 @@ export default function ExportTrigger(props) {
     >
       <span className="selectDate">
         <Icon icon="download" />
-        {featureStatus === '2' && <Icon icon="auto_awesome" className="mLeft8" style={{ color: '#fdb432' }} />}
+        {featureStatus === '2' && (
+          <Icon icon="auto_awesome" className="mLeft8" style={{ color: 'var(--color-warning)' }} />
+        )}
       </span>
     </Trigger>
   );

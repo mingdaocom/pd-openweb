@@ -28,7 +28,7 @@ export default function (props) {
     return '';
   }
   if (props.updateLoading) {
-    return <div className={cx('mTop16 Gray_bd  qw alignItemsCenter flexRow')}>{_l('加载中...')}</div>;
+    return <div className={cx('mTop16 textDisabled  qw alignItemsCenter flexRow')}>{_l('加载中...')}</div>;
   }
   return (
     <Trigger
@@ -130,7 +130,7 @@ export default function (props) {
     >
       <div
         className={cx(
-          'mTop16 Gray_75 ThemeHoverColor3 qw alignItemsCenter flexRow',
+          'mTop16 textSecondary ThemeHoverColor3 qw alignItemsCenter flexRow',
           (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length <= 0 ? '' : 'Hand',
         )}
       >

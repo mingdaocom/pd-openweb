@@ -46,7 +46,7 @@ export default class Con extends React.Component {
             />
           </div>
           <div className="navCon roleSet flex">
-            {roleList.length <= 0 && <p className="mTop20 Gray_75 TxtCenter">{_l('暂无相关数据')}</p>}
+            {roleList.length <= 0 && <p className="mTop20 textSecondary TxtCenter">{_l('暂无相关数据')}</p>}
             {roleList.length > 0 && <RoleList {...this.props} />}
           </div>
         </React.Fragment>

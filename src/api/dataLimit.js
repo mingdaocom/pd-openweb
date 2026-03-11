@@ -11,11 +11,14 @@ export default {
     return mdyAPI('DataLimit', 'GetAttachmentSetting', args, options);
   },
   /**
-   * 修改附件下载设置状态
+   * 修改附件下载设置
    * @param {Object} args 请求参数
    * @param {string} args.projectId 组织id
    * @param {integer} args.status 状态（0 = 关闭，1 = 开启）
-   * @param {integer} args.limitType 限制类型(0 = 全部，1= 移动端（H5）)
+   * @param {integer} args.limitType 限制类型(0 = 全部，1= 移动端（H5），2 = PC)
+   * @param {integer} args.modelType 策略类型（默认0） 0 = 客户端，1 = IP
+   * @param {integer} args.useType 使用类型，0 = 是，1= 不是
+   * @param {array} args.ipList IP列表
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -82,6 +85,100 @@ export default {
    **/
   editLimits: function (args, options = {}) {
     return mdyAPI('DataLimit', 'EditLimits', args, options);
+  },
+  /**
+   * 获取应用访问策略列表
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.limitName 策略名称
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getAppLimitList: function (args, options = {}) {
+    return mdyAPI('DataLimit', 'GetAppLimitList', args, options);
+  },
+  /**
+   * 获取应用访问策略
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.limitId 策略id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getAppLimit: function (args, options = {}) {
+    return mdyAPI('DataLimit', 'GetAppLimit', args, options);
+  },
+  /**
+   * 添加应用访问策略
+   * @param {Object} args 请求参数
+   * @param {string} args.id
+   * @param {string} args.projectId
+   * @param {string} args.name
+   * @param {} args.accessType
+   * @param {boolean} args.accessPass
+   * @param {array} args.ipRule
+   * @param {object} args.hearderRule
+   * @param {array} args.addressRule
+   * @param {array} args.clientRule
+   * @param {} args.limitAction
+   * @param {array} args.whiteApps
+   * @param {array} args.blackApps
+   * @param {boolean} args.isAllowPublicAccess
+   * @param {boolean} args.isAllowCrossApp
+   * @param {boolean} args.isEnable
+   * @param {} args.createAccount
+   * @param {string} args.createTime
+   * @param {} args.updateAccount
+   * @param {string} args.updateTime
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  addAppLimit: function (args, options = {}) {
+    return mdyAPI('DataLimit', 'AddAppLimit', args, options);
+  },
+  /**
+   * 更新应用访问策略
+   * @param {Object} args 请求参数
+   * @param {string} args.id
+   * @param {string} args.projectId
+   * @param {string} args.name
+   * @param {} args.accessType
+   * @param {boolean} args.accessPass
+   * @param {array} args.ipRule
+   * @param {object} args.hearderRule
+   * @param {array} args.addressRule
+   * @param {array} args.clientRule
+   * @param {} args.limitAction
+   * @param {array} args.whiteApps
+   * @param {array} args.blackApps
+   * @param {boolean} args.isAllowPublicAccess
+   * @param {boolean} args.isAllowCrossApp
+   * @param {boolean} args.isEnable
+   * @param {} args.createAccount
+   * @param {string} args.createTime
+   * @param {} args.updateAccount
+   * @param {string} args.updateTime
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  updateAppLimit: function (args, options = {}) {
+    return mdyAPI('DataLimit', 'UpdateAppLimit', args, options);
+  },
+  /**
+   * 删除应用访问策略
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.limitId 策略id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  deleteAppLimit: function (args, options = {}) {
+    return mdyAPI('DataLimit', 'DeleteAppLimit', args, options);
   },
   /**
    * 列表额度管理页数据

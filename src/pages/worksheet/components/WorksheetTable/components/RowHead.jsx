@@ -21,7 +21,7 @@ const Con = styled.div`
   padding-top: 0px !important;
   padding-bottom: 0px !important;
   font-size: 13px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   padding: 0px !important;
   align-items: center;
   > * {
@@ -60,7 +60,7 @@ const Con = styled.div`
     display: inline-block;
   }
   .showMore:hover {
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   &.rowHadFocus {
     .openRecord {
@@ -110,7 +110,7 @@ const OpenRecordBtn = styled(FlexCenter)`
   font-size: 16px;
   width: 24px;
   height: 24px;
-  color: #1677ff;
+  color: var(--color-primary);
   border-radius: 4px;
   &:hover {
     background: rgba(0, 0, 0, 0.05);

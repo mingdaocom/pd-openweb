@@ -39,7 +39,7 @@ export default function InputSuffix({ data, onChange }) {
                 </span>
               }
             >
-              <i className="icon-help Gray_bd Font16 pointer"></i>
+              <i className="icon-help textDisabled Font16 pointer"></i>
             </Tooltip>
           </Checkbox>
         )}

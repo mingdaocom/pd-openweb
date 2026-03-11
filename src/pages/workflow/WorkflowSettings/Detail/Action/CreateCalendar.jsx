@@ -8,7 +8,7 @@ export default props => {
 
   return (
     <Fragment>
-      <div className="Font14 Gray_75 workflowDetailDesc mBottom20">
+      <div className="Font14 textSecondary workflowDetailDesc mBottom20">
         {data.actionId === ACTION_ID.ADD
           ? _l('创建一个系统内日程。可同时生成一个ICS文件在其他节点中使用')
           : _l('仅生成一个日程ICS文件，在发送邮件等节点中作为附件使用。通过此文件可添加日程到个人日历')}

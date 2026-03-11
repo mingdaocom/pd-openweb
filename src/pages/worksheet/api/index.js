@@ -49,6 +49,7 @@ export function getRowDetail(params, controls, options = {}) {
       .then(data => {
         const rowData = safeParse(data.rowData);
         let controlPermissions = safeParse(rowData.controlpermissions);
+        window[`timeZone_${data.appId}`] = data.appTimeZone;
         data.advancedSetting = replaceAdvancedSettingTranslateInfo(
           data.appId,
           params.worksheetId,
@@ -69,6 +70,7 @@ export function getRowDetail(params, controls, options = {}) {
           count: rowData['rq' + c.controlId],
           required: isSheetDisplay(c) ? false : c.required,
           advancedSetting: getTableAdvancedSettingOfControl(c),
+          ...(rowData[`rc${c.controlId}`] ? { rcValue: rowData[`rc${c.controlId}`] } : {}),
         }));
         resolve(data);
       })

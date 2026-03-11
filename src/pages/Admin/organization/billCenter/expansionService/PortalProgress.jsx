@@ -12,7 +12,7 @@ const getOptions = effectiveExternalUserCount => {
       text: (
         <Fragment>
           <span className="Bold Font14 mRight6">{_l('续费')}</span>
-          <span className="Gray_9e">{_l('当前使用：%0人', effectiveExternalUserCount)}</span>
+          <span className="textTertiary">{_l('当前使用：%0人', effectiveExternalUserCount)}</span>
         </Fragment>
       ),
       value: 'portalupgrade',
@@ -28,8 +28,8 @@ const marks = [
     value: 100,
     label: (
       <Fragment>
-        <div className="Gray Font13">{_l('100人')}</div>
-        <div className="Gray_75 Font12">{_l('5元/人年')}</div>
+        <div className="textPrimary Font13">{_l('100人')}</div>
+        <div className="textSecondary Font12">{_l('5元/人年')}</div>
       </Fragment>
     ),
   },
@@ -37,8 +37,8 @@ const marks = [
     value: 1000,
     label: (
       <Fragment>
-        <div className="Gray Font13 ">{_l('1000人')}</div>
-        <div className="Gray_75 Font12">{_l('1元/人年')}</div>
+        <div className="textPrimary Font13 ">{_l('1000人')}</div>
+        <div className="textSecondary Font12">{_l('1元/人年')}</div>
       </Fragment>
     ),
   },
@@ -46,14 +46,14 @@ const marks = [
     value: 10000,
     label: (
       <Fragment>
-        <div className="Gray Font13">{_l('10000人')}</div>
-        <div className="Gray_75 Font12">{_l('0.5元/人年')}</div>
+        <div className="textPrimary Font13">{_l('10000人')}</div>
+        <div className="textSecondary Font12">{_l('0.5元/人年')}</div>
       </Fragment>
     ),
   },
   {
     value: 100000,
-    label: <div className="Gray Font13">{_l('10万人')}</div>,
+    label: <div className="textPrimary Font13">{_l('10万人')}</div>,
   },
 ];
 
@@ -215,13 +215,13 @@ export default class PortalProgress extends Component {
           </div>
         </div>
         <div className="mBottom16">
-          <span className="Gray_9e mRight18">{_l('购买人数：')}</span>
+          <span className="textTertiary mRight18">{_l('购买人数：')}</span>
           <span>{_l('%0人', userCount)}</span>
         </div>
         <div className="mBottom16">
-          <span className="Gray_9e mRight18">{_l('到期时间：')}</span>
+          <span className="textTertiary mRight18">{_l('到期时间：')}</span>
           <span>{moment(licenseInfo.endDate).format('YYYY年MM月DD日')}</span>
-          <span className="Gray_9e">{_l('（计费：%0天）', licenseInfo.expireDays)}</span>
+          <span className="textTertiary">{_l('（计费：%0天）', licenseInfo.expireDays)}</span>
         </div>
       </Fragment>
     );

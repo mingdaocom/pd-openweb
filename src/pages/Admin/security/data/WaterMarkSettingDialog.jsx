@@ -11,7 +11,7 @@ import Config from '../../config';
 
 const WaterMarkTextarea = styled(TagTextarea)`
   .CodeMirror-placeholder {
-    color: #757575 !important;
+    color: var(--color-text-secondary) !important;
   }
 `;
 
@@ -80,7 +80,7 @@ function WaterMarkSettingDialog(props) {
   return (
     <Dialog visible={visible} title={_l('设置水印文字')} onOk={handleOk} onCancel={onClose}>
       <div>
-        <div className="Font13 Gray_75 mBottom18">{_l('建议文字在20个字符以内，超出可能显示不全')}</div>
+        <div className="Font13 textSecondary mBottom18">{_l('建议文字在20个字符以内，超出可能显示不全')}</div>
         <Trigger
           popupVisible={selectVisible}
           onPopupVisibleChange={visible => setSelectVisible(visible)}

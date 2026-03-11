@@ -14,7 +14,7 @@ const Wrap = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: #fff;
+  background: var(--color-background-primary);
   z-index: 1000;
   overflow: auto;
   .homepageIconWrap {
@@ -38,7 +38,7 @@ const Wrap = styled.div`
     height: 100%;
     align-items: center;
     cursor: pointer;
-    color: #fff;
+    color: var(--color-white);
   }
   .appIconWrap {
     idth: 30px;
@@ -55,7 +55,7 @@ const Wrap = styled.div`
   }
   .isUpgrade {
     border-radius: 13px;
-    color: #fff;
+    color: var(--color-white);
     line-height: 22px;
     box-sizing: border-box;
     white-space: nowrap;
@@ -63,17 +63,17 @@ const Wrap = styled.div`
     padding: 0 10px;
     font-size: 12px;
     margin-left: 5px;
-    background: #4caf50;
+    background: var(--color-success);
   }
   .appIntroWrap {
     margin: 2px 10px 0 0;
   }
   .count {
-    color: #fff;
+    color: var(--color-white);
     border-radius: 20px;
     min-width: 20px;
     height: 20px;
-    background-color: #f76d6d;
+    background-color: var(--color-error);
     width: auto;
     padding: 0 6px;
     display: flex;
@@ -105,7 +105,7 @@ const Wrap = styled.div`
   }
   .appPkgHeaderWrap .commonUserHandleWrap .appPkgHeaderSearch .icon,
   .appPkgHeaderWrap .commonUserHandleWrap .workflowHelpIconWrap .icon {
-    color: #fff;
+    color: var(--color-white);
   }
   &.commonWrap {
     .appPkgHeaderWrap {
@@ -207,11 +207,17 @@ export default class UpgradeStatus extends Component {
     if (pcNaviStyle === 1) {
       const renderContent = ({ count, waitingExamine }, onClick) => {
         if (appStatus === 4) {
-          return <div className="flexRow alignItemsCenter pointer White backlogWrap"></div>;
+          return (
+            <div className="flexRow alignItemsCenter pointer backlogWrap" style={{ color: 'var(--color-white)' }}></div>
+          );
         }
 
         return (
-          <div className="flexRow alignItemsCenter pointer White backlogWrap" onClick={onClick}>
+          <div
+            className="flexRow alignItemsCenter pointer backlogWrap"
+            style={{ color: 'var(--color-white)' }}
+            onClick={onClick}
+          >
             <Icon icon="task_alt" className="Font18" />
             <div className="mLeft5 mRight5 bold">{_l('待办')}</div>
             {!!count && <div className="count">{count}</div>}
@@ -268,7 +274,7 @@ export default class UpgradeStatus extends Component {
       return (
         <Wrap className="leftWrap flexRow">
           {this.renderHeader()}
-          <div className="flex" style={{ background: '#f5f5f5' }}>
+          <div className="flex" style={{ background: 'var(--color-background-secondary)' }}>
             <UpgradeContent appPkg={appPkg} showLeftSkeleton={false} />
           </div>
         </Wrap>

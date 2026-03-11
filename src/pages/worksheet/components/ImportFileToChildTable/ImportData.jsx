@@ -31,20 +31,20 @@ const Header = styled.div`
     font-weight: 500;
     left: 24px;
     font-size: 17px;
-    color: #151515;
+    color: var(--color-text-title);
   }
   .tabs {
     display: inline-block;
     .tab {
       cursor: pointer;
-      color: #757575;
+      color: var(--color-text-secondary);
       display: inline-block;
       padding: 0 5px;
       line-height: 45px;
       border-bottom: 3px solid transparent;
       &.active {
-        border-bottom-color: #1677ff;
-        color: #1677ff;
+        border-bottom-color: var(--color-primary);
+        color: var(--color-primary);
       }
       &:first-child {
         margin-right: 30px;
@@ -340,7 +340,7 @@ function PasteEdit(props) {
   return (
     <div>
       <PasteHeader>
-        <div className="Font13 Gray_75">
+        <div className="Font13 textSecondary">
           {_l('已隐藏不可导入字段。使用 %0 + V 从 Excel 中粘贴数据，%0 + Z 撒销上次操作', ctrlChar)}
         </div>
         <div className="right">
@@ -374,7 +374,7 @@ function PasteEdit(props) {
             onChange={setSplitCharType}
           />
           <Tooltip title={_l('切换分隔符，仅针对新粘贴数据有效，已有数据不会产生影响”')}>
-            <i className="infoIcon icon icon-info_outline Font18 Gray_bd"></i>
+            <i className="infoIcon icon icon-info_outline Font18 textDisabled"></i>
           </Tooltip>
         </div>
       </PasteHeader>

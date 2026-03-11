@@ -10,8 +10,8 @@ const TOOLS_ITEM = styled.span`
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  color: #5b00a6;
-  background: #f9e6ff;
+  color: var(--color-mingo-dark);
+  background: #eee3ff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -20,16 +20,16 @@ const TOOLS_ITEM = styled.span`
   margin-top: 5px;
   position: relative;
   &.executing {
-    border: 5px solid #fff;
+    border: 5px solid var(--color-white);
     font-size: 12px;
     & ~ span:not(.executing) {
-      color: #fff;
-      background: #bdbdbd !important;
+      color: var(--color-white);
+      background: var(--color-text-disabled) !important;
     }
   }
   .icon-agent_loading {
     position: absolute;
-    color: #2196f3;
+    color: var(--color-link-hover);
     display: inline-block;
     animation: rotate 1.2s linear infinite;
     font-size: 32px;
@@ -63,7 +63,7 @@ export default class Agent extends Component {
     return (
       <Fragment>
         <div className={cx('pLeft8 pRight8', { 'pTop3 pBottom3': item.tools.length })}>
-          <span className="Gray_75">
+          <span className="textSecondary">
             {getToolName(workflowTestRunning[`${processId}_${item.id}`]?.toolName) ||
               (item.appId === 'auto'
                 ? _l('自动选择模型')
@@ -93,7 +93,8 @@ export default class Agent extends Component {
   }
 
   render() {
-    const { processId, item, disabled, selectNodeId, openDetail, isSimple, data, startEventId } = this.props;
+    const { processId, item, disabled, selectNodeId, openDetail, isSimple, data, startEventId, moduleType } =
+      this.props;
 
     return (
       <div className="flexColumn">
@@ -113,13 +114,20 @@ export default class Agent extends Component {
             <NodeOperate
               nodeClassName="BGDarkViolet"
               {...this.props}
-              noDelete={data[startEventId].appType === APP_TYPE.CHATBOT && data[startEventId].nextId === item.id}
+              noDelete={
+                (data[startEventId].appType === APP_TYPE.CHATBOT && data[startEventId].nextId === item.id) ||
+                moduleType === 1
+              }
             />
             <div className="workflowContent Font13">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? (
+                <span className="pLeft8 pRight8 textSecondary">{_l('加载中...')}</span>
+              ) : (
+                this.renderContent()
+              )}
             </div>
           </div>
-          <CreateNode {...this.props} />
+          <CreateNode {...this.props} disabled={moduleType === 1} />
         </section>
       </div>
     );

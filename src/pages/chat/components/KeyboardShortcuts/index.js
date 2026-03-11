@@ -8,26 +8,23 @@ const DialogWrap = styled(Dialog)`
   height: 560px !important;
   max-height: 560px !important;
   .mui-dialog-header {
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-primary);
     display: none;
   }
   .mui-dialog-body {
     padding: 0 !important;
     overflow: hidden !important;
   }
-  .Gray_15 {
-    color: #151515;
-  }
   .container {
     height: 100%;
     display: flex;
     border-radius: 8px;
     overflow: hidden;
-    background: #fff;
+    background: var(--color-background-primary);
   }
   .sidebarWrap {
     width: 200px;
-    background-color: #fafafa;
+    background-color: var(--color-background-secondary);
   }
   .sidebarItem {
     height: 36px;
@@ -35,12 +32,12 @@ const DialogWrap = styled(Dialog)`
     padding: 0 24px;
     cursor: pointer;
     &:hover {
-      background-color: rgba(0, 0, 0, 0.06);
+      background-color: var(--color-background-hover);
     }
     &.active {
       font-weight: bold;
-      color: #2196f3;
-      background-color: #e3f3ff;
+      color: var(--color-link-hover);
+      background-color: var(--color-primary-transparent);
     }
   }
   .shortcutSection {
@@ -50,6 +47,7 @@ const DialogWrap = styled(Dialog)`
     height: 100%;
     padding: 0 36px 20px;
     overflow-y: auto;
+    background-color: var(--color-background-card);
   }
   .shortcutItem {
     height: 36px;
@@ -61,20 +59,20 @@ const DialogWrap = styled(Dialog)`
     padding: 0px 5px;
     text-align: center;
     border-radius: 3px;
-    background-color: #f5f5f5;
-    border: 1px solid #ddd;
+    background-color: var(--color-background-secondary);
+    border: 1px solid var(--color-border-primary);
     margin-left: 6px;
     font-family: -apple-system、Segoe UI Variable Display、Segoe UI-MONOSPACE;
   }
   .subTitle {
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     padding-bottom: 10px;
   }
   .sectionTitle {
     margin-top: 30px;
     font-size: 14px;
     font-weight: bold;
-    color: #151515;
+    color: var(--color-text-title);
   }
 `;
 
@@ -114,7 +112,7 @@ export default function KeyboardShortcuts(props) {
 
     return shortcuts.map((shortcut, index) => (
       <div key={index} className="shortcutItem flexRow alignItemsCenter">
-        <span className="Gray_15 flex">{shortcut.action}</span>
+        <span className="textPrimary flex">{shortcut.action}</span>
         {renderShortcut(shortcut)}
       </div>
     ));
@@ -131,7 +129,7 @@ export default function KeyboardShortcuts(props) {
           data.children.map((child, index) => (
             <div key={index}>
               {child.section && (
-                <div className={level === 0 ? 'sectionTitle subTitle' : 'mTop20 Gray_75'}>{child.section}</div>
+                <div className={level === 0 ? 'sectionTitle subTitle' : 'mTop20 textSecondary'}>{child.section}</div>
               )}
 
               {renderContent(child, level + 1)}
@@ -145,7 +143,7 @@ export default function KeyboardShortcuts(props) {
     return (
       <div key={sectionIndex} className="shortcutSection">
         <div className="Font18 bold mTop18 mBottom8">{section.section}</div>
-        <div className="Gray_75">{section.description}</div>
+        <div className="textSecondary">{section.description}</div>
         <div className="sectionContent mTop20">{renderContent(section)}</div>
       </div>
     );

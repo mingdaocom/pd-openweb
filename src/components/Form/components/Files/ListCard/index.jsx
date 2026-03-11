@@ -118,7 +118,7 @@ const ListCard = props => {
     >
       {allowSort && (
         <DragHandle>
-          <Icon className="fileDrag Gray_9e" icon="drag" />
+          <Icon className="fileDrag textTertiary" icon="drag" />
         </DragHandle>
       )}
       <div
@@ -138,7 +138,7 @@ const ListCard = props => {
           {data.originalFilename}
           {data.ext}
         </span>
-        {isKc && <Icon className="Font17 Gray_9e mLeft8" icon="knowledge1" />}
+        {isKc && <Icon className="Font17 textTertiary mLeft8" icon="knowledge1" />}
       </div>
       <div className="fileSize">{fileSize}</div>
       <div className="fileCreateTime">{createTimeSpan(moment(data.createTime).format('YYYY-MM-DD HH:mm:ss'))}</div>
@@ -168,7 +168,7 @@ const ListCard = props => {
                   >
                     <Tooltip title={_l('重命名')} placement="bottom">
                       <div className="btnWrap pointer" onClick={() => setIsEdit(true)}>
-                        <Icon className="Gray_9e Font20" icon="rename_input" />
+                        <Icon className="textTertiary Font20" icon="rename_input" />
                       </div>
                     </Tooltip>
                   </ResetNamePopup>
@@ -186,14 +186,14 @@ const ListCard = props => {
                         });
                       }}
                     >
-                      <Icon className="Gray_9e Font17" icon="download" />
+                      <Icon className="textTertiary Font17" icon="download" />
                     </div>
                   </Tooltip>
                 )}
                 {isDeleteFile && (
                   <Tooltip title={_l('删除')} placement="bottom">
                     <div className="btnWrap pointer delete" onClick={() => setDeleteConfirmVisible(true)}>
-                      <Icon className="Gray_9e Font17" icon="trash" />
+                      <Icon className="textTertiary Font17" icon="trash" />
                     </div>
                   </Tooltip>
                 )}
@@ -214,7 +214,7 @@ const ListCard = props => {
                   >
                     <Tooltip title={_l('更多')} placement="bottom">
                       <div className="btnWrap pointer">
-                        <Icon className="Gray_9e Font17" icon="more_horiz" />
+                        <Icon className="textTertiary Font17" icon="more_horiz" />
                       </div>
                     </Tooltip>
                   </Trigger>
@@ -246,7 +246,7 @@ const NotSaveListCard = props => {
 
   return (
     <div className={cx('attachmentListCard flexRow alignItemsCenter', { mobile: isMobile, hover: isEdit })}>
-      {allowSort && <Icon className="fileDrag Gray_9e" icon="drag" />}
+      {allowSort && <Icon className="fileDrag textTertiary" icon="drag" />}
       <div
         className={cx('fileImageWrap pointer h100 flexRow alignItemsCenter justifyContentCenter', {
           mLeft0: !allowSort,
@@ -260,7 +260,7 @@ const NotSaveListCard = props => {
           {data.originalFileName}
           {data.fileExt}
         </span>
-        {isKc && <Icon className="Font17 Gray_9e mLeft8" icon="knowledge1" />}
+        {isKc && <Icon className="Font17 textTertiary mLeft8" icon="knowledge1" />}
       </div>
       <div className="fileSize">{fileSize}</div>
       <div className="fileCreateTime">{_l('刚刚')}</div>
@@ -278,7 +278,7 @@ const NotSaveListCard = props => {
             >
               <Tooltip title={_l('重命名')} placement="bottom">
                 <div className="btnWrap pointer" onClick={() => setIsEdit(true)}>
-                  <Icon className="Gray_9e Font20" icon="rename_input" />
+                  <Icon className="textTertiary Font20" icon="rename_input" />
                 </div>
               </Tooltip>
             </ResetNamePopup>
@@ -290,7 +290,7 @@ const NotSaveListCard = props => {
                 isKc ? onDeleteKCFile(data) : onDeleteFile(data);
               }}
             >
-              <Icon className="Gray_9e Font17" icon="trash" />
+              <Icon className="textTertiary Font17" icon="trash" />
             </div>
           </Tooltip>
         </div>
@@ -327,8 +327,8 @@ export default props => {
             isRound={false}
             strokeWidth={3}
             diameter={47}
-            foregroundColor="#BDBDBD"
-            backgroundColor="#fff"
+            foregroundColor="var(--color-text-disabled)"
+            backgroundColor="var(--color-background-primary)"
             format={() => ''}
             percent={parseInt(progress)}
           />

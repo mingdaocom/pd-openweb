@@ -98,11 +98,11 @@ export default function BtnTd(props) {
     return _l('未分配视图');
   };
   const color = !it.color
-    ? '#1677ff'
+    ? 'var(--color-primary)'
     : it.color === 'transparent' && !it.icon
-      ? '#9e9e9e'
+      ? 'var(--color-text-tertiary)'
       : it.color === 'transparent'
-        ? '#151515'
+        ? 'var(--color-text-title)'
         : it.color;
   return (
     <div className="printTemplatesList-tr printBtnsList-tr">
@@ -175,9 +175,9 @@ export default function BtnTd(props) {
       <div className="views flex mRight20">
         <div className="viewsBox">
           {it.isAllView === 1 ? (
-            <span className="viewText Gray">{_l('所有记录')}</span>
+            <span className="viewText textPrimary">{_l('所有记录')}</span>
           ) : (
-            <span className="viewText Gray" style={{ WebkitBoxOrient: 'vertical' }}>
+            <span className="viewText textPrimary" style={{ WebkitBoxOrient: 'vertical' }}>
               {renderTxt()}
             </span>
           )}
@@ -246,7 +246,7 @@ export default function BtnTd(props) {
       <div className="more w80px TxtCenter">
         <Icon
           icon="more_horiz"
-          className="moreActive Hand Font18 Gray_9e Hover_21"
+          className="moreActive Hand Font18 textTertiary hoverColorPrimary"
           onClick={() => {
             setState({
               showMoreOption: true,
@@ -266,7 +266,7 @@ export default function BtnTd(props) {
                 },
               });
             }}
-            delTxt={_l('删除动作')}
+            delTxt={_l('删除')}
             description={_l('动作将被删除，请确认执行此操作')}
             showMoreOption={showMoreOption}
             onClickAwayExceptions={[]}

@@ -80,7 +80,7 @@ export default function FormExtend(props) {
         onClose={() => checkConfigChanged(() => navigateToApp(worksheetId))}
       />
       {!isloading && !hasCharge && (
-        <div className="w100 WhiteBG Absolute" style={{ top: 0, bottom: 0 }}>
+        <div className="w100 bgPrimary Absolute" style={{ top: 0, bottom: 0 }}>
           <ErrorState
             text={_l('权限不足，无法编辑')}
             showBtn

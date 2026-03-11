@@ -64,7 +64,7 @@ export default function Aggregate(props) {
   return (
     <WrapL>
       <div className="title Bold">{_l('分类汇总')}</div>
-      <div className="des mTop15 Gray_9e">{_l('对源数据进行分类和汇总统计运算后，作为新的数据进入本节点。')}</div>
+      <div className="des mTop15 textTertiary">{_l('对源数据进行分类和汇总统计运算后，作为新的数据进入本节点。')}</div>
       <div className="title mTop16">{_l('分类字段')}</div>
       <div className="groupCon">
         {groupFields.map((o, item) => {
@@ -76,7 +76,10 @@ export default function Aggregate(props) {
                 </React.Fragment>
               ) : (
                 <React.Fragment>
-                  <span className="Gray itemOpName overflow_ellipsis WordBreak InlineBlock" title={o.alias || o.name}>
+                  <span
+                    className="textPrimary itemOpName overflow_ellipsis WordBreak InlineBlock"
+                    title={o.alias || o.name}
+                  >
                     {o.alias || o.name}
                   </span>
                   {!isTimeTypes(o) ? (
@@ -164,10 +167,13 @@ export default function Aggregate(props) {
                 </React.Fragment>
               ) : (
                 <React.Fragment>
-                  <span className="Gray itemOpName overflow_ellipsis WordBreak InlineBlock" title={o.alias || o.name}>
+                  <span
+                    className="textPrimary itemOpName overflow_ellipsis WordBreak InlineBlock"
+                    title={o.alias || o.name}
+                  >
                     {o.alias || o.name}
                   </span>
-                  <span className="Gray_bd">{str && `(${str})`}</span>
+                  <span className="textDisabled">{str && `(${str})`}</span>
                   <DropOption
                     list={getAggregateData(o.jdbcTypeId, o.isRowsCount)}
                     popupVisible={!o.aggFuncType || (popupVisible && item + 1 === aggregateFields.length)}

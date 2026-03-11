@@ -22,7 +22,7 @@ function MedalContent(props) {
                 {medalName}
               </p>
               <p
-                style={{ color: '#777', fontSize: '12px', lineHeight: '20px' }}
+                style={{ color: 'var(--color-text-secondary)', fontSize: '12px', lineHeight: '20px' }}
                 dangerouslySetInnerHTML={{ __html: description }}
               />
             </td>

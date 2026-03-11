@@ -54,6 +54,9 @@ module.exports = {
     getAttachmentDetail: function (data) {
       return window.api.call('worksheet', 'getAttachmentDetail', data);
     },
+    getAttachmentList: function (data) {
+      return window.api.call('worksheet', 'getAttachmentList', data);
+    },
     getAttachmentShareId: function (data) {
       return window.api.call('worksheet', 'getAttachmentShareId', data);
     },
@@ -116,6 +119,9 @@ module.exports = {
     },
     getFilterRows: function (data) {
       return window.api.call('worksheet', 'getFilterRows', data);
+    },
+    chooseRelationRows: function (data) {
+      return window.api.call('worksheet', 'chooseRelationRows', data);
     },
     getFilterRowsByQueryDefault: function (data) {
       return window.api.call('worksheet', 'getFilterRowsByQueryDefault', data);
@@ -237,6 +243,9 @@ module.exports = {
     getWorksheetControls: function (data) {
       return window.api.call('worksheet', 'getWorksheetControls', data);
     },
+    getControlsByIds: function (data) {
+      return window.api.call('worksheet', 'getControlsByIds', data);
+    },
     getAiFieldRecommendation: function (data) {
       return window.api.call('worksheet', 'getAiFieldRecommendation', data);
     },
@@ -266,6 +275,9 @@ module.exports = {
     },
     getPrintList: function (data) {
       return window.api.call('worksheet', 'getPrintList', data);
+    },
+    getPrintDetailList: function (data) {
+      return window.api.call('worksheet', 'getPrintDetailList', data);
     },
     getFormComponent: function (data) {
       return window.api.call('worksheet', 'getFormComponent', data);
@@ -302,6 +314,9 @@ module.exports = {
     },
     deletePrint: function (data) {
       return window.api.call('worksheet', 'deletePrint', data);
+    },
+    copyPrint: function (data) {
+      return window.api.call('worksheet', 'copyPrint', data);
     },
     getRowIndexes: function (data) {
       return window.api.call('worksheet', 'getRowIndexes', data);
@@ -341,6 +356,9 @@ module.exports = {
     },
     getWorksheetApiInfo: function (data) {
       return window.api.call('worksheet', 'getWorksheetApiInfo', data);
+    },
+    handleAIRequest: function (data) {
+      return window.api.call('worksheet', 'handleAIRequest', data);
     },
     getCollectionsByAppId: function (data) {
       return window.api.call('worksheet', 'getCollectionsByAppId', data);
@@ -410,6 +428,12 @@ module.exports = {
     },
     getWorksheetCurrencyInfos: function (data) {
       return window.api.call('worksheet', 'getWorksheetCurrencyInfos', data);
+    },
+    setFollow: function (data) {
+      return window.api.call('worksheet', 'setFollow', data);
+    },
+    getFollower: function (data) {
+      return window.api.call('worksheet', 'getFollower', data);
     },
 },
 appManagement: {
@@ -533,6 +557,9 @@ appManagement: {
     getAppsByProject: function (data) {
       return window.api.call('appManagement', 'getAppsByProject', data);
     },
+    getAppItems: function (data) {
+      return window.api.call('appManagement', 'getAppItems', data);
+    },
     getApps: function (data) {
       return window.api.call('appManagement', 'getApps', data);
     },
@@ -572,6 +599,9 @@ appManagement: {
     addWorkSheet: function (data) {
       return window.api.call('appManagement', 'addWorkSheet', data);
     },
+    updateChatBotDesc: function (data) {
+      return window.api.call('appManagement', 'updateChatBotDesc', data);
+    },
     addSheet: function (data) {
       return window.api.call('appManagement', 'addSheet', data);
     },
@@ -580,6 +610,9 @@ appManagement: {
     },
     copyCustomPage: function (data) {
       return window.api.call('appManagement', 'copyCustomPage', data);
+    },
+    copyChatBot: function (data) {
+      return window.api.call('appManagement', 'copyChatBot', data);
     },
     addAuthorize: function (data) {
       return window.api.call('appManagement', 'addAuthorize', data);
@@ -650,6 +683,9 @@ appManagement: {
     getExportsByApp: function (data) {
       return window.api.call('appManagement', 'getExportsByApp', data);
     },
+    getExportsByProject: function (data) {
+      return window.api.call('appManagement', 'getExportsByProject', data);
+    },
     getExportPassword: function (data) {
       return window.api.call('appManagement', 'getExportPassword', data);
     },
@@ -704,6 +740,15 @@ appManagement: {
     usageStatisticsForDimension: function (data) {
       return window.api.call('appManagement', 'usageStatisticsForDimension', data);
     },
+    isFirstInactiveUsers: function (data) {
+      return window.api.call('appManagement', 'isFirstInactiveUsers', data);
+    },
+    queryInactiveUsers: function (data) {
+      return window.api.call('appManagement', 'queryInactiveUsers', data);
+    },
+    pagedInactiveUsers: function (data) {
+      return window.api.call('appManagement', 'pagedInactiveUsers', data);
+    },
     getGlobalLogs: function (data) {
       return window.api.call('appManagement', 'getGlobalLogs', data);
     },
@@ -749,6 +794,9 @@ appManagement: {
     getUpgradeLogs: function (data) {
       return window.api.call('appManagement', 'getUpgradeLogs', data);
     },
+    getUpgradeLogsByProject: function (data) {
+      return window.api.call('appManagement', 'getUpgradeLogsByProject', data);
+    },
     getMdyInfo: function (data) {
       return window.api.call('appManagement', 'getMdyInfo', data);
     },
@@ -778,6 +826,12 @@ appManagement: {
     },
     getAppLangDetail: function (data) {
       return window.api.call('appManagement', 'getAppLangDetail', data);
+    },
+    loadRelationLangData: function (data) {
+      return window.api.call('appManagement', 'loadRelationLangData', data);
+    },
+    getRelationAppLangDetail: function (data) {
+      return window.api.call('appManagement', 'getRelationAppLangDetail', data);
     },
     editAppLang: function (data) {
       return window.api.call('appManagement', 'editAppLang', data);
@@ -883,8 +937,14 @@ homeApp: {
     getAppItemDetail: function (data) {
       return window.api.call('homeApp', 'getAppItemDetail', data);
     },
+    getItemDetailByAppId: function (data) {
+      return window.api.call('homeApp', 'getItemDetailByAppId', data);
+    },
     getApp: function (data) {
       return window.api.call('homeApp', 'getApp', data);
+    },
+    getAppLangInfo: function (data) {
+      return window.api.call('homeApp', 'getAppLangInfo', data);
     },
     checkApp: function (data) {
       return window.api.call('homeApp', 'checkApp', data);
@@ -1069,6 +1129,15 @@ instanceVersion: {
     batch: function (data) {
       return window.api.call('instanceVersion', 'batch', data);
     },
+    batch2: function (data) {
+      return window.api.call('instanceVersion', 'batch2', data);
+    },
+    pass2: function (data) {
+      return window.api.call('instanceVersion', 'pass2', data);
+    },
+    overrule2: function (data) {
+      return window.api.call('instanceVersion', 'overrule2', data);
+    },
     endInstance: function (data) {
       return window.api.call('instanceVersion', 'endInstance', data);
     },
@@ -1169,6 +1238,12 @@ process: {
     },
     updateUseStatus: function (data) {
       return window.api.call('process', 'updateUseStatus', data);
+    },
+    getChatbotConfig: function (data) {
+      return window.api.call('process', 'getChatbotConfig', data);
+    },
+    saveChatbotConfig: function (data) {
+      return window.api.call('process', 'saveChatbotConfig', data);
     },
 },
 processVersion: {
@@ -1333,6 +1408,136 @@ plugin: {
     },
     stateRead: function (data) {
       return window.api.call('plugin', 'stateRead', data);
+    },
+},
+fixedData: {
+    loadProvince: function (data) {
+      return window.api.call('fixedData', 'loadProvince', data);
+    },
+    loadCityCountyById: function (data) {
+      return window.api.call('fixedData', 'loadCityCountyById', data);
+    },
+    getCityByID: function (data) {
+      return window.api.call('fixedData', 'getCityByID', data);
+    },
+    getCitysByParentID: function (data) {
+      return window.api.call('fixedData', 'getCitysByParentID', data);
+    },
+    getAllPathCitysByID: function (data) {
+      return window.api.call('fixedData', 'getAllPathCitysByID', data);
+    },
+    getRegionConfigInfos: function (data) {
+      return window.api.call('fixedData', 'getRegionConfigInfos', data);
+    },
+    loadIndustry: function (data) {
+      return window.api.call('fixedData', 'loadIndustry', data);
+    },
+    checkSensitive: function (data) {
+      return window.api.call('fixedData', 'checkSensitive', data);
+    },
+    loadTimeZones: function (data) {
+      return window.api.call('fixedData', 'loadTimeZones', data);
+    },
+    loadExtraDatas: function (data) {
+      return window.api.call('fixedData', 'loadExtraDatas', data);
+    },
+    loadLangList: function (data) {
+      return window.api.call('fixedData', 'loadLangList', data);
+    },
+    loadHostKeys: function (data) {
+      return window.api.call('fixedData', 'loadHostKeys', data);
+    },
+},
+user: {
+    getUserListByAccountId: function (data) {
+      return window.api.call('user', 'getUserListByAccountId', data);
+    },
+    getUserCard: function (data) {
+      return window.api.call('user', 'getUserCard', data);
+    },
+    getAccountBaseInfo: function (data) {
+      return window.api.call('user', 'getAccountBaseInfo', data);
+    },
+    checkAccountSecured: function (data) {
+      return window.api.call('user', 'checkAccountSecured', data);
+    },
+    getAccountDetail: function (data) {
+      return window.api.call('user', 'getAccountDetail', data);
+    },
+    getUsersByKeywords: function (data) {
+      return window.api.call('user', 'getUsersByKeywords', data);
+    },
+    getOftenMetionedUser: function (data) {
+      return window.api.call('user', 'getOftenMetionedUser', data);
+    },
+    getContactUserList: function (data) {
+      return window.api.call('user', 'getContactUserList', data);
+    },
+    getProjectResignedUserList: function (data) {
+      return window.api.call('user', 'getProjectResignedUserList', data);
+    },
+    getProjectContactUserListByApp: function (data) {
+      return window.api.call('user', 'getProjectContactUserListByApp', data);
+    },
+    getLeaveUserList: function (data) {
+      return window.api.call('user', 'getLeaveUserList', data);
+    },
+    sendNotice: function (data) {
+      return window.api.call('user', 'sendNotice', data);
+    },
+    validateUserIsProjectAdmin: function (data) {
+      return window.api.call('user', 'validateUserIsProjectAdmin', data);
+    },
+    validateUserHaveFriend: function (data) {
+      return window.api.call('user', 'validateUserHaveFriend', data);
+    },
+    pagedNormalUserList: function (data) {
+      return window.api.call('user', 'pagedNormalUserList', data);
+    },
+    pagedRemovedUsers: function (data) {
+      return window.api.call('user', 'pagedRemovedUsers', data);
+    },
+    getUserOrgState: function (data) {
+      return window.api.call('user', 'getUserOrgState', data);
+    },
+    getProjectContactUserList: function (data) {
+      return window.api.call('user', 'getProjectContactUserList', data);
+    },
+    getApprovalUser: function (data) {
+      return window.api.call('user', 'getApprovalUser', data);
+    },
+    updateUserCard: function (data) {
+      return window.api.call('user', 'updateUserCard', data);
+    },
+    removeUser: function (data) {
+      return window.api.call('user', 'removeUser', data);
+    },
+    removeUsers: function (data) {
+      return window.api.call('user', 'removeUsers', data);
+    },
+    recoveryUser: function (data) {
+      return window.api.call('user', 'recoveryUser', data);
+    },
+    updateDepartmentForUsers: function (data) {
+      return window.api.call('user', 'updateDepartmentForUsers', data);
+    },
+    updateJobForUsers: function (data) {
+      return window.api.call('user', 'updateJobForUsers', data);
+    },
+    updateWorkSiteForUsers: function (data) {
+      return window.api.call('user', 'updateWorkSiteForUsers', data);
+    },
+    agreeUserJoin: function (data) {
+      return window.api.call('user', 'agreeUserJoin', data);
+    },
+    agreeUsersJoin: function (data) {
+      return window.api.call('user', 'agreeUsersJoin', data);
+    },
+    refuseUserJoin: function (data) {
+      return window.api.call('user', 'refuseUserJoin', data);
+    },
+    refuseUsersJoin: function (data) {
+      return window.api.call('user', 'refuseUsersJoin', data);
     },
 },
 

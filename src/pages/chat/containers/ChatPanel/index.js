@@ -36,6 +36,7 @@ const exceptions = [
   '.ant-picker-dropdown',
   '.addMembersMoreAction',
   '.ChatList-ContextMenu',
+  '.inboxAppFilterWrapper',
 ];
 
 class ChatPanel extends Component {
@@ -199,7 +200,7 @@ class ChatPanel extends Component {
         style={{ right: this.getRightValue() }}
         className={cx('ChatPanel-wrapper', {
           'ChatPanel-position': !embed,
-          tipBoxShadow: !embed,
+          'ChatPanel-boxShadow': !embed,
           'ChatPanel-close': _.isEmpty(currentSession),
           'ChatPanel-small': embed ? undefined : window.innerHeight < 700,
           'ChatPanel-big': embed ? undefined : window.innerHeight > 2000,

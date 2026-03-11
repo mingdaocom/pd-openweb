@@ -74,10 +74,10 @@ export const CARD_TYE_LIST = [
 ];
 
 export const TYPELIST = [
-  { name: _l('Basic Auth 认证'), actionId: '521', appType: 31 },
-  { name: _l('OAuth 2.0 认证（客户端凭证）'), actionId: '522', appType: 32 },
-  { name: _l('OAuth 2.0 认证（授权码）'), actionId: '523', appType: 32 },
-  { name: _l('API Key 或无需鉴权'), actionId: '520', appType: 30 },
+  { name: _l('Basic Auth 认证'), actionId: '521', appType: 31, text: _l('Basic Auth') },
+  { name: _l('OAuth 2.0 认证（客户端凭证）'), actionId: '522', appType: 32, text: _l('OAuth 2.0（客户端凭证）') },
+  { name: _l('OAuth 2.0 认证（授权码）'), actionId: '523', appType: 32, text: _l('OAuth 2.0（授权码）') },
+  { name: _l('API Key 或无需鉴权'), actionId: '520', appType: 30, text: _l('API Key 或无需鉴权') },
 ];
 
 export const TYPENODE = [

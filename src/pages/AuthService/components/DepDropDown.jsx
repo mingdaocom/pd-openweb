@@ -101,7 +101,7 @@ export default class DepDropDown extends Component {
                 let text = nameArr.map((item, index) => {
                   if (item === keywords) {
                     return (
-                      <span key={item + index} style={{ color: '#1677ff' }}>
+                      <span key={item + index} style={{ color: 'var(--color-primary)' }}>
                         {item}
                       </span>
                     );
@@ -197,7 +197,7 @@ export default class DepDropDown extends Component {
         allowClear={!!value}
         value={value}
         notFoundContent={
-          <div className="Gray_9e pLeft12 pBottom5">
+          <div className="textTertiary pLeft12 pBottom5">
             {keywords
               ? searchOptions === null
                 ? _l('搜索中...')

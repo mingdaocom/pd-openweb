@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Button, Skeleton } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import FilterDetailName from 'worksheet/common/WorkSheetFilter/components/FilterDetailName';
-import saveTemplateConfirm from 'src/pages/Print/components/saveTemplateConfirm';
+import saveTemplateConfirm from 'src/pages/Print/components/SaveDia/saveTemplateConfirm';
 import { FILTER } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { addBehaviorLog } from 'src/utils/project';
 import {
@@ -31,13 +31,13 @@ const Con = styled.div`
   height: 100vh
   display: flex;
   flex-direction: column;
-  background: #f1f1f1;
+  background: var(--color-background-disabled);
 `;
 
 const Header = styled.div`
   padding: 0 24px 0 3px;
   height: 50px;
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow: 0px 1px 4px 1px rgba(0, 0, 0, 0.1608);
   z-index: 2;
   display: flex;
@@ -49,11 +49,11 @@ const Header = styled.div`
     display: inline-block;
     cursor: pointer;
     font-size: 16px;
-    color: #757575;
+    color: var(--color-text-secondary);
     width: 50px;
     text-align: center;
     &:hover {
-      color: #151515;
+      color: var(--color-text-title);
     }
   }
 `;
@@ -257,6 +257,7 @@ export default function PrintQrBarCode(props) {
           status: 1,
           notGetTotal: true,
           searchType: 1,
+          getType: 7,
         });
         if (!_.isEmpty(resData.data)) {
           setPreviewRow(resData.data[0]);

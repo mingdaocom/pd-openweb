@@ -7,11 +7,11 @@ import { getShowViews } from 'src/pages/worksheet/views/util';
 
 const Wrap = styled.div`
   width: 320px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
   border-radius: 3px 3px 3px 3px;
   .viewList {
-    border-top: 1px solid #f5f5f5;
+    border-top: 1px solid var(--color-background-secondary);
     max-height: 300px;
     overflow: auto;
     .viewName {
@@ -30,18 +30,18 @@ const HeaderRange = styled.div`
   display: block;
   padding: 16px 24px;
   font-weight: bold;
-  border-bottom: 1px solid #f5f5f5;
+  border-bottom: 1px solid var(--color-background-secondary);
   .ming.icon-close {
     float: right;
   }
   .ming.icon-close:hover {
-    color: #1677ff !important;
+    color: var(--color-primary) !important;
   }
 `;
 export default function BtnRangeDrop(props) {
   const { onClose, data, onChange, views } = props;
 
-  const noBatch = (data.writeObject === 2 || data.writeType === 2) && data.clickType === 3; //配置了关联=>不能设置成批量按钮
+  const noBatch = ((data.writeObject === 2 || data.writeType === 2) && data.clickType === 3) || props.noBatch; //配置了关联=>不能设置成批量按钮
   const [{ isAllDt, isAllList, viewIds, viewSheetIds, hsDt, hsList }, setState] = useSetState({
     viewIds: [],
     viewSheetIds: [],
@@ -71,11 +71,11 @@ export default function BtnRangeDrop(props) {
 
   return (
     <Wrap className="">
-      <HeaderRange className="headerRange Font14 Gray">
+      <HeaderRange className="headerRange Font14 textPrimary">
         {_l('使用范围')}
         <Icon
           icon="close"
-          className="Font18 Gray_9e Hand"
+          className="Font18 textTertiary Hand"
           onClick={() => {
             onClose();
           }}

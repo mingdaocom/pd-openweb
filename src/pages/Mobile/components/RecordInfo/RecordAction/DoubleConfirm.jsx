@@ -18,13 +18,13 @@ const ConfirmDialogWrap = styled(Popup)`
     padding: 8px;
     font-size: 14px;
     width: 100%;
-    border: 1px solid #e6e6e6;
+    border: 1px solid var(--color-border-secondary);
     min-height: 38px;
     max-height: 10000px;
   }
   .ming.Textarea {
     padding: 8px;
-    border: 1px solid #e6e6e6;
+    border: 1px solid var(--color-border-secondary);
     min-height: 39px !important;
   }
   .ming.Textarea:hover:not(:disabled),
@@ -32,15 +32,15 @@ const ConfirmDialogWrap = styled(Popup)`
   .ant-input-affix-wrapper:focus,
   .ant-input-affix-wrapper-focused,
   .ant-input-affix-wrapper:not(.ant-input-affix-wrapper-disabled):hover {
-    border: 1px solid #e6e6e6;
+    border: 1px solid var(--color-border-secondary);
     box-shadow: none !important;
   }
   .ant-input-password-icon,
   .ant-input-password-icon:hover {
-    color: #9e9e9e !important;
+    color: var(--color-text-tertiary) !important;
   }
   .ming.Textarea::-webkit-input-placeholder {
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
   .actionsWrap {
     margin-bottom: 10px;
@@ -51,19 +51,19 @@ const ConfirmDialogWrap = styled(Popup)`
       border-radius: 18px;
     }
     .ming.Button--link {
-      border: 1px solid #ddd;
+      border: 1px solid var(--color-border-primary);
     }
     .ming.Button--primary {
-      background: #1677ff;
+      background: var(--color-primary);
     }
     .ming.Button--primary:hover {
-      background: #1677ff;
+      background: var(--color-primary);
     }
   }
 `;
 const SectionName = styled.div`
   font-size: 13px;
-  color: #151515;
+  color: var(--color-text-title);
   font-weight: 500;
   margin: 0px 0 10px;
   position: relative;
@@ -72,7 +72,7 @@ const SectionName = styled.div`
       position: absolute;
       left: -10px;
       top: 3px;
-      color: red;
+      color: var(--color-error);
       content: '*';
     }
   }
@@ -81,7 +81,7 @@ const SectionName = styled.div`
     right: 0;
     top: 0;
     font-weight: 400;
-    color: #1677ff;
+    color: var(--color-primary);
   }
 `;
 
@@ -90,15 +90,15 @@ const RemarkModeModal = styled(Popup)`
     padding: 10px;
   }
   .searchWrap {
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     border-radius: 3px;
     padding: 0 10px;
     height: 36px;
     border-radius: 18px;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
     input {
       height: 100%;
-      background-color: #f5f5f5;
+      background-color: var(--color-background-secondary);
       border: none;
       &:hover {
         border: none;
@@ -111,7 +111,7 @@ const RemarkModeModal = styled(Popup)`
     }
   }
   .modeItem {
-    border-bottom: 1px solid #f5f5f5;
+    border-bottom: 1px solid var(--color-background-secondary);
     padding: 16px 8px 16px 0;
     margin-left: 6px;
     text-align: left;
@@ -123,13 +123,13 @@ const RemarkModeModal = styled(Popup)`
     border-radius: 18px;
   }
   .ming.Button--link {
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
   }
   .ming.Button--primary {
-    background: #1677ff;
+    background: var(--color-primary);
   }
   .ming.Button--primary:hover {
-    background: #1677ff;
+    background: var(--color-primary);
   }
 `;
 
@@ -142,7 +142,7 @@ function RemarkMode(props) {
     <RemarkModeModal className="mobileModal full" onClose={onClose} visible={visible}>
       <div className="h100 flexColumn">
         <div className="searchWrap flexRow valignWrapper">
-          <Icon icon="h5_search" className="Gray_9e Font17" />
+          <Icon icon="h5_search" className="textTertiary Font17" />
           <Input
             className="search"
             placeholder={_l('搜索')}
@@ -154,7 +154,7 @@ function RemarkMode(props) {
         </div>
         {!isFreeInput && (
           <span
-            className="Font13 ThemeColor modeItem"
+            className="Font13 colorPrimary modeItem"
             onClick={() => {
               setRemarkValue('');
               onClose();
@@ -167,7 +167,7 @@ function RemarkMode(props) {
           {listData.map((item, index) => (
             <div
               key={index}
-              className="modeItem Gray"
+              className="modeItem textPrimary"
               onClick={() => {
                 setRemarkValue(item.value);
                 isFreeInput && setIsInput(true);
@@ -256,11 +256,13 @@ function DoubleConfirm(props) {
 
   return (
     <ConfirmDialogWrap className={cx('mobileModal topRadius', className)} onClose={onClose} visible={visible}>
-      <div className={cx('Gray Font17 mBottom12 bold', { mBottom24: !description && !enableRemark && !verifyPwd })}>
+      <div
+        className={cx('textPrimary Font17 mBottom12 bold', { mBottom24: !description && !enableRemark && !verifyPwd })}
+      >
         {enableConfirm ? title : _l('安全验证')}
       </div>
       {description && (
-        <div className="Gray_9e Font14 mBottom12" style={{ marginTop: -10 }}>
+        <div className="textTertiary Font14 mBottom12" style={{ marginTop: -10 }}>
           {description}
         </div>
       )}
@@ -290,13 +292,13 @@ function DoubleConfirm(props) {
           {isInput || !remarkoptions || (isFreeInput && _.isEmpty(template)) ? (
             <Textarea
               placeholder={remarkHint || ''}
-              className="mBottom24 Gray"
+              className="mBottom24 textPrimary"
               onChange={val => setRemarkValue(val)}
               value={remarkValue}
             />
           ) : (
             <div className="remarkButton mBottom24 flexRow" onClick={() => setRemarkModeVisible(true)}>
-              <div className={cx('flex ellipsis', { Gray_bd: !remarkValue, Gray: remarkValue })}>
+              <div className={cx('flex ellipsis', { textDisabled: !remarkValue, textPrimary: remarkValue })}>
                 {remarkValue ? remarkValue : remarkHint}
               </div>
               {(!isFreeInput || (isFreeInput && !remarkValue)) && <Icon icon="arrow-right-border" className="mTop3" />}
@@ -306,7 +308,7 @@ function DoubleConfirm(props) {
       )}
 
       <div className="actionsWrap flexRow">
-        <Button type="link" onClick={onClose} className="Gray_75 Font14 mRight10">
+        <Button type="link" onClick={onClose} className="textSecondary Font14 mRight10">
           {cancelText || _l('取消')}
         </Button>
         <Button

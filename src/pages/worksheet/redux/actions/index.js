@@ -2,7 +2,6 @@ import update from 'immutability-helper';
 import _, { find, flatten, get, includes, some, values } from 'lodash';
 import appManagementAjax from 'src/api/appManagement';
 import worksheetAjax from 'src/api/worksheet';
-import { initBoardViewData as mobileInitBoardViewData } from 'mobile/RecordList/redux/actions';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import {
   formatFilterValues,
@@ -18,7 +17,6 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import { AREA } from 'src/pages/worksheet/common/Sheet/GroupFilter/constants.js';
 import { getTranslateInfo } from 'src/utils/app';
-import { browserIsMobile } from 'src/utils/common';
 import { getHighAuthControls } from 'src/utils/control';
 import { needHideViewFilters } from 'src/utils/filter';
 import { addBehaviorLog } from 'src/utils/project';
@@ -223,6 +221,7 @@ export function loadWorksheet(worksheetId, setRequest) {
     worksheetRequest
       .then(async res => {
         const translateInfo = getTranslateInfo(appId, null, worksheetId);
+        res.name = translateInfo.name || res.name;
         res.entityName = translateInfo.recordName || res.entityName;
         if (_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) {
           res.allowAdd = false;
@@ -273,6 +272,7 @@ export function loadWorksheet(worksheetId, setRequest) {
         worksheetRequest = worksheetAjax.getWorksheetInfo({ ...args, resultType: undefined });
         worksheetRequest.then(async infoRes => {
           let queryRes;
+          infoRes.name = translateInfo.name || infoRes.name;
           if (infoRes.isWorksheetQuery) {
             queryRes = await worksheetAjax.getQueryBySheetId({ worksheetId }, { silent: true });
           }
@@ -285,6 +285,7 @@ export function loadWorksheet(worksheetId, setRequest) {
               value: formatSearchConfigs(queryRes),
             });
           }
+          window[`timeZone_${appId}`] = infoRes.appTimeZone;
           const newControls = replaceControlsTranslateInfo(appId, worksheetId, _.get(infoRes, 'template.controls'));
           infoRes.entityName = translateInfo.recordName || infoRes.entityName;
           if (infoRes.advancedSetting) {
@@ -296,6 +297,13 @@ export function loadWorksheet(worksheetId, setRequest) {
           }
           if (infoRes.rules && infoRes.rules.length) {
             infoRes.rules = replaceRulesTranslateInfo(appId, worksheetId, res.rules);
+          }
+          if (infoRes.views) {
+            infoRes.views.forEach(view => {
+              (view.viewControls || []).forEach(item => {
+                item.worksheetName = getTranslateInfo(appId, null, item.worksheetId).name || item.worksheetName;
+              });
+            });
           }
           if (_.isEmpty(newControls)) {
             return;
@@ -552,12 +560,8 @@ export function addNewRecord(data, view) {
       dispatch(sheetViewAddRecord(data));
       dispatch(updateNavGroup());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.board) {
-      if (browserIsMobile()) {
-        dispatch(mobileInitBoardViewData());
-      } else {
-        dispatch(initBoardViewData());
-        dispatch(updateNavGroup());
-      }
+      dispatch(initBoardViewData());
+      dispatch(updateNavGroup());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.structure) {
       dispatch(getDefaultHierarchyData());
       dispatch(updateNavGroup());

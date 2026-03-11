@@ -128,7 +128,7 @@ export default function AreaWidgets(props) {
             {!_.isEmpty(city) && (
               <Icon
                 icon="workflow_cancel"
-                className="Font12 Gray_9e customFormButtoDel"
+                className="Font12 textTertiary customFormButtoDel"
                 onClick={e => {
                   onChange('');
                   setSearch(undefined);
@@ -137,7 +137,7 @@ export default function AreaWidgets(props) {
                 }}
               />
             )}
-            <Icon icon="map" className="Font16 Gray_bd" />
+            <Icon icon="map" className="Font16 textDisabled" />
           </>
         )}
       </button>

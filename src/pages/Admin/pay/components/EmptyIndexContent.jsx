@@ -11,7 +11,7 @@ const DescWrap = styled.div`
   margin: 50px 0 70px;
   .item {
     border-radius: 10px;
-    border: 1px solid #ededed;
+    border: 1px solid var(--color-border-secondary);
     text-align: center;
     padding: 24px 20px;
     flex: 1;
@@ -67,17 +67,17 @@ export default function EmptyIndexContent(props) {
     <div className="h100 flexColumn alignItemsCenter justifyContentCenter pBottom20">
       <img src={data.img} style={{ width: 90 }} />
       <div className="Font24 bold mTop30">{data.title}</div>
-      <div className="Gray_75 Font18 mTop12">{data.desc}</div>
+      <div className="textSecondary Font18 mTop12">{data.desc}</div>
       <DescWrap>
         {data.cardList.map((item, index) => {
           const { title, desc, icon } = item;
           return (
             <div className="item" key={index}>
-              <div className="Gray Font17 title">
-                <Icon icon={icon} className="Black mRight8 Font24" />
+              <div className="textPrimary Font17 title">
+                <Icon icon={icon} className="textPrimary mRight8 Font24" />
                 <span>{title}</span>
               </div>
-              <div className="Gray_75 Font15 mTop10">{desc}</div>
+              <div className="textSecondary Font15 mTop10">{desc}</div>
             </div>
           );
         })}

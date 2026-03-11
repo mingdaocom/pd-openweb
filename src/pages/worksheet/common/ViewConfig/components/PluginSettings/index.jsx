@@ -9,7 +9,7 @@ import styled from 'styled-components';
 import { Icon, Input, SvgIcon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
-import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
+import { dialogSelectIcon } from 'ming-ui/functions';
 import { SwitchStyle } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
 import AddDialog from './AddDialog';
 import { controlTypeList, defaultData, PARAM_TYPES } from './config';
@@ -24,21 +24,21 @@ const Wrap = styled.div`
   .pluginSet {
     width: 440px;
     height: 36px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     border-radius: 3px 3px 3px 3px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     &:hover {
-      border: 1px solid #ccc;
+      border: 1px solid var(--color-border-tertiary);
     }
     .iconCon {
       width: 43px;
       height: 36px;
-      border: 1px solid #dddddd;
+      border: 1px solid var(--color-border-primary);
       margin: -1px;
       z-index: 0;
       border-radius: 3px 0 0 3px;
       &:hover {
-        border: 1px solid #ccc;
+        border: 1px solid var(--color-border-tertiary);
         z-index: 1;
       }
       & > div {
@@ -47,7 +47,7 @@ const Wrap = styled.div`
     }
     .Input {
       margin: -1px -1px -1px 0;
-      border: 1px solid #dddddd;
+      border: 1px solid var(--color-border-primary);
       border-radius: 0 3px 3px 0;
       &:focus,
       &:hover {
@@ -68,7 +68,7 @@ const Wrap = styled.div`
   }
 `;
 const WrapPopup = styled.div`
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
   padding: 6px 0;
   border-radius: 3px 3px 3px 3px;
@@ -78,8 +78,8 @@ const WrapPopup = styled.div`
     padding: 0 16px;
     font-weight: 400;
     &:hover {
-      background: #1677ff;
-      color: #fff;
+      background: var(--color-primary);
+      color: var(--color-white);
     }
   }
 `;
@@ -95,7 +95,7 @@ function PluginSettings(params) {
     name: _l('自定义视图'),
     iconUrl: 'https://fp1.mingdaoyun.cn/customIcon/sys_12_4_puzzle.svg',
     icon: 'sys_12_4_puzzle',
-    iconColor: '#445A65',
+    iconColor: 'var(--color-cyan-dark)',
     editInfo: null,
     visible: false,
     addVisible: false,
@@ -112,7 +112,7 @@ function PluginSettings(params) {
       name,
       icon: icon || 'sys_12_4_puzzle',
       iconUrl: iconUrl || 'https://fp1.mingdaoyun.cn/customIcon/sys_12_4_puzzle.svg',
-      iconColor: iconColor || '#445A65',
+      iconColor: iconColor || 'var(--color-cyan-dark)',
     });
   }, [params]);
   const handleSortEnd = list => {
@@ -171,40 +171,22 @@ function PluginSettings(params) {
       {/* <div className="title Bold mTop24">{_l('提交设置')}</div> */}
       <div className="tit mTop16 Bold">{_l('插件名称')}</div>
       <div className="pluginSet flexRow alignItemsCenter mTop8">
-        <Trigger
-          action={['click']}
-          popup={
-            <SelectIcon
-              className={''}
-              hideInput
-              iconColor={iconColor}
-              icon={iconUrl}
-              name={icon}
-              projectId={projectId}
-              onModify={({ iconColor, icon }) => {
-                if (iconColor) {
-                  onChangeView({ iconColor }, true);
-                } else {
-                  onChangeView({ icon: icon }, true);
-                }
-              }}
-            />
-          }
-          zIndex={1000}
-          popupAlign={{
-            points: ['tl', 'bl'],
-            offset: [-280, 0],
-            overflow: {
-              adjustX: true,
-              adjustY: true,
-            },
+        <div
+          className="iconCon flexRow alignItemsCenter Hand TxtMiddle"
+          onClick={() => {
+            dialogSelectIcon({
+              hideInput: true,
+              iconColor,
+              icon,
+              projectId,
+              onModify: ({ iconColor, icon }) => {
+                onChangeView({ iconColor, icon }, true);
+              },
+            });
           }}
-          getPopupContainer={() => document.body}
         >
-          <div className="iconCon flexRow alignItemsCenter Hand TxtMiddle">
-            <SvgIcon url={iconUrl} fill={iconColor} size={20} />
-          </div>
-        </Trigger>
+          <SvgIcon url={iconUrl} fill={iconColor} size={20} />
+        </div>
         <Input
           className="flex"
           value={name}
@@ -237,9 +219,9 @@ function PluginSettings(params) {
         }}
       >
         <Icon icon={switchSettings.showRefresh === '1' ? 'ic_toggle_on' : 'ic_toggle_off'} className="Font28" />
-        <div className="switchText switchTextP mLeft12 InlineBlock Gray Hand">{_l('自动刷新')}</div>
+        <div className="switchText switchTextP mLeft12 InlineBlock textPrimary Hand">{_l('自动刷新')}</div>
         <Tooltip title={_l('每隔一段时间后自动刷新当前视图')} placement="right">
-          <i className="icon-help Gray_9e Font16"></i>
+          <i className="icon-help textTertiary Font16"></i>
         </Tooltip>
       </SwitchStyle>
       <SwitchStyle
@@ -257,7 +239,7 @@ function PluginSettings(params) {
         }}
       >
         <Icon icon={switchSettings.showFastFilter === '1' ? 'ic_toggle_on' : 'ic_toggle_off'} className="Font28" />
-        <div className="switchText switchTextP mLeft12 InlineBlock Gray Hand">{_l('快速筛选')}</div>
+        <div className="switchText switchTextP mLeft12 InlineBlock textPrimary Hand">{_l('快速筛选')}</div>
       </SwitchStyle>
       <SwitchStyle
         className="Hand flexRow alignItemsCenter"
@@ -274,10 +256,10 @@ function PluginSettings(params) {
         }}
       >
         <Icon icon={switchSettings.showNav === '1' ? 'ic_toggle_on' : 'ic_toggle_off'} className="Font28" />
-        <div className="switchText switchTextP mLeft12 InlineBlock Gray Hand">{_l('筛选列表')}</div>
+        <div className="switchText switchTextP mLeft12 InlineBlock textPrimary Hand">{_l('筛选列表')}</div>
       </SwitchStyle>
       <div className="title Bold mTop32">{_l('参数设置')}</div>
-      <div className="mTop4 Gray_75">
+      <div className="mTop4 textSecondary">
         {_l('配置使用本视图时需要的设置项，对应变量可以在插件代码中引用')}
         <span
           className="editHref ThemeColor3 mLeft5 Hand"
@@ -290,16 +272,16 @@ function PluginSettings(params) {
       </div>
       <div className="paramCon">
         <div className="headCon flexRow alignItemsCenter mTop20">
-          <div className="w100 Gray_75">{_l('类型')}</div>
-          <div className="w130 mLeft12 Gray_75">{_l('名称')}</div>
-          <div className="w130 mLeft12 Gray_75">
+          <div className="w100 textSecondary">{_l('类型')}</div>
+          <div className="w130 mLeft12 textSecondary">{_l('名称')}</div>
+          <div className="w130 mLeft12 textSecondary">
             {_l('变量 id')}
             <span className="Red">*</span>
           </div>
           <div className="actionCon TxtRight">
             <Tooltip title={_l('清空参数')}>
               <i
-                className="icon-clean_all Font20 Gray_9e ThemeHoverColor3 Hand"
+                className="icon-clean_all Font20 textTertiary ThemeHoverColor3 Hand"
                 onClick={() => {
                   setState({
                     key: moment().format('YYYYMMDDhhmmss'),
@@ -376,14 +358,14 @@ function PluginSettings(params) {
             }}
             getPopupContainer={() => document.body}
           >
-            <span className="Gray_9e Bold Hand flexRow alignItemsCenter ThemeHoverColor3">
+            <span className="textTertiary Bold Hand flexRow alignItemsCenter ThemeHoverColor3">
               <Icon icon={'add'} className="Font20" />
               <span className="mLeft4">{_l('参数%05037')}</span>
             </span>
           </Trigger>
-          <span className="mLeft8 Gray_d">｜</span>
+          <span className="mLeft8 textPlaceholder">｜</span>
           <span
-            className="mLeft8 Gray_9e Bold Hand ThemeHoverColor3"
+            className="mLeft8 textTertiary Bold Hand ThemeHoverColor3"
             onClick={() => {
               setState({ addVisible: true });
             }}
@@ -393,7 +375,7 @@ function PluginSettings(params) {
           <span className="flex"></span>
           {paramSettings.length > 0 && (
             <span
-              className="Gray_9e Bold Hand ThemeHoverColor3"
+              className="textTertiary Bold Hand ThemeHoverColor3"
               onClick={() => {
                 var jsonStr = JSON.stringify(paramSettings);
                 var blob = new Blob([jsonStr], { type: 'application/json' });

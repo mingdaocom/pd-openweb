@@ -9,10 +9,10 @@ import { Tooltip } from 'ming-ui/antd-components';
 import { reportTypes } from 'statistics/Charts/common';
 import { formatrChartTimeText, getAlreadySelectControlId, isTimeControl } from 'statistics/common';
 import * as actions from 'statistics/redux/actions';
-import { controlState } from 'src/components/Form/core/utils';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import { controlState } from 'src/utils/control';
 import CalculateControlItem from './components/CalculateControlItem';
 import CalculateControlModal from './components/CalculateControlModal';
 import ControlItem from './components/ControlItem';
@@ -121,15 +121,15 @@ export default class DataSource extends Component {
     if (dataIsUnfold) {
       return (
         <div className="flexRow valignWrapper horizontalPaddingWrapper">
-          <div className="Bold Font18 Gray flex">{_l('数据源')}</div>
-          <Icon className="Gray_9e Font18 pointer" icon="arrow-right-border" onClick={onChangeDataIsUnfold} />
+          <div className="Bold Font18 textPrimary flex">{_l('数据源')}</div>
+          <Icon className="textTertiary Font18 pointer" icon="arrow-right-border" onClick={onChangeDataIsUnfold} />
         </div>
       );
     } else {
       return (
         <div className="flexColumn valignWrapper horizontalPaddingWrapper">
-          <Icon className="Gray_9e Font18 pointer mTop5" icon="arrow-left-border" onClick={onChangeDataIsUnfold} />
-          <div className="Bold Font18 Gray flex mTop15 AllBreak">{_l('数据源')}</div>
+          <Icon className="textTertiary Font18 pointer mTop5" icon="arrow-left-border" onClick={onChangeDataIsUnfold} />
+          <div className="Bold Font18 textPrimary flex mTop15 AllBreak">{_l('数据源')}</div>
         </div>
       );
     }
@@ -149,19 +149,25 @@ export default class DataSource extends Component {
               this.setState({ sheetModalVisible: true });
             }}
           >
-            <span className="flex Font13 Bold WordBreak">
-              {worksheetInfo.name}
-              {appType === 1 &&
-                (view ? (
-                  `(${view.name})`
-                ) : filter.viewId ? (
-                  <span className="removeViewId">({_l('视图已被删除')})</span>
-                ) : (
-                  `(${_l('所有记录')})`
-                ))}
-              {appType === 2 && `(${_l('聚合表')})`}
-            </span>
-            <Icon className="Gray_9e Font18" icon="swap_horiz" />
+            {worksheetInfo.resultCode !== 1 ? (
+              <span className="flex Font13 Bold WordBreak textError">
+                {worksheetInfo.errorMessage || _l('工作表无权限或者已删除')}
+              </span>
+            ) : (
+              <span className="flex Font13 Bold WordBreak">
+                {worksheetInfo.name}
+                {appType === 1 &&
+                  (view ? (
+                    `(${view.name})`
+                  ) : filter.viewId ? (
+                    <span className="textError">({_l('视图已被删除')})</span>
+                  ) : (
+                    `(${_l('所有记录')})`
+                  ))}
+                {appType === 2 && `(${_l('聚合表')})`}
+              </span>
+            )}
+            <Icon className="textTertiary Font18" icon="swap_horiz" />
           </div>
         </div>
         {sheetModalVisible && (
@@ -213,7 +219,7 @@ export default class DataSource extends Component {
     }
     return (
       <div className="mTop15 horizontalPaddingWrapper">
-        <div className="Bold Font13 Gray mBottom10">{_l('时间')}</div>
+        <div className="Bold Font13 textPrimary mBottom10">{_l('时间')}</div>
         <div
           className="timeWrapper flexRow valignWrapper pointer"
           onClick={() => {
@@ -226,7 +232,7 @@ export default class DataSource extends Component {
               ({formatrChartTimeText(filter)})
             </span>
           </div>
-          <Icon className="Gray_9e Font14" icon="arrow-down-border" />
+          <Icon className="textTertiary Font14" icon="arrow-down-border" />
         </div>
         <TimeModal
           appId={appId}
@@ -276,11 +282,11 @@ export default class DataSource extends Component {
     };
     return (
       <div className="mTop15 horizontalPaddingWrapper">
-        <div className="Bold Font13 Gray mBottom10">{_l('权限')}</div>
+        <div className="Bold Font13 textPrimary mBottom10">{_l('权限')}</div>
         <Dropdown overlay={renderOverlay()} trigger={['click']} placement="bottomRight">
           <div className="timeWrapper flexRow valignWrapper pointer">
             <div className="flex Font13 Bold">{_.get(_.find(authList, { value: auth }), 'name')}</div>
-            <Icon className="Gray_9e Font14" icon="arrow-down-border" />
+            <Icon className="textTertiary Font14" icon="arrow-down-border" />
           </div>
         </Dropdown>
       </div>
@@ -289,7 +295,7 @@ export default class DataSource extends Component {
   renderSearch() {
     const { searchValue } = this.state;
     return (
-      <div className="searchControlWrapper flexRow valignWrapper Gray_9e">
+      <div className="searchControlWrapper flexRow valignWrapper textTertiary">
         <Icon className="Font18 mRight3" icon="search" />
         <input
           className="flex"
@@ -320,7 +326,7 @@ export default class DataSource extends Component {
         <div className="mRight5 addCalculateControl">
           <Icon
             icon="add"
-            className="Font18 Gray_9e pointer"
+            className="Font18 textTertiary pointer"
             onClick={event => {
               event.stopPropagation();
               this.setState({
@@ -343,7 +349,7 @@ export default class DataSource extends Component {
         header={
           <Fragment>
             {this.renderAddCalculateControl()}
-            <div className="flex Gray_9e">{_l('计算值')}</div>
+            <div className="flex textTertiary">{_l('计算值')}</div>
           </Fragment>
         }
       >
@@ -390,7 +396,10 @@ export default class DataSource extends Component {
   }
   renderExpandIcon(panelProps) {
     return (
-      <Icon className={cx('Font18 Gray_9e', { 'icon-arrow-active': panelProps.isActive })} icon="arrow-down-border" />
+      <Icon
+        className={cx('Font18 textTertiary', { 'icon-arrow-active': panelProps.isActive })}
+        icon="arrow-down-border"
+      />
     );
   }
   renderControls() {
@@ -406,7 +415,7 @@ export default class DataSource extends Component {
           defaultActiveKey={['sheetControl', 'calculateControl']}
           expandIcon={this.renderExpandIcon}
         >
-          <Collapse.Panel header={<div className="flex Gray_9e">{_l('工作表')}</div>} key="sheetControl">
+          <Collapse.Panel header={<div className="flex textTertiary">{_l('工作表')}</div>} key="sheetControl">
             <div>
               {currentAxisControls
                 .filter(c => {
@@ -438,7 +447,7 @@ export default class DataSource extends Component {
       <div className="mTop20 flex flexColumn">
         <div className="horizontalPaddingWrapper">
           <div className="flexRow valignWrapper mBottom5">
-            <span className="flex Font13 Gray Bold">{_l('字段')}</span>
+            <span className="flex Font13 textPrimary Bold">{_l('字段')}</span>
             {this.renderAddCalculateControl()}
           </div>
           {this.renderSearch()}

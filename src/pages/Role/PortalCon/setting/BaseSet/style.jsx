@@ -18,22 +18,22 @@ export const Wrap = styled.div`
   .pageTitle {
     width: 592px;
     height: 36px;
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-secondary);
     border-radius: 3px;
     padding: 0 14px;
     &:hover {
-      border: 1px solid #bdbdbd;
+      border: 1px solid var(--color-text-disabled);
     }
     &:focus {
-      border: 1px solid #1677ff;
+      border: 1px solid var(--color-primary);
     }
   }
   .urlH,
   .urlEnd {
     padding: 0 20px;
     height: 36px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     border-radius: 3px 0px 0px 3px;
     line-height: 36px;
     box-sizing: border-box;
@@ -50,9 +50,9 @@ export const Wrap = styled.div`
     height: 36px;
     padding: 0 12px;
     line-height: 36px;
-    background: #ffffff;
-    border-top: 1px solid #f5f5f5;
-    border-bottom: 1px solid #f5f5f5;
+    background: var(--color-background-primary);
+    border-top: 1px solid var(--color-background-secondary);
+    border-bottom: 1px solid var(--color-background-secondary);
     box-sizing: border-box;
     vertical-align: middle;
     border-left: 0;
@@ -62,10 +62,10 @@ export const Wrap = styled.div`
   .WX {
     min-width: 299px;
     padding: 10px 16px;
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     border-radius: 6px;
     a {
-      color: #1677ff;
+      color: var(--color-primary);
     }
     &.WX {
       a {
@@ -75,25 +75,25 @@ export const Wrap = styled.div`
   }
   .exAccountSendCon {
     height: 36px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     border-radius: 3px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     padding: 0 16px;
     line-height: 36px;
     .editFlow {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .rangePicker {
     width: 420px;
     margin-left: 44px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 3px;
   }
   .cardSelect {
     font-size: 12px !important;
     .ant-select-selection-item-remove:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
 `;
@@ -109,7 +109,7 @@ export const SwitchStyle = styled.div`
       color: #00c345;
     }
     &-ic_toggle_off {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
   }
 `;

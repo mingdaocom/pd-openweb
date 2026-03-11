@@ -30,12 +30,12 @@ class CustomBtnList extends React.Component {
           {data.length > 0 ? (
             <React.Fragment>
               <ul className="btnListUl">
-                <li className="Gray_9e">{_l('选择已有动作')}</li>
+                <li className="textTertiary">{_l('选择已有动作')}</li>
                 {_.map(data, (item, i) => {
                   const { color, icon, name, iconUrl } = item;
                   return (
                     <Wrap
-                      className="Gray overflow_ellipsis WordBreak btnList flexRow alignItemsCenter"
+                      className="textPrimary overflow_ellipsis WordBreak btnList flexRow alignItemsCenter"
                       key={`${i}-btnList`}
                       onClick={() => {
                         this.props.setList(item);
@@ -46,7 +46,13 @@ class CustomBtnList extends React.Component {
                           className="mRight12 svgIconForBtn"
                           addClassName="TxtMiddle"
                           url={iconUrl}
-                          fill={!color ? '#1677ff' : color === 'transparent' ? '#151515' : color}
+                          fill={
+                            !color
+                              ? 'var(--color-primary)'
+                              : color === 'transparent'
+                                ? 'var(--color-text-primary)'
+                                : color
+                          }
                           size={18}
                         />
                       ) : (
@@ -55,7 +61,13 @@ class CustomBtnList extends React.Component {
                           style={{ color: color }}
                           className={cx(
                             'mRight12 Font18',
-                            !icon ? 'Gray_bd' : !color ? 'ThemeColor3' : color === 'transparent' ? 'Gray' : '',
+                            !icon
+                              ? 'textDisabled'
+                              : !color
+                                ? 'ThemeColor3'
+                                : color === 'transparent'
+                                  ? 'textPrimary'
+                                  : '',
                           )}
                         />
                       )}

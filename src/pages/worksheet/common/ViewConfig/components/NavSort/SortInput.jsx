@@ -16,7 +16,7 @@ export default function (props) {
   return (
     <SettingItem className={props.className}>
       <EditInfo className="pointer subListSortInput flexRow" onClick={() => setConfig({ sortVisible: true })}>
-        <div className="overflow_ellipsis Gray flex">
+        <div className="overflow_ellipsis textPrimary flex">
           {getAdvanceSetting(view, advancedSettingKey).length > 0 ? (
             getAdvanceSetting(view, advancedSettingKey).reduce((p, item) => {
               const sortsRelationControls = relationControls
@@ -29,7 +29,7 @@ export default function (props) {
               return p ? `${p}；${value}` : value;
             }, '')
           ) : (
-            <span className="Gray_75">
+            <span className="textSecondary">
               {viewControlData.viewId ? _l('按关联视图的配置') : _l('未设置（按添加时间顺序）')}
             </span>
           )}

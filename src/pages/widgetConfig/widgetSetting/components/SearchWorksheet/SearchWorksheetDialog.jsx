@@ -350,7 +350,7 @@ export default class SearchWorksheetDialog extends Component {
                   })
                 }
               >
-                <i className="icon-trash Font17 Gray_9d ThemeHoverColor3"></i>
+                <i className="icon-trash Font17 textTertiary ThemeHoverColor3"></i>
               </span>
             </div>
           );
@@ -469,11 +469,11 @@ export default class SearchWorksheetDialog extends Component {
                                 padding: '0 16px 0 14px',
                                 height: 36,
                                 alignItems: 'center',
-                                borderBottom: '1px solid #e0e0e0',
+                                borderBottom: '1px solid var(--color-border-tertiary)',
                                 marginBottom: 5,
                               }}
                             >
-                              <i className="icon-search Gray_75 Font14" />
+                              <i className="icon-search textSecondary Font14" />
                               <input
                                 type="text"
                                 autoFocus
@@ -510,7 +510,7 @@ export default class SearchWorksheetDialog extends Component {
                               );
                             })
                           ) : (
-                            <MenuItem className="Gray_9">{_l('暂无搜索结果')}</MenuItem>
+                            <MenuItem className="textTertiary">{_l('暂无搜索结果')}</MenuItem>
                           )}
                         </Menu>
                         <div
@@ -538,12 +538,12 @@ export default class SearchWorksheetDialog extends Component {
                   {isSheetDelete ? (
                     <span className="Red">{_l('工作表已删除')}</span>
                   ) : sheetName ? (
-                    <span className="Gray">
+                    <span className="textPrimary">
                       {sheetName}
                       {appName && <span>（{appName}）</span>}
                     </span>
                   ) : (
-                    <span className="Gray_bd">{_l('选择工作表')}</span>
+                    <span className="textDisabled">{_l('选择工作表')}</span>
                   )}
                 </div>
                 <div className="edit">
@@ -624,7 +624,7 @@ export default class SearchWorksheetDialog extends Component {
                             <span>
                               {selectData.text}
                               {selectData.isEqualSource && (
-                                <span className="Gray_9e subText">（{_l('相同选项集')}）</span>
+                                <span className="textTertiary subText">（{_l('相同选项集')}）</span>
                               )}
                             </span>
                           );
@@ -638,7 +638,7 @@ export default class SearchWorksheetDialog extends Component {
                 {selfRelate && <div>{_l('将获取到的记录写入到当前字段')}</div>}
                 {subField && (
                   <div>
-                    <div className="Gray_75 mBottom12">
+                    <div className="textSecondary mBottom12">
                       {_l('查询到的每行记录添加为一行子表明细。请选择需要写入的字段。')}
                     </div>
                     {this.renderMapping()}

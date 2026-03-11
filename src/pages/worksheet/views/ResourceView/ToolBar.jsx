@@ -15,10 +15,10 @@ const ToolBarWrap = styled.div`
   left: ${props => (!props.isM ? 'auto' : '16px')};
   right: ${props => (!props.isM ? '20px' : 'auto')};
   z-index: 1;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   border-radius: 26px;
   z-index: 11;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-lg);
   padding: 0 10px;
   .H40 {
     height: 40px;
@@ -36,7 +36,7 @@ export default function ToolBar(props) {
         <Tooltip title={_l('导出为图片')}>
           <Icon
             icon="download"
-            className="Gray_75 Font18 pointer pLeft16 H40"
+            className="textSecondary Font18 pointer pLeft16 H40"
             onClick={() => onClick('genScreenshot')}
           />
         </Tooltip>
@@ -47,7 +47,7 @@ export default function ToolBar(props) {
           types[_.get(view, 'advancedSetting.calendarType') || 0];
         return (
           <div
-            className={cx('Hand ThemeHoverColor3 Bold H40', type === o.key ? 'ThemeColor3' : 'Gray_75', {
+            className={cx('Hand ThemeHoverColor3 Bold H40', type === o.key ? 'ThemeColor3' : 'textSecondary', {
               pRight20: !isM && i >= resourceTypes.length - 1,
               pLeft10: isM,
               pRight10: isM,

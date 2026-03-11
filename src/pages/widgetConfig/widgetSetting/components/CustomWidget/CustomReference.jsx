@@ -14,7 +14,7 @@ const CustomReferenceWrap = styled.div`
   margin-top: 20px;
   div:last-child {
     padding: 0;
-    background: #fff;
+    background: var(--color-background-primary);
   }
   .customItem {
     width: 100%;
@@ -29,44 +29,44 @@ const CustomReferenceWrap = styled.div`
       .customField {
         border: none;
         padding: 0;
-        background: #fff;
-        color: #757575;
+        background: var(--color-background-primary);
+        color: var(--color-text-secondary);
       }
     }
     .fieldName,
     .customField {
       flex: 1;
       min-width: 0;
-      background: #fff;
+      background: var(--color-background-primary);
       border-radius: 4px;
-      border: 1px solid #dddddd;
+      border: 1px solid var(--color-border-primary);
       padding: 0 12px;
       &.isDel {
-        color: #f44336;
+        color: var(--color-error);
       }
     }
     .customField {
-      background: #fafafa;
+      background: var(--color-background-secondary);
       margin-right: 10px;
     }
     .fieldName {
       &:hover {
-        border-color: #ccc;
+        border-color: var(--color-border-tertiary);
       }
       &:focus {
-        border-color: #1677ff;
+        border-color: var(--color-primary);
       }
     }
     .showValue,
     .deleteIcon {
-      color: #757575;
+      color: var(--color-text-secondary);
       cursor: pointer;
     }
     .deleteIcon {
       margin-left: 16px;
       font-size: 20px;
       &:hover {
-        color: #f44336;
+        color: var(--color-error);
       }
     }
     .showValue {
@@ -126,7 +126,7 @@ export default function CustomReference(props) {
                 icon="database"
                 className="showValue"
                 style={{
-                  color: envValueAvailable ? '#757575' : '#cccccc',
+                  color: envValueAvailable ? 'var(--color-text-secondary)' : 'var(--color-text-placeholder)',
                   cursor: envValueAvailable ? 'pointer' : 'default',
                 }}
                 onClick={envValueAvailable ? () => onEnvValueClick(item.cid) : _.noop}

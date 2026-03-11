@@ -21,7 +21,7 @@ const WrapCon = styled.div`
     &.handle:hover,
     &.revoke:hover,
     &.urge:hover {
-      background-color: #ececec;
+      background-color: var(--color-border-secondary);
     }
     &.overrule:hover {
       background-color: rgba(244, 67, 54, 0.23);
@@ -31,13 +31,13 @@ const WrapCon = styled.div`
     }
   }
   .btn {
-    color: #151515;
+    color: var(--color-text-title);
     font-weight: bold;
     flex: 1;
     height: 32px;
     min-width: 0;
     padding: 0 10px;
-    background: #f7f7f7;
+    background: var(--color-background-secondary);
     border-radius: 3px;
     display: flex;
     align-items: center;
@@ -68,9 +68,9 @@ const WrapCon = styled.div`
     }
     &.reset {
       .icon {
-        color: #0096ef;
+        color: var(--color-primary);
       }
-      background-color: #e2f2fd;
+      background-color: var(--color-primary-transparent);
     }
     &.urgeDisable {
       opacity: 0.6;
@@ -90,14 +90,14 @@ const UpdateUserWrap = styled.div`
   .original {
     min-width: 0;
     padding-right: 10px;
-    border-right: 1px solid #dddddd;
+    border-right: 1px solid var(--color-border-primary);
   }
   .accountWrap {
     padding: 5px;
     margin-bottom: 5px;
     border-radius: 3px;
     &:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
     }
   }
 `;
@@ -190,14 +190,14 @@ function UpdateUserDialog(props) {
               <div className="mLeft10 flex">{data.fullname}</div>
               <Icon
                 icon="close"
-                className="Gray_75 Font16 pointer"
+                className="textSecondary Font16 pointer"
                 onClick={() => {
                   setNewAccounts(newAccounts.filter(a => a.accountId !== data.accountId));
                 }}
               />
             </div>
           ))}
-          <div className="valignWrapper Gray_bd mTop10 pointer pAll5" onClick={handleAddAccount}>
+          <div className="valignWrapper textDisabled mTop10 pointer pAll5" onClick={handleAddAccount}>
             <div className="addWrap valignWrapper">
               <Icon className="Font28" icon="task-add-member-circle" />
             </div>
@@ -212,13 +212,13 @@ function UpdateUserDialog(props) {
 const MobileUpdateUserWrap = styled.div`
   .header {
     padding: 24px 16px 16px;
-    background-color: #f8f8f8;
+    background-color: var(--color-background-secondary);
   }
   .content {
     padding: 24px 16px 16px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     .original {
-      border-bottom: 1px solid #f5f5f5;
+      border-bottom: 1px solid var(--color-background-secondary);
     }
     .flexWrap {
       flex-wrap: wrap;
@@ -230,7 +230,7 @@ const MobileUpdateUserWrap = styled.div`
     .accountWrap {
       border-radius: 16px;
       padding-right: 10px;
-      background-color: #f5f5f5;
+      background-color: var(--color-background-secondary);
       position: relative;
       img {
         width: 32px;
@@ -248,7 +248,7 @@ const MobileUpdateUserWrap = styled.div`
   }
   .btnsWrapper {
     padding: 7px 10px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
 `;
 
@@ -267,18 +267,18 @@ function MobileUpdateUserDialog(props) {
       <Popup className="mobileModal full" onClose={onCancel} visible={visible}>
         <MobileUpdateUserWrap className="flexColumn h100 leftAlign">
           <div className="header">
-            <div className="Font17 Gray bold mBottom6">{_l('调整负责人')}</div>
-            <div className="Font12 Gray_75">
+            <div className="Font17 textPrimary bold mBottom6">{_l('调整负责人')}</div>
+            <div className="Font12 textSecondary">
               {_l('移除尚未进行操作的负责人，将其替换为新的成员；您的操作仅对当前流程的本次运行生效')}
             </div>
           </div>
           <div className="flex content">
             <div className="original pBottom10">
               <div className="valignWrapper mBottom15">
-                <div className="flex Font15 Gray bold">{_l('原负责人')}</div>
+                <div className="flex Font15 textPrimary bold">{_l('原负责人')}</div>
                 <div
                   style={{ fontWeight: 500 }}
-                  className="ThemeColor Font13"
+                  className="colorPrimary Font13"
                   onClick={() => {
                     if (selectAccountIds.length === currentWorkItems.length) {
                       setSelectAccountIds([]);
@@ -304,9 +304,9 @@ function MobileUpdateUserDialog(props) {
                     }}
                   >
                     {selectAccountIds.includes(data.workItemAccount.accountId) ? (
-                      <Icon className="Font24 ThemeColor" icon="check_circle" />
+                      <Icon className="Font24 colorPrimary" icon="check_circle" />
                     ) : (
-                      <Icon className="Font24 Gray_75" icon="not_checked" />
+                      <Icon className="Font24 textSecondary" icon="not_checked" />
                     )}
                     <div className="mLeft5 valignWrapper accountWrap">
                       <img src={data.workItemAccount.avatar} />
@@ -317,7 +317,7 @@ function MobileUpdateUserDialog(props) {
               </div>
             </div>
             <div className="mTop10">
-              <div className="flex Font15 Gray bold mBottom15">{_l('新增负责人')}</div>
+              <div className="flex Font15 textPrimary bold mBottom15">{_l('新增负责人')}</div>
               <div className="flexRow flexWrap">
                 {newAccounts.map(data => (
                   <div className="valignWrapper accountWrap mRight10 mBottom10" key={data.accountId}>
@@ -325,21 +325,24 @@ function MobileUpdateUserDialog(props) {
                     <span className="Font13">{data.fullname}</span>
                     <Icon
                       icon="minus-square"
-                      className="delete Gray_bd"
+                      className="delete textDisabled"
                       onClick={() => {
                         setNewAccounts(newAccounts.filter(a => a.accountId !== data.accountId));
                       }}
                     />
                   </div>
                 ))}
-                <div className="justifyContentCenter valignWrapper Gray_bd" onClick={() => setSelectUserVisible(true)}>
+                <div
+                  className="justifyContentCenter valignWrapper textDisabled"
+                  onClick={() => setSelectUserVisible(true)}
+                >
                   <Icon className="Font26" icon="task-add-member-circle" />
                 </div>
               </div>
             </div>
           </div>
           <div className="btnsWrapper flexRow">
-            <Button className="flex mLeft6 mRight6 Font13 bold Gray_75" onClick={onCancel}>
+            <Button className="flex mLeft6 mRight6 Font13 bold textSecondary" onClick={onCancel}>
               {_l('取消')}
             </Button>
             <Button
@@ -448,7 +451,7 @@ export default function WorkflowAction(props) {
       <Menu style={{ width, borderRadius: 4 }}>
         <MenuItem
           key="urge"
-          icon={<Icon icon="access_alarm" className="Font17 Gray_75 pRight5" />}
+          icon={<Icon icon="access_alarm" className="Font17 textSecondary pRight5" />}
           className="pLeft15 pRight15"
           style={{ height: 36, opacity: urgeDisable ? 0.6 : 1 }}
           onClick={handleUrge}
@@ -457,7 +460,7 @@ export default function WorkflowAction(props) {
         </MenuItem>
         <MenuItem
           key="skip"
-          icon={<Icon icon="calendar-task" className="Font17 Gray_75 pRight5" />}
+          icon={<Icon icon="calendar-task" className="Font17 textSecondary pRight5" />}
           className="pLeft15 pRight15"
           style={{ height: 36 }}
           onClick={handleSkip}
@@ -466,7 +469,7 @@ export default function WorkflowAction(props) {
         </MenuItem>
         <MenuItem
           key="user"
-          icon={<Icon icon="ic-adjust-department" className="Font17 Gray_75 pRight5" />}
+          icon={<Icon icon="ic-adjust-department" className="Font17 textSecondary pRight5" />}
           className="pLeft15 pRight15"
           style={{ height: 36 }}
           onClick={() => setUpdateUserDialogVisible(true)}
@@ -476,7 +479,7 @@ export default function WorkflowAction(props) {
         {!!backFlowNodes.length && (
           <MenuItem
             key="repeal"
-            icon={<Icon icon="repeal-o" className="Font17 Gray_75 pRight5" />}
+            icon={<Icon icon="repeal-o" className="Font17 textSecondary pRight5" />}
             className="pLeft15 pRight15"
             style={{ height: 36 }}
             onClick={() => onAction(data, 'return')}
@@ -487,7 +490,7 @@ export default function WorkflowAction(props) {
         <MenuItem
           key="end"
           className="deleteItem pLeft15 pRight15"
-          style={{ height: 36, color: '#F44336' }}
+          style={{ height: 36, color: 'var(--color-error)' }}
           icon={<Icon icon="close" className="Font17 pRight5" />}
           onClick={handleEndInstance}
         >
@@ -512,7 +515,7 @@ export default function WorkflowAction(props) {
           key: item.icon,
           text: (
             <div className={cx('flexRow valignWrapper w100', item.className)} onClick={item.fn}>
-              <Icon className={cx('mRight10 Font18', item.className || 'Gray_75')} icon={item.icon} />
+              <Icon className={cx('mRight10 Font18', item.className || 'textSecondary')} icon={item.icon} />
               <span className="Bold">{item.name}</span>
             </div>
           ),
@@ -638,11 +641,11 @@ export default function WorkflowAction(props) {
         !allowReset &&
         (isMobile ? (
           <div className="btn mobileMore" onClick={handleMobileMoreAction}>
-            <Icon className="Font20 Gray_75" icon="arrow-up-border" />
+            <Icon className="Font20 textSecondary" icon="arrow-up-border" />
           </div>
         ) : (
           <Dropdown trigger={['click']} placement="topRight" overlay={renderDropdownOverlay({ width: 200 })}>
-            <Icon className="Font20 pointer Gray_75" icon="more_horiz" />
+            <Icon className="Font20 pointer textSecondary" icon="more_horiz" />
           </Dropdown>
         ))}
       {renderUpdateUserDialog()}

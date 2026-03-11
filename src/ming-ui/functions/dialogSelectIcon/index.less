@@ -1,0 +1,111 @@
+.selectIconWrap {
+  .ant-tabs-tab {
+    font-size: 13px;
+    margin: 0 0 0 12px;
+    padding: 6px 0;
+    &.ant-tabs-tab-active .ant-tabs-tab-btn {
+      color: var(--color-text-title) !important;
+      font-weight: bold;
+    }
+  }
+  .ant-tabs-nav {
+    margin-bottom: 0;
+    &::before {
+      border: none;
+    }
+  }
+  .ant-tabs-content-holder {
+    margin-top: 6px;
+  }
+  .colorsWrap {
+    display: flex;
+    padding: 12px 0;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 340px;
+    li {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      cursor: pointer;
+      &:not(.noHover):hover {
+        &::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 28px;
+          height: 28px;
+          border-radius: 6px;
+          background-color: rgba(0, 0, 0, 0.2);
+        }
+      }
+      &.hasBorder {
+        border: 1px solid var(--color-border-tertiary);
+      }
+      &.addIcon {
+        border: 1px dashed var(--color-text-disabled);
+      }
+    }
+    &.disabled {
+      opacity: 0.2;
+      pointer-events: none;
+    }
+  }
+  footer {
+    margin-top: 16px;
+    padding: 0 12px;
+    display: flex;
+    justify-content: flex-end;
+    .cancel {
+      margin-right: 12px;
+      background-color: var(--color-background-primary);
+      color: var(--color-text-tertiary);
+      &:hover {
+        background-color: var(--color-background-primary);
+      }
+    }
+  }
+  .navTypeWrapper {
+    .navListWrap {
+      gap: 16px;
+    }
+    .iconWrap {
+      margin-right: 0 !important;
+    }
+    .pcNaviStyle {
+      width: 70px !important;
+      height: 47px !important;
+    }
+  }
+}
+
+.selectIconDialogContainer {
+  .mui-dialog-mask {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+  }
+  .mui-dialog-dialog {
+    border-radius: 16px !important;
+    .mui-dialog-close-btn {
+      top: 4px !important;
+    }
+    .mui-dialog-body {
+      padding: 0 24px 4px !important;
+    }
+    .mui-dialog-footer {
+      button {
+        color: var(--color-text-title);
+        background: var(--color-background-primary);
+        border-color: var(--color-text-disabled);
+        &:hover {
+          color: var(--color-primary);
+          border-color: var(--color-primary);
+        }
+      }
+    }
+  }
+}

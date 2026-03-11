@@ -2,13 +2,13 @@
   position: relative;
   padding: 0 5px !important;
   .requiredStatus {
-    color: #f44336;
+    color: var(--color-error);
     margin-right: 2px;
   }
   .controlName {
     font-weight: bold;
     font-size: 13px;
-    color: #151515;
+    color: var(--color-text-title);
     line-height: 34px;
     .textCon {
       display: inline-block;
@@ -27,21 +27,20 @@
     padding: 0 8px 0 4px;
     line-height: 32px;
     visibility: hidden;
-    background-color: #fafafa;
-    color: #9e9e9e;
+    background-color: var(--color-background-tertiary);
+    color: var(--color-text-tertiary);
   }
   .maskData {
     visibility: visible;
-    // color: #bdbdbd;
+    // color: var(--color-text-disabled);
   }
   .descIcon {
     font-size: 16px;
     vertical-align: text-bottom;
     margin-left: 2px;
-    color: #bdbdbd;
-    background-color: #fafafa;
+    color: var(--color-text-disabled);
     &:hover {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
   }
   .resizeDrag {
@@ -63,7 +62,7 @@
     &:hover {
       &::after {
         width: 2px;
-        background-color: #1677ff !important;
+        background-color: var(--color-primary) !important;
       }
     }
   }
@@ -105,5 +104,11 @@
   }
   &.control-operates {
     padding-left: 12px !important;
+  }
+  &.isLast {
+    padding-right: 23px !important;
+    .dropIcon {
+      right: 16px;
+    }
   }
 }

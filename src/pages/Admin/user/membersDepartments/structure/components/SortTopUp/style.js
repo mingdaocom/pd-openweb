@@ -4,15 +4,15 @@ export const List = styled.div`
   padding: 8px 0;
   overflow-y: auto;
   border-radius: 4px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-secondary);
   .sortItem {
     display: flex;
     align-items: center;
     padding: 0 8px;
     height: 40px;
-    background: #fff;
+    background: var(--color-background-primary);
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
 `;

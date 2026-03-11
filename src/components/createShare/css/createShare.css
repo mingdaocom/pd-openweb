@@ -16,7 +16,7 @@
 }
 .createShareCopy span {
   cursor: pointer;
-  color: #888;
+  color: var(--color-text-secondary);
 }
 .createShareCopy span i {
   background: url('../images/bg.png') no-repeat;
@@ -62,7 +62,7 @@
   cursor: pointer;
 }
 .createShareDialog .shareBtn.cancelStyle {
-  color: #4caf50 !important;
+  color: var(--color-success) !important;
 }
 .noShare {
   width: 100%;
@@ -89,7 +89,7 @@
 }
 
 .shareBtnClose {
-  color: #f44336 !important;
+  color: var(--color-error) !important;
 }
 #createShareAlert {
   border-radius: 5px;
@@ -99,7 +99,7 @@
   left: 20px;
   padding: 12px 20px 10px;
   width: 290px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   border-top-width: 8px;
   border-top-style: solid;
   -moz-box-shadow:
@@ -120,7 +120,7 @@
   font-size: 22px;
   vertical-align: top;
   display: inline-block;
-  color: #4caf50;
+  color: var(--color-success);
   margin-right: 10px;
 }
 #createShareAlert .inviteBtn {
@@ -139,7 +139,7 @@
   cursor: pointer;
 }
 .createShareAlertClose:not(:hover) {
-  color: #151515 !important;
+  color: var(--color-text-title) !important;
 }
 #createShareAlert.ns-hide {
   -webkit-animation-direction: reverse;

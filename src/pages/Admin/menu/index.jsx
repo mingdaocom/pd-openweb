@@ -68,7 +68,7 @@ export default class AdminLeftMenu extends Component {
         params: { projectId },
       },
     } = this.props;
-    if (key === 'billinfo' && !md.global.Config.IsPlatformLocal) return;
+    if (key === 'billinfo' && !window.platformENV.isPlatform) return;
     if (key === 'weixin' && md.global.SysSettings.hideWeixin) return;
     if (
       key === 'platformintegration' &&
@@ -124,7 +124,7 @@ export default class AdminLeftMenu extends Component {
           })}
           onClick={() => this.setState({ subListVisible: false, menuGroupKey: null })}
         >
-          {icon && <i className={cx('Font20 Gray mRight10 homeIcon', icon)} />}
+          {icon && <i className={cx('Font20 textPrimary mRight10 homeIcon', icon)} />}
           {!isExtend && key === 'home' ? (
             ''
           ) : (
@@ -160,7 +160,7 @@ export default class AdminLeftMenu extends Component {
 
     return (
       <div id="menuList" className={cx(isExtend ? 'extendList' : 'closeList')}>
-        <div className="ThemeBGColor9 h100 Relative menuContainer">
+        <div className="h100 Relative menuContainer">
           <div className="title">
             <div
               className="companyName Hand"
@@ -190,7 +190,7 @@ export default class AdminLeftMenu extends Component {
                     subMenuList,
                     ({ featureId, key }) =>
                       (!featureId || (featureId && getFeatureStatus(params.projectId, featureId))) &&
-                      !(md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal && key === 'billinfo'),
+                      !(!window.platformENV.isPlatform && key === 'billinfo'),
                   );
 
                   return (
@@ -202,10 +202,10 @@ export default class AdminLeftMenu extends Component {
                             this.setState({ [`${key}Expand`]: !this.state[`${key}Expand`] });
                           }}
                         >
-                          <i className={cx('Font20 Gray mRight10', icon)} />
+                          <i className={cx('Font20 textPrimary mRight10', icon)} />
                           <span className="flex">{title}</span>
                           <i
-                            className={cx('expandIcon Font16 Gray_75 mRight12', {
+                            className={cx('expandIcon Font16 textSecondary mRight12', {
                               'icon-arrow-up-border': !this.state[`${key}Expand`],
                               'icon-arrow-down-border': this.state[`${key}Expand`],
                             })}
@@ -249,7 +249,7 @@ export default class AdminLeftMenu extends Component {
                           onPopupVisibleChange={visible => this.setState({ subListVisible: visible })}
                           popup={
                             <div className="hoverMenuWrap">
-                              <div className="Gray_9e Font12 pLeft20 mBottom10">{title}</div>
+                              <div className="textTertiary Font12 pLeft20 mBottom10">{title}</div>
                               <ul className="manageItems overflowHidden" style={{ height: subMenuList.length * 48 }}>
                                 {_.map(subMenuList, this.renderLinkItem)}
                               </ul>
@@ -267,7 +267,7 @@ export default class AdminLeftMenu extends Component {
                             })}
                             onMouseEnter={() => this.setState({ subListVisible: true, menuGroupKey: key })}
                           >
-                            <i className={cx('Font20 Gray mRight10', icon)} />
+                            <i className={cx('Font20 textPrimary mRight10', icon)} />
                           </div>
                         </Trigger>
                       )}

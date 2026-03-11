@@ -11,7 +11,7 @@ import SMSSettingsDialog from 'src/pages/Role/PortalCon/components/SMSSettingsDi
 
 const Wrap = styled.div`
   .warnTxt {
-    background: #fdf9dc;
+    background: var(--color-yellow-black);
     border-radius: 3px;
     padding: 12px;
     margin-bottom: 24px;
@@ -26,23 +26,23 @@ const Wrap = styled.div`
     .sign {
       width: 200px;
       height: 36px;
-      background: #ffffff;
-      border: 1px solid #e0e0e0;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-secondary);
       border-radius: 3px;
       padding: 0 14px;
       &:hover {
-        border: 1px solid #bdbdbd;
+        border: 1px solid var(--color-text-disabled);
       }
       &:focus {
-        border: 1px solid #1677ff;
+        border: 1px solid var(--color-primary);
       }
     }
   }
   textarea {
     margin-top: 10px;
     width: 100%;
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-secondary);
     padding: 12px;
     border-radius: 3px;
     height: 90px;
@@ -51,13 +51,13 @@ const Wrap = styled.div`
   .ant-input:focus,
   .ant-input-focused {
     box-shadow: none;
-    border: 1px solid #1677ff;
+    border: 1px solid var(--color-primary);
   }
   .sysBtn {
     line-height: 34px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     border-radius: 4px;
-    color: #1677ff;
+    color: var(--color-primary);
     padding: 0 12px;
     display: inline-block;
     cursor: pointer;
@@ -68,7 +68,7 @@ const Wrap = styled.div`
       vertical-align: middle;
     }
     &:hover {
-      color: #2182f3 !important;
+      color: var(--color-link-hover) !important;
     }
   }
   .line {
@@ -90,28 +90,29 @@ export default function TextMessage(props) {
   return (
     <Wrap>
       <div className="content">
-        {(!md.global?.Config?.IsLocal || md.global?.SysSettings?.enableSmsCustomContent) && (
+        {((!window.platformENV.isOverseas && !window.platformENV.isLocal) ||
+          md.global?.SysSettings?.enableSmsCustomContent) && (
           <React.Fragment>
-            <h6 className="Font16 Gray Bold mBottom0">
+            <h6 className="Font16 textPrimary Bold mBottom0">
               {_l('短信通知')}
-              {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && (
+              {window.platformENV.isPlatform && (
                 <Tooltip title={<PriceTip text={_l('短信费用自动从组织信用点中扣除')} />}>
-                  <i className="icon-help mLeft5 Gray_9e"></i>
+                  <i className="icon-help mLeft5 textTertiary"></i>
                 </Tooltip>
               )}
             </h6>
-            <div className="mTop6 Gray_9e">
+            <div className="mTop6 textTertiary">
               {_l(
                 '注册开启审核后，审核结果(通过、拒绝)会短信告知注册用户;外部门户类型设为私有后再添加用户后也会发送邀请通知。',
               )}
             </div>
 
-            <h6 className="Font16 Gray Bold mBottom0 mTop24">
+            <h6 className="Font16 textPrimary Bold mBottom0 mTop24">
               {_l('短信签名')}
               <Tooltip
                 title={_l('此签名适用的短信场景:外部门户用户注册登录、邀请外部用户注册、外部用户审核(通过/拒绝)')}
               >
-                <i className="icon-help mLeft5 Gray_9e"></i>
+                <i className="icon-help mLeft5 textTertiary"></i>
               </Tooltip>
             </h6>
             <div className="mTop14">
@@ -126,7 +127,7 @@ export default function TextMessage(props) {
               />
             </div>
 
-            <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('短信内容')}</h6>
+            <h6 className="Font16 textPrimary Bold mBottom0 mTop24">{_l('短信内容')}</h6>
             <div className="sysBtn flexRow alignItemsCenter" onClick={() => setState({ showTelDialog: true })}>
               <Icon icon="textsms" className="Font18 mRight6" /> {_l('短信设置')}
             </div>
@@ -134,21 +135,23 @@ export default function TextMessage(props) {
           </React.Fragment>
         )}
 
-        <h6 className={cx('Font16 Gray Bold mBottom0', { mTop24: md.global.SysSettings.enableSmsCustomContent })}>
+        <h6
+          className={cx('Font16 textPrimary Bold mBottom0', { mTop24: md.global.SysSettings.enableSmsCustomContent })}
+        >
           {_l('邮件通知')}
-          {md.global.Config.IsPlatformLocal && (
+          {window.platformENV.isPlatform && (
             <Tooltip title={<PriceTip text={_l('邮件费用自动从组织信用点中扣除')} />}>
-              <i className="icon-help mLeft5 Gray_9e"></i>
+              <i className="icon-help mLeft5 textTertiary"></i>
             </Tooltip>
           )}
         </h6>
-        <div className="mTop6 Gray_9e">
+        <div className="mTop6 textTertiary">
           {_l(
             '注册开启审核后，审核结果(通过、拒绝)会邮件告知注册用户;外部门户类型设为私有后再添加用户后也会发送邀请通知。',
           )}
         </div>
 
-        <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('发件人名称')}</h6>
+        <h6 className="Font16 textPrimary Bold mBottom0 mTop24">{_l('发件人名称')}</h6>
         <input
           type="text"
           className="sign mTop6"
@@ -169,7 +172,7 @@ export default function TextMessage(props) {
           onChange={evt => setEmailSignature(evt.currentTarget.value)}
         />
 
-        <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('内容')}</h6>
+        <h6 className="Font16 textPrimary Bold mBottom0 mTop24">{_l('内容')}</h6>
         <div className="sysBtn flexRow alignItemsCenter" onClick={() => setState({ showEmailDialog: true })}>
           <Icon icon="email" className="Font18 mRight6" style={{ marginTop: -3 }} /> {_l('邮件设置')}
         </div>

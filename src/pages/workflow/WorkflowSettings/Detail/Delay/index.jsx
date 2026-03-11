@@ -116,7 +116,7 @@ export default class Delay extends Component {
 
     return (
       <Fragment>
-        <div className="Gray_75 workflowDetailDesc">
+        <div className="textSecondary workflowDetailDesc">
           {_l('在上一个节点完成后，延时到指定的日期和时间后再继续执行流程')}
         </div>
         <div className="mTop24 bold">{_l('日期')}</div>
@@ -148,7 +148,9 @@ export default class Delay extends Component {
 
     return (
       <Fragment>
-        <div className="Font14 Gray_75 workflowDetailDesc">{_l('上一节点完成后，延时一段时间再继续执行流程')}</div>
+        <div className="Font14 textSecondary workflowDetailDesc">
+          {_l('上一节点完成后，延时一段时间再继续执行流程')}
+        </div>
         <div className="mTop25 bold">{_l('时间')}</div>
 
         {TYPES.map(({ key, text }) => {
@@ -156,7 +158,7 @@ export default class Delay extends Component {
             <Fragment key={key}>
               <div className="mTop15">{text}</div>
               {key === 'secondFieldValue' && (
-                <div className="mTop5 Gray_75">{_l('实际运行时停留的秒钟数可能比设置的时间略长')}</div>
+                <div className="mTop5 textSecondary">{_l('实际运行时停留的秒钟数可能比设置的时间略长')}</div>
               )}
               <div className="mTop10">
                 <SpecificFieldsValue

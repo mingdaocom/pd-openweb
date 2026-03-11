@@ -6,7 +6,7 @@
   overflow: visible !important;
 }
 .myUpdateItem {
-  border: 2px solid #cfcfcf;
+  border: 2px solid var(--color-text-placeholder);
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   border-radius: 5px;
@@ -29,7 +29,7 @@
   height: 24px;
 }
 .myUpdateItem .faceArea {
-  border-bottom: 1px solid #f2f2f2;
+  border-bottom: 1px solid var(--color-background-disabled);
   height: 26px;
 }
 .myUpdateItem .faceArea .mdEmotion {
@@ -47,7 +47,7 @@
 }
 .myUpdateItem .myUpdateType a {
   cursor: pointer;
-  color: #999;
+  color: var(--color-text-tertiary);
   display: inline-block;
   line-height: 18px;
   height: 18px;
@@ -72,14 +72,13 @@
   top: -0.5px;
 }
 .myUpdateItem .update_close:hover i {
-  color: #fff !important;
+  color: var(--color-white) !important;
 }
 .myUpdateItem .update_close:not(:hover) {
-  background-color: #fff !important;
+  background-color: var(--color-background-primary) !important;
 }
 .msgContainer {
   zoom: 1;
-  background-color: #fff;
 }
 .msgContainer .TextArea {
   border: 0px;
@@ -120,7 +119,7 @@
 }
 
 .myUpdateItem_Content .faceBtn:not(:hover) {
-  color: #ccc !important;
+  color: var(--color-text-placeholder) !important;
 }
 .myUpdateItem_Content .faceBtn {
   background: none !important;
@@ -141,7 +140,7 @@
 }
 
 .myUpdateItem_Content .arrowUpOuter {
-  border-color: #fff #fff #f0f0f0;
+  border-color: var(--color-white) var(--color-white) var(--color-background-disabled);
   border-top-width: 0px;
 }
 
@@ -150,10 +149,10 @@
   padding-bottom: 0px;
 }
 .myUpdateItem .borderTopHidden {
-  border: 1px solid #f0f0f0;
+  border: 1px solid --color-background-disabled;
 }
 .middleContent .updaterAttachment {
-  border: 0px solid #d5d5d5;
+  border: 0px solid var(--color-border-primary);
   table-layout: fixed;
   border-right-width: 0px;
 }
@@ -163,28 +162,28 @@
   line-height: 20px;
   height: 20px;
   font-size: 14px;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .middleContent .promptDoc,
 .Comment_middleContent .promptDoc {
   margin-left: 5px;
-  color: #999;
+  color: var(--color-text-tertiary);
 }
 .updaterDialog_Main .ThumbPages {
   margin-top: -32px;
   text-align: center;
   height: 30px;
   line-height: 30px;
-  background-color: #d1d1d1;
+  background-color: var(--color-border-primary);
   _filter: alpha(opacity=40);
   opacity: 0.4;
 }
 .updaterDialog_Main .imagearea {
   width: 160px;
   height: 118px;
-  background: white;
-  border: 1px solid #dfdfdf;
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border-primary);
 }
 .updaterDialog_Main .updater_LinkTitle {
   width: 330px;
@@ -197,12 +196,12 @@
 .updaterDialog_Main {
   border-right: 0px;
   zoom: 1;
-  background-color: #fafafa;
-  border: 1px solid #f0f0f0;
+  background-color: var(--color-background-secondary);
+  border: 1px solid --color-background-disabled;
 }
 .updaterDialog_Main .uploadType {
   margin: 0px 10px;
-  color: #bebebe;
+  color: var(--color-text-disabled);
   padding: 0px 5px;
 }
 .updaterDialog_Main .uploadType .parallelChooseHidden {
@@ -211,12 +210,12 @@
   overflow: hidden;
 }
 .updaterDialog_Main .borderTop {
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid --color-background-disabled;
   height: 1px;
   overflow: hidden;
 }
 .updaterDialog_Main .uploadType a {
-  color: #999;
+  color: var(--color-text-tertiary);
   text-decoration: none;
   cursor: pointer;
   height: 45px;
@@ -229,23 +228,23 @@
   margin: 10px;
   height: 35px;
   line-height: 35px;
-  background-color: White;
-  border: 1px solid #d5d5d5;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border-primary);
   cursor: pointer;
   overflow: hidden;
 }
 .updaterDialog_Main .visualPicTextBox {
   width: 150px;
   height: 110px;
-  background-color: White;
-  border: 1px solid #d5d5d5;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border-primary);
   cursor: pointer;
   margin-left: 0px;
 }
 .updaterDialog_Main .uploadDocFailArea {
   margin-left: -10px;
   margin-right: -10px;
-  background-color: #fff8f8;
+  background-color: var(--color-error-bg);
 }
 .updaterCard .updaterDialog_Main .linkTextBox {
   height: 33px;
@@ -255,7 +254,7 @@
 }
 .updaterDialog_Main .linkBtnArea {
   padding: 0px 3px;
-  border-left: 1px solid #ccc;
+  border-left: 1px solid var(--color-border-tertiary);
 }
 .updaterDialog_Main .linkBtn {
   padding: 3px 6px;
@@ -276,7 +275,7 @@
   border-top: 1px solid;
 }
 #Attachment_updater .uploadAttachmentLink {
-  color: #aaa;
+  color: var(--color-text-tertiary);
   cursor: pointer;
   margin-left: 0px;
   margin-right: 20px;
@@ -311,7 +310,7 @@
   display: inline-block;
 }
 #Attachment_updater .kcDocItem .nodeIconContainer {
-  background-color: #eee;
+  background-color: var(--color-border-secondary);
   margin-right: 5px;
   width: 45px;
   height: 45px;

@@ -1,7 +1,7 @@
 @import '/src/common/mdcss/Themes/themeVariables.less';
 .daterangepicker {
   td.in-range {
-    background-color: #fff !important;
+    background-color: var(--color-background-primary) !important;
     border-color: @themeBorderColor3!important;
   }
   td.active:not(.off),
@@ -9,10 +9,10 @@
   td.end-date:not(.off) {
     background-color: @themeColor3!important;
     border-color: @themeBorderColor3!important;
-    color: #fff !important;
+    color: var(--color-white) !important;
   }
   td.active.off:hover {
-    color: #999;
+    color: var(--color-text-tertiary);
   }
   .ranges li.active {
     background-color: @themeColor3!important;

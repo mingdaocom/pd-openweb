@@ -14,7 +14,7 @@ const Con = styled(MenuItem)`
 `;
 const EditPanelCon = styled.div`
   width: 240px;
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 3px;
   box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.24);
   padding-top: 2px;
@@ -31,7 +31,7 @@ const EditPanelCon = styled.div`
 const Header = styled(VerticalMiddle)`
   height: 40px;
   padding: 0 20px;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid var(--color-border-secondary);
   input {
     border: none;
     margin-left: 6px;
@@ -43,7 +43,7 @@ const GroupItem = styled(VerticalMiddle)`
   padding: 0 20px;
   height: 36px;
   &:hover {
-    background: #fafafa;
+    background: var(--color-background-hover);
   }
 `;
 
@@ -99,8 +99,10 @@ function EditPanel(props) {
     return (
       <EditPanelCon>
         <Empty>
-          <i className="icon icon-folder_off Font26 Gray_9e"></i>
-          <div className="Font13 Gray_9e mTop12">{isDashboard ? _l('无分组') : _l('无分组，可从左侧列表创建')}</div>
+          <i className="icon icon-folder_off Font26 textTertiary"></i>
+          <div className="Font13 textTertiary mTop12">
+            {isDashboard ? _l('无分组') : _l('无分组，可从左侧列表创建')}
+          </div>
         </Empty>
       </EditPanelCon>
     );
@@ -108,7 +110,7 @@ function EditPanel(props) {
   return (
     <EditPanelCon>
       <Header className="search">
-        <i className="icon icon-search Font18 Gray_9d"></i>
+        <i className="icon icon-search Font18 textTertiary"></i>
         <input type="text" placeholder={'搜索分组'} value={keywords} onChange={e => setKeywords(e.target.value)} />
       </Header>
       <div className="groups">
@@ -125,7 +127,7 @@ function EditPanel(props) {
           </React.Fragment>
         )}
         {!filteredPersonalGroups.length && !filteredProjectGroups.length && (
-          <div className="Font13 Gray_bd TxtCenter mTop20 mBottom10">{_l('没有搜索结果')}</div>
+          <div className="Font13 textDisabled TxtCenter mTop20 mBottom10">{_l('没有搜索结果')}</div>
         )}
       </div>
     </EditPanelCon>

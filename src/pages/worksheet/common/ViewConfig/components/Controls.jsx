@@ -73,7 +73,7 @@ export default class Controls extends React.Component {
     const viewcontrols = controls.filter(id => _.find(columns, column => column.controlId === id));
     return (
       <div className="commonConfigItem">
-        <div className="Gray_75 mTop8 mBottom4">{_l('设置此视图下的表单中需要对用户隐藏的字段')}</div>
+        <div className="textSecondary mTop8 mBottom4">{_l('设置此视图下的表单中需要对用户隐藏的字段')}</div>
         <div className="ming Dropdown pointer w100 mBottom10 hideColumns">
           <SortColumns
             layout={2}

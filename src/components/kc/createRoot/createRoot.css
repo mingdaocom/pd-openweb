@@ -17,7 +17,7 @@
 }
 
 .folderName .txtFolderName {
-  border: 1px #ccc solid;
+  border: 1px var(--color-border-tertiary) solid;
   height: 35px;
   width: 325px;
   padding-left: 5px;
@@ -87,7 +87,7 @@
 }
 
 .kcDialogBox .folderMemberBox .memberItem .owner {
-  color: #00c957;
+  color: var(--color-success);
 }
 
 .kcDialogBox .folderMemberBox .memberItem .permission {
@@ -106,20 +106,20 @@
 .kcDialogBox .folderMemberBox .memberItem .permission .icon-approved {
   font-size: 16px;
   vertical-align: middle;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .kcDialogBox .folderMemberBox .memberItem .rootTrust {
   max-width: 90px;
   cursor: pointer;
-  color: #999;
+  color: var(--color-text-tertiary);
 }
 
 .kcDialogBox .folderMemberBox .memberItem .remove,
 .kcDialogBox .folderMemberBox .memberItem .toInvite {
   display: none;
   cursor: pointer;
-  color: #999;
+  color: var(--color-text-tertiary);
   opacity: 0.9;
 }
 .kcDialogBox .folderMemberBox .memberItem .remove:hover,
@@ -137,7 +137,7 @@
   top: 10px;
 }
 .kcDialogBox .folderMemberBox .addMember .icon-help {
-  color: #bdbdbd;
+  color: var(--color-text-disabled);
   vertical-align: middle;
   cursor: pointer;
 }
@@ -147,11 +147,11 @@
   vertical-align: top;
   width: 28px;
   height: 28px;
-  background-color: #666;
+  background-color: var(--color-text-secondary);
   position: absolute;
   margin-right: -28px;
   text-align: center;
-  color: #fff;
+  color: var(--color-white);
   font-size: 16px;
   filter: alpha(opacity=70);
   -moz-opacity: 0.7;
@@ -195,7 +195,7 @@
 }
 .kcDialogBox .folderMemberBox .addUser .addGroupMember {
   margin-left: 30px;
-  color: #bdbdbd;
+  color: var(--color-text-disabled);
 }
 .kcDialogBox .folderMemberBox .addUser .icon-error1 {
   font-size: 15px;
@@ -203,13 +203,13 @@
 
 .kcDialogBox .relatedToApp {
   margin-bottom: 10px;
-  color: #999 !important;
+  color: var(--color-text-tertiary) !important;
 }
 
 .kcDialogBox .folderMemberBox .permissionDesc {
   margin-top: 38px;
   position: absolute;
-  color: #999 !important;
+  color: var(--color-text-tertiary) !important;
 }
 
 .kcDialogBox .folderCharge .imgCharge,
@@ -225,7 +225,7 @@
   height: 3px;
   vertical-align: top;
   cursor: pointer;
-  color: #aaa;
+  color: var(--color-text-tertiary);
   margin-left: 6px;
 }
 
@@ -245,7 +245,7 @@
   height: 30px;
   vertical-align: middle;
   cursor: pointer;
-  color: #aaa;
+  color: var(--color-text-tertiary);
   margin-right: 46px;
 }
 
@@ -254,12 +254,12 @@
   display: inline-block;
   vertical-align: middle;
   margin-left: 13px;
-  color: #99a1ab;
+  color: var(--color-text-tertiary);
   cursor: pointer;
 }
 
 .kcDialogBox .folderName .addFolderStar:hover {
-  color: #0091ea;
+  color: var(--color-primary);
 }
 
 .kcDialogBox .folderName .addFolderStar.icon-task-star {
@@ -270,7 +270,7 @@
 .folderCharge .icon-task-folder-charge:hover,
 .folderMemberBox .icon-task-add-member-circle:hover,
 #createFolder .folderClose:hover {
-  color: #0091ea;
+  color: var(--color-primary);
 }
 
 #updatePermission {
@@ -279,7 +279,7 @@
   padding: 10px;
   box-sizing: border-box;
   position: fixed;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   padding: 0;
   z-index: 10;
 }
@@ -292,12 +292,12 @@
 
 #updatePermission .line {
   margin: 0 10px;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--color-border-tertiary);
 }
 
 #updatePermission .adminItem {
   padding: 10px 10px 8px 10px;
-  /*border-bottom:1px solid #aaa;*/
+  /*border-bottom:1px solid var(--color-text-tertiary);*/
 }
 
 #updatePermission .ordinaryItem,
@@ -308,11 +308,11 @@
 #updatePermission .itemLi .itemText {
   padding-bottom: 5px;
   display: block;
-  color: #fff;
+  color: var(--color-white);
 }
 
 #updatePermission .itemLi:not(.ThemeBGColor3) .itemText {
-  color: #151515;
+  color: var(--color-text-title);
 }
 
 #updatePermission .itemLi:first-child {
@@ -325,7 +325,7 @@
 
 #updatePermission .itemLi .describe {
   padding-bottom: 5px;
-  color: #fff;
+  color: var(--color-white);
 }
 #updatePermission .itemLi:not(.ThemeBGColor3) .describe {
   padding-bottom: 5px;
@@ -366,11 +366,11 @@
   line-height: 32px;
   border-radius: 3px;
   cursor: pointer;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 #addGroupPending .pendingContent .btnBack:hover {
-  background-color: #e2e2e2;
+  background-color: var(--color-border-secondary);
 }
 
 /*�ļ�������*/
@@ -389,7 +389,7 @@
 
 .createFolderBox .folderContent .attribute .dropBox {
   display: inline-block;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border-tertiary);
   border-radius: 3px;
   position: relative;
   vertical-align: middle;
@@ -397,7 +397,7 @@
   line-height: 35px;
   margin-left: 13px;
   box-sizing: border-box;
-  color: #151515;
+  color: var(--color-text-title);
   cursor: pointer;
   z-index: 10;
   width: 325px;
@@ -409,7 +409,7 @@
   display: inline-block;
   width: 286px;
   margin-top: 4px;
-  border-right: 1px solid #ccc;
+  border-right: 1px solid var(--color-border-tertiary);
   padding-left: 4px;
 }
 
@@ -418,7 +418,7 @@
   padding: 0 8px 0 4px;
   margin-left: 6px;
   margin-top: 12px;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 #folderAttributeList {
@@ -426,7 +426,7 @@
   top: 34px;
   width: 100%;
   padding: 5px 0;
-  background: white;
+  background: var(--color-background-primary);
   max-height: 200px;
   overflow-y: auto;
 }
@@ -436,19 +436,19 @@
   line-height: 30px;
   padding: 0 10px;
   font-size: 12px;
-  color: #151515;
+  color: var(--color-text-title);
 }
 
 #folderAttributeList .projectItem:hover {
   cursor: pointer;
-  background-color: #efefef;
+  background-color: var(--color-border-secondary);
 }
 
 #folderAttributeList .noProject {
   height: 30px;
   line-height: 30px;
   text-align: center;
-  color: #999;
+  color: var(--color-text-tertiary);
 }
 
 /*���˱�������*/
@@ -457,7 +457,7 @@
   border-radius: 3px;
   box-sizing: border-box;
   position: fixed;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   padding: 5px 0;
 }
 
@@ -466,9 +466,9 @@
   line-height: 30px;
   cursor: pointer;
   text-align: center;
-  color: #151515;
+  color: var(--color-text-title);
 }
 
 #checkInviter li:hover {
-  background-color: #efefef;
+  background-color: var(--color-border-secondary);
 }

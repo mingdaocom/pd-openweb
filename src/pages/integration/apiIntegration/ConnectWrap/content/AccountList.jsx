@@ -17,25 +17,25 @@ const Wrap = styled.div`
       width: 130px;
       height: 130px;
       line-height: 130px;
-      background: #ffffff;
+      background: var(--color-background-primary);
       border-radius: 50%;
       margin: 120px auto 0;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
   }
   .addAccount {
     padding: 8px 24px;
-    background: #1677ff;
+    background: var(--color-primary);
     border-radius: 21px;
-    color: #fff;
+    color: var(--color-white);
     display: inline-block;
     &:hover {
-      background: #1764c0;
+      background: var(--color-link-hover);
     }
   }
   .listCon {
     width: 1000px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     margin: 30px auto;
     padding: 20px;
     border-radius: 8px 8px 8px 8px;
@@ -45,8 +45,8 @@ const Wrap = styled.div`
     .searchCon {
       width: 200px;
       .search {
-        background-color: #fff;
-        border: 1px solid #e0e0e0;
+        background-color: var(--color-background-primary);
+        border: 1px solid var(--color-border-secondary);
       }
     }
     .acc {
@@ -58,15 +58,15 @@ const Wrap = styled.div`
       opacity: 0;
 
       .del {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         &:hover {
-          color: red;
+          color: var(--color-error);
         }
       }
     }
 
     .headT {
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-secondary);
       padding-bottom: 20px;
       .option {
         opacity: 1;
@@ -74,9 +74,9 @@ const Wrap = styled.div`
     }
     .tableTr {
       padding: 20px 0;
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-secondary);
       &:hover {
-        background: #fcfcfc;
+        background: var(--color-background-hover);
       }
       &:hover .option {
         opacity: 1;
@@ -286,7 +286,7 @@ function AccountList(props) {
         <span className="iconCon InlineBlock TxtCenter ">
           <i className="icon-account_box Font64 TxtMiddle" />
         </span>
-        <p className="Gray_9e mTop20 mBottom0">{_l('暂无可用账户，请先完成授权')}</p>
+        <p className="textTertiary mTop20 mBottom0">{_l('暂无可用账户，请先完成授权')}</p>
         {!keywords && (
           <span className="addAccount Bold Hand mTop24" onClick={onCreate}>
             <Icon type="add" /> {_l('添加账户')}
@@ -299,7 +299,7 @@ function AccountList(props) {
     return (
       <div className="listCon flexColumn">
         <div className="headCon flexRow alignItemsCenter">
-          <span className="flex Gray Font16 Bold">{_l('已授权账户')}</span>
+          <span className="flex textPrimary Font16 Bold">{_l('已授权账户')}</span>
           <div className="searchCon">
             <SearchInput
               placeholder={_l('搜索')}
@@ -324,7 +324,7 @@ function AccountList(props) {
             <div className="flex pLeft10">{_l('添加者')}</div>
             <div className="option pLeft10">
               <Icon
-                className="Font18 Hand InlineBlock Gray_9e ThemeHoverColor3"
+                className="Font18 Hand InlineBlock textTertiary ThemeHoverColor3"
                 icon="refresh"
                 onClick={() => {
                   setState({
@@ -339,7 +339,7 @@ function AccountList(props) {
           {refreshLoading ? (
             <LoadDiv className="mTop20 mBottom20" />
           ) : listSearch.length <= 0 ? (
-            <p className="Gray_9e mTop20 pBottom20 TxtCenter">{_l('无匹配的结果，换一个关键词试试吧')}</p>
+            <p className="textTertiary mTop20 pBottom20 TxtCenter">{_l('无匹配的结果，换一个关键词试试吧')}</p>
           ) : (
             listSearch.map(o => {
               return (

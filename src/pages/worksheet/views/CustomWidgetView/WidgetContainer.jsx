@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+﻿import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { get, pick } from 'lodash';
 import { arrayOf, bool, func, shape, string } from 'prop-types';
 import qs from 'query-string';
@@ -26,7 +26,7 @@ const CustomWidget = styled.iframe`
   flex: 1;
   height: 100%;
   border: none;
-  border-right: 1px solid #e0e0e0;
+  border-right: 1px solid var(--color-border-secondary);
 `;
 
 function getFilters(filters = {}, quickFilter = [], navGroupFilters = []) {
@@ -56,6 +56,8 @@ export default function WidgetContainer(props) {
     navGroupFilters,
     onLoadScript = () => {},
   } = props;
+  const pluginRuntimeUrl = get(md, 'global.Config.PluginRuntimeUrl');
+
   const iframeRef = useRef();
   const cache = useRef({});
   const containerId = useRef(uuidv4());
@@ -152,7 +154,7 @@ export default function WidgetContainer(props) {
         allow="geolocation; microphone; camera; fullscreen;"
         allowFullscreen
         ref={iframeRef}
-        src={`${get(md, 'global.Config.PluginRuntimeUrl') || '/'}widgetview`}
+        src={`${pluginRuntimeUrl ? `${pluginRuntimeUrl}widgetview` : '/widgetview'}`}
       />
       {side &&
         (side.type === 'html' ? (

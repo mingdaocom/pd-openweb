@@ -6,7 +6,7 @@ import { LoadDiv, PriceTip, Radio, ScrollView, Support, TagTextarea } from 'ming
 import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
 import SmsSignSet from 'src/components/SmsSignSet';
-import { getCurrentProject } from 'src/utils/project';
+import { RELATION_TYPE } from '../../enum';
 import { getControlTypeName, handleGlobalVariableName } from '../../utils';
 import {
   ActionFields,
@@ -22,19 +22,19 @@ import {
 const TagBox = styled.div`
   padding: 0 7px;
   height: 22px;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   border-radius: 2px;
-  color: #757575;
+  color: var(--color-text-secondary);
   display: flex;
   align-items: center;
   white-space: nowrap;
   &.yellow {
-    background: #ffa340;
-    color: #fff !important;
+    background: var(--color-warning);
+    color: var(--color-white) !important;
   }
   &.blue {
-    background: #1677ff;
-    color: #fff !important;
+    background: var(--color-primary);
+    color: var(--color-white) !important;
   }
 `;
 
@@ -165,11 +165,11 @@ export default class Message extends Component {
 
     return (
       <Fragment>
-        {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && (
-          <div className="Gray_75 workflowDetailDesc">
+        {window.platformENV.isPlatform && (
+          <div className="textSecondary workflowDetailDesc">
             <span className="TxtMiddle">
               <PriceTip text={_l('短信费用自动从组织信用点中扣除')} />
-              {!_.get(md, 'global.Config.IsLocal') && (
+              {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
                 <span className="mLeft5">{_l('目前仅支持中国大陆手机号。')}</span>
               )}
             </span>
@@ -184,7 +184,7 @@ export default class Message extends Component {
 
         <Member
           companyId={this.props.companyId}
-          appId={this.props.relationType === 2 ? this.props.relationId : ''}
+          appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
           accounts={data.accounts}
           updateSource={this.updateSource}
         />
@@ -196,7 +196,7 @@ export default class Message extends Component {
           <i className="Font28 icon-task-add-member-circle mRight10" />
           {_l('选择人员、号码或输入手机号')}
           <SelectUserDropDown
-            appId={this.props.relationType === 2 ? this.props.relationId : ''}
+            appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
             specialType={3}
             visible={showSelectUserDialog}
             companyId={this.props.companyId}
@@ -260,7 +260,7 @@ export default class Message extends Component {
                 const controlObj = data.formulaMap[ids.join('-')] || {};
 
                 if (!nodeObj.name || !controlObj.name) {
-                  return <span style={{ color: '#ffa340' }}>({_l('缺少字段变量')})</span>;
+                  return <span style={{ color: 'var(--color-warning)' }}>({_l('缺少字段变量')})</span>;
                 }
 
                 return (
@@ -361,12 +361,7 @@ export default class Message extends Component {
           <div className="flex">{_l('选择已有模板')}</div>
           <div
             className="ThemeColor3 ThemeHoverColor2 pointer"
-            onClick={() =>
-              this.setState({
-                addNewTemplate: true,
-                sign: !md.global.Config.IsLocal ? '明道云' : getCurrentProject(this.props.companyId).companyName,
-              })
-            }
+            onClick={() => this.setState({ addNewTemplate: true, sign: '' })}
           >
             <i className="icon-plus mRight5" />
             {_l('创建新模板')}
@@ -381,7 +376,7 @@ export default class Message extends Component {
             value={keywords}
             onChange={evt => this.setState({ keywords: evt.currentTarget.value.trim() })}
           />
-          <i className="icon-search Font20 Gray_75 Absolute mTop8 mLeft10" />
+          <i className="icon-search Font20 textSecondary Absolute mTop8 mLeft10" />
         </div>
 
         {templates.length ? (
@@ -409,8 +404,8 @@ export default class Message extends Component {
           </ul>
         ) : (
           <div className="flexColumn mTop40 alignItemsCenter">
-            <i className="icon-forum Gray_c Font64" />
-            <div className="Font15 Gray_75 mTop30">{_l('没有已审核模板、点击创建新模板')}</div>
+            <i className="icon-forum textPlaceholder Font64" />
+            <div className="Font15 textSecondary mTop30">{_l('没有已审核模板、点击创建新模板')}</div>
           </div>
         )}
       </Fragment>
@@ -462,12 +457,6 @@ export default class Message extends Component {
         value: 2,
         desc: _l('如：促销、优惠、活动报名等产品推广和品牌宣传类短信；系统将自动为此类短信末尾附加【退订】字样'),
       },
-      {
-        text: _l('金融交易（暂不支持）'),
-        value: 3,
-        desc: _l('如：资金到账提示、支付验证码、交易提醒、催缴通知等'),
-        disabled: true,
-      },
     ];
 
     return (
@@ -495,7 +484,7 @@ export default class Message extends Component {
         </div>
 
         <div className="bold mTop20">{_l('短信类型')}</div>
-        <div className="Gray_75 mTop10">
+        <div className="textSecondary mTop10">
           {_l('请谨慎选择您的短信类型，后续如果在发送时出现实际类型不符合预设类型的，可能面临模版被停用的风险')}
         </div>
         {MESSAGE_TYPES.map(item => (
@@ -514,7 +503,7 @@ export default class Message extends Component {
         ))}
 
         <div className="bold mTop20">{_l('短信内容')}</div>
-        <div className="Gray_75 mTop10">{_l('多于70字（含签名）的短信按67字每条计费')}</div>
+        <div className="textSecondary mTop10">{_l('多于70字（含签名）的短信按67字每条计费')}</div>
         <CustomTextarea
           className="minH100"
           projectId={this.props.companyId}
@@ -527,13 +516,6 @@ export default class Message extends Component {
           onChange={(err, value) => this.setState({ messageContent: value.replace(/【/g, '[').replace(/】/g, ']') })}
           updateSource={this.updateSource}
         />
-        <div className="Gray_75 mTop10">
-          {/*_l(
-            '已输入 %0 个字（含签名），按 %1 条计费',
-            this.statisticalWordNumber(),
-            Math.ceil(this.statisticalWordNumber() / 70),
-          )*/}
-        </div>
 
         <div className="mTop30">
           <span

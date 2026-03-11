@@ -27,12 +27,12 @@ const Start = styled.div`
     margin: auto;
     width: 1px;
     height: 100%;
-    background-color: #ccc;
+    background-color: var(--color-text-placeholder);
   }
   .flexRow {
     height: 40px;
-    background: #fff;
-    box-shadow: 0 1px 4px 1px rgba(0, 0, 0, 0.12);
+    background: var(--color-background-primary);
+    box-shadow: var(--shadow-sm);
     border-radius: 20px;
     padding: 0 30px 0 5px;
     position: relative;
@@ -42,10 +42,10 @@ const Start = styled.div`
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #2747f9;
+      background: #4159db;
       margin-right: 10px;
       border-radius: 50%;
-      color: #fff;
+      color: var(--color-white);
       font-size: 20px;
     }
   }
@@ -54,7 +54,7 @@ const Start = styled.div`
 const End = styled.div`
   height: 40px;
   line-height: 40px;
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow: 0 1px 4px 1px rgba(0, 0, 0, 0.12);
   border-radius: 20px;
   position: relative;
@@ -322,7 +322,7 @@ export class FlowChart extends Component {
 
   render() {
     const { processId } = this.props;
-    const { scale, startEventId, flowNodeMap } = this.state;
+    const { scale, startEventId, flowNodeMap, execPendingIds } = this.state;
     const isMobile = browserIsMobile();
 
     return (
@@ -336,7 +336,7 @@ export class FlowChart extends Component {
           >
             <div className="flexColumn">
               <Start className="workflowBox" data-id={startEventId}>
-                <div className="flexRow alignItemsCenter Font14 bold Gray_75">
+                <div className="flexRow alignItemsCenter Font14 bold textPrimary">
                   <span>
                     <Icon type="approval" />
                   </span>
@@ -347,7 +347,7 @@ export class FlowChart extends Component {
             {this.renderNode({ processId, data: flowNodeMap, firstId: startEventId, excludeFirstId: true })}
             <div className="flexColumn">
               <div className="workflowBox pTop0 mBottom20" data-id="99">
-                <End className="Font14 bold Gray_75">
+                <End className={cx('Font14 bold', execPendingIds.length ? 'textDisabled' : 'textSecondary')}>
                   <div>{_l('结束')}</div>
                 </End>
               </div>
@@ -387,11 +387,11 @@ export class FlowChart extends Component {
               <span className="workflowEditBtnLine" />
 
               <Legend className="flexRow alignItemsCenter">
-                <div className="legendLine" style={{ background: '#1677ff' }} />
+                <div className="legendLine" style={{ background: 'var(--color-primary)' }} />
                 <div>{_l('已执行')}</div>
               </Legend>
               <Legend className="flexRow alignItemsCenter mLeft20">
-                <div className="legendLine" style={{ background: '#ccc' }} />
+                <div className="legendLine" style={{ background: 'var(--color-border-tertiary)' }} />
                 <div>{_l('待执行')}</div>
               </Legend>
             </Fragment>
@@ -411,7 +411,7 @@ export default memo(({ appId, processId, instanceId, selectNodeId, onClose = () 
       title={
         <div className="flexRow valignWrapper">
           <div className="flex Font17 bold">{_l('流转图')}</div>
-          <Icon className="Gray_75 Font20 pointer" icon="close" onClick={onClose} />
+          <Icon className="textSecondary Font20 pointer" icon="close" onClick={onClose} />
         </div>
       }
       type="fixed"
@@ -426,7 +426,7 @@ export default memo(({ appId, processId, instanceId, selectNodeId, onClose = () 
 export const MobileFlowChart = memo(({ appId, processId, instanceId, selectNodeId, onClose = () => {} }) => {
   return (
     <Popup className="flowChartModal mobileModal full" onClose={onClose} visible={true}>
-      <Icon className="Gray_75 Font22 pointer mobileClose" icon="cancel" onClick={onClose} />
+      <Icon className="textSecondary Font22 pointer mobileClose" icon="cancel" onClick={onClose} />
       <FlowChart appId={appId} processId={processId} instanceId={instanceId} selectNodeId={selectNodeId} />
     </Popup>
   );

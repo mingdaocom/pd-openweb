@@ -10,16 +10,16 @@ import WidgetColor from 'src/pages/widgetConfig/widgetSetting/components/WidgetC
 import { formatNumberFromInput } from 'src/utils/control';
 
 const AddLine = styled.div`
-  color: #1677ff;
+  color: var(--color-primary);
   &:hover {
-    color: #0484fb;
+    color: var(--color-link-hover);
   }
 `;
 
 const InputWrap = styled.div`
   &:hover {
     .ant-input {
-      background-color: #f5f5f5 !important;
+      background-color: var(--color-background-secondary) !important;
     }
     .icon-edit {
       display: block;
@@ -33,13 +33,13 @@ const InputWrap = styled.div`
     position: absolute;
     right: 15px;
     top: 10px;
-    color: #1890ff !important;
+    color: var(--color-link-hover) !important;
   }
 `;
 
 const DeleteWrap = styled.span`
   &:hover .icon {
-    color: #1890ff !important;
+    color: var(--color-link-hover) !important;
   }
 `;
 
@@ -158,7 +158,7 @@ class LineConfigModal extends Component {
         visible={visible}
         centered={true}
         destroyOnClose={true}
-        closeIcon={<Icon icon="close" className="Font20 pointer Gray_9e" />}
+        closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
         footer={null}
         onCancel={onCancel}
       >
@@ -206,7 +206,7 @@ class LineConfigModal extends Component {
                     <Select
                       className="chartSelect w100"
                       value={lineConfig.location}
-                      suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                      suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                       onChange={value => {
                         this.handleChangeConfig({ location: value });
                       }}
@@ -235,7 +235,7 @@ class LineConfigModal extends Component {
                       <span className="Red">{_l('当前字段已删除')}</span>
                     )
                   }
-                  suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                  suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                   onChange={value => {
                     this.handleChangeConfig({ controlId: value });
                   }}
@@ -272,7 +272,7 @@ class LineConfigModal extends Component {
               <Select
                 className="chartSelect w100"
                 value={lineConfig.style}
-                suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                 onChange={value => {
                   this.handleChangeConfig({ style: value });
                 }}
@@ -426,7 +426,7 @@ export default class AuxiliaryLine extends Component {
             <InputWrap className="valignWrapper w100 Relative">
               <Input readOnly value={item.name} className="chartInput flex mRight5" />
               <Icon
-                className="Gray_9e pointer"
+                className="textTertiary pointer"
                 icon="edit"
                 onClick={() => {
                   this.setState({ editLineConfig: item });
@@ -436,7 +436,7 @@ export default class AuxiliaryLine extends Component {
             <Tooltip title={_l('删除')}>
               <DeleteWrap>
                 <Icon
-                  className="Gray_9e pointer Font19"
+                  className="textTertiary pointer Font19"
                   icon="trash"
                   onClick={() => {
                     this.handleRemoveLine(item.id);

@@ -10,11 +10,11 @@ const ChartCountWrap = styled.div`
   padding: 0 10px;
   width: auto;
   height: 32px;
-  color: #757575;
+  color: var(--color-text-secondary);
   text-align: center;
   line-height: 32px;
   border-radius: 16px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow: 0 3px 6px 0px rgba(0, 0, 0, 0.16);
   position: fixed;
   bottom: 60px;
@@ -73,6 +73,8 @@ export default class ChatCount extends Component {
       recordDiscussSwitch,
       recordLogSwitch,
       projectId,
+      workId,
+      instanceId,
       ...rest
     } = this.props;
     const { discussionCount, visible } = this.state;
@@ -92,6 +94,8 @@ export default class ChatCount extends Component {
                 showLog: !md.global.Account.isPortal && recordLogSwitch, // 根据应用权限判断是否开启日志显示
                 showDiscussion: recordDiscussSwitch, // 根据应用权限判断是否开启讨论显示
                 controls: (this.props.formData || []).filter(v => v.type === 26), // 传入所有成员字段, 包含创建人, 最近修改人和拥有者
+                workId,
+                instanceId,
                 success: res => {
                   // 给到最终讨论数量, 可能会有多次回调, 每次都更新计数即可
                   let count = res.count;

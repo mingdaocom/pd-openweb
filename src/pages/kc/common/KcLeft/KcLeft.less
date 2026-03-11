@@ -14,7 +14,7 @@
 .yunFileNav .fileSearch .btnFileSearch {
   display: inline-block;
   font-size: 20px;
-  color: #92969d;
+  color: var(--color-text-secondary);
   position: absolute;
   margin: 9px;
 }
@@ -37,7 +37,7 @@
   height: 32px;
   line-height: 32px;
   font-size: 12px;
-  color: #fff;
+  color: var(--color-white);
   padding: 0 15px 0 15px;
 }
 .yunFileNav .folderHeader .folderCheckedType {
@@ -64,7 +64,7 @@
   margin-right: 5px;
   cursor: pointer;
   vertical-align: middle;
-  color: #999;
+  color: var(--color-text-tertiary);
 }
 .yunFileNav .folderHeader .iconArrowDown {
   visibility: hidden;
@@ -91,11 +91,11 @@
 .yunFileNav .folderHeader .optionsLayer {
   position: absolute;
   padding: 6px 0;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   top: 24px;
   left: 0px !important;
   z-index: 2;
-  color: #151515;
+  color: var(--color-text-title);
   width: 116px;
 }
 .yunFileNav .folderList .isStared {
@@ -128,7 +128,7 @@
   position: fixed;
   float: right !important;
   width: 150px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   bottom: auto !important;
 }
 .yunFileNav .folderList .folderSetting .settingsLayer .settingsLayer .List-body {
@@ -140,7 +140,7 @@
 }
 .settingsLayer .settingItem .Icon {
   font-size: 18px;
-  color: #999 !important;
+  color: var(--color-text-tertiary) !important;
   display: inline-block;
   vertical-align: middle;
   margin: 0 10px 0 0;
@@ -148,7 +148,7 @@
   left: 0 !important;
 }
 .settingsLayer .settingItem .Item-content {
-  color: #666;
+  color: var(--color-text-secondary);
   padding-left: 16px !important;
 }
 .settingsLayer .settingItem .Item-content .icon-trash {
@@ -190,7 +190,7 @@
   width: 228px;
   height: 112px;
   line-height: normal;
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 3px;
   left: 12px;
   box-shadow:
@@ -204,7 +204,7 @@
 .yunFileNav .folderBottom .upgradeHint .upgradeCentent .hint {
   display: block;
   margin-bottom: 5px;
-  color: #999;
+  color: var(--color-text-tertiary);
 }
 .yunFileNav .folderBottom .upgradeHint .upgradeCentent .upgradeBtn {
   height: 26px;
@@ -212,7 +212,7 @@
   display: inline-block;
   line-height: 26px;
   border-radius: 3px;
-  color: #fff;
+  color: var(--color-white);
   margin-top: 7px;
   text-decoration: none;
 }
@@ -227,7 +227,7 @@
   top: 109px;
   left: 112px;
   transform: rotate(45deg) translate(-50%, 0);
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 2px;
 }
 .yunFileNav .folderListName {
@@ -238,7 +238,7 @@
   width: 35px;
   height: 35px;
   border: 2px solid;
-  border-color: #ffffff;
+  border-color: var(--color-white);
   border-bottom-color: transparent !important;
   border-radius: 100%;
   background: transparent !important;
@@ -280,7 +280,7 @@
 .kcDialogBox .usageList {
   width: 100%;
   line-height: 26px;
-  color: #151515;
+  color: var(--color-text-title);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -298,13 +298,13 @@
   .rootSearch {
     display: flex;
     align-items: center;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     padding: 0 10px;
     margin: 0 14px 10px;
     border-radius: 28px;
     .icon-search {
       font-size: 20px;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
     .Input {
       font-size: 13px;
@@ -313,7 +313,7 @@
       padding-left: 4px;
       background-color: transparent;
       &::placeholder {
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
     }
   }
@@ -329,16 +329,16 @@
 }
 .yunFileNav .typeList .Icon.icon-attachment {
   font-size: 16px;
-  color: #0091ea !important;
+  color: var(--color-primary) !important;
   transform: rotateZ(-90deg);
 }
 .yunFileNav .typeList .Icon.icon-access_time {
   font-size: 16px;
-  color: #00bcd4 !important;
+  color: var(--color-cyan) !important;
 }
 .yunFileNav .typeList .Icon.icon-task-star {
   font-size: 16px;
-  color: #ff9800 !important;
+  color: var(--color-warning) !important;
 }
 
 // layerMain.css
@@ -374,10 +374,10 @@
   display: inline-block;
   height: 35px;
   width: 90px;
-  background-color: #1191ea;
+  background-color: var(--color-primary);
   text-align: center;
   line-height: 35px;
-  color: #fff;
+  color: var(--color-white);
   cursor: pointer;
   padding: 0px !important;
 }

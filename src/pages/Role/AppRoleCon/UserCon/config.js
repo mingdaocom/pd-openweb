@@ -13,11 +13,15 @@ export const getIcon = data => {
 };
 
 export const getColor = data => {
-  return [0, 1].includes(data.memberType) ? '#1677ff' : [3].includes(data.memberType) ? '#ffad00' : '#eaeaea';
+  return [0, 1].includes(data.memberType)
+    ? 'var(--color-primary)'
+    : [3].includes(data.memberType)
+      ? 'var(--color-warning)'
+      : 'var(--color-border-secondary)';
 };
 
 export const getTxtColor = data => {
-  return [0, 1, 3].includes(data.memberType) ? 'White' : 'Gray_9e';
+  return [0, 1, 3].includes(data.memberType) ? 'textWhite' : 'textTertiary';
 };
 
 export const userStatusList = [

@@ -9,12 +9,12 @@ import PromptSound from '../PromptSound';
 
 const MessageBox = styled.div`
   height: 36px;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   border-radius: 4px;
   align-items: center;
   padding: 0 12px;
   .icon-trash:hover {
-    color: #f44336 !important;
+    color: var(--color-error) !important;
   }
 `;
 
@@ -35,7 +35,7 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
       <div className="Font13 bold mTop25">
         {_l('提示音')}
         <Tooltip title={_l('在 APP 运行期间方可进行语音播报，而 H5 则不具备此功能')}>
-          <Icon className="Font16 Gray_9e mLeft5" style={{ verticalAlign: 'text-bottom' }} icon="info" />
+          <Icon className="Font16 textTertiary mLeft5" style={{ verticalAlign: 'text-bottom' }} icon="info" />
         </Tooltip>
       </div>
 
@@ -62,7 +62,7 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
             <span className="mRight15">
               <Icon
                 type="trash"
-                className="Gray_75 Font14 pointer"
+                className="textSecondary Font14 pointer"
                 onClick={() =>
                   updateSource({
                     promptSound: {
@@ -85,7 +85,7 @@ export default ({ companyId, processId, relationId, selectNodeId, promptSound, f
           <span>
             <Icon
               type="edit"
-              className="Gray_75 ThemeHoverColor3 Font14 pointer"
+              className="textSecondary ThemeHoverColor3 Font14 pointer"
               onClick={() => {
                 setCacheData({
                   promptSound:

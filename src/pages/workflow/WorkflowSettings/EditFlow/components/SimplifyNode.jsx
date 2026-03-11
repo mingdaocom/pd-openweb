@@ -10,12 +10,12 @@ const Box = styled.div`
   min-width: 160px;
   max-width: 261px;
   height: 40px;
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow: 0 1px 4px rgb(0 0 0 / 16%);
   border-radius: 20px;
   padding: 0 12px 0 5px;
   position: relative;
-  border: 1px solid #fff;
+  border: 1px solid var(--color-border-primary);
   transform: translateY(-20px);
   &.workflowItemDisabled {
     opacity: 0.5 !important;
@@ -33,13 +33,13 @@ const Box = styled.div`
     justify-content: center;
     margin-right: 10px;
     border-radius: 50%;
-    color: #fff;
+    color: var(--color-white);
     font-size: 20px;
   }
   .workflowOperate {
-    color: #757575;
+    color: var(--color-text-secondary);
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .workflowNodeName {
@@ -47,8 +47,8 @@ const Box = styled.div`
     padding: 4px;
     font-size: 15px;
     text-align: left;
-    background: #efefef;
-    color: #151515;
+    background: var(--color-border-secondary);
+    color: var(--color-text-title);
     border: none;
   }
 `;
@@ -85,7 +85,7 @@ export default props => {
       events: () => {
         Dialog.confirm({
           className: 'deleteApprovalProcessDialog',
-          title: <span style={{ color: '#f44336' }}>{_l('删除“%0”', item.name)}</span>,
+          title: <span style={{ color: 'var(--color-error)' }}>{_l('删除“%0”', item.name)}</span>,
           onOk: () => {
             deleteNode(processId, item.id);
           },
@@ -143,7 +143,7 @@ export default props => {
       </div>
       {info && (
         <Tooltip title={info}>
-          <Icon type="info_outline" className="Font14 Gray_75 mLeft5" />
+          <Icon type="info_outline" className="Font14 textSecondary mLeft5" />
         </Tooltip>
       )}
       {allowMoreOperator && (

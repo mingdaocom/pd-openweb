@@ -5,7 +5,7 @@ body {
 }
 
 body {
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   position: relative;
 }
 
@@ -20,7 +20,7 @@ body {
 /*按钮样式*/
 
 .btn {
-  color: white;
+  color: var(--color-white);
   height: 44px;
   line-height: 44px;
   text-align: center;
@@ -33,13 +33,13 @@ body {
 }
 
 .btnEnabled {
-  background-color: #1677ff;
+  background-color: var(--color-primary);
   cursor: pointer;
   transition: background-color 0.5s;
 }
 
 .btnEnabled:hover {
-  background-color: #42a5f5;
+  background-color: var(--color-link-hover);
   transition: background-color 0.5s;
 }
 

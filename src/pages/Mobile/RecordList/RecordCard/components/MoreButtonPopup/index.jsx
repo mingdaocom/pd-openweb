@@ -8,7 +8,7 @@ const MoreButtonWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #9d9d9d;
+  color: var(--color-text-tertiary);
   font-size: 18px;
   ${props =>
     props.showType === 'icon'
@@ -20,7 +20,7 @@ const MoreButtonWrapper = styled.div`
           width: 32px;
           height: 32px;
           border-radius: 3px;
-          ${props.showType === 'standard' && 'border: 1px solid #DDDDDD;'}
+          ${props.showType === 'standard' && 'border: 1px solid var(--color-border-primary);'}
         `}
 `;
 

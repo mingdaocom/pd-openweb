@@ -13,8 +13,10 @@ const SideWrap = styled.div`
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
   }
-  &.white .sideContentWrap {
-    background-color: #fff;
+  &.btnSideContentWrap {
+    .sideContentWrap {
+      background-color: var(--color-background-secondary);
+    }
   }
   .sideContentWrap {
     position: fixed;
@@ -22,13 +24,13 @@ const SideWrap = styled.div`
     top: 0;
     bottom: 0;
     width: 720px;
-    background-color: #f5f5f5;
-    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.3);
+    background-color: var(--color-background-card);
+    box-shadow: var(--shadow-xl);
     header {
       .icon-close {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         &:hover {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }
@@ -46,13 +48,13 @@ const SideWrap = styled.div`
   header {
     padding: 0 24px;
     line-height: 56px;
-    background-color: #fff;
+    background-color: var(--color-background-card);
     font-weight: bold;
     font-size: 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.24);
+    box-shadow: var(--shadow-md);
     i {
       cursor: pointer;
       font-size: 16px;

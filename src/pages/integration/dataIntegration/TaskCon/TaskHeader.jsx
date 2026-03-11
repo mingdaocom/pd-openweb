@@ -19,22 +19,22 @@ const Wrap = styled.div`
   height: 55px;
   box-shadow: 0 3px 6px rgb(0 0 0 / 16%);
   align-items: center;
-  background: #fff;
+  background: var(--color-background-primary);
   z-index: 1;
   .back{
     cursor: pointer;
     margin-right: 15px;
     width: 20px;
     display: block;
-    color: #757575
+    color: var(--color-text-secondary)
     &:hover{
-      color: #1e88e5;
+      color: var(--color-primary);
     }
   }
   .title {
     font-size: 16px;
     font-weight: 400;
-    color: #151515;
+    color: var(--color-text-title);
   }
   .tabCon {
     display: flex;
@@ -43,12 +43,12 @@ const Wrap = styled.div`
       margin: 0 10px;
       height: 55px;
       font-weight: 400;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       line-height: 54px;
       &.isCur,&:hover {
         font-weight: 600;
-        color: #1677ff;
-        border-bottom: 3px solid #1677ff;
+        color: var(--color-primary);
+        border-bottom: 3px solid var(--color-primary);
       }
     }
   }
@@ -57,29 +57,29 @@ const Wrap = styled.div`
     padding: 0 22px;
     line-height: 36px;
     margin-right: 16px;
-    border: 1px solid #1677ff;
-    color: #1677ff;
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
     cursor: pointer;
     border-radius: 3px;
     text-align: center;
     font-weight: 600;
     &:hover{
-      background: #1677ff;
+      background: var(--color-primary);
       color:#fff;
     }
   }
   .disable,.disable:hover {
-    background: #bdbdbd;
-    background-color: #bdbdbd!important;
-    border: 1px solid #bdbdbd;
-    border-color: #bdbdbd;
+    background: var(--color-text-disabled);
+    background-color: var(--color-text-disabled)!important;
+    border: 1px solid var(--color-text-disabled);
+    border-color: var(--color-text-disabled);
     cursor: not-allowed!important;
     color:#fff;
   }
   .workflowStatusWrap{
     .disable,.disable:hover {
       .iconWrap .workflowSwitchIcon-active{
-        color:#bdbdbd!important;
+        color:var(--color-text-disabled)!important;
       }
     }
   }
@@ -201,7 +201,7 @@ export default function Header(props) {
                 <div>{STATUS2TEXT[status]}</div>
               </div>
               <div className={cx('iconWrap', `iconWrap-${status}`)}>
-                <Icon icon="hr_ok" className={cx('Font20 Gray_bd', `workflowSwitchIcon-${status}`)} />
+                <Icon icon="hr_ok" className={cx('Font20 textDisabled', `workflowSwitchIcon-${status}`)} />
               </div>
             </div>
           </div>

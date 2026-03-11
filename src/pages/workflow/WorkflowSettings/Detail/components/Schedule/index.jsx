@@ -5,14 +5,14 @@ import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import { Checkbox, Dialog, Dropdown, Icon, Radio } from 'ming-ui';
 import MembersName from '../../../EditFlow/components/MembersName';
-import { DATE_TYPE, EXEC_TIME_TYPE, NODE_TYPE, TIME_TYPE, TIME_TYPE_NAME } from '../../../enum';
+import { DATE_TYPE, EXEC_TIME_TYPE, NODE_TYPE, RELATION_TYPE, TIME_TYPE, TIME_TYPE_NAME } from '../../../enum';
 import Deadline from '../Deadline';
 import Member from '../Member';
 import SelectUserDropDown from '../SelectUserDropDown';
 import SpecificFieldsValue from '../SpecificFieldsValue';
 
 const Button = styled.span`
-  border: 1px solid #1677ff;
+  border: 1px solid var(--color-primary);
   padding: 0 16px;
   height: 28px;
   line-height: 28px;
@@ -23,7 +23,7 @@ const Button = styled.span`
 `;
 
 const Box = styled.div`
-  background: #f4f4f4;
+  background: var(--color-background-disabled);
   padding: 10px 12px;
   margin-top: 10px;
   border-radius: 4px;
@@ -38,7 +38,7 @@ const Box = styled.div`
 const EndBox = styled.div`
   padding: 16px;
   border-radius: 3px 3px 3px 3px;
-  border: 1px solid #eaeaea;
+  border: 1px solid var(--color-border-secondary);
 `;
 
 const RepeatBox = styled.div`
@@ -199,15 +199,15 @@ export default ({
   const renderRemindContent = (item, index) => {
     return (
       <div className={index === 0 ? 'mTop8' : 'mTop3'} key={item.id}>
-        <span className="Gray_75">{_l('在截止时刻')}</span>
+        <span className="textSecondary">{_l('在截止时刻')}</span>
         <span className="mLeft3">{EXECUTE_TIME_TYPE_LIST.find(o => o.value === item.executeTimeType).text}</span>
         {item.unit && item.unit !== EXEC_TIME_TYPE.CURRENT && (
-          <span className="Gray_75 mLeft3">{item.executeTime.fieldValue + TIME_TYPE_NAME[item.unit]}</span>
+          <span className="textSecondary mLeft3">{item.executeTime.fieldValue + TIME_TYPE_NAME[item.unit]}</span>
         )}
         {item.type === 1 ? (
           <Fragment>
             <span className="mLeft3 mRight2">{_l('提醒')}</span>
-            <span className="Gray_75">
+            <span className="textSecondary">
               <MembersName accounts={item.accounts || []} />
               {_.get(item, 'repeat.repeatType') === 6 &&
                 _l(
@@ -218,7 +218,7 @@ export default ({
             </span>
           </Fragment>
         ) : (
-          <span className="mLeft3 Gray_75">
+          <span className="mLeft3 textSecondary">
             {item.type === 3
               ? _l('自动否决')
               : item.type === 4
@@ -263,7 +263,7 @@ export default ({
     <Fragment>
       {schedule.type && (
         <Box>
-          <Icon icon="edit" className="Gray_75 ThemeHoverColor3 pointer" onClick={() => showDialog(true)} />
+          <Icon icon="edit" className="textSecondary ThemeHoverColor3 pointer" onClick={() => showDialog(true)} />
           <div className="bold">{_l('截止：到达此节点后的%0', getHeaderText())}</div>
           {schedule.actions.filter(o => o.type === 1).map(renderRemindContent)}
           {schedule.actions.filter(o => _.includes([2, 3, 4], o.type)).map(renderRemindContent)}
@@ -339,10 +339,10 @@ export default ({
               return (
                 <EndBox className="mTop10" key={item.id}>
                   <div className="flexRow">
-                    <div className="flex bold Gray_75">{_l('提醒%0', index + 1)}</div>
+                    <div className="flex bold textSecondary">{_l('提醒%0', index + 1)}</div>
                     <Icon
                       type="trash"
-                      className="Font16 Gray_75 ThemeHoverColor3 mLeft10 pointer"
+                      className="Font16 textSecondary ThemeHoverColor3 mLeft10 pointer"
                       onClick={() => {
                         const actions = [].concat(data.actions);
 
@@ -433,7 +433,7 @@ export default ({
                     <div className="flex mLeft10">
                       <Member
                         companyId={companyId}
-                        appId={relationType === 2 ? relationId : ''}
+                        appId={relationType === RELATION_TYPE.APP ? relationId : ''}
                         accounts={item.accounts}
                         updateSource={accounts => changeAction(item.id, accounts)}
                       />
@@ -444,7 +444,7 @@ export default ({
                         <i className="Font28 icon-task-add-member-circle mRight10" />
                         {_l('添加提醒人')}
                         <SelectUserDropDown
-                          appId={relationType === 2 ? relationId : ''}
+                          appId={relationType === RELATION_TYPE.APP ? relationId : ''}
                           visible={userDialogState[item.id]}
                           companyId={companyId}
                           processId={processId}

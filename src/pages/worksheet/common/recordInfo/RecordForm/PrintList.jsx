@@ -14,8 +14,8 @@ import { generatePdf } from 'worksheet/common/PrintQrBarCode/GeneratingPdf';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { PRINT_TEMP, PRINT_TYPE, PRINT_TYPE_STYLE } from 'src/pages/Print/config';
-import { getDownLoadUrl } from 'src/pages/Print/util';
+import { PRINT_TEMP, PRINT_TYPE, PRINT_TYPE_STYLE } from 'src/pages/Print/core/config';
+import { getDownLoadUrl } from 'src/pages/Print/core/util';
 import { browserIsMobile, emitter } from 'src/utils/common';
 import { VersionProductType } from 'src/utils/enum';
 import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
@@ -45,14 +45,24 @@ const MenuItemWrap = styled(MenuItem)`
 `;
 
 const SecTitle = styled.div`
-  color: #999;
+  color: var(--color-text-tertiary);
   font-size: 12px;
   margin: 12px 16px 4px;
 `;
 
-export function handleSystemPrintRecord({ worksheetId, viewId, recordId, appId, projectId, workId, instanceId }) {
+export function handleSystemPrintRecord({
+  worksheetId,
+  viewId,
+  recordId,
+  appId,
+  projectId,
+  workId,
+  instanceId,
+  rowIds,
+  printId = '',
+}) {
   let printData = {
-    printId: '',
+    printId,
     isDefault: true, // 系统打印模板
     worksheetId,
     projectId: projectId,
@@ -62,13 +72,16 @@ export function handleSystemPrintRecord({ worksheetId, viewId, recordId, appId, 
     appId,
     workId,
     id: instanceId,
+    rowIds,
   };
   let printKey = Math.random().toString(36).substring(2);
   webCacheAjax.add({
     key: `${printKey}`,
     value: JSON.stringify(printData),
   });
-  window.open(`${window.subPath || ''}/printForm/${appId}/${workId ? 'flow' : 'worksheet'}/new/print/${printKey}`);
+  window.open(
+    `${window.subPath || ''}${rowIds?.length > 1 ? '/printFormBatch' : '/printForm'}/${appId}/${workId ? 'flow' : 'worksheet'}/new/print/${printKey}`,
+  );
 }
 
 export async function handleTemplateRecordPrint({
@@ -82,6 +95,7 @@ export async function handleTemplateRecordPrint({
   workId,
   instanceId,
   customWin,
+  rowIds,
 }) {
   const it = template;
 
@@ -116,24 +130,24 @@ export async function handleTemplateRecordPrint({
       isDefault, // 系统打印模板
       worksheetId,
       projectId: projectId,
-      rowId: recordId,
       getType: 1,
       viewId,
       appId,
       name: it.name,
-      attriData: attriData[0],
+      attriData: attriData?.[0],
       fileTypeNum: it.type,
       allowDownloadPermission: it.allowDownloadPermission,
       allowEditAfterPrint: it.allowEditAfterPrint,
       workId,
       id: instanceId,
+      rowIds: rowIds || [recordId],
     };
     let printKey = Math.random().toString(36).substring(2);
     webCacheAjax.add({
       key: `${printKey}`,
       value: JSON.stringify(printData),
     });
-    const printViewUrl = `${window.subPath || ''}/printForm/${appId}/worksheet/preview/print/${printKey}`;
+    const printViewUrl = `${window.subPath || ''}${rowIds?.length > 1 ? '/printFormBatch' : '/printForm'}/${appId}/worksheet/preview/print/${printKey}`;
     if (browserIsMobile()) {
       (customWin || window).location.href = printViewUrl;
     } else {
@@ -248,6 +262,7 @@ export default class PrintList extends Component {
         projectId,
         workId,
         instanceId,
+        rowIds: [recordId],
       });
     });
   }

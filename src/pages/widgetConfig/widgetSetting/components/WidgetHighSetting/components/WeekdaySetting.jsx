@@ -14,7 +14,7 @@ const WeekdayWrap = styled.ul`
     width: 170px;
     padding: 7px 0;
     border-radius: 3px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     cursor: pointer;
     box-shadow: 0 3px 12px rgb(0, 0, 0, 0.16);
     li {
@@ -26,9 +26,9 @@ const WeekdayWrap = styled.ul`
       justify-content: space-between;
       &:hover,
       &.active {
-        background-color: #e6f4ff;
+        background-color: var(--color-primary-transparent);
         .icon-done {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }
@@ -118,7 +118,7 @@ export default function WeekdaySetting({ data, onChange }) {
           >
             <span style={{ marginRight: '6px' }}>{_l('不显示负值')}</span>
             <Tooltip placement="bottom" title={_l('勾选后，当计算结果为负数时，则显示为空')}>
-              <i className="icon-help Gray_bd Font16 pointer"></i>
+              <i className="icon-help textDisabled Font16 pointer"></i>
             </Tooltip>
           </Checkbox>
         </div>

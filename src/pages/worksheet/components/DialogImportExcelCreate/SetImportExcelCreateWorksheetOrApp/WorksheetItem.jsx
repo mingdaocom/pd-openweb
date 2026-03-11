@@ -9,7 +9,7 @@ import { Tooltip } from 'ming-ui/antd-components';
 const SheetTabWrap = styled.div`
   padding: ${props => (props.disabled ? '' : '0 20px')};
   height: 36px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--color-border-secondary);
   display: -webkit-box;
   display: -moz-box;
   display: -ms-flexbox;
@@ -63,7 +63,7 @@ const SheetTabWrap = styled.div`
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background-color: #ff9300;
+      background-color: var(--color-warning);
     }
   }
 `;
@@ -144,9 +144,10 @@ export default class WorksheetItem extends Component {
     } = this.props;
     const { directionVisible, hideDirection } = this.state;
     const showDisabledDot = _.some(sheetList, it => it.disabled);
-    const worksheetExcelImportDataLimitCount = md.global.Config.IsLocal
-      ? md.global.SysSettings.worksheetExcelImportDataLimitCount
-      : 20000;
+    const worksheetExcelImportDataLimitCount =
+      window.platformENV.isOverseas || window.platformENV.isLocal
+        ? md.global.SysSettings.worksheetExcelImportDataLimitCount
+        : 20000;
 
     return (
       <SheetTabWrap disabled={disabled}>
@@ -234,7 +235,7 @@ export default class WorksheetItem extends Component {
                             });
                           }}
                         />
-                        <span className={cx('flex ellipsis', { Gray_bd: item.disabled })}>
+                        <span className={cx('flex ellipsis', { textDisabled: item.disabled })}>
                           {item.sheetName}
                           {item.disabled && (
                             <Tooltip placement="bottom" title={tipsTxt}>
@@ -242,7 +243,7 @@ export default class WorksheetItem extends Component {
                                 icon="info_outline"
                                 className={cx('mLeft2 Font16', {
                                   Colorff9: item.rows.length,
-                                  Gray_bd: !item.rows.length,
+                                  textDisabled: !item.rows.length,
                                 })}
                               />
                             </Tooltip>
@@ -255,7 +256,7 @@ export default class WorksheetItem extends Component {
               }
               popupAlign={{ offset: [0, 0] }}
             >
-              <Icon icon="menu" className="Font20 Gray_75" />
+              <Icon icon="menu" className="Font20 textSecondary" />
             </Trigger>
             {showDisabledDot && <div className="showDisabledDot"></div>}
           </div>
@@ -280,7 +281,7 @@ export default class WorksheetItem extends Component {
                   >
                     <span
                       className={cx('ellipsis pLeft10 pRight10', {
-                        ThemeColor: item.sheetId === currentSheetInfo.sheetId,
+                        colorPrimary: item.sheetId === currentSheetInfo.sheetId,
                       })}
                       onClick={() => {
                         this.props.updateCurrentSheetInfo(item);
@@ -290,7 +291,7 @@ export default class WorksheetItem extends Component {
                         <input
                           defaultValue={currentSheetInfo.sheetName}
                           ref={node => (this.editInput = node)}
-                          className="editSheetNameInput Gray"
+                          className="editSheetNameInput textPrimary"
                           autoFocus
                           onFocus={() => {
                             setTimeout(() => {
@@ -363,7 +364,7 @@ export default class WorksheetItem extends Component {
                           </Menu>
                         }
                       >
-                        <Icon icon="arrow-down" className="Gray_9d" />
+                        <Icon icon="arrow-down" className="textTertiary" />
                       </Trigger>
                     )}
                   </div>
@@ -376,7 +377,7 @@ export default class WorksheetItem extends Component {
                   >
                     <span
                       className={cx('ellipsis pLeft10 pRight10', {
-                        ThemeColor: item.sheetId === currentSheetInfo.sheetId,
+                        colorPrimary: item.sheetId === currentSheetInfo.sheetId,
                       })}
                       onClick={() => {
                         this.props.updateCurrentSheetInfo(item);
@@ -384,7 +385,7 @@ export default class WorksheetItem extends Component {
                     >
                       {item.sheetName}
                     </span>
-                    {!disabled && <Icon icon="arrow-down" className="Gray_9d" />}
+                    {!disabled && <Icon icon="arrow-down" className="textTertiary" />}
                   </div>
                 );
               })}
@@ -395,12 +396,12 @@ export default class WorksheetItem extends Component {
           <div className="showMoreWrap">
             <Icon
               icon="arrow-left-tip"
-              className={cx('Gray_9e pointer Font15', { Alpha3: hideDirection === 'left' })}
+              className={cx('textTertiary pointer Font15', { Alpha3: hideDirection === 'left' })}
               onClick={() => this.handleScrollPosition(0)}
             />
             <Icon
               icon="arrow-right-tip"
-              className={cx('Gray_9e pointer Font15', { Alpha3: hideDirection === 'right' })}
+              className={cx('textTertiary pointer Font15', { Alpha3: hideDirection === 'right' })}
               onClick={() => this.handleScrollPosition(1)}
             />
           </div>

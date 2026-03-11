@@ -290,6 +290,8 @@ class Card extends Component {
     const {
       sourceType,
       filtersGroup,
+      linkageMatch,
+      alllInkageFiltersGroup,
       linkageFiltersGroup,
       initiateChartInfo,
       customPageConfig = {},
@@ -360,11 +362,15 @@ class Card extends Component {
           headerHover: showTitle,
         })}
       >
+        {sourceType &&
+          !_.isEmpty(alllInkageFiltersGroup) &&
+          _.isEmpty(initiateChartInfo) &&
+          _.isEmpty(linkageMatch) && <div className="masking" />}
         <div className="header" style={getBgColor()}>
           {(sourceType ? false : permissions) && DragHandle && (
             <DragHandle>
               <Tooltip title={_l('拖拽')} placement="bottom">
-                <span className="iconItem dragWrap Gray_9e">
+                <span className="iconItem dragWrap textTertiary">
                   <Icon icon="drag" />
                 </span>
               </Tooltip>
@@ -382,13 +388,13 @@ class Card extends Component {
             </div>
             {reportData.desc && (
               <Tooltip title={translateInfo.description || reportData.desc} placement="bottom">
-                <Icon icon="info" className="Font18 pointer Gray_9e mLeft7 reportDesc" />
+                <Icon icon="info" className="Font18 pointer textTertiary mLeft7 reportDesc" />
               </Tooltip>
             )}
             {sourceType && !_.isEmpty(initiateChartInfo) && (
               <Popover
                 visible={undefined}
-                trigger="click"
+                trigger="hover"
                 placement="bottom"
                 overlayClassName="customPageAutoLinkagePopoverWrap"
                 content={
@@ -402,7 +408,7 @@ class Card extends Component {
                           <div className="flexRow alignItemsCenter" key={n.controlId}>
                             {!index && (
                               <Icon
-                                className="Font16 mRight5 ThemeColor"
+                                className="Font16 mRight5 colorPrimary"
                                 icon={_.find(chartNav, { type: item.reportType }).icon}
                               />
                             )}
@@ -423,11 +429,9 @@ class Card extends Component {
                   </div>
                 }
               >
-                <Tooltip title={_l('作用于图表的条件')} placement={!showTitle ? 'bottomRight' : 'bottom'}>
-                  <span className={'mLeft7 pTop5 filterCriteriaIcon'}>
-                    <Icon icon="filter_criteria" className="Font18 pointer Gray_9e" />
-                  </span>
-                </Tooltip>
+                <span className={'mLeft7 pTop5 filterCriteriaIcon'}>
+                  <Icon icon="filter_criteria" className="Font18 pointer textTertiary" />
+                </span>
               </Popover>
             )}
           </div>
@@ -435,7 +439,7 @@ class Card extends Component {
             {needEnlarge && !this.isPublicShare && (sourceType ? reportData.status > 0 : true) && (
               <Tooltip title={_l('筛选')} placement="bottom">
                 <span
-                  className="iconItem Gray_9e"
+                  className="iconItem textTertiary"
                   onClick={() => {
                     this.setState({
                       dialogVisible: true,
@@ -476,7 +480,7 @@ class Card extends Component {
                   );
                 }}
               >
-                <span className="iconItem Gray_9e">
+                <span className="iconItem textTertiary">
                   <Tooltip title={_l('排序')} placement="bottom">
                     <Icon icon="import_export" className="Font20 Bold" />
                   </Tooltip>
@@ -485,7 +489,10 @@ class Card extends Component {
             )}
             {needRefresh && reportData.status > 0 && (
               <Tooltip title={_l('刷新')} placement="bottom">
-                <span onClick={() => this.getData(this.props, true)} className="iconItem Gray_9e freshDataIconWrap">
+                <span
+                  onClick={() => this.getData(this.props, true)}
+                  className="iconItem textTertiary freshDataIconWrap"
+                >
                   <Icon className="Font20" icon="refresh1" />
                 </span>
               </Tooltip>
@@ -493,7 +500,7 @@ class Card extends Component {
             {needEnlarge && reportData.status > 0 && (
               <Tooltip title={_l('放大')} placement="bottom">
                 <span
-                  className="iconItem Gray_9e"
+                  className="iconItem textTertiary"
                   onClick={() => {
                     this.handleOperateClick({
                       settingVisible: false,
@@ -507,7 +514,7 @@ class Card extends Component {
             )}
             {needEnlarge && !this.isPublicShare && (
               <MoreOverlay
-                className="iconItem Gray_9e Font20"
+                className="iconItem textTertiary Font20"
                 projectId={projectId}
                 pageId={pageId}
                 themeColor={themeColor}

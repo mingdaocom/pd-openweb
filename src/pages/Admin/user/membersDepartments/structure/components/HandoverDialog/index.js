@@ -60,7 +60,7 @@ export default function HandoverDialogCom(props) {
           <div>{_l('成功离职后，也可以在 “离职交接” 中交接工作。')}</div>
         </div>
         <div className="footer flexRow">
-          {/* <div className="ThemeColor Hand" onClick={() => setShowWorkHandover(true)}>
+          {/* <div className="colorPrimary Hand" onClick={() => setShowWorkHandover(true)}>
             {_l('交接工作')}
           </div> */}
           <div className="flex"></div>

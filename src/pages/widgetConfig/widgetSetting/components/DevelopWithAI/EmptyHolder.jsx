@@ -6,7 +6,7 @@ import { getDefaultPrompt } from './util';
 
 const Con = styled.div`
   position: absolute;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   width: 100%;
   height: 100%;
   display: flex;
@@ -15,21 +15,21 @@ const Con = styled.div`
   justify-content: center;
   .genBtn {
     padding: 0 12px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     border-radius: 30px;
     height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #151515;
+    color: var(--color-text-title);
     font-size: 13px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     margin-top: 12px;
     cursor: pointer;
   }
   .enterEditor {
     font-size: 13px;
-    color: #1677ff;
+    color: var(--color-primary);
     cursor: pointer;
     margin-top: 30px;
   }
@@ -40,10 +40,10 @@ export default function EmptyHolder({ control, onBeginWithMessage, onEnterEditor
   return (
     <Con>
       <img src={placeholderIcon} alt="placeholder" />
-      <div className="Gray_75 Font15" style={{ marginTop: 16 }}>
+      <div className="textSecondary Font15" style={{ marginTop: 16 }}>
         {_l('与 AI 对话生成代码，创建一个完全自定义样式与交互的字段')}
       </div>
-      <div className="Gray_9e Font13" style={{ marginTop: 28 }}>
+      <div className="textTertiary Font13" style={{ marginTop: 28 }}>
         {_l('试一试')}
       </div>
       {!md.global.SysSettings.hideAIBasicFun && (

@@ -55,7 +55,7 @@ const VIEW_TYPE_INFO = {
 const SelectFieldWrap = styled.div`
   width: 640px;
   margin: 10px auto;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   border-radius: 5px;
   box-shadow: 0 1px 4px rgb(0 0 0 / 16%);
   overflow: auto;
@@ -65,14 +65,14 @@ const SelectFieldWrap = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 `;
 
 const BoardTitleWrap = styled(FlexCenter)`
   align-items: end;
   padding: 20px 26px;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid var(--color-border-secondary);
   h3 {
     margin-top: 0;
     margin-bottom: 6px;
@@ -80,7 +80,7 @@ const BoardTitleWrap = styled(FlexCenter)`
   }
   p {
     margin: 0;
-    color: #151515;
+    color: var(--color-text-title);
   }
 `;
 const BoardTitle = styled.div`
@@ -99,7 +99,7 @@ const DisplayFieldWrap = styled.div`
     margin-top: 12px;
     margin-bottom: 32px;
     font-weight: normal;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
 
   .Radio {
@@ -204,7 +204,7 @@ export default class SelectField extends Component {
               <Icon style={{ color, fontSize: '56px' }} icon={icon} />
               <BoardTitle>
                 <h3>{title}</h3>
-                <Text color="#757575">{detail}</Text>
+                <Text color="var(--color-text-secondary)">{detail}</Text>
               </BoardTitle>
             </BoardTitleWrap>
             {this.renderContent()}

@@ -17,8 +17,10 @@ import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
 import { browserIsMobile } from 'src/utils/common';
 import {
   checkCellIsEmpty,
+  controlState,
   formatNumberToWords,
   getDefaultCount,
+  getMapConfig,
   isEmptyValue,
   isRelateRecordTableControl,
   toFixed,
@@ -26,23 +28,21 @@ import {
 import { compatibleMDJS, getCurrentProject } from 'src/utils/project';
 import { filterEmptyChildTableRows } from 'src/utils/record';
 import { FORM_ERROR_TYPE, FROM, SYSTEM_ENUM, TIME_UNIT } from './config';
-import { checkRuleLocked, controlState } from './formUtils';
+import { checkRuleLocked } from './formUtils';
 import {
   asyncUpdateMdFunction,
   calcDefaultValueFunction,
   checkValueByFilterRegex,
   formatSearchResultValue,
-  formatTimeValue,
   getCurrentValue,
   getDynamicValue,
-  getItemFilters,
-  getOtherWorksheetFieldValue,
   handleDotAndRound,
   onValidator,
   parseDateFormula,
   parseNewFormula,
   parseValueIframe,
 } from './formUtils';
+import { formatTimeValue, getItemFilters, getOtherWorksheetFieldValue } from './formUtils/helper';
 import { calcSubTotalCount, getArrBySpliceType, halfSwitchSize, isUnTextWidget } from './utils';
 
 /**
@@ -369,9 +369,17 @@ export default class DataFormat {
         item.size = halfSwitchSize(item, from);
       }
 
-      const { errorType, errorText } = onValidator({ item, data, masterData, ignoreRequired, verifyAllControls });
+      const { errorType, errorText } = onValidator({
+        item,
+        data,
+        masterData,
+        ignoreRequired,
+        verifyAllControls,
+        appId: _.get(masterData, 'appId') || this.appId,
+      });
       const ignoreError =
         ignoreHiddenRequired && errorType === FORM_ERROR_TYPE.REQUIRED && !controlState(item, from).visible;
+
       if (errorType && !ignoreError) {
         _.remove(this.errorItems, obj => obj.controlId === item.controlId);
         this.errorItems.push({
@@ -414,6 +422,7 @@ export default class DataFormat {
         masterData: {
           worksheetId,
           recordId,
+          appId,
           formData: this.data
             .map(c =>
               _.pick(c, [
@@ -431,7 +440,8 @@ export default class DataFormat {
         },
         DataFormat,
       });
-      if (loadRowsWhenChildTableStoreCreated) {
+      const subListNeedValidate = control.required || find(control.relationControls, c => c.required);
+      if (loadRowsWhenChildTableStoreCreated || (subListNeedValidate && !!recordId)) {
         store.initAndLoadRows({
           worksheetId: this.worksheetId,
           recordId,
@@ -502,6 +512,7 @@ export default class DataFormat {
                 recordId: this.recordId,
                 masterData: {
                   worksheetId: this.worksheetId,
+                  appId: this.appId,
                   formData: this.data,
                 },
                 abortController: this.abortController,
@@ -670,6 +681,7 @@ export default class DataFormat {
               data: this.data,
               masterData: this.masterData,
               verifyAllControls: this.from === 21 && !this.isMobile ? true : undefined,
+              appId: _.get(this.masterData, 'appId') || this.appId,
             });
 
             if (errorType) {
@@ -1327,6 +1339,35 @@ export default class DataFormat {
 
     if (!ids.length) return;
 
+    const isGoogle = !!getMapConfig();
+    if (isGoogle) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          const mapValue = JSON.stringify({
+            x: lng,
+            y: lat,
+            address: '',
+            title: '',
+            coordinate: 'wgs84',
+          });
+          ids.forEach(controlId => {
+            this.updateDataSource({
+              controlId,
+              value: mapValue,
+              isInit: true,
+            });
+          });
+          this.onAsyncChange({
+            controlIds: ids,
+            value: mapValue,
+          });
+        });
+      }
+      return;
+    }
+
     compatibleMDJS(
       'getLocation',
       {
@@ -1609,7 +1650,7 @@ export default class DataFormat {
    * 查询记录
    */
   getFilterRowsData = (searchControl, para, controlId, effectControlId) => {
-    const formatFilters = getFilter({ control: searchControl, formData: this.data });
+    const formatFilters = getFilter({ control: searchControl, formData: this.data, appId: this.appId });
 
     if (!formatFilters) return Promise.resolve(null);
 
@@ -1927,6 +1968,33 @@ export default class DataFormat {
       }
     });
   };
+
+  revalidateControl(controlId) {
+    const item = _.find(this.data, c => c.controlId === controlId);
+    const data = this.data;
+    const masterData = this.masterData;
+    const ignoreRequired = true;
+    const verifyAllControls = true;
+    const { errorType, errorText } = onValidator({
+      item,
+      data,
+      masterData,
+      ignoreRequired,
+      verifyAllControls,
+      appId: _.get(masterData, 'appId') || this.appId,
+    });
+
+    if (errorType) {
+      this.errorItems.push({
+        controlId: item.controlId,
+        errorType,
+        errorText,
+        showError: false,
+      });
+    } else {
+      _.remove(this.errorItems, obj => obj.controlId === item.controlId);
+    }
+  }
 
   /**
    * 操作字段的 store

@@ -12,6 +12,7 @@ import Status from './Status';
 import Users from './Users';
 
 const Wrap = styled.div`
+  background-color: var(--color-background-card);
   .header {
     padding: 10px 15px;
     justify-content: flex-end;
@@ -24,18 +25,21 @@ const Wrap = styled.div`
     font-weight: bold;
     padding: 5px;
     border-radius: 50%;
-    background-color: #e6e6e6;
+    background-color: var(--color-border-secondary);
   }
   .footer {
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-secondary);
     z-index: 0;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     .flex {
       padding: 10px;
     }
+    .reset {
+      background-color: var(--color-background-card);
+    }
     .query {
-      color: #fff;
-      background-color: #1677ff;
+      color: var(--color-white);
+      background-color: var(--color-primary);
     }
   }
 `;
@@ -121,7 +125,7 @@ export default props => {
     >
       <Wrap className="flexColumn h100" style={{ width }}>
         <div className="header flexRow valignWrapper">
-          <Icon className="Gray_9e close" icon="close" onClick={onClose} />
+          <Icon className="textTertiary close" icon="close" onClick={onClose} />
         </div>
         <div className="body flex">
           {!['mySponsor', 'completeMySponsor'].includes(tab) && renderAccount()}
@@ -133,7 +137,7 @@ export default props => {
         </div>
         <div className="footer flexRow valignWrapper">
           <div
-            className="flex Font16 centerAlign"
+            className="flex Font16 centerAlign reset"
             onClick={() => {
               onQuery({});
               onClose();

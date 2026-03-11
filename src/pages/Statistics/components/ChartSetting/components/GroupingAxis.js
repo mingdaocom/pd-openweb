@@ -124,14 +124,14 @@ export default class GroupingAxis extends Component {
           <Menu.Item
             className="valignWrapper"
             disabled={item.value === split.particleSizeType ? true : newDisableParticleSizeTypes.includes(item.value)}
-            style={{ color: item.value === split.particleSizeType ? '#1e88e5' : null }}
+            style={{ color: item.value === split.particleSizeType ? 'var(--color-primary) !important' : null }}
             key={item.value}
             onClick={() => {
               this.handleChangeTimeParticleSizeType(item.value);
             }}
           >
             <div className="flex">{item.text}</div>
-            <div className="Gray_75 Font12">{item.getTime()}</div>
+            <div className="textSecondary Font12">{item.getTime()}</div>
           </Menu.Item>
         ))}
       </Menu>
@@ -147,7 +147,7 @@ export default class GroupingAxis extends Component {
           <Menu.Item
             className="valignWrapper"
             disabled={item.value === split.particleSizeType ? true : newDisableParticleSizeTypes.includes(item.value)}
-            style={{ color: item.value === split.particleSizeType ? '#1e88e5' : null }}
+            style={{ color: item.value === split.particleSizeType ? 'var(--color-primary) !important' : null }}
             key={item.value}
             onClick={() => {
               this.handleChangeTimeParticleSizeType(item.value);
@@ -168,7 +168,7 @@ export default class GroupingAxis extends Component {
           title={
             <div className="flexRow valignWrapper w100">
               <div className="flex">{_l('无记录的项目')}</div>
-              <div className="Font12 Gray_75 emptyTypeName">{split.emptyType ? _l('显示') : _l('隐藏')}</div>
+              <div className="Font12 textSecondary emptyTypeName">{split.emptyType ? _l('显示') : _l('隐藏')}</div>
             </div>
           }
           popupOffset={[0, -15]}
@@ -176,7 +176,7 @@ export default class GroupingAxis extends Component {
           {emptyTypes.map(item => (
             <Menu.Item
               key={item.value}
-              style={{ color: item.value === split.emptyType ? '#1e88e5' : null }}
+              style={{ color: item.value === split.emptyType ? 'var(--color-primary) !important' : null }}
               onClick={() => {
                 this.handleChangeEmptyType(item.value);
               }}
@@ -198,7 +198,7 @@ export default class GroupingAxis extends Component {
     return (
       <div className="flexRow valignWrapper fidldItem">
         {axis ? (
-          <span className="Gray flex ellipsis">
+          <span className="textPrimary flex ellipsis">
             {axis.controlName}
             {isTime && ` (${_.find(timeParticleSizeDropdownData, { value: split.particleSizeType || 1 }).text})`}
             {isArea &&
@@ -218,20 +218,20 @@ export default class GroupingAxis extends Component {
             placement="bottomRight"
             getPopupContainer={() => document.querySelector('.ChartDialogContainer .setting')}
           >
-            <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
+            <Icon className="textTertiary Font18 pointer" icon="arrow-down-border" />
           </Dropdown>
         )}
         {isArea && (
           <Dropdown overlay={this.renderAreaOverlay(axis)} trigger={['click']} placement="bottomRight">
-            <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
+            <Icon className="textTertiary Font18 pointer" icon="arrow-down-border" />
           </Dropdown>
         )}
         {isOption && (
           <Dropdown overlay={this.renderOptionOverlay(axis)} trigger={['click']} placement="bottomRight">
-            <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
+            <Icon className="textTertiary Font18 pointer" icon="arrow-down-border" />
           </Dropdown>
         )}
-        <Icon className="Gray_9e Font18 pointer mLeft10" icon="close" onClick={this.handleClear} />
+        <Icon className="textTertiary Font18 pointer mLeft10" icon="close" onClick={this.handleClear} />
       </div>
     );
   }

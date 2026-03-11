@@ -41,6 +41,20 @@ export default {
     return mdyAPI('MerchantInvoice', 'GetTaxInfo', args, options);
   },
   /**
+   * 更新节点应用授权
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.taxNo 税号
+   * @param {boolean} args.isOpenAppAuth 是否开启app节点授权
+   * @param {array} args.authAppIds 授权的应用id集合
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  setAppAuth: function (args, options = {}) {
+    return mdyAPI('MerchantInvoice', 'SetAppAuth', args, options);
+  },
+  /**
    * 校验税号是否存在
    * @param {Object} args 请求参数
    * @param {string} args.taxNo 开票税号
@@ -222,6 +236,8 @@ export default {
    * @param {string} args.startUpdateTime
    * @param {string} args.endUpdateTime
    * @param {string} args.invoiceTitle
+   * @param {string} args.processId
+   * @param {} args.sourceType
    * @param {} args.pageFilter
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
@@ -307,6 +323,8 @@ export default {
    * @param {string} args.startUpdateTime
    * @param {string} args.endUpdateTime
    * @param {string} args.invoiceTitle
+   * @param {string} args.processId
+   * @param {} args.sourceType
    * @param {} args.pageFilter
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层

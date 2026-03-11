@@ -19,12 +19,12 @@ const ChooseWidgetWrap = styled.div`
     width: 300px;
     padding-bottom: 10px;
     height: auto;
-    background: #fff;
+    background: var(--color-background-primary);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
     border-radius: 3px;
     max-height: ${window.innerHeight - 24}px;
     .searchWrapper {
-      border-bottom: 1px solid #e0e0e0;
+      border-bottom: 1px solid var(--color-border-secondary);
       margin: 8px 16px 0;
       display: flex;
       height: 38px;
@@ -41,12 +41,12 @@ const ChooseWidgetWrap = styled.div`
       .icon {
         width: 20px;
         line-height: 38px;
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
     }
     .selectAll,
     .clearAll {
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       border-radius: 3px;
     }
     .listBox {
@@ -67,8 +67,8 @@ const ChooseWidgetWrap = styled.div`
             top: 10px;
             width: 8px;
             height: calc(100% - 30px);
-            border-left: 1px solid #e0e0e0;
-            border-bottom: 1px solid #e0e0e0;
+            border-left: 1px solid var(--color-border-secondary);
+            border-bottom: 1px solid var(--color-border-secondary);
             border-radius: 2px;
           }
         }
@@ -233,9 +233,9 @@ export default class ChooseWidget extends React.Component {
               clearselected={checkedChildNum > 0 && child.length > checkedChildNum}
               text={null}
             />
-            <span className="Gray_75 flex flexRow alignItemsCenter">
-              <Icon icon={getIconByType(item.type)} className={cx('Font14 Gray_9e widgetIcon')} />
-              <span className="Font13 Gray WordBreak overflow_ellipsis">
+            <span className="textSecondary flex flexRow alignItemsCenter">
+              <Icon icon={getIconByType(item.type)} className={cx('Font14 textTertiary widgetIcon')} />
+              <span className="Font13 textPrimary WordBreak overflow_ellipsis">
                 {item.controlName || (item.type === 22 ? _l('分段') : _l('备注'))}
               </span>
             </span>
@@ -243,7 +243,7 @@ export default class ChooseWidget extends React.Component {
           {child.length > 0 && (
             <Icon
               icon={closeList.includes(item.controlId) ? 'expand_less' : 'expand_more'}
-              className={cx('Font18 Hand ThemeHoverColor3 Gray_9e widgetIcon')}
+              className={cx('Font18 Hand ThemeHoverColor3 textTertiary widgetIcon')}
               onClick={e => {
                 e.stopPropagation();
                 this.setState({
@@ -325,13 +325,13 @@ export default class ChooseWidget extends React.Component {
           {!keyWords && (
             <div className="con flexRow mTop15">
               <span
-                className="selectAll Hand Gray_75 ThemeHoverColor3 pTop8 pBottom8 pLeft16 pRight16 mLeft16"
+                className="selectAll Hand textSecondary ThemeHoverColor3 pTop8 pBottom8 pLeft16 pRight16 mLeft16"
                 onClick={() => this.selectOrClearAll(true)}
               >
                 {_l('全选')}
               </span>
               <span
-                className="clearAll Hand Gray_75 ThemeHoverColor3 pTop8 pBottom8 pLeft16 pRight16 mLeft10"
+                className="clearAll Hand textSecondary ThemeHoverColor3 pTop8 pBottom8 pLeft16 pRight16 mLeft10"
                 onClick={() => this.selectOrClearAll()}
               >
                 {_l('清空')}
@@ -346,7 +346,7 @@ export default class ChooseWidget extends React.Component {
                   return this.renderCon(item);
                 })
             ) : (
-              <div className="Gray_75 TxtCenter pTop20 Font14 pBottom20">{_l('无可填写字段')}</div>
+              <div className="textSecondary TxtCenter pTop20 Font14 pBottom20">{_l('无可填写字段')}</div>
             )}
           </div>
         </ChooseWidgetWrap>

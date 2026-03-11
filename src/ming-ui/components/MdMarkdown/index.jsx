@@ -52,14 +52,14 @@ const Wrap = styled.div`
     max-height: inherit;
   }
   .vditor-toolbar {
-    background: #fafafa;
+    background: var(--color-background-secondary);
     padding: 0 5px !important;
-    border: 1px solid #dddddd !important;
+    border: 1px solid var(--color-border-primary) !important;
   }
   .vditor-reset {
     ${props => (props.isFullScreen ? 'padding: 10px !important;' : '')}
     font-size: 13px;
-    color: #151515;
+    color: var(--color-text-primary);
     font-family:
       'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'WenQuanYi Micro Hei',
       sans-serif !important;

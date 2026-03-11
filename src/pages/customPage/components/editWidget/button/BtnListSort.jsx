@@ -13,7 +13,7 @@ const SortableBtnIconWrap = styled.div`
 `;
 const SortableBtnListWrap = styled.ul`
   /* box-shadow: 0 0 2px rgba(0, 0, 0, 0.25); */
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   padding: 6px 24px;
   min-height: 205px;
   max-height: 560px;
@@ -25,15 +25,15 @@ const SortableBtnListWrap = styled.ul`
     line-height: 36px;
 
     cursor: pointer;
-    background-color: #fff;
-    color: #151515;
+    background-color: var(--color-background-primary);
+    color: var(--color-text-title);
     .btnIcon {
       margin: 0 7px;
     }
     transition: padding 0.25s;
     // &:hover {
     //   padding-left: 12px;
-    //   background-color: #f5f5f5;
+    //   background-color: var(--color-background-hover);
     // }
   }
 `;
@@ -51,7 +51,7 @@ const ModalContentWrap = styled.div`
 const renderSortableBtn = ({ item, DragHandle }) => (
   <li className="overflow_ellipsis">
     <DragHandle>
-      <i className="icon-drag Gray_bd Font18"></i>
+      <i className="icon-drag textDisabled Font18"></i>
     </DragHandle>
     <i style={{ color: item.color }} className={`btnIcon Font16 icon-${item.icon || 'custom_actions'}`}></i>
     <span>{item.name}</span>
@@ -64,7 +64,7 @@ export default function BtnListSort({ buttonList, onSortEnd }) {
     <Fragment>
       <Tooltip title={_l('按钮排序')}>
         <SortableBtnIconWrap className="mLeft10" onClick={() => setVisible(true)}>
-          <Icon className="Font24 Gray_9e ThemeHoverColor3" icon="import_export" />
+          <Icon className="Font24 textTertiary ThemeHoverColor3" icon="import_export" />
         </SortableBtnIconWrap>
       </Tooltip>
       <Modal

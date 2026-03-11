@@ -32,7 +32,8 @@ export default class PersonalEntrypoint extends Component {
 
   render() {
     const menus =
-      !md.global.Config.IsLocal || (md.global.Config.IsLocal && md.global.Config.ShowLicense)
+      (!window.platformENV.isOverseas && !window.platformENV.isLocal) ||
+      ((window.platformENV.isOverseas || window.platformENV.isLocal) && md.global.Config.ShowLicense)
         ? routerConfigs
         : routerConfigs.slice(0, -1);
     const type = getRequest().type || 'information';
@@ -56,7 +57,7 @@ export default class PersonalEntrypoint extends Component {
                     key={index}
                     onClick={() => this.handleClick(item.typetag)}
                   >
-                    <span className={cx('Font20 pRight15 Gray_9e', item.icon)} />
+                    <span className={cx('Font20 pRight15 textTertiary', item.icon)} />
                     {item.title}
                     {item.typetag.includes('account') && showWarn && type !== 'account' && (
                       <span className="warnLight warnLightMyaccount" />

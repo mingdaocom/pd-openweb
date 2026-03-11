@@ -12,9 +12,9 @@ import instance from 'src/pages/workflow/api/instance';
 const Box = styled.div`
   width: 100%;
   height: 36px;
-  background: #fefbe7;
+  background: var(--color-yellow-black);
   border-radius: 3px;
-  border: 1px solid #fce596;
+  border: 1px solid var(--color-warning-border);
   padding: 0 12px;
 `;
 
@@ -61,7 +61,7 @@ export default ({
                     <div className="pTop8 Font14">
                       {item.start} {_l('至')} {item.end}
                     </div>
-                    <div className="Gray_75 subText overflow_ellipsis pBottom8">{item.text}</div>
+                    <div className="textSecondary subText overflow_ellipsis pBottom8">{item.text}</div>
                   </div>
                 </MenuItem>
               ))}
@@ -83,7 +83,7 @@ export default ({
               className={cx(
                 `Font20 pointer ${iconClassName}`,
                 _.isEmpty(selectItem)
-                  ? `${iconClassName ? iconClassName : 'Gray_75'} ThemeHoverColor3`
+                  ? `${iconClassName ? iconClassName : 'textSecondary'} ThemeHoverColor3`
                   : 'ThemeColor3 ThemeHoverColor2 ',
               )}
             />
@@ -131,7 +131,11 @@ export default ({
           {selectItem.start} {_l('至')} {selectItem.end}
         </div>
         {renderTrigger()}
-        <Icon icon="cancel" className="Font20 mLeft10 Gray_9e ThemeHoverColor3 pointer" onClick={() => onSelect()} />
+        <Icon
+          icon="cancel"
+          className="Font20 mLeft10 textTertiary ThemeHoverColor3 pointer"
+          onClick={() => onSelect()}
+        />
       </Box>
     );
   }

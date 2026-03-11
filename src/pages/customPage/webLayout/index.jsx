@@ -24,10 +24,11 @@ const ContentWrap = styled.div`
   justify-content: center;
   padding: 0 8px;
   padding-top: 4px;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
   height: 100%;
   flex: 1;
   overflow: auto;
+  // position: relative;
   &.componentsEmpty {
     display: flex;
     align-items: center;
@@ -44,7 +45,7 @@ const ContentWrap = styled.div`
       padding-top: 35px;
       i {
         font-size: 60px;
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
     }
     p {
@@ -53,10 +54,23 @@ const ContentWrap = styled.div`
       color: var(--title-color);
     }
   }
-
+  .dragLine {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    height: calc(100% - 24px);
+    background: var(--auxiliaryLine-color);
+    z-index: 0;
+    display: none;
+  }
   .componentsWrap {
     padding: 0 0 4px 0;
-    height: 100%;
+    flex: 1;
+    position: relative;
+  }
+  .react-grid-layout {
+    position: relative;
+    z-index: 1;
   }
 `;
 
@@ -150,6 +164,28 @@ function WebLayout(props) {
     );
   };
 
+  const renderGrid = () => {
+    const el = _.get($ref, 'current') ? $ref.current.querySelector('.componentsWrap') : null;
+    if (el) {
+      const clientWidth = el.clientWidth - 10;
+      const cols = 48;
+      const colWidth = clientWidth / cols;
+      return (
+        <Fragment>
+          {Array.from({ length: cols }).map((_, index) => {
+            const stripeWidth = colWidth - 10;
+            const offset = stripeWidth * index + 10 + index * 10;
+            return (
+              <div key={index} className="pageDragLine dragLine" style={{ width: stripeWidth, left: offset }}></div>
+            );
+          })}
+        </Fragment>
+      );
+    } else {
+      return null;
+    }
+  };
+
   return (
     <Fragment>
       {editable && <WidgetList {...props} />}
@@ -167,6 +203,7 @@ function WebLayout(props) {
           '--title-color': bgIsDark ? '#ffffffcc' : '#333',
           '--icon-color': bgIsDark ? '#ffffffcc' : '#9e9e9e',
           '--bg-color': bgIsDark ? '#e6e6e633' : '#e6e6e6',
+          '--auxiliaryLine-color': bgIsDark ? 'rgb(255 255 255 / 2%)' : 'rgb(0 0 0 / 2%)',
           '--widget-color': pageConfig.widgetBgColor,
           '--widget-title-color': widgetIsDark ? '#ffffffcc' : '#333',
           '--widget-icon-color': widgetIsDark ? '#ffffffcc' : '#9e9e9e',
@@ -184,6 +221,7 @@ function WebLayout(props) {
               config={pageConfig}
               widgetIsDark={widgetIsDark}
             />
+            {editable && renderGrid()}
           </div>
         ) : (
           emptyPlaceholder || (

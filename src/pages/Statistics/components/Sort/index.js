@@ -6,12 +6,20 @@ import styled from 'styled-components';
 import { Icon, LoadDiv, ScrollView, SortableList } from 'ming-ui';
 import reportConfig from 'statistics/api/reportConfig';
 import { reportTypes } from '../../Charts/common';
-import { formatSorts, getSortData, isCustomSort, isTimeControl, timeParticleSizeDropdownData } from '../../common';
+import {
+  formatSorts,
+  getSortData,
+  isCustomSort,
+  isDisplayModes,
+  isTimeControl,
+  renderFieldStyleValue,
+  timeParticleSizeDropdownData,
+} from '../../common';
 
 const SortContent = styled.div`
   border-radius: 3px;
-  background-color: #fff;
-  box-shadow: 0 6px 26px 6px #8484845c;
+  background-color: var(--color-background-card);
+  box-shadow: var(--shadow-lg);
   width: auto !important;
   padding: 20px !important;
   max-height: 360px;
@@ -24,31 +32,31 @@ const SortContent = styled.div`
   }
   .sortSelect {
     border-radius: 5px;
-    background-color: #fff;
     margin-top: 8px;
     .item {
       width: 80px;
-      color: #757575;
+      color: var(--color-text-secondary);
+      background-color: var(--color-background-card);
       text-align: center;
       font-size: 14px;
       padding: 5px 0;
       cursor: pointer;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border-tertiary);
       border-right: none;
       &:first-child {
         border-radius: 5px 0 0 5px;
       }
       &:last-child {
         border-radius: 0 5px 5px 0;
-        border-right: 1px solid #e0e0e0;
+        border-right: 1px solid var(--color-border-tertiary);
       }
       &.active {
-        color: #1e88e5;
-        border-color: #1e88e5;
-        background-color: #fff;
+        color: var(--color-primary);
+        border-color: var(--color-primary);
+        background-color: var(--color-background-primary);
       }
       &.active + .item {
-        border-left-color: #1e88e5;
+        border-left-color: var(--color-primary);
       }
     }
   }
@@ -58,7 +66,7 @@ const CustomSortItemContent = styled.div`
   border-radius: 3px;
   padding: 8px 5px;
   &:hover {
-    background-color: #f6f6f6;
+    background-color: var(--color-background-hover);
   }
 `;
 
@@ -67,7 +75,7 @@ const CustomSortIconWrapper = styled.div`
   &:hover {
     span,
     .icon {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
 `;
@@ -86,9 +94,9 @@ const renderSortableItem = ({ item, DragHandle }) => {
   return (
     <CustomSortItemContent className="customSortItem flexRow valignWrapper">
       <DragHandle>
-        <Icon icon="drag" className="Gray_9e Font15 pointer" />
+        <Icon icon="drag" className="textTertiary Font15 pointer" />
       </DragHandle>
-      <span className="Gray Font14 mLeft5">{item.name}</span>
+      <span className="textPrimary Font14 mLeft5">{item.name}</span>
     </CustomSortItemContent>
   );
 };
@@ -102,7 +110,7 @@ export default class Sort extends Component {
       currentCustomSort: null,
       sortList: [],
       customSortLoading: false,
-      customSortId: null,
+      customSortControl: null,
       customSortValue: null,
       rightYaxisList: rightY ? this.setYaxisList(props) : [],
     };
@@ -198,21 +206,22 @@ export default class Sort extends Component {
     });
   };
   handleChangeCustomSortValue = () => {
-    const { customSortId, customSortValue } = this.state;
+    const { customSortControl, customSortValue } = this.state;
     if (customSortValue === 1) {
-      this.getCustomSort(customSortId, { [customSortId]: 2 });
+      this.getCustomSort({ [customSortControl.controlId]: 2 });
     } else if (customSortValue === 2) {
-      this.getCustomSort(customSortId, null);
+      this.getCustomSort(null);
     } else {
-      this.getCustomSort(customSortId, { [customSortId]: 1 });
+      this.getCustomSort({ [customSortControl.controlId]: 1 });
     }
   };
-  getCustomSort = (controlId, value) => {
+  getCustomSort = value => {
     const { reportId, pageId, sourceType, currentReport, reportData } = this.props;
+    const { controlId, controlType, displayMode } = this.state.customSortControl;
+    const isFieldStyle = isDisplayModes(controlType) && displayMode === 'fieldStyle';
 
     this.setState({
       customSortLoading: true,
-      customSortId: controlId,
       customSortValue: value && _.isNumber(value[controlId]) ? value[controlId] : null,
     });
 
@@ -229,11 +238,14 @@ export default class Sort extends Component {
         sort: value,
       })
       .then(result => {
+        const { valueMap } = reportData;
+        const controlValueMap = valueMap[controlId] || {};
         this.setState({
           sortList: result.map((item, index) => {
             const key = _.findKey(item);
+            const value = controlValueMap[key] || item[key];
             return {
-              name: item[key],
+              name: isFieldStyle ? renderFieldStyleValue(controlType, value) : value,
               originalName: key,
               id: index,
             };
@@ -386,7 +398,7 @@ export default class Sort extends Component {
     this.isRenderSort = true;
     return (
       <div className="sortItem" key={`${item.controlId}-${index}`}>
-        <div className="Gray Font14 ellipsis">
+        <div className="textPrimary Font14 ellipsis">
           {item.particleSizeType
             ? `${item.controlName}(${_.find(timeParticleSizeDropdownData, { value: item.particleSizeType }).text})`
             : item.controlName}
@@ -398,8 +410,19 @@ export default class Sort extends Component {
               className={cx('item', { active: (_.isArray(value) ? customSort.value : value) === data.value })}
               onClick={() => {
                 if (data.value == customSort.value) {
-                  this.getCustomSort(item.originalControlId || item.controlId, sortsItem);
-                  this.setState({ currentCustomSort: item.controlId, visible: false });
+                  this.setState(
+                    {
+                      currentCustomSort: item.controlId,
+                      visible: false,
+                      customSortControl: {
+                        controlId: item.originalControlId || item.controlId,
+                        ...item,
+                      },
+                    },
+                    () => {
+                      this.getCustomSort(sortsItem);
+                    },
+                  );
                 } else {
                   fn(data.value, item);
                 }
@@ -556,8 +579,8 @@ export default class Sort extends Component {
                 className={cx('valignWrapper pointer', { active: customSortValue })}
                 onClick={this.handleChangeCustomSortValue}
               >
-                <Icon className="mRight5 Gray_9e Font20" icon="import_export" />
-                <span className="Gray Font13 Normal">
+                <Icon className="mRight5 textTertiary Font20" icon="import_export" />
+                <span className="textPrimary Font13 Normal">
                   {customSortValue ? (customSortValue === 2 ? 'Z → A' : 'A → Z') : _l('自定义')}
                 </span>
               </CustomSortIconWrapper>

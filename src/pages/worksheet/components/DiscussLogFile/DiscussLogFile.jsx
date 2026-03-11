@@ -120,7 +120,7 @@ class DiscussLogFile extends Component {
               <span
                 className={cx('txt InlineBlock overflow_ellipsis WordBreak w100', {
                   'ThemeColor3 ThemeBorderColor3 border2': this.state.status === tab.id && !isWorksheetDiscuss,
-                  'Gray Font18': isWorksheetDiscuss,
+                  'textPrimary Font18': isWorksheetDiscuss,
                 })}
                 title={tab.text}
               >

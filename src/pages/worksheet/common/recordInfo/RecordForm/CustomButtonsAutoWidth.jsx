@@ -20,28 +20,32 @@ const MoreBtn = styled.span`
   line-height: 30px;
   border-radius: 4px;
   font-size: 13px;
-  color: #757575;
+  color: var(--color-text-secondary);
   cursor: pointer;
   .icon {
-    color: #9d9d9d;
+    color: var(--color-text-tertiary);
     margin-left: 3px;
   }
   &:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
 `;
 
 const DropButton = styled(Button)`
+  flex-shrink: 0;
   padding: 0 !important;
   text-align: center;
   background-color: transparent !important;
-  border: 1px solid rgb(204, 204, 204) !important;
-  color: rgb(51, 51, 51) !important;
+  border: 1px solid var(--color-border-primary) !important;
+  color: var(--color-text-primary) !important;
   .dropIcon {
     display: inline-block;
   }
   &.active .dropIcon {
     transform: rotate(180deg);
+  }
+  &:hover {
+    background-color: var(--color-background-hover) !important;
   }
   ${props =>
     props.operateHeight &&
@@ -79,7 +83,7 @@ const DropButton = styled(Button)`
     }
   }
   &.operates-standard {
-    background: #fff !important;
+    background: var(--color-background-primary) !important;
     &:hover {
       background: rgba(0, 0, 0, 0.03) !important;
     }
@@ -203,7 +207,7 @@ function Buttons(props) {
         operateHeight={operateHeight}
         moreWidth={moreWidth}
       >
-        <i className="icon icon-more_horiz Gray_9d Font20"></i>
+        <i className="icon icon-more_horiz Font20"></i>
       </DropButton>
     );
   } else if (type === 'button') {
@@ -217,7 +221,7 @@ function Buttons(props) {
         type="ghost"
       >
         <span className="breakAll overflow_ellipsis">{_l('更多')}</span>
-        <i className="dropIcon icon icon-arrow-down Font12 mLeft6 mRight0 Gray_9d" />
+        <i className="dropIcon icon icon-arrow-down-border Font12 mLeft6 mRight0" />
       </DropButton>
     );
   } else {
@@ -280,6 +284,7 @@ function Buttons(props) {
                 '#dialogSelectDept_container',
                 '.CityPicker',
                 '.CityPicker-wrapper',
+                '.rightRecord',
               ]}
             >
               <CustomButtons

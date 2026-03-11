@@ -9,7 +9,7 @@ import externalPortalAjax from 'src/api/externalPortal.js';
 const Load = styled.div`
   width: 15px;
   height: 15px;
-  border: 2px solid #fff;
+  border: 2px solid var(--color-white);
   border-top-color: transparent;
   border-radius: 100%;
   animation: circle infinite 0.75s linear;
@@ -25,8 +25,8 @@ const Load = styled.div`
 `;
 const Wrap = styled.div`
   .urlPre {
-    background: #dddddd;
-    border: 1px solid #ddd;
+    background: var(--color-border-primary);
+    border: 1px solid var(--color-border-primary);
     line-height: 34px;
     padding: 0 10px;
     border-radius: 3px 0 0 3px;
@@ -34,11 +34,11 @@ const Wrap = styled.div`
   }
   input {
     border-radius: 0 3px 3px 0;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     line-height: 34px;
     padding: 0 5px;
     &:focus {
-      border: 1px solid #1677ff;
+      border: 1px solid var(--color-primary);
     }
   }
   .errTxt {
@@ -146,7 +146,7 @@ export default function EditPortalUrlDialog(props) {
       }
     >
       <Wrap>
-        <p className="Gray_75">{_l('可定义域名后缀，支持输入字母、数字、中划线')}</p>
+        <p className="textSecondary">{_l('可定义域名后缀，支持输入字母、数字、中划线')}</p>
         <div className="urlInput flexRow">
           <span className="urlPre">{urlPre}</span>
           <input

@@ -24,25 +24,23 @@ const Wrap = styled.div`
   .btn {
     margin-right: 0px;
   }
-  width: 100%;
-  background: #fff;
-  // border: 1px solid #ebebeb;
+  background: var(--color-background-primary);
+  // border: 1px solid var(--color-border-secondary);
   border-radius: 10px;
   max-width: 800px;
-  margin: 0 auto 0;
   .Green_right {
-    color: #4caf50;
+    color: var(--color-success);
   }
   .con {
     padding: 24px;
-    border-top: 1px solid #ebebeb;
+    border-top: 1px solid var(--color-border-secondary);
     .webhookList {
       li {
         // height: 34px;
         line-height: 34px;
         padding: 0 8px;
         &:hover {
-          background: #f7f7f7;
+          background: var(--color-background-hover);
         }
       }
       .w180 {
@@ -60,6 +58,9 @@ const Wrap = styled.div`
     right: 0;
     z-index: 100;
   }
+  .w30 {
+    width: 30px;
+  }
   .w150 {
     width: 150px;
   }
@@ -68,18 +69,22 @@ const Wrap = styled.div`
     line-height: 34px;
     padding: 0 8px;
     &:not(.disabled):hover {
-      background: #f7f7f7;
+      background: var(--color-background-secondary);
     }
     & > div {
       flex-shrink: 0;
     }
+    .titileIcon {
+      opacity: 0;
+    }
+    &:hover .titileIcon {
+      opacity: 1;
+    }
   }
   .iconCon {
-    text-align: center;
     line-height: 51px;
   }
 `;
-
 function AddNode(props) {
   const featureType = getFeatureStatus(localStorage.getItem('currentProjectId'), VersionProductType.codeBlockNode);
   if (!props.canEdit || !featureType) {
@@ -87,7 +92,7 @@ function AddNode(props) {
   }
   return (
     <React.Fragment>
-      <Icon icon={'arrow'} className="Font24 TxtCenter InlineBlock" style={{ color: '#ddd' }} />
+      <Icon icon={'arrow'} className="Font24 TxtCenter InlineBlock" style={{ color: 'var(--color-border-primary)' }} />
       <WrapBtn
         className="Hand flexRow alignItemsCenter"
         onClick={() => {
@@ -101,7 +106,7 @@ function AddNode(props) {
         <Icon icon="worksheet_API" className="Font17" />
         <span className="mLeft3">{_l('插入代码')}</span>
         <Tooltip placement="bottom" title={_l('可对前面节点输出的数据做处理，以供后面节点使用，如加密、解密等')}>
-          <Icon icon="info_outline" className="Gray_bd Font16 mLeft5" />
+          <Icon icon="info_outline" className="textDisabled Font16 mLeft5" />
         </Tooltip>
       </WrapBtn>
     </React.Fragment>
@@ -150,6 +155,7 @@ export default function Card(props) {
             'errorMap',
             'errorMsg',
             'executeType',
+            'controls',
           ]),
           processId: info.id,
           nodeId: node.id,
@@ -191,6 +197,7 @@ export default function Card(props) {
         return (
           <div className="con">
             <div className="flexRow paramLi bold disabled">
+              <div className="w30 WordBreak"></div>
               <div className="w150 WordBreak">{_l('字段名/参数名')}</div>
               <div className="w150 WordBreak">{_l('类型')}</div>
               <div className="w150 WordBreak">{_l('默认值')}</div>
@@ -201,14 +208,40 @@ export default function Card(props) {
               if ([10000007].includes((controls.find(it => it.controlId === o.dataSource) || {}).type)) {
                 return null;
               }
+              const canEdit = props.isConnectOwner || props.canEdit;
               return (
-                <Fragment>
-                  <div className="flexRow paramLi Hand">
-                    <div className="w150 WordBreak" style={{ 'padding-left': (o.level || 0) * 20 }}>
-                      <span className="WordBreak flex">{o.controlName}</span>
-                      <span className="Gray_9e mLeft5 WordBreak">{o.alias}</span>
+                <Fragment key={o.controlId}>
+                  <div className="flexRow paramLi">
+                    <div className="w30 WordBreak">
+                      {o.level <= 0 && !_.includes([22, 36], o.type) && o.type < 10000000 && !o.dataSource && (
+                        <Icon
+                          icon="ic_title"
+                          className={cx('Font16', o.attribute === 1 ? 'ThemeColor3' : 'textDisabled titileIcon', {
+                            Hand: canEdit,
+                          })}
+                          onClick={() => {
+                            if (!canEdit) return;
+                            update({
+                              ...node,
+                              controls: controls.map(item => {
+                                if (item.controlId === o.controlId) {
+                                  return { ...item, attribute: item.attribute === 1 ? 0 : 1 };
+                                }
+                                return { ...item, attribute: 0 };
+                              }),
+                            });
+                          }}
+                        />
+                      )}
                     </div>
-                    <div className="w150 Gray_75 WordBreak">
+                    <div className="w150 WordBreak pRight5" style={{ 'padding-left': (o.level || 0) * 20 }}>
+                      <span className="WordBreak">
+                        {o.required ? <span className="Red">*</span> : ''}
+                        {o.controlName}
+                        <span className="textTertiary mLeft5">{o.alias}</span>
+                      </span>
+                    </div>
+                    <div className="w150 textSecondary WordBreak">
                       {(FIELD_TYPE.find(s => s.value === o.type) || {}).text}
                     </div>
                     <div className="w150 WordBreak">{o.workflowDefaultValue}</div>
@@ -218,7 +251,7 @@ export default function Card(props) {
                     o.options.map(item => (
                       <div className="flexRow paramLi Hand" key={item.key}>
                         <div className="w150 WordBreak"></div>
-                        <div className="w150 Gray_75 WordBreak">{item.value}</div>
+                        <div className="w150 textSecondary WordBreak">{item.value}</div>
                         <div className="flex WordBreak">{item.key}</div>
                       </div>
                     ))}
@@ -294,9 +327,9 @@ export default function Card(props) {
 
   return (
     <div className="flexColumn">
-      <Wrap className={props.className}>
+      <Wrap className={cx(props.className, 'w100 divCenter')}>
         <CardTopWrap className="flexRow flex">
-          <div className={cx('iconCon')}>
+          <div className={cx('iconCon TxtCenter')}>
             {renderTips()}
             <Icon icon={props.icon || 'parameter'} className="iconParam Font26" />
           </div>
@@ -309,7 +342,7 @@ export default function Card(props) {
                   <div className="flex">{props.title}</div>
                   <div className="flexRow alignItemsCenter">
                     <Checkbox
-                      className="checkBox InlineBlock Gray_75"
+                      className="checkBox InlineBlock textSecondary"
                       text={_l('使用网络代理')}
                       checked={node.settings.useProxy}
                       onClick={() => {
@@ -320,7 +353,7 @@ export default function Card(props) {
                       }}
                     />
                     <Tooltip placement="topLeft" title={_l('安装的API，允许在卡片上修改是否使用网络代理')}>
-                      <Icon icon="info_outline" className="Gray_75 Font16 mLeft10 mTop4" />
+                      <Icon icon="info_outline" className="textSecondary Font16 mLeft10 mTop4" />
                     </Tooltip>
                   </div>
                 </div>
@@ -328,11 +361,11 @@ export default function Card(props) {
                 props.title
               )}
             </p>
-            <p className="Font13 Gray_75 mTop4">
+            <p className="Font13 textSecondary mTop4">
               <span className="TxtMiddle">
                 {props.des || _l('输入参数用于在工作表或工作流中使用 API 查询时，可以传入动态值')}
               </span>
-              <Support href={props.support} className="Gray_9e" type={3} text={_l('帮助')} />
+              <Support href={props.support} className="textTertiary" type={3} text={_l('帮助')} />
             </p>
           </div>
           {/* 安装的连接 api 不支持编辑，只读显示 */}

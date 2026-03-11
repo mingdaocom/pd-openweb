@@ -53,14 +53,14 @@ const CollectionWrap = styled.div`
   width: 340px;
   padding: 12px;
   box-sizing: border-box;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.25);
   border-radius: 3px;
   .hapHelper {
     width: 316px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     border-radius: 8px;
-    border: 1px solid #1677ff;
+    border: 1px solid var(--color-primary);
     padding: 10px 15px;
     box-sizing: border-box;
     &:hover {
@@ -75,11 +75,11 @@ const CollectionWrap = styled.div`
     height: 36px;
     display: flex;
     align-items: center;
-    color: #151515;
+    color: var(--color-text-title);
     font-size: 14px;
     border-radius: 3px 3px 3px 3px;
     &:hover {
-      background: #f5f5f9;
+      background: var(--color-background-hover);
     }
   }
 `;
@@ -101,7 +101,7 @@ export default function HelpCollection(props) {
         <img className="hapAI" src={hapAI} />
         <div className="mLeft15">
           <div className="bold Font14">{_l('HAP助手')}</div>
-          <div className="Gray_75">{_l('您好，请问需要什么帮助？')}</div>
+          <div className="textSecondary">{_l('您好，请问需要什么帮助？')}</div>
         </div>
       </div>
     );
@@ -116,7 +116,7 @@ export default function HelpCollection(props) {
         return (
           <div className={cx('itemWrap')} key={type}>
             <div
-              className={cx('title Gray_9e bold mBottom8  mLeft10', {
+              className={cx('title textTertiary bold mBottom8  mLeft10', {
                 mTop0: !isTop && index === 0,
                 mTop12: !(!isTop && index === 0),
               })}
@@ -124,7 +124,10 @@ export default function HelpCollection(props) {
               {text}
             </div>
             {items.map(v => {
-              if (md.global.Config.IsLocal && _.includes(['video', 'communityQuestions', 'helpDoc', ''], v.id)) {
+              if (
+                (window.platformENV.isOverseas || window.platformENV.isLocal) &&
+                _.includes(['video', 'communityQuestions', 'helpDoc', ''], v.id)
+              ) {
                 return null;
               }
 
@@ -142,7 +145,7 @@ export default function HelpCollection(props) {
                   >
                     <Icon
                       icon={v.icon}
-                      className={cx('Gray_9e TxtMiddle mLeft10', {
+                      className={cx('textTertiary TxtMiddle mLeft10', {
                         Font16: v.id === 'lastUpdated',
                         Font20: v.id !== 'lastUpdated',
                       })}
@@ -164,7 +167,7 @@ export default function HelpCollection(props) {
                 >
                   <Icon
                     icon={v.icon}
-                    className={cx('Gray_9e TxtMiddle mLeft10', {
+                    className={cx('textTertiary TxtMiddle mLeft10', {
                       Font16: v.id === 'lastUpdated',
                       Font20: v.id !== 'lastUpdated',
                     })}

@@ -42,7 +42,7 @@
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
 
   .mainContent {
     flex: 1 1 0%;
@@ -61,9 +61,9 @@
     height: 26px;
     line-height: 26px;
     width: 160px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     border-radius: 4px;
-    background: #fff;
+    background: var(--color-background-primary);
     .searchDiv {
       float: left;
       width: 120px;
@@ -73,7 +73,7 @@
       float: left;
       width: 115px;
       height: 24px;
-      color: #999;
+      color: var(--color-text-tertiary);
       margin-left: 8px;
     }
     #searchImage {
@@ -84,7 +84,7 @@
       left: 3px;
     }
     #searchImage .lineSpan {
-      border-left: 1px solid #ebebeb;
+      border-left: 1px solid var(--color-border-secondary);
       height: 18px;
       width: 100%;
       text-align: center;
@@ -95,7 +95,7 @@
 
   // 组件searchBox新样式
   .adminSearchBox {
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     display: table;
     border-radius: 4px;
     overflow: hidden;
@@ -113,7 +113,7 @@
       vertical-align: middle;
     }
     .adminSearchBtn > span {
-      border-left: 1px solid #ccc;
+      border-left: 1px solid var(--color-border-tertiary);
     }
   }
 
@@ -127,7 +127,7 @@
       overflow: hidden;
       vertical-align: bottom;
       li:not(.menuTab-active):not(:hover) {
-        color: #9f9f9f !important;
+        color: var(--color-text-tertiary) !important;
         border-color: transparent !important;
       }
       li {
@@ -161,14 +161,14 @@
     align-items: center;
     justify-content: center;
     border-radius: 4px;
-    background: #fff;
+    background: var(--color-background-primary);
     .tableEmptyBox {
       padding-top: 0;
     }
   }
 
   .noPermissionWrapper {
-    background: #fff;
+    background: var(--color-background-primary);
     width: 100%;
     height: 100%;
     display: flex;
@@ -231,7 +231,7 @@
     position: relative;
     right: -2px;
     float: right;
-    color: #ebebeb;
+    color: var(--color-border-secondary);
   }
 
   .allLine {
@@ -267,10 +267,10 @@
   /* DataGridView */
   .warpCenter .mdDataGridView {
     margin-bottom: 40px;
-    color: #999;
+    color: var(--color-text-tertiary);
     border-bottom-right-radius: 5px;
     border-bottom-left-radius: 5px;
-    background: #fff;
+    background: var(--color-background-primary);
   }
 
   .mdDataGridView .operateBtn {
@@ -293,7 +293,7 @@
 
   .mdDataGridView .operateBtn .fontColor {
     margin-right: 15px;
-    color: #999;
+    color: var(--color-text-tertiary);
   }
 
   .mdDataGridView .gridHead {
@@ -314,7 +314,7 @@
   }
 
   .mdDataGridView .gridBody .deepBG td {
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
   }
 
   .mdDataGridView .gridBody li {
@@ -339,7 +339,7 @@
     height: 23px;
     margin: 0 10px;
     padding-left: 10px;
-    border: 1px #efefef solid;
+    border: 1px var(--color-border-secondary) solid;
     border-radius: 3px;
   }
 
@@ -350,7 +350,7 @@
     margin: 9px 0;
     padding: 0 12px 0 0;
     margin-right: 20px;
-    background: #eee;
+    background: var(--color-border-secondary);
     border-radius: 16px;
 
     .avatar {
@@ -360,33 +360,33 @@
     }
 
     .icon-cancel {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       cursor: pointer;
     }
   }
 
   .adminHoverColor {
     &:hover {
-      color: #49adfc !important;
+      color: var(--color-primary-light) !important;
     }
   }
   .adminHoverDeleteColor {
-    color: #f51744;
+    color: var(--color-error);
     cursor: pointer;
     &:hover {
-      color: #ff6786 !important;
+      color: var(--color-error) !important;
     }
   }
   .adminHoverGreenColor {
-    color: #47b14b;
+    color: var(--color-success);
     cursor: pointer;
     &:hover {
-      color: #5dd861 !important;
+      color: var(--color-success-hover) !important;
     }
   }
   .adminHeaderIconColor {
     &:hover {
-      color: #1294f7 !important;
+      color: var(--color-link) !important;
     }
   }
 }

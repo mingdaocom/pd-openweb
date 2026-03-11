@@ -17,20 +17,20 @@ const Wrap = styled.div`
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-secondary);
   .uploadImg {
     width: 52px;
     height: 59px;
     margin-bottom: 15px;
   }
   .errTip {
-    color: #f51744;
+    color: var(--color-error);
   }
 `;
 
 const SupportWrap = styled(Support)`
   .customStyle {
-    color: #9e9e9e !important;
+    color: var(--color-text-tertiary) !important;
   }
 `;
 
@@ -244,7 +244,7 @@ class BackupFromFilesCom extends Component {
             {file.name ? (
               <Fragment>
                 <div className="Font17">{file.name}</div>
-                <div className="Gray_75 mTop6">{_l('大小：%0', formatFileSize(file.size))}</div>
+                <div className="textSecondary mTop6">{_l('大小：%0', formatFileSize(file.size))}</div>
                 {errTip && (
                   <div className="mTop15 errTip Font14">
                     <span className="icon-cancel Font15 mRight6"></span>
@@ -253,14 +253,14 @@ class BackupFromFilesCom extends Component {
                 )}
               </Fragment>
             ) : (
-              <div className="Gray_bd">{_l('请选择 *.mdy 或 *.mdyd 格式的备份文件')}</div>
+              <div className="textDisabled">{_l('请选择 *.mdy 或 *.mdyd 格式的备份文件')}</div>
             )}
             {analyzeLoading && (
               <div className="flexRow mTop16">
                 <div className="notificationIconWrap">
                   <i className="icon-loading_button Font20 ThemeColor3"></i>
                 </div>
-                <span className="Gray_75 mLeft10">{_l('正在解析文件...')}</span>
+                <span className="textSecondary mLeft10">{_l('正在解析文件...')}</span>
               </div>
             )}
             {_.isEmpty(file)
@@ -270,7 +270,7 @@ class BackupFromFilesCom extends Component {
                   </Button>,
                 )
               : this.renderUploadBtn(
-                  <div className={cx('ThemeColor Hand', { Visibility: analyzeLoading })}>{_l('重新上传')}</div>,
+                  <div className={cx('colorPrimary Hand', { Visibility: analyzeLoading })}>{_l('重新上传')}</div>,
                 )}
           </Wrap>
         )}

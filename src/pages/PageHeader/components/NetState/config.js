@@ -108,18 +108,12 @@ export const PAID_VERSION_TO_TEXT = {
   topLevel: {
     app: {
       hint: _l('应用数量已达到最大值'),
-      explain: _l('当前版本最多可创建30个应用，请升级版本'),
-      btnText: _l('购买应用拓展包'),
     },
     worksheet: {
       hint: _l('应用下工作表数量已达到最大值'),
-      explain: _l('当前版本最多可创建100个工作表，请升级版本'),
-      btnText: _l('010-53103053 转 1'),
     },
     sheetRecord: {
       hint: _l('工作表行记录数量已达到最大值'),
-      explain: _l('当前版本工作表下最多可创建10万条行记录，请升级版本'),
-      btnText: _l('010-53103053 转 1'),
     },
     portaluser: {
       hint: _l('外部用户人数额度不足'),

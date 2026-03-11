@@ -32,8 +32,14 @@ export const useSheetInfo = ({ worksheetId, saveIndex = 0, setConfigLoading, ...
         }
 
         //清理缓存时间
-        window.clearLocalDataTime({ requestData: { worksheetId }, clearSpecificKey: 'Worksheet_GetWorksheetInfo' });
-        window.clearLocalDataTime({ requestData: { worksheetId }, clearSpecificKey: 'Worksheet_GetQueryBySheetId' });
+        window.clearLocalDataTime({
+          requestData: { worksheetId },
+          clearSpecificKeys: [
+            'Worksheet_GetWorksheetInfo',
+            'Worksheet_GetWorksheetBaseInfo',
+            'Worksheet_GetQueryBySheetId',
+          ],
+        });
       })
       .finally(() => {
         setLoading(false);

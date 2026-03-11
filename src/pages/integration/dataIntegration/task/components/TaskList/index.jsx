@@ -24,11 +24,11 @@ const TaskListBox = styled.div`
       .rowItem {
         padding: 8px 0;
         .sortIcon {
-          color: #bfbfbf;
+          color: var(--color-text-disabled);
           height: 8px;
 
           &.selected {
-            color: #1677ff;
+            color: var(--color-primary);
           }
         }
       }
@@ -36,14 +36,14 @@ const TaskListBox = styled.div`
 
     &:not(.isHeader) {
       &:hover {
-        background: rgba(247, 247, 247, 1);
+        background: var(--color-background-card);
         .checkbox {
           .taskItemCheckbox {
             display: block;
           }
         }
         .titleText {
-          color: #1677ff !important;
+          color: var(--color-primary) !important;
         }
         .optionIcon {
           background: rgba(247, 247, 247, 1);
@@ -57,7 +57,7 @@ const TaskListBox = styled.div`
     align-items: center;
     margin: 0;
     padding: 12px 0;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
 
     .titleColumn {
       min-width: 124px;
@@ -66,12 +66,12 @@ const TaskListBox = styled.div`
     .arrowIcon {
       transform: rotate(-90deg);
       margin-right: 8px;
-      color: #d0d0d0;
+      color: var(--color-border-primary);
       font-size: 20px;
     }
     .titleText {
       font-size: 14px;
-      color: #151515;
+      color: var(--color-text-title);
       font-weight: 600;
     }
     .ant-switch-checked {
@@ -79,12 +79,12 @@ const TaskListBox = styled.div`
     }
     .errorIcon {
       font-size: 16px;
-      color: #f44336;
+      color: var(--color-error);
       margin-left: 8px;
       cursor: pointer;
     }
     .warnColor {
-      color: #faad14;
+      color: var(--color-warning);
     }
   }
 
@@ -105,22 +105,22 @@ const TaskListBox = styled.div`
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    color: #9e9e9e;
-    background: #fff;
+    color: var(--color-text-tertiary);
+    background: var(--color-background-primary);
 
     &:hover {
-      color: #1677ff;
-      background: #fff !important;
+      color: var(--color-primary);
+      background: var(--color-background-primary) !important;
     }
   }
 
   .taskStatus {
     flex: 3;
     .ant-switch-disabled {
-      background: #dedede !important;
+      background: var(--color-border-primary) !important;
       opacity: 1;
       &.ant-switch-checked {
-        background: #80e4c1 !important;
+        background: var(--color-task) !important;
         opacity: 1;
       }
     }
@@ -155,10 +155,10 @@ const NoDataWrapper = styled.div`
     width: 130px;
     height: 130px;
     line-height: 130px;
-    background: #fbfbfb;
+    background: var(--color-background-secondary);
     border-radius: 50%;
     margin: 64px auto 0;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 `;
 
@@ -172,7 +172,7 @@ const TaskIcon = styled.div`
   border-radius: 50%;
   margin-right: 8px;
   font-size: 22px;
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow:
     rgba(0, 0, 0, 0.16) 0px 0px 1px,
     rgba(0, 0, 0, 0.06) 0px 1px 3px;
@@ -189,10 +189,10 @@ const TaskIcon = styled.div`
     width: 19px;
     height: 19px;
     line-height: 17px;
-    border: 1px solid #fff;
+    border: 1px solid var(--color-white);
     border-radius: 50%;
-    background: #151515;
-    color: #fff;
+    background: var(--color-background-inverse);
+    color: var(--color-white);
     font-size: 12px;
     font-weight: 600;
   }
@@ -201,12 +201,12 @@ const TaskIcon = styled.div`
 const ErrorInfoWrapper = styled.div`
   padding: 18px 20px;
   width: 220px;
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.24);
   border-radius: 3px;
 
   .errorText {
-    color: #f44336;
+    color: var(--color-error);
     word-break: break-all;
   }
 `;
@@ -218,7 +218,7 @@ const RedDot = styled.div`
   width: 6px;
   height: 6px;
   border-radius: 100%;
-  background-color: red;
+  background-color: var(--color-error);
 `;
 
 const FilterItem = styled.div`
@@ -234,7 +234,7 @@ const FilterItem = styled.div`
   .itemText {
     min-width: 100px;
     font-size: 13px;
-    color: #757575;
+    color: var(--color-text-secondary);
     font-weight: 600;
     padding: 8px 0;
   }
@@ -248,19 +248,19 @@ const FilterItem = styled.div`
       margin: 4px 0 4px 8px;
       height: 28px;
       box-sizing: border-box;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border-secondary);
       border-radius: 20px;
       cursor: pointer;
       line-height: 26px;
       font-size: 12px;
-      color: #151515;
+      color: var(--color-text-title);
 
       &.isActive {
         font-weight: 600;
-        color: #1677ff;
+        color: var(--color-primary);
       }
       &:hover {
-        border-color: #ccc;
+        border-color: var(--color-border-tertiary);
       }
       &::before {
         display: block;
@@ -282,12 +282,12 @@ const FilterItem = styled.div`
       border-radius: 14px;
       top: 5px;
       right: 0;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       cursor: pointer;
 
       &:hover {
-        color: #1677ff;
-        background: #f5f5f5;
+        color: var(--color-primary);
+        background: var(--color-background-secondary);
       }
     }
   }
@@ -297,18 +297,18 @@ const SelectedWrapper = styled.div`
   height: 71px;
   display: flex;
   align-items: center;
-  background: #fff;
+  background: var(--color-background-primary);
 
   .operateBtn {
     height: 36px;
     line-height: 36px;
     padding: 0 12px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 3px;
     cursor: pointer;
     &:hover {
-      border-color: #1677ff;
-      color: #1677ff;
+      border-color: var(--color-primary);
+      color: var(--color-primary);
     }
   }
 `;
@@ -576,13 +576,13 @@ export default function TaskList({ projectId, onRefreshComponents }) {
             {item.taskStatus === TASK_STATUS_TYPE.CREATING && (
               <div className="flexRow alignItemsCenter">
                 <LoadDiv size="small" className="mLeft8" />
-                <span className="mLeft4 ThemeColor">{_l('创建中')}</span>
+                <span className="mLeft4 colorPrimary">{_l('创建中')}</span>
               </div>
             )}
             {(item.hasConfigUpdate || item.taskStatus === TASK_STATUS_TYPE.UN_PUBLIC) && !item.errorInfo && (
               <div className="flexRow alignItemsCenter">
                 <Icon icon="info" className="warnColor Font16 mLeft8" />
-                <span className="mLeft4 ThemeColor">{item.hasConfigUpdate ? _l('有更新未发布') : _l('未发布')}</span>
+                <span className="mLeft4 colorPrimary">{item.hasConfigUpdate ? _l('有更新未发布') : _l('未发布')}</span>
               </div>
             )}
             {item.errorInfo && (
@@ -611,7 +611,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
     },
     {
       dataIndex: 'readRecord',
-      render: item => <span className="Font14 Gray bold">{item.readRecord}</span>,
+      render: item => <span className="Font14 textPrimary bold">{item.readRecord}</span>,
       renderTitle: () => {
         return (
           <div
@@ -652,7 +652,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
     },
     {
       dataIndex: 'writeRecord',
-      render: item => <span className="Font14 Gray bold">{item.writeRecord}</span>,
+      render: item => <span className="Font14 textPrimary bold">{item.writeRecord}</span>,
       renderTitle: () => {
         return (
           <div
@@ -689,7 +689,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
             </div>
 
             <Tooltip className="mLeft5 h16" title={_l('工作表数据量大时会按队列分批写入，实际完成写入量略有延迟。')}>
-              <Icon icon="info_outline" className="Gray_9e Font16" />
+              <Icon icon="info_outline" className="textTertiary Font16" />
             </Tooltip>
           </div>
         );
@@ -701,7 +701,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
         return (
           <div>
             <span>{item.creatorName}</span>
-            <span className="Gray_9e">{` 创建于 ${formatDate(item.createTime)}`}</span>
+            <span className="textTertiary">{` 创建于 ${formatDate(item.createTime)}`}</span>
           </div>
         );
       },
@@ -902,7 +902,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
               <span className="iconCon InlineBlock TxtCenter ">
                 <i className="icon-synchronization Font64 TxtMiddle" />
               </span>
-              <p className="Gray_9e mTop20 mBottom0">
+              <p className="textTertiary mTop20 mBottom0">
                 {fetchState.searchKeyWords ? _l('无搜索结果，换一个关键词试试吧') : _l('暂无数据')}
               </p>
             </NoDataWrapper>

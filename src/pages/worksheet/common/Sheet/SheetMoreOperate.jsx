@@ -16,6 +16,26 @@ import { saveSelectExtensionNavType } from 'src/utils/worksheet';
 import { getHighAuthSheetSwitchPermit } from 'src/utils/worksheet';
 import { importDataFromExcel } from '../WorksheetBody/ImportDataFromExcel';
 
+const settingMenuList = [
+  { type: 'submitForm', text: _l('提交表单'), navType: 'settingNav', subPath: 'formSet' },
+  { type: 'alias', text: _l('数据名称'), navType: 'settingNav', subPath: 'formSet' },
+  { type: 'functionalSwitch', text: _l('功能开关%02027'), navType: 'settingNav', subPath: 'formSet' },
+  { type: 'share', text: _l('公开分享'), navType: 'settingNav', subPath: 'formSet' },
+  { type: 'splitLine' },
+  { type: 'display', text: _l('业务规则%02028'), navType: 'settingNav', subPath: 'formSet' },
+  { type: 'customAction', text: _l('自定义动作%02026'), navType: 'settingNav', subPath: 'formSet' },
+  { type: 'aiAction', text: _l('AI 动作'), navType: 'settingNav', subPath: 'formSet' },
+  { type: 'printTemplate', text: _l('打印模板%02025'), navType: 'settingNav', subPath: 'formSet' },
+  { type: 'editProtect', text: _l('编辑保护'), navType: 'settingNav', subPath: 'formSet' },
+  { type: 'indexSetting', text: _l('检索加速'), navType: 'settingNav', subPath: 'formSet' },
+  { type: 'splitLine' },
+  { type: 'publicform', text: _l('公开表单'), navType: 'extensionNav', subPath: 'form' },
+  { type: 'query', text: _l('公开查询'), navType: 'extensionNav', subPath: 'form' },
+  { type: 'splitLine' },
+  { type: 'pay', text: _l('支付'), navType: 'extensionNav', subPath: 'form' },
+  { type: 'invoice', text: _l('开票'), navType: 'extensionNav', subPath: 'form' },
+];
+
 export default function SheetMoreOperate(props) {
   const {
     appId,
@@ -29,7 +49,7 @@ export default function SheetMoreOperate(props) {
     isLock,
     permissionType,
   } = props;
-  const { setSheetDescVisible, setEditNameVisible, reloadWorksheet, deleteSheet } = props;
+  const { setSheetDescVisible, selectIcon, reloadWorksheet, deleteSheet } = props;
   const { name, projectId, worksheetId, allowAdd } = worksheetInfo;
   const [menuVisible, setMenuVisible] = useState();
   const autoNumberControls = _.filter(controls, item => item.type === 33);
@@ -56,7 +76,7 @@ export default function SheetMoreOperate(props) {
 
   return (
     <span className="moreOperate mLeft6 pointer" onClick={() => setMenuVisible(true)}>
-      <Icon className="Gray_9d Font20" icon="more_horiz" />
+      <Icon className="textTertiary Font20" icon="more_horiz" />
       {menuVisible && (
         <Menu
           className="sheetHeaderOperate"
@@ -84,48 +104,24 @@ export default function SheetMoreOperate(props) {
                 popupAlign={{ points: ['tl', 'tr'], offset: [0, -41] }}
                 popup={
                   <Menu className="subMenu sheetHeaderOperate_subMenu">
-                    {[
-                      { type: 'submitForm', text: _l('提交表单') },
-                      { type: 'alias', text: _l('数据名称') },
-                      { type: 'functionalSwitch', text: _l('功能开关%02027') },
-                      { type: 'share', text: _l('公开分享') },
-                      { type: 'display', text: _l('业务规则%02028') },
-                      { type: 'customBtn', text: _l('自定义动作%02026') },
-                      { type: 'printTemplate', text: _l('打印模板%02025') },
-                      { type: 'editProtect', text: _l('编辑保护') },
-                      { type: 'indexSetting', text: _l('检索加速') },
-                    ].map(({ type, text }) => (
-                      <Fragment>
-                        {type === 'display' && <hr className="splitLine" />}
-                        <MenuItem
-                          data-event={type}
-                          key={type}
-                          onClick={() => {
-                            saveSelectExtensionNavType(worksheetId, 'settingNav', type);
-                            navigateTo(`/worksheet/formSet/edit/${worksheetId}/${type}`);
-                          }}
-                        >
-                          <span className="text">{text}</span>
-                        </MenuItem>
-                      </Fragment>
-                    ))}
-                    <hr className="splitLine" />
-                    {[
-                      { type: 'publicform', text: _l('公开发布%02024') },
-                      { type: 'pay', text: _l('支付') },
-                      { type: 'invoice', text: _l('开票') },
-                    ].map(({ type, text }) => (
-                      <MenuItem
-                        data-event={type}
-                        key={type}
-                        onClick={() => {
-                          saveSelectExtensionNavType(worksheetId, 'extensionNav', type);
-                          navigateTo(`/worksheet/form/edit/${worksheetId}/${type}`);
-                        }}
-                      >
-                        <span className="text">{text}</span>
-                      </MenuItem>
-                    ))}
+                    {settingMenuList
+                      .filter(item => !(md.global.SysSettings.hideAIBasicFun && item.type === 'aiAction'))
+                      .map(({ type, text, navType, subPath }, index) =>
+                        type === 'splitLine' ? (
+                          <hr className="splitLine" key={`splitLine-${index}`} />
+                        ) : (
+                          <MenuItem
+                            data-event={type}
+                            key={type}
+                            onClick={() => {
+                              saveSelectExtensionNavType(worksheetId, navType, type);
+                              navigateTo(`/worksheet/${subPath}/edit/${worksheetId}/${type}`);
+                            }}
+                          >
+                            <span className="text">{text}</span>
+                          </MenuItem>
+                        ),
+                      )}
                   </Menu>
                 }
               >
@@ -149,7 +145,7 @@ export default function SheetMoreOperate(props) {
                 icon={<Icon icon="edit" className="Font18" />}
                 onClick={() => {
                   setMenuVisible(false);
-                  setEditNameVisible(true);
+                  selectIcon();
                 }}
               >
                 <span className="text">{_l('修改名称和图标%02034')}</span>
@@ -164,11 +160,7 @@ export default function SheetMoreOperate(props) {
               >
                 <span className="text">{_l('工作表说明')}</span>
               </MenuItem>
-            </Fragment>
-          )}
 
-          {canEdit && (
-            <Fragment>
               {!_.isEmpty(autoNumberControls) && (
                 <MenuItem
                   data-event="resetNumber"
@@ -183,6 +175,7 @@ export default function SheetMoreOperate(props) {
               )}
 
               <hr className="splitLine" />
+
               {canEditApp(permissionType, isLock) && (
                 <>
                   <MenuItem
@@ -260,6 +253,7 @@ export default function SheetMoreOperate(props) {
               <span className="text">{_l('从Excel导入数据%02031')}</span>
             </MenuItem>
           )}
+
           {canSheetTrash && (
             <MenuItem
               data-event="recycle"
@@ -299,7 +293,7 @@ export default function SheetMoreOperate(props) {
                   ),
                   description: (
                     <div>
-                      <span style={{ color: '#151515', fontWeight: 'bold' }}>
+                      <span style={{ color: 'var(--color-text-title)', fontWeight: 'bold' }}>
                         {_l('注意：工作表下所有配置和数据将被删除。')}
                       </span>
                       {_l('请务必确认所有应用成员都不再需要此工作表后，再执行此操作。')}

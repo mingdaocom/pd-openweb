@@ -3,7 +3,7 @@ import styled from 'styled-components';
 export const Wrap = styled.div`
   overflow: hidden;
   .sideNav {
-    border-right: 1px solid #eaeaea;
+    border-right: 1px solid var(--color-border-secondary);
     min-height: 80%;
     width: 200px;
     overflow: hidden;
@@ -31,18 +31,18 @@ export const Wrap = styled.div`
     overflow: auto;
     padding: 15px 20px 24px;
     .hasSet {
-      color: #34b153;
+      color: var(--color-success);
     }
   }
   .footer {
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-secondary);
   }
   .radioCon {
     display: flex;
     &:before {
       content: ' ';
       width: 2px;
-      background: #dddddd;
+      background: var(--color-border-primary);
       border-radius: 1px;
       display: block;
       margin-left: 8px;
@@ -56,14 +56,14 @@ export const Wrap = styled.div`
       border-radius: 4px;
       overflow: hidden;
       .ant-radio-button-wrapper {
-        background: #f5f5f5 !important;
-        border: 2px solid #f5f5f5 !important;
+        background: var(--color-background-secondary) !important;
+        border: 2px solid var(--color-background-secondary) !important;
         transition: none;
         padding: 0 25px;
       }
       .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
-        background: #fff !important;
-        color: #333 !important;
+        background: var(--color-background-primary) !important;
+        color: var(--color-text-primary) !important;
       }
       .ant-radio-button-wrapper:not(:first-child)::before {
         display: none !important;

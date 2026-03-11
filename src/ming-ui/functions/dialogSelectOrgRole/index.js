@@ -224,7 +224,7 @@ class DialogSelectOrgRole extends Component {
     ) {
       return (
         <div className="emptyWrap">
-          <p className="Gray_bd Font14">{_l('没有可选组织角色')}</p>
+          <p className="textDisabled Font14">{_l('没有可选组织角色')}</p>
         </div>
       );
     }
@@ -233,7 +233,7 @@ class DialogSelectOrgRole extends Component {
       return (
         <div className="GSelect-NoData">
           <i className="icon-search GSelect-iconNoData" />
-          <p className="GSelect-noDataText Gray_bd">{_l('搜索无结果')}</p>
+          <p className="GSelect-noDataText textDisabled">{_l('搜索无结果')}</p>
         </div>
       );
     }
@@ -254,7 +254,7 @@ class DialogSelectOrgRole extends Component {
                   >
                     <Icon
                       icon="task_custom_btn_unfold"
-                      className={cx('Gray_9e expendIcon Hand InlineBlock', {
+                      className={cx('textTertiary expendIcon Hand InlineBlock', {
                         iconRotate: !expendTreeNodeKey.includes(groupItem.orgRoleGroupId),
                       })}
                     />
@@ -264,7 +264,7 @@ class DialogSelectOrgRole extends Component {
                 {this.renderChildren(groupItem)}
                 {groupItem.hasMore && (
                   <div
-                    className="roleItem Hand valignWrapper ThemeColor"
+                    className="roleItem Hand valignWrapper colorPrimary"
                     onClick={() => this.fetchData(undefined, groupItem.orgRoleGroupId, groupItem.pageIndex + 1)}
                   >
                     <span className={cx({ mLeft16: list.length > 1 })}>{_l('加载更多')}</span>

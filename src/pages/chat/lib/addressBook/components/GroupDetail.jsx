@@ -74,7 +74,7 @@ export default class GroupDetail extends React.Component {
         {isOpen === false ? (
           <div className="detail-header">
             <img src={avatar} className="detail-header-avatar disabled" />
-            <div className="detail-header-info Gray_bd">
+            <div className="detail-header-info textDisabled">
               <div className="Font18 clearfix">{name}</div>
             </div>
           </div>
@@ -85,7 +85,7 @@ export default class GroupDetail extends React.Component {
               <div className="Font18 clearfix">
                 {name}
                 <i
-                  className="Font16 Gray_9e icon-settings TxtMiddle mLeft10 Hand ThemeHoverColor3"
+                  className="Font16 textTertiary icon-settings TxtMiddle mLeft10 Hand ThemeHoverColor3"
                   onClick={this.openSettingDialog}
                 />
               </div>
@@ -104,7 +104,11 @@ export default class GroupDetail extends React.Component {
               <Icon icon="chat" className="mRight5 Font18" />
               {_l('发消息')}
             </a>
-            <a href={'/feed?groupId=' + groupId} target="_blank" className="detail-btn Gray_75 mLeft10 NoUnderline">
+            <a
+              href={'/feed?groupId=' + groupId}
+              target="_blank"
+              className="detail-btn textSecondary mLeft10 NoUnderline"
+            >
               <Icon icon="dynamic-empty" className="mRight10 Font17" />
               {_l('群组动态')}
             </a>
@@ -149,11 +153,11 @@ export default class GroupDetail extends React.Component {
     return (
       <div className="Font13 mTop24">
         <div className="detail-info-row">
-          <span className="Gray_75">{_l('创建人')}：</span>
+          <span className="textSecondary">{_l('创建人')}：</span>
           {createAccount.fullname}
         </div>
         <div className="detail-info-row clearfix">
-          <span className="Gray_75">{_l('群组状态')}：</span>
+          <span className="textSecondary">{_l('群组状态')}：</span>
           {isOpen === false ? _l('关闭') : _l('开启')}
           {isOpen === false ? (
             <span
@@ -167,11 +171,11 @@ export default class GroupDetail extends React.Component {
           ) : null}
         </div>
         <div className="detail-info-row">
-          <span className="Gray_75">{_l('群组成员')}：</span>
+          <span className="textSecondary">{_l('群组成员')}：</span>
           {groupMemberCount}
         </div>
         <div className="detail-info-row">
-          <span className="Gray_75">{_l('创建时间')}：</span>
+          <span className="textSecondary">{_l('创建时间')}：</span>
           {createTime}
         </div>
       </div>

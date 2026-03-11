@@ -37,9 +37,12 @@ class PreviewHeader extends React.Component {
     changePreviewService: PropTypes.func,
   };
 
-  state = {
-    attachment: this.props.attachment,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      attachment: props.attachment,
+    };
+  }
 
   componentDidMount() {
     this.props.changePreviewService('original');
@@ -88,13 +91,21 @@ class PreviewHeader extends React.Component {
   };
 
   downloadAttachment = () => {
-    const { attachment, logExtend } = this.props;
+    const { attachment } = this.props;
+    const downloadUrl = previewUtil.getDownloadUrl(attachment, {
+      ...this.props.extra,
+      logExtend: this.props.logExtend,
+    });
     const { canDownload } = previewUtil.getPermission(attachment, {
       hideFunctions: this.props.hideFunctions,
       fromType: this.props.fromType,
     });
     if (canDownload) {
-      window.open(previewUtil.getDownloadUrl(attachment, { ...this.props.extra, logExtend }));
+      if (downloadUrl) {
+        window.open(downloadUrl);
+      } else {
+        alert(_l('当前文件暂不支持下载，请稍后重试或联系管理员'), 3);
+      }
     } else {
       alert(_l('您权限不足，无法下载或保存。请联系文件夹管理员或文件上传者'), 3);
     }
@@ -116,6 +127,10 @@ class PreviewHeader extends React.Component {
     } = this.props;
     const { name, ext } = attachment;
     const deleted = error.status === LOADED_STATUS.DELETED;
+    const downloadUrl = previewUtil.getDownloadUrl(attachment, {
+      ...extra,
+      logExtend: this.props.logExtend,
+    });
     const {
       canEditFileName,
       showSaveToKnowlege,
@@ -243,7 +258,13 @@ class PreviewHeader extends React.Component {
           !_.get(window, 'shareState.isPublicQuery') &&
           !_.get(window, 'shareState.isPublicWorkflowRecord')
         }
-        showDownload={!deleted && showDownload && !window.isMiniProgram && !_.get(window, 'shareState.isPublicForm')}
+        showDownload={
+          !deleted &&
+          showDownload &&
+          !window.isMiniProgram &&
+          !_.get(window, 'shareState.isPublicForm') &&
+          !!downloadUrl
+        }
         clickDownLoad={this.downloadAttachment}
         onClose={this.props.onClose}
       />

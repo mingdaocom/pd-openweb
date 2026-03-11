@@ -28,9 +28,9 @@ const SettingDrawer = styled(Drawer)`
       width: 44px;
       height: 44px;
       border-radius: 3px;
-      color: #757575;
+      color: var(--color-text-secondary);
       &:hover {
-        background: #f8f8f8;
+        background: var(--color-background-hover);
       }
     }
   }
@@ -43,13 +43,13 @@ const SettingDrawer = styled(Drawer)`
   .sectionTitle {
     font-size: 15px;
     font-weight: bold;
-    color: #000;
+    color: var(--color-text-primary);
   }
 `;
 
 const SettingItem = styled.div`
   padding: 18px 0;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid var(--color-border-secondary);
 
   .settingHeader {
     display: flex;
@@ -58,12 +58,12 @@ const SettingItem = styled.div`
     .titleText {
       font-size: 14px;
       font-weight: bold;
-      color: #555;
+      color: var(--color-text-title);
     }
     .descriptionText {
       margin-top: 4px;
       font-size: 12px;
-      color: #a7a7a7;
+      color: var(--color-text-tertiary);
     }
   }
   .settingRadioGroup {
@@ -91,7 +91,7 @@ const SettingItem = styled.div`
       bottom: 0;
       left: 0;
       background: rgba(0, 0, 0, 0.4);
-      color: #fff;
+      color: var(--color-white);
       text-align: center;
       line-height: 40px;
       z-index: 2;
@@ -107,7 +107,7 @@ const SettingItem = styled.div`
     height: 36px;
     .contentText {
       font-size: 14px;
-      color: #555;
+      color: var(--color-text-title);
     }
   }
   .themeColorWrapper {
@@ -132,7 +132,7 @@ const SettingItem = styled.div`
         margin-left: 4px;
         transition: width 0.2s ease;
         .icon-done {
-          color: #fff;
+          color: var(--color-white);
           font-size: 18px;
         }
       }
@@ -155,12 +155,12 @@ const SloganInput = styled(Input)`
     transition: none !important;
     padding: 6px 12px !important;
     &:hover {
-      border-color: #1e88e5 !important;
+      border-color: var(--color-primary-focus) !important;
     }
   }
   &.ant-input-affix-wrapper-focused {
     box-shadow: none !important;
-    border-color: #1e88e5 !important;
+    border-color: var(--color-primary-focus) !important;
   }
 `;
 
@@ -174,18 +174,18 @@ const HeightSlider = styled(Slider)`
 
 const SortItem = styled.div`
   z-index: 1000;
-  background: #fff;
+  background: var(--color-background-primary);
   display: flex;
   align-items: center;
   height: 48px;
   font-size: 14px;
   font-weight: bold;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border-tertiary);
   border-radius: 3px;
   padding: 0 12px;
   cursor: pointer;
   &:hover {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
   }
 `;
 
@@ -209,7 +209,7 @@ const AdvancedThemeItem = styled.div`
     align-items: center;
 
     i {
-      color: #fff;
+      color: var(--color-white);
       font-size: 18px;
     }
   }
@@ -273,7 +273,7 @@ export default function DashboardSetting(props) {
   const renderItem = ({ item }) => {
     return (
       <SortItem>
-        <Icon className="mRight8 Font14 Gray_9e" icon="drag" />
+        <Icon className="mRight8 Font14 textTertiary" icon="drag" />
         <span>{item.text}</span>
       </SortItem>
     );
@@ -355,7 +355,7 @@ export default function DashboardSetting(props) {
                     )}
                   </div>
                 </div>
-                <div className="Gray_9e Font13 mTop10">{_l('建议尺寸 400*180 px，512 KB以内')}</div>
+                <div className="textTertiary Font13 mTop10">{_l('建议尺寸 400*180 px，512 KB以内')}</div>
               </div>
 
               {logoSwitch && (
@@ -431,7 +431,8 @@ export default function DashboardSetting(props) {
                     </div>
                   );
                 })}
-                {!md.global.Config.IsLocal &&
+                {!window.platformENV.isOverseas &&
+                  !window.platformENV.isLocal &&
                   advancedThemes.map((item, i) => (
                     <AdvancedThemeItem
                       key={i}

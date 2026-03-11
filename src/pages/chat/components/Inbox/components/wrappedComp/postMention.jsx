@@ -148,7 +148,9 @@ export default class PostMention extends React.Component {
               <p className="ThemeColor3 mTop20" style={{ 'font-size': '12px', 'line-height': '20px' }}>
                 {medalName}
               </p>
-              <p className={{ color: '#777', 'font-size': '12px', 'line-height': '20px' }}>{description}</p>
+              <p className={{ color: 'var(--color-text-secondary)', 'font-size': '12px', 'line-height': '20px' }}>
+                {description}
+              </p>
             </div>
           </div>
         );
@@ -161,7 +163,7 @@ export default class PostMention extends React.Component {
               {linkTitle}
             </a>
             {linkThumb ? <img className="lazy" src={linkThumb} /> : null}
-            {linkDesc ? <div className="mTop5 Gray">{linkDesc.toLowerCase()}</div> : null}
+            {linkDesc ? <div className="mTop5 textPrimary">{linkDesc.toLowerCase()}</div> : null}
           </div>
         );
 
@@ -174,7 +176,7 @@ export default class PostMention extends React.Component {
         return (
           <div className="messageDetailContainer">
             <div className="Left logoContainer">
-              <i className={'Font24 Gray_9' + className}></i>
+              <i className={'Font24 textTertiary' + className}></i>
             </div>
             <div className="textContainer">
               {post.message.substring(0, 25) + (post.message.length > 25 ? '...' : '')}

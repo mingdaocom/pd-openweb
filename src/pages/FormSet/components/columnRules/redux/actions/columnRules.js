@@ -156,6 +156,8 @@ export function saveControlRules() {
       return;
     }
 
+    dispatch({ type: 'SAVE_LOADING', data: true });
+
     sheetAjax
       .saveControlRule({
         ...selectRules,
@@ -173,6 +175,7 @@ export function saveControlRules() {
         worksheetId,
       })
       .then(data => {
+        dispatch({ type: 'SAVE_LOADING', data: false });
         if (data) {
           const newColumnRulesListData =
             selectRules.ruleId.indexOf('-') >= 0
@@ -187,6 +190,9 @@ export function saveControlRules() {
           });
           alert(_l('保存成功'));
         }
+      })
+      .catch(() => {
+        dispatch({ type: 'SAVE_LOADING', data: false });
       });
   };
 }

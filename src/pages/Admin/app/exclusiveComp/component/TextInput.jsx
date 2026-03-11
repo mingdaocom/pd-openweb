@@ -1,6 +1,8 @@
 import React from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
+import { Tooltip } from 'ming-ui/antd-components';
 
 const FormGroup = styled.div`
   width: 100%;
@@ -10,36 +12,38 @@ const FormGroup = styled.div`
   .formControl {
     width: 100%;
     height: 36px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     border-radius: 3px;
     box-sizing: border-box;
     display: inline-block;
     padding: 0 12px;
     line-height: 36px;
     &:hover {
-      border-color: #bbb;
+      border-color: var(--color-text-disabled);
     }
     &:focus {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
     &.error {
       border-color: #f00 !important;
     }
     &.disabled {
-      background-color: #f5f5f5;
-      border: 1px solid #f5f5f5;
+      background-color: var(--color-background-secondary);
+      border: 1px solid var(--color-background-secondary);
     }
+  }
+  .tipIcon {
+    vertical-align: text-bottom;
   }
 `;
 
-export default function TextInput(props) {
+const TextInput = React.forwardRef((props, ref) => {
   const {
     label,
     error,
     value,
     placeholder,
     maxLength,
-    ref,
     disabled,
     isRequired,
     type,
@@ -47,6 +51,8 @@ export default function TextInput(props) {
     onChange,
     onFocus,
     onBlur = () => {},
+    tips,
+    hideLabel,
   } = props;
   const inputProps = {
     ref,
@@ -65,10 +71,17 @@ export default function TextInput(props) {
 
   return (
     <FormGroup className={cx('formGroup', className)}>
-      <div className="formLabel Font14 mBottom12">
-        {isRequired ? <span className="TxtMiddle Red">* </span> : null}
-        {label}
-      </div>
+      {!hideLabel && (
+        <div className="formLabel Font14 mBottom12">
+          {isRequired ? <span className="TxtMiddle Red">* </span> : null}
+          {label}
+          {tips && (
+            <Tooltip title={tips}>
+              <Icon className="Font16 textDisabled mLeft8 tipIcon" icon="info_outline" />
+            </Tooltip>
+          )}
+        </div>
+      )}
       <input
         type="text"
         className={cx('formControl', { error, disabled, noBorder: disabled })}
@@ -79,4 +92,6 @@ export default function TextInput(props) {
       {error && <div className="Block Red LineHeight25 Hidden">{`${label}${_l('不能为空')}`}</div>}
     </FormGroup>
   );
-}
+});
+
+export default TextInput;

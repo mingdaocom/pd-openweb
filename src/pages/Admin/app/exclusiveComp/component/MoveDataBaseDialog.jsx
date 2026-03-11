@@ -16,13 +16,13 @@ const ContentWrap = styled.ul`
     margin-bottom: 20px;
     padding: 16px 20px;
     border-radius: 6px 6px 6px 6px;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     cursor: pointer;
   }
   > li.active,
   > li:hover {
     background: rgba(33, 150, 243, 0.11);
-    border: 1px solid #1677ff;
+    border: 1px solid var(--color-primary);
   }
   .emptyWrap {
     margin-top: 94px;
@@ -39,7 +39,7 @@ function MoveDataBaseDialog(props) {
     if (!visible || !projectId) return;
 
     projectAjax.getDBInstances({ projectId }).then(res => {
-      setList(res.filter(l => l.id !== filterId));
+      setList(res.filter(l => l.id !== filterId && l.status === 1));
     });
   }, []);
 
@@ -74,8 +74,8 @@ function MoveDataBaseDialog(props) {
             className={select === item.id ? 'active' : ''}
             onClick={() => setSelect(item.id)}
           >
-            <div className="name Font15 Bold Gray mBottom13">{item.name}</div>
-            <div className="host Font13 Gray_75">{item.host}</div>
+            <div className="name Font15 Bold textPrimary mBottom13">{item.name}</div>
+            <div className="host Font13 textSecondary">{item.host}</div>
           </li>
         ))}
       </ContentWrap>

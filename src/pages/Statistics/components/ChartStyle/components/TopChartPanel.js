@@ -31,7 +31,7 @@ const TopStyle = props => {
       {styles.map(item => (
         <div
           key={item.value}
-          className={cx('flex styleItem centerAlign pointer Gray_75', { active: item.value === topStyle })}
+          className={cx('flex styleItem centerAlign pointer textSecondary', { active: item.value === topStyle })}
           onClick={() => {
             onChangeStyle({ topStyle: item.value });
           }}

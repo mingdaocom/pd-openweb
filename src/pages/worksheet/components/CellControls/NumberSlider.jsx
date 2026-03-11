@@ -28,8 +28,8 @@ const Con = styled.div`
 
 const EditingCon = styled.div`
   padding: 7px 6px;
-  background: #fff;
-  box-shadow: inset 0 0 0 2px #2d7ff9 !important;
+  background: var(--color-background-primary);
+  box-shadow: inset 0 0 0 2px var(--color-primary-focus) !important;
 `;
 
 const OperateIcon = styled.div`
@@ -38,9 +38,9 @@ const OperateIcon = styled.div`
   width: 24px;
   height: 24px;
   border-radius: 3px;
-  background: #fff;
+  background: var(--color-background-primary);
   text-align: center;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   font-size: 16px;
   cursor: pointer;
 `;
@@ -182,7 +182,7 @@ export default class NumberSlider extends React.Component {
         showScaleText={isediting || rowHeight > 50}
         showDrag={editable}
         showAsPercent={numshow === '1'}
-        numStyle={from === FROM.CARD ? { color: '#151515' } : {}}
+        numStyle={from === FROM.CARD ? { color: 'var(--color-text-primary)' } : {}}
         tipDirection={rowIndex === 0 ? 'bottom' : undefined}
         min={levelSafeParse(min)}
         max={levelSafeParse(max)}

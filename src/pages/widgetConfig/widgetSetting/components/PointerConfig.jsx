@@ -19,14 +19,14 @@ const PointerConfigWrap = styled(SettingItem)`
     flex-direction: column;
     .iconWrap {
       padding: 0 6px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border-primary);
       border-left: none;
       height: 18px;
       &:first-child {
         border-bottom: none;
       }
       i {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
     }
   }
@@ -123,7 +123,7 @@ export default function PointConfig({ data = {}, onChange }) {
           <Tooltip
             title={_l('勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8')}
           >
-            <i className="icon-help Gray_bd Font15"></i>
+            <i className="icon-help textDisabled Font15"></i>
           </Tooltip>
         </Checkbox>
       ) : null}

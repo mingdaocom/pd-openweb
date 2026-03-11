@@ -6,7 +6,7 @@
   display: flex;
   align-items: center;
   &:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
   .selectedIconCon {
     width: 13px;
@@ -19,26 +19,26 @@
     }
   }
   .color_light {
-    color: #0088e1 !important;
+    color: var(--color-primary-focus) !important;
   }
   .lineHeight13 {
     line-height: 13px !important;
   }
 }
 .selectApp.light {
-  background: #e2f2fc;
+  background: var(--color-primary-transparent);
 }
 .appDrowSelectCon {
   width: 280px;
   box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
   border-radius: 3px;
-  background: #fff;
+  background: var(--color-background-primary);
   .appSearchCon {
     height: 40px;
     padding: 0 16px;
     display: flex;
     align-items: center;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     input {
       border: none;
       font-size: 13px;
@@ -46,7 +46,7 @@
     input::-webkit-input-placeholder,
     input::-moz-placeholder,
     input:-ms-input-placeholder {
-      color: #9d9d9d;
+      color: var(--color-text-tertiary);
     }
   }
   .appList {
@@ -76,11 +76,11 @@
       }
     }
     .appListItem:hover {
-      background: #f7f7f7;
+      background: var(--color-background-secondary);
     }
     .appListItem.active {
-      background: #e4f3fd;
-      color: #1677ff;
+      background: var(--color-primary-transparent);
+      color: var(--color-primary);
       font-weight: 600;
     }
   }

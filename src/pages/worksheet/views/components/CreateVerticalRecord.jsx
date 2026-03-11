@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+﻿import React, { useRef, useState } from 'react';
 import { Input } from 'antd';
 import 'antd/es/input/style/css';
 import Trigger from 'rc-trigger';
@@ -19,9 +19,9 @@ const CreateRecordWrap = styled.div`
     top: 10px;
     right: 10px;
     font-size: 16px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
@@ -35,7 +35,7 @@ const CreateVerticalRecordWrap = styled.div`
       right: -10px;
       position: absolute;
       height: 2px;
-      background: #d3d3d3;
+      background: var(--color-border-primary);
       content: '';
     }
     &::after {
@@ -44,7 +44,7 @@ const CreateVerticalRecordWrap = styled.div`
       position: absolute;
       width: 2px;
       height: 20px;
-      background: #d3d3d3;
+      background: var(--color-border-primary);
       content: '';
     }
   }
@@ -87,18 +87,20 @@ export default function CreateVerticalRecord(props) {
               autoSize={{ minRows: 1, maxRows: 10 }}
               autoFocus
               onPressEnter={() => {
-                if (value) {
-                  createTextTitleRecord(value, true);
+                const formattedValue = value.trim();
+                if (formattedValue) {
+                  createTextTitleRecord(formattedValue, true);
                   setValue('');
                 } else {
                   removeHierarchyTempItem({ rowId, path: data.path });
                 }
               }}
-              onChange={e => setValue(e.target.value.trim())}
+              onChange={e => setValue(e.target.value)}
               value={value}
               onBlur={() => {
-                if (value) {
-                  createTextTitleRecord(value);
+                const formattedValue = value.trim();
+                if (formattedValue) {
+                  createTextTitleRecord(formattedValue);
                   setValue('');
                   removeHierarchyTempItem({ rowId, path: data.path });
                 } else {

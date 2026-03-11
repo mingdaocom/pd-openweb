@@ -130,13 +130,13 @@ class InboxHeader extends React.Component {
 
     return (
       <div className="ChatPanel-addToolbar-menu">
-        <div className="menuItem ThemeBGColor3" onClick={this.handleStick.bind(this)}>
+        <div className="menuItem" onClick={this.handleStick.bind(this)}>
           <i className="icon-set_top" />
           <div className="menuItem-text ellipsis">{isTop ? _l('取消置顶') : _l('置顶')}</div>
         </div>
 
         {isPushNotice && (
-          <div className="menuItem ThemeBGColor3" onClick={this.handleUpdatePushNotice.bind(this)}>
+          <div className="menuItem" onClick={this.handleUpdatePushNotice.bind(this)}>
             <Icon icon={isPushNoticeValue ? 'notifications_off' : 'notifications'} className="Font16" />
             <div className="menuItem-text ellipsis">{isPushNoticeValue ? _l('消息免打扰') : _l('允许提醒')}</div>
           </div>
@@ -159,26 +159,24 @@ class InboxHeader extends React.Component {
         builtinPlacements={Config.builtinPlacements}
         popupAlign={{ offset: [80, 10] }}
       >
-        <i className={cx('icon-settings mLeft10 Hand iconSetting', { ThemeColor: settingVisible })} />
+        <i className={cx('icon-settings mLeft10 Hand iconSetting', { colorPrimary: settingVisible })} />
       </Trigger>
     );
   }
 
   render() {
     const { inboxFavorite, title, filter, currentSession } = this.props;
-    const { user, timeName } = filter || {};
     const clsNameFunc = flag =>
       cx('inboxItem Hand', {
         'ThemeColor3 ThemeBorderColor3': flag,
         ThemeHoverColor3: !flag,
       });
-    const fullname = user ? user.fullname : '';
     const { isSilent } = currentSession;
 
     return (
       <div className="inboxHeader">
         <div className="inboxType Absolute">
-          {isSilent && <i className="icon-notifications_off Gray_9e mRight10"></i>}
+          {isSilent && <i className="icon-notifications_off textTertiary mRight10"></i>}
           {title}
           {this.renderSetting()}
         </div>
@@ -200,7 +198,7 @@ class InboxHeader extends React.Component {
         </span>
         <div className="btnWrapper flexRow alignItemsCenter">
           <Icon
-            className="Font20 Gray_9e pointer ThemeHoverColor3 mRight15 refreshBtn"
+            className="Font20 textTertiary pointer ThemeHoverColor3 mRight15 refreshBtn"
             icon="task-later"
             onClick={() => {
               if (filter) {
@@ -222,11 +220,7 @@ class InboxHeader extends React.Component {
                 {filter ? (
                   <Fragment>
                     <Icon className="Font20" icon="filter" />
-                    <span>
-                      {fullname}
-                      {fullname && timeName ? ', ' : ''}
-                      {timeName}
-                    </span>
+                    <span>{_l('已筛选')}</span>
                     <Icon
                       icon="close"
                       className="Font15 mBottom2"
@@ -237,13 +231,13 @@ class InboxHeader extends React.Component {
                     />
                   </Fragment>
                 ) : (
-                  <Icon className="Font20 Gray_9e pointer" icon="filter" />
+                  <Icon className="Font20 textTertiary pointer" icon="filter" />
                 )}
               </div>
             </antd.Dropdown>
           )}
           <Icon
-            className="Font20 Gray_9e pointer ThemeHoverColor3"
+            className="Font20 textTertiary pointer ThemeHoverColor3"
             icon="maximizing_a"
             onClick={() => {
               window.open(`/windowChat?id=${currentSession.id}&type=${currentSession.type}`);

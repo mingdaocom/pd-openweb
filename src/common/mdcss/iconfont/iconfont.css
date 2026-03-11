@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1765250615523') format('woff2'),
-       url('iconfont.woff?t=1765250615523') format('woff'),
-       url('iconfont.ttf?t=1765250615523') format('truetype');
+  src: url('iconfont.woff2?t=1768298693173') format('woff2'),
+       url('iconfont.woff?t=1768298693173') format('woff'),
+       url('iconfont.ttf?t=1768298693173') format('truetype');
 }
 
 .MD_Icon {
@@ -11,6 +11,50 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-platform_admin:before {
+  content: "\ed10";
+}
+
+.icon-linkage_filter:before {
+  content: "\ec2d";
+}
+
+.icon-table_convert:before {
+  content: "\e6cd";
+}
+
+.icon-Subtable_Collapse:before {
+  content: "\e68c";
+}
+
+.icon-Subtable_Expand:before {
+  content: "\e68d";
+}
+
+.icon-dark-mode:before {
+  content: "\ed05";
+}
+
+.icon-table_chart:before {
+  content: "\e6cc";
+}
+
+.icon-table_chart_horizontal:before {
+  content: "\e6cb";
+}
+
+.icon-settings_input_composite:before {
+  content: "\ed0f";
+}
+
+.icon-table_eye:before {
+  content: "\e6ca";
+}
+
+.icon-refund:before {
+  content: "\ed0e";
 }
 
 .icon-hdp:before {
@@ -47,10 +91,6 @@
 
 .icon-article:before {
   content: "\e694";
-}
-
-.icon-dark-mode:before {
-  content: "\ed05";
 }
 
 .icon-jifen:before {
@@ -579,10 +619,6 @@
 
 .icon-filter_criteria:before {
   content: "\ec3d";
-}
-
-.icon-linkage_filter:before {
-  content: "\ec2d";
 }
 
 .icon-person_new:before {

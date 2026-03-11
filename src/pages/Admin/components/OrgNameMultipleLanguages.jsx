@@ -7,7 +7,7 @@ import langConfig from 'src/common/langConfig';
 
 const InputWrap = styled(Input)`
   &:disabled {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
     cursor: not-allowed;
   }
 `;
@@ -147,7 +147,7 @@ export default function OrgNameMultipleLanguages(props) {
   return (
     <Icon
       icon="language"
-      className={`ThemeColor Hand Font18 Gray_75 hoverText ${props.className}`}
+      className={`colorPrimary Hand Font18 textSecondary hoverText ${props.className}`}
       onClick={() => setLanguages(props)}
     />
   );

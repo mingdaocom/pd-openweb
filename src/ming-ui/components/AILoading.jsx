@@ -25,7 +25,7 @@ const LoadingBox = styled.div`
     position: absolute;
     aspect-ratio: 1/1;
     width: 80px;
-    background: linear-gradient(to left, #6e09f920, #6e09f9, transparent);
+    background: linear-gradient(to left, #6e09f920, var(--color-mingo), transparent);
     offset-anchor: 90 50%;
     offset-path: rect(0 auto auto 0 round 80px);
     animation: ${borderBeamAnimation} 6s infinite linear;

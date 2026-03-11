@@ -10,7 +10,7 @@ const ViewEmptyWrap = styled.div`
   justify-content: center;
   &.empty {
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .iconCon {
@@ -23,14 +23,14 @@ const ViewEmptyWrap = styled.div`
     border-radius: 50%;
     background-color: rgba(0, 0, 0, 0.04);
     i {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       font-size: 70px;
     }
   }
   p {
     text-align: center;
     margin-top: 20px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     font-size: 15px;
   }
 `;

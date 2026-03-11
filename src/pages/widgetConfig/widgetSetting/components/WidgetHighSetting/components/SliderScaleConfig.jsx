@@ -103,7 +103,10 @@ export default function SliderScaleDialog(props) {
             />
             <Buttons>
               <i
-                className={'icon-remove_circle_outline Font18 mRight12 ' + (removeDisabled ? 'Gray_d' : 'Gray_9e Hand')}
+                className={
+                  'icon-remove_circle_outline Font18 mRight12 ' +
+                  (removeDisabled ? 'textPlaceholder' : 'textTertiary Hand')
+                }
                 onClick={
                   removeDisabled
                     ? () => {}
@@ -111,7 +114,7 @@ export default function SliderScaleDialog(props) {
                 }
               ></i>
               <i
-                className={'icon-add_circle_outline Font18 mRight12 Gray_9e Hand'}
+                className={'icon-add_circle_outline Font18 mRight12 textTertiary Hand'}
                 onClick={() =>
                   setScales(oldScales => [
                     ...oldScales.slice(0, i + 1),

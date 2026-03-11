@@ -6,30 +6,30 @@ import { ChatHistoryContent } from 'src/components/Mingo/ChatBot/components/Chat
 
 const Con = styled.div`
   width: 280px;
-  border-right: 1px solid #e0e0e0;
+  border-right: 1px solid var(--color-border-secondary);
   overflow: hidden;
   transition: all 0.3s ease-in-out;
   margin-left: 0;
   .new-chat-btn {
     height: 40px;
     border-radius: 40px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
     margin: 12px 16px 16px;
     cursor: pointer;
     i {
       font-size: 18px;
-      color: #6e09f9;
+      color: var(--color-mingo);
       margin-right: 6px;
     }
     span {
       font-size: 14px;
-      color: #151515;
+      color: var(--color-text-title);
       font-weight: 500;
     }
   }
   .history-title {
     font-size: 13px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     font-weight: bold;
     margin: 6px 20px;
   }
@@ -49,14 +49,14 @@ export const ExpandIcon = styled.span`
   cursor: pointer;
   i {
     font-size: 20px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   &.un-expand {
     position: absolute;
     top: 0;
     left: 0;
     z-index: 2;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     margin: 12px;
   }
 `;

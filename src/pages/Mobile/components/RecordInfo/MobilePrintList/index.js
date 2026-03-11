@@ -9,7 +9,7 @@ import { getPrintCardInfoOfTemplate } from 'worksheet/common/PrintQrBarCode/enum
 import { generatePdf } from 'worksheet/common/PrintQrBarCode/GeneratingPdf';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { PRINT_TEMP, PRINT_TYPE, PRINT_TYPE_STYLE } from 'src/pages/Print/config';
+import { PRINT_TEMP, PRINT_TYPE, PRINT_TYPE_STYLE } from 'src/pages/Print/core/config';
 import { VersionProductType } from 'src/utils/enum';
 import { getFeatureStatus } from 'src/utils/project';
 import { getCurrentProject } from 'src/utils/project';
@@ -51,12 +51,12 @@ const PopupWrap = styled(Popup)`
     line-height: 24px;
     justify-content: space-between;
     padding: 15px 20px 10px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .closeIcon {
     width: 24px;
     border-radius: 12px;
-    background-color: #e6e6e6;
+    background-color: var(--color-border-secondary);
   }
   .printListContent {
     overflow-y: auto;
@@ -204,8 +204,8 @@ export default function MobilePrintList(props) {
           hideRecordActionVisible();
         }}
       >
-        {!hidePrintIcon && <Icon className="icon icon-archive Font20 delIcon Gray_9e" />}
-        <div className="flex Font15 Gray">{_l('打印/导出')}</div>
+        {!hidePrintIcon && <Icon className="icon icon-archive Font20 delIcon textTertiary" />}
+        <div className="flex Font15 textPrimary">{_l('打印/导出')}</div>
       </EntryWrap>
 
       <PopupWrap
@@ -230,7 +230,7 @@ export default function MobilePrintList(props) {
                 {isCustom ? (
                   <span className={`${PRINT_TYPE_STYLE[item.type].fileIcon} fileIcon`}></span>
                 ) : (
-                  <Icon icon={getPrintCardInfoOfTemplate(item).icon} className="Font20 Gray_9e" />
+                  <Icon icon={getPrintCardInfoOfTemplate(item).icon} className="Font20 textTertiary" />
                 )}
 
                 <div className="flex mLeft20 Font15 ellipsis">{item.name}</div>
@@ -256,10 +256,11 @@ export default function MobilePrintList(props) {
         </div>
         <div className="netStateWrap">
           <div className="imgWrap" />
-          <div className="hint Gray_75">{_l('当前版本无法使用此功能')}</div>
-          {!md.global.Config.IsLocal && !md.global.Account.isPortal && !isExternal && (
-            <div className="explain Gray_75">{_l('请升级至%0解锁开启', getVersion())}</div>
-          )}
+          <div className="hint textSecondary">{_l('当前版本无法使用此功能')}</div>
+          {!window.platformENV.isOverseas &&
+            !window.platformENV.isLocal &&
+            !md.global.Account.isPortal &&
+            !isExternal && <div className="explain textSecondary">{_l('请升级至%0解锁开启', getVersion())}</div>}
         </div>
       </PopupWrap>
     </Fragment>

@@ -26,14 +26,14 @@ const Con = styled.div`
 
 const Title = styled.div`
   font-size: 17px;
-  color: #151515;
+  color: var(--color-text-title);
   font-weight: bold;
 `;
 
 const Description = styled.div`
   margin-top: 4px;
   font-size: 13px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
 `;
 
 const SelectControlButton = styled.div`
@@ -46,12 +46,12 @@ const SelectControlButton = styled.div`
   align-items: center;
   justify-content: center;
   border-radius: 3px;
-  background-color: #f8f8f8;
+  background-color: var(--color-background-secondary);
   padding: 0 16px;
   font-size: 13px;
-  color: #1677ff;
+  color: var(--color-primary);
   &:hover {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-hover);
   }
 `;
 

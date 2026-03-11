@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import store from 'redux/configureStore';
 import { Button, Checkbox, ConfigProvider, Modal } from 'antd';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -7,6 +6,7 @@ import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import reportApi from 'statistics/api/report';
 import { enumWidgetType } from 'src/pages/customPage/util';
+import store from 'src/redux/configureStore';
 
 const Con = styled(Modal)`
   .ant-modal-header {
@@ -14,7 +14,7 @@ const Con = styled(Modal)`
   }
   .searchWrap {
     padding: 5px 0;
-    border-bottom: 1px solid #f5f5f5;
+    border-bottom: 1px solid var(--color-background-secondary);
     margin-bottom: 20px;
     input {
       padding: 3px;
@@ -114,7 +114,7 @@ export default class AutoLinkage extends Component {
           <Fragment>
             {_l('选择联动筛选相关组件')}({selectIds.length}/{components.length})
             <Tooltip title={_l('联动筛选指定组件后，将取消自动模式下，使用相同数据集的组件自动关联。')}>
-              <Icon className="mLeft5 Gray_9e pointer" icon="info" />
+              <Icon className="mLeft5 textTertiary pointer" icon="info" />
             </Tooltip>
           </Fragment>
         }
@@ -123,12 +123,12 @@ export default class AutoLinkage extends Component {
         visible={modalVisible}
         centered={true}
         destroyOnClose={true}
-        closeIcon={<Icon icon="close" className="Font20 pointer Gray_9e" />}
+        closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
         footer={this.renderFooter()}
         onCancel={() => this.setState({ modalVisible: false })}
       >
         <div className="searchWrap flexRow alignItemsCenter">
-          <Icon className="Gray_9e Font20 mRight5" icon="search" />
+          <Icon className="textTertiary Font20 mRight5" icon="search" />
           <input
             placeholder={_l('搜索组件名称')}
             className="flex"

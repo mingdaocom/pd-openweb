@@ -16,7 +16,7 @@ const AttachmentsWrap = styled.div`
   padding-bottom: 32px;
   .empty {
     font-size: 14px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
 `;
 
@@ -65,7 +65,7 @@ const AttachmentsList = styled.div`
   .attachment-name {
     text-align: center;
     font-size: 13px;
-    color: #151515;
+    color: var(--color-text-title);
     margin-top: 3px;
   }
 `;

@@ -51,7 +51,7 @@ export default class CopyApp extends Component {
             removeCancelBtn: true,
             description: (
               <Fragment>
-                <div className="Gray_75 mBottom15">{_l('以下工作表存在错误配置：')}</div>
+                <div className="textSecondary mBottom15">{_l('以下工作表存在错误配置：')}</div>
                 {result.worksheetNames.map((item, i) => {
                   return (
                     <div className="mTop5" key={i}>
@@ -74,7 +74,7 @@ export default class CopyApp extends Component {
 
     const hasDataBase =
       getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
-      (!md.global.Config.IsPlatformLocal || !md.global.Config.IsLocal);
+      (!window.platformENV.isPlatform || (!window.platformENV.isOverseas && !window.platformENV.isLocal));
     const hasAppResourceAuth = hasPermission(myPermissions, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
 
     if (hasDataBase && hasAppResourceAuth) {
@@ -112,7 +112,9 @@ export default class CopyApp extends Component {
           onOk={this.handleCopy}
           {...rest}
         >
-          <div className="Gray_75">{_l('将复制目标应用的应用结构、流程和角色。应用下的数据和成员不会被复制')}</div>
+          <div className="textSecondary">
+            {_l('将复制目标应用的应用结构、流程和角色。应用下的数据和成员不会被复制')}
+          </div>
         </Dialog>
         <SelectDBInstance
           visible={DBInstancesDialog}

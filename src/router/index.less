@@ -17,6 +17,21 @@
   overflow: hidden;
   & > header {
     z-index: 16;
+    position: relative;
+  }
+  [data-theme='dark'] & {
+    .appCenterHeaderMask,
+    .sideNavMask,
+    .dashboardMask {
+      display: none;
+    }
+    .containerImage {
+      background-image: none !important;
+    }
+    .sideNavWrapper,
+    .dashboardWrapper {
+      background-color: var(--color-background-secondary) !important;
+    }
   }
 }
 

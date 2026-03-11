@@ -37,7 +37,7 @@ const Operation = ({
         <Tooltip title={direction === 'vertical' ? _l('切换为竖版模式') : _l('切换为横版模式')} placement="bottom">
           <Icon
             icon="call_to_action_on"
-            className={cx('Font20 Gray_9e pointer mLeft16', direction)}
+            className={cx('Font20 textTertiary pointer mLeft16', direction)}
             onClick={() => {
               onChangeDirection();
             }}
@@ -48,7 +48,7 @@ const Operation = ({
           <Tooltip title={_l('以表格显示')} placement="bottom">
             <Icon
               icon="worksheet"
-              className="Font20 Gray_9e pointer mLeft16"
+              className="Font20 textTertiary pointer mLeft16"
               onClick={() => {
                 onChangeSheetVisible();
               }}
@@ -60,7 +60,7 @@ const Operation = ({
         <Tooltip title={_l('刷新')} placement="bottom">
           <Icon
             icon="task-later"
-            className="Font20 Gray_9e pointer mLeft16"
+            className="Font20 textTertiary pointer mLeft16"
             onClick={() => {
               getReportData({ reload: true });
               if (sheetVisible) {
@@ -74,7 +74,7 @@ const Operation = ({
         <Tooltip title={_l('统计范围')} placement="bottom">
           <Icon
             icon="filter"
-            className={cx('Font20 Gray_9e pointer mLeft16', { active: scopeVisible })}
+            className={cx('Font20 textTertiary pointer mLeft16', { active: scopeVisible })}
             onClick={() => {
               onChangeScopeVisible(!scopeVisible);
             }}
@@ -87,7 +87,7 @@ const Operation = ({
           <Tooltip title={_l('等分')} placement="bottom">
             <Icon
               icon="equal_division"
-              className="Font20 Gray_9e pointer mLeft16"
+              className="Font20 textTertiary pointer mLeft16"
               onClick={() => {
                 changeCurrentReport({
                   style: {
@@ -119,7 +119,7 @@ const Operation = ({
         >
           <span>
             <Tooltip title={_l('排序')} placement="bottom">
-              <Icon icon="import_export" className="Font20 pointer Bold mLeft16 Gray_9e hoverHighlight" />
+              <Icon icon="import_export" className="Font20 pointer Bold mLeft16 textTertiary hoverHighlight" />
             </Tooltip>
           </span>
         </Sort>

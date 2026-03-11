@@ -1,11 +1,11 @@
 ﻿import React from 'react';
 import { renderToString } from 'react-dom/server';
-import Store from 'redux/configureStore';
 import doT from 'dot';
 import _ from 'lodash';
 import moment from 'moment';
 import { Checkbox, DeleteReconfirm, Dialog, LoadDiv } from 'ming-ui';
 import ajaxRequest from 'src/api/taskCenter';
+import Store from 'src/redux/configureStore';
 import { navigateTo } from 'src/router/navigateTo';
 import singleFolder from '../containers/taskNavigation/tpl/singleFolder.html';
 import singleFolderComm from '../containers/taskNavigation/tpl/singleFolderComm.html';
@@ -165,7 +165,7 @@ export const checkTaskSubTask = (taskId, callback) => {
         dialogClasses: 'enterStatus',
         children: (
           <Checkbox
-            className="Gray_9"
+            className="textTertiary"
             defaultChecked={false}
             text={status ? _l('同时标记该任务下所有任务为已完成') : _l('同时标记该任务下所有任务为未完成')}
           />
@@ -451,7 +451,7 @@ export const afterDeleteTask = (taskIdArray, parentTaskId) => {
 						<span class="Font14">${_l('或使用右上角 + 号创建任务')}</span>
 					</span>
 					</div>
-					<div class="ThemeBG taskGroundGlass"></div>
+					<div class="bgTertiary taskGroundGlass"></div>
 				</div>`;
 
           // 优先级 4分类
@@ -1176,7 +1176,7 @@ export const joinProjectPrompt = folderId => {
           placeholder={_l('向负责人说明你想要加入项目的原因')}
           style={{
             borderRadius: '4px',
-            borderColor: '#ccc !important',
+            borderColor: 'var(--color-border-tertiary) !important',
             fontSize: '13px',
             height: '8em',
             marginTop: '15px',

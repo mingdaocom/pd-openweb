@@ -7,6 +7,7 @@ import worksheetAjax from 'src/api/worksheet';
 import 'mobile/index.less';
 import { SHARE_STATE, VerificationPass } from 'worksheet/components/ShareState';
 import preall from 'src/common/preall';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import globalEvents from 'src/router/globalEvents';
 import { getTranslateInfo, shareGetAppLangDetail } from 'src/utils/app';
 import { browserIsMobile } from 'src/utils/common';
@@ -96,6 +97,10 @@ class WorksheetRowEdit extends Component {
             this.setState({ loading: false, data, isError: true });
             reject(data);
           }
+        })
+        .catch(err => {
+          this.setState({ loading: false, isError: err.errorCode });
+          reject(err);
         });
     });
   };
@@ -137,7 +142,7 @@ class WorksheetRowEdit extends Component {
 
     return (
       <div className="flexColumn h100 alignItemsCenter justifyContentCenter">
-        <i className="icon-error1" style={{ color: '#FF7600', fontSize: 60 }} />
+        <i className="icon-error1" style={{ color: 'var(--color-warning)', fontSize: 60 }} />
         <div className="Font17 bold mTop15">{SHARE_STATE[data.resultCode]}</div>
       </div>
     );
@@ -149,7 +154,7 @@ class WorksheetRowEdit extends Component {
   renderComplete() {
     return (
       <div className="flexColumn h100 alignItemsCenter justifyContentCenter">
-        <i className="icon-check_circle" style={{ color: '#4CAF50', fontSize: 60 }} />
+        <i className="icon-check_circle" style={{ color: 'var(--color-success)', fontSize: 60 }} />
         <div className="Font17 bold mTop15">{_l('提交成功')}</div>
       </div>
     );
@@ -158,9 +163,13 @@ class WorksheetRowEdit extends Component {
   render() {
     const { loading, data, isError, Components } = this.state;
 
+    if (isError === 300016) {
+      return <RestrictAccessStatus />;
+    }
+
     return (
       <Fragment>
-        {!_.isEmpty(data) && <DocumentTitle title={this.getTitle()} />}
+        {!_.isEmpty(data) && <DocumentTitle title={this.getTitle() || _l('流程分享')} />}
 
         {loading || !Components ? (
           <LoadDiv className="mTop20" />

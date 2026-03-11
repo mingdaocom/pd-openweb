@@ -18,6 +18,7 @@ import { sortControlByIds } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 import { addBehaviorLog } from 'src/utils/project';
 import { lineBottomHeight, minControlWidth, types } from '../config';
+import { getResourceRowHoverHandlers } from '../util';
 
 const Wrap = styled.div`
   .flexShrink0 {
@@ -46,7 +47,7 @@ const Wrap = styled.div`
       /* 隐藏Internet Explorer和Edge的滚动条 */
       -ms-overflow-style: none; /* Internet Explorer和Edge */
       scrollbar-width: none; /* Firefox */
-      border-bottom: 1px solid rgba(0, 0, 0, 0.09);
+      border-bottom: 1px solid var(--view-border-color);
       .tb {
         border-bottom: none;
       }
@@ -78,19 +79,18 @@ const Wrap = styled.div`
     height: 100%;
     width: 2px;
     cursor: ew-resize;
-    background-color: #0f8df2;
+    background-color: var(--color-primary);
   }
 `;
 
 const WrapTableCon = styled.div`
-  // scrollbar-width: thin;
   .roleAvatar {
     img {
       vertical-align: top;
     }
   }
   .th {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.09);
+    border-bottom: 1px solid var(--view-border-color);
     .add {
       position: sticky;
       width: 0;
@@ -107,9 +107,8 @@ const WrapTableCon = styled.div`
       min-width: 24px;
       height: 36px;
       line-height: 36px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       display: none;
-      background-color: #fff;
       transform: translateX(5px);
       &.totalNum {
         display: block;
@@ -119,7 +118,7 @@ const WrapTableCon = styled.div`
       .addCoin {
         display: block;
         &:hover {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
       .totalNum {
@@ -136,7 +135,7 @@ const WrapTableCon = styled.div`
   }
 `;
 const TbWrap = styled.div`
-  border-left: 1px solid rgba(0, 0, 0, 0.04);
+  border-left: 1px solid var(--view-border-color-left);
   padding: 0 6px;
   flex-shrink: 0;
   .drag {
@@ -149,13 +148,13 @@ const TbWrap = styled.div`
     cursor: ew-resize;
   }
   .cover {
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--view-border-color-left-dark);
     width: 44px;
     height: 44px;
     border-radius: 3px;
     background-repeat: no-repeat;
     background-position: center;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     .fileIcon {
       width: 24px;
       height: 29px;
@@ -372,7 +371,7 @@ export default function GroupCon(props) {
     >
       <div className="groupTable flexColumn w100 h100 Relative">
         <div
-          className={cx('head w100 flexRow alignItemsCenter titleCon Bold Font13 Gray_75 TxtMiddle')}
+          className={cx('head w100 flexRow alignItemsCenter titleCon Bold Font13 textSecondary TxtMiddle')}
           style={{
             height: type === 'Day' ? 28 + 2 : 28,
             lineHeight: `28px`,
@@ -394,7 +393,7 @@ export default function GroupCon(props) {
                   : displayControlsInfo.length <= 0
                     ? props.directoryWidth
                     : widthConfig[0] || minControlWidth,
-                background: '#fff',
+                background: 'var(--color-background-primary)',
               }}
             >
               <span className="overflow_ellipsis WordBreak flex w100">
@@ -437,7 +436,7 @@ export default function GroupCon(props) {
           }}
         >
           {resourceDataByKey.length <= 0 && (
-            <div className="TxtCenter mTop20 Gray_9e">{keywords ? _l('没有搜索结果') : _l('无数据')}</div>
+            <div className="TxtCenter mTop20 textTertiary">{keywords ? _l('没有搜索结果') : _l('无数据')}</div>
           )}
           {resourceDataByKey.map((o, i) => {
             const height = o.height + lineBottomHeight + 1; //底部有lineBottomHeight间距,
@@ -512,6 +511,7 @@ export default function GroupCon(props) {
               const row = safeParse(o.name || '{}');
               return row[isSameType([27], viewControlData) ? 'departmentName' : 'organizeName'];
             };
+            const hoverHandlers = getResourceRowHoverHandlers(viewId, i);
             return (
               <div
                 className="th flexRow alignItemsCenter Relative"
@@ -522,28 +522,7 @@ export default function GroupCon(props) {
                   minWidth: isM ? 'unset' : props.directoryWidth,
                   width: isM ? '100%' : allW,
                 }}
-                onMouseEnter={() => {
-                  $(`#resourceRow_${viewId}_${i}`).css({
-                    background: 'rgba(0,0,0,0.04)',
-                  });
-                  $(`#resourceGroup_${viewId}_${i}`).css({
-                    background: 'rgba(0,0,0,0.04)',
-                  });
-                  $(`#resourceGroup_${viewId}_${i}`).find('.totalNum,.addCoin').css({
-                    background: '#F4F4F4',
-                  });
-                }}
-                onMouseLeave={() => {
-                  $(`#resourceRow_${viewId}_${i}`).css({
-                    background: 'transparent',
-                  });
-                  $(`#resourceGroup_${viewId}_${i}`).css({
-                    background: 'transparent',
-                  });
-                  $(`#resourceGroup_${viewId}_${i}`).find('.totalNum,.addCoin').css({
-                    background: '#fff',
-                  });
-                }}
+                {...hoverHandlers}
               >
                 <TbWrap
                   className="tb TxtMiddle h100 flexRow alignItemsCenter"
@@ -649,7 +628,7 @@ export default function GroupCon(props) {
                       }}
                     >
                       {o.rows.length > 0 && (
-                        <div className="Gray_9e totalNum w100 TxtCenter TxtMiddle">{o.rows.length}</div>
+                        <div className="textTertiary totalNum w100 TxtCenter TxtMiddle">{o.rows.length}</div>
                       )}
                       <Icon className="addCoin Font18 Hand" icon="add_circle" />
                     </div>

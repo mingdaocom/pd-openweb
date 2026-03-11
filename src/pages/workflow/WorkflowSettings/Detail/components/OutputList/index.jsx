@@ -12,7 +12,7 @@ const OutputListItem = styled.div(
   height: 36px;
   display: flex;
   align-items: center;
-  ${isHeader ? 'color: #757575;' : 'margin-bottom: 10px;'}
+  ${isHeader ? 'color: var(--color-text-secondary);' : 'margin-bottom: 10px;'}
   .width150 {
     width: 150px;
   }
@@ -32,10 +32,10 @@ const OutputListItem = styled.div(
     border-width: 1px;
     border-style: solid;
     border-radius: 4px;
-    border-color: #ddd;
+    border-color: var(--color-border-primary);
     padding: 0 10px;
     &:focus {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
   }
 `,
@@ -178,12 +178,12 @@ export default class OutputList extends Component {
             <div className="width50">
               <Icon
                 type="trash"
-                className="Font16 mRight10 pointer Gray_75 ThemeHoverColor3"
+                className="Font16 mRight10 pointer textSecondary ThemeHoverColor3"
                 onClick={() => this.removeParameters(item.controlId)}
               />
               <Icon
                 type="add"
-                className="Font16 pointer Gray_75 ThemeHoverColor3"
+                className="Font16 pointer textSecondary ThemeHoverColor3"
                 onClick={() => this.addParameters(item)}
               />
             </div>

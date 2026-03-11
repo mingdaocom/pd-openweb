@@ -71,7 +71,7 @@ export const GraphWrap = styled.div`
     overflow: hidden;
   }
   .iconWrap {
-    color: #fff;
+    color: var(--color-white);
     font-size: 28px;
     border-radius: ${props => props.radius};
     justify-content: center;

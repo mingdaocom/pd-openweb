@@ -743,7 +743,7 @@ $.extend(FolderSelect.prototype, {
           $folderNode
             .find('.nodeList')
             .html(
-              '<div class="nullData Gray_9 Font14">' +
+              '<div class="nullData textTertiary Font14">' +
                 (folderSelect.settings.isFolderNode === SELECT_TYPE.FOLDER ? _l('没有子文件夹') : _l('没有子文件')) +
                 '</div>',
             );

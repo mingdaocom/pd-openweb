@@ -31,6 +31,7 @@ const RecordInfoPage = props => {
       recordId={rowId}
       from={from || RECORD_INFO_FROM.WORKSHEET_ROW_LAND}
       getDataType={from}
+      isLandPage
     />
   );
 };

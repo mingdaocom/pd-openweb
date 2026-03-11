@@ -11,7 +11,7 @@ const SectionConfirmWrap = styled.div`
   .title {
     font-weight: 600;
     font-size: 14px;
-    color: #151515;
+    color: var(--color-text-title);
     margin-bottom: 8px;
     &.labelBetween {
       display: flex;
@@ -33,7 +33,7 @@ const SectionConfirmWrap = styled.div`
       display: flex;
       align-items: center;
       line-height: 40px;
-      border-bottom: 1px solid #dddddd;
+      border-bottom: 1px solid var(--color-border-primary);
     }
   }
 `;
@@ -87,7 +87,7 @@ function SettingDialog(props) {
                 }}
               />
             </div>
-            <div className="Gray_75 mBottom12">
+            <div className="textSecondary mBottom12">
               {_l('未开启时，按%0本身设置；开启后可配置细分操作', parentItem.type === 34 ? _l('子表') : _l('关联记录'))}
             </div>
             {parentConfig.isCustom && (
@@ -113,7 +113,9 @@ function SettingDialog(props) {
         )}
         <div className="editContainer">
           <div className="title">{_l('字段设置')}</div>
-          <div className="Gray_75">{_l('未勾选时，按字段原属性；勾选后，字段%0', _.get(actionItem, 'label'))}</div>
+          <div className="textSecondary">
+            {_l('未勾选时，按字段原属性；勾选后，字段%0', _.get(actionItem, 'label'))}
+          </div>
           <div className="rowItem">
             <div className="rowTitle flex Bold">{_l('全选')}</div>
             <Checkbox

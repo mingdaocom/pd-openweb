@@ -85,15 +85,15 @@ export default function CreateRecord(props) {
         {!isEmpty && !_.isEmpty(controls) && (
           <div className="setValueContent">
             <div className="setItem">
-              <div className="itemFiledTitle Gray_70">{_l('字段')}</div>
-              <div className="itemValueTitle Gray_70">{_l('默认值')}</div>
+              <div className="itemFiledTitle textSecondary">{_l('字段')}</div>
+              <div className="itemValueTitle textSecondary">{_l('默认值')}</div>
             </div>
             {actionItems.map((item, index) => {
               const { icon, currentControl } = getDetail(item.controlId);
               return (
                 <div className="setItem">
                   <div className="itemFiled itemFiledTitle ">
-                    {icon && <Icon className="mRight8 Font14 Gray_75" icon={icon} />}
+                    {icon && <Icon className="mRight8 Font14 textSecondary" icon={icon} />}
                     <span className={cx('flex overflow_ellipsis', { Red: _.isEmpty(currentControl) })}>
                       {_.get(currentControl, 'controlName') || _l('已删除')}
                     </span>

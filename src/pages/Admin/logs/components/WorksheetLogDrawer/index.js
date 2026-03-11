@@ -76,7 +76,7 @@ export default function WorksheetLogDrawer(props) {
       <div className="flexRow h100">
         <div className="sheetWrap flexColumn">
           <div className="searchWrap Relative">
-            <i className="icon icon-search Font18 Gray_9d TxtMiddle" />
+            <i className="icon icon-search Font18 textTertiary TxtMiddle" />
             <Input placeholder={_l('搜索')} value={searchValue} onChange={handleSearch} />
           </div>
           <div className="mTop15 mLeft16 mBottom10">{_l('选择工作表')}</div>
@@ -84,7 +84,7 @@ export default function WorksheetLogDrawer(props) {
             {worksheetLoading ? (
               <LoadDiv className="mTop50" />
             ) : searchValue && _.isEmpty(searchWorksheetList) ? (
-              <div className="Gray_9e pLeft16">{_l('暂无搜索结果')}</div>
+              <div className="textTertiary pLeft16">{_l('暂无搜索结果')}</div>
             ) : (
               (_.trim(searchValue) ? searchWorksheetList : worksheetList).map(item => {
                 const { workSheetId, workSheetName, iconUrl } = item;
@@ -96,7 +96,7 @@ export default function WorksheetLogDrawer(props) {
                   >
                     <SvgIcon
                       url={iconUrl}
-                      fill={workSheetId === selectWorksheetId ? '#108ee9' : '#9e9e9e'}
+                      fill={workSheetId === selectWorksheetId ? 'var(--color-primary)' : 'var(--color-text-tertiary)'}
                       size={16}
                       addClassName="TxtMiddle mRight5"
                     />

@@ -1,5 +1,4 @@
 import React from 'react';
-import store from 'redux/configureStore';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -15,6 +14,7 @@ import UserBaseProfile from 'src/components/UserInfoComponents/UserBaseProfile.j
 import { maskValue } from 'src/pages/Admin/security/account/utils';
 import PersonalStatus from 'src/pages/chat/components/MyStatus/PersonalStatus';
 import * as actions from 'src/pages/chat/redux/actions';
+import store from 'src/redux/configureStore';
 import { browserIsMobile } from 'src/utils/common';
 import placements from './placements';
 import './css/userCard.less';
@@ -29,12 +29,9 @@ const USER_STATUS = {
 
 const CardContentBoxWrap = styled.div`
   position: relative;
-  box-shadow:
-    0 9px 12px -6px rgba(0, 0, 0, 0.2),
-    0 19px 29px 2px rgba(0, 0, 0, 0.14),
-    0 7px 36px 6px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-lg);
   border-radius: 4px;
-  background: #fff;
+  background: var(--color-background-card);
 
   .arrowBoxUserCard {
     position: absolute;
@@ -82,7 +79,7 @@ const BusinessCardWrap = styled.div`
     }
   }
   .name {
-    color: #000;
+    color: var(--color-text-primary);
     font-weight: bold;
     font-size: 15px;
     width: 170px;
@@ -101,11 +98,11 @@ const BusinessCardWrap = styled.div`
   .cardContentTag {
     display: inline-block;
     padding: 0 5px;
-    color: #757575;
+    color: var(--color-text-secondary);
     width: unset;
     height: 19px;
     line-height: 19px;
-    background: #f0f0f0;
+    background: var(--color-background-disabled);
     border-radius: 4px;
     margin-bottom: 8px;
   }
@@ -151,6 +148,7 @@ class UserCard extends React.Component {
     type: PropTypes.number,
     disabled: PropTypes.bool,
     chatButton: PropTypes.bool, // 是否显示发消息按钮
+    newPageChat: PropTypes.bool, // 新页面打开 chat
   };
   static defaultProps = {
     type: 1, // 1 人员 2 群组 3 通用`小秘书` 4 `任务 文件夹 群组 小秘书`
@@ -285,7 +283,7 @@ class UserCard extends React.Component {
         className="itemInfo flexRow LineHeight30"
         key={`userCard-contentItem-${this.props.sourceId || ''}-${item.value}`}
       >
-        <div className="Gray_75 mRight8">{item.key}</div>
+        <div className="textSecondary mRight8">{item.key}</div>
         <div className="flex ellipsis mRight5">{item.value}</div>
       </div>
     ));
@@ -306,18 +304,20 @@ class UserCard extends React.Component {
   };
 
   openChat = () => {
-    const { type } = this.props;
+    const { type, newPageChat } = this.props;
     const { data } = this.state;
-    const isModal = document.querySelector('.mdModal.workSheetRecordInfo');
+    const isNewPageChat = _.isBoolean(newPageChat)
+      ? newPageChat
+      : document.querySelector('.mdModal.workSheetRecordInfo');
 
     if (type === 1) {
-      if (isModal) {
+      if (isNewPageChat) {
         window.open(`/windowChat?id=${data.accountId}&type=${type}`);
       } else {
         store.dispatch(actions.addUserSession(data.accountId));
       }
     } else if (type === 2) {
-      if (isModal) {
+      if (isNewPageChat) {
         window.open(`/windowChat?id=${data.groupId}&type=${type}`);
       } else {
         store.dispatch(actions.addGroupSession(data.groupId));
@@ -347,7 +347,7 @@ class UserCard extends React.Component {
     if (!isSourceValid) {
       if (![1, 2].includes(type)) return null;
       const text = type === 1 ? _l('用户') : data && data.isPost === false ? _l('聊天') : _l('群组');
-      return <div className="Gray_c pLeft15 pBottom15">{_l('未找到此%0', text)}</div>;
+      return <div className="textPlaceholder pLeft15 pBottom15">{_l('未找到此%0', text)}</div>;
     } else {
       if (isSecret) {
         return (
@@ -392,7 +392,7 @@ class UserCard extends React.Component {
                 {data.status === USER_STATUS.LOGOFF && <span className="mLeft3">{_l('账号已注销')}</span>}
               </a>
               {!isOutsourcing && data.displayFieldForName && data[DisplayFieldForNameInfo[data.displayFieldForName]] ? (
-                <div className="Gray_75 ellipsis w100">
+                <div className="textSecondary ellipsis w100">
                   {_.includes([56, 58], data.displayFieldForName) ? (
                     maskValue(
                       data[DisplayFieldForNameInfo[data.displayFieldForName]],
@@ -405,7 +405,7 @@ class UserCard extends React.Component {
                   )}
                 </div>
               ) : (!projectId && !isPortal) || isOutsourcing ? (
-                <div className="Gray_75">{data.companyName}</div>
+                <div className="textSecondary">{data.companyName}</div>
               ) : (
                 ''
               )}
@@ -420,7 +420,7 @@ class UserCard extends React.Component {
                     this.fetchData(true);
                   }}
                 >
-                  <span className="actionButton icon-task-later ThemeHoverColor3 Gray_9e" />
+                  <span className="actionButton icon-task-later ThemeHoverColor3 textTertiary" />
                 </span>
               </Tooltip>
               {data.status === USER_STATUS.NORMAL &&
@@ -479,6 +479,11 @@ class UserCard extends React.Component {
       getPopupContainer: () => document.body,
       mouseEnterDelay: 0.1,
       mouseLeaveDelay: 0.3,
+      popupAlign: {
+        points: ['tr', 'br'],
+        offset: [0, 0],
+        overflow: { adjustX: true, adjustY: true },
+      },
       onPopupVisibleChange: visible => {
         this.setState({ visible });
         if (!visible) this.setState({ wrapKey: uuidv4() });

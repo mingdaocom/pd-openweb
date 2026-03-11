@@ -13,7 +13,7 @@ const EditInputCon = styled.div`
   }
   .input {
     border: none;
-    border-bottom: 2px solid #1677ff;
+    border-bottom: 2px solid var(--color-primary);
     padding: 4px 0;
   }
   .ant-input:focus,
@@ -88,7 +88,7 @@ export default function EditInput(props) {
           $('.editIcon').addClass('hidden');
         }}
       >
-        <Icon icon="edit" className="Hand mLeft4 iconEdit Gray_9e" />
+        <Icon icon="edit" className="Hand mLeft4 iconEdit textTertiary" />
       </span>
     </EditInputCon>
   );

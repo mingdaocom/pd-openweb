@@ -80,7 +80,7 @@ const AddLangModal = props => {
       title={
         <div className="flexRow alignItemsCenter">
           <div className="flex">{_l('添加语言')}</div>
-          <Icon className="Gray_75 Font20 pointer" icon="close" onClick={onCancel} />
+          <Icon className="textSecondary Font20 pointer" icon="close" onClick={onCancel} />
         </div>
       }
       bodyStyle={{
@@ -105,21 +105,24 @@ const AddLangModal = props => {
       }
     >
       <div className={cx('flexColumn', { h100: !(systemLangList.length + portionLangList.length) })}>
-        <div className="flexRow alignItemsCenter mBottom10 pBottom10" style={{ borderBottom: '1px solid #efefef' }}>
-          <Icon className="Gray_9e Font20" icon="search" />
+        <div
+          className="flexRow alignItemsCenter mBottom10 pBottom10"
+          style={{ borderBottom: '1px solid var(--color-border-secondary)' }}
+        >
+          <Icon className="textTertiary Font20" icon="search" />
           <Input bordered={false} placeholder={_l('搜索')} onChange={event => setSearchValue(event.target.value)} />
         </div>
         {!!systemLangList.length && (
           <Fragment>
-            <div className="Gray bold">{_l('完整支持')}</div>
-            <div className="Gray_75 mBottom10">{_l('以下语言系统提供完整支持')}</div>
+            <div className="textPrimary bold">{_l('完整支持')}</div>
+            <div className="textSecondary mBottom10">{_l('以下语言系统提供完整支持')}</div>
           </Fragment>
         )}
         {systemLangList.map(data => renderLangItem(data))}
         {!!portionLangList.length && (
           <Fragment>
-            <div className="Gray bold mTop20">{_l('部分支持')}</div>
-            <div className="Gray_75 mBottom10">
+            <div className="textPrimary bold mTop20">{_l('部分支持')}</div>
+            <div className="textSecondary mBottom10">
               <span>{_l('以下语言仅可对应用内自定义内容配置多语言，系统语言未提供支持')}</span>
               <Support
                 className="mLeft5"
@@ -133,7 +136,7 @@ const AddLangModal = props => {
         {portionLangList.map(data => renderLangItem(data))}
         {!(systemLangList.length + portionLangList.length) && (
           <Fragment>
-            <div className="flexRow alignItemsCenter justifyContentCenter flex Font14 Gray_75">
+            <div className="flexRow alignItemsCenter justifyContentCenter flex Font14 textSecondary">
               {_l('没有搜索结果')}
             </div>
           </Fragment>

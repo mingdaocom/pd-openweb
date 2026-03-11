@@ -26,6 +26,8 @@ export default class ChangeColumn extends Component {
     showTabs: PropTypes.bool,
     showOperate: PropTypes.bool, // 显示全显示、全隐藏操作
     disabled: PropTypes.bool, // 能否操作
+    onReset: PropTypes.func, // 自定义重置处理函数
+    hideReset: PropTypes.bool, // 是否隐藏重置按钮
   };
   static defaultProps = {
     layout: 1,
@@ -201,10 +203,11 @@ export default class ChangeColumn extends Component {
       showOperate,
       forbiddenScroll,
       disabled,
+      onReset,
     } = this.props;
     const { search, controlsSorts, focusControlId, retractTabControlIds } = this.state;
     const filteredColumns = sortControlByIds(columns, controlsSorts).filter(
-      column => column.controlName.toLowerCase().indexOf(search.toLowerCase()) > -1,
+      column => column?.controlName?.toLowerCase().indexOf(search.toLowerCase()) > -1,
     );
     const quickOperate = (
       <div className="quickOperate">
@@ -235,19 +238,23 @@ export default class ChangeColumn extends Component {
         </button>
         {isShowColumns && !hideReset && (
           <ChangedIcon
-            onOk={() =>
-              this.handleChange({
-                selected: columns
-                  .sort((a, b) => {
-                    if (a.row === b.row) {
-                      return a.col - b.col;
-                    }
-                    return a.row - b.row;
-                  })
-                  .filter(l => l.controlId.length > 20)
-                  .slice(0, 50)
-                  .map(l => l.controlId),
-                controlsSorts: columns.map(l => l.controlId),
+            skipConfirm={!!onReset}
+            onOk={
+              onReset ||
+              (() => {
+                this.handleChange({
+                  selected: columns
+                    .sort((a, b) => {
+                      if (a.row === b.row) {
+                        return a.col - b.col;
+                      }
+                      return a.row - b.row;
+                    })
+                    .filter(l => l.controlId.length > 20)
+                    .slice(0, 50)
+                    .map(l => l.controlId),
+                  controlsSorts: columns.map(l => l.controlId),
+                });
               })
             }
           />
@@ -259,7 +266,7 @@ export default class ChangeColumn extends Component {
       <div className={cx('workSheetChangeColumn flexColumn', { advance, hideDrag: !!search || !dragable })}>
         {advance && (
           <div className="searchBar flexRow">
-            <i className="icon icon-search"></i>
+            <i className="icon icon-search textDisabled"></i>
             <Input
               value={search}
               placeholder={placeholder}
@@ -271,7 +278,7 @@ export default class ChangeColumn extends Component {
             />
             {search && (
               <i
-                className="icon icon-close"
+                className="icon icon-close textTertiary Hand ThemeHoverColor3"
                 onClick={() => {
                   this.setState({ search: '' });
                 }}

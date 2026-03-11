@@ -15,7 +15,7 @@ const Wrap = styled.div`
   &:hover {
   }
   overflow-x: auto;
-  background: #fff;
+  background: var(--color-background-primary);
   .wrapTr {
     align-items: center;
     display: flex;
@@ -34,13 +34,13 @@ const Wrap = styled.div`
       min-width: 38px;
       max-width: 38px;
       position: sticky;
-      background: #fff;
+      background: var(--color-background-primary);
       left: 0;
       z-index: 1;
     }
     &.isSort {
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
@@ -51,7 +51,7 @@ const Wrap = styled.div`
     top: 50%;
     transform: translate(-50%, -50%);
     position: absolute;
-    background: #fff;
+    background: var(--color-background-primary);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -63,7 +63,7 @@ const Wrap = styled.div`
       border-radius: 50%;
       background: url(${url}) no-repeat;
       background-size: 130px 130px;
-      background-color: #f5f5f5;
+      background-color: var(--color-background-secondary);
     }
   }
   .checkBoxTr {
@@ -77,15 +77,15 @@ const Wrap = styled.div`
   }
 `;
 const WrapHeader = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   position: sticky;
   top: 0px;
   z-index: 10;
   .wrapTr {
     &.checkBoxTr {
-      background: #fff;
+      background: var(--color-background-primary);
     }
-    background: #fff;
+    background: var(--color-background-primary);
     &.optionWrapTr {
       min-width: 70px !important;
       max-width: 70px !important;
@@ -102,15 +102,15 @@ const WrapLi = styled.div`
   .optionWrapTr {
     min-width: 70px !important;
     max-width: 70px !important;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
     // opacity: 0;
   }
   &:hover {
-    background: #f3faff !important;
+    // background: var(--color-primary-transparent) !important;
     .wrapTr {
-      background: #f3faff !important;
+      background: var(--color-primary-transparent) !important;
       &.checkBoxTr {
-        background: #f3faff !important;
+        background: var(--color-primary-transparent) !important;
       }
     }
     .checkBoxTr,
@@ -120,25 +120,25 @@ const WrapLi = styled.div`
     .optionWrapTr {
       .moreop {
         &:hover {
-          color: #1677ff !important;
+          color: var(--color-primary) !important;
         }
       }
     }
   }
   &.checkLi {
-    background: #f3faff !important;
+    // background: var(--color-primary-transparent) !important;
     .wrapTr {
-      background: #f3faff !important;
+      background: var(--color-primary-transparent) !important;
       &.checkBoxTr {
-        background: #f3faff !important;
+        background: var(--color-primary-transparent) !important;
       }
     }
     &:hover {
-      background: #e0f3ff !important;
+      // background: var(--color-primary-transparent) !important;
       .wrapTr {
-        background: #e0f3ff !important;
+        background: var(--color-primary-transparent) !important;
         &.checkBoxTr {
-          background: #e0f3ff !important;
+          background: var(--color-primary-transparent) !important;
         }
       }
     }
@@ -152,7 +152,7 @@ const WrapSort = styled.div`
     display: none;
   }
   &:hover {
-    color: #1677ff;
+    color: var(--color-primary);
   }
   &:hover,
   &.isCue {
@@ -220,7 +220,9 @@ export default function PorTalTable(props) {
     <div className="emptyCon">
       <div className="TxtCenter">
         <i className="iconBox mBottom12"></i>
-        <span className="Gray_9e Block mBottom20 TxtCenter Font17 Gray_9e">{props.nullTxt || _l('暂无数据')}</span>
+        <span className="textTertiary Block mBottom20 TxtCenter Font17 textTertiary">
+          {props.nullTxt || _l('暂无数据')}
+        </span>
       </div>
     </div>
   );
@@ -263,7 +265,7 @@ export default function PorTalTable(props) {
           let isSort = o.sorter && props.handleChangeSortHeader;
           return (
             <div
-              className={cx('wrapTr overflow_ellipsis WordBreak Gray_9e Bold', o.className, {
+              className={cx('wrapTr overflow_ellipsis WordBreak textTertiary Bold', o.className, {
                 isSort: isSort,
                 Hand: isSort,
               })}

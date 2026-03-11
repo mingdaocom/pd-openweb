@@ -222,6 +222,8 @@ export default function Date(props) {
                     ...control.advancedSetting,
                     min: '',
                     max: '',
+                    showtimezone: '0',
+                    timezonetype: '1',
                     showtype: !includes(['5', '4'], showType) ? String(dateRangeType) : showType,
                   },
                   type: _.includes(

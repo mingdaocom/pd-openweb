@@ -30,21 +30,21 @@ const Wrap = styled.div`
       border-radius: 3px;
     }
     .withdraw:hover {
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
     }
     .active {
       cursor: pointer;
-      color: #9709f2;
+      color: var(--color-mingo-light);
       &:hover {
         background: #9709f20f;
       }
     }
     .error {
       .ming.Textarea {
-        border-color: red !important;
+        border-color: var(--color-error) !important;
       }
       .TxtRight {
-        color: red;
+        color: var(--color-error);
       }
     }
   }
@@ -278,7 +278,7 @@ export default class Editor extends Component {
     if (remark && sourceAi && !aiCreateLoading) {
       return (
         <div
-          className="flexRow alignItemsCenter Gray_9e withdraw pointer"
+          className="flexRow alignItemsCenter textTertiary withdraw pointer"
           onClick={() => {
             this.setState({ sourceAi: undefined, remark: lastRemark || '' });
           }}
@@ -321,7 +321,7 @@ export default class Editor extends Component {
     const isAppIntroDescription = cacheKey === 'appIntroDescription';
     const isSheetIntroDescription = cacheKey === 'sheetIntroDescription';
     const clientHeight = document.body.clientHeight;
-    const distance = isEditing ? (isSheetIntroDescription ? 380 : 198) : 135;
+    const distance = isEditing ? (isSheetIntroDescription ? (showType ? 455 : 380) : 198) : 135;
     const richTextHeight = isAppIntroDescription && !isEditing ? 0 : clientHeight - distance;
     const isError = remark.length > remarkMaxLength;
 
@@ -344,11 +344,11 @@ export default class Editor extends Component {
               >
                 <SvgIcon url={iconUrl} fill="#fff" size={40} />
               </div>
-              <div className="Font20 Gray bold mBottom5 pLeft20 pRight20">{name}</div>
-              {companyName && <div className="Font14 Gray_9e">{companyName}</div>}
+              <div className="Font20 textPrimary bold mBottom5 pLeft20 pRight20">{name}</div>
+              {companyName && <div className="Font14 textTertiary">{companyName}</div>}
               {!!managers.length && (
                 <div className="mTop15 mBottom10 flexRow alignItemsCenter managersWrap">
-                  <div className="Gray_9e managersLabel">{_l('管理员')}</div>
+                  <div className="textTertiary managersLabel">{_l('管理员')}</div>
                   <div className="flexRow pLeft20 pRight20 managersList">
                     {managers.slice(0, 20).map(data => (
                       <UserHead
@@ -377,7 +377,7 @@ export default class Editor extends Component {
               {isEditAppDescription && (
                 <Tooltip title={_l('当应用权限异常时，可尝试清除缓存的权限数据')} placement="bottom">
                   <div
-                    className={cx('flexRow alignItemsCenter Gray_9e pointer clearCache', {
+                    className={cx('flexRow alignItemsCenter textTertiary pointer clearCache', {
                       isLoading: this.state.clearCacheLoading,
                     })}
                     onClick={this.handleClearCache}
@@ -403,7 +403,7 @@ export default class Editor extends Component {
             <div className="Font14 pTop45 pBottom100 flexRow alignItemsCenter justifyContentCenter">
               {'👏'}
               {_l('欢迎使用')}
-              <span className="Gray_9e mLeft5">{`(${_l('未添加应用说明')})`}</span>
+              <span className="textTertiary mLeft5">{`(${_l('未添加应用说明')})`}</span>
             </div>
           )}
           {summary ? (
@@ -485,7 +485,7 @@ export default class Editor extends Component {
                         )
                   }
                 >
-                  <Icon icon="info_outline" className="Gray_9e Font15 pointer mLeft5" />
+                  <Icon icon="info_outline" className="textTertiary Font15 pointer mLeft5" />
                 </Tooltip>
               </div>
               {!md.global.SysSettings.hideAIBasicFun && this.renderState()}
@@ -523,7 +523,7 @@ export default class Editor extends Component {
                 : _l('用于向使用者介绍应用项的功能、使用方法和注意事项')
             }
           >
-            <Icon icon="info_outline" className="Gray_9e Font15 pointer mLeft5" />
+            <Icon icon="info_outline" className="textTertiary Font15 pointer mLeft5" />
           </Tooltip>
         </div>
         {isSheetIntroDescription && (
@@ -563,7 +563,7 @@ export default class Editor extends Component {
                         this.setState({ resume: value.slice(0, 80).trim() });
                       }}
                     />
-                    <span className="resumeLength Font13 Gray_9e">{`${this.state.resume.length}/80`}</span>
+                    <span className="resumeLength Font13 textTertiary">{`${this.state.resume.length}/80`}</span>
                   </div>
                 </div>
                 <div>

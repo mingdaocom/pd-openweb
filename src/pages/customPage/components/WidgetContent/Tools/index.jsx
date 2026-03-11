@@ -12,13 +12,14 @@ import ChangeFontSize from './ChangeFontSize';
 import ContainerSetting from './ContainerSetting';
 import Delete from './Delete';
 import ImageTool from './Image';
+import MobileFilter from './MobileFilter';
 import Move from './Move';
 import RichTextTool from './RichText';
 import 'rc-trigger/assets/index.css';
 
 const WEB_CONTENT_TOOLS = [
   { type: 'setting', icon: 'settings', tip: _l('设置') },
-  { type: 'cardSetting', icon: 'settings', tip: _l('卡片设置') },
+  { type: 'cardSetting', icon: 'card_style', tip: _l('卡片样式') },
   { type: 'insertTitle', icon: 'title', tip: _l('插入标题行') },
   { type: 'copy', icon: 'copy_custom', tip: _l('复制') },
   { type: 'move', icon: 'swap_horiz', tip: _l('移动') },
@@ -26,11 +27,7 @@ const WEB_CONTENT_TOOLS = [
 ];
 
 const MOBILE_CONTENT_TOOLS = [
-  { type: 'insertTitle', icon: 'title', tip: _l('插入标题行') },
-  { type: 'hideMobile', icon: 'visibility_off', tip: _l('隐藏组件') },
-];
-
-const MOBILE_BUTTON_TOOLS = [
+  { type: 'filter', icon: 'tune' },
   { type: 'insertTitle', icon: 'title', tip: _l('插入标题行') },
   { type: 'switchButtonDisplay', icon: 'looks_one', tip: _l('一行一个') },
   { type: 'changeFontSize', icon: 'text_bold2' },
@@ -51,7 +48,7 @@ const ToolsWrap = styled.ul`
   display: flex;
   align-items: center;
   padding: 6px 0;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   border-radius: 0 0 6px 6px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.24);
   &.tabs,
@@ -64,17 +61,17 @@ const ToolsWrap = styled.ul`
     line-height: 20px;
     padding: 0 8px;
     cursor: pointer;
-    color: #757575;
+    color: var(--color-text-secondary);
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
     &.del:hover {
-      color: #f44336;
+      color: var(--color-error);
     }
     &.highlight {
-      color: #1677ff;
+      color: var(--color-primary);
       &.del {
-        color: #f44336;
+        color: var(--color-error);
       }
     }
     &.switchButton {
@@ -93,7 +90,7 @@ const ToolsWrap = styled.ul`
       }
     }
     &.setting {
-      border-right: 1px solid #bdbdbd;
+      border-right: 1px solid var(--color-text-tertiary);
     }
   }
   .changeFontSizePopover {
@@ -108,23 +105,32 @@ const ToolsWrap = styled.ul`
 
 const getTools = ({ widget, widgetType, layoutType, reportType, containerComponents }) => {
   if (layoutType === 'mobile') {
-    let mobileTools = _.cloneDeep(MOBILE_BUTTON_TOOLS).filter(item =>
-      widget.sectionId ? item.type !== 'insertTitle' : true,
-    );
-    if (widgetType === 'analysis') {
-      if (reportTypes.NumberChart !== reportType) {
-        mobileTools = mobileTools.filter(n => !['changeFontSize', 'switchButtonDisplay'].includes(n.type));
-      }
-    } else if (['button'].includes(widgetType)) {
-      mobileTools = mobileTools.filter(n => n.type !== 'changeFontSize');
-    } else if (['tabs'].includes(widgetType)) {
-      mobileTools = mobileTools.filter(n => !['insertTitle', 'changeFontSize', 'switchButtonDisplay'].includes(n.type));
-    } else {
-      mobileTools = mobileTools.filter(n => !['changeFontSize', 'switchButtonDisplay'].includes(n.type));
+    const BASE_TOOL = ['insertTitle', 'hideMobile'];
+    const TOOL_WHITELIST = {
+      analysis: ({ reportType }) =>
+        reportTypes.NumberChart === reportType ? BASE_TOOL.concat('switchButtonDisplay', 'changeFontSize') : BASE_TOOL,
+      button: () => BASE_TOOL.concat('switchButtonDisplay'),
+      tabs: () => ['hideMobile'],
+      filter: () => BASE_TOOL.concat('filter'),
+      '*': () => BASE_TOOL,
+    };
+    function getAllowedTypes(widgetType, ctx) {
+      const rule = TOOL_WHITELIST[widgetType] || TOOL_WHITELIST['*'];
+      const list = typeof rule === 'function' ? rule(ctx) : rule;
+      return new Set(list);
     }
-    return mobileTools;
+    function getMobileTools(widget, widgetType, reportType) {
+      const ctx = { widget, widgetType, reportType };
+      const allowedTypes = getAllowedTypes(widgetType, ctx);
+      return MOBILE_CONTENT_TOOLS.filter(item => {
+        if (!allowedTypes.has(item.type)) return false;
+        if (widget.sectionId && item.type === 'insertTitle') return false;
+        return true;
+      });
+    }
+    return getMobileTools(widget, widgetType, reportType);
   } else {
-    let pcTools = _.cloneDeep(TOOLS_BY_LAYOUT_TYPE[layoutType]).filter(item =>
+    let pcTools = TOOLS_BY_LAYOUT_TYPE[layoutType].filter(item =>
       widget.sectionId ? item.type !== 'insertTitle' : true,
     );
     if (!['view', 'analysis'].includes(widgetType)) {
@@ -291,7 +297,7 @@ export default function Tools(props) {
           }}
         >
           <div className="flexRow valignWrapper">
-            <Icon className="Gray_9e Font18 mLeft5 mRight5" icon={icon} />
+            <Icon className="textTertiary Font18 mLeft5 mRight5" icon={icon} />
             <span>{tip}</span>
           </div>
         </Menu.Item>
@@ -327,6 +333,9 @@ export default function Tools(props) {
     }
     if (type === 'setting' && ['tabs', 'card'].includes(widgetType)) {
       return <ContainerSetting {...itemProps} />;
+    }
+    if (type === 'filter' && ['filter'].includes(widgetType)) {
+      return <MobileFilter {...itemProps} />;
     }
     if (type === 'cardSetting') {
       const { getChartData, setChartData } = props;

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Dialog as MobileDialog } from 'antd-mobile';
 import _, { isEmpty } from 'lodash';
 import { Dialog } from 'ming-ui';
@@ -7,18 +7,14 @@ import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import { getExpandWidgetIds } from 'src/pages/widgetConfig/widgetSetting/components/SplitLineConfig/config';
 import { getSubListErrorOfStore } from 'src/pages/worksheet/components/ChildTable/utils';
 import { browserIsMobile } from 'src/utils/common';
+import { controlState } from 'src/utils/control';
 import { replaceRulesTranslateInfo } from 'src/utils/translate';
 import { FORM_ERROR_TYPE, FROM } from '../core/config';
 import { dealCustomEvent } from '../core/customEvent';
-import {
-  checkAllValueAvailable,
-  checkRequired,
-  getRuleErrorInfo,
-  mergeFormDataWidthSystem,
-  replaceStr,
-  updateRulesData,
-} from '../core/formUtils';
-import { controlState, formatControlValue, getServiceError } from '../core/utils';
+import { checkAllValueAvailable, checkRequired, getRuleErrorInfo } from '../core/formUtils';
+import { mergeFormDataWidthSystem, replaceStr } from '../core/formUtils/helper';
+import { updateRulesData } from '../core/formUtils/updateRulesData';
+import { formatControlValue, getServiceError } from '../core/utils';
 
 export const updateErrorItemsAction = (dispatch, items) => {
   dispatch({
@@ -231,7 +227,7 @@ export const errorDialog = errors => {
       content: (
         <div>
           {errors.map(item => (
-            <div className="Gray_75 mBottom6 WordBreak">{item}</div>
+            <div className="textSecondary mBottom6 WordBreak">{item}</div>
           ))}
         </div>
       ),
@@ -244,7 +240,7 @@ export const errorDialog = errors => {
       description: (
         <div>
           {errors.map(item => (
-            <div className="Gray_75 mBottom6 WordBreak">{item}</div>
+            <div className="textSecondary mBottom6 WordBreak">{item}</div>
           ))}
         </div>
       ),
@@ -341,7 +337,7 @@ export const getSubmitDataAction = (
     const firstErrorItem = _.head(
       totalErrors.map(t => _.find(data, d => d.controlId === t.controlId)).sort((a, b) => a.row - b.row),
     );
-    if (firstErrorItem) {
+    if (firstErrorItem && !firstErrorItem.isSubList) {
       const ele = document.getElementById(`formItem-${worksheetId}-${firstErrorItem.controlId}`);
       ele && ele.scrollIntoView({ block: 'center' });
     }

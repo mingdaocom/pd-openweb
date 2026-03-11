@@ -32,17 +32,17 @@ export default class Start extends Component {
       return (
         <Fragment>
           <div className="workflowContentInfo ellipsis workflowContentBG">
-            <span className="Gray_75">{_l('数据源：')}</span>
+            <span className="textSecondary">{_l('数据源：')}</span>
             {item.appType === APP_TYPE.SHEET ? _l('工作表“%0”', item.appName) : APP_TYPE_TEXT[item.appType]}
           </div>
-          <div className="pLeft8 pRight8 mTop9 Gray_75 pBottom5">
+          <div className="pLeft8 pRight8 mTop9 textSecondary pBottom5">
             {(item.assignFieldNames || []).length ? (
               <Fragment>
                 {item.assignFieldNames.map(o => `“${o}”`).join('、')}
                 <span className="mLeft5">{_l('触发')}</span>
               </Fragment>
             ) : (
-              <span className="Gray_75">{_l('未被任何流程触发')}</span>
+              <span className="textSecondary">{_l('未被任何流程触发')}</span>
             )}
           </div>
         </Fragment>
@@ -89,7 +89,7 @@ export default class Start extends Component {
 
       return (
         <div className="pLeft8 pRight8 pTop5 pBottom5">
-          <div className={cx({ Gray_75: !isNew })}>
+          <div className={cx({ textSecondary: !isNew })}>
             {_l('从 %0 开始', moment(item.executeTime).format('YYYY-MM-DD HH:mm'))}
           </div>
 
@@ -179,9 +179,9 @@ export default class Start extends Component {
     if (item.appType === APP_TYPE.WEBHOOK) {
       return (
         <Fragment>
-          <div className="workflowContentInfo ellipsis Gray_75">{_l('从请求范例生成参数列表')}</div>
+          <div className="workflowContentInfo ellipsis textSecondary">{_l('从请求范例生成参数列表')}</div>
           <div className="workflowContentInfo ellipsis">
-            <span className="Gray_75">{_l('已配置：')}</span>
+            <span className="textSecondary">{_l('已配置：')}</span>
             {_l('%0 个参数', item.count)}
           </div>
         </Fragment>
@@ -193,14 +193,16 @@ export default class Start extends Component {
       return (
         <Fragment>
           <WorksheetMessage item={{ ...item, appTypeName: _l('按钮'), appName: item.triggerName }} />
-          <div className="workflowContentInfo ellipsis Gray_75 mTop4">{CUSTOM_ACTION_TEXT[item.clickType || 1]}</div>
+          <div className="workflowContentInfo ellipsis textSecondary mTop4">
+            {CUSTOM_ACTION_TEXT[item.clickType || 1]}
+          </div>
         </Fragment>
       );
     }
 
     // 外部用户讨论触发
     if (item.triggerId === TRIGGER_ID.DISCUSS) {
-      return <div className="pLeft8 pRight8 Gray_75">{_l('当外部用户收到讨论通知时（被回复、被提到）触发')}</div>;
+      return <div className="pLeft8 pRight8 textSecondary">{_l('当外部用户收到讨论通知时（被回复、被提到）触发')}</div>;
     }
 
     // 成员与部门
@@ -251,7 +253,7 @@ export default class Start extends Component {
       if (isNestedProcess) {
         return (
           <div className="pLeft8 pRight8 pBottom5 pTop5">
-            <span className="Gray_75">{_l('发起人：')}</span>
+            <span className="textSecondary">{_l('发起人：')}</span>
             {(item.accounts || []).length ? <MembersName {...this.props} accounts={item.accounts} /> : '[]'}
           </div>
         );
@@ -260,8 +262,8 @@ export default class Start extends Component {
       return (
         <Fragment>
           <WorksheetMessage item={{ ...item, appTypeName: _l('数据对象') }} />
-          <div className="pLeft8 pRight8 mTop9 Gray_75 pBottom5">
-            “{item.triggerName || <span style={{ color: '#f44336' }}>{_l('流程已删除')}</span>}”
+          <div className="pLeft8 pRight8 mTop9 textSecondary pBottom5">
+            “{item.triggerName || <span style={{ color: 'var(--color-error)' }}>{_l('流程已删除')}</span>}”
             <span className="mLeft5">{_l('触发')}</span>
           </div>
         </Fragment>
@@ -272,7 +274,7 @@ export default class Start extends Component {
     if (item.appType === APP_TYPE.LOOP_PROCESS) {
       return (
         <div className="pLeft8 pRight8 pBottom5 pTop5">
-          <span className="Gray_75">
+          <span className="textSecondary">
             {item.triggerId
               ? item.triggerId === ACTION_ID.CONDITION_LOOP
                 ? _l('满足条件时循环')
@@ -288,7 +290,7 @@ export default class Start extends Component {
       return (
         <Fragment>
           <WorksheetMessage item={{ ...item, appTypeName: _l('对话机器人') }} />
-          <div className="workflowContentInfo ellipsis Gray_75 mTop4">{_l('用户对话后立即执行')}</div>
+          <div className="workflowContentInfo ellipsis textSecondary mTop4">{_l('用户对话后立即执行')}</div>
         </Fragment>
       );
     }
@@ -302,8 +304,18 @@ export default class Start extends Component {
   };
 
   render() {
-    const { processId, item, selectNodeId, openDetail, isCopy, child, isSimple, isNestedProcess, isPlugin } =
-      this.props;
+    const {
+      processId,
+      item,
+      selectNodeId,
+      openDetail,
+      isCopy,
+      child,
+      isSimple,
+      isNestedProcess,
+      isPlugin,
+      moduleType,
+    } = this.props;
 
     if (isPlugin) {
       return (
@@ -356,11 +368,15 @@ export default class Start extends Component {
               {...this.props}
             />
             <div className="workflowContent">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? (
+                <span className="pLeft8 pRight8 textSecondary">{_l('加载中...')}</span>
+              ) : (
+                this.renderContent()
+              )}
             </div>
           </div>
 
-          <CreateNode {...this.props} disabled={item.appType === APP_TYPE.CHATBOT} />
+          <CreateNode {...this.props} disabled={item.appType === APP_TYPE.CHATBOT || moduleType === 1} />
         </section>
       </div>
     );

@@ -14,7 +14,7 @@ export const FixedContent = styled.div`
     height: 110px;
     border-radius: 50%;
     text-align: center;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
     .Font48 {
       font-size: 48px;
     }
@@ -23,17 +23,17 @@ export const FixedContent = styled.div`
     }
   }
   .fixeding {
-    color: #151515;
+    color: var(--color-text-title);
     font-size: 17px;
     font-weight: 600;
   }
   .fixedInfo {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     font-size: 14px;
   }
   .fixRemark {
     font-size: 13px;
-    color: #151515;
+    color: var(--color-text-title);
     font-weight: 600;
   }
 `;
@@ -59,7 +59,7 @@ export const Wrap = styled.div`
     }
   }
   .backImageUrl {
-    background-color: #ebebeb;
+    background-color: var(--color-border-secondary);
     background-position: center;
     flex: 1;
     background-repeat: no-repeat;
@@ -88,7 +88,7 @@ export const WrapWx = styled.div`
   border-radius: 4px;
   box-sizing: border-box;
   height: 100%;
-  background: #fff;
+  background: var(--color-background-primary);
   .logoImageUrlIcon {
     width: 40px;
     height: 40px;
@@ -124,21 +124,21 @@ export const WrapWx = styled.div`
       height: 40px;
       width: 100%;
       border-radius: 4px;
-      background: #f8f8f8;
-      color: #151515;
+      background: var(--color-background-secondary);
+      color: var(--color-text-title);
       line-height: 40px;
       font-size: 14px;
       margin-top: 13px;
       .icon {
         margin-right: 13px;
         font-size: 20px;
-        color: #9d9d9d;
+        color: var(--color-text-tertiary);
       }
       &.wxLogin {
-        background: #4caf50;
-        color: #ffffff;
+        background: var(--color-success);
+        color: var(--color-white);
         .icon {
-          color: #fff;
+          color: var(--color-white);
         }
       }
     }
@@ -150,7 +150,7 @@ export const WrapContainer = styled.div`
   }
   .back {
     &:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
   img {
@@ -164,7 +164,7 @@ export const WrapContainer = styled.div`
   max-width: 840px;
   min-width: 360px;
   height: 100%;
-  background: #fff;
+  background: var(--color-background-primary);
   .logoImageUrlIcon {
     width: 40px;
     height: 40px;
@@ -191,7 +191,7 @@ export const WrapContainer = styled.div`
   &.isCenterCon {
     border-radius: 4px;
     width: 480px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     height: auto;
     box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.16);
     position: relative;
@@ -244,22 +244,22 @@ export const WrapContainer = styled.div`
     line-height: 1.5;
   }
   .loginBtn {
-    background: #1677ff;
+    background: var(--color-primary);
     height: 48px;
     border-radius: 4px;
     line-height: 48px;
-    color: #fff;
+    color: var(--color-white);
     font-weight: bold;
     font-size: 16px;
     &:hover {
-      background: #42a5f5;
+      background: var(--color-link-hover);
     }
     // &.sending {
-    //   background: #f5f5f5;
+    //   background: var(--color-background-secondary);
     // }
     &.disable {
       cursor: default;
-      background: #bdbdbd !important;
+      background: var(--color-text-disabled) !important;
     }
   }
   &.isR {
@@ -284,12 +284,12 @@ export const WrapUl = styled.div`
         padding-right: 0;
       }
       span {
-        color: #757575;
+        color: var(--color-text-secondary);
         padding-bottom: 8px;
-        border-bottom: 3px solid #fff;
+        border-bottom: 3px solid var(--color-white);
         word-break: break-all;
         &.isCur {
-          color: #1677ff;
+          color: var(--color-primary);
           border-bottom: 3px solid rgba(33, 150, 243);
         }
       }
@@ -297,7 +297,7 @@ export const WrapUl = styled.div`
   }
   .footerTxt {
     margin-top: 40px;
-    border-top: 1px solid #f5f5f5;
+    border-top: 1px solid var(--color-background-secondary);
     padding-top: 24px;
   }
 `;
@@ -307,8 +307,8 @@ export const WrapWXCon = styled.div`
     text-align: center;
     width: 100%;
     min-height: 312px;
-    background: #ffffff;
-    border: 1px solid #f4f4f4;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-background-disabled);
     border-radius: 8px;
     margin: 0 auto;
     box-sizing: border-box;
@@ -327,7 +327,7 @@ export const WrapWXCon = styled.div`
       top: 0;
       background: rgba(250, 250, 250, 0.95);
       i {
-        color: #1677ff;
+        color: var(--color-primary);
         margin: 80px 0 0;
         display: inline-block;
       }
@@ -336,10 +336,10 @@ export const WrapWXCon = styled.div`
       }
       .refresh {
         padding: 10px 24px;
-        background: #1677ff;
+        background: var(--color-primary);
         opacity: 1;
         border-radius: 18px;
-        color: #fff;
+        color: var(--color-white);
       }
     }
   }

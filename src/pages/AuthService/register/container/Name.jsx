@@ -121,8 +121,8 @@ export default function (props) {
   return (
     <Wrap>
       {createAccountLoading && <div className="loadingLine"></div>}
-      <div className="title mTop40 Font26 Gray Bold">{_l('完善个人信息')}</div>
-      <p className="Gray Font14 mTop16">{_l('请填写真实信息，方便大家与您联系')}</p>
+      <div className="title mTop40 Font26 textPrimary Bold">{_l('完善个人信息')}</div>
+      <p className="textPrimary Font14 mTop16">{_l('请填写真实信息，方便大家与您联系')}</p>
       <div className="messageBox mTop5">
         <div className={cx('mesDiv', renderClassName('fullName', fullName))}>
           <input

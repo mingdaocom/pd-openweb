@@ -58,12 +58,12 @@ export default props => {
   const renderCurrentTimeZone = () => {
     return (
       <Fragment>
-        <div className="Font14 Gray bold">{_l('时区')}</div>
-        <div className="Font13 Gray_75 mTop8 mBottom10">
+        <div className="Font14 textPrimary bold">{_l('时区')}</div>
+        <div className="Font12 textSecondary mTop8 mBottom10">
           {_l('当您在应用中输入和查看时间数据时，将按照设定的个人时区转换')}
         </div>
         <Dropdown
-          className="systemSettingsDropdown Gray w100"
+          className="systemSettingsDropdown textPrimary w100"
           border
           value={currentTimeZone}
           data={timeZones}
@@ -84,10 +84,10 @@ export default props => {
   const renderMap = () => {
     return (
       <Fragment>
-        <div className="Font14 Gray bold mTop25">{_l('地图服务')}</div>
-        <div className="Font13 Gray_75 mTop8 mBottom10">{_l('设置定位字段和地图视图中使用的地图服务')}</div>
+        <div className="Font14 textPrimary bold mTop25">{_l('地图服务')}</div>
+        <div className="Font13 textSecondary mTop8 mBottom10">{_l('设置定位字段和地图视图中使用的地图服务')}</div>
         <Dropdown
-          className="systemSettingsDropdown w100 Gray"
+          className="systemSettingsDropdown w100 textPrimary"
           border
           value={map}
           data={mapList}
@@ -99,8 +99,8 @@ export default props => {
           }}
         />
         <div
-          className="Gray_75 mTop10 pLeft10 pRight10 pTop5 pBottom5 boderRadAll_3"
-          style={{ backgroundColor: '#F5F5F5' }}
+          className="textSecondary mTop10 pLeft10 pRight10 pTop5 pBottom5 boderRadAll_3 Font12"
+          style={{ backgroundColor: 'var(--color-background-secondary)' }}
         >
           {map === 1
             ? _l('包含全球地图，暂不支持搜索名称定位。')
@@ -113,7 +113,7 @@ export default props => {
   const renderBackHomepageWay = () => {
     return (
       <Fragment>
-        <div className="Font14 Gray bold mTop25 mBottom10">{_l('应用返回首页方式')}</div>
+        <div className="Font14 textPrimary bold mTop25 mBottom10">{_l('应用返回首页方式')}</div>
         <RadioGroup
           size="middle"
           vertical={true}
@@ -144,8 +144,8 @@ export default props => {
   const renderIsOpenMessageSound = () => {
     return (
       <Fragment>
-        <div className="Font14 Gray bold mTop25">{_l('浏览器消息通知')}</div>
-        <div className="Font13 Gray_75 mTop8 mBottom10">{_l('设置在浏览器中，当有新消息时以何种方式提示')}</div>
+        <div className="Font14 textPrimary bold mTop25">{_l('浏览器消息通知')}</div>
+        <div className="Font13 textSecondary mTop8 mBottom10">{_l('设置在浏览器中，当有新消息时以何种方式提示')}</div>
         <div className="mBottom10">
           <Checkbox
             checked={accountSettings.isOpenMessageSound}

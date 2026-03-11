@@ -13,7 +13,7 @@ const DATA_SOURCE_MODE = [
     text: _l('新建数据源'),
     value: 0,
     children: (
-      <div style={{ margin: '0 0 4px 28px', fontWeight: 'normal' }} className="Font12 Gray_9e">
+      <div style={{ margin: '0 0 4px 28px', fontWeight: 'normal' }} className="Font12 textTertiary">
         {_l('我们将为您新建一个表与层级视图，用来管理级联选择的数据')}
       </div>
     ),
@@ -67,7 +67,7 @@ export default function SelectDataSource({ onClose, onOk, editType, appId, works
       onOk={handleOk}
     >
       <SelectDataSourceWrap>
-        <div className="intro Gray_9e">
+        <div className="intro textTertiary">
           {_l(
             '选择一个层级视图作为级联选择的数据源，将按照此视图下数据的层级关系来选择目标表记录。仅支持本表的层级结构',
           )}

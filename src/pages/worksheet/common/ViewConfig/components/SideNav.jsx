@@ -17,11 +17,11 @@ const RecordColorSign = styled.div`
     width: 14px;
     height: 14px;
     border-radius: 14px;
-    border: 2px solid #fff;
+    border: 2px solid var(--color-white);
     margin-left: -6px;
     transform: translateY(2px);
     &:nth-child(1) {
-      background: #f44336;
+      background: var(--color-error);
     }
     &:nth-child(2) {
       background: #fad714;
@@ -99,8 +99,10 @@ export default function SideNav(props) {
         <div className="titleTxt flex flexShrink0 flexRow">
           <div className="w100 overflow_ellipsis WordBreak">{d.name}</div>
         </div>
-        {da && da.length > 0 && <span className="Gray_9e InlineBlock mLeft5 numText">{da.length}</span>}
-        {btnCount > 0 && type === 'ActionSet' && <span className="Gray_9e InlineBlock mLeft5 numText">{btnCount}</span>}
+        {da && da.length > 0 && <span className="textTertiary InlineBlock mLeft5 numText">{da.length}</span>}
+        {btnCount > 0 && type === 'ActionSet' && (
+          <span className="textTertiary InlineBlock mLeft5 numText">{btnCount}</span>
+        )}
         {type === 'RecordColor' && !!_.get(view, 'advancedSetting.colorid') && (
           <RecordColorSign>
             <i />
@@ -117,7 +119,7 @@ export default function SideNav(props) {
         <div className="w100 overflow_ellipsis WordBreak">{_l('字段')}</div>
       </div>
       {columnsList.length - controlsList.length > 0 && (
-        <span className="Gray_9e InlineBlock mLeft5 numText">{`${columnsList.length - controlsList.length}/${
+        <span className="textTertiary InlineBlock mLeft5 numText">{`${columnsList.length - controlsList.length}/${
           columnsList.length
         }`}</span>
       )}
@@ -226,8 +228,8 @@ export default function SideNav(props) {
                 <div
                   className="Font13 pTop16 pBottom16 pLeft12 pRight12 mTop8 descCon"
                   style={{
-                    color: '#8E8E8E',
-                    backgroundColor: '#EDEDED',
+                    color: 'var(--color-text-secondary)',
+                    backgroundColor: 'var(--color-border-secondary)',
                     borderRadius: '3px',
                   }}
                 >

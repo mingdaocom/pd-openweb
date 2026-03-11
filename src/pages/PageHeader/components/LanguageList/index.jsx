@@ -10,7 +10,7 @@ import fixedDataApi from 'src/api/fixedData';
 
 const Wrap = styled(Menu)`
   .ant-dropdown-menu-item.active {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
   }
 `;
 
@@ -112,7 +112,9 @@ export default props => {
                 >
                   <div className="flexRow alignItemsCenter">
                     <div className="flex">{_.get(langList[item.langCode], 'localLang')}</div>
-                    {item.langCode === md.global.Account.appLang && <Icon icon="done" className="ThemeColor Font19" />}
+                    {item.langCode === md.global.Account.appLang && (
+                      <Icon icon="done" className="colorPrimary Font19" />
+                    )}
                   </div>
                 </Menu.Item>
               ))}
@@ -125,7 +127,7 @@ export default props => {
                   <div className="flex">
                     {app.originalLang ? _.get(langList[app.originalLang], 'localLang') : _l('基准语言')}
                   </div>
-                  {!md.global.Account.appLang && <Icon icon="done" className="ThemeColor Font19" />}
+                  {!md.global.Account.appLang && <Icon icon="done" className="colorPrimary Font19" />}
                 </div>
               </Menu.Item>
               {isCharge && (
@@ -137,7 +139,7 @@ export default props => {
                       location.href = `/app/${appId}/settings/language`;
                     }}
                   >
-                    <Icon icon="settings" className="mRight8 Gray_9e" />
+                    <Icon icon="settings" className="mRight8 textTertiary" />
                     {_l('管理')}
                   </Menu.Item>
                 </Fragment>

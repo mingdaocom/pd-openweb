@@ -21,7 +21,7 @@ const InputCon = styled(Input)`
   width: 100%;
   border-radius: 18px !important;
   border: none !important;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
 `;
 
 function Group(props) {
@@ -33,7 +33,7 @@ function Group(props) {
   const timeGatherParticleIndex = _.findIndex(timeGatherParticle, { value: defaultXaxes.particleSizeType });
   return (
     <Fragment>
-      <div className="flexRow valignWrapper Font13 Gray_75 mBottom16">{_l('归组')}</div>
+      <div className="flexRow valignWrapper Font13 textSecondary mBottom16">{_l('归组')}</div>
       <div className="itemWrapper flexRow valignWrapper">
         {_.find(timeData, { value: defaultXaxes.particleSizeType }) &&
           timeData
@@ -41,7 +41,7 @@ function Group(props) {
             .map(item => (
               <div
                 key={item.value}
-                className={cx('item Font12 Gray', { active: xaxes.particleSizeType === item.value })}
+                className={cx('item Font12 textPrimary', { active: xaxes.particleSizeType === item.value })}
                 onClick={() => {
                   props.onChange({ particleSizeType: item.value });
                 }}
@@ -55,7 +55,7 @@ function Group(props) {
             .map(item => (
               <div
                 key={item.value}
-                className={cx('item Font12 Gray', { active: xaxes.particleSizeType === item.value })}
+                className={cx('item Font12 textPrimary', { active: xaxes.particleSizeType === item.value })}
                 onClick={() => {
                   props.onChange({ particleSizeType: item.value });
                 }}
@@ -157,7 +157,7 @@ function ChartFilter(props) {
 
   return (
     <div className="filterWrapper pAll15 mBottom20">
-      <div className="flexRow valignWrapper Font13 Gray_75 mBottom16">
+      <div className="flexRow valignWrapper Font13 textSecondary mBottom16">
         <div className="flex">
           {_l('时间周期')}
           {`(${_.find(dropdownScopeData, { value: defaultRangeType }).text})`}
@@ -172,7 +172,7 @@ function ChartFilter(props) {
             {(moreVisible ? datePeriod : datePeriod.slice(0, 6)).map(item => (
               <div
                 key={item.value}
-                className={cx('item Font12 Gray', { active: rangeType === item.value })}
+                className={cx('item Font12 textPrimary', { active: rangeType === item.value })}
                 onClick={() => {
                   props.onChange({ rangeType: item.value, rangeValue: isPastAndFuture(item.value) ? 7 : null });
                 }}
@@ -183,14 +183,14 @@ function ChartFilter(props) {
           </div>
           {isPastAndFuture(rangeType) && (
             <Fragment>
-              <div className="flexRow valignWrapper Font13 Gray_75 mBottom16">
+              <div className="flexRow valignWrapper Font13 textSecondary mBottom16">
                 {_.find(dropdownScopeData, { value: rangeType }).text}
               </div>
               <div className="itemWrapper flexRow valignWrapper">
                 {dropdownDayData.map(item => (
                   <div
                     key={item.value}
-                    className={cx('item Font12 Gray', { active: rangeValue == item.value })}
+                    className={cx('item Font12 textPrimary', { active: rangeValue == item.value })}
                     onClick={() => {
                       props.onChange({ rangeValue: item.value });
                     }}
@@ -211,7 +211,7 @@ function ChartFilter(props) {
             .map(item => (
               <div
                 key={item.value}
-                className={cx('item Font12 Gray', { active: rangeValue == item.value })}
+                className={cx('item Font12 textPrimary', { active: rangeValue == item.value })}
                 onClick={() => {
                   props.onChange({ rangeValue: item.value });
                 }}

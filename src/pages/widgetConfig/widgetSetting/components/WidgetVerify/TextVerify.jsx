@@ -5,11 +5,11 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Checkbox, Dialog, Icon, SortableList, Support } from 'ming-ui';
 import 'src/pages/widgetConfig/styled/style.less';
+import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import { SettingItem } from '../../../styled';
 import { getAdvanceSetting, getSortItems } from '../../../util';
 import { handleAdvancedSettingChange } from '../../../util/setting';
 import renderCustomFilter from '../CustomEvent/CustomFilter';
-import { FilterItemTexts } from '../FilterData';
 
 const FORMAT_CONFIG = [
   { text: _l('字母'), value: 'char', regExp: '^[A-Za-z]*$' },
@@ -46,7 +46,7 @@ const ConfigWrap = styled.div`
       cursor: pointer;
       transition: color 0.25s;
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
@@ -62,11 +62,11 @@ const ConfigWrap = styled.div`
       }
     }
     .invalid {
-      color: #f44336;
+      color: var(--color-error);
     }
     .isInvalid,
     .invalidInput {
-      border-color: #f44336;
+      border-color: var(--color-error);
       &:focus {
         box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.5);
       }
@@ -80,7 +80,7 @@ const FormatInfo = styled.div`
   margin-top: 10px;
   border-radius: 3px;
   cursor: pointer;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-primary);
   z-index: 9;
 
   .formatHeader {
@@ -90,17 +90,17 @@ const FormatInfo = styled.div`
     padding: 0 10px;
     i {
       font-size: 16px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       margin-right: 10px;
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     .deleteBtn:hover {
-      color: #f44336;
+      color: var(--color-error);
     }
     .filterIcon.active {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .textVerifyFilterValue {
@@ -108,7 +108,7 @@ const FormatInfo = styled.div`
     & > div {
       border: none;
       margin: 0;
-      background: #f8f8f8;
+      background: var(--color-background-secondary);
       &:hover {
         background: rgba(33, 150, 243, 0.05);
       }
@@ -121,13 +121,13 @@ const FormatInfo = styled.div`
 
 const AddVerify = styled.div`
   height: 21px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   &:hover {
-    color: #1677ff;
+    color: var(--color-primary);
   }
   &.disable i {
     cursor: not-allowed;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
 `;
 
@@ -297,7 +297,7 @@ export default function TextVerify(props) {
       >
         <ConfigWrap>
           <div className="formatList">
-            <div className="title Gray_75">
+            <div className="title textSecondary">
               {_l('选择下方常用表达式或自定义输入')}
               <Support href="https://help.mingdao.com/worksheet/regular-expression" type={3} text={_l('帮助')} />
             </div>

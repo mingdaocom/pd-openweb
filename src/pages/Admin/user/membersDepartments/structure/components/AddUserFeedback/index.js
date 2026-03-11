@@ -17,8 +17,8 @@ const FeedbackDialog = styled(Dialog)`
     .ming.Button--link {
       height: 34px;
       line-height: 34px;
-      border: 1px solid #1677ff;
-      color: #1677ff;
+      border: 1px solid var(--color-primary);
+      color: var(--color-primary);
     }
   }
 `;
@@ -101,7 +101,7 @@ const handleMoveDepartment = ({
   callback = () => {},
 }) => {
   departmentIds = action === 'move' ? [currentDepartmentId] : departmentIds.concat(currentDepartmentId);
-  if (!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal) {
+  if (window.platformENV.isPlatform) {
     userController
       .updateUserCard({
         projectId,
@@ -373,7 +373,7 @@ function AddUserFeedback(props) {
     <FeedbackDialog
       visible={visible}
       width={410}
-      title={<div className="Font17 Gray bold">{feedbackTypes[actionResult]}</div>}
+      title={<div className="Font17 textPrimary bold">{feedbackTypes[actionResult]}</div>}
       onCancel={onCancel}
       footer={null}
     >
@@ -388,9 +388,9 @@ function AddUserFeedback(props) {
           projectId={projectId}
         />
         <div className="mLeft12 mBottom50">
-          <div className="Font15 Gray bold">{fullname}</div>
-          <div className="Font13 Gray_75">{email}</div>
-          <div className="Font13 Gray_75">{mobile}</div>
+          <div className="Font15 textPrimary bold">{fullname}</div>
+          <div className="Font13 textSecondary">{email}</div>
+          <div className="Font13 textSecondary">{mobile}</div>
         </div>
       </div>
       {renderFooter(actionResult)}

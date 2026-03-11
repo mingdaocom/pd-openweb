@@ -7,7 +7,7 @@ function CalendarPrivate(props) {
   const { isPrivate, createUser, changePrivacy } = props;
   const isCreateUser = createUser === md.global.Account.accountId;
   return (
-    <div className="Gray_9 calendarPrivate">
+    <div className="textTertiary calendarPrivate">
       <Checkbox className="Font12 InlineBlock" disabled={!isCreateUser} checked={isPrivate} onClick={changePrivacy}>
         {isCreateUser ? (
           <span>{_l('私密日程 (仅成员可见)')}</span>

@@ -123,13 +123,13 @@ export default ({ from, data, onChange, globalSheetInfo, allControls = [] }) => 
                         placement="bottom"
                         title={_l('在上传照片时添加水印，可显示上传者、上传时间、地点、经纬度信息')}
                       >
-                        <i className="icon-help Gray_9e Font16 Hand"></i>
+                        <i className="icon-help textTertiary Font16 Hand"></i>
                       </Tooltip>
                     </Checkbox>
                     {currentWaterMark && (
                       <Tooltip placement="bottom" title={_l('设置水印内容')}>
                         <i
-                          className="icon-settings Gray_9e Font16 Hand Right ThemeHoverColor3"
+                          className="icon-settings textTertiary Font16 Hand Right ThemeHoverColor3"
                           onClick={() => {
                             setVisible(true);
                             setWatermark(currentWaterMark);
@@ -161,7 +161,7 @@ export default ({ from, data, onChange, globalSheetInfo, allControls = [] }) => 
                       </span>
                     }
                   >
-                    <i className="icon-help Gray_9e Font16 Hand"></i>
+                    <i className="icon-help textTertiary Font16 Hand"></i>
                   </Tooltip>
                 </Checkbox>
               </div>
@@ -182,7 +182,7 @@ export default ({ from, data, onChange, globalSheetInfo, allControls = [] }) => 
                       </span>
                     }
                   >
-                    <i className="icon-help Gray_9e Font16 Hand"></i>
+                    <i className="icon-help textTertiary Font16 Hand"></i>
                   </Tooltip>
                 </Checkbox>
               </div>
@@ -214,7 +214,7 @@ export default ({ from, data, onChange, globalSheetInfo, allControls = [] }) => 
           <div className="settingItemTitle">
             {_l('文字')}
             <Tooltip placement="bottom" title={_l('限制显示字数为100个字')}>
-              <i className="icon-help Gray_9e Font16 Hand mLeft4"></i>
+              <i className="icon-help textTertiary Font16 Hand mLeft4"></i>
             </Tooltip>
           </div>
           <DynamicDefaultValue

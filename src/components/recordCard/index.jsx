@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import { getTitleTextFromControls } from 'src/components/Form/core/utils';
-import { previewQiniuUrl } from 'src/components/previewAttachments';
+import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
 import CellControl from 'src/pages/worksheet/components/CellControls';
+import { getTitleTextFromControls } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 import './RecordCard.less';
 
@@ -50,10 +50,12 @@ export default class RecordCard extends Component {
     if (isMobile) {
       return;
     }
-    previewQiniuUrl(cover.previewUrl.replace(/\|imageView2\/1\/w\/\d+\/h\/\d+/, ''), {
-      disableDownload,
-      ext: (cover.previewUrl.match(/\.(jpg|jpeg|png|gif|bmp)(\?|$)/i) || '')[1] || 'png',
-    });
+    previewAttachments(
+      transformQiniuUrl(cover.previewUrl.replace(/\|imageView2\/1\/w\/\d+\/h\/\d+/, ''), {
+        disableDownload,
+        ext: (cover.previewUrl.match(/\.(jpg|jpeg|png|gif|bmp)(\?|$)/i) || '')[1] || 'png',
+      }),
+    );
     e.stopPropagation();
   };
   get cover() {
@@ -155,7 +157,7 @@ export default class RecordCard extends Component {
             {titleText}
             {isMask && (
               <i
-                className="icon icon-eye_off Hand Font14 Gray_bd mLeft4"
+                className="icon icon-eye_off Hand Font14 textDisabled mLeft4"
                 style={{ verticalAlign: 'text-top' }}
                 onClick={e => {
                   if (!isMask) return;

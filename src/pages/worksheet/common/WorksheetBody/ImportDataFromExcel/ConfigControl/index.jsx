@@ -26,6 +26,7 @@ export default class ConfigControl extends Component {
   static propTypes = {
     appId: PropTypes.string,
     worksheetId: PropTypes.string,
+    isFromRelateRecord: PropTypes.bool,
     onSave: PropTypes.func,
     onCancel: PropTypes.func,
     selectRow: PropTypes.object,
@@ -35,6 +36,8 @@ export default class ConfigControl extends Component {
     fileId: PropTypes.string,
     fileKey: PropTypes.string,
     isCharge: PropTypes.bool,
+    hideControlIds: PropTypes.array,
+    extendOptions: PropTypes.object,
   };
 
   constructor(props) {
@@ -112,6 +115,7 @@ export default class ConfigControl extends Component {
    * 通过API获取模板
    */
   async getWorksheetInfo(args = {}, isRelate) {
+    const { hideControlIds } = this.props;
     const data = await sheetAjax.getWorksheetInfo({
       ...args,
       getTemplate: true,
@@ -121,7 +125,7 @@ export default class ConfigControl extends Component {
     data.template.controls = replaceControlsTranslateInfo(
       args.appId,
       args.worksheetId,
-      data.template.controls.filter(item => !_.includes(ALL_SYS, item.controlId)),
+      data.template.controls.filter(item => !_.includes(ALL_SYS.concat(hideControlIds), item.controlId)),
     );
 
     // 处理关联表数据
@@ -189,7 +193,7 @@ export default class ConfigControl extends Component {
    * 处理init数据
    */
   async disposeInitSource(data) {
-    const { isCharge, appId, worksheetId, selectRow } = this.props;
+    const { isCharge, appId, worksheetId, selectRow, isFromRelateRecord } = this.props;
     const { relateSource, userControls, departmentControls } = this.state;
     const controlMapping = [];
     const relateArr = [];
@@ -237,8 +241,8 @@ export default class ConfigControl extends Component {
           relations.push(cell);
         }
 
-        // 关联字段默认匹配
-        else if (value.indexOf(`${controlName}-`) == 0 && type == 29 && !relations.length) {
+        // 关联、级联字段默认匹配
+        else if (value.indexOf(`${controlName}-`) == 0 && _.includes([29, 35], type) && !relations.length) {
           relations.push(cell);
         }
 
@@ -264,7 +268,7 @@ export default class ConfigControl extends Component {
         // 关联表字段
         sourceConfig: {
           // 关联表ID
-          worksheetId: type === 29 ? dataSource : '',
+          worksheetId: _.includes([29, 35], type) ? dataSource : '',
 
           // 关联表字段映射ID
           controlId: '',
@@ -277,8 +281,11 @@ export default class ConfigControl extends Component {
         type,
       });
 
-      // 关联控件
-      if (controlItem.type === 29 && !relateArr.find(obj => obj.appId === appId && obj.workSheetId === workSheetId)) {
+      // 关联、级联控件
+      if (
+        _.includes([29, 35], controlItem.type) &&
+        !relateArr.find(obj => obj.appId === appId && obj.workSheetId === workSheetId)
+      ) {
         relateArr.push({ appId: controlItem.appId, workSheetId: dataSource });
       }
     }
@@ -327,7 +334,7 @@ export default class ConfigControl extends Component {
 
       configObjState = Object.assign({}, configObjState, {
         tigger,
-        repeatRecord: repeatConfig.controlId ? true : false,
+        repeatRecord: !isFromRelateRecord && repeatConfig.controlId ? true : false,
         showStar: repeatConfig.controlId || null,
       });
 
@@ -341,7 +348,7 @@ export default class ConfigControl extends Component {
           item.isAddOption = editItem.isAddOption;
 
           const control = data.template.controls.find(control => control.controlId == item.ControlId);
-          if (control && control.type == 29) control.sourceConfig = editItem.sourceConfig.controlId;
+          if (control && _.includes([29, 35], control.type)) control.sourceConfig = editItem.sourceConfig.controlId;
 
           // 成员、部门字段默认匹配映射字段
           const { type, advancedSetting } = item;
@@ -473,7 +480,7 @@ export default class ConfigControl extends Component {
         // 未选择匹配字段时的提示信息
         const message = controlName ? `“${controlName}”${_l('的匹配字段未设置')}` : _l('未选择匹配字段');
         if (
-          type == 29 &&
+          _.includes([29, 35], type) &&
           (!sourceConfig ||
             !sourceConfig.controlId ||
             (_.findIndex(relationControls, rel => rel.value === sourceConfig.controlId) === -1 &&
@@ -509,7 +516,7 @@ export default class ConfigControl extends Component {
           throw _l('依据字段“%0“的匹配字段仅限人员ID', repeatConfig.controlName);
         }
 
-        columnContent = `<span class="Gray Bold">【 ${filterXSS(
+        columnContent = `<span class="textPrimary Bold">【 ${filterXSS(
           repeatConfig.controlId === recordObj.value
             ? recordObj.text
             : _.get(
@@ -518,11 +525,11 @@ export default class ConfigControl extends Component {
               ),
         )} 】</span>`;
 
-        fieldContent = `<span class="Gray Bold">【 ${filterXSS(
+        fieldContent = `<span class="textPrimary Bold">【 ${filterXSS(
           repeatConfig.controlId === recordObj.value ? recordObj.value : repeatConfig.controlName,
         )} 】</span>`;
 
-        repeatModeContent = `<span class="Gray Bold">${handleEnumText[repeatConfig.handleEnum]}</span>`;
+        repeatModeContent = `<span class="textPrimary Bold">${handleEnumText[repeatConfig.handleEnum]}</span>`;
 
         repeatContent = `<span>${
           repeatConfig.handleEnum === 3
@@ -536,11 +543,11 @@ export default class ConfigControl extends Component {
         description: (
           <div className="Font14">
             <div
-              className="mBottom10 Gray_75"
+              className="mBottom10 textSecondary"
               dangerouslySetInnerHTML={{
                 __html: tigger
-                  ? _l('1.导入的数据%0触发工作流%1', '<span class="Gray Bold">', '</span>')
-                  : _l('1.导入的数据%0不会触发工作流%1', '<span class="Gray Bold">', '</span>'),
+                  ? _l('1.导入的数据%0触发工作流%1', '<span class="textPrimary Bold">', '</span>')
+                  : _l('1.导入的数据%0不会触发工作流%1', '<span class="textPrimary Bold">', '</span>'),
               }}
             />
             {repeatRecord ? (
@@ -556,7 +563,7 @@ export default class ConfigControl extends Component {
                 }}
               />
             ) : (
-              <div className="Gray_75">{_l('2.不识别重复数据，将Excel中所有数据都作为新记录导入工作表')}</div>
+              <div className="textSecondary">{_l('2.不识别重复数据，将Excel中所有数据都作为新记录导入工作表')}</div>
             )}
           </div>
         ),
@@ -566,7 +573,18 @@ export default class ConfigControl extends Component {
   };
 
   onImport = controlMapping => {
-    const { filePath, fileId, fileKey, worksheetId, appId, selectRow, importSheetInfo, onSave, onCancel } = this.props;
+    const {
+      filePath,
+      fileId,
+      fileKey,
+      worksheetId,
+      appId,
+      selectRow,
+      importSheetInfo,
+      onSave,
+      onCancel,
+      extendOptions,
+    } = this.props;
     const { workSheetProjectId, repeatRecord, tigger, repeatConfig, userControls, departmentControls, errorSkip } =
       this.state;
 
@@ -595,6 +613,7 @@ export default class ConfigControl extends Component {
     onSave(fileKey);
 
     const requestData = {
+      ...extendOptions,
       filePath,
       fileId,
       workSheetId: worksheetId,
@@ -627,13 +646,13 @@ export default class ConfigControl extends Component {
       title: _l('保存导入配置'),
       description: (
         <div className="Font14">
-          <div className="Gray_75 WordBreak">
+          <div className="textSecondary WordBreak">
             {_l(
               '将当前导入配置保存为默认导入方式供所有用户使用，其中字段映射关系不会保存，若Excel列名称和字段名称相同会自动映射对应',
             )}
           </div>
           <Checkbox
-            className="mTop20 Gray"
+            className="mTop20 textPrimary"
             text={_l('不允许用户修改默认配置')}
             defaultChecked={this.state.edited}
             onClick={checked => this.setState({ edited: checked })}
@@ -655,7 +674,7 @@ export default class ConfigControl extends Component {
 
         for (const controlItem of worksheetControls || []) {
           //新增选项、关联记录匹配字段
-          if (_.includes([9, 10, 11, 26, 27, 29], controlItem.type)) {
+          if (_.includes([9, 10, 11, 26, 27, 29, 35], controlItem.type)) {
             const currentItem = _.find(controlMapping, item => item.ControlId === controlItem.controlId);
             if (!currentItem) continue;
             const { ControlId, isAddOption = false, sourceConfig, matchId = '' } = currentItem;
@@ -704,7 +723,7 @@ export default class ConfigControl extends Component {
    * 渲染底部
    */
   renderFooter() {
-    const { onPrevious, isCharge } = this.props;
+    const { onPrevious, isCharge, isFromRelateRecord } = this.props;
     const { repeatRecord, tigger, repeatConfig, fieldsList, controlMapping, edited, errorSkip, showErrorSkip } =
       this.state;
     const controlMappingFilter = controlMapping.filter(item => item.ColumnNum) || [];
@@ -728,7 +747,7 @@ export default class ConfigControl extends Component {
       <div className="flexRow mTop16">
         <div>
           <div className="flexRow minHeight36" style={{ alignItems: 'center' }}>
-            {!repeatRecord && !isCharge && edited ? null : (
+            {(!repeatRecord && !isCharge && edited) || isFromRelateRecord ? null : (
               <Checkbox
                 text={_l('识别重复记录')}
                 checked={repeatRecord}
@@ -755,7 +774,7 @@ export default class ConfigControl extends Component {
                     this.setState({ repeatConfig: Object.assign({}, repeatConfig, { handleEnum }) })
                   }
                 />
-                <div className="mLeft8 Gray">{_l('依据字段')}</div>
+                <div className="mLeft8 textPrimary">{_l('依据字段')}</div>
                 <Dropdown
                   className="mLeft8 repeatConfigDropdown"
                   data={fieldsList}
@@ -764,7 +783,7 @@ export default class ConfigControl extends Component {
                   value={repeatConfig.controlId}
                   renderTitle={
                     !repeatConfig.controlId
-                      ? () => <span className="Gray_9e">{_l('请选择')}</span>
+                      ? () => <span className="textTertiary">{_l('请选择')}</span>
                       : repeatConfig.controlId && !_.find(fieldsList, o => o.value === repeatConfig.controlId)
                         ? () => <span className="repeatConfigError">{_l('无权限或已删除')}</span>
                         : () => <span>{_.find(fieldsList, o => o.value === repeatConfig.controlId).text}</span>
@@ -789,7 +808,7 @@ export default class ConfigControl extends Component {
                     </span>
                   }
                 >
-                  <i className="icon-help Gray_9e Font16 mLeft8 LineHeight36" />
+                  <i className="icon-help textTertiary Font16 mLeft8 LineHeight36" />
                 </Tooltip>
               </Fragment>
             )}
@@ -818,7 +837,7 @@ export default class ConfigControl extends Component {
                     </span>
                   }
                 >
-                  <i className="icon-help Gray_9e Font16 mLeft5" />
+                  <i className="icon-help textTertiary Font16 mLeft5" />
                 </Tooltip>
                 {!!skipSize && (
                   <div
@@ -863,7 +882,7 @@ export default class ConfigControl extends Component {
                                 })
                               }
                             />
-                            <div className="mLeft20 Gray_9e">{ERROR_SKIP[o.key].desc}</div>
+                            <div className="mLeft20 textTertiary">{ERROR_SKIP[o.key].desc}</div>
                           </div>
                         ))}
                       </Menu>
@@ -884,7 +903,7 @@ export default class ConfigControl extends Component {
 
             {isCharge && (
               <span
-                className="Hand ThemeColor3 Hover_49 mLeft20"
+                className="Hand ThemeColor3 hoverTextPrimaryLight mLeft20"
                 style={{ height: 18 }}
                 onClick={() => this.saveConfig()}
               >
@@ -928,7 +947,7 @@ export default class ConfigControl extends Component {
 
       return (
         <div className="flexRow relateBox">
-          <Icon className="Font16 Gray_9e" icon={getIconByType(controlItem.type)} />
+          <Icon className="Font16 textTertiary" icon={getIconByType(controlItem.type)} />
           <div className="mLeft10 mRight10 flex ellipsis flexRow alignItemsCenter">
             {controlItem.controlName}
             {(showStar === controlItem.controlId || controlItem.advancedSetting.required === '1') && (
@@ -946,9 +965,9 @@ export default class ConfigControl extends Component {
               </span>
             }
           >
-            <i className="icon-help Gray_9e Font16" />
+            <i className="icon-help textTertiary Font16" />
           </Tooltip>
-          <div className="Gray_9e mLeft5">{_l('匹配：')}</div>
+          <div className="textTertiary mLeft5">{_l('匹配：')}</div>
 
           {/** 匹配字段选择下拉框 */}
           <Dropdown
@@ -970,8 +989,8 @@ export default class ConfigControl extends Component {
       );
     }
 
-    // 关联表
-    else if (controlItem.type == 29 && relateSource[worksheetId]) {
+    // 关联表、级联
+    else if (_.includes([29, 35], controlItem.type) && relateSource[worksheetId]) {
       const { controls } = relateSource[worksheetId];
 
       let currentItem = selectItem.sourceConfig.controlId;
@@ -983,7 +1002,7 @@ export default class ConfigControl extends Component {
       else if (currentItem !== '') currentItem = null;
       return (
         <div className="flexRow relateBox">
-          <Icon className="Font16 Gray_9e" icon={getIconByType(controlItem.type)} />
+          <Icon className="Font16 textTertiary" icon={getIconByType(controlItem.type)} />
           <div className="mLeft10 mRight10 flex ellipsis flexRow alignItemsCenter">
             {controlItem.controlName}
             {(showStar === controlItem.controlId || controlItem.advancedSetting.required === '1') && (
@@ -1001,9 +1020,9 @@ export default class ConfigControl extends Component {
               </span>
             }
           >
-            <i className="icon-help Gray_9e Font16" />
+            <i className="icon-help textTertiary Font16" />
           </Tooltip>
-          <div className="Gray_9e mLeft5">{_l('匹配：')}</div>
+          <div className="textTertiary mLeft5">{_l('匹配：')}</div>
 
           {/** 匹配字段选择下拉框 */}
           <Dropdown
@@ -1013,7 +1032,7 @@ export default class ConfigControl extends Component {
             value={currentSourceConfig.controlId}
             renderTitle={
               !currentSourceConfig.controlId
-                ? () => <span className="Gray_9e">{_l('请选择')}</span>
+                ? () => <span className="textTertiary">{_l('请选择')}</span>
                 : currentSourceConfig.controlId && !_.find(controls, o => o.value === currentSourceConfig.controlId)
                   ? () => <span className="repeatConfigError">{_l('无权限或已删除')}</span>
                   : () => <span>{_.find(controls, o => o.value === currentSourceConfig.controlId).text}</span>
@@ -1034,7 +1053,7 @@ export default class ConfigControl extends Component {
 
   notSupportFiled(o) {
     const allowConfigControlTypes = [
-      2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 19, 23, 24, 26, 27, 28, 29, 33, 36, 41, 46, 48,
+      2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 19, 23, 24, 26, 27, 28, 29, 33, 35, 36, 41, 46, 48,
     ];
     // 是否为关联记录多条，列表展示
     const isRealtionList = o.type === 29 && o.advancedSetting?.showtype == '2';
@@ -1092,8 +1111,9 @@ export default class ConfigControl extends Component {
                     // 外部成员字段
                     const isExternal = type == 26 && advancedSetting?.usertype == '2';
 
-                    // 是否为关联字段 / 内部成员字段 / 部门字段
-                    const isMapping = (type == 29 || (type == 26 && !isExternal) || type === 27) && !notSupport;
+                    // 是否为关联字段 / 内部成员字段 / 部门字段 / 级联选择
+                    const isMapping =
+                      (type == 29 || (type == 26 && !isExternal) || type === 27 || type === 35) && !notSupport;
                     return (
                       <div className="flexRow mBottom6" key={index}>
                         {/** 左侧 */}
@@ -1136,7 +1156,7 @@ export default class ConfigControl extends Component {
 
                                 // 匹配关联表字段
                                 if (
-                                  type == 29 &&
+                                  _.includes([29, 35], type) &&
                                   control.sourceConfig &&
                                   control.sourceConfig.worksheetId &&
                                   !isHiddenConfig
@@ -1175,7 +1195,7 @@ export default class ConfigControl extends Component {
                                 (_.find(controlMapping, item => item.ControlId === controlItem.controlId) || {})
                                   .ColumnNum
                                   ? 'ThemeColor3'
-                                  : 'Gray_bd',
+                                  : 'textDisabled',
                               )}
                             />
                           )}
@@ -1186,7 +1206,7 @@ export default class ConfigControl extends Component {
                           {/** 普通字段 */}
                           {!isMapping ? (
                             <div className="controlItem flexRow">
-                              <Icon className="Font16 Gray_9e" icon={getIconByType(controlItem.type)} />
+                              <Icon className="Font16 textTertiary" icon={getIconByType(controlItem.type)} />
                               <span className="mLeft10 ellipsis flex flexRow alignItemsCenter">
                                 {controlItem.controlName}
                                 {(showStar === controlItem.controlId ||
@@ -1201,9 +1221,9 @@ export default class ConfigControl extends Component {
                                   <Tooltip
                                     title={_l('勾选后，当匹配不到已有选项时会添加为新的选项。未勾选时，则导入为空')}
                                   >
-                                    <i className="icon-help Gray_9e Font16" />
+                                    <i className="icon-help textTertiary Font16" />
                                   </Tooltip>
-                                  <span className="Gray_75 mRight8 mLeft5">{_l('添加选项')}</span>
+                                  <span className="textSecondary mRight8 mLeft5">{_l('添加选项')}</span>
                                   <Checkbox
                                     text=""
                                     checked={
@@ -1225,10 +1245,10 @@ export default class ConfigControl extends Component {
                               )}
 
                               {/** 不支持映射的字段 */}
-                              {notSupport && <span className="Gray_9e">{_l('不支持')}</span>}
+                              {notSupport && <span className="textTertiary">{_l('不支持')}</span>}
 
                               {/** 外部成员字段提示 */}
-                              {isExternal && <span className="Gray_9e">{_l('外部用户暂只支持通过姓名匹配')}</span>}
+                              {isExternal && <span className="textTertiary">{_l('外部用户暂只支持通过姓名匹配')}</span>}
                             </div>
                           ) : (
                             // 关联字段

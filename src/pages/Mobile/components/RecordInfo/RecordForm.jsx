@@ -11,13 +11,13 @@ import * as actions from 'mobile/RelationRow/redux/actions';
 import FormCover from 'worksheet/common/recordInfo/RecordForm/FormCover';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import CustomFields from 'src/components/Form';
-import { controlState, getTitleTextFromControls } from 'src/components/Form/core/utils';
 import RecordPay from 'src/components/RecordPay';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import SheetWorkflow from 'src/pages/workflow/components/SheetWorkflow';
 import PayLog from 'src/pages/worksheet/components/DiscussLogFile/PayLog';
 import { getRequest } from 'src/utils/common';
+import { controlState, getTitleTextFromControls } from 'src/utils/control';
 import { handleReplaceState } from 'src/utils/project';
 import RecordOwner from './components/RecordOwner';
 
@@ -151,7 +151,7 @@ export default class RecordForm extends Component {
             controlId: 'approve',
             showTabLine: true,
             tabContentNode: (
-              <div className="flexColumn h100" style={{ backgroundColor: '#f8f8f8' }}>
+              <div className="flexColumn h100" style={{ backgroundColor: 'var(--color-background-secondary)' }}>
                 <SheetWorkflow
                   appId={recordBase.appId}
                   isCharge={recordInfo.roleType === 2}
@@ -181,7 +181,7 @@ export default class RecordForm extends Component {
           controlName: _l('支付'),
           controlId: 'pay',
           tabContentNode: (
-            <div className="flexColumn h100" style={{ backgroundColor: '#f8f8f8' }}>
+            <div className="flexColumn h100" style={{ backgroundColor: 'var(--color-background-secondary)' }}>
               <PayLog
                 projectId={recordInfo.projectId}
                 worksheetId={recordBase.worksheetId}
@@ -339,6 +339,7 @@ export default class RecordForm extends Component {
       currentTab,
       isDraft,
       view,
+      filledByAiMap,
     } = this.props;
     const { from } = recordBase;
     const approveInfo = this.renderApprove();
@@ -401,6 +402,7 @@ export default class RecordForm extends Component {
             instanceId: recordBase.instanceId,
             workId: recordBase.workId,
           }}
+          filledByAiMap={filledByAiMap}
         />
       </div>
     );
@@ -416,7 +418,7 @@ export default class RecordForm extends Component {
           <span className="lockIcon" onClick={updateRecordLock}>
             <Icon icon="lock" />
           </span>
-          {message && <span className="Gray_75">{message}</span>}
+          {message && <span className="textSecondary">{message}</span>}
         </div>
       </LockWrap>
     );
@@ -462,12 +464,12 @@ export default class RecordForm extends Component {
             {this.renderHeader({ formCoverVisible: true })}
             {!isEditRecord && (
               <div className={cx('header', { pTop10: !isModal })}>
-                <div className="title">{recordTitle}</div>
+                <div className="title">{this.props.recordTitle || recordTitle}</div>
                 {isRecordLock && this.renderRecordLock()}
                 {editLockedUser && (
                   <div className="flexRow alignItemsCenter mTop16">
-                    <Icon icon="edit" className="Font15 ThemeColor" />
-                    <div className="bold ThemeColor mLeft8">{editLockedUser.fullname + _l('编辑中···')}</div>
+                    <Icon icon="edit" className="Font15 colorPrimary" />
+                    <div className="bold colorPrimary mLeft8">{editLockedUser.fullname + _l('编辑中···')}</div>
                   </div>
                 )}
               </div>

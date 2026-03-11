@@ -5,7 +5,7 @@ export const Wrap = styled.div`
     margin-top: 13px;
     font-size: 14px;
     .terms {
-      color: #1677ff;
+      color: var(--color-primary);
       text-decoration: none;
     }
   }
@@ -19,7 +19,7 @@ export const Wrap = styled.div`
     background: #2296f3;
     border-radius: 4px;
     font-size: 16px;
-    color: #fff;
+    color: var(--color-white);
     margin-top: 32px;
     text-align: center;
   }
@@ -30,12 +30,12 @@ export const Wrap = styled.div`
 
   .btnForRegister:hover,
   .btnSendVerifyCode:hover {
-    background: #1182dd;
+    background: var(--color-link-hover);
   }
 
   .btnForRegister:active,
   .btnSendVerifyCode:active {
-    background: #1585dd;
+    background: var(--color-primary-focus);
   }
 
   .line {
@@ -60,23 +60,23 @@ export const Wrap = styled.div`
     .lineCenter {
       width: 1px;
       height: 11px;
-      border: 1px solid #e6e6e6;
+      border: 1px solid var(--color-border-secondary);
     }
     .textG,
     .textG:hover {
-      color: #757575;
+      color: var(--color-text-secondary);
     }
     .textB {
-      color: #1677ff;
+      color: var(--color-primary);
     }
 
     .textB:hover {
-      color: #1182dd;
+      color: var(--color-link-hover);
     }
   }
 
   .termsText .terms:hover {
-    color: #1182dd;
+    color: var(--color-link-hover);
   }
 
   .passThis {

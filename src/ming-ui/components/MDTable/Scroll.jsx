@@ -6,7 +6,7 @@ const BarCon = styled.div`
   position: absolute;
   bottom: 0;
   right: 0;
-  background: #ccc;
+  background: var(--color-text-placeholder);
 `;
 
 const Bar = styled.div`
@@ -15,7 +15,7 @@ const Bar = styled.div`
   height: 10px;
   background: rgba(0, 0, 0, 0.6);
   &:hover {
-    background: #999 !important;
+    background: var(--color-text-tertiary) !important;
   }
 `;
 

@@ -206,7 +206,7 @@ function WorksheetReferenceDialog(props) {
     Dialog.confirm({
       title: <span className="Bold Font17">{_l('重新扫描全组织引用关系？')}</span>,
       description: (
-        <span className="mTop8 Gray_75">
+        <span className="mTop8 textSecondary">
           {_l('本次操作将全量扫描组织下所有工作流节点，并更新字段及工作表的引用记录，可能需要较长时间。')}
         </span>
       ),
@@ -218,7 +218,7 @@ function WorksheetReferenceDialog(props) {
     return (
       <div className="emptyContent">
         <img width={160} height={160} src={emptyBg} />
-        <div className="Gray_9e Font16">{_l('暂未被引用')}</div>
+        <div className="textTertiary Font16">{_l('暂未被引用')}</div>
       </div>
     );
   };
@@ -230,11 +230,11 @@ function WorksheetReferenceDialog(props) {
           <LoadDiv size="big" />
           {_.includes([SUB_MODULE_TYPES.WORKFLOW], subModule) && (
             <Fragment>
-              <span className="Gray_75 mTop20">
+              <span className="textSecondary mTop20">
                 {type === 1 ? _l('正在为您扫描字段引用关系，请稍后…') : _l('正在为您扫描表引用关系，请稍后…')}
               </span>
               {appType === 'total' && (
-                <span className="Gray_75">{_l('查找需要较长时间，完成后可以发送系统通知提醒您')}</span>
+                <span className="textSecondary">{_l('查找需要较长时间，完成后可以发送系统通知提醒您')}</span>
               )}
             </Fragment>
           )}
@@ -303,7 +303,7 @@ function WorksheetReferenceDialog(props) {
 
     return (
       <Fragment>
-        {list.length > 0 && <div className="navDesc Gray_75">{getDesc()}</div>}
+        {list.length > 0 && <div className="navDesc textSecondary">{getDesc()}</div>}
         {content}
       </Fragment>
     );
@@ -352,7 +352,7 @@ function WorksheetReferenceDialog(props) {
               <div className="flex TxtRight">
                 <Tooltip title={_l('重新扫描')} placement="bottom">
                   <span
-                    className="Gray_9e ThemeHoverColor2 pointer icon-workflow_cycle Font18"
+                    className="textTertiary ThemeHoverColor2 pointer icon-workflow_cycle Font18"
                     onClick={() => {
                       if (loading) {
                         alert(_l('正在扫描，请勿重复操作'), 3);

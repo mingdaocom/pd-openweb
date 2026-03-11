@@ -6,7 +6,7 @@ import { FlowChart } from 'src/pages/workflow/components/FlowChart';
 import { getRequest } from 'src/utils/common';
 
 const LayoutContent = styled.div`
-  background-color: #f5f5f9;
+  background-color: var(--color-background-secondary);
   display: flex;
   .workflowEditRelease {
     height: 100%;

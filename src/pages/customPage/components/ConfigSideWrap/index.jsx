@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react';
-import store from 'redux/configureStore';
 import { generate } from '@ant-design/colors';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import SideWrap from 'src/pages/customPage/components/SideWrap';
+import store from 'src/redux/configureStore';
 import BgConfig from './BgConfig';
 import ChartColorConfig from './ChartColorConfig';
 import PageConfig from './PageConfig';
@@ -45,13 +45,13 @@ const Wrap = styled.div`
     width: 28px;
     height: 28px;
     border-radius: 4px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-tertiary);
     display: flex;
     align-items: center;
     justify-content: center;
   }
   .colorWrap.active {
-    border-color: #fff;
+    border-color: var(--color-border-tertiary);
     &::after {
       content: '';
       position: absolute;
@@ -59,7 +59,7 @@ const Wrap = styled.div`
       left: -3px;
       width: 32px;
       height: 32px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border-tertiary);
       border-radius: 4px;
     }
   }
@@ -70,7 +70,7 @@ const Wrap = styled.div`
     height: 0;
     border-style: solid;
     border-width: 12px 12px 0 0;
-    border-color: #fff transparent transparent transparent;
+    border-color: var(--color-white) transparent transparent transparent;
     border-radius: 2px 0 0 0;
     top: 1px;
     left: 1px;
@@ -78,9 +78,9 @@ const Wrap = styled.div`
   .defaultColor {
     position: relative;
     &.active {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
       &::after {
-        background-color: #1677ff;
+        background-color: var(--color-primary);
       }
     }
     &::after {
@@ -90,7 +90,7 @@ const Wrap = styled.div`
       left: 50%;
       width: 1px;
       height: 100%;
-      background-color: #e0e0e0;
+      background-color: var(--color-background-secondary);
       transform: rotateZ(-45deg);
     }
   }
@@ -103,12 +103,12 @@ const Wrap = styled.div`
   .line {
     width: 100%;
     height: 1px;
-    background-color: #e6e6e6;
+    background-color: var(--color-border-tertiary);
   }
   .selectChartColor {
     padding: 8px;
     border-radius: 4px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     .colorBlock {
       width: 24px;
       height: 24px;
@@ -124,14 +124,14 @@ const Wrap = styled.div`
     font-weight: 600;
   }
   .icon-trash:hover {
-    color: #f44336 !important;
+    color: var(--color-error) !important;
   }
   .typeSelect {
     font-size: 13px;
     border-radius: 3px;
     width: max-content;
     padding: 3px;
-    background-color: #eff0f0;
+    background-color: var(--color-background-secondary);
     > div {
       height: 25px;
       line-height: 25px;
@@ -141,17 +141,17 @@ const Wrap = styled.div`
       justify-content: center;
     }
     .active {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
       border-radius: 3px;
       font-weight: bold;
-      background-color: #fff;
+      background-color: var(--color-background-card);
     }
   }
   .pageSelect {
     &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
     &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input)
       .ant-select-selector {
-      border-color: #1677ff !important;
+      border-color: var(--color-primary) !important;
     }
     .ant-select-selector {
       border-radius: 4px !important;
@@ -193,7 +193,7 @@ const Wrap = styled.div`
     }
     &.ant-input-affix-wrapper:hover,
     &:hover {
-      border-color: #1677ff !important;
+      border-color: var(--color-primary) !important;
     }
     &.ant-input-affix-wrapper,
     &.ant-input-affix-wrapper-focused,
@@ -207,8 +207,7 @@ const Wrap = styled.div`
       align-items: center;
       justify-content: center;
       border-radius: 0 4px 4px 0;
-      border-left: 1px solid #d9d9d9;
-      background-color: #fff;
+      border-left: 1px solid var(--color-border-primary);
     }
     .icon-expand_less,
     .icon-expand_more {
@@ -221,7 +220,7 @@ const Wrap = styled.div`
 
   .countInput {
     .disabled {
-      color: #ddd;
+      color: var(--color-border-primary);
     }
     .ant-input-suffix {
       width: 38px !important;

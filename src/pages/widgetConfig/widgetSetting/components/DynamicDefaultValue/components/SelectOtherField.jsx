@@ -38,7 +38,7 @@ const MenuStyle = styled.div`
   align-items: center;
   i {
     width: 20px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
 `;
 
@@ -315,7 +315,7 @@ export default class SelectOtherField extends Component {
             </Menu>
           ) : (
             <Menu>
-              <div className="Gray_75 pLeft16 pTop8 pBottom8">{_l('未添加链接参数')}</div>
+              <div className="textSecondary pLeft16 pTop8 pBottom8">{_l('未添加链接参数')}</div>
             </Menu>
           );
         default:

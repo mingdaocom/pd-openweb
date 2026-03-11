@@ -21,8 +21,8 @@ const BtnCon = styled.div`
   }
   &.disabled {
     background-color: rgba(0, 0, 0, 0.03) !important;
-    color: #757575 !important;
-    border: none !important;
+    color: var(--color-text-secondary) !important;
+    border: 1px solid var(--color-border-secondary) !important;
   }
 `;
 
@@ -43,11 +43,12 @@ export default class CustomButtons extends Component {
       isEditLock,
       isRecordLock,
       entityName = _l('记录'),
+      viewId,
     } = this.props;
     const buttons = isSlice ? customBtns.slice(0, 2) : customBtns;
 
     return buttons
-      .filter(it => (isBatch ? !it.disabled : true))
+      .filter(it => (isBatch || !viewId ? !it.disabled : true))
       .map(btn => {
         return (
           <BtnCon
@@ -64,6 +65,7 @@ export default class CustomButtons extends Component {
               }
               handleClick(btn);
             }}
+            data-action-btn
           >
             {!!btn.iconUrl && !!btn.icon && btn.icon.endsWith('_svg') ? (
               <SvgIcon
@@ -75,7 +77,7 @@ export default class CustomButtons extends Component {
                     ? 'rgba(117, 117, 117, 0.5)'
                     : btn.color && btn.color !== 'transparent'
                       ? getButtonColor(btn.color).color
-                      : '#151515'
+                      : 'var(--color-text-title)'
                 }
                 size={15}
               />
@@ -87,7 +89,7 @@ export default class CustomButtons extends Component {
                 })}
               />
             )}
-            <span className={cx('breakAll overflow_ellipsis Font13', { Gray_bd: btn.disabled })}>{btn.name}</span>
+            <span className={cx('breakAll overflow_ellipsis Font13', { textDisabled: btn.disabled })}>{btn.name}</span>
           </BtnCon>
         );
       });

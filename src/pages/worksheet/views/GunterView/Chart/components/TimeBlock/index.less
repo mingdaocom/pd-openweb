@@ -37,7 +37,7 @@
     left: 0;
     cursor: grab;
     svg {
-      fill: #1677ff;
+      fill: var(--color-primary);
     }
     .recordTitle {
       top: 4px;
@@ -50,7 +50,7 @@
     left: 0;
     height: 14px;
     border-radius: 2px;
-    background-color: #1677ff;
+    background-color: var(--color-primary);
     cursor: grab;
     &:hover {
       .dragStart,
@@ -66,8 +66,8 @@
       display: none;
       width: 4px;
       height: 8px;
-      background: #fff;
-      border: 1px solid #1677ff;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-primary);
     }
     .dragStart {
       left: -2px;
@@ -77,7 +77,7 @@
     }
   }
   .forward {
-    color: #ff9300;
+    color: var(--color-warning);
     position: absolute;
     left: -40px;
     top: -6px;

@@ -7,8 +7,8 @@ const Wrap = styled.div(
   ({ w }) => `
   width: ${w < 320 ? 320 : w}px;
   // height: 220px;
-  background: #ffffff;
-  border: 1px solid #EAEAEA;
+  background: var(--color-background-primary);
+  border: 1px solid var(--color-border-secondary);
   border-radius: 8px;
   padding: 24px 24px 0 24px;
   margin: 0 24px 24px 0;
@@ -34,9 +34,9 @@ const Wrap = styled.div(
     .addConnect {
       width: 66px;
       height: 30px;
-      background: rgba(33, 150, 243, 0.08);
+      background: var(--color-primary-transparent);
       border-radius: 20px;
-      color: #1677ff;
+      color: var(--color-primary);
       text-align: center;
       line-height: 30px;
     }
@@ -75,10 +75,10 @@ function Card(props) {
       </div>
       <div className="des mTop20">
         <p className="title breakAll Font20 overflow_ellipsis">{props.name}</p>
-        <p className="txt mTop8 Gray_75 breakAll" style={{ WebkitBoxOrient: 'vertical' }}>
+        <p className="txt mTop8 textSecondary breakAll" style={{ WebkitBoxOrient: 'vertical' }}>
           {props.explain}
         </p>
-        <p className="tipTxt Gray_75 mTop20 breakAll overflow_ellipsis">
+        <p className="tipTxt textSecondary mTop20 breakAll overflow_ellipsis">
           {_l('%0 次安装·包含 %1 API', props.installCount || 0, props.apiCount)}
         </p>
       </div>

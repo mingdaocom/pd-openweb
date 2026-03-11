@@ -104,6 +104,7 @@ export default class Item extends Component {
     const showWidgetDebugIcon = item.viewType === 21 && pluginIsInDevelop && !pluginIsDeleted;
     const isManageView = item.viewId === item.worksheetId;
 
+    if (!item.viewId) return null;
     return (
       <div
         className={cx('valignWrapper workSheetViewItem pointer', `workSheetViewItemViewId-${item.viewId}`, {

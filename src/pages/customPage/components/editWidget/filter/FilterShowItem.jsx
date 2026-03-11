@@ -4,11 +4,12 @@ import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import sheetApi from 'src/api/worksheet';
-import { getTitleTextFromRelateControl } from 'src/components/Form/core/utils';
 import { EditInfo } from 'src/pages/widgetConfig/styled';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
-import { FilterDialog, FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import FilterDialog from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterDialog';
+import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import SortCustom from 'src/pages/worksheet/common/ViewConfig/components/NavSort/customSet';
+import { getTitleTextFromRelateControl } from 'src/utils/control';
 
 const SHOW_ITEMS = [
   { text: _l('全部'), value: '1' },
@@ -62,7 +63,7 @@ function FilterShowItem(props) {
       <Select
         className="customPageSelect mBottom8 w100"
         value={navshow}
-        suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+        suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
         placeholder={_l('请选择筛选字段')}
         getPopupContainer={() => document.querySelector('.customPageFilterWrap .setting')}
         onSelect={value => {
@@ -85,9 +86,9 @@ function FilterShowItem(props) {
         ))}
       </Select>
       {navshow === '2' && (
-        <div className="WhiteBG">
+        <div className="bgPrimary">
           <EditInfo className="pointer flexRow" onClick={() => setShowCustomVisible(true)}>
-            <div className={cx('overflow_ellipsis flex', showNavfilters.length <= 0 ? 'Gray_75' : 'Gray')}>
+            <div className={cx('overflow_ellipsis flex', showNavfilters.length <= 0 ? 'textSecondary' : 'textPrimary')}>
               {showNavfilters.length <= 0 ? _l('设置指定项') : _l('选中%0个', showNavfilters.length)}
             </div>
             <div className="edit">
@@ -188,7 +189,7 @@ function FilterShowItem(props) {
           )}
           {showNavfilters.length > 0 && (
             <FilterItemTexts
-              className="WhiteBG"
+              className="bgPrimary"
               fromCondition="fastFilter"
               data={control}
               filters={showNavfilters}

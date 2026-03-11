@@ -38,12 +38,12 @@ export default class Write extends Component {
     return (
       <Fragment>
         <div className="pLeft8 pRight8 pTop5">
-          <span className="Gray_75">{_l('填写人：')}</span>
+          <span className="textSecondary">{_l('填写人：')}</span>
           <MembersName {...this.props} accounts={item.accounts} />
         </div>
         <div className="workflowContentInfo ellipsis mTop4 pBottom5">
           {item.formProperties.length ? (
-            <span className="Gray_75">{_l('填写%0个字段', item.formProperties.length)}</span>
+            <span className="textSecondary">{_l('填写%0个字段', item.formProperties.length)}</span>
           ) : (
             <span className="yellow">{_l('未设置可填写字段')}</span>
           )}
@@ -72,7 +72,11 @@ export default class Write extends Component {
             </div>
             <NodeOperate nodeClassName="BGSkyBlue" {...this.props} />
             <div className="workflowContent Font13">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? (
+                <span className="pLeft8 pRight8 textSecondary">{_l('加载中...')}</span>
+              ) : (
+                this.renderContent()
+              )}
             </div>
           </div>
           <CreateNode {...this.props} />

@@ -58,7 +58,7 @@ export default function FormulaDate(props) {
           </SettingItem>
           <SettingItem>
             <div className="settingItemTitle">{_l('格式化')}</div>
-            <div className="subTitle Font12 Gray_9e">{_l('参与计算的日期未设置时间时，格式化方式为:')}</div>
+            <div className="subTitle Font12 textTertiary">{_l('参与计算的日期未设置时间时，格式化方式为:')}</div>
             <Dropdown
               border
               value={strDefault}
@@ -110,7 +110,7 @@ export default function FormulaDate(props) {
           </SettingItem>
           <SettingItem>
             <div className="settingItemTitle">{_l('计算')}</div>
-            <p className="Font12 Gray_9e">
+            <p className="Font12 textTertiary">
               {_l('输入你想要 添加/减去 的时间。如：+8h+1m，-1d+8h。当使用数值类型的字段运算时，请不要忘记输入单位。')}
               <Tooltip
                 title={
@@ -123,7 +123,7 @@ export default function FormulaDate(props) {
                   </Fragment>
                 }
               >
-                <span className="pointer" style={{ color: '#1677ff' }}>
+                <span className="pointer" style={{ color: 'var(--color-primary)' }}>
                   {_l('查看时间单位')}
                 </span>
               </Tooltip>

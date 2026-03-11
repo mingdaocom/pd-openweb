@@ -157,7 +157,10 @@ export default class CustomIcon extends Component {
                 alert(errTip, 2);
               }}
             >
-              <div className="ThemeBGColor3 ThemeHoverBGColor2 pointer White appManagementUploadBtn" id="customIconBtn">
+              <div
+                className="ThemeBGColor3 ThemeHoverBGColor2 pointer textWhite appManagementUploadBtn"
+                id="customIconBtn"
+              >
                 <Icon icon="add" className="Font18 mRight2" />
                 {_l('上传图标')}
               </div>
@@ -166,7 +169,7 @@ export default class CustomIcon extends Component {
         </div>
         <div className="mTop16 mLeft24 mRight24">
           {!selected.length ? (
-            <span className="Gray_9e">
+            <span className="textTertiary">
               {_l('上传的图标可用于应用配置时的图标选择，建议使用 SVG 格式的单色图标')}（{_l('推荐下载地址')}
               <a className="ThemeColor3 ThemeHoverColor2" href="https://www.iconfont.cn" target="_blank">
                 iconfont
@@ -176,11 +179,11 @@ export default class CustomIcon extends Component {
           ) : (
             <Fragment>
               <span>{_l('已选中%0个', selected.length)}</span>
-              <span className="ThemeHoverColor3 pointer mLeft15 Gray_75" onClick={this.download}>
+              <span className="ThemeHoverColor3 pointer mLeft15 textSecondary" onClick={this.download}>
                 <Icon icon="download" className="Font16 mRight5" />
                 SVG
               </span>
-              <span className="pointer mLeft20 Gray_75 hoverRed" onClick={this.delete}>
+              <span className="pointer mLeft20 textSecondary hoverRed" onClick={this.delete}>
                 <Icon icon="trash" className="Font16 mRight5" />
                 {_l('删除')}
               </span>

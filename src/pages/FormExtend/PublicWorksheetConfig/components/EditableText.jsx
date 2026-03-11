@@ -8,12 +8,12 @@ const Con = styled.div(
   ({ active }) => `
   padding: 10px 20px;
   white-space: pre-line;
-  ${active ? 'background: #f5f5f5' : ''}
-  :hover { background: #f5f5f5 }
+  ${active ? 'background: var(--color-background-secondary)' : ''}
+  :hover { background: var(--color-background-secondary) }
 `,
 );
 const EmptyTip = styled.span`
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
 `;
 const NewInput = styled(Input)`
   border: none !important;

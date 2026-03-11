@@ -6,9 +6,9 @@ import moment from 'moment';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { RecordInfoModal } from 'mobile/Record';
-import { controlState } from 'src/components/Form/core/utils';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper.jsx';
 import { browserIsMobile, emitter } from 'src/utils/common';
+import { controlState } from 'src/utils/control';
 import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/utils/project';
 import { handleRecordClick } from 'src/utils/record';
 import { lineHeight, timeWidth, timeWidthHalf, types } from '../config';
@@ -50,12 +50,12 @@ const Wrap = styled.div`
     &::before {
       content: '';
       height: 8px;
-      background: #fff;
+      background: var(--color-background-primary);
       position: absolute;
       left: 0;
       top: 50%;
       width: 4px;
-      border: 1px solid #1677ff;
+      border: 1px solid var(--color-primary);
       transform: translate(0, -4px);
     }
     &.dragStart {

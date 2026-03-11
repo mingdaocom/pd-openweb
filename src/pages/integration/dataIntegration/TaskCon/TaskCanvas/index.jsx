@@ -30,8 +30,8 @@ const TableTreeWrap = styled.div`
 `;
 const WrapEdit = styled.div`
   height: 395px;
-  background: #ffffff;
-  border-top: 1px solid #e8e8e8;
+  background: var(--color-background-primary);
+  border-top: 1px solid var(--color-border-secondary);
   position: absolute;
   bottom: 0;
   left: 0;

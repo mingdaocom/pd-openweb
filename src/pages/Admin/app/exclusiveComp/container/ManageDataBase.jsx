@@ -1,6 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
-import { ConfigProvider, Table } from 'antd';
 import _ from 'lodash';
 import moment from 'moment';
 import Trigger from 'rc-trigger';
@@ -9,7 +8,7 @@ import { Dropdown, Icon, UserHead } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectApp } from 'ming-ui/functions';
 import appManagement from 'src/api/appManagement';
-import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
+import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import IsAppAdmin from '../../../components/IsAppAdmin';
 import ConfirmMoveDialog from '../component/ConfirmMoveDialog';
@@ -17,20 +16,20 @@ import MoveDataBaseDialog from '../component/MoveDataBaseDialog';
 import './ManageDataBase.less';
 
 const ActionOpWrap = styled.ul`
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
   border-radius: 3px 3px 3px 3px;
   width: 160px;
   font-size: 13px;
-  color: #151515;
+  color: var(--color-text-title);
   padding: 4px 0;
   li {
     line-height: 36px;
     padding: 0 24px;
     cursor: pointer;
     &:hover {
-      background-color: #1677ff;
-      color: #fff;
+      background-color: var(--color-primary);
+      color: var(--color-white);
     }
   }
 `;
@@ -88,7 +87,9 @@ function ManageDataBase(props) {
       width: 120,
       render: value => {
         return (
-          <span className={value === 1 ? 'allowCreateColor' : 'Gray'}>{value === 1 ? _l('开启中') : _l('已关闭')}</span>
+          <span className={value === 1 ? 'allowCreateColor' : 'textPrimary'}>
+            {value === 1 ? _l('开启中') : _l('已关闭')}
+          </span>
         );
       },
     },
@@ -137,7 +138,7 @@ function ManageDataBase(props) {
             popupVisible={actionOp === value}
             onPopupVisibleChange={visible => setActionOp(visible ? value : undefined)}
             action={['click']}
-            popupAlign={{ points: ['tr', 'bc'], offset: [15, 0] }}
+            popupAlign={{ points: ['tr', 'bc'], offset: [15, 0], overflow: { adjustX: true, adjustY: true } }}
             popup={
               <ActionOpWrap>
                 <li
@@ -164,7 +165,7 @@ function ManageDataBase(props) {
               </ActionOpWrap>
             }
           >
-            <Icon icon="moreop" className="Font18 Gray_9e Hover_49 Hand" />
+            <Icon icon="moreop" className="Font18 textTertiary hoverTextPrimaryLight Hand" />
           </Trigger>
         );
       },
@@ -249,17 +250,6 @@ function ManageDataBase(props) {
     );
   };
 
-  const renderEmpty = () => {
-    return (
-      <div className="manageListNull flex flexColumn">
-        <div className="iconWrap">
-          <Icon icon="widgets" />
-        </div>
-        <div className="emptyExplain">{_l('暂无应用')}</div>
-      </div>
-    );
-  };
-
   const onMoveOk = dataBaseInfo => {
     setConfirmDialog({
       visible: true,
@@ -278,32 +268,21 @@ function ManageDataBase(props) {
         <div className="HeaderWrap exclusiveCompHeader">
           <span className="icon-backspace Font22 ThemeHoverColor3" onClick={() => history.go(-1)}></span>
           <span className="dataAuthorizeLabel">{_l('应用管理')}</span>
-          <span className="dataAuthorizeName Gray_75 flex">{baseInfo.name}</span>
+          <span className="dataAuthorizeName textSecondary flex">{baseInfo.name}</span>
           <Tooltip title={_l('刷新')}>
-            <Icon icon="refresh1" className="Font22 Gray_9e Hover_21" onClick={() => getApp()} />
+            <Icon icon="refresh1" className="Font22 textTertiary hoverColorPrimary" onClick={() => getApp()} />
           </Tooltip>
         </div>
         <div className="ContentWrap">
           {renderFilters()}
-          <div className="flex ListWrap">
-            <div className="flex flexColumn mTop16">
-              <ConfigProvider renderEmpty={renderEmpty}>
-                <Table
-                  loading={loading}
-                  className="databaseAppTable"
-                  rowClassName="databaseAppTableTitleRow"
-                  columns={COLUMNS}
-                  dataSource={data.apps || []}
-                  rowKey={record => record.appId}
-                  pagination={false}
-                />
-              </ConfigProvider>
-            </div>
-            <PaginationWrap
-              total={_.get(data, 'total') || 0}
-              pageIndex={pageIndex}
-              pageSize={50}
-              onChange={pageIndex => setPageIndex(pageIndex)}
+          <div className="flex overflowHidden mTop16">
+            <PageTableCon
+              loading={loading}
+              columns={COLUMNS}
+              dataSource={data.apps || []}
+              count={_.get(data, 'total') || 0}
+              paginationInfo={{ pageIndex, pageSize: 50 }}
+              getDataSource={getApp}
             />
           </div>
         </div>

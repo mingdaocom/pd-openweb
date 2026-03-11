@@ -45,7 +45,7 @@ export default class extends React.PureComponent {
   renderMove(props) {
     return (
       <div className={'roleSelect'}>
-        <span className={cx('mRight15 Gray_75 mLeft30')} style={{ whiteSpace: 'nowrap' }}>
+        <span className={cx('mRight15 textSecondary mLeft30')} style={{ whiteSpace: 'nowrap' }}>
           {_l('移动到')}
         </span>
         <Dropdown {...props} />
@@ -74,7 +74,7 @@ export default class extends React.PureComponent {
     return (
       <Wrap>
         <React.Fragment>
-          <div className="mBottom16 Gray_75">{_l('如何安排此角色下的用户')}</div>
+          <div className="mBottom16 textSecondary">{_l('如何安排此角色下的用户')}</div>
           <Radio
             className="Bold Block mBottom16"
             text={_l('同时将此角色下的所有用户移动到其他角色')}

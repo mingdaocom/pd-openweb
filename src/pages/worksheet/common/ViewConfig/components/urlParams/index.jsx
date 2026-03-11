@@ -12,31 +12,31 @@ const ParamsWrapper = styled.div`
 
   .icon-trash {
     font-size: 16px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     margin-left: 16px;
     cursor: pointer;
     &:hover {
-      color: #f44336;
+      color: var(--color-error);
     }
   }
 
   .ming.Input {
-    border-color: #ddd;
+    border-color: var(--color-border-primary);
   }
   input::-webkit-input-placeholder {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   input::-ms-input-placeholder {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   input::-moz-placeholder {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .ming.Input:focus {
-    border-color: #1677ff !important;
+    border-color: var(--color-primary) !important;
   }
   .repeatItem {
-    border-color: red !important;
+    border-color: var(--color-error) !important;
   }
 `;
 
@@ -46,7 +46,7 @@ const AddParamsBtn = styled.div`
   width: fit-content;
   margin-top: 20px;
   cursor: pointer;
-  color: #757575;
+  color: var(--color-text-secondary);
   i {
     font-size: 18px;
     margin-right: 4px;
@@ -56,15 +56,15 @@ const AddParamsBtn = styled.div`
   }
 
   &:hover {
-    color: #1677ff;
+    color: var(--color-primary);
   }
 `;
 
 const LinkText = styled.span`
-  color: #1e88e5;
+  color: var(--color-primary);
   cursor: pointer;
   &:hover {
-    color: #1565c0 !important;
+    color: var(--color-link-hover) !important;
   }
 `;
 
@@ -108,7 +108,7 @@ export default function UrlParams(props) {
 
   return (
     <div>
-      <div className="Gray_75 mTop8">
+      <div className="textSecondary mTop8">
         <span>{_l('指定参数名，可作为查询字符串附加在')}</span>
 
         <LinkText

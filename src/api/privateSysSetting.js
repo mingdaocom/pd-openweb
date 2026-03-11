@@ -181,4 +181,27 @@ EnableOnlinSearch:bool，是否开启联网搜索
   sendCsmWebhookTest: function (args, options = {}) {
     return mdyAPI('PrivateSysSetting', 'SendCsmWebhookTest', args, options);
   },
+  /**
+   * 获取entra集成配置
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getIdentityIntegrationConfig: function (args, options = {}) {
+    return mdyAPI('PrivateSysSetting', 'GetIdentityIntegrationConfig', args, options);
+  },
+  /**
+   * 编辑entra集成配置
+   * @param {Object} args 请求参数
+   * @param {string} args.clientId 应用id
+   * @param {string} args.clientSecret 密钥
+   * @param {boolean} args.setKey 是否修改密钥
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  editIdentityIntegrationConfig: function (args, options = {}) {
+    return mdyAPI('PrivateSysSetting', 'EditIdentityIntegrationConfig', args, options);
+  },
 };

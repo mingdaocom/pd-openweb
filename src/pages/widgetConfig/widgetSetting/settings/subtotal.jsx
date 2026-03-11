@@ -5,6 +5,8 @@ import styled from 'styled-components';
 import { Checkbox, Dropdown, RadioGroup } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
+import FilterDialog from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterDialog';
+import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import WidgetDropdown from '../../components/Dropdown';
 import { SYSTEM_CONTROL, WORKFLOW_SYSTEM_CONTROL } from '../../config/widget';
 import { useSheetInfo } from '../../hooks';
@@ -18,7 +20,6 @@ import {
   resortControlByColRow,
 } from '../../util';
 import { filterByTypeAndSheetFieldType, getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
-import { FilterDialog, FilterItemTexts } from '../components/FilterData';
 import PointerConfig from '../components/PointerConfig';
 import PreSuffix from '../components/PreSuffix';
 
@@ -114,7 +115,7 @@ const getTotalType = control => {
 
 const RecordCount = styled.div`
   padding-bottom: 6px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid --color-background-disabled;
   margin-bottom: 6px;
 `;
 
@@ -294,7 +295,7 @@ export default function Subtotal(props) {
                       {item.text}
                       {item.tips && (
                         <Tooltip title={item.tips} placement="bottom">
-                          <span className="icon-help Font14 Gray_9e mLeft4" />
+                          <span className="icon-help Font14 textTertiary mLeft4" />
                         </Tooltip>
                       )}
                     </span>

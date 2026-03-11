@@ -51,12 +51,12 @@ const fillType = [
 const ImageUploadWrap = styled.div`
   .imageUpload {
     height: 160px;
-    color: #757575;
-    border: 1.5px dashed #bdbdbd;
+    color: var(--color-text-secondary);
+    border: 1.5px dashed var(--color-text-disabled);
     border-radius: 4px;
     &:hover {
-      color: #1677ff;
-      border-color: #1677ff;
+      color: var(--color-primary);
+      border-color: var(--color-primary);
     }
   }
   .imageView {
@@ -82,7 +82,7 @@ const ImageUploadWrap = styled.div`
     .resetBtn {
       padding: 10px;
       border-radius: 4px;
-      background-color: #fff;
+      background-color: var(--color-background-primary);
     }
   }
   .image {
@@ -193,13 +193,13 @@ export default props => {
             <div className="bold mRight10">{_l('显示方式')}</div>
             <div className="typeSelect flex flexRow valignWrapper">
               <div
-                className={cx('centerAlign flex pointer Gray_75', { active: showType === 1 })}
+                className={cx('centerAlign flex pointer textSecondary', { active: showType === 1 })}
                 onClick={() => handleChangeConfig({ showType: 1 })}
               >
                 {_l('透明')}
               </div>
               <div
-                className={cx('centerAlign flex pointer Gray_75', { active: showType === 2 })}
+                className={cx('centerAlign flex pointer textSecondary', { active: showType === 2 })}
                 onClick={() => handleChangeConfig({ showType: 2 })}
               >
                 {_l('卡片')}
@@ -210,7 +210,7 @@ export default props => {
           <Select
             className="mdAntSelect w100"
             value={fill}
-            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
               handleChangeConfig({ fill: value });
             }}
@@ -227,7 +227,7 @@ export default props => {
           <Select
             className="mdAntSelect w100"
             value={action}
-            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
               const data = { action: value };
               if (value === 2) {
@@ -266,7 +266,7 @@ export default props => {
               <Select
                 className="mdAntSelect w100"
                 value={openMode}
-                suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                 onChange={value => {
                   handleChangeConfig({ openMode: value });
                 }}
@@ -283,7 +283,7 @@ export default props => {
           )}
           <ImageUploadWrap className="mTop15">
             <div className="bold">{_l('图片')}</div>
-            <div className="Gray_75 mBottom10">{_l('请选择5MB以内的jpg, jpeg或png图片')}</div>
+            <div className="textSecondary mBottom10">{_l('请选择5MB以内的jpg, jpeg或png图片')}</div>
             {previewUrl ? (
               <div className="imageView Relative">
                 {fill === 3 ? (
@@ -301,7 +301,7 @@ export default props => {
                       undefined,
                       <Tooltip title={_l('更改图片')} placement="bottom">
                         <div className="resetBtn pointer flexRow alignItemsCenter justifyContentCenter">
-                          <Icon className="ThemeColor Font20" icon="task-later" />
+                          <Icon className="colorPrimary Font20" icon="task-later" />
                         </div>
                       </Tooltip>,
                     )}

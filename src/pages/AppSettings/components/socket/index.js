@@ -21,7 +21,7 @@ const getCommon = ({ id, title, msg, status }) => {
   return {
     key: id,
     className: 'customNotification',
-    closeIcon: <Icon icon="close" className="Font20 Gray_9d ThemeHoverColor3" />,
+    closeIcon: <Icon icon="close" className="Font20 textTertiary ThemeHoverColor3" />,
     duration: 5,
     message: title,
     description: <div dangerouslySetInnerHTML={{ __html: filterXSS(msg) }} />,
@@ -43,7 +43,7 @@ export default () => {
       ...getCommon(data),
       btn: _.includes([2, 3], status) ? (
         <span
-          className="Hand ThemeColor"
+          className="Hand colorPrimary"
           onClick={() => {
             if (isPageBackup) {
               location.reload();

@@ -61,8 +61,14 @@ class Sidenav extends React.Component {
             {
               icon: 'custom_actions',
               title: _l('自定义动作'),
-              url: `/worksheet/formSet/edit/${worksheetId}/customBtn`,
-              onClick: () => this.handleClickNav('customBtn'),
+              url: `/worksheet/formSet/edit/${worksheetId}/customAction`,
+              onClick: () => this.handleClickNav('customAction'),
+            },
+            {
+              icon: 'auto_awesome',
+              title: _l('AI 动作'),
+              url: `/worksheet/formSet/edit/${worksheetId}/aiAction`,
+              onClick: () => this.handleClickNav('aiAction'),
             },
             {
               icon: 'print',
@@ -83,7 +89,7 @@ class Sidenav extends React.Component {
               url: `/worksheet/formSet/edit/${worksheetId}/indexSetting`,
               onClick: () => this.handleClickNav('indexSetting'),
             },
-          ]}
+          ].filter(item => !(md.global.SysSettings.hideAIBasicFun && item.url.includes('aiAction')))}
         />
       </ScrollView>
     );

@@ -63,14 +63,17 @@ export default class UpgradeProcess extends Component {
       upgradeLang: true,
       upgradeTimeZone: true,
       modelType: 1, // 默认覆盖更新
+      upgradeModel: props.upgradeModel, // 0:普通模式 1:迁移模式
     };
   }
 
   componentDidMount() {
     if (this.state.batchUpdate) {
-      appManagementAjax.getBatchId({ projectId: this.props.projectId }).then(({ batchId }) => {
-        this.setState({ batchId: batchId });
-      });
+      appManagementAjax
+        .getBatchId({ projectId: this.props.projectId, upgradeModel: this.state.upgradeModel })
+        .then(({ batchId }) => {
+          this.setState({ batchId: batchId });
+        });
     }
   }
 
@@ -152,7 +155,7 @@ export default class UpgradeProcess extends Component {
 
   batchCheckFiles = async (checkFiles, isUpdate = false) => {
     const { projectId } = this.props;
-    const { batchId } = this.state;
+    const { batchId, upgradeModel } = this.state;
 
     this.setState({ checkFiles: [] });
 
@@ -170,6 +173,7 @@ export default class UpgradeProcess extends Component {
           batchId,
           url: md.global.FileStoreConfig.documentHost + '/' + l.key,
           password: l.password,
+          upgradeModel,
         }),
       );
     }
@@ -182,6 +186,13 @@ export default class UpgradeProcess extends Component {
         alert(_l('%0密码错误，校验失败', _.get(checkFiles[0], 'apps[0].name')), 2);
       const index = _.findIndex(files, l => _.get(l, 'fileName') === _.get(checkFiles[0], 'fileName'));
       files[index] = { ...checkFiles[0], code: res[0].apps.length > 1 ? 1 : res[0].code };
+      if (upgradeModel === 1) {
+        files[index] = {
+          ...files[index],
+          type: res[0]?.exixt ? 0 : 1,
+          exixt: res[0].exixt,
+        };
+      }
       this.setState({ files: [...files], analyzeLoading: false, addFilesLoading: false, batchCheckedLoading: false });
     } else {
       const newList = res
@@ -195,7 +206,10 @@ export default class UpgradeProcess extends Component {
           ...l,
           ..._.pick(checkFiles[l.i], ['key', 'password', 'fileName', 'name']),
           code: l.apps.length > 1 ? 1 : l.code,
+          exixt: res[l.i].exixt,
+          type: upgradeModel === 1 ? (res[l.i].exixt ? 0 : 1) : l.type,
         }));
+
       this.setState({
         files: files.concat(newList),
         analyzeLoading: false,
@@ -207,10 +221,10 @@ export default class UpgradeProcess extends Component {
     this.destroyUploadWrap();
   };
 
-  batchCheckUpgrade = i => {
+  batchCheckUpgrade = (i, upgrade) => {
     const { files } = this.state;
 
-    if (files[i].index !== undefined) {
+    if (files[i].index !== undefined && !upgrade) {
       this.setState({ currentAppIndex: i });
       return;
     }
@@ -225,14 +239,14 @@ export default class UpgradeProcess extends Component {
         appManagementAjax.checkUpgrade({
           password: item.password || '',
           url: item.url,
-          appId: item.selectApp.appId,
+          appId: item.selectApp?.appId || item.apps[0]?.appId,
           fileName: item.name,
           batchId: item.batchId,
         }),
       );
 
     Promise.all(promiseList).then(res => {
-      const filterFiles = files.filter(l => l.type === 0);
+      const filterFiles = files.filter(l => l.type === 0 || l.exixt);
       res.forEach((item, itemIndex) => {
         const index = filterFiles[itemIndex].index;
 
@@ -265,7 +279,8 @@ export default class UpgradeProcess extends Component {
           checkFiles: checkFiles.concat({ ...file, key }),
         },
         () => {
-          up.files.length === this.state.checkFiles.length && this.batchCheckFiles(this.state.checkFiles.slice(0, 10));
+          up.files.length === this.state.checkFiles.length &&
+            this.batchCheckFiles(this.state.checkFiles.slice(0, MAX_FILES));
         },
       );
     } else {
@@ -282,12 +297,12 @@ export default class UpgradeProcess extends Component {
   };
 
   renderUploadBtn = children => {
-    const { batchUpdate } = this.state;
+    const { batchUpdate, analyzeLoading } = this.state;
 
     return (
       <QiniuUpload
         ref={ele => (this.uploaderWrap = ele)}
-        className="upgradeAppUpload mTop24"
+        className={cx('upgradeAppUpload mTop24', { 'Visibility hiddenUpload': analyzeLoading })}
         options={{
           filters: {
             mime_types: [{ extensions: 'mdy' }],
@@ -330,18 +345,38 @@ export default class UpgradeProcess extends Component {
       batchUpdate,
       addFilesLoading,
       batchCheckedLoading,
+      upgradeModel,
     } = this.state;
-    const IsLocal = _.get(md, 'global.Config.IsLocal');
 
     return (
       <Fragment>
-        <div className="Gray_75 mBottom20">
-          {batchUpdate
-            ? _l('上传多个应用文件，实现多个应用整体升级。最多上传%0个文件。', MAX_FILES)
-            : _l('导入单个应用文件，实现对当前应用快速升级。')}
-          {IsLocal ? _l('请确认私有部署的版本，高版本向低版本导入，可能会导入失败。') : ''}
-          {_l('应用升级需要一段时间，正在升级中的应用将为不可用状态。')}
-          <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/application/upgrade" />
+        <div className="textSecondary mBottom20">
+          {upgradeModel === 1 ? (
+            <Fragment>
+              <span>
+                {files.length
+                  ? _l(
+                      '上传多个应用文件，实现多个应用整体升级。最多上传%0个文件。应用升级需要一段时间，正在升级中的应用将为不可用状态。',
+                      MAX_FILES,
+                    )
+                  : _l(
+                      '上传迁移包后系统将自动匹配应用：若已存在则全量覆盖更新完成迁移，若不存在则创建新应用；注意：迁移应用在全平台仅能存在一个。',
+                    )}
+              </span>
+              <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/application/upgrade" />
+            </Fragment>
+          ) : (
+            <Fragment>
+              {batchUpdate
+                ? _l('上传多个应用文件，实现多个应用整体升级。最多上传%0个文件。', MAX_FILES)
+                : _l('导入单个应用文件，实现对当前应用快速升级。')}
+              {window.platformENV.isOverseas || window.platformENV.isLocal
+                ? _l('请确认私有部署的版本，高版本向低版本导入，可能会导入失败。')
+                : ''}
+              {_l('应用升级需要一段时间，正在升级中的应用将为不可用状态。')}
+              <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/application/upgrade" />
+            </Fragment>
+          )}
         </div>
         {batchUpdate && files.length ? (
           <UpgradeFileList
@@ -376,7 +411,7 @@ export default class UpgradeProcess extends Component {
                 {file.name ? (
                   <Fragment>
                     <div className="Font17">{file.name}</div>
-                    <div className="Gray_75 mTop6">{_l('大小：%0', formatFileSize(file.size))}</div>
+                    <div className="textSecondary mTop6">{_l('大小：%0', formatFileSize(file.size))}</div>
                     {errTip && (
                       <div className="mTop15 errTip Font14">
                         <span className="icon-cancel Font15 mRight6"></span>
@@ -385,7 +420,7 @@ export default class UpgradeProcess extends Component {
                     )}
                   </Fragment>
                 ) : (
-                  <div className="Gray_bd">{_l('请选择.mdy格式的应用文件')}</div>
+                  <div className="textDisabled">{_l('请选择.mdy格式的应用文件')}</div>
                 )}
                 {(analyzeLoading || compareLoading) && (
                   <div className="flexRow mTop16">
@@ -393,13 +428,15 @@ export default class UpgradeProcess extends Component {
                       <i className="icon-loading_button Font20 ThemeColor3"></i>
                     </div>
                     {
-                      <span className="Gray_75 mLeft10">
+                      <span className="textSecondary mLeft10">
                         {compareLoading ? _l('正在校验升级内容...') : _l('正在解析文件...')}
                       </span>
                     }
                   </div>
                 )}
-                {compareLoading && <div className="Gray_9e Font14 mTop16">{_l('此步骤可能耗时较久，请耐心等待')}</div>}
+                {compareLoading && (
+                  <div className="textTertiary Font14 mTop16">{_l('此步骤可能耗时较久，请耐心等待')}</div>
+                )}
               </Fragment>
             )}
             {compareLoading || batchCheckedLoading
@@ -456,6 +493,7 @@ export default class UpgradeProcess extends Component {
       upgradeLang,
       upgradeTimeZone,
       modelType,
+      upgradeModel,
     } = this.state;
 
     this.setState({ showUpgradeStatus: !batchUpdate });
@@ -466,10 +504,11 @@ export default class UpgradeProcess extends Component {
           ..._.pick(this.state, ['batchId', 'noUpgradeStyle', 'matchOffice', 'roleHide', 'backupCurrentVersion']),
           datas: files.map(l => ({
             id: l.type === 0 ? l.upgradeId : '',
-            appId: l.type === 0 ? _.get(l, 'selectApp.appId') : '',
-            type: l.type,
+            appId: upgradeModel === 1 ? l.apps[0]?.appId : l.type === 0 ? _.get(l, 'selectApp.appId') : '',
+            type: upgradeModel === 1 ? (l.exixt ? 0 : 1) : l.type,
             url: l.url,
           })),
+          upgradeModel,
         }
       : {
           id: upgradeId,
@@ -519,6 +558,7 @@ export default class UpgradeProcess extends Component {
       upgradeTimeZone,
       matchOffice,
       backupCurrentVersion,
+      upgradeModel,
     } = this.state;
     const contrasts = (batchUpdate ? files[currentAppIndex].contrasts : this.state.contrasts) || {};
 
@@ -532,9 +572,14 @@ export default class UpgradeProcess extends Component {
     return (
       <div className={cx('pBottom68', { h100: batchCheckUpgradeLoading })}>
         <div className="Font14 mBottom20">
-          {_l('本次升级将会有以下变更，请确认要更新的内容，取消勾选则表示不作变更')}
+          {upgradeModel === 1
+            ? _l(
+                '自动匹配应用，不存在则按原 ID 创建新应用，存在则按相同 ID 全量覆盖更新。注意：迁移模式下应用在全平台仅能存在一个',
+              )
+            : _l('本次升级将会有以下变更，请确认要更新的内容，取消勾选则表示不作变更')}
+          <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/application/upgrade" />
         </div>
-        {isAllNew ? null : (
+        {isAllNew || upgradeModel === 1 ? null : (
           <div className="flexRow updateMethodWrap mBottom20">
             {UPDATE_METHOD.map((item, index) => (
               <div className={`updateMethodItem ${index === 0 ? 'mRight12' : ''}`} key={item.modelType}>
@@ -555,7 +600,7 @@ export default class UpgradeProcess extends Component {
                     })
                   }
                 />
-                <div className="Gray_75 Font12 mTop8 mLeft30">
+                <div className="textSecondary Font12 mTop8 mLeft30">
                   {' '}
                   {!item.desc ? (
                     <Fragment>
@@ -571,39 +616,41 @@ export default class UpgradeProcess extends Component {
             ))}
           </div>
         )}
-        <div className="settingsWrap">
-          <div className="flexRow itemTitle">
-            <i className="icon-admin-apps Gray_9e Font18 mRight7 TxtMiddle" />
-            <span className="bold TxtMiddle">{_l('应用')}</span>
-            {modelType === 0 && (
-              <span className="mLeft5 Gray_9e Hand" onClick={() => this.selectAllSettings(selectAll)}>
-                {selectAll ? _l('全选') : _l('取消全选')}
-              </span>
-            )}
-          </div>
-          <ul className="flexRow">
-            {SETTINGS.map(v => (
-              <li className="mRight24 flexRow alignItemsCenter" key={v.key}>
-                <Checkbox
-                  disabled={modelType === 1 || isAllNew}
-                  checked={isAllNew ? true : this.state[v.key]}
-                  onClick={checked => this.setState({ [v.key]: !checked })}
-                />
-                <span className="">{modelType === 1 && v.coverName ? v.coverName : v.name}</span>
+        {upgradeModel === 1 ? null : (
+          <div className="settingsWrap">
+            <div className="flexRow itemTitle">
+              <i className="icon-admin-apps textTertiary Font18 mRight7 TxtMiddle" />
+              <span className="bold TxtMiddle">{_l('应用')}</span>
+              {modelType === 0 && (
+                <span className="mLeft5 textTertiary Hand" onClick={() => this.selectAllSettings(selectAll)}>
+                  {selectAll ? _l('全选') : _l('取消全选')}
+                </span>
+              )}
+            </div>
+            <ul className="flexRow">
+              {SETTINGS.map(v => (
+                <li className="mRight24 flexRow alignItemsCenter" key={v.key}>
+                  <Checkbox
+                    disabled={modelType === 1 || isAllNew}
+                    checked={isAllNew ? true : this.state[v.key]}
+                    onClick={checked => this.setState({ [v.key]: !checked })}
+                  />
+                  <span className="">{modelType === 1 && v.coverName ? v.coverName : v.name}</span>
 
-                {v.desc && (
-                  <Tooltip title={modelType === 1 && v.coverdesc ? v.coverdesc : v.desc} placement="bottom">
-                    <i className="icon icon-info_outline mLeft5 Gray_75 Font16" />
-                  </Tooltip>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
+                  {v.desc && (
+                    <Tooltip title={modelType === 1 && v.coverdesc ? v.coverdesc : v.desc} placement="bottom">
+                      <i className="icon icon-info_outline mLeft5 textSecondary Font16" />
+                    </Tooltip>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         {batchUpdate && (
           <ul className="upgradeScopeAppBox mBottom20">
             {files.map((item, i) => {
-              const appInfo = item.type === 0 ? item.selectApp : _.get(item, 'apps[0]');
+              const appInfo = item.type === 0 && upgradeModel === 0 ? item.selectApp : _.get(item, 'apps[0]');
 
               return (
                 <li
@@ -615,7 +662,9 @@ export default class UpgradeProcess extends Component {
                     <SvgIcon url={appInfo.iconUrl} fill="#fff" size={20} />
                   </span>
                   <span className="text Font15">{appInfo.appName || appInfo.name}</span>
-                  {item.type === 1 && <span className="tag font8">{_l('新增')}</span>}
+                  {((upgradeModel === 0 && item.type === 1) || (upgradeModel === 1 && !item.exixt)) && (
+                    <span className="tag font8">{_l('新增')}</span>
+                  )}
                 </li>
               );
             })}
@@ -625,7 +674,7 @@ export default class UpgradeProcess extends Component {
         {batchCheckUpgradeLoading ? (
           <div className="h100 scopeLoadingWrap">
             <LoadDiv size="middle" className="mBottom14" />
-            <div className="Gray_9e Font13 TxtCenter">{_l('数据正在加载中...')}</div>
+            <div className="textTertiary Font13 TxtCenter">{_l('数据正在加载中...')}</div>
           </div>
         ) : (
           UPGARADE_TYPE_LIST.map(item => {
@@ -641,7 +690,7 @@ export default class UpgradeProcess extends Component {
                 isWorksheetDetail={false}
                 itleClassName="Font15"
                 item={item}
-                fileType={batchUpdate ? files[currentAppIndex].type : undefined}
+                fileType={batchUpdate && upgradeModel === 0 ? files[currentAppIndex].type : undefined}
                 itemList={itemList}
                 isExpand={isExpand}
                 worksheetDetailData={worksheetDetailData}
@@ -723,31 +772,31 @@ export default class UpgradeProcess extends Component {
   };
 
   getNextStatus = () => {
-    const { current, files } = this.state;
+    const { current, files, upgradeModel } = this.state;
 
     switch (current) {
       case 0:
         return !files.length || _.some(files, l => l.code !== 0);
       case 1:
-        return _.some(files, l => l.type === undefined);
+        return _.some(files, l => l.type === undefined) && upgradeModel !== 1;
     }
   };
 
   updateFiles = files => this.setState({ files });
 
   handleNext = () => {
-    const { current, batchUpdate } = this.state;
+    const { current, batchUpdate, upgradeModel } = this.state;
 
     this.setState({ current: current + 1 });
 
-    if (current === 1 && batchUpdate) {
-      this.batchCheckUpgrade(0);
+    if ((current === 1 || (current === 0 && upgradeModel === 1)) && batchUpdate) {
+      this.batchCheckUpgrade(0, upgradeModel === 1);
     }
   };
 
   renderFooter = () => {
-    const { current, batchUpdate, batchCheckUpgradeLoading, modelType, files } = this.state;
-    const items = ITEMS.filter((l, index) => index !== 1 || batchUpdate);
+    const { current, batchUpdate, batchCheckUpgradeLoading, modelType, files, upgradeModel } = this.state;
+    const items = ITEMS.filter((l, index) => index !== 1 || (batchUpdate && upgradeModel !== 1));
     const isUpgradeScope = items[current].key === 'renderUpgradeScope';
     const isAllNew = batchUpdate && files.every(item => item.type === 1);
 
@@ -763,20 +812,22 @@ export default class UpgradeProcess extends Component {
           </div>
         ) : (
           <div className="actionContent">
-            <ul className="flexRow">
-              {AdvancedConfig.filter(l => (isAllNew ? l.key === 'matchOffice' : true)).map(l => (
-                <li className="flexRow alignItemsCenter mLeft24" key={`upgradeScopeAdvancedConfig-${l.key}`}>
-                  <Checkbox
-                    disabled={modelType === 1 && !isAllNew}
-                    checked={this.state[l.key]}
-                    onClick={checked => {
-                      this.setState({ [l.key]: !checked });
-                    }}
-                  />
-                  <span className="">{l.label}</span>
-                </li>
-              ))}
-            </ul>
+            {upgradeModel === 1 ? null : (
+              <ul className="flexRow">
+                {AdvancedConfig.filter(l => (isAllNew ? l.key === 'matchOffice' : true)).map(l => (
+                  <li className="flexRow alignItemsCenter mLeft24" key={`upgradeScopeAdvancedConfig-${l.key}`}>
+                    <Checkbox
+                      disabled={modelType === 1 && !isAllNew}
+                      checked={this.state[l.key]}
+                      onClick={checked => {
+                        this.setState({ [l.key]: !checked });
+                      }}
+                    />
+                    <span className="">{l.label}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
             <Button type="primary" className="mLeft30" disabled={batchCheckUpgradeLoading} onClick={this.handleUpgrade}>
               {_l('开始导入')}
             </Button>
@@ -798,15 +849,16 @@ export default class UpgradeProcess extends Component {
       files,
       currentAppIndex,
       modelType,
+      upgradeModel,
     } = this.state;
-    const items = ITEMS.filter((l, index) => index !== 1 || batchUpdate);
+    const items = ITEMS.filter((l, index) => index !== 1 || (batchUpdate && upgradeModel === 0));
     const appInfo = _.get(files[currentAppIndex], 'selectApp') || _.get(files[currentAppIndex], 'apps[0]');
 
     return (
-      <div className="upgradeProcessWrap">
+      <div className="upgradeProcessWrap Normal Font14">
         <div className="upgradeProcessHeader">
           <div>
-            <i className="icon-backspace Gray_9e Font24 Hand TxtMiddle" onClick={this.clickBack} />
+            <i className="icon-backspace textTertiary Font24 Hand TxtMiddle" onClick={this.clickBack} />
             <span className="Font17 TxtMiddle mLeft12 bold">{_l('应用导入升级')}</span>
           </div>
           {(!batchUpdate || items[current].key === 'renderUpgradeScope') && (
@@ -820,7 +872,7 @@ export default class UpgradeProcess extends Component {
               <div className="Font15">{batchUpdate ? appInfo.name || appInfo.appName : appDetail.name}</div>
             </div>
           )}
-          <div className="Gray_9d Font14 w110 TxtRight helpIcon">
+          <div className="textTertiary Font14 w110 TxtRight helpIcon">
             <Support title={_l('帮助')} type={1} href="https://help.mingdao.com/application/upgrade" />
           </div>
         </div>

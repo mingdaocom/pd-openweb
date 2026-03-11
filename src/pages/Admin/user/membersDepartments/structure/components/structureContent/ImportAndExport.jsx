@@ -16,9 +16,9 @@ import ImportResulFailtDetail from './ImportResulFailtDetail';
 import UploadFile from './UploadFile';
 
 const ImportBtn = styled.div`
-  background: #219dff;
+  background: var(--color-link-hover);
   border-radius: 32px;
-  color: #fff;
+  color: var(--color-white);
   height: 36px;
   line-height: 36px;
   margin: 44px auto 24px;
@@ -27,20 +27,19 @@ const ImportBtn = styled.div`
   cursor: ${props => (props.notAllowed ? 'not-allowed' : 'pointer')};
 `;
 
-const userTemplatePaths =
-  !md.global.Config.IsLocal || md.global.Config.IsPlatformLocal
-    ? {
-        0: '/staticfiles/template/成员导入模板.xlsx',
-        1: '/staticfiles/template/User Import Template .xlsx',
-        2: '/staticfiles/template/メンバーインポートテンプレート.xlsx',
-        3: '/staticfiles/template/成員導入模板.xlsx',
-      }
-    : {
-        0: '/staticfiles/template/private/成员导入模板.xlsx',
-        1: '/staticfiles/template/private/User Import Template .xlsx',
-        2: '/staticfiles/template/private/メンバーインポートテンプレート.xlsx',
-        3: '/staticfiles/template/private/成員導入模板.xlsx',
-      };
+const userTemplatePaths = window.platformENV.isPlatform
+  ? {
+      0: '/staticfiles/template/成员导入模板.xlsx',
+      1: '/staticfiles/template/User Import Template .xlsx',
+      2: '/staticfiles/template/メンバーインポートテンプレート.xlsx',
+      3: '/staticfiles/template/成員導入模板.xlsx',
+    }
+  : {
+      0: '/staticfiles/template/private/成员导入模板.xlsx',
+      1: '/staticfiles/template/private/User Import Template .xlsx',
+      2: '/staticfiles/template/private/メンバーインポートテンプレート.xlsx',
+      3: '/staticfiles/template/private/成員導入模板.xlsx',
+    };
 class ImportAndExport extends Component {
   constructor(props) {
     super(props);
@@ -202,8 +201,10 @@ class ImportAndExport extends Component {
         </div>
         <div className="serialTitle mTop30">{_l('2.上传完善后的表格')}</div>
         {this.renderUpload('import')}
-        {!fileName && <div className="Gray_75 mTop24">{_l('·导入成功后，成员会收到邀请链接，验证后可加入组织')}</div>}
-        {!fileName && <div className="Gray_75">{_l('·最多一次可以导入 500 个用户，否则可能导致失效')}</div>}
+        {!fileName && (
+          <div className="textSecondary mTop24">{_l('·导入成功后，成员会收到邀请链接，验证后可加入组织')}</div>
+        )}
+        {!fileName && <div className="textSecondary">{_l('·最多一次可以导入 500 个用户，否则可能导致失效')}</div>}
       </div>
     );
   };
@@ -212,14 +213,14 @@ class ImportAndExport extends Component {
       <div className="exportInfo">
         <div className="templateInfo">
           <div>
-            <span className="Font20 mRight10 mBottom2 icon-supervisor_account ThemeColor TxtMiddle" />
+            <span className="Font20 mRight10 mBottom2 icon-supervisor_account colorPrimary TxtMiddle" />
             {_l('成员列表')}
           </div>
           <div className="exportBtn " onClick={this.exportFile}>
             {_l('导出')}
           </div>
         </div>
-        <div className="Gray_75 mBottom16">{_l('如果需要修改成员信息，可在本地编辑后，上传表格完成修改')}</div>
+        <div className="textSecondary mBottom16">{_l('如果需要修改成员信息，可在本地编辑后，上传表格完成修改')}</div>
         {this.renderUpload('export')}
       </div>
     );

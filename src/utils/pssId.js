@@ -15,6 +15,8 @@ export const setPssId = (id, verification = false) => {
       window.isFeiShu ||
       process.env.NODE_ENV === 'development' ||
       location.href.indexOf('localhost') > -1 ||
+      location.href.indexOf('share.mingdao.net') > -1 ||
+      location.href.indexOf('mingdaoyun.cn') > -1 ||
       location.href.indexOf('open_in_browser') > -1
     ) {
       window.setCookie('md_pss_id', id);

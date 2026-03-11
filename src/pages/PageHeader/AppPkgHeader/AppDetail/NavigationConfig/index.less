@@ -5,7 +5,7 @@
     padding: 0 24px;
   }
   .firstGroup {
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     margin-bottom: 10px;
     .name {
       font-weight: 400;
@@ -13,16 +13,16 @@
     .operateIcon {
       margin-right: 16px;
       &:hover {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
     .groupHeader {
       height: 47px;
       padding: 0 10px 0 5px;
-      background-color: #fafafa;
+      background-color: var(--color-background-secondary);
       &.open {
         height: 48px;
-        border-bottom: 1px solid #eaeaea;
+        border-bottom: 1px solid var(--color-border-secondary);
       }
       .operateIcon {
         opacity: 0;
@@ -41,7 +41,7 @@
       padding: 10px;
     }
     .resetName {
-      border: 1px solid #eaeaea;
+      border: 1px solid var(--color-border-secondary);
       padding: 1px 3px;
       border-radius: 2px;
     }
@@ -53,20 +53,20 @@
     }
     &:hover,
     &.hover {
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       .operateIcon {
         opacity: 1;
       }
     }
   }
   .activeFirst {
-    border-top: 1px solid #1677ff;
+    border-top: 1px solid var(--color-primary);
   }
   .active {
-    border-bottom: 1px solid #1677ff;
+    border-bottom: 1px solid var(--color-primary);
   }
   .activeGroup {
-    background-color: #1677ff24 !important;
+    background-color: var(--color-primary) 24 !important;
     border-bottom: none;
   }
   .mobileNavRadio {
@@ -80,21 +80,21 @@
   &.ant-select-multiple .ant-select-selection-item {
     background: #d8eeff;
     border-radius: 15px;
-    border: 1px solid #bbd6ea;
-    color: #2c6288;
+    border: 1px solid var(--color-primary-transparent);
+    color: var(--color-link-hover);
     padding: 0 12px;
     margin-left: 4px;
     margin-right: 4px;
   }
   &.ant-select:not(.ant-select-customize-input) .ant-select-selector {
     padding: 3px 24px 3px 10px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
     box-shadow: none !important;
   }
   &.ant-select-open .ant-select-selector {
-    border-color: #1677ff !important;
+    border-color: var(--color-primary) !important;
     box-shadow: none !important;
-    background-color: #fff !important;
+    background-color: var(--color-background-primary) !important;
   }
   .ant-select-selection-item-content {
     margin-right: 0 !important;
@@ -114,7 +114,7 @@
   }
   .line {
     height: 1px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--color-border-secondary);
     margin: 8px 15px;
   }
   .listWrap {
@@ -128,7 +128,7 @@
       visibility: hidden;
     }
     &:hover {
-      background-color: #f8f8f8;
+      background-color: var(--color-background-hover);
       .icon-drag {
         visibility: visible;
       }

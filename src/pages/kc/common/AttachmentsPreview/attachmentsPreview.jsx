@@ -25,7 +25,7 @@ import './attachmentsPreview.less';
 
 class AttachmentsPreview extends React.Component {
   static propTypes = {
-    showTitle: PropTypes.bool,
+    isShare: PropTypes.bool,
     attachments: PropTypes.array,
     actions: PropTypes.object,
     onClose: PropTypes.func,
@@ -150,7 +150,7 @@ class AttachmentsPreview extends React.Component {
       return <LoadDiv />;
     }
     const {
-      showTitle,
+      isShare,
       attachments,
       index,
       showAttInfo,
@@ -244,7 +244,8 @@ class AttachmentsPreview extends React.Component {
     }
 
     const isFullScreen = this.props.fullscreen; // 全屏
-    const cauUseWpsPreview = !md.global.Config.IsLocal && (isWpsPreview(ext) || defaultWpsPreview(ext));
+    const cauUseWpsPreview =
+      !window.platformENV.isOverseas && !window.platformENV.isLocal && (isWpsPreview(ext) || defaultWpsPreview(ext));
 
     return (
       <div
@@ -252,7 +253,7 @@ class AttachmentsPreview extends React.Component {
         style={this.state.style}
         onWheel={this.onWheel}
       >
-        {showTitle && <DocumentTitle title={name + '.' + ext} />}
+        {isShare && <DocumentTitle title={name + '.' + ext} />}
         <PreviewHeader
           logExtend={{
             rowId: options.recordId,
@@ -529,6 +530,7 @@ class AttachmentsPreview extends React.Component {
           </div>
           {previewType === PREVIEW_TYPE.PICTURE ? (
             <ThumbnailGuide
+              isShare={isShare}
               canDownload={canDownload && showDownload}
               bigit={this.bigit}
               smallit={this.smallit}

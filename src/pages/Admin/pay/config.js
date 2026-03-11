@@ -129,15 +129,15 @@ export const getOrderStatusInfo = (orderStatus, msg = '') => {
   } else if (_.includes([1, 2, 3, 5], orderStatus)) {
     text = _l('支付成功');
     icon = 'icon-ok';
-    color = '#4CAF50';
+    color = 'var(--color-success)';
   } else if (orderStatus === 4) {
     text = _l('订单超时');
     icon = 'icon-info';
-    color = '#FF9D00';
+    color = 'var(--color-warning)';
   } else {
     text = msg || _l('支付失败');
     icon = 'icon-error1';
-    color = '#f44133';
+    color = 'var(--color-error)';
   }
 
   return {

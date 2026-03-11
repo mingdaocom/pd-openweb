@@ -139,7 +139,7 @@ function withDragSelect(Component) {
               zIndex: 4500,
               cursor: 'default',
               boxSizing: 'border-box',
-              border: '1px solid #3a96dd',
+              border: '1px solid var(--color-primary-light)',
               backgroundColor: 'rgba(58,150,221,.1)',
             },
           );

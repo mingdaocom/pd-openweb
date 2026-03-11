@@ -76,7 +76,7 @@ export default class RecordEditLock {
       descDom.innerText = locked
         ? _l('正在被其他人编辑，无法继续编辑。点击获取最新记录')
         : _l('记录已被修改，无法继续编辑。点击获取最新记录');
-      descDom.setAttribute('style', 'color: #f44336 !important');
+      descDom.setAttribute('style', 'color: var(--color-error) !important');
     }
     //disabled按钮
     const continueBtn = document.querySelector('.editTimeoutConfirmClass [data-id="confirmBtn"]');
@@ -230,7 +230,7 @@ const CountDownDialog = props => {
     <MobileConfirmPopup
       visible={true}
       title={title}
-      subDesc={<div className="Font15 mTop20 Gray">{_l('继续编辑字段可以延长超时时间')}</div>}
+      subDesc={<div className="Font15 mTop20 textPrimary">{_l('继续编辑字段可以延长超时时间')}</div>}
       confirmText={_l('知道了')}
       removeCancelBtn={true}
       onConfirm={() => {
@@ -266,7 +266,10 @@ const TimeOutDialog = props => {
   };
 
   const description = (
-    <div className={cx({ Red: expiredaction === '2', 'Font15 mTop20 Gray': browserIsMobile() })} id="timeoutDesc">
+    <div
+      className={cx({ Red: expiredaction === '2', 'Font15 mTop20 textPrimary': browserIsMobile() })}
+      id="timeoutDesc"
+    >
       {expiredaction === '2'
         ? _l('编辑已超时，无法继续编辑。点击获取最新记录')
         : _l('您已超过%0分钟未编辑，本次编辑超时', expiretime)}

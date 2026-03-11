@@ -117,11 +117,11 @@ export default function ReviewFreeByWorksheetWrap(props) {
                           padding: '0 16px 0 14px',
                           height: 36,
                           alignItems: 'center',
-                          borderBottom: '1px solid #e0e0e0',
+                          borderBottom: '1px solid var(--color-border-tertiary)',
                           marginBottom: 5,
                         }}
                       >
-                        <i className="icon-search Gray_75 Font14" />
+                        <i className="icon-search textSecondary Font14" />
                         <input
                           type="text"
                           autoFocus
@@ -150,7 +150,7 @@ export default function ReviewFreeByWorksheetWrap(props) {
                         );
                       })
                     ) : (
-                      <MenuItem className="Gray_9">{_l('暂无搜索结果')}</MenuItem>
+                      <MenuItem className="textTertiary">{_l('暂无搜索结果')}</MenuItem>
                     )}
                   </Menu>
                   {canChooseOtherApp && (
@@ -179,12 +179,12 @@ export default function ReviewFreeByWorksheetWrap(props) {
             <div className={cx('settingWorksheetInput')}>
               <div className="overflow_ellipsis">
                 {sheetName ? (
-                  <span className={cx(isSheetDelete ? 'Red' : 'Gray')}>
+                  <span className={cx(isSheetDelete ? 'Red' : 'textPrimary')}>
                     {getNameLoading ? '...' : isSheetDelete ? _l('工作表已删除') : sheetName}
                     {appName && <span>（{appName}）</span>}
                   </span>
                 ) : (
-                  <span className="Gray_bd">{_l('选择工作表')}</span>
+                  <span className="textDisabled">{_l('选择工作表')}</span>
                 )}
               </div>
               <div className="edit">

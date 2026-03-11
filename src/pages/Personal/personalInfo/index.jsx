@@ -7,7 +7,7 @@ import { Dialog, Icon, LoadDiv } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import account from 'src/api/account';
 import fixedDataAjax from 'src/api/fixedData.js';
-import CertificationButton from 'src/pages/certification/CertificationButton';
+import CertificationDisplay from 'src/pages/certification/components/CertificationDisplay';
 import AddOrEditItem from './modules/AddOrEditItem';
 import AvatorInfo from './modules/AvatorInfo';
 import EditDetail from './modules/EditDetail';
@@ -95,8 +95,8 @@ export default class PersonalInfo extends React.Component {
     const detail = this.state[valueType] || {};
     return (
       <div className="mBottom10" key={item.key}>
-        <span className="Gray_75 itemLabel">{item.label}</span>
-        <span className="Gray">
+        <span className="textSecondary itemLabel">{item.label}</span>
+        <span className="textPrimary">
           {detail[item.key] ? (item.filter ? this[item.filter](detail[item.key]) : detail[item.key]) : _l('未填写')}
         </span>
       </div>
@@ -118,24 +118,24 @@ export default class PersonalInfo extends React.Component {
     return (
       <div className="detailContainer pTop0 pBottom0 w100">
         <div className="flexRow alignItemsCenter">
-          <span className="Gray_75 itemLabel">{_l('当前版本')}</span>
+          <span className="textSecondary itemLabel">{_l('当前版本')}</span>
           {accountInfo.accountType == 0 ? (
             <span className="freeTag">{_l('免费版')}</span>
           ) : (
             <Fragment>
               <span className="accountTag">{_l('付费版')}</span>
-              <span className="Gray_9e mLeft10 mRight5">{_l('剩余 %0 天', accountInfo.expireDays)}</span>
+              <span className="textTertiary mLeft10 mRight5">{_l('剩余 %0 天', accountInfo.expireDays)}</span>
               <Tooltip placement="top" title={_l('到期时间：根据您所在组织最晚到期时间为准。')}>
-                <span className="icon-help Font15 Gray_bd mLeft2 Hand" />
+                <span className="icon-help Font15 textDisabled mLeft2 Hand" />
               </Tooltip>
             </Fragment>
           )}
         </div>
         <div className="flexRow mTop16">
-          <span className="Gray_75 itemLabel">{_l('身份认证')}</span>
+          <span className="textSecondary itemLabel">{_l('身份认证')}</span>
           <div>
-            <CertificationButton authType={accountInfo.authType} />
-            <div className="Gray_9e mTop2">
+            <CertificationDisplay authType={accountInfo.authType} />
+            <div className="textTertiary mTop2">
               {_l('试用、免费版用户需要完成身份认证后才能添加好友以及邀请用户加入群组')}
             </div>
           </div>
@@ -148,7 +148,7 @@ export default class PersonalInfo extends React.Component {
   renderDetail() {
     return (
       <div className="detailContainer">
-        <div className="Font15 Bold Gray mBottom16">{_l('详细资料')}</div>
+        <div className="Font15 Bold textPrimary mBottom16">{_l('详细资料')}</div>
         {detailList.map(item => {
           return this.detailItem(item, 'baseDetail');
         })}
@@ -156,7 +156,7 @@ export default class PersonalInfo extends React.Component {
           <span className="itemLabel" />
           <button
             type="button"
-            className="ming Button Button--link ThemeColor3 Hover_49"
+            className="ming Button Button--link ThemeColor3 hoverTextPrimaryLight"
             onClick={this.handleEditDetail.bind(this)}
           >
             {_l('更多')}
@@ -190,7 +190,7 @@ export default class PersonalInfo extends React.Component {
   renderInfo() {
     return (
       <div className="infoContainer">
-        <div className="Font15 Bold Gray mBottom16">{_l('联系信息')}</div>
+        <div className="Font15 Bold textPrimary mBottom16">{_l('联系信息')}</div>
         {infoList.map(item => {
           return this.detailItem(item, 'concatInfo');
         })}
@@ -198,7 +198,7 @@ export default class PersonalInfo extends React.Component {
           <span className="itemLabel" />
           <button
             type="button"
-            className="ming Button Button--link ThemeColor3 Hover_49"
+            className="ming Button Button--link ThemeColor3 hoverTextPrimaryLight"
             onClick={this.handleEditInfo.bind(this)}
           >
             {_l('更多')}
@@ -258,21 +258,27 @@ export default class PersonalInfo extends React.Component {
     return (
       <div className="eduOrWorkItemBox" key={item.autoId}>
         <div className="itemHeader">
-          <div className="itemName overflow_ellipsis Bold Gray">{item.name}</div>
-          <div className="Gray_9e itemDate">{_l('%0 至 %1', item.startDate, endTime)}</div>
+          <div className="itemName overflow_ellipsis Bold textPrimary">{item.name}</div>
+          <div className="textTertiary itemDate">{_l('%0 至 %1', item.startDate, endTime)}</div>
           <div className="itemOption">
-            <span className="ThemeColor3 Hover_49 mRight24" onClick={() => this.handleAddOrEditItem(type, item)}>
+            <span
+              className="ThemeColor3 hoverTextPrimaryLight mRight24"
+              onClick={() => this.handleAddOrEditItem(type, item)}
+            >
               <span className="mLeft6 icon-edit_17" />
               <span>{_l('编辑')}</span>
             </span>
-            <span className="ThemeColor3 Hover_49 mRight24" onClick={() => this.handleDeleteItem(type, item.autoId)}>
+            <span
+              className="ThemeColor3 hoverTextPrimaryLight mRight24"
+              onClick={() => this.handleDeleteItem(type, item.autoId)}
+            >
               <span className="mLeft6 icon-delete_12" />
               <span>{_l('删除')}</span>
             </span>
           </div>
         </div>
-        {item.title && <div className="LineHeight20 Gray_9e flexWrap">{item.title}</div>}
-        {item.description && <div className="LineHeight20 Gray_9e flexWrap">{item.description}</div>}
+        {item.title && <div className="LineHeight20 textTertiary flexWrap">{item.title}</div>}
+        {item.description && <div className="LineHeight20 textTertiary flexWrap">{item.description}</div>}
       </div>
     );
   }
@@ -399,7 +405,7 @@ export default class PersonalInfo extends React.Component {
               </div>
             </div>
             <div className="userInfoRight mLeft25">
-              <div className="Gray Font17 overflow_ellipsis LineHeight32">
+              <div className="textPrimary Font17 overflow_ellipsis LineHeight32">
                 {editFullName ? (
                   <input
                     className={cx('editfullNameInput', { isErr })}
@@ -419,7 +425,7 @@ export default class PersonalInfo extends React.Component {
                     {md.global.SysSettings.enableEditAccountInfo && (
                       <Tooltip placement="top" title={_l('编辑姓名')}>
                         <span
-                          className="Font15 Hand Hover_49 Gray_bd mLeft10 icon-create"
+                          className="Font15 Hand hoverTextPrimaryLight textDisabled mLeft10 icon-create"
                           onClick={() =>
                             this.setState({ editFullName: true }, () => {
                               $('.editfullNameInput').focus();
@@ -431,12 +437,12 @@ export default class PersonalInfo extends React.Component {
                   </span>
                 )}
               </div>
-              <div className="mTop10 Gray">
+              <div className="mTop10 textPrimary">
                 <label>
                   {_l('使用：')}
                   <span className="mLeft5 ThemeColor3">{_l('%0 天', accountInfo.loginDays)}</span>
                 </label>
-                <span className="Gray_9e Hover_21 mLeft48 Hand" onClick={this.onCopyID}>
+                <span className="textTertiary hoverColorPrimary mLeft48 Hand" onClick={this.onCopyID}>
                   {_l('用户ID')}
                   <Icon icon="copy" className="mLeft5" />
                 </span>
@@ -446,7 +452,7 @@ export default class PersonalInfo extends React.Component {
         </div>
         {/** 账户信息
         <div className="w100 pTop40">
-          <div className="Font15 Bold Gray mBottom16">{_l('账户资料')}</div>
+          <div className="Font15 Bold textPrimary mBottom16">{_l('账户资料')}</div>
           {this.renderAccountInfo()}
         </div> */}
         {/**详细资料---联系信息 */}
@@ -456,17 +462,23 @@ export default class PersonalInfo extends React.Component {
         </div>
         {/**教育经历 */}
         <div className="mBottom40">
-          <div className="Font15 Bold Gray mBottom16">{_l('教育经历')}</div>
+          <div className="Font15 Bold textPrimary mBottom16">{_l('教育经历')}</div>
           {this.renderEdu()}
-          <span className="Hand ThemeColor3 Hover_49" onClick={() => this.handleAddOrEditItem(2, educationList)}>
+          <span
+            className="Hand ThemeColor3 hoverTextPrimaryLight"
+            onClick={() => this.handleAddOrEditItem(2, educationList)}
+          >
             {_l('添加')}
           </span>
         </div>
         {/**工作履历 */}
         <div>
-          <div className="Font15 Bold Gray mBottom16">{_l('工作履历')}</div>
+          <div className="Font15 Bold textPrimary mBottom16">{_l('工作履历')}</div>
           {this.renderWork()}
-          <span className="Hand ThemeColor3 Hover_49" onClick={() => this.handleAddOrEditItem(1, workList)}>
+          <span
+            className="Hand ThemeColor3 hoverTextPrimaryLight"
+            onClick={() => this.handleAddOrEditItem(1, workList)}
+          >
             {_l('添加')}
           </span>
         </div>

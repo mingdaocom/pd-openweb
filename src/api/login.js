@@ -56,11 +56,23 @@ export default {
     return mdyAPI('Login', 'MDAccountAutoLogin', args, options);
   },
   /**
+  * 通过状态码获取账户开启的两步验证登录方式
+  * @param {Object} args 请求参数
+  * @param {string} args.state 首次登录成功之后返回的临时状态码
+用于反向存储用户相关信息，具备有效期
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+  getTwofactorSettingInfo: function (args, options = {}) {
+    return mdyAPI('Login', 'GetTwofactorSettingInfo', args, options);
+  },
+  /**
   * 两步验证登录
   * @param {Object} args 请求参数
   * @param {string} args.state 状态位
-  * @param {integer} args.type 登陆类型
-1为手机号；2为邮箱
+  * @param {integer} args.type 验证类型
+1为手机号；2为邮箱；3为TOTP
   * @param {string} args.verifyCode 验证码
   * @param {string} args.regFrom 登录广告来源
   * @param {Object} options 配置参数
@@ -307,5 +319,30 @@ export default {
   **/
   feishuAppLoginByApp: function (args, options = {}) {
     return mdyAPI('Login', 'FeishuAppLoginByApp', args, options);
+  },
+  /**
+   * 获取微软Entra信息
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 网络id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getWorkMicrosoftInfo: function (args, options = {}) {
+    return mdyAPI('Login', 'GetWorkMicrosoftInfo', args, options);
+  },
+  /**
+  * 微软Entra集成登录
+  * @param {Object} args 请求参数
+  * @param {string} args.code 授权码
+  * @param {string} args.codeVerifier Code验证器
+  * @param {string} args.state State
+用于oauth 带的key值，定位Corp 信息
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+  workMicrosoftLoginByApp: function (args, options = {}) {
+    return mdyAPI('Login', 'WorkMicrosoftLoginByApp', args, options);
   },
 };

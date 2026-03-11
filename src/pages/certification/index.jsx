@@ -1,43 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import DocumentTitle from 'react-document-title';
 import { useSetState } from 'react-use';
-import { DatePicker, Form, Popover } from 'antd';
-import localeEn from 'antd/es/date-picker/locale/en_US';
-import localeJaJp from 'antd/es/date-picker/locale/ja_JP';
-import localeZhCn from 'antd/es/date-picker/locale/zh_CN';
-import localeZhTw from 'antd/es/date-picker/locale/zh_TW';
+import { Form, Popover } from 'antd';
 import { createParser } from 'eventsource-parser';
 import _ from 'lodash';
-import moment from 'moment';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Avatar, Button, Dropdown, Icon, Input, LoadDiv, Qr } from 'ming-ui';
+import { Avatar, Button, Icon, LoadDiv, Qr } from 'ming-ui';
 import certificationApi from 'src/api/certification';
-import marketplacePaymentApi from 'src/api/marketplacePayment';
 import sseAjax from 'src/api/sse';
 import Empty from 'src/pages/Admin/common/TableEmpty';
 import HelpCollection from 'src/pages/PageHeader/components/CommonUserHandle/HelpCollection';
 import { getRequest } from 'src/utils/common';
 import { getCurrentProject } from 'src/utils/project';
-import {
-  CERT_PAGE_TITLE,
-  CERT_STATUS,
-  ENTERPRISE_FIELD_LABEL,
-  ENTERPRISE_TYPE,
-  ENTERPRISE_TYPE_OPTIONS,
-  RESULT_TYPES,
-  SOURCE_TYPE,
-  TYPES,
-} from './constant';
+import EnterpriseForm from './components/EnterpriseForm';
+import { CERT_PAGE_TITLE, CERT_STATUS, ENTERPRISE_TYPE, RESULT_TYPES, SOURCE_TYPE, TYPES } from './constant';
 import developerGroupImg from './images/developer-group.png';
 import enterpriseImg from './images/enterprise.png';
 import personalImg from './images/personal.png';
-import UploadCertificate from './UploadCertificate';
-
-const { RangePicker } = DatePicker;
+import { getEnterpriseDefaultFormData, getEnterpriseParams } from './utils';
 
 const Wrapper = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   height: 100%;
   overflow: hidden;
   display: flex;
@@ -54,7 +38,7 @@ const Wrapper = styled.div`
       font-size: 17px;
       font-weight: 500;
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     .helpWrap {
@@ -75,11 +59,11 @@ const Wrapper = styled.div`
     overflow: auto;
     .successIcon {
       font-size: 80px;
-      color: #4caf50;
+      color: var(--color-success);
     }
     .certifiedInfo {
       width: 250px;
-      background: #f8f8f8;
+      background: var(--color-background-secondary);
       border-radius: 5px;
       padding: 24px 0;
       text-align: center;
@@ -87,68 +71,18 @@ const Wrapper = styled.div`
     }
   }
 
-  .formContent {
+  .explain {
     width: 960px;
     margin: 0 auto;
-
-    .explain {
-      background: #f2fafe;
-      border-radius: 3px;
-      padding: 12px 20px;
-      margin-top: 20px;
-      font-size: 13px;
-      color: #151515;
-    }
-    .moduleTitle {
-      font-size: 15px;
-      font-weight: 600;
-      padding: 32px 0 10px;
-      border-bottom: 1px solid #ccc;
-      margin-bottom: 16px;
-    }
-    .ant-form-item {
-      margin-bottom: 0;
-      .ant-form-item-required {
-        font-size: 13px !important;
-        color: #757575 !important;
-        font-weight: bold;
-      }
-      .ant-form-item-explain-error {
-        margin-top: 4px;
-        font-size: 12px;
-      }
-
-      &:not(&.isLast) {
-        border-bottom: 1px solid #f0f0f0;
-        padding-bottom: 16px;
-        margin-bottom: 16px;
-      }
-    }
-    input {
-      width: 100%;
-      border-color: #ddd;
-      font-size: 13px;
-      &:hover {
-        border-color: #ccc;
-      }
-      &:focus {
-        border-color: #1e88e5 !important;
-      }
-      &::placeholder {
-        color: #bdbdbd;
-      }
-    }
-    .verifyWrapper {
-      display: flex;
-      align-items: end;
-      .codeInput {
-        width: 50%;
-        margin-top: 10px;
-      }
-    }
-    .mTop56 {
-      margin-top: 56px;
-    }
+    background: var(--color-primary-transparent);
+    border-radius: 3px;
+    padding: 12px 20px;
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--color-text-title);
+  }
+  .mTop56 {
+    margin-top: 56px;
   }
 
   .personalContent {
@@ -163,7 +97,7 @@ const Wrapper = styled.div`
       cursor: pointer;
       &:hover {
         .icon-refresh1 {
-          color: #1677ff !important;
+          color: var(--color-primary) !important;
         }
       }
 
@@ -172,7 +106,7 @@ const Wrapper = styled.div`
         height: 170px;
       }
       .green {
-        color: #4caf50;
+        color: var(--color-success);
       }
       .qrMask {
         position: absolute;
@@ -183,10 +117,10 @@ const Wrapper = styled.div`
         backdrop-filter: blur(3px);
         background-color: rgba(255, 255, 255, 0.8);
         .icon-check_circle {
-          color: #4caf50;
+          color: var(--color-success);
         }
         .icon-refresh1 {
-          color: #757575;
+          color: var(--color-text-secondary);
         }
       }
     }
@@ -204,50 +138,20 @@ const TypeCard = styled.div`
   cursor: pointer;
   border-radius: 14px;
   &:hover {
-    background: #fafafa;
+    background: var(--color-background-hover);
   }
   img {
     width: 100px;
   }
 `;
 
-const CommonRangePicker = styled(RangePicker)`
-  width: 50%;
-  height: 36px;
-  border-radius: 4px !important;
-  border-color: #ccc;
-  box-shadow: none !important;
-  &:hover,
-  &.ant-picker-focused {
-    border-color: #1677ff;
-  }
-`;
-
-const initialValues = {
-  enterpriseType: 1,
-  businessLicense: undefined,
-  idCardFront: undefined,
-  idCardBack: undefined,
-  idCardValidDate: undefined,
-  verifyCode: '',
-  legalName: '',
-  companyName: '',
-  creditCode: '',
-  creditValidDate: undefined,
-  mobile: '',
-  idNumber: '',
-  contactName: '',
-  contactIdNumber: '',
-  contactMobile: '',
-};
-
 export default function Certification(props) {
   const { certSource, projectId } = _.get(props, 'match.params');
   const { type, returnUrl } = getRequest();
   const [currentPage, setCurrentPage] = useState(
-    certSource === 'personal' ? 'personal' : ['upgrade', 'update'].includes(type) ? 'enterprise' : '',
+    certSource === 'personal' ? 'personal' : ['upgrade', 'update', 'add'].includes(type) ? 'enterprise' : '',
   );
-  const [formData, setFormData] = useSetState(initialValues);
+  const [formData, setFormData] = useSetState({});
   const [submitLoading, setSubmitLoading] = useState(false);
   const [helpVisible, setHelpVisible] = useState(false);
 
@@ -261,8 +165,6 @@ export default function Certification(props) {
 
   const [form] = Form.useForm();
 
-  const locales = { 'zh-Hans': localeZhCn, 'zh-Hant': localeZhTw, en: localeEn, ja: localeJaJp };
-  const locale = locales[md.global.Account.lang];
   const currentProject = projectId ? getCurrentProject(projectId) || {} : {};
 
   useEffect(() => {
@@ -308,10 +210,6 @@ export default function Certification(props) {
   useEffect(() => {
     checkFaceCert();
   }, [controller, certState]);
-
-  useEffect(() => {
-    setFormData({ ...initialValues, enterpriseType: formData.enterpriseType });
-  }, [formData.enterpriseType]);
 
   const getAndCheckCertState = () => {
     setQrLoading(true);
@@ -365,40 +263,7 @@ export default function Certification(props) {
   const getCertFailedInfo = () => {
     certificationApi.getCertFailedInfo({ authType: 2, certSource: SOURCE_TYPE[certSource], projectId }).then(res => {
       if (res) {
-        const { enterpriseInfo = {} } = res;
-        const {
-          legalIdCardFront,
-          legalIdCardFrontUrl,
-          legalIdCardBack,
-          legalIdCardBackUrl,
-          legalIdCardValidDateStart,
-          legalIdCardValidDateEnd,
-          businessLicense,
-          businessLicenseUrl,
-          businessLicenseValidDateStart,
-          businessLicenseValidDateEnd,
-        } = enterpriseInfo || {};
-
-        const defaultValues = {
-          ..._.pick(enterpriseInfo, [
-            'enterpriseType',
-            'companyName',
-            'creditCode',
-            'idNumber',
-            'mobile',
-            'legalName',
-            'contactName',
-            'contactIdNumber',
-            'contactMobile',
-          ]),
-          person: enterpriseInfo.legalName,
-          idCardFront: { key: legalIdCardFront, url: legalIdCardFrontUrl },
-          idCardBack: { key: legalIdCardBack, url: legalIdCardBackUrl },
-          idCardValidDate: [moment(legalIdCardValidDateStart), moment(legalIdCardValidDateEnd)],
-          businessLicense: { key: businessLicense, url: businessLicenseUrl },
-          creditValidDate: [moment(businessLicenseValidDateStart), moment(businessLicenseValidDateEnd)],
-        };
-
+        const defaultValues = getEnterpriseDefaultFormData(res.enterpriseInfo);
         setFormData(defaultValues);
       }
     });
@@ -408,24 +273,12 @@ export default function Certification(props) {
     return data ? data.slice(0, 2) + '*'.repeat(data.length - 4) + data.slice(-2) : '';
   };
 
-  const formatValidDate = (period = '', splitKey = '-', format = 'YYYY-MM-DD') => {
-    const dateArr = period.split(splitKey);
-    const startDate = moment(dateArr[0], format).isValid() ? moment(dateArr[0], format) : '';
-    const endDate =
-      dateArr[1] === '长期'
-        ? moment('2099-12-31')
-        : moment(dateArr[1], format).isValid()
-          ? moment(dateArr[1], format)
-          : '';
-    return [startDate, endDate];
-  };
-
   const onSubmit = () => {
     form.validateFields().then(() => {
-      const { enterpriseType, businessLicense, creditValidDate, legalName, person } = formData;
+      const { enterpriseType, legalName, person } = formData;
 
       if (person !== legalName) {
-        alert(_l('法人姓名不一致'), 3);
+        alert(_l('法定代表人姓名不一致'), 3);
         return;
       }
 
@@ -433,27 +286,7 @@ export default function Certification(props) {
         certSource: SOURCE_TYPE[certSource],
         entityId: projectId,
         isUpgrade: type === 'upgrade',
-        enterpriseInfo: {
-          ..._.pick(formData, [
-            'legalName',
-            'mobile',
-            'idNumber',
-            'enterpriseType',
-            'companyName',
-            'creditCode',
-            'contactName',
-            'contactIdNumber',
-            'contactMobile',
-          ]),
-          bucket: 3,
-          idType: 1,
-          contactIdType: 1,
-          businessLicense: _.get(businessLicense, 'key'),
-          businessLicenseValidDateStart:
-            enterpriseType !== 2 ? moment(creditValidDate[0]).format('YYYY-MM-DD') : undefined,
-          businessLicenseValidDateEnd:
-            enterpriseType !== 2 ? moment(creditValidDate[1]).format('YYYY-MM-DD') : undefined,
-        },
+        ...getEnterpriseParams(formData),
       };
 
       setSubmitLoading(true);
@@ -494,197 +327,6 @@ export default function Certification(props) {
     });
   };
 
-  // 验证执照或证书
-  const onValidateBizLicenseOCR = (first, value) => {
-    return new Promise((resolve, reject) => {
-      const { key, url } = value || {};
-      const { enterpriseType, businessLicense } = formData;
-
-      if (key && key !== _.get(businessLicense, 'key')) {
-        (enterpriseType === 1 ? marketplacePaymentApi.bizLicenseOCR : marketplacePaymentApi.smartStructuralOCR)({
-          projectId: '',
-          url,
-        }).then(data => {
-          if (data.resultCode === 1) {
-            setFormData({
-              companyName: data.name,
-              creditCode: data.regNum,
-              creditValidDate: formatValidDate(data.period, '至', 'YYYY年MM月DD日'),
-              person: data.person,
-            });
-            return resolve();
-          } else {
-            return reject(data.errorMsg);
-          }
-        });
-      } else {
-        return resolve();
-      }
-    });
-  };
-
-  const renderEnterpriseForm = () => {
-    const { enterpriseType } = formData || {};
-
-    return (
-      <Form
-        className="formContent"
-        layout="vertical"
-        form={form}
-        fields={Object.entries(formData).map(([key, value]) => ({ name: key, value }))}
-        onValuesChange={changedValues => setFormData(changedValues)}
-      >
-        <div className="explain">
-          {_l(
-            '请上传您有效的组织相关证书，以及与证书一致的法人身份证人像面与国徽面，并输入与身份证一致的实名制手机号，系统会自动进行匹配认证并保证您的隐私安全，若信息正确但未能有效通过认证，可联系在线客服或专属顾问',
-          )}
-        </div>
-
-        <div className="moduleTitle">{_l('组织认证')}</div>
-        <Form.Item
-          label={_l('组织类型')}
-          name="enterpriseType"
-          rules={[{ required: true, message: _l('请选择组织类型') }]}
-          className="isLast"
-        >
-          <Dropdown border className="w100" data={ENTERPRISE_TYPE_OPTIONS} />
-        </Form.Item>
-
-        {enterpriseType !== 1 && (
-          <div className="Gray_75 mTop10">
-            {enterpriseType === 2
-              ? _l('各级、各类政府机构、事业单位')
-              : _l('不属于企业、政府/事业单位机构，要求机构已办理组织机构代码证书（如协会、基金会等）')}
-          </div>
-        )}
-        <div className="moduleTitle">{_l('组织信息')}</div>
-        <Form.Item
-          name="businessLicense"
-          label={_.get(ENTERPRISE_FIELD_LABEL, [enterpriseType, 'businessLicense', 'label'])}
-          rules={[
-            {
-              required: true,
-              message: _.get(ENTERPRISE_FIELD_LABEL, [enterpriseType, 'businessLicense', 'requiredMsg']),
-            },
-            () => ({ validator: onValidateBizLicenseOCR }),
-          ]}
-        >
-          <UploadCertificate />
-        </Form.Item>
-
-        {formData.businessLicense && (
-          <React.Fragment>
-            <Form.Item
-              label={_.get(ENTERPRISE_FIELD_LABEL, [enterpriseType, 'companyName', 'label'])}
-              name="companyName"
-              rules={[
-                {
-                  required: true,
-                  message: _.get(ENTERPRISE_FIELD_LABEL, [enterpriseType, 'companyName', 'requiredMsg']),
-                },
-              ]}
-            >
-              <Input placeholder={_l('请输入')} />
-            </Form.Item>
-            <Form.Item
-              label={_.get(ENTERPRISE_FIELD_LABEL, [enterpriseType, 'creditCode', 'label'])}
-              name="creditCode"
-              rules={[
-                {
-                  required: true,
-                  message: _.get(ENTERPRISE_FIELD_LABEL, [enterpriseType, 'creditCode', 'requiredMsg']),
-                },
-                {
-                  pattern: /^[A-Z0-9]{18}$/,
-                  message: _.get(ENTERPRISE_FIELD_LABEL, [enterpriseType, 'creditCode', 'validMsg']),
-                },
-              ]}
-            >
-              <Input placeholder={_l('请输入')} />
-            </Form.Item>
-            {formData.enterpriseType !== 2 && (
-              <Form.Item
-                label={_.get(ENTERPRISE_FIELD_LABEL, [enterpriseType, 'creditValidDate', 'label'])}
-                name="creditValidDate"
-                rules={[
-                  {
-                    required: true,
-                    message: _.get(ENTERPRISE_FIELD_LABEL, [enterpriseType, 'creditValidDate', 'requiredMsg']),
-                  },
-                ]}
-                className="isLast"
-              >
-                <CommonRangePicker locale={locale} />
-              </Form.Item>
-            )}
-          </React.Fragment>
-        )}
-
-        <div className="moduleTitle">{_l('法人信息')}</div>
-        <Form.Item label={_l('法人姓名')} name="legalName" rules={[{ required: true, message: _l('请输入法人姓名') }]}>
-          <Input placeholder={_l('请输入')} />
-        </Form.Item>
-        <Form.Item
-          label={_l('法人身份证号')}
-          name="idNumber"
-          rules={[
-            { required: true, message: _l('请输入法人身份证号码') },
-            { pattern: /(^\d{15}$)|(^\d{17}(\d|X|x)$)/, message: _l('请输入有效的身份证号码') },
-          ]}
-        >
-          <Input placeholder={_l('请输入')} />
-        </Form.Item>
-        <Form.Item
-          label={_l('法人手机号')}
-          name="mobile"
-          rules={[
-            { required: true, message: _l('请输入法人手机号') },
-            { pattern: /^1[2-9]\d{9}$/, message: _l('请输入有效的手机号') },
-          ]}
-          className="isLast"
-        >
-          <Input placeholder={_l('请输入大陆手机号')} />
-        </Form.Item>
-
-        <div className="moduleTitle">{_l('联系人信息')}</div>
-        <Form.Item
-          label={_l('联系人姓名')}
-          name="contactName"
-          rules={[{ required: true, message: _l('请输入联系人姓名') }]}
-        >
-          <Input placeholder={_l('请输入')} />
-        </Form.Item>
-        <Form.Item
-          label={_l('联系人身份证号')}
-          name="contactIdNumber"
-          rules={[
-            { required: true, message: _l('请输入联系人身份证号码') },
-            { pattern: /(^\d{15}$)|(^\d{17}(\d|X|x)$)/, message: _l('请输入有效的身份证号码') },
-          ]}
-        >
-          <Input placeholder={_l('请输入')} />
-        </Form.Item>
-        <Form.Item
-          label={_l('联系人手机号')}
-          name="contactMobile"
-          rules={[
-            { required: true, message: _l('请输入联系人手机号') },
-            { pattern: /^1[2-9]\d{9}$/, message: _l('请输入有效的手机号') },
-          ]}
-          className="isLast"
-        >
-          <Input placeholder={_l('请输入大陆手机号')} />
-        </Form.Item>
-
-        <div className="flexRow justifyContentCenter mTop56 mBottom32">
-          <Button loading={submitLoading} onClick={onSubmit}>
-            {_l('提交')}
-          </Button>
-        </div>
-      </Form>
-    );
-  };
-
   return (
     <Wrapper>
       <DocumentTitle title={CERT_PAGE_TITLE[currentPage] || _l('认证')} />
@@ -696,7 +338,7 @@ export default function Certification(props) {
               currentPage === 'success' ||
               !currentPage ||
               certSource === 'personal' ||
-              ['upgrade', 'update'].includes(type)
+              ['upgrade', 'update', 'add'].includes(type)
             ) {
               returnUrl && (location.href = decodeURIComponent(returnUrl));
             } else {
@@ -708,22 +350,25 @@ export default function Certification(props) {
           <div className="mLeft16">{!currentPage ? _l('身份认证') : _l('返回')}</div>
         </div>
         <div className="flex" />
-        <Trigger
-          action={['click']}
-          popupVisible={helpVisible}
-          onPopupVisibleChange={visible => setHelpVisible(visible)}
-          popup={<HelpCollection hapAIPosition="top" updatePopupVisible={visible => setHelpVisible(visible)} />}
-          popupAlign={{
-            points: ['tr', 'br'],
-            offset: [40, 9],
-            overflow: { adjustX: true, adjustY: true },
-          }}
-        >
-          <div className="helpWrap" onClick={() => setHelpVisible(true)}>
-            <Icon icon="help" className="Font20 Gray_75 TxtMiddle" />
-            <span className="Gray_75 mLeft5 TxtMiddle">{_l('帮助')}</span>
-          </div>
-        </Trigger>
+        {!md.global.SysSettings.hideHelpTip && (
+          <Trigger
+            action={['click']}
+            popupVisible={helpVisible}
+            onPopupVisibleChange={visible => setHelpVisible(visible)}
+            popup={<HelpCollection hapAIPosition="top" updatePopupVisible={visible => setHelpVisible(visible)} />}
+            popupAlign={{
+              points: ['tr', 'br'],
+              offset: [40, 9],
+              overflow: { adjustX: true, adjustY: true },
+            }}
+          >
+            <div className="helpWrap" onClick={() => setHelpVisible(true)}>
+              <Icon icon="help" className="Font20 textSecondary TxtMiddle" />
+              <span className="textSecondary mLeft5 TxtMiddle">{_l('帮助')}</span>
+            </div>
+          </Trigger>
+        )}
+
         <Avatar src={md.global.Account.avatar} size={30} />
       </div>
 
@@ -744,10 +389,10 @@ export default function Certification(props) {
                   <TypeCard key={item.key} onClick={() => setCurrentPage(item.key)}>
                     <img src={item.key === 'enterprise' ? enterpriseImg : personalImg} />
                     <div className="mTop32 Font24 bold nowrap">{item.text}</div>
-                    <div className="Gray_75 Font16 mTop20">{item.description}</div>
-                    <div className="Gray_75 Font16">
+                    <div className="textSecondary Font16 mTop20">{item.description}</div>
+                    <div className="textSecondary Font16">
                       {item.key === 'enterprise'
-                        ? _l('使用短信自定义签名等功能时需要完成组织认证')
+                        ? _l('使用短信自定义签名等功能时需要完成企业认证')
                         : _l('（仅支持大陆身份证认证）')}
                     </div>
                   </TypeCard>
@@ -755,7 +400,21 @@ export default function Certification(props) {
               </div>
             )}
 
-            {currentPage === 'enterprise' && renderEnterpriseForm()}
+            {currentPage === 'enterprise' && (
+              <React.Fragment>
+                <div className="explain">
+                  {_l(
+                    '请上传您有效的企业相关证书，以及与证书一致的法定代表人身份证人像面与国徽面，并输入与身份证一致的实名制手机号，系统会自动进行匹配认证并保证您的隐私安全，若信息正确但未能有效通过认证，可联系在线客服或专属顾问',
+                  )}
+                </div>
+                <EnterpriseForm form={form} formData={formData} setFormData={setFormData} />
+                <div className="flexRow justifyContentCenter mTop56 mBottom32">
+                  <Button loading={submitLoading} onClick={onSubmit}>
+                    {_l('提交')}
+                  </Button>
+                </div>
+              </React.Fragment>
+            )}
 
             {currentPage === 'personal' && (
               <div className="personalContent flexColumn">
@@ -764,7 +423,7 @@ export default function Certification(props) {
                 ) : (
                   <React.Fragment>
                     <div className="Font28 bold mBottom24">{_l('个人认证')}</div>
-                    <div className="Font17 Gray_75 mBottom40">{_l('使用微信扫一扫，快速完成人脸识别')}</div>
+                    <div className="Font17 textSecondary mBottom40">{_l('使用微信扫一扫，快速完成人脸识别')}</div>
                     <div
                       className="qrWrapper"
                       onClick={() => {
@@ -824,7 +483,7 @@ export default function Certification(props) {
 
                 {certSource === 'market' && (
                   <Popover placement="right" content={<img src={developerGroupImg} width={260} />}>
-                    <div className="mTop16 ThemeColor pointer">{_l('开发者交流群')}</div>
+                    <div className="mTop16 colorPrimary pointer">{_l('开发者交流群')}</div>
                   </Popover>
                 )}
               </div>

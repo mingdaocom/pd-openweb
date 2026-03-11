@@ -18,7 +18,7 @@ const Wrap = styled.div`
       vertical-align: middle;
     }
     .ming.Checkbox.Checkbox--disabled {
-      color: #151515;
+      color: var(--color-text-title);
     }
     .iconWrap {
       display: inline-block;
@@ -37,7 +37,7 @@ const Wrap = styled.div`
     h6 {
       font-size: 20px;
       font-weight: 500;
-      color: #151515;
+      color: var(--color-text-title);
       text-align: center;
       padding: 0;
       padding-top: 32px;
@@ -46,7 +46,7 @@ const Wrap = styled.div`
     .text {
       font-weight: 400;
       text-align: center;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       line-height: 20px;
       font-size: 13px;
       width: 80%;
@@ -57,14 +57,14 @@ const Wrap = styled.div`
     height: auto;
     min-height: 36px;
     .itemT {
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       border-radius: 4px 4px 4px 4px;
       padding: 3px 8px 3px 10px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border-secondary);
       i {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         &:hover {
-          color: #757575;
+          color: var(--color-text-secondary);
         }
       }
     }
@@ -186,11 +186,11 @@ export default function FastFilter(params) {
       {fastFilters.length > 0 ? (
         <div className="hasData">
           <div className="viewSetTitle">{_l('快速筛选')}</div>
-          <div className="Gray_75 mTop8 mBottom4">
+          <div className="textSecondary mTop8 mBottom4">
             {_l('选择字段作为快速筛选器平铺显示在视图中，以帮助用户快速查询记录。')}
           </div>
           {renderFastFilterCon()}
-          <div className="Gray mTop32 Bold">{_l('设置')}</div>
+          <div className="textPrimary mTop32 Bold">{_l('设置')}</div>
           <div className="mTop13">
             <Checkbox
               disabled={fastFilters.length > 3}
@@ -206,7 +206,7 @@ export default function FastFilter(params) {
             />
             <Tooltip placement="bottom" title={_l('启用按钮后，点击查询按钮执行筛选。当筛选字段超过3个时必须启用。')}>
               <div className="iconWrap pointer">
-                <Icon icon="help" className="Gray_9e helpIcon Font18" />
+                <Icon icon="help" className="textTertiary helpIcon Font18" />
               </div>
             </Tooltip>
           </div>
@@ -242,7 +242,7 @@ export default function FastFilter(params) {
                           })}
                         >
                           <Icon icon={getIconByType(item.type)} className="Font18 Relative" />
-                          <span className="mLeft10 flex Gray">{item.text}</span>
+                          <span className="mLeft10 flex textPrimary">{item.text}</span>
                           {isCur && <Icon icon="done" className="Relative ThemeColor3 Font18" />}
                         </div>
                       );
@@ -329,7 +329,7 @@ export default function FastFilter(params) {
 
             <Tooltip placement="bottom" title={_l('勾选后，进入视图初始不显示数据，查询后显示符合筛选条件的数据。')}>
               <div className="iconWrap pointer">
-                <Icon icon="help " className="Gray_9e helpIcon Font18" />
+                <Icon icon="help " className="textTertiary helpIcon Font18" />
               </div>
             </Tooltip>
           </div>
@@ -340,7 +340,7 @@ export default function FastFilter(params) {
             <img src={bgFastFilters} alt="" srcset="" />
           </div>
           <h6 className="">{_l('快速筛选')}</h6>
-          <p className="text Gray_75">{_l('将字段作为快速筛选器显示在视图顶部，以帮助用户快速查找记录。')}</p>
+          <p className="text textSecondary">{_l('将字段作为快速筛选器显示在视图顶部，以帮助用户快速查找记录。')}</p>
           {renderFastFilterCon()}
         </div>
       )}

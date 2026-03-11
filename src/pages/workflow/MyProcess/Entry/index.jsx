@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import store from 'redux/configureStore';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import instance from 'src/pages/workflow/api/instanceVersion';
+import store from 'src/redux/configureStore';
 import './index.less';
 
 let request = null;
@@ -57,7 +57,7 @@ export default class Entry extends Component {
     return (
       <Tooltip title={_l('流程待办')}>
         <div
-          className={`myProcessHeader pointer mRight10 ${isNative ? 'Gray_75' : 'White'} ${className}`}
+          className={`myProcessHeader pointer mRight10 ${isNative ? 'textSecondary' : 'textWhite'} ${className}`}
           onClick={onClick}
         >
           <Icon icon={cx('task_alt', { appIcon: !isNative })} className="mRight5 Font20" />

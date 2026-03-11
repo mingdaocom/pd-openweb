@@ -38,7 +38,7 @@ const Con = styled.div`
     border-radius: 4px;
     padding: 4px 11px 4px !important;
     font-size: 14px !important;
-    background: #fff !important;
+    background: var(--color-background-primary) !important;
     height: 30px !important;
     .ant-picker-clear {
       display: none;
@@ -51,7 +51,7 @@ const Con = styled.div`
     border-color: var(--border-color);
   }
   &.active {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
   }
   &:not(.isEmpty):hover {
     .icon-event {
@@ -64,7 +64,7 @@ const Con = styled.div`
       cursor: pointer;
       display: inline-block;
       &:hover {
-        color: #777;
+        color: var(--color-text-secondary);
       }
     }
   }
@@ -87,7 +87,7 @@ const Content = styled.div`
   &.isEmpty {
     .Dropdown--input .value,
     .mui-datetime-picker {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
   }
 `;
@@ -103,12 +103,12 @@ const PickerCon = styled.div`
 
 const Icon = styled.i`
   font-size: 13px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   margin-right: 8px;
   &.icon-cancel {
     cursor: pointer;
     &:hover {
-      color: #777;
+      color: var(--color-text-secondary);
     }
   }
   &.clearIcon {
@@ -214,7 +214,14 @@ export default function DateTime(props) {
       pickerComp = (
         <PickerCon>
           <DatePicker
-            {...control}
+            {...{
+              ...control,
+              advancedSetting: {
+                ...control.advancedSetting,
+                showtimezone: '0',
+                timezonetype: '1',
+              },
+            }}
             showTime={!!timeFormat}
             hideIcon={true}
             value={value && moment(value)}

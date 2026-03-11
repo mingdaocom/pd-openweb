@@ -14,15 +14,26 @@ export default {
   /**
    * 查看认证信息
    * @param {Object} args 请求参数
+   * @param {string} args.relationId 认证Id  (和认证来源二选一) 但是选ID 的时候必填projectId
    * @param {string} args.projectId 认证实体Id  组织对应projectID
    * @param {integer} args.certSource 认证 的 来源 0个人认证 1企业认证 2市场
-   * @param {integer} args.authType 认证 的 类型 1个人 2企业
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
    **/
   getCertInfo: function (args, options = {}) {
     return mdyAPI('Certification', 'GetCertInfo', args, options);
+  },
+  /**
+   * 查看认证信息
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织ID
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getListCertInfo: function (args, options = {}) {
+    return mdyAPI('Certification', 'GetListCertInfo', args, options);
   },
   /**
    * 检查当前人员/组织是否被认证过
@@ -133,6 +144,7 @@ export default {
    * 设置组织认证联系人
    * @param {Object} args 请求参数
    * @param {string} args.projectId 组织id
+   * @param {string} args.relationId 认证Id
    * @param {integer} args.contactIdType 联系人证件类型
    * @param {string} args.contactName 联系人姓名
    * @param {string} args.contactIdNumber 联系人证件号
@@ -147,6 +159,7 @@ export default {
   /**
    * 移除组织认证
    * @param {Object} args 请求参数
+   * @param {string} args.relationId 认证Id
    * @param {string} args.projectId 组织ID
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
@@ -182,5 +195,115 @@ export default {
    **/
   getCertFailedInfo: function (args, options = {}) {
     return mdyAPI('Certification', 'GetCertFailedInfo', args, options);
+  },
+  /**
+   * 获取可用短信签名列表
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织ID
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getListSmsSignatures: function (args, options = {}) {
+    return mdyAPI('Certification', 'GetListSmsSignatures', args, options);
+  },
+  /**
+   * 获取短信签名列表
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织ID
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getSmsSignatures: function (args, options = {}) {
+    return mdyAPI('Certification', 'GetSmsSignatures', args, options);
+  },
+  /**
+   * 新增短信签名
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.relationId 关联的 组织认证的ID
+   * @param {string} args.signName 短信签名
+   * @param {} args.signSource
+   * @param {string} args.contactIdCardFront 联系人身份证正面
+   * @param {string} args.contactIdCardBack 联系人身份证反面
+   * @param {string} args.trademark 商标
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  addSmsSignature: function (args, options = {}) {
+    return mdyAPI('Certification', 'AddSmsSignature', args, options);
+  },
+  /**
+   * 审核失败短信签名编辑
+   * @param {Object} args 请求参数
+   * @param {string} args.id 签名Id
+   * @param {string} args.projectId 组织id
+   * @param {string} args.relationId 关联的 组织认证的ID
+   * @param {string} args.signName 短信签名
+   * @param {} args.signSource
+   * @param {string} args.contactIdCardFront 联系人身份证正面
+   * @param {string} args.contactIdCardBack 联系人身份证反面
+   * @param {string} args.trademark 商标
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  editSmsSignature: function (args, options = {}) {
+    return mdyAPI('Certification', 'EditSmsSignature', args, options);
+  },
+  /**
+   * 移除短信签名
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.id 签名id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  removeSmsSignature: function (args, options = {}) {
+    return mdyAPI('Certification', 'RemoveSmsSignature', args, options);
+  },
+  /**
+   * 禁用或者启用短信签名
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.id 签名id
+   * @param {boolean} args.disable 是否禁用
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  disableSmsSignature: function (args, options = {}) {
+    return mdyAPI('Certification', 'DisableSmsSignature', args, options);
+  },
+  /**
+   * 设置默认短信签名
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {string} args.id 签名id
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  setDefaultSmsSignature: function (args, options = {}) {
+    return mdyAPI('Certification', 'SetDefaultSmsSignature', args, options);
+  },
+  /**
+   * 测试短信签名
+   * @param {Object} args 请求参数
+   * @param {string} args.ticket 验证码返票据
+   * @param {string} args.randStr 票据随机字符串
+   * @param {} args.captchaType
+   * @param {string} args.projectId 组织id
+   * @param {string} args.id 签名id
+   * @param {string} args.mobilePhone 手机号
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  sendTestSmsSignature: function (args, options = {}) {
+    return mdyAPI('Certification', 'SendTestSmsSignature', args, options);
   },
 };

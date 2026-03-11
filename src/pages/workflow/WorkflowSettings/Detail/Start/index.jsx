@@ -306,7 +306,7 @@ export default class Start extends Component {
 
     if (this.state.data.appId) {
       Dialog.confirm({
-        title: <span style={{ color: '#f44336' }}>{_l('注意！你将要更改触发流程的工作表')}</span>,
+        title: <span style={{ color: 'var(--color-error)' }}>{_l('注意！你将要更改触发流程的工作表')}</span>,
         description: _l(
           '更换为新的工作表后，所有相关节点配置的字段都将被重置，你需要重新配置这些节点。请确认你需要执行此操作',
         ),
@@ -325,7 +325,7 @@ export default class Start extends Component {
     return (
       <div className="mTop25">
         <div className="Font13 bold">{_l('触发条件')}</div>
-        <div className="Font13 mTop5 Gray_75">{_l('当记录满足以下条件时进入流程')}</div>
+        <div className="Font13 mTop5 textSecondary">{_l('当记录满足以下条件时进入流程')}</div>
       </div>
     );
   };
@@ -340,13 +340,13 @@ export default class Start extends Component {
     return (
       <div className="addActionBtn mTop25">
         <span
-          className={isNatural ? 'ThemeBorderColor3' : 'Gray_bd borderColor_c'}
+          className={isNatural ? 'ThemeBorderColor3' : 'textDisabled borderTertiary'}
           onClick={() => isNatural && this.updateSource({ operateCondition: [[{}]] })}
         >
           <i className="icon-add Font16" />
           {_l('筛选条件')}
         </span>
-        <div className={cx('mTop10 Font13', isNatural ? 'Gray_75' : 'Gray_bd')}>
+        <div className={cx('mTop10 Font13', isNatural ? 'textSecondary' : 'textDisabled')}>
           {_l('设置筛选条件，仅使满足条件的记录进入流程。')}
         </div>
       </div>
@@ -444,7 +444,7 @@ export default class Start extends Component {
                     onSave={() => this.onSave({ close: false, isUpdate: true })}
                   />
                 )}
-                {data.appType === APP_TYPE.CUSTOM_ACTION && <CustomAction data={data} />}
+                {data.appType === APP_TYPE.CUSTOM_ACTION && <CustomAction {...this.props} data={data} />}
                 {_.includes([APP_TYPE.USER, APP_TYPE.DEPARTMENT, APP_TYPE.EXTERNAL_USER], data.appType) &&
                   data.triggerId !== TRIGGER_ID.DISCUSS && (
                     <UserAndDepartment

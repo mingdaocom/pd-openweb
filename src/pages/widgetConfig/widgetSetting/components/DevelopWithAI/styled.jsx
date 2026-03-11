@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 export const Icon = styled.i`
   font-size: ${props => props.size || '18'}px;
-  color: ${props => props.color || '#000'};
+  color: ${props => props.color || 'var(--color-text-primary)'};
 `;
 
 export const IconButton = styled.div`
@@ -14,7 +14,7 @@ export const IconButton = styled.div`
   }
   .text {
     font-size: 13px;
-    color: ${props => props.textColor || '#000'};
+    color: ${props => props.textColor || 'var(--color-text-primary)'};
   }
   &.disabled {
     cursor: not-allowed;

@@ -232,7 +232,7 @@ export default class RepeatBox extends Component {
         {this.renderFrequency()}
         {frequency !== FREQUENCY.NONE ? (
           <div className="LineHeight30">
-            <span className="formLabel Gray">{_l('结果:')}</span>
+            <span className="formLabel textPrimary">{_l('结果:')}</span>
             {formatRecur(this.props.calendar)}
           </div>
         ) : null}

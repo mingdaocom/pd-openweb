@@ -45,7 +45,7 @@ const Con = styled.div`
   font-size: 13px;
   height: 100%;
   width: 320px;
-  background: #fff;
+  background: var(--color-background-primary);
   padding: 10px 20px 30px;
   overflow: auto;
   .RadioGroupCon {
@@ -56,7 +56,7 @@ const Con = styled.div`
     }
   }
   .switchWH {
-    color: #9d9d9d;
+    color: var(--color-text-tertiary);
     margin: 0 8px;
     line-height: 36px;
   }
@@ -69,12 +69,12 @@ const Con = styled.div`
 
 const Tip = styled.div`
   margin-top: 10px;
-  color: #757575;
+  color: var(--color-text-secondary);
 `;
 
 const TypeLabel = styled.div`
   margin-top: 26px;
-  color: #151515;
+  color: var(--color-text-title);
   font-weight: 600;
 `;
 const Spacer = styled.div(
@@ -100,8 +100,8 @@ const ConfigItem = styled.div(
     display: flex;
   }
   .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
-    border-color: #1677ff !important;
-    color: #1677ff !important;
+    border-color: var(--color-primary) !important;
+    color: var(--color-primary) !important;
   }
   .ant-radio-button-wrapper {
     font-size: 13px;
@@ -126,10 +126,10 @@ const InputGroup = styled.div`
 
 const SetAsTitle = styled.i`
   font-size: 18px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   cursor: pointer;
   &.on {
-    color: #1677ff;
+    color: var(--color-primary);
   }
 `;
 
@@ -183,7 +183,7 @@ function OptionsSlider(props) {
           }
         }}
       />
-      {options[selectedIndex] && <span className="mLeft10 Gray_75">{options[selectedIndex].text}</span>}
+      {options[selectedIndex] && <span className="mLeft10 textSecondary">{options[selectedIndex].text}</span>}
     </Fragment>
   );
 }
@@ -618,7 +618,7 @@ export default function Sider(props) {
             onUpdate({ fontSize: Number(newFontSize) });
           }}
         />
-        <span className="mLeft10 Gray_75">{fontSize}</span>
+        <span className="mLeft10 textSecondary">{fontSize}</span>
       </ConfigItem>
       <div className="mTop15 flexRow justifyContentCenter">
         <div>{_l('显示字段名称')}</div>

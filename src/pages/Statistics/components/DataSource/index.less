@@ -1,8 +1,8 @@
 .chartDataSource {
   width: 250px;
-  border-left: 1px solid #ececec;
+  border-left: 1px solid var(--color-border-tertiary);
   padding: 24px 0;
-  background-color: #fff;
+  background-color: var(--color-background-card);
   transition: width 0.2s;
 
   &.small {
@@ -17,27 +17,27 @@
   .timeWrapper {
     padding: 7px 12px;
     border-radius: 4px;
-    background-color: #f5f5f5ff;
+    background-color: var(--color-background-secondary);
     .removeViewId {
-      color: #ff000099;
+      color: var(--color-error);
     }
   }
 
   .searchControlWrapper {
     padding: 8px 5px;
-    border-bottom: 1px solid #ddddddff;
+    border-bottom: 1px solid var(--color-border-primary);
     input {
-      color: #202020;
+      color: var(--color-text-primary);
       border: none;
     }
     .icon-close:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
 
   .dataSourceCollapse {
     .active {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
     .ant-collapse-header {
       display: flex;
@@ -45,7 +45,7 @@
       flex-direction: row-reverse;
       font-size: 13px;
       font-weight: bold;
-      color: #151515 !important;
+      color: var(--color-text-title) !important;
       padding: 16px 16px 0 16px;
     }
     .ant-collapse-arrow {
@@ -67,7 +67,7 @@
         display: none;
       }
       &:hover {
-        background-color: #f5f5f5ff;
+        background-color: var(--color-background-hover);
         .icon-settings,
         .icon-trash {
           display: block;
@@ -84,7 +84,7 @@
     height: 18px;
     border-radius: 3px;
     .icon-add:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
 
@@ -96,15 +96,15 @@
     animation-iteration-count: 4;
     animation-fill-mode: forwards;
     .icon {
-      color: #fff !important;
+      color: var(--color-white) !important;
     }
   }
   @keyframes shining {
     from {
-      background-color: #fff;
+      background-color: var(--color-background-primary);
     }
     to {
-      background-color: #1677ff;
+      background-color: var(--color-primary);
     }
   }
 }
@@ -125,7 +125,7 @@
 
 .chartTimeModal {
   border-radius: 4px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.13),
     0 2px 6px rgba(0, 0, 0, 0.1);
@@ -134,12 +134,12 @@
     padding: 6px 13px;
   }
   .scopeDataItem:hover {
-    background-color: #f5f5f5ff;
+    background-color: var(--color-background-hover);
   }
   .active {
-    background-color: #1677ff33 !important;
+    background-color: var(--color-primary) !important;
     .icon-done {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .rangePickerInput {
@@ -157,8 +157,8 @@
 }
 
 .rangeDayOverlayMenu .active {
-  color: #fff;
-  background-color: #1677ff;
+  color: var(--color-white);
+  background-color: var(--color-primary);
 }
 
 .statisticsSelectWorksheetDropdownMenu {

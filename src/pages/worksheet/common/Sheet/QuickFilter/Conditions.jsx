@@ -37,7 +37,7 @@ const Item = styled.div(
   display: flex;
   margin-bottom: ${isLastLine ? 0 : 8}px;
   width: ${maxWidth};
-  --border-color: ${requiredError ? '#f44336' : '#ddd'};
+  --border-color: ${requiredError ? 'var(--color-error)' : 'var(--color-border-primary)'};
   ${
     isConfigMode
       ? `
@@ -45,7 +45,7 @@ const Item = styled.div(
     padding: 10px 0;
     margin-bottom: 0px;
     box-sizing: border-box;
-    border: 1px solid ${highlight ? '#1677ff' : 'transparent'};
+    border: 1px solid ${highlight ? 'var(--color-primary)' : 'transparent'};
     > * {
       pointer-events: none;
       user-select: none;
@@ -67,15 +67,15 @@ const Item = styled.div(
     .singleUserItem,
     .relateRecordOption,
     .label {
-      color: #fff !important;
+      color: var(--color-white) !important;
     }
     .ant-select.ant-select-open .ant-select-selector {
       background-color: transparent !important;
-      color: #9e9e9e !important;
+      color: var(--color-text-tertiary) !important;
     }
     input {
       background: transparent !important;
-      color: #fff !important;
+      color: var(--color-white) !important;
     }
     .ant-picker,
     .customFormControlBox,
@@ -88,7 +88,7 @@ const Item = styled.div(
       }
     }
     .RelateRecordDropdown-selected .normalSelectedItem {
-      color: #fff !important;
+      color: var(--color-white) !important;
     }
   }
 `,
@@ -96,7 +96,7 @@ const Item = styled.div(
 
 const Label = styled.div`
   font-size: 13px;
-  color: #757575;
+  color: var(--color-text-secondary);
   max-width: 140px;
   min-width: 60px;
   text-align: right;
@@ -147,14 +147,14 @@ const ExpandBtn = styled.div(
   display: inline-block;
   margin-left: 20px;
   cursor: pointer;
-  color: #1677ff;
+  color: var(--color-primary);
   font-size: 13px;
   .icon {
     margin-right: 2px;
     font-size: 15px;
   }
   &:hover {
-    color: #1565c0;
+    color: var(--color-link-hover);
   }
 `,
 );
@@ -277,7 +277,7 @@ export default function Conditions(props) {
     const needCheckRequired = _.get(view, 'advancedSetting.fastrequired') === '1';
     const itemsWithValues = items.map((item, i) => ({
       ...item,
-      filterType: item.filterType || (item.dataType === 29 ? 24 : 2),
+      filterType: item.dataType === 36 ? item.filterType : item.filterType || (item.dataType === 29 ? 24 : 2),
       spliceType: item.spliceType || 1,
       ...valuesToUpdate[`${_.get(item, 'control.controlId')}-${i}`],
     }));
@@ -417,7 +417,7 @@ export default function Conditions(props) {
         >
           <Label className="label ellipsis" title={item.control.controlName}>
             {item.control.controlName || _l('未命名')}
-            {item.isRequired && <span style={{ color: '#f44336' }}>*</span>}
+            {item.isRequired && <span style={{ color: 'var(--color-error)' }}>*</span>}
           </Label>
           <Content className="content">
             <FilterInput

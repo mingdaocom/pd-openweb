@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { RELATION_TYPE } from '../../../enum';
 import Member from '../Member';
 import SelectUserDropDown from '../SelectUserDropDown';
 
@@ -9,13 +10,13 @@ export default props => {
 
   return (
     <div className="mLeft25 relative">
-      <div className="Font13 mTop10 Gray_75">
+      <div className="Font13 mTop10 textSecondary">
         {title}
         {accounts.length ? _l('以下指定成员') : _l('所有成员')}
       </div>
       <Member
         companyId={props.companyId}
-        appId={props.relationType === 2 ? props.relationId : ''}
+        appId={props.relationType === RELATION_TYPE.APP ? props.relationId : ''}
         accounts={accounts}
         updateSource={updateSource}
       />
@@ -23,7 +24,7 @@ export default props => {
         <i className="Font28 icon-task-add-member-circle mRight10" />
         {btnText}
         <SelectUserDropDown
-          appId={props.relationType === 2 ? props.relationId : ''}
+          appId={props.relationType === RELATION_TYPE.APP ? props.relationId : ''}
           visible={visible}
           companyId={props.companyId}
           processId={props.processId}

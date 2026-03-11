@@ -7,8 +7,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import * as Actions from 'src/pages/worksheet/redux/actions/calendarview';
-import { isTimeStyle } from 'src/pages/worksheet/views/CalendarView/util';
-import { dateConvertToUserZone } from 'src/utils/project';
+import { renderText } from 'src/utils/control';
 import { eventStr } from './util';
 
 @connect(
@@ -140,11 +139,12 @@ class External extends Component {
         </React.Fragment>
       );
     } else {
-      return <div className="mcm">{this.renderEventData(eventData, true)}</div>;
+      return <div className="mcm">{this.renderEventData(eventData)}</div>;
     }
   };
 
-  renderEventData = (eventData = [], isNot) => {
+  renderEventData = (eventData = []) => {
+    const { currentView } = this.props;
     return (
       <React.Fragment>
         {eventData.map(it => {
@@ -177,13 +177,18 @@ class External extends Component {
                 {it.title}
               </div>
               {it.timeList.map(o => {
-                if (o.start)
+                if (o.start) {
+                  const startTxt = renderText(
+                    { ...o.info.startData, value: o.row[o.info.begin] },
+                    { appId: currentView.appId },
+                  );
                   return (
-                    <div className="Gray_9e Font13 mTop2">
-                      {isNot && isTimeStyle(o.info.startData) ? dateConvertToUserZone(o.start) : o.start}
+                    <div className="textTertiary Font13 mTop2">
+                      {startTxt}
                       <span className="mLeft10">{o.info.mark}</span>
                     </div>
                   );
+                }
               })}
             </div>
           );

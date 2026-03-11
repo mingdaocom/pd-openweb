@@ -31,7 +31,7 @@ export const RecordWrapper = styled.div`
       border: none;
       height: 30px;
       line-height: 30px;
-      border: 2px solid #1677ff;
+      border: 2px solid var(--color-primary);
     }
     &:hover {
       .icon-edit {
@@ -74,7 +74,7 @@ export const RecordWrapper = styled.div`
   .icon-more_horiz {
     opacity: 0;
     &:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
   &:hover .icon-more_horiz {
@@ -221,6 +221,7 @@ export default class Record extends Component {
           <CellControlComponent
             viewId={base.viewId}
             worksheetId={base.worksheetId}
+            appId={base.appId}
             sheetSwitchPermit={sheetSwitchPermit}
             tableFromModule={3}
             clickEnterEditing={true}
@@ -252,7 +253,7 @@ export default class Record extends Component {
                   row.allowedit && !startDisable && this.setState({ startTimeEdit: true });
                 }}
               >
-                {row.startTime || '--'}
+                {renderCellText({ ...startControl, value: row.startTime }, { appId: base.appId }) || '--'}
               </span>
             </div>
             {this.canedit && !startDisable && (
@@ -260,7 +261,7 @@ export default class Record extends Component {
                 onClick={() => {
                   row.allowedit && this.setState({ startTimeEdit: true });
                 }}
-                icon="bellSchedule mRight8 pointer Font17 Gray_9e"
+                icon="bellSchedule mRight8 pointer Font17 textTertiary"
               />
             )}
           </Fragment>
@@ -282,6 +283,7 @@ export default class Record extends Component {
           <CellControlComponent
             viewId={base.viewId}
             worksheetId={base.worksheetId}
+            appId={base.appId}
             sheetSwitchPermit={sheetSwitchPermit}
             tableFromModule={3}
             clickEnterEditing={true}
@@ -313,7 +315,7 @@ export default class Record extends Component {
                   row.allowedit && !endDisable && this.setState({ endTimeEdit: true });
                 }}
               >
-                {row.endTime || '--'}
+                {renderCellText({ ...enndControl, value: row.endTime }, { appId: base.appId }) || '--'}
               </span>
             </div>
             {this.canedit && !endDisable && (
@@ -321,7 +323,7 @@ export default class Record extends Component {
                 onClick={() => {
                   row.allowedit && this.setState({ endTimeEdit: true });
                 }}
-                icon="bellSchedule mRight8 pointer Font17 Gray_9e"
+                icon="bellSchedule mRight8 pointer Font17 textTertiary"
               />
             )}
           </Fragment>
@@ -390,16 +392,16 @@ export default class Record extends Component {
           this.props.addNewRecord(data, index + 1);
         }}
       >
-        <Icon className="Gray_9e Font17 mRight5 pointer" icon="more_horiz" />
+        <Icon className="textTertiary Font17 mRight5 pointer" icon="more_horiz" />
       </RecordOperateComponent>
     );
   }
   renderTitle() {
-    const { row, groupKey, controls, gunterView, widthConfig } = this.props;
+    const { row, groupKey, controls, gunterView, widthConfig, base } = this.props;
     const titleControl = _.find(controls, { attribute: 1 });
     const value = row[titleControl?.controlId] || row.titleValue;
     const emptyValue = _l('未命名');
-    const title = titleControl ? renderCellText({ ...titleControl, value }) : emptyValue;
+    const title = titleControl ? renderCellText({ ...titleControl, value }, { appId: base.appId }) : emptyValue;
     const { titleDisable, hideTitle } = gunterView.viewConfig;
     if (hideTitle) {
       return null;
@@ -438,7 +440,7 @@ export default class Record extends Component {
                   this.clicktimer = true;
                   this.handleClick();
                 }}
-                icon="edit mRight8 pointer Font17 Gray_9e"
+                icon="edit mRight8 pointer Font17 textTertiary"
               />
             )}
           </Fragment>

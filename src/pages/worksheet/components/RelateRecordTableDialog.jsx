@@ -20,7 +20,7 @@ const Con = styled.div`
 `;
 
 const IconBtn = styled.span`
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   cursor: pointer;
   display: inline-block;
   height: 28px;
@@ -29,7 +29,7 @@ const IconBtn = styled.span`
   padding: 0 4px;
   border-radius: 5px;
   &:hover {
-    background: #f7f7f7;
+    background: var(--color-background-hover);
   }
 `;
 
@@ -41,26 +41,26 @@ const Header = styled.div`
   flex-shrink: 0;
   .main {
     font-size: 17px;
-    color: #151515;
+    color: var(--color-text-title);
     font-weight: bold;
     width: 100%;
   }
   .split {
     font-size: 16px;
     margin: 0 8px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .sec {
     font-size: 17px;
-    color: #757575;
+    color: var(--color-text-secondary);
     max-width: 600px;
     &:hover {
-      color: #151515;
+      color: var(--color-text-title);
     }
   }
   .openInNewTab {
     cursor: pointer;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     font-size: 14px;
     margin-left: 6px;
     line-height: 18px;
@@ -83,6 +83,7 @@ function Table(props) {
   const {
     addRefreshEvents,
     appId,
+    isCharge,
     worksheetId,
     recordId,
     allowEdit,
@@ -98,6 +99,7 @@ function Table(props) {
       mode="dialog"
       openFrom={openFrom}
       appId={appId}
+      isCharge={isCharge}
       useHeight
       allowEdit={allowEdit}
       isDraft={isDraft}
@@ -125,6 +127,7 @@ Table.propTypes = {
 export default function RelateRecordTableDialog(props) {
   const {
     appId,
+    isCharge,
     openFrom,
     worksheetId,
     recordId,
@@ -224,6 +227,7 @@ export default function RelateRecordTableDialog(props) {
           <Table
             {...{
               appId,
+              isCharge,
               openFrom,
               worksheetId,
               recordId,

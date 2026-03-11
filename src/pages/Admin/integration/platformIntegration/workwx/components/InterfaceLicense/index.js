@@ -17,14 +17,14 @@ const orderStatus = {
 };
 
 const OrderInfo = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   position: absolute;
   top: 17px;
   left: 20px;
   width: calc(100% - 40px);
   .titleInfo {
     height: 55px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     display: flex;
     align-items: center;
   }
@@ -35,7 +35,7 @@ const OrderInfo = styled.div`
     display: flex;
     .label {
       width: 108px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       font-size: 13px;
     }
     .value {
@@ -47,7 +47,7 @@ const OrderInfo = styled.div`
   .line {
     width: 100%;
     height: 1px;
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-secondary);
     margin: 20px 0 28px 0;
   }
   .borderRadius16 {
@@ -65,17 +65,17 @@ const OrderDetail = styled.div`
     .headerItem {
       padding: 10px 0;
       font-weight: 600;
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-secondary);
       width: 110px;
     }
     .bodyItem {
       padding: 12px 8px 12px 0;
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-secondary);
       width: 110px;
     }
   }
   .themeColor {
-    color: #1677ff;
+    color: var(--color-primary);
   }
 `;
 
@@ -205,7 +205,7 @@ export default class InterfaceLicense extends Component {
         </div>
         <div className="applyConent">
           <div className="Font17 bold mBottom10">{isRenewal ? _l('接口许可续期') : _l('接口许可购买')}</div>
-          <div className="Gray_9e mBottom40">{_l('定价规则来源于企业微信')}</div>
+          <div className="textTertiary mBottom40">{_l('定价规则来源于企业微信')}</div>
           <div className="row mBottom12">
             <div className="label">{_l('企业客户ID')}</div>
             <div className="value">{orderInfo.corpId || '-'}</div>
@@ -227,14 +227,14 @@ export default class InterfaceLicense extends Component {
             <div className="label">{_l('购买时长')}</div>
             <div className="value">
               {_l('%0天', orderInfo.days || '-')}
-              <span className="Font13 Gray_9e">
+              <span className="Font13 textTertiary">
                 {buyMore ? _l('（截止到接口许可到期时间）') : _l('（截止到版本到期时间）')}
               </span>
             </div>
           </div>
-          <div className="Gray_75 mBottom50">
+          <div className="textSecondary mBottom50">
             {_l('总计')}
-            <span className="Font20 bold Gray mLeft10">{_l('¥%0元', orderInfo.amount)}</span>
+            <span className="Font20 bold textPrimary mLeft10">{_l('¥%0元', orderInfo.amount)}</span>
           </div>
           <Button
             type="primary"
@@ -245,7 +245,7 @@ export default class InterfaceLicense extends Component {
           >
             {isRenewal ? _l('申请续期') : _l('申请下单')}
           </Button>
-          <div className="Gray_9e mTop20">{_l('购买费用由平台支付，您只需申请下单即可')}</div>
+          <div className="textTertiary mTop20">{_l('购买费用由平台支付，您只需申请下单即可')}</div>
         </div>
       </OrderInfo>
     );

@@ -30,7 +30,7 @@ class AppGroupList extends Component {
   renderlist = (data = [], type) => {
     return (
       <div key={type} className="groupItem">
-        {!_.isEmpty(data) && <div className="Gray_75 Font13 groupTitle">{groupTitleList[type]}</div>}
+        {!_.isEmpty(data) && <div className="textSecondary Font13 groupTitle">{groupTitleList[type]}</div>}
         {data.map((item, index) => {
           return (
             <div className={cx('groupItemDetail flexRow', { borderTop: index === 0 })} key={item.id}>
@@ -46,15 +46,15 @@ class AppGroupList extends Component {
               >
                 <div className="groupItemIcon">
                   {item.iconUrl ? (
-                    <SvgIcon url={item.iconUrl} fill="#9d9d9d" size={20} addClassName="mTop16" />
+                    <SvgIcon url={item.iconUrl} fill="var(--color-text-tertiary)" size={20} addClassName="mTop16" />
                   ) : (
-                    <Icon className="Gray_9d Font20" icon={item.icon} />
+                    <Icon className="textTertiary Font20" icon={item.icon} />
                   )}
                 </div>
                 <div className={cx('groupItemName flex', { currentGroupLast: index === data.length - 1 })}>
                   {_.get(this.props.projectGroupsNameLang, `${item.id}.data[0].value`) || item.name}
                   {item.appIds && !_.isEmpty(item.appIds) && (
-                    <span className="Gray_9e Font17 mLeft10">{item.appIds.length}</span>
+                    <span className="textTertiary Font17 mLeft10">{item.appIds.length}</span>
                   )}
                 </div>
               </div>
@@ -67,7 +67,11 @@ class AppGroupList extends Component {
                   );
                 }}
               >
-                <Icon icon="star_3" className="Font20" style={{ color: item.isMarked ? '#ffc400' : '#9e9e9e' }} />
+                <Icon
+                  icon="star_3"
+                  className="Font20"
+                  style={{ color: item.isMarked ? 'var(--color-yellow-dark)' : 'var(--color-text-tertiary)' }}
+                />
               </div>
             </div>
           );

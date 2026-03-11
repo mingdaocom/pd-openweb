@@ -12,7 +12,7 @@ const DisplaySetup = ({ settingVisible, currentReport, reportData, changeCurrent
   const { xaxes, displaySetup, yreportType, sorts } = currentReport;
   return (
     <div className="chartHeader mBottom10">
-      <div className="flexRow valignWrapper Font13 Gray_75">
+      <div className="flexRow valignWrapper Font13 textSecondary">
         {[reportTypes.LineChart, reportTypes.BarChart, reportTypes.FunnelChart, reportTypes.DualAxes].includes(
           currentReport.reportType,
         ) &&

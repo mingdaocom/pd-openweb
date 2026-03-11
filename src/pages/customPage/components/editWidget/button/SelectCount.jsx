@@ -14,7 +14,7 @@ const SelectCountWrap = styled.div`
     box-sizing: border-box;
     line-height: 30px;
     padding: 0 25px 0 10px;
-    background: #fff;
+    background: var(--color-background-primary);
     border-radius: 3px;
   }
   .operateWrap {
@@ -22,14 +22,14 @@ const SelectCountWrap = styled.div`
     top: 0;
     right: 0;
     .item {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       display: flex;
       width: 26px;
       height: 15px;
       justify-content: center;
       align-items: center;
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     .add {
@@ -40,7 +40,7 @@ const SelectCountWrap = styled.div`
     }
   }
   .disabled {
-    color: #dddddd !important;
+    color: var(--color-border-primary) !important;
     &:hover {
     }
   }
@@ -53,7 +53,7 @@ const CountList = styled.ul`
   max-height: 300px;
   overflow-y: auto;
   border-radius: 2px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.29);
   li {
     box-sizing: border-box;
@@ -65,8 +65,8 @@ const CountList = styled.ul`
     width: 100%;
     &.active,
     &:hover {
-      background-color: #1677ff;
-      color: #fff;
+      background-color: var(--color-primary);
+      color: var(--color-white);
     }
   }
 `;

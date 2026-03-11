@@ -250,7 +250,7 @@ function MobileWidgetSection(props) {
       const desc = activeControl.desc;
       return (
         <div className="flex">
-          {desc && <div className="mTop16 mBottom16 pLeft20 pRight20 Gray_9e">{desc}</div>}
+          {desc && <div className="mTop16 mBottom16 pLeft20 pRight20 textTertiary">{desc}</div>}
           <div className="customMobileFormContainer pBottom60 mTop8">{renderForm(activeControl.child)}</div>
         </div>
       );

@@ -13,6 +13,7 @@ import { defaultNavOpenW, MaxNavW, MinNavW } from 'src/pages/worksheet/common/Vi
 import { AnimationWrap } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
 import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+import { replaceControlsTranslateInfo } from 'src/utils/translate';
 import NavSort from '../NavSort';
 import bgNavGroups from './img/bgNavGroups.png';
 import MobileConfig from './MobileConfig';
@@ -36,20 +37,20 @@ const Wrap = styled.div`
       }
       .ming.Input {
         font-size: 13px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--color-border-primary);
         &:hover {
-          border-color: #bbb;
+          border-color: var(--color-text-disabled);
         }
         &:focus {
-          border-color: #1677ff;
+          border-color: var(--color-primary);
         }
       }
     }
     .cancel {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       cursor: pointer;
       &:hover {
-        color: #757575;
+        color: var(--color-text-secondary);
       }
     }
     .Dropdown {
@@ -58,7 +59,7 @@ const Wrap = styled.div`
       line-height: 36px;
       height: 36px;
       opacity: 1;
-      background: #ffffff;
+      background: var(--color-background-primary);
       border-radius: 4px;
       margin: 8px 0;
       box-sizing: border-box;
@@ -72,11 +73,11 @@ const Wrap = styled.div`
         padding: 0 12px 0 12px;
         width: 100%;
         display: flex;
-        border: 1px solid #dddddd;
+        border: 1px solid var(--color-border-primary);
         border-radius: 4px;
         height: 36px;
         &.active {
-          border: 1px solid #1677ff;
+          border: 1px solid var(--color-primary);
         }
         .value,
         .Dropdown--placeholder {
@@ -98,8 +99,8 @@ const Wrap = styled.div`
       line-height: 36px;
       height: 36px;
       opacity: 1;
-      background: #ffffff;
-      border: 1px solid #dddddd;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-primary);
       border-radius: 4px;
       padding: 0 12px 0 12px;
       .icon {
@@ -122,7 +123,7 @@ const Wrap = styled.div`
       line-height: 1 !important;
       text-align: center;
       &:hover {
-        color: #151515 !important;
+        color: var(--color-text-title) !important;
       }
       & > span {
         width: 100% !important;
@@ -131,8 +132,8 @@ const Wrap = styled.div`
       }
       span.addIcon {
         position: relative;
-        background: #f8f8f8;
-        color: #1677ff;
+        background: var(--color-background-secondary);
+        color: var(--color-primary);
         border-radius: 3px;
         display: block;
         padding: 12px 0;
@@ -143,13 +144,13 @@ const Wrap = styled.div`
           font-size: 20px;
         }
         &:hover {
-          color: #1565c0;
-          background: #f5f5f5;
+          color: var(--color-link-hover);
+          background: var(--color-background-secondary);
         }
       }
       &.active {
         .inputBox {
-          border: 1px solid #1677ff;
+          border: 1px solid var(--color-primary);
         }
       }
     }
@@ -157,7 +158,7 @@ const Wrap = styled.div`
       vertical-align: middle;
     }
     .ming.Checkbox.Checkbox--disabled {
-      color: #151515;
+      color: var(--color-text-title);
     }
     .iconWrap {
       display: inline-block;
@@ -176,7 +177,7 @@ const Wrap = styled.div`
     h6 {
       font-size: 20px;
       font-weight: 500;
-      color: #151515;
+      color: var(--color-text-title);
       text-align: center;
       padding: 0;
       padding-top: 32px;
@@ -185,7 +186,7 @@ const Wrap = styled.div`
     .text {
       font-weight: 400;
       text-align: center;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       line-height: 20px;
       font-size: 13px;
       width: 80%;
@@ -209,9 +210,9 @@ const Wrap = styled.div`
       }
       span.addIcon {
         position: relative;
-        background: #1677ff;
+        background: var(--color-primary);
         border-radius: 3px;
-        color: #fff;
+        color: var(--color-white);
         display: inline-block;
         padding: 12px 32px;
         cursor: pointer;
@@ -220,7 +221,7 @@ const Wrap = styled.div`
           font-size: 20px;
         }
         &:hover {
-          background: #1565c0;
+          background: var(--color-link-hover);
         }
       }
     }
@@ -345,7 +346,7 @@ export default function NavGroup(params) {
           return { value: o.viewId, text: o.name };
         });
       setRelateSheetInfo(fieldList);
-      setRelateControls(_.get(data, ['template', 'controls']));
+      setRelateControls(replaceControlsTranslateInfo(params.appId, worksheetId, _.get(data, ['template', 'controls'])));
     });
   };
   const updateAdvancedSetting = data => {
@@ -389,7 +390,7 @@ export default function NavGroup(params) {
         if (relateSheetInfo.length <= 0) {
           o.types = [
             {
-              text: <span className="Gray_75">{_l('关联表中没有本表关联类型的层级视图，请先去添加一个')}</span>,
+              text: <span className="textSecondary">{_l('关联表中没有本表关联类型的层级视图，请先去添加一个')}</span>,
               isTip: true,
             },
           ];
@@ -496,8 +497,8 @@ export default function NavGroup(params) {
       }
       return (
         <React.Fragment>
-          {o.txt && <div className="title mTop30 Gray Bold">{o.txt}</div>}
-          {o.des && <div className="des mTop5 Gray_75">{o.des}</div>}
+          {o.txt && <div className="title mTop30 textPrimary Bold">{o.txt}</div>}
+          {o.des && <div className="des mTop5 textSecondary">{o.des}</div>}
           <Dropdown
             data={o.types}
             value={value}
@@ -541,12 +542,12 @@ export default function NavGroup(params) {
       {_.get(navGroup, ['controlId']) ? (
         <div className="hasData">
           <div className="viewSetTitle">{_l('筛选列表')}</div>
-          <div className="Gray_75 mTop8 mBottom4">
+          <div className="textSecondary mTop8 mBottom4">
             {_l('将所选字段选项以列表的形式显示在视图左侧，帮助用户快速查看记录。')}
           </div>
           <React.Fragment>
             <div className="con">
-              <div className="title mTop25 Gray Bold">
+              <div className="title mTop25 textPrimary Bold">
                 {_l('筛选字段')}
                 <span
                   className="cancel Right"
@@ -571,7 +572,10 @@ export default function NavGroup(params) {
                       {iconName ? (
                         <Icon
                           icon={iconName}
-                          className={cx('mRight12 Font18 ', { Red: filterData.isErr, Gray_75: !filterData.isErr })}
+                          className={cx('mRight12 Font18 ', {
+                            Red: filterData.isErr,
+                            textSecondary: !filterData.isErr,
+                          })}
                         />
                       ) : null}
                       <div className="itemText">
@@ -583,7 +587,7 @@ export default function NavGroup(params) {
                           _.get(filterData, ['controlName'])
                         )}
                       </div>
-                      <Icon icon={'arrow-down-border'} className="mLeft12 Gray_9e" />
+                      <Icon icon={'arrow-down-border'} className="mLeft12 textTertiary" />
                     </div>
                   );
                 },
@@ -622,7 +626,7 @@ export default function NavGroup(params) {
                 </AnimationWrap>
               </React.Fragment>
             )}
-            <div className="title mTop30 Gray Bold">{_l('默认宽度')}</div>
+            <div className="title mTop30 textPrimary Bold">{_l('默认宽度')}</div>
             <div className="Relative navWidth mTop8">
               <Input
                 type="number"
@@ -643,7 +647,7 @@ export default function NavGroup(params) {
                   updateWidth(e);
                 }}
               />
-              <span className="Absolute unit Gray_9e">px</span>
+              <span className="Absolute unit textTertiary">px</span>
             </div>
           </React.Fragment>
           {_.get(filterData, 'type') === 29 && (
@@ -676,7 +680,7 @@ export default function NavGroup(params) {
               }
             >
               <div className="Hand InlineBlock TxtTop mLeft5">
-                <Icon icon="help" className="Gray_9e helpIcon Font18 InlineBlock mTop2" />
+                <Icon icon="help" className="textTertiary helpIcon Font18 InlineBlock mTop2" />
               </div>
             </Tooltip>
           </div>
@@ -704,7 +708,7 @@ export default function NavGroup(params) {
             <img src={bgNavGroups} alt="" srcset="" />
           </div>
           <h6 className="">{_l('筛选列表')}</h6>
-          <p className="text Gray_75">{_l('将所选字段选项以列表的形式显示在视图左侧，帮助用户快速查看记录。')}</p>
+          <p className="text textSecondary">{_l('将所选字段选项以列表的形式显示在视图左侧，帮助用户快速查看记录。')}</p>
           {renderAdd({
             comp: () => {
               return (

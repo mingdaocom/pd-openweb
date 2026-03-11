@@ -49,7 +49,7 @@ export default class CreateRecordAndTask extends Component {
 
   render() {
     const { showOtherWorksheet, isBatch } = this.state;
-    const { data, updateSource } = this.props;
+    const { data, updateSource, companyId } = this.props;
     const selectAppItem = data.appList.find(({ id }) => id === data.appId);
     const fields = [].concat(
       data.fields.filter(v => v.type !== 29),
@@ -59,20 +59,26 @@ export default class CreateRecordAndTask extends Component {
       {
         text: _l('其它应用下的工作表'),
         value: 'other',
-        className: 'Gray_75',
+        className: 'textSecondary',
       },
     ];
+    const invoiceMessage = {
+      amount: _l('开票金额不是 0 或者 负数'),
+      productId: _l('组织后台上传的商品管理表中的税收服务简称'),
+      taxPayerNo: _l('发票抬头类型为企业时，税号字段不能为空，否则无法开票'),
+      email: _l('接收电子发票的购方邮箱'),
+    };
 
     return (
       <Fragment>
         {data.appType === APP_TYPE.EXTERNAL_USER && (
-          <div className="Font14 Gray_75 workflowDetailDesc mBottom20">
+          <div className="Font14 textSecondary workflowDetailDesc mBottom20">
             <PriceTip
               text={_l(
                 '向指定手机号发送短信邀请用户注册外部门户，并在外部门户下自动创建一条对应的用户数据（成员状态为“未激活”）。短信费用自动从组织信用点中扣除',
               )}
             />
-            {!_.get(md, 'global.Config.IsLocal') && (
+            {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
               <Fragment>
                 <span className="mLeft5">{_l('目前仅支持中国大陆手机号。')}</span>
                 <Support
@@ -85,15 +91,32 @@ export default class CreateRecordAndTask extends Component {
           </div>
         )}
 
-        <div className="Font13 bold">
-          {data.appType === APP_TYPE.SHEET
-            ? _l('选择工作表')
-            : data.appType === APP_TYPE.EXTERNAL_USER
-              ? _l('应用')
-              : _l('选择项目')}
-        </div>
+        {data.appType === APP_TYPE.INVOICE && (
+          <div className="Font14 textSecondary workflowDetailDesc">
+            {_l(
+              '本节点使用前，请确保已开通开票税号。电子开票采用异步处理方式，节点执行时将等待开票结果，开票完成后再继续后续流程。该开票为自动操作，无需管理员审核。',
+            )}
+            <span className="ThemeColor3 pointer" onClick={() => window.open(`/admin/invoice/${companyId}/taxNo`)}>
+              {_l('前往组织后台开通')}
+            </span>
 
-        {data.appType !== APP_TYPE.EXTERNAL_USER && (
+            <div className="mTop10" style={{ color: 'var(--color-error)' }}>
+              {_l('注意️：若节点状态一直是进行中，请检查数电账号是否已登录或者是否已完成人脸识别。')}
+            </div>
+          </div>
+        )}
+
+        {data.appType !== APP_TYPE.INVOICE && (
+          <div className="Font13 bold">
+            {data.appType === APP_TYPE.SHEET
+              ? _l('选择工作表')
+              : data.appType === APP_TYPE.EXTERNAL_USER
+                ? _l('应用')
+                : _l('选择项目')}
+          </div>
+        )}
+
+        {_.includes([APP_TYPE.SHEET, APP_TYPE.TASK], data.appType) && (
           <Dropdown
             className={cx('flowDropdown mTop10', { 'errorBorder errorBG': data.appId && !selectAppItem })}
             data={
@@ -104,7 +127,7 @@ export default class CreateRecordAndTask extends Component {
             value={data.appId}
             renderTitle={
               !data.appId
-                ? () => <span className="Gray_75">{_l('请选择')}</span>
+                ? () => <span className="textSecondary">{_l('请选择')}</span>
                 : data.appId && !selectAppItem
                   ? () => (
                       <span className="errorColor">
@@ -115,7 +138,7 @@ export default class CreateRecordAndTask extends Component {
                       <Fragment>
                         <span>{selectAppItem.name}</span>
                         {selectAppItem.otherApkName && (
-                          <span className="Gray_75">（{selectAppItem.otherApkName}）</span>
+                          <span className="textSecondary">（{selectAppItem.otherApkName}）</span>
                         )}
                       </Fragment>
                     )
@@ -194,17 +217,27 @@ export default class CreateRecordAndTask extends Component {
           </Fragment>
         )}
 
-        <div className="Font13 bold mTop20">
-          {data.appType === APP_TYPE.SHEET
-            ? _l('新增记录')
-            : data.appType === APP_TYPE.EXTERNAL_USER
-              ? _l('填充用户信息')
-              : _l('创建任务')}
-        </div>
+        {data.appType !== APP_TYPE.INVOICE && (
+          <div className="Font13 bold mTop20">
+            {data.appType === APP_TYPE.SHEET
+              ? _l('新增记录')
+              : data.appType === APP_TYPE.EXTERNAL_USER
+                ? _l('填充用户信息')
+                : _l('创建任务')}
+          </div>
+        )}
 
         {fields.map((item, i) => {
           const singleObj = _.find(data.controls, obj => obj.controlId === item.fieldId) || {};
           const { controlName, sourceEntityName } = singleObj;
+
+          if (singleObj.type === 10052) {
+            return (
+              <div key={item.fieldId} className="mTop25 bold Font14 ellipsis">
+                {controlName}
+              </div>
+            );
+          }
 
           return (
             <div key={item.fieldId} className="relative">
@@ -215,7 +248,7 @@ export default class CreateRecordAndTask extends Component {
                     <span className="mLeft5 red">*</span>
                   )}
                   {singleObj.type === 29 && (
-                    <span className="Gray_75">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>
+                    <span className="textSecondary">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>
                   )}
                 </div>
                 {data.appType === APP_TYPE.SHEET && _.includes([9, 10, 11], item.type) && item.fieldValueId && (
@@ -226,25 +259,78 @@ export default class CreateRecordAndTask extends Component {
                     updateSource={updateSource}
                   />
                 )}
-                {item.type === 36 && <span className="Gray_75">{_l('是-(1,true), 否-(0,false), 其余值忽略')}</span>}
+                {item.type === 36 && data.appType !== APP_TYPE.INVOICE && (
+                  <span className="textSecondary">{_l('是-(1,true), 否-(0,false), 其余值忽略')}</span>
+                )}
                 {item.type === 40 && (
-                  <span className="Gray_75">{`{"x": "121.473667", "y": "31.230525", "title": "Shanghai", "address": ""}`}</span>
+                  <span className="textSecondary">{`{"x": "121.473667", "y": "31.230525", "title": "Shanghai", "address": ""}`}</span>
                 )}
               </div>
-              {item.fieldId === 'portal_mobile' &&
-                (!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && (
-                  <div className="Gray_75 mTop5">{_l('根据此字段发送邀请短信')}</div>
-                )}
+              {item.fieldId === 'portal_mobile' && window.platformENV.isPlatform && (
+                <div className="textSecondary mTop5">{_l('根据此字段发送邀请短信')}</div>
+              )}
+              {data.appType === APP_TYPE.INVOICE && singleObj.controlId === 'taxNo' && !singleObj.options.length && (
+                <div className="textSecondary mTop5">
+                  {_l('开票税号未授权，请')}
+                  <span
+                    className="ThemeColor3 pointer"
+                    onClick={() => window.open(`/admin/invoice/${companyId}/taxNo`)}
+                  >
+                    {_l('前往组织后台授权')}
+                  </span>
+                </div>
+              )}
+              {data.appType === APP_TYPE.INVOICE && invoiceMessage[singleObj.controlId] && (
+                <div className="textSecondary mTop5">{invoiceMessage[singleObj.controlId]}</div>
+              )}
               <SingleControlValue
                 companyId={this.props.companyId}
                 relationId={this.props.relationId}
                 processId={this.props.processId}
                 selectNodeId={this.props.selectNodeId}
                 sourceNodeId={data.selectNodeId}
-                controls={data.controls}
+                controls={_.cloneDeep(data.controls).map(o => {
+                  // 开票类目根据开票主体过滤
+                  if (data.appType === APP_TYPE.INVOICE && o.controlId === 'productId') {
+                    const taxNo = data.fields.find(o => o.fieldId === 'taxNo').fieldValue;
+                    const taxNoText =
+                      data.controls.find(o => o.controlId === 'taxNo').options?.find(o => o.key === taxNo)?.value || '';
+
+                    o.options = taxNoText
+                      ? o.options
+                          .filter(o => o.value.includes(`(${taxNoText})`))
+                          .map(o => ({ ...o, value: o.value.replace(`(${taxNoText})`, '') }))
+                      : [];
+                  }
+
+                  return o;
+                })}
                 formulaMap={data.formulaMap}
                 fields={fields}
-                updateSource={updateSource}
+                hideOtherField={
+                  data.appType === APP_TYPE.INVOICE &&
+                  _.includes(['taxNo', 'productId', 'invoiceType', 'invoiceOutputType'], singleObj.controlId)
+                }
+                hideUserMoreObject={data.appType === APP_TYPE.INVOICE}
+                updateSource={(opts, callback) => {
+                  // 更改开票主体的时候清空开票类目
+                  if (
+                    data.appType === APP_TYPE.INVOICE &&
+                    opts.fields &&
+                    opts.fields.find(o => o.fieldId === 'taxNo').fieldValue !==
+                      data.fields.find(o => o.fieldId === 'taxNo').fieldValue
+                  ) {
+                    opts.fields = opts.fields.map(o => {
+                      if (o.fieldId === 'productId') {
+                        o.fieldValue = '';
+                      }
+
+                      return o;
+                    });
+                  }
+
+                  updateSource(opts, callback);
+                }}
                 item={item}
                 i={i}
               />

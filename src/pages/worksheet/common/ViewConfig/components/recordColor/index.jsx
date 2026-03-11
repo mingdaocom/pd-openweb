@@ -14,7 +14,7 @@ const Wrap = styled.div`
   .line {
     width: 100%;
     height: 1px;
-    background: #dddddd;
+    background: var(--color-border-primary);
   }
 `;
 const Con = styled.div`
@@ -29,7 +29,7 @@ const Con = styled.div`
     h6 {
       font-size: 20px;
       font-weight: 500;
-      color: #151515;
+      color: var(--color-text-title);
       text-align: center;
       padding: 0;
       padding-top: 32px;
@@ -38,7 +38,7 @@ const Con = styled.div`
     .text {
       font-weight: 400;
       text-align: center;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       line-height: 20px;
       font-size: 13px;
       width: 80%;
@@ -48,14 +48,14 @@ const Con = styled.div`
   .customAntSelect {
     margin-top: 10px;
     .ant-select-selector {
-      border-color: #ddd !important;
-      background: #fff !important;
+      border-color: var(--color-border-primary) !important;
+      background: var(--color-background-primary) !important;
     }
   }
   .customAntSelect:not(.ant-select-open):not(.ant-select-disabled) {
     .ant-select-selector:hover {
       background-color: inherit !important;
-      border-color: #ddd !important;
+      border-color: var(--color-border-primary) !important;
     }
   }
 `;
@@ -65,37 +65,37 @@ const AddButton = styled.div`
   width: 100%;
   height: 44px;
   line-height: 44px;
-  background: #f8f8f8;
+  background: var(--color-background-secondary);
   border-radius: 3px;
   &:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
 `;
 
 const SelectedControlCon = styled.div`
   width: 100%;
-  border: 1px solid #eaeaea;
+  border: 1px solid var(--color-border-secondary);
   border-radius: 3px;
   display: flex;
   align-items: center;
   height: 36px;
   padding: 0 5px 0 14px;
   &:hover {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
   }
   .controlTypeIcon {
     font-size: 16px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   .controlName {
     margin-left: 10px;
     font-size: 14px;
-    color: #151515;
+    color: var(--color-text-title);
   }
   .endIcon {
     .icon {
       font-size: 13px;
-      color: #9d9d9d;
+      color: var(--color-text-tertiary);
     }
     .removeIcon {
       display: none;
@@ -165,7 +165,7 @@ const SelectColorShowTypeCon = styled.div`
     justify-content: center;
     align-items: center;
     font-size: 14px;
-    color: #151515;
+    color: var(--color-text-title);
     font-weight: bold;
     cursor: pointer;
     .selected {
@@ -175,10 +175,10 @@ const SelectColorShowTypeCon = styled.div`
       right: -9px;
       top: -9px;
       border-radius: 18px;
-      background: #fff;
+      background: var(--color-background-primary);
     }
     &.type-0 {
-      border: 1px solid #eaeaea;
+      border: 1px solid var(--color-border-secondary);
       &:before {
         position: absolute;
         content: '';
@@ -191,7 +191,7 @@ const SelectColorShowTypeCon = styled.div`
       }
     }
     &.type-1 {
-      background: #ffe8e8;
+      background: var(--color-error-bg);
       &:before {
         position: absolute;
         content: '';
@@ -204,7 +204,7 @@ const SelectColorShowTypeCon = styled.div`
       }
     }
     &.type-2 {
-      background: #ffe8e8;
+      background: var(--color-error-bg);
     }
   }
 `;
@@ -243,14 +243,14 @@ function RecordColor(params) {
   const selectedControl = _.find(filteredControls, { controlId: colorid });
   return (
     <Con>
-      <div className="Gray_75 mTop20">{_l('使用单选项为记录标记颜色')}</div>
+      <div className="textSecondary mTop20">{_l('使用单选项为记录标记颜色')}</div>
       {selectedControl ? (
         <div className="hasData">
           <div className="Font3 Bold mTop16 mBottom8 valignWrapper">
             {_l('字段')}
             {selectedControl && selectedControl.enumDefault2 !== 1 && (
               <Tooltip className="mLeft6" title={_l('当前选择的字段未启用颜色')}>
-                <i className="icon icon-error1 Font16" style={{ color: '#ff9300' }}></i>
+                <i className="icon icon-error1 Font16" style={{ color: 'var(--color-warning)' }}></i>
               </Tooltip>
             )}
           </div>
@@ -368,7 +368,7 @@ export default function (props) {
           setState(openList.includes(key) ? openList.filter(o => o !== key) : openList.concat(key));
         }}
       >
-        <Icon icon={openList.includes(key) ? 'arrow-down' : 'arrow-right-tip'} className="Font14 Gray_9e" />
+        <Icon icon={openList.includes(key) ? 'arrow-down' : 'arrow-right-tip'} className="Font14 textTertiary" />
         <span className="Font15 Bold mLeft10">{key === 'control' ? _l('字段') : _l('记录')}</span>
       </div>
     );
@@ -409,7 +409,7 @@ export default function (props) {
           {renderHead('control')}
           {openList.includes('control') && (
             <div className="mTop10">
-              <div className="Gray_75 mTop20">{_l('显示字段配置中的样式')}</div>
+              <div className="textSecondary mTop20">{_l('显示字段配置中的样式')}</div>
               <SwitchStyle>
                 <Icon
                   icon={_.get(view, 'advancedSetting.controlstyle') === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}

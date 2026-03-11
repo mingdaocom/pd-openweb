@@ -1,8 +1,8 @@
 .memberListMobile {
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
 
   .memberListCon {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
     .moreAction {
       text-align: right;
       margin-right: -5px;
@@ -13,7 +13,7 @@
     .isMyRole {
       width: 4px;
       height: 10px;
-      background: #1677ff;
+      background: var(--color-primary);
       border-radius: 2px;
       position: absolute;
       left: 4px;
@@ -24,23 +24,24 @@
       width: 26px !important;
       height: 26px !important;
       border-radius: 50%;
-      background: #eaeaea;
+      background: var(--color-border-secondary);
       text-align: center;
       line-height: 26px;
-      border: 1px solid #fff;
+      border: 1px solid var(--color-white);
       display: inline-block;
       margin-left: -10px;
       vertical-align: top;
     }
     .roleTypeTitle {
       font-size: 14px;
-      color: #757575;
+      color: var(--color-text-secondary);
       padding: 24px 0 5px 14px;
     }
   }
 
   .adm-card {
     border-radius: 0;
+    background: var(--color-background-card) !important;
   }
   .am-card,
   .am-card-body {
@@ -64,7 +65,7 @@
 
 .mobileMembers {
   input {
-    color: #151515;
+    color: var(--color-text-title);
   }
   .am-modal-header {
     padding: 6px 15px 10px;
@@ -74,10 +75,10 @@
     height: 44px;
     line-height: 44px;
     &:first-child {
-      color: #108ee9;
+      color: var(--color-primary);
     }
     &:last-child {
-      color: red;
+      color: var(--color-error);
     }
   }
 }

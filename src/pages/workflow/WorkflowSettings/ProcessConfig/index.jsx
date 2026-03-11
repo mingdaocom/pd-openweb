@@ -235,70 +235,70 @@ class ProcessConfig extends Component {
       },
     ];
     const timeMode = [
-      {
-        text: _l('精确到分钟，如：2010-10-01 12:23'),
-        value: 1,
-      },
-      {
-        text: _l('精确到秒，如：2010-10-01 12:23:45'),
-        value: 6,
-      },
+      { text: _l('精确到分钟，如：2010-10-01 12:23'), value: 1 },
+      { text: _l('精确到秒，如：2010-10-01 12:23:45'), value: 6 },
     ];
     const dotMode = [
-      {
-        text: _l('按字段原始值取所有小数位数，如：3.14159'),
-        value: 0,
-      },
-      {
-        text: _l('按字段配置中的小数位数，如：3.14159 配置了4位小数，则取 3.1416'),
-        value: 1,
-      },
+      { text: _l('按字段原始值取所有小数位数，如：3.14159'), value: 0 },
+      { text: _l('按字段配置中的小数位数，如：3.14159 配置了4位小数，则取 3.1416'), value: 1 },
     ];
     const openDebug = _.includes(data.debugEvents, 0);
+    const Notice_Accounts = () => {
+      return (
+        <Fragment>
+          <div className="bold Font16 mTop28">{_l('通知人')}</div>
+          <div className="mTop15">
+            <span className="bold">{_l('流程拥有者')}</span>
+          </div>
+          <div className="flexRow alignItemsCenter">
+            <Member companyId={flowInfo.companyId} leastOne accounts={data.agents} />
+            <div
+              className={cx('ThemeColor3 AddUserBtn mTop12', { mLeft12: data.agents.length })}
+              onClick={this.selectProcessCharge}
+            >
+              <i className={cx('Font28', data.agents.length ? 'icon-add-member3' : 'icon-task-add-member-circle')} />
+            </div>
+          </div>
+
+          <div className="mTop15">
+            <span className="bold">{_l('其他通知人')}</span>
+            <span className="textSecondary">{_l('（当流程错误时，同时通知以下人）')}</span>
+          </div>
+          <Member
+            companyId={flowInfo.companyId}
+            inline
+            removeOrganization
+            accounts={data.errorNotifiers}
+            updateSource={({ accounts }) => this.updateSource({ errorNotifiers: accounts })}
+          />
+
+          <div className="mTop15 relative">
+            <div className="ThemeColor3 AddUserBtn" onClick={() => this.setState({ showSelectUserDialog: true })}>
+              <i className="Font28 icon-task-add-member-circle" />
+            </div>
+
+            <SelectUserDropDown
+              visible={showSelectUserDialog}
+              disabledNodeRole={true}
+              appId={flowInfo.relationId}
+              companyId={flowInfo.companyId}
+              accounts={data.errorNotifiers}
+              updateSource={({ accounts }) => this.updateSource({ errorNotifiers: accounts })}
+              onClose={() => this.setState({ showSelectUserDialog: false })}
+            />
+          </div>
+        </Fragment>
+      );
+    };
+
+    if (flowInfo.moduleType === 1) {
+      return Notice_Accounts();
+    }
 
     return (
       <Fragment>
-        <div className="bold Font16 mTop28">{_l('通知人')}</div>
-        <div className="mTop15">
-          <span className="bold">{_l('流程拥有者')}</span>
-        </div>
-        <div className="flexRow alignItemsCenter">
-          <Member companyId={flowInfo.companyId} leastOne accounts={data.agents} />
-          <div
-            className={cx('ThemeColor3 AddUserBtn mTop12', { mLeft12: data.agents.length })}
-            onClick={this.selectProcessCharge}
-          >
-            <i className={cx('Font28', data.agents.length ? 'icon-add-member3' : 'icon-task-add-member-circle')} />
-          </div>
-        </div>
+        {Notice_Accounts()}
 
-        <div className="mTop15">
-          <span className="bold">{_l('其他通知人')}</span>
-          <span className="Gray_75">{_l('（当流程错误时，同时通知以下人）')}</span>
-        </div>
-        <Member
-          companyId={flowInfo.companyId}
-          inline
-          removeOrganization
-          accounts={data.errorNotifiers}
-          updateSource={({ accounts }) => this.updateSource({ errorNotifiers: accounts })}
-        />
-
-        <div className="mTop15 relative">
-          <div className="ThemeColor3 AddUserBtn" onClick={() => this.setState({ showSelectUserDialog: true })}>
-            <i className="Font28 icon-task-add-member-circle" />
-          </div>
-
-          <SelectUserDropDown
-            visible={showSelectUserDialog}
-            disabledNodeRole={true}
-            appId={flowInfo.relationId}
-            companyId={flowInfo.companyId}
-            accounts={data.errorNotifiers}
-            updateSource={({ accounts }) => this.updateSource({ errorNotifiers: accounts })}
-            onClose={() => this.setState({ showSelectUserDialog: false })}
-          />
-        </div>
         <div className="mTop20 flexRow alignItemsCenter">
           <Dropdown
             style={{ width: 100 }}
@@ -308,14 +308,16 @@ class ProcessConfig extends Component {
             border
             onChange={errorInterval => this.updateSource({ errorInterval })}
           />
-          <div className="Gray_75 mLeft10">{_l('内不发送同类错误通知')}</div>
+          <div className="textSecondary mLeft10">{_l('内不发送同类错误通知')}</div>
         </div>
 
         {flowInfo.startAppType !== APP_TYPE.LOOP_PROCESS && (
           <Fragment>
             <div className="processConfigLine" />
             <div className="bold Font16 mTop28">{_l('运行方式')}</div>
-            <div className="Gray_75 mTop5">{_l('设置流程的运行方式，仅支持新增记录触发，自定义动作触发的流程')}</div>
+            <div className="textSecondary mTop5">
+              {_l('设置流程的运行方式，仅支持新增记录触发，自定义动作触发的流程')}
+            </div>
             {operationMode.map((item, i) => (
               <Fragment key={i}>
                 <div className="mTop15">
@@ -327,7 +329,12 @@ class ProcessConfig extends Component {
                     onClick={() => this.updateSource({ executeType: item.value })}
                   />
                 </div>
-                <div className={cx('Font12 mTop5 mLeft30', !data.sequence && item.value !== 1 ? 'Gray_bd' : 'Gray_75')}>
+                <div
+                  className={cx(
+                    'Font12 mTop5 mLeft30',
+                    !data.sequence && item.value !== 1 ? 'textDisabled' : 'textSecondary',
+                  )}
+                >
                   {item.desc}
                 </div>
               </Fragment>
@@ -337,7 +344,7 @@ class ProcessConfig extends Component {
 
         <div className="processConfigLine" />
         <div className="bold Font16 mTop28">{_l('数据格式')}</div>
-        <div className="Gray_75 mTop5">{_l('设置动态值在流程执行过程中引用或参与计算时使用的数据格式')}</div>
+        <div className="textSecondary mTop5">{_l('设置动态值在流程执行过程中引用或参与计算时使用的数据格式')}</div>
         <div className="mTop15 bold">{_l('系统字段中的日期值')}</div>
         {timeMode.map((item, i) => (
           <div className="mTop15" key={i}>
@@ -349,7 +356,7 @@ class ProcessConfig extends Component {
           </div>
         ))}
         <div className="mTop15 bold">{_l('数值字段的小数位数')}</div>
-        <div className="Gray_75 mTop5">{_l('仅支持分支节点条件判断')}</div>
+        <div className="textSecondary mTop5">{_l('仅支持分支节点条件判断')}</div>
         {dotMode.map((item, i) => (
           <div className="mTop15" key={i}>
             <Radio
@@ -362,7 +369,7 @@ class ProcessConfig extends Component {
 
         <div className="processConfigLine" />
         <div className="bold Font16 mTop28">{_l('节点日志')}</div>
-        <div className="Gray_75 mTop5">
+        <div className="textSecondary mTop5">
           {_l('启用后，可以在历史日志中查看单个节点在流程执行时的输入、输出数据。日志保留最近90天的数据')}
         </div>
         <div className="mTop10">
@@ -377,7 +384,7 @@ class ProcessConfig extends Component {
           <Fragment>
             <div className="processConfigLine" />
             <div className="bold Font16 mTop28">{_l('触发者查看')}</div>
-            <div className="Gray_75 mTop5 mBottom8">
+            <div className="textSecondary mTop5 mBottom8">
               {_l('启用后，流程触发者可以在“我发起的”待办项中查看、追踪此流程')}
             </div>
             <div className="mTop10">
@@ -399,7 +406,7 @@ class ProcessConfig extends Component {
             onClick={() => this.updateSource({ triggerType: TRIGGER_TYPE.ALLOW })}
           />
         </div>
-        <div className="Gray_75 Font12 mTop5 mLeft30">
+        <div className="textSecondary Font12 mTop5 mLeft30">
           {_l('在选择此配置时，如果要触发本表的其他工作流，必须为目标流程指定触发字段')}
         </div>
 
@@ -550,7 +557,7 @@ class ProcessConfig extends Component {
                     />
                     {o.tip && (
                       <Tooltip title={o.tip}>
-                        <Icon icon="info" className="Gray_9e mLeft5" />
+                        <Icon icon="info" className="textTertiary mLeft5" />
                       </Tooltip>
                     )}
                   </div>
@@ -569,7 +576,7 @@ class ProcessConfig extends Component {
     return (
       <Fragment>
         <div className="bold Font16 mTop28">{_l('参数对象')}</div>
-        <div className="Gray_75 mTop5 mBottom15">
+        <div className="textSecondary mTop5 mBottom15">
           {_l(
             '流程开始运行时生成，可以用以执行运算，或实现两个流程间的数据传递；命名时请以英文字母打头，名称中禁止出现汉字',
           )}
@@ -588,7 +595,7 @@ class ProcessConfig extends Component {
     return (
       <Fragment>
         <div className="bold Font16 mTop28">{_l('平台API能力')}</div>
-        <div className="Gray_75 mTop5">
+        <div className="textSecondary mTop5">
           {_l('启用后，我们会自动为您的业务流程生成相关的API开发文档，供您向其他第三方外部系统提供平台开放能力')}
           {data.pbcConfig.enable && (
             <a
@@ -614,7 +621,9 @@ class ProcessConfig extends Component {
         {data.pbcConfig.enable && (
           <Fragment>
             <div className="bold Font16 mTop28">{_l('请求地址')}</div>
-            <div className="mTop5 Gray_75">{_l('我们为您生成了一个用来接收请求的URL，可以在URL后自定义拼接内容')}</div>
+            <div className="mTop5 textSecondary">
+              {_l('我们为您生成了一个用来接收请求的URL，可以在URL后自定义拼接内容')}
+            </div>
             <div className="mTop10 flexRow">
               <input
                 type="text"
@@ -655,7 +664,7 @@ class ProcessConfig extends Component {
             {!!importData.length && (
               <Fragment>
                 <div className="mTop28 Font16 bold">{_l('请求参数')}</div>
-                <div className="mTop5 Gray_75">
+                <div className="mTop5 textSecondary">
                   {_l(
                     '可以使用 GET/POST 方式发送参数。当使用 POST 时，请求的主体必须是 JSON 格式，而且 HTTP header 的 Content-Type 需要设置为 application/json',
                   )}
@@ -732,7 +741,7 @@ class ProcessConfig extends Component {
               return (
                 <Fragment>
                   <div className="itemText">{text}</div>
-                  <div className="Gray_75 mTop3" style={{ whiteSpace: 'normal', lineHeight: '18px' }}>
+                  <div className="textSecondary mTop3" style={{ whiteSpace: 'normal', lineHeight: '18px' }}>
                     {desc}
                   </div>
                 </Fragment>
@@ -891,7 +900,7 @@ class ProcessConfig extends Component {
         <div className="bold Font16 mTop28">{_l('白名单')}</div>
         <div className="mTop15">
           <Checkbox
-            className="InlineBlock Gray"
+            className="InlineBlock textPrimary"
             text={_l('使用应用IP白名单')}
             checked={data.pbcConfig.authType !== 0}
             disabled={data.pbcConfig.authType === 1}
@@ -911,7 +920,7 @@ class ProcessConfig extends Component {
     return (
       <Fragment>
         <div className="bold Font16 mTop28">{_l('平台API能力')}</div>
-        <div className="Gray_75 mTop5">
+        <div className="textSecondary mTop5">
           {data.pbcConfig.authType === 0
             ? _l('为Webhook配置鉴权认证，IP白名单，自定义响应')
             : _l('为Webhook配置鉴权认证，IP白名单，自定义响应。请求参数需包含 AppKey、Sign')}
@@ -958,6 +967,10 @@ class ProcessConfig extends Component {
       'licenseType',
     );
 
+    if (flowInfo.moduleType === 1) {
+      _.remove(settings, item => _.includes([2, 3], item.value));
+    }
+
     if (flowInfo.startAppType === APP_TYPE.LOOP_PROCESS) {
       _.remove(settings, item => item.value === 3);
     }
@@ -987,7 +1000,7 @@ class ProcessConfig extends Component {
               {item.text}
               {item.tip && (
                 <Tooltip title={item.tip}>
-                  <Icon icon="info" className="Gray_9e mLeft5" />
+                  <Icon icon="info" className="textTertiary mLeft5" />
                 </Tooltip>
               )}
             </li>
@@ -1010,7 +1023,7 @@ class ProcessConfig extends Component {
                 {_l('保存')}
               </span>
               <Support
-                className="pointer Gray_75 mLeft32"
+                className="pointer textSecondary mLeft32"
                 href="https://help.mingdao.com/workflow/configuration"
                 type={2}
                 text={_l('帮助')}

@@ -16,13 +16,13 @@ const Wrap = styled.div`
     padding: 0 12px;
     height: 36px;
     line-height: 36px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     border-radius: 3px 3px 3px 3px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     display: inline-block;
     &:hover {
-      border: 1px solid #1677ff;
-      color: #1677ff;
+      border: 1px solid var(--color-primary);
+      color: var(--color-primary);
     }
   }
   .AddSortCon .Dropdown--input {
@@ -100,7 +100,7 @@ export default function (props) {
             }))}
             renderPointer={() => {
               return (
-                <span className={'custom mTop16 ThemeHoverColor3 TxtCenter Hand Gray'}>
+                <span className={'custom mTop16 ThemeHoverColor3 TxtCenter Hand textPrimary'}>
                   <Icon type="add" className="" />
                   <span className="mLeft3">{_l('自定义排序')}</span>
                 </span>
@@ -136,7 +136,7 @@ export default function (props) {
         )}
         <Divider />
         <div className="Bold Font14 mTop24">{_l('默认排序')}</div>
-        <div className="Gray_75 mTop10">
+        <div className="textSecondary mTop10">
           {_l(
             '当未设自定义排序，或自定义排序后同顺序下有多条记录时，将追加使用默认排序。默认排序只能使用创建时间或最近更新时间，来确保数据最终有严格顺序。',
           )}
@@ -200,7 +200,7 @@ export default function (props) {
                 '当可以保证配置的自定义排序严格有序，或已经为自定义排序创建了索引时，可以勾选不追加默认排序。注意：如果不满足以上条件就取消了追加的默认排序，可能会因为同顺序下有多条记录，而导致翻页时数据缺少或重复。',
               )}
             >
-              <Icon icon="info" className="Gray_9e helpIcon Font18 mLeft8 " />
+              <Icon icon="info" className="textTertiary helpIcon Font18 mLeft8 " />
             </Tooltip>
           </div>
         )}

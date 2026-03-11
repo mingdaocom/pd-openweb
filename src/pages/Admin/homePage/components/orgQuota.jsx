@@ -15,8 +15,8 @@ import { formatFileSize, getValue } from '../utils';
 export default function orgQuota(props) {
   const { projectId, data, isFree, isTrial, isLocal, authority, updateData = () => {} } = props;
   const analysisPermission = authority.includes(PERMISSION_ENUM.USER_ANALYTICS);
-  const IsPlatformLocal = md.global.Config.IsPlatformLocal;
-  const hasBalance = IsPlatformLocal !== false && authority.includes(PERMISSION_ENUM.FINANCE);
+  const IsPlatformLocal = window.platformENV.isPlatform;
+  const hasBalance = IsPlatformLocal && authority.includes(PERMISSION_ENUM.FINANCE);
   const isCloseProject = !_.find(md.global.Account.projects, l => l.projectId === projectId);
 
   const getNoLimit = key => {
@@ -118,11 +118,18 @@ export default function orgQuota(props) {
 
   const getCountText = (key, limit) => {
     const isAttachmentUpload = key === 'effectiveApkStorageCount'; // 附件上传量
+    const percentValue = getValue(data[limit]) === '-' || getNoLimit(limit) ? undefined : getCountProcess(key, limit);
 
     return (
       <div className="useCount">
         <div>
           {_l('已用:')} <span className="mLeft3">{getUsage(key)}</span>
+          {percentValue && !_.isNaN(Number(percentValue)) && (
+            <span className="percentResult">
+              <span className="line">|</span>
+              {percentValue}%
+            </span>
+          )}
         </div>
         <div className="flex TxtRight">
           <span className="mLeft4">{isAttachmentUpload ? `${getValue(data[limit])}GB` : getUsage(limit)}</span>
@@ -137,7 +144,7 @@ export default function orgQuota(props) {
         <span className="flex overflow_ellipsis">{_l('组织额度')}</span>
         {analysisPermission && (
           <span className="titleBtn" onClick={() => navigateTo(`/admin/analytics/${projectId}`)}>
-            <Icon icon="stats_line_chart" className="ThemeColor Font16 mRight3" />
+            <Icon icon="stats_line_chart" className="colorPrimary Font16 mRight3" />
             {_l('使用分析')}
           </span>
         )}
@@ -176,11 +183,13 @@ export default function orgQuota(props) {
                           <span className="Font15 Bold">{text}</span>
                           {key === 'effectiveApkStorageCount' && (
                             <Tooltip placement="top" title={_l('应用中本年的附件上传量，上传即占用，删除不会恢复')}>
-                              <span className="icon-help1 Font13 Gray_9e" />
+                              <span className="icon-help1 Font13 textTertiary" />
                             </Tooltip>
                           )}
                         </div>
-                        {link && <span className="Gray_9e Bold Font13 Hover_21 detailBtn">{_l('查看')}</span>}
+                        {link && (
+                          <span className="textTertiary Bold Font13 hoverColorPrimary detailBtn">{_l('查看')}</span>
+                        )}
                         {!!item.PurchaseExpandPack && getAllowAdd(limit) && (
                           <PurchaseExpandPack
                             className="mLeft12 Bold Hover_theme"
@@ -194,12 +203,12 @@ export default function orgQuota(props) {
                       <Progress
                         showInfo={false}
                         style={{ margin: '7px 0', textAlign: 'left' }}
-                        trailColor="#eaeaea"
+                        trailColor="var(--color-border-secondary)"
                         strokeColor={
                           _.isNaN(Number(percentValue))
-                            ? '#eaeaea'
+                            ? 'var(--color-border-secondary)'
                             : percentValue > 90
-                              ? { from: '#F51744 ', to: '#FF5779' }
+                              ? { from: '#f44336', to: '#FF5779' }
                               : { from: '#1677ff ', to: '#4bb2ff' }
                         }
                         strokeWidth={4}
@@ -208,7 +217,7 @@ export default function orgQuota(props) {
                       {getCountText(key, limit)}
                       {!isLocal && hasBalance && !!autoPurchase && !data[autoPurchase] && (
                         <span
-                          className="mTop10 InlineBlock Gray_75 Font13 Underline Hover_21"
+                          className="mTop10 InlineBlock textSecondary Font13 Underline hoverColorPrimary"
                           onClick={e => {
                             e.stopPropagation();
                             updateData({ balanceManageVisible: true });
@@ -218,7 +227,9 @@ export default function orgQuota(props) {
                         </span>
                       )}
                       {data[autoPurchase] && item.autoPurchaseText && (
-                        <div className="mTop10 Gray_75 Font13 mul2_overflow_ellipsis">{item.autoPurchaseText}</div>
+                        <div className="mTop10 textSecondary Font13 mul2_overflow_ellipsis">
+                          {item.autoPurchaseText}
+                        </div>
                       )}
                     </li>
                   );

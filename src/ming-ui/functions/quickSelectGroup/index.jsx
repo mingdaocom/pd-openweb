@@ -13,9 +13,9 @@ const SelectGroupWrap = styled.div(
   ({ showType }) => `
     overflow: hidden;
     width: ${showType === 1 ? '360px' : '100%'};
-    background-color: #fff;
+    background-color: var(--color-background-card);
     border-radius: 4px;
-    box-shadow: ${showType === 1 ? 'rgba(0, 0, 0, 0.16) 0px 3px 6px 1px' : 'none'};
+    box-shadow: ${showType === 1 ? 'var(--shadow-lg)' : 'none'};
     padding-top: 16px;
     text-align: left;
     .item,
@@ -23,14 +23,14 @@ const SelectGroupWrap = styled.div(
       padding: 0 18px;
       height: 36px;
       &:hover {
-        background: #f5f5f5;
+        background: var(--color-background-hover);
       }
       &.select {
-        background: #e5f4fd !important;
+        background: var(--color-primary-transparent) !important;
       }
       &.disabled {
-        color: #757575 !important;
-        background: #fff !important;
+        color: var(--color-text-secondary) !important;
+        background: var(--color-background-primary) !important;
       }
     }
     .projectItem {
@@ -44,7 +44,7 @@ const SelectGroupWrap = styled.div(
     .split {
       margin: 5px 8px;
       height: 1px;
-      background: #f0f0f0;
+      background: var(--color-background-disabled);
     }
     .rotate90 {
       transform: rotate(-90deg);
@@ -207,7 +207,7 @@ export function SelectGroup(props) {
 
           return (
             <li
-              className={cx('item Font13 Gray valignWrapper Hand', {
+              className={cx('item Font13 textPrimary valignWrapper Hand', {
                 select: checked,
                 disabled: disabled,
               })}
@@ -223,8 +223,8 @@ export function SelectGroup(props) {
               <span className={showProjectName ? '' : 'flex overflow_ellipsis'}>
                 {allProject ? _l('所有同事') : l.value}
               </span>
-              {showProjectName && <span className="Gray_75 mLeft5 flex overflow_ellipsis">{l.value}</span>}
-              {checked && <Icon icon="done" className="mLeft8 ThemeColor Font12" />}
+              {showProjectName && <span className="textSecondary mLeft5 flex overflow_ellipsis">{l.value}</span>}
+              {checked && <Icon icon="done" className="mLeft8 colorPrimary Font12" />}
             </li>
           );
         })}
@@ -242,8 +242,14 @@ export function SelectGroup(props) {
 
           return (
             <Fragment key={`projectItem-${l.projectId}`}>
-              <div className="projectItem Font13 Gray valignWrapper Hand" onClick={() => handleExpand(l, !expand)}>
-                <Icon icon="task_custom_btn_unfold" className={cx('Gray_9e Font12 mRight10', { rotate90: !expand })} />
+              <div
+                className="projectItem Font13 textPrimary valignWrapper Hand"
+                onClick={() => handleExpand(l, !expand)}
+              >
+                <Icon
+                  icon="task_custom_btn_unfold"
+                  className={cx('textTertiary Font12 mRight10', { rotate90: !expand })}
+                />
                 <span className="flex overflow_ellipsis">{l.companyName}</span>
               </div>
               {expand ? (
@@ -265,7 +271,7 @@ export function SelectGroup(props) {
 
     return (
       <Fragment>
-        {projectId === undefined && <div className="pLeft16 Font12 Gray_75 pBottom8">{_l('最常使用')}</div>}
+        {projectId === undefined && <div className="pLeft16 Font12 textSecondary pBottom8">{_l('最常使用')}</div>}
         {renderList(commonList, 'commonList')}
         {projectId === undefined && projects.length && <div className="split"></div>}
       </Fragment>
@@ -278,7 +284,7 @@ export function SelectGroup(props) {
         <LoadDiv />
       ) : (
         <ScrollView className="flex h100">
-          {!commonList.length && !projects.length && <p className="item Gray_9e">{_l('暂无群组')}</p>}
+          {!commonList.length && !projects.length && <p className="item textTertiary">{_l('暂无群组')}</p>}
           {renderCommonList()}
           {projectId === undefined && renderGroupList()}
         </ScrollView>
@@ -396,7 +402,7 @@ export function SelectGroupTrigger(props) {
     >
       {props.children || (
         <DefaultChildWrap className="Hand">
-          {!hideIcon && <Icon icon="eye" className="Font16 Gray_c mRight5" />}
+          {!hideIcon && <Icon icon="eye" className="Font16 textPlaceholder mRight5" />}
           <span className="ThemeColor3">
             {value.length
               ? value.length === 1
@@ -406,7 +412,7 @@ export function SelectGroupTrigger(props) {
                 : _l('已选择 %0 项', value.length)
               : _l('选择分享范围')}
           </span>
-          {!hideIcon && <Icon icon="arrow-down-border" className="font8 Gray_7e" />}
+          {!hideIcon && <Icon icon="arrow-down-border" className="font8 textSecondary" />}
         </DefaultChildWrap>
       )}
     </Trigger>

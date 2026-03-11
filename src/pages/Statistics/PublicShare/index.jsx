@@ -7,6 +7,7 @@ import { LoadDiv } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
 import 'worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
 import preall from 'src/common/preall';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import abnormal from 'src/pages/worksheet/assets/abnormal.png';
 import store from 'src/redux/configureStore';
 import { getRequest } from 'src/utils/common';
@@ -49,6 +50,9 @@ export default class PublicShareChart extends Component {
 
         window.appInfo = { id: appId };
         this.setState({ data, loading: false });
+      })
+      .catch(err => {
+        this.setState({ loading: false, errorCode: err.errorCode });
       });
   }
   renderChart() {
@@ -64,14 +68,19 @@ export default class PublicShareChart extends Component {
         themeColor={data.appIconColor}
       />
     ) : (
-      <div className="h100 w100 flexColumn valignWrapper WhiteBG" style={{ justifyContent: 'center' }}>
+      <div className="h100 w100 flexColumn valignWrapper bgPrimary" style={{ justifyContent: 'center' }}>
         <img style={{ width: 230 }} src={abnormal} />
         <div className="Font17 mTop20">{_l('分享已经关闭')}</div>
       </div>
     );
   }
   render() {
-    const { loading } = this.state;
+    const { loading, errorCode } = this.state;
+
+    if (errorCode === 300016) {
+      return <RestrictAccessStatus />;
+    }
+
     return <Provider store={store}>{loading ? <LoadDiv /> : this.renderChart()}</Provider>;
   }
 }

@@ -4,6 +4,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Dialog, Icon, LoadDiv, Radio } from 'ming-ui';
+import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import { hrefReg } from 'src/pages/customPage/components/previewContent/index.jsx';
 import { WrapFooter } from '../apiIntegration/style';
@@ -12,8 +13,8 @@ import APITable from './APITable';
 const WrapHeader = styled.div`
   .publishInfo {
     height: 72px;
-    background: #fcfcfc;
-    border: 1px solid #dddddd;
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-border-primary);
     opacity: 1;
     border-radius: 6px;
     line-height: 72px;
@@ -34,44 +35,44 @@ const Wrap = styled.div`
       height: 36px;
       line-height: 36px;
       padding: 0 12px;
-      background: #ffffff;
-      border: 1px solid #dddddd;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-primary);
       opacity: 1;
       border-radius: 3px;
     }
   }
   .warnCon {
     padding: 5px 10px;
-    color: #f3b454;
+    color: var(--color-warning);
     background: rgba(243, 180, 84, 0.1);
     border-radius: 3px;
   }
 `;
-export default function PublishDialog(props) {
+function PublishDialog(props) {
+  const { onCancel = () => {}, hasManageAuth, currentProjectId: propsCurrentProjectId, id } = props;
+
   const [
     { info, selectedList, list, isCheckAll, connectInfo, status, loadingList, loadingDetail, currentProjectId },
     setState,
   ] = useSetState({
-    connectInfo: props.connectInfo,
-    info: props.info || {
-      name: _.get(props, 'connectInfo.name'),
-      explain: _.get(props, 'connectInfo.explain'),
+    connectInfo: null,
+    info: {
+      name: '',
+      explain: '',
       accountId: md.global.Account.accountId,
       companyId: '',
     },
-    list: props.list || [],
-    selectedList: (props.list || []).map(o => o.id),
+    list: [],
+    selectedList: [],
     isCheckAll: true,
-    status: props.status,
+    status: null,
     loadingList: true,
     loadingDetail: true,
-    currentProjectId: props.currentProjectId || localStorage.getItem('currentProjectId'),
+    currentProjectId: propsCurrentProjectId || localStorage.getItem('currentProjectId'),
   });
   useEffect(() => {
-    if (props.isGetData) {
-      getApiListFetch();
-      getDetailInfo();
-    }
+    getApiListFetch();
+    getDetailInfo();
   }, []);
   const desList = [
     { key: 'name', txt: _l('连接名称'), required: true },
@@ -90,7 +91,6 @@ export default function PublishDialog(props) {
     );
   };
   const getApiListFetch = () => {
-    const { id } = props;
     packageVersionAjax
       .getApiList(
         {
@@ -112,7 +112,6 @@ export default function PublishDialog(props) {
   };
   // 获取基本详情
   const getDetailInfo = () => {
-    const { id } = props;
     packageVersionAjax
       .getDetail(
         {
@@ -124,7 +123,7 @@ export default function PublishDialog(props) {
       .then(
         res => {
           let newData = res;
-          if (props.hasManageAuth || newData.isOwner) {
+          if (hasManageAuth || newData.isOwner) {
             setState({
               connectInfo: newData,
               info: newData.info || {
@@ -152,6 +151,20 @@ export default function PublishDialog(props) {
       );
   };
 
+  // 上架连接
+  const upperConnect = info => {
+    packageVersionAjax
+      .upper({ ...info, id, companyId: currentProjectId || info.companyId }, { isIntegration: true })
+      .then(res => {
+        if (res) {
+          onCancel();
+          alert(_l('已申请上架，请等待审核'));
+        } else {
+          alert(_l('申请失败，请稍后再试'), 2);
+        }
+      });
+  };
+
   return (
     <Dialog
       className=""
@@ -161,9 +174,9 @@ export default function PublishDialog(props) {
       visible={true}
       title={<span className="Font17 Bold">{_l('申请上架到API 库')}</span>}
       footer={
-        <WrapFooter className="flexRow Gray_75 TxtLeft mTop24">
+        <WrapFooter className="flexRow textSecondary TxtLeft mTop24">
           <span className="flex">{_l('共 %0 个API，已选择 %1 个', list.length, selectedList.length)}</span>
-          <span className="cancel Hand Font14" onClick={props.onCancel}>
+          <span className="cancel Hand Font14" onClick={onCancel}>
             {_l('取消')}
           </span>
           <div
@@ -178,7 +191,7 @@ export default function PublishDialog(props) {
               if (!hrefReg.test(info.docUrl || '')) {
                 return alert(_l('请填入正确的官网地址'), 2);
               }
-              props.onOk({
+              upperConnect({
                 apis: selectedList,
                 accountId: info.accountId,
                 companyId: info.companyId, //,
@@ -194,20 +207,20 @@ export default function PublishDialog(props) {
           </div>
         </WrapFooter>
       }
-      onCancel={props.onCancel}
+      onCancel={onCancel}
     >
-      {props.isGetData && (loadingDetail || loadingList) ? (
+      {loadingDetail || loadingList ? (
         <LoadDiv />
       ) : (
         <Wrap className="flexColumn">
           <WrapHeader>
             {[2, 3].includes(status) && (
               <div className="publishInfo flexRow">
-                <span className="Gray_75 flex">
-                  {_l('上架 API 量')} <span className="Bold Gray Font20">{info.apiCount}</span>
+                <span className="textSecondary flex">
+                  {_l('上架 API 量')} <span className="Bold textPrimary Font20">{info.apiCount}</span>
                 </span>
-                <span className="Gray_75 flex">
-                  {_l('安装量')} <span className="Bold Gray Font20">{info.installCount}</span>
+                <span className="textSecondary flex">
+                  {_l('安装量')} <span className="Bold textPrimary Font20">{info.installCount}</span>
                 </span>
                 <span className="flex Green">
                   {_l('上架时间')}：{info.time}
@@ -215,7 +228,7 @@ export default function PublishDialog(props) {
               </div>
             )}
           </WrapHeader>
-          {connectInfo.hasAuth && (
+          {connectInfo?.hasAuth && (
             <div className="warnCon flexRow alignItemsCenter mTop10">
               <Icon type="info" className="Font16 mRight5" />
               {_l('注意：该类型连接上架后，用户需要授权使用，共用一套API配置，且只能查看自己使用的数据')}
@@ -236,10 +249,10 @@ export default function PublishDialog(props) {
                             className=""
                             text={_l('以企业组织身份')}
                             checked={!!info.companyId}
-                            disabled={!props.hasManageAuth}
+                            disabled={!hasManageAuth}
                             onClick={() => {
                               //只有有管理权限的可以选择「以企业组织身份」
-                              if (!props.hasManageAuth) {
+                              if (!hasManageAuth) {
                                 return;
                               }
                               setState({
@@ -315,3 +328,5 @@ export default function PublishDialog(props) {
     </Dialog>
   );
 }
+
+export default props => FunctionWrap(PublishDialog, { ...props });

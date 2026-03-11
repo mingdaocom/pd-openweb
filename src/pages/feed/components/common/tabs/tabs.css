@@ -21,12 +21,13 @@
 }
 .mmTab > ul > li:hover {
   border-bottom: 2px solid;
+  border-color: var(--color-primary-focus);
 }
 .mmTab > ul > li.current {
   border-bottom: none;
 }
 .mmTab > ul > li .icon-arrow-down-border {
-  color: #ccc;
+  color: var(--color-text-placeholder);
 }
 .mmTab .mmTabIndicator {
   position: absolute;

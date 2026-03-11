@@ -71,7 +71,7 @@ class AppList extends Component {
         key: 'application',
         text: (
           <Fragment>
-            <Icon className={cx('mRight10 Gray_9e Font18')} icon="application_library" />
+            <Icon className={cx('mRight10 textTertiary Font18')} icon="application_library" />
             <span className="Bold">{_l('从模板库添加')}</span>
           </Fragment>
         ),
@@ -80,7 +80,7 @@ class AppList extends Component {
         key: 'add',
         text: (
           <Fragment>
-            <Icon className={cx('mRight10 Gray_9e Font18')} icon="add1" />
+            <Icon className={cx('mRight10 textTertiary Font18')} icon="add1" />
             <span className="Bold">{_l('自定义创建')}</span>
           </Fragment>
         ),
@@ -136,7 +136,7 @@ class AppList extends Component {
           {!(_.find(md.global.Account.projects, item => item.projectId === projectId) || {}).cannotCreateApp &&
             this.renderItem({
               id: 'add',
-              iconColor: '#F5F5F5',
+              iconColor: 'var(--color-background-secondary)',
               icon: 'plus',
               name: _l('添加应用'),
               onClick: this.showActionSheet,

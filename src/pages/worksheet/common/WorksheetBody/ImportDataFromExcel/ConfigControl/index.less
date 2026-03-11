@@ -11,11 +11,11 @@
     }
     .controlBox {
       .sheetControls {
-        background: #fafafa;
+        background: var(--color-background-secondary);
         border-radius: 3px;
         min-width: 0;
         .star {
-          color: #f83333;
+          color: var(--color-error);
           font-size: 17px;
           height: 28px;
         }
@@ -32,7 +32,7 @@
           height: 36px;
           align-items: center;
           .Dropdown.disabled {
-            background-color: #fafafa;
+            background-color: var(--color-background-secondary);
           }
           .Dropdown--input {
             padding-left: 5px !important;
@@ -46,12 +46,12 @@
           line-height: 36px;
           padding-left: 12px;
           border-radius: 3px;
-          border: 1px solid #e0e0e0;
+          border: 1px solid var(--color-border-secondary);
           box-sizing: border-box;
         }
         .cantConfig {
           width: 100%;
-          background: #f8f8f8;
+          background: var(--color-background-secondary);
         }
         .excelControlDropDown {
           &.fixedDropdownSelected {
@@ -85,7 +85,7 @@
     }
   }
   .repeatConfigError {
-    color: #f83333;
+    color: var(--color-error);
   }
   .errorSkipDialog {
     position: absolute;
@@ -100,7 +100,7 @@
   max-height: 220px;
   overflow-y: auto;
   &::-webkit-scrollbar {
-    background: #fff !important;
+    background: var(--color-background-primary) !important;
   }
   .ant-dropdown-menu-item {
     line-height: 26px;
@@ -109,11 +109,11 @@
     transition: none !important;
   }
   .ant-dropdown-menu-item-active {
-    color: #fff;
-    background-color: #1677ff !important;
+    color: var(--color-white);
+    background-color: var(--color-background-hover) !important;
   }
   .ant-dropdown-menu-item-selected {
-    color: #1677ff !important;
-    background-color: #fff !important;
+    color: var(--color-primary) !important;
+    background-color: var(--color-background-primary) !important;
   }
 }

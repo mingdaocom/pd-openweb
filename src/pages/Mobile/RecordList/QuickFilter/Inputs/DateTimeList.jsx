@@ -6,7 +6,7 @@ import { Icon } from 'ming-ui';
 const Item = styled.div`
   padding: 8px 0;
   .icon-done {
-    color: #1677ff;
+    color: var(--color-primary);
   }
 `;
 
@@ -36,7 +36,7 @@ export default function DateTimeList(props) {
         <Fragment key={index}>
           {renderItem(item)}
           {index !== date.length - 1 && (
-            <div className="mTop10 mBottom10" style={{ borderTop: '1px solid #EAEAEA' }}></div>
+            <div className="mTop10 mBottom10" style={{ borderTop: '1px solid var(--color-border-secondary)' }}></div>
           )}
         </Fragment>
       ))}

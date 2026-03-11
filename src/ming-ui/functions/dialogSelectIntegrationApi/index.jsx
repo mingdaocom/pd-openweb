@@ -165,7 +165,7 @@ class SelectIntegrationApi extends Component {
         />
         {this.state[keyName] && (
           <i
-            className="icon-cancel Gray_9e Font15 pointer"
+            className="icon-cancel textTertiary Font15 pointer"
             onClick={() => this.setState({ [keyName]: '', ...pageIndex }, () => this.handleSearch(type))}
           ></i>
         )}
@@ -237,9 +237,9 @@ class SelectIntegrationApi extends Component {
               ) : !linkLoading && _.isEmpty(linkList) ? (
                 <div className="emptyChildContent emptyLink">
                   <span className="emptyIcon">
-                    <i className="Gray_bd icon-connect" />
+                    <i className="textDisabled icon-connect" />
                   </span>
-                  <span className="Font15 Gray_9e Bold">{_l('暂无可用连接')}</span>
+                  <span className="Font15 textTertiary Bold">{_l('暂无可用连接')}</span>
                 </div>
               ) : (
                 <ScrollView
@@ -286,9 +286,9 @@ class SelectIntegrationApi extends Component {
             ) : !apiLoading && (_.isEmpty(apiList) || _.isEmpty(linkList)) ? (
               <div className="emptyChildContent">
                 <span className="emptyIcon">
-                  <i className="Gray_bd icon-api" />
+                  <i className="textDisabled icon-api" />
                 </span>
-                <span className="Font15 Gray_9e Bold">{_l('暂无可用API')}</span>
+                <span className="Font15 textTertiary Bold">{_l('暂无可用API')}</span>
               </div>
             ) : (
               <Fragment>
@@ -312,7 +312,9 @@ class SelectIntegrationApi extends Component {
                       >
                         <div
                           className="iconWrap"
-                          style={{ backgroundColor: getRgbaByColor(child.iconColor || '#757575', '0.08') }}
+                          style={{
+                            backgroundColor: getRgbaByColor(child.iconColor || 'var(--color-text-secondary)', '0.08'),
+                          }}
                         >
                           <SvgIcon url={child.iconName} fill={child.iconColor} size={32} />
                           <Tooltip placement="bottom" title={(child.apiPackage || {}).name}>
@@ -328,7 +330,7 @@ class SelectIntegrationApi extends Component {
                         <div className="iconDesc">
                           <span className="Bold Font14 ellipsis">{child.name}</span>
                           {child.explain && (
-                            <span className="Font12 mTop8 Gray_a ellipsis" title={child.explain}>
+                            <span className="Font12 mTop8 textTertiary ellipsis" title={child.explain}>
                               {child.explain}
                             </span>
                           )}

@@ -1,12 +1,11 @@
 import _ from 'lodash';
 import DataFormat from 'src/components/Form/core/DataFormat';
-import { checkCellIsEmpty } from 'src/utils/control';
+import { checkCellIsEmpty, controlState } from 'src/utils/control';
 import { filterEmptyChildTableRows } from 'src/utils/record';
 import { checkRulesErrorOfRow } from 'src/utils/rule';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM } from '../../../core/config';
 import { checkRuleLocked } from '../../../core/formUtils';
 import { checkValueByFilterRegex } from '../../../core/formUtils';
-import { controlState } from '../../../core/utils';
 
 function getControlCompareValue(c, value) {
   if (c.type === 26) {
@@ -40,7 +39,7 @@ function getControlCompareValue(c, value) {
  * @param  {} data
  */
 
-export function getSubListError({ rows, rules }, controls = [], showControls = [], from = 3) {
+export function getSubListError({ rows, rules }, controls = [], showControls = [], from = 3, masterData) {
   const result = {};
   try {
     filterEmptyChildTableRows(rows).forEach(async row => {
@@ -69,6 +68,7 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
       const formdata = new DataFormat({
         data: controldata.map(c => ({ ...c, isSubList: true })),
         from: FROM.NEWRECORD,
+        masterData,
       });
       let errorItems = formdata.getErrorControls();
       rulesErrors.forEach(errorItem => {

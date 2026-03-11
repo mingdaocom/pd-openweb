@@ -10,17 +10,40 @@ export default {
     return mdyAPI('AccountSetting', 'GetAccountSettings', args, options);
   },
   /**
+   * 获取用户上次签名
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  getSign: function (args, options = {}) {
+    return mdyAPI('AccountSetting', 'GetSign', args, options);
+  },
+  /**
   * 更新个人系统设置
   * @param {Object} args 请求参数
   * @param {string} args.settingType 设置项[枚举值]
-PrivateMobile=9;PrivateEmail=10;AllowMultipleDevicesUse=16;AddressBookOftenMetioned=22
-  * @param {string} args.settingValue 设置值1:true, 0:false
+其他：PrivateMobile=9;PrivateEmail=10;AllowMultipleDevicesUse=16;AddressBookOftenMetioned=22
+  * @param {string} args.settingValue 设置值 1:true, 0:false
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
   editAccountSetting: function (args, options = {}) {
     return mdyAPI('AccountSetting', 'EditAccountSetting', args, options);
+  },
+  /**
+  * 更新个人两步验证系统设置
+  * @param {Object} args 请求参数
+  * @param {string} args.settingType 设置项[枚举值]
+其他：PrivateMobile=9;PrivateEmail=10;AllowMultipleDevicesUse=16;AddressBookOftenMetioned=22
+  * @param {string} args.settingValue 设置值 1:true, 0:false
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+  editAccountTwoAuthenticationSetting: function (args, options = {}) {
+    return mdyAPI('AccountSetting', 'EditAccountTwoAuthenticationSetting', args, options);
   },
   /**
    * 自动修改账号语言设置
@@ -34,16 +57,6 @@ PrivateMobile=9;PrivateEmail=10;AllowMultipleDevicesUse=16;AddressBookOftenMetio
     return mdyAPI('AccountSetting', 'AutoEditAccountLangSetting', args, options);
   },
   /**
-   * 获取用户上次签名
-   * @param {Object} args 请求参数
-   * @param {Object} options 配置参数
-   * @param {Boolean} options.silent 是否禁止错误弹层
-   * @returns {Promise<Boolean, ErrorModel>}
-   **/
-  getSign: function (args, options = {}) {
-    return mdyAPI('AccountSetting', 'GetSign', args, options);
-  },
-  /**
    * 修改用户当前签名
    * @param {Object} args 请求参数
    * @param {string} args.url 签名url
@@ -53,17 +66,6 @@ PrivateMobile=9;PrivateEmail=10;AllowMultipleDevicesUse=16;AddressBookOftenMetio
    **/
   editSign: function (args, options = {}) {
     return mdyAPI('AccountSetting', 'EditSign', args, options);
-  },
-  /**
-   *
-   * @param {Object} args 请求参数
-   * @param {Object} options 配置参数
-   * @param {Boolean} options.silent 是否禁止错误弹层
-   * @returns {Promise<Boolean, ErrorModel>}
-   **/
-  testSign: function (args, options = {}) {
-    options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
-    return mdyAPI('AccountSetting', 'TestSign', args, options);
   },
   /**
   * 修改用户加入的组织排序

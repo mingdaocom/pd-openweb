@@ -33,7 +33,7 @@ export class Count extends Component {
             <Select
               className="chartSelect w100"
               value={summary.controlId}
-              suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+              suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
               onChange={value => {
                 onChangeSummary({
                   controlId: value,
@@ -62,14 +62,14 @@ export class Count extends Component {
                   placement="bottom"
                   title={_l('汇总按照计算方式显示，需要计算选择的字段和添加的计算字段都显示在透视表中')}
                 >
-                  <Icon className="Font15 Gray_9e pointer mLeft5" icon="info" />
+                  <Icon className="Font15 textTertiary pointer mLeft5" icon="info" />
                 </Tooltip>
               )}
             </div>
             <Select
               className="chartSelect w100"
               value={summary.type}
-              suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+              suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
               onChange={value => {
                 const item = _.find(normTypes, { value });
                 if (isCollectMode) {
@@ -154,7 +154,7 @@ export const Location = ({ summary, locationType, onChangeSummary }) => {
         {getLocationTypes(locationType).map(item => (
           <div
             key={item.value}
-            className={cx('flex centerAlign pointer Gray_75', { active: summary.location == item.value })}
+            className={cx('flex centerAlign pointer textSecondary', { active: summary.location == item.value })}
             onClick={() => {
               onChangeSummary({
                 location: item.value,

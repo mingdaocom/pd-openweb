@@ -134,7 +134,7 @@ export default class Welink extends React.Component {
               </span>
             }
           >
-            <Icon icon="help" className="Font18 Gray_9e" />
+            <Icon icon="help" className="Font18 textTertiary" />
           </Popover>
         </div>
         <div className="Relative InlineBlock inputDiv clearfix">
@@ -163,7 +163,7 @@ export default class Welink extends React.Component {
               />
               <Icon
                 icon={!this.state[`isShow${strId}`] ? 'public-folder-hidden' : 'visibility'}
-                className="Gray_9e Font18 isShowIcon"
+                className="textTertiary Font18 isShowIcon"
                 onClick={() => {
                   this.setState({
                     [`isShow${strId}`]: !this.state[`isShow${strId}`],
@@ -225,7 +225,7 @@ export default class Welink extends React.Component {
     return (
       <div className="pBottom100">
         <div className="stepItem Relative">
-          <h3 className="stepTitle Font16 Gray">{_l('1.获取对接信息')}</h3>
+          <h3 className="stepTitle Font16 textPrimary">{_l('1.获取对接信息')}</h3>
           {!this.state.show1 ? (
             <div
               className="showDiv flexRow valignWrapper"
@@ -235,11 +235,13 @@ export default class Welink extends React.Component {
                 });
               }}
             >
-              <Icon icon="arrow-right-border" className="Font13 Gray_75 Right Hand showBtn" />
+              <Icon icon="arrow-right-border" className="Font13 textSecondary Right Hand showBtn" />
             </div>
           ) : (
             <React.Fragment>
-              <p className="mTop16 Font14 Gray_75">{_l('从Welink开放平台获取对接信息，即可开始集成以及同步通讯录')}</p>
+              <p className="mTop16 Font14 textSecondary">
+                {_l('从Welink开放平台获取对接信息，即可开始集成以及同步通讯录')}
+              </p>
               <MdLink
                 to={`/welinkSyncCourse/${this.props.projectId}`}
                 target="_blank"
@@ -251,7 +253,7 @@ export default class Welink extends React.Component {
           )}
         </div>
         <div className="stepItem Relative">
-          <h3 className="stepTitle Font16 Gray">{_l('2.对接信息录入')}</h3>
+          <h3 className="stepTitle Font16 textPrimary">{_l('2.对接信息录入')}</h3>
           {!this.state.show2 && (
             <div
               className="showDiv flexRow valignWrapper"
@@ -261,11 +263,11 @@ export default class Welink extends React.Component {
                 });
               }}
             >
-              <Icon icon="arrow-right-border" className="Font13 Gray_75 Right Hand showBtn" />
+              <Icon icon="arrow-right-border" className="Font13 textSecondary Right Hand showBtn" />
             </div>
           )}
           {this.state.isHasInfo && this.state.show2 && (
-            <span className="Font13 Gray_75 Right closeDing">
+            <span className="Font13 textSecondary Right closeDing">
               <Tooltip title={_l('关闭Welink集成后，无法再从Welink集成处进入应用')} placement="bottomLeft">
                 <span className="mLeft10 switchBtn">
                   <Switch checked={!this.state.isCloseDing} onClick={checked => this.editDingStatus(checked ? 2 : 1)} />
@@ -275,7 +277,7 @@ export default class Welink extends React.Component {
           )}
           {!this.state.isCloseDing && this.state.show2 && (
             <React.Fragment>
-              <p className="mTop16 Font14 Gray_75">
+              <p className="mTop16 Font14 textSecondary">
                 {_l('完成步骤 1 后，填入client_id、client_secret后可对接应用与同步通讯录')}
               </p>
               <div className="mTop25 infoList">
@@ -316,7 +318,7 @@ export default class Welink extends React.Component {
           )}
         </div>
         <div className="stepItem">
-          <h3 className="stepTitle Font16 Gray">{_l('3.数据同步')}</h3>
+          <h3 className="stepTitle Font16 textPrimary">{_l('3.数据同步')}</h3>
           <div className="mTop20 syncBox">
             <span className="Font14 syncTxt">{_l('从Welink通讯录同步到该系统')}</span>
             <Button
@@ -465,17 +467,19 @@ export default class Welink extends React.Component {
               ) : (
                 <React.Fragment>
                   <span className="mdIcon">
-                    <Icon icon="feed" className="Font40 White" />
+                    <Icon icon="feed" className="Font40 textWhite" />
                   </span>
-                  <Icon icon="swap_horiz" className="Font36 mLeft30 mRight30 Gray_bd" />
+                  <Icon icon="swap_horiz" className="Font36 mLeft30 mRight30 textDisabled" />
                   <Icon icon="invite-ding" className="TxtCenter" />
                 </React.Fragment>
               )}
             </div>
             {!this.state.hasApply ? (
               <div className="TxtCenter mTop50">
-                <h2 className="Font26 Gray">{_l('申请Welink集成')}</h2>
-                <p className="mTop24 mBottom32 Font16 Gray_75">{_l('申请通过后，可将应用安装到Welink集成工作台！')}</p>
+                <h2 className="Font26 textPrimary">{_l('申请Welink集成')}</h2>
+                <p className="mTop24 mBottom32 Font16 textSecondary">
+                  {_l('申请通过后，可将应用安装到Welink集成工作台！')}
+                </p>
                 <Button
                   type="primary"
                   className="applyBtn mBottom10"
@@ -495,13 +499,13 @@ export default class Welink extends React.Component {
               <div className="TxtCenter mTop50">
                 {this.state.isReject ? (
                   <React.Fragment>
-                    <h2 className="Font18 Gray">{_l('试用已过期，请付费后继续使用')}</h2>
-                    <p className="mTop15 Font13 Gray_75">{_l('如有疑问，请联系您的专属顾问')}</p>
+                    <h2 className="Font18 textPrimary">{_l('试用已过期，请付费后继续使用')}</h2>
+                    <p className="mTop15 Font13 textSecondary">{_l('如有疑问，请联系您的专属顾问')}</p>
                   </React.Fragment>
                 ) : (
                   <React.Fragment>
-                    <h2 className="Font26 Gray">{_l('申请已提交')}</h2>
-                    <p className="mTop24 mBottom32 Font16 Gray_75">
+                    <h2 className="Font26 textPrimary">{_l('申请已提交')}</h2>
+                    <p className="mTop24 mBottom32 Font16 textSecondary">
                       {_l('预计两个工作日反馈信息，如有疑问，请联系您的专属顾问')}
                     </p>
                   </React.Fragment>

@@ -103,7 +103,7 @@ const Email = props => {
       <div
         className={cx(
           'customFormControlBox',
-          { Gray_bd: !value },
+          { textDisabled: !value },
           { controlDisabled: disabled },
           { Visibility: isEditing },
         )}

@@ -8,15 +8,15 @@ import 'rc-trigger/assets/index.css';
 const DeleteConfirmWrap = styled.div`
   width: 320px;
   padding: 22px 24px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   border-radius: 3px;
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.24);
   .title {
     font-size: 15px;
-    color: #151515;
+    color: var(--color-text-title);
   }
   .hint {
-    color: #757575;
+    color: var(--color-text-secondary);
     margin: 6px 0 20px 0;
   }
   .btnList {
@@ -24,7 +24,7 @@ const DeleteConfirmWrap = styled.div`
     justify-content: flex-end;
     align-items: center;
     .cancel {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       margin-right: 24px;
       cursor: pointer;
     }

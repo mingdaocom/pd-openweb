@@ -2,7 +2,7 @@
   display: flex;
   // align-items: center;
   // margin-top: 30px;
-  color: #151515;
+  color: var(--color-text-title);
   font-size: 13px;
   &.pTop54 {
     padding-top: 54px;
@@ -10,7 +10,7 @@
   .common-info-row-label {
     min-width: 140px;
     width: 140px;
-    color: #757575;
+    color: var(--color-text-secondary);
     display: flex;
     justify-content: flex-start;
   }
@@ -19,13 +19,13 @@
     display: flex;
     flex-direction: column;
     .color_b {
-      color: #151515;
+      color: var(--color-text-title);
     }
   }
   .clearLogo {
-    color: #757575;
+    color: var(--color-text-secondary);
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .common-images {
@@ -44,18 +44,18 @@
     margin-top: 6px;
   }
   .set-describe {
-    color: #757575;
+    color: var(--color-text-secondary);
     .open-setting-rules-Txt {
       font-size: 13px;
-      color: #1677ff;
+      color: var(--color-primary);
       cursor: pointer;
     }
     .open-setting-rules-Txt:hover {
-      color: #4aadfd;
+      color: var(--color-primary-light);
     }
   }
   .delete {
-    color: #ff6d6c;
+    color: var(--color-calendar);
   }
   .editBtn {
     margin-left: -32px;
@@ -65,7 +65,7 @@
 .split-line {
   width: 100%;
   margin: 40px 0;
-  background: #eaeaea;
+  background: var(--color-border-secondary);
   height: 1px;
 }
 
@@ -81,7 +81,7 @@
     bottom: 0;
     left: 0;
     background: rgba(0, 0, 0, 0.4);
-    color: #fff;
+    color: var(--color-white);
     text-align: center;
     line-height: 48px;
     z-index: 2;
@@ -102,11 +102,11 @@
   text-align: center;
   line-height: 52px;
   border-radius: 2px;
-  border: 1px dashed #eaeaea;
+  border: 1px dashed var(--color-border-secondary);
   box-sizing: border-box;
   cursor: pointer;
   .icon-upload_pictures {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   img {
     width: 100%;
@@ -114,7 +114,7 @@
   }
 
   &:hover {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
   }
 }
 
@@ -130,7 +130,7 @@
   }
 }
 .domain-describe {
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   font-size: 14px;
   line-height: 24px;
 }
@@ -202,12 +202,12 @@
     padding-top: 76px;
     padding-bottom: 40px;
     .icon {
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       width: 106px;
       height: 106px;
       line-height: 106px;
       font-size: 50px;
-      color: #999;
+      color: var(--color-text-tertiary);
       display: inline-block;
       border-radius: 50%;
     }
@@ -216,7 +216,7 @@
 
 .positionContent {
   height: 100%;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   display: flex;
   overflow: hidden;
 }
@@ -240,14 +240,14 @@
       cursor: pointer;
     }
     .delete {
-      color: #ff6d6c;
+      color: var(--color-calendar);
     }
   }
 
   .searchContainer {
     box-sizing: border-box;
-    background: #f5f5f5;
-    // border: 1px solid #fff;
+    background: var(--color-background-secondary);
+    // border: 1px solid var(--color-white);
     border-radius: 15px;
     margin-left: 24px;
 
@@ -286,17 +286,17 @@
       }
       thead > tr > th {
         height: 48px;
-        background: #fff;
+        background: var(--color-background-primary);
         padding: 1px 24px 12px 1px;
         box-sizing: border-box;
-        color: #757575;
+        color: var(--color-text-secondary);
         font-weight: 600;
       }
       tbody > tr > td {
         height: 48px;
         padding: 1px 24px 1px 1px;
         box-sizing: border-box;
-        color: #151515;
+        color: var(--color-text-title);
         border-bottom: none;
       }
     }
@@ -311,15 +311,15 @@
         a {
           display: inline-block;
           padding: 3px 8px;
-          border: 1px solid #ccc;
-          color: #666;
+          border: 1px solid var(--color-border-tertiary);
+          color: var(--color-text-secondary);
           font-size: 12px;
           border-radius: 3px;
         }
       }
       .ant-pagination-disabled a {
-        color: #ccc;
-        border: 1px solid #fff;
+        color: var(--color-text-placeholder);
+        border: 1px solid var(--color-white);
         font-size: 12px;
       }
       .ant-pagination-item {
@@ -327,36 +327,36 @@
         line-height: unset;
         margin-right: 10px;
         min-width: 0;
-        border: 1px solid #fff;
+        border: 1px solid var(--color-white);
         a {
-          color: #666;
+          color: var(--color-text-secondary);
           display: inline-block;
           padding: 3px 8px;
           text-align: center;
           vertical-align: middle;
-          border: 1px solid #fff;
+          border: 1px solid var(--color-white);
           font-size: 12px;
         }
         a:hover {
-          border: 1px solid #ccc;
-          color: #666;
+          border: 1px solid var(--color-border-tertiary);
+          color: var(--color-text-secondary);
           border-radius: 3px;
         }
       }
       .ant-pagination-item-active {
         // border: none;
-        border: 1px solid #fff;
-        color: #151515;
+        border: 1px solid var(--color-white);
+        color: var(--color-text-title);
         a {
           // border: none;
-          border: 1px solid #fff;
+          border: 1px solid var(--color-white);
           text-decoration: underline;
-          color: #151515;
+          color: var(--color-text-title);
         }
       }
       .ant-pagination-jump-prev .ant-pagination-item-container .ant-pagination-item-link-icon,
       .ant-pagination-jump-next .ant-pagination-item-container .ant-pagination-item-link-icon {
-        color: #666;
+        color: var(--color-text-secondary);
       }
       .ant-pagination-options {
         display: none;
@@ -387,10 +387,10 @@
 
   #stepOne {
     .title {
-      color: #151515;
+      color: var(--color-text-title);
     }
     .subTitle {
-      color: #757575;
+      color: var(--color-text-secondary);
     }
     .passwordInput {
       width: 324px;
@@ -399,16 +399,16 @@
   }
 
   .error {
-    color: #f54336;
+    color: var(--color-error);
   }
 
   .Red_e828 {
-    color: #e82828 !important;
+    color: var(--color-error) !important;
   }
   .projectInfoCard {
     padding: 24px;
     border-radius: 5px;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
   }
   .explain {
     line-height: 32px;

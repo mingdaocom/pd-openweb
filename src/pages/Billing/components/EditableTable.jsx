@@ -7,15 +7,15 @@ const TableWrap = styled.div`
     border-collapse: collapse;
     margin-top: 16px;
     border-radius: 4px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
     table-layout: fixed;
     border-bottom: none;
     th,
     td {
       padding: 8px 12px;
       text-align: left;
-      border-bottom: 1px solid #e0e0e0;
-      border-right: 1px solid #e0e0e0;
+      border-bottom: 1px solid var(--color-border-secondary);
+      border-right: 1px solid var(--color-border-secondary);
       vertical-align: middle;
 
       &:last-child {
@@ -28,13 +28,13 @@ const TableWrap = styled.div`
     }
 
     th {
-      background-color: #fafafa;
+      background-color: var(--color-background-secondary);
       font-weight: 500;
       color: #262626;
     }
 
     tr:hover {
-      background-color: #fafafa;
+      background-color: var(--color-background-secondary);
     }
     .flex1 {
       flex: 1;
@@ -64,13 +64,13 @@ const TableWrap = styled.div`
 
   .unitText {
     margin-left: 8px;
-    color: #8c8c8c;
+    color: var(--color-text-secondary);
   }
 
   .lastUpdateTime {
     margin-top: 16px;
     text-align: right;
-    color: #8c8c8c;
+    color: var(--color-text-secondary);
     font-size: 12px;
   }
 `;

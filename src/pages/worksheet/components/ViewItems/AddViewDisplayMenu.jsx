@@ -19,7 +19,7 @@ import Structure from './lottie/structure.json';
 import Sheet from './lottie/table.json';
 
 const Wrap = styled.div`
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   border-radius: 3px 3px 3px 3px;
   overflow: hidden;
   box-shadow:
@@ -29,9 +29,9 @@ const Wrap = styled.div`
     padding: 0 12px 12px;
   }
   .typeMenuWrap {
-    border-right: 1px solid #dddddd;
+    border-right: 1px solid var(--color-border-primary);
     width: 180px;
-    background: #fafafa;
+    background: var(--color-background-secondary);
     padding: 16px 6px;
     .viewTypeItem {
       line-height: 36px;
@@ -47,7 +47,7 @@ const Wrap = styled.div`
     }
   }
   .customView {
-    background: #fff;
+    background: var(--color-background-primary);
     width: 540px;
     height: 440px;
     padding: 16px 0 16px 24px;
@@ -73,24 +73,24 @@ const Wrap = styled.div`
     }
     .addCustomView {
       font-weight: 600;
-      color: #757575;
+      color: var(--color-text-secondary);
       vertical-align: middle;
       line-height: 20px;
       .icon {
-        color: #757575;
+        color: var(--color-text-secondary);
       }
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
         .icon {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }
   }
   .toCustomLib {
-    color: #9d9d9d;
+    color: var(--color-text-tertiary);
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .minBold {
@@ -106,27 +106,27 @@ const Wrap = styled.div`
     }
     .Beta {
       padding: 4px 5px;
-      background: #43bd36;
+      background: var(--color-success);
       border-radius: 3px;
-      color: #fff;
+      color: var(--color-white);
     }
     .addCustomView {
-      background: #ffffff;
+      background: var(--color-background-primary);
       border-radius: 4px 4px 4px 4px;
-      border: 1px solid #dddddd;
+      border: 1px solid var(--color-border-primary);
       padding: 11px 14px;
       margin: 32px auto 48px;
       i {
-        color: #757575;
+        color: var(--color-text-secondary);
       }
       .viewName {
-        color: #151515;
+        color: var(--color-text-title);
       }
       &:hover {
-        border: 1px solid #1677ff;
+        border: 1px solid var(--color-primary);
         i,
         .viewName {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }
@@ -146,7 +146,7 @@ const Wrap = styled.div`
 
 const GuildWrap = styled.div`
   width: 280px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 2px 16px 1px rgba(0, 0, 0, 0.16);
   border-radius: 3px 3px 3px 3px;
   left: 100%;
@@ -273,7 +273,7 @@ export default class AddViewDisplayMenu extends Component {
   renderCon = (info, isDev) => {
     const { onClick } = this.props;
     return info.map(o => {
-      const { icon, id, iconColor = '#445A65', name, iconUrl } = o;
+      const { icon, id, iconColor = 'var(--color-cyan-dark)', name, iconUrl } = o;
       return (
         <div
           className="valignWrapper flex Hand"
@@ -292,7 +292,7 @@ export default class AddViewDisplayMenu extends Component {
         >
           <SvgIcon
             url={iconUrl || 'https://fp1.mingdaoyun.cn/customIcon/sys_12_4_puzzle.svg'}
-            fill={iconColor || '#445A65'}
+            fill={iconColor || 'var(--color-cyan-dark)'}
             size={18}
           />
           <span className="viewName mLeft8 WordBreak overflow_ellipsis" title={name}>
@@ -324,7 +324,7 @@ export default class AddViewDisplayMenu extends Component {
                 <GuildWrap className="guildWrap">
                   <div className="left">
                     <div className="guildTitle Font14 Bold">{GuildText[id].title}</div>
-                    <div className="guildDesc mTop8 Gray_75 LineHeight20 Font13">{GuildText[id].desc}</div>
+                    <div className="guildDesc mTop8 textSecondary LineHeight20 Font13">{GuildText[id].desc}</div>
                   </div>
                   <div className="rightCon">
                     {LottieComponent && (
@@ -365,7 +365,7 @@ export default class AddViewDisplayMenu extends Component {
                 </div>
                 {isNew && (
                   <div className="newIcon">
-                    <Icon icon="new" className="ThemeColor Font20" />
+                    <Icon icon="new" className="colorPrimary Font20" />
                   </div>
                 )}
               </div>
@@ -386,7 +386,7 @@ export default class AddViewDisplayMenu extends Component {
                     {orgPlugins.length > 0 && (
                       <React.Fragment>
                         <div
-                          className="Gray_9e mTop16 Bold Hand groupTitle"
+                          className="textTertiary mTop16 Bold Hand groupTitle"
                           onClick={() => this.onClickGroup('company')}
                         >
                           <Icon
@@ -402,7 +402,10 @@ export default class AddViewDisplayMenu extends Component {
                     )}
                     {myPlugins.length > 0 && (
                       <React.Fragment>
-                        <div className="Gray_9e mTop24 Bold Hand groupTitle" onClick={() => this.onClickGroup('my')}>
+                        <div
+                          className="textTertiary mTop24 Bold Hand groupTitle"
+                          onClick={() => this.onClickGroup('my')}
+                        >
                           <Icon
                             icon={retract.includes('my') ? 'arrow-right-tip' : 'arrow-down'}
                             className="Font13 mRight8"
@@ -427,7 +430,7 @@ export default class AddViewDisplayMenu extends Component {
                           pluginName: _l('自定义视图'),
                           pluginSource: 0,
                           pluginIcon: 'sys_12_4_puzzle',
-                          pluginIconColor: '#445A65',
+                          pluginIconColor: 'var(--color-cyan-dark)',
                           isNew: true,
                         })
                       }
@@ -470,7 +473,7 @@ export default class AddViewDisplayMenu extends Component {
                             pluginName: _l('自定义视图'),
                             pluginSource: 0,
                             pluginIcon: 'sys_12_4_puzzle',
-                            pluginIconColor: '#445A65',
+                            pluginIconColor: 'var(--color-cyan-dark)',
                             isNew: true,
                           },
                           true,

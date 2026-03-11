@@ -156,7 +156,7 @@ export default class Api extends Component {
         >
           {!data.appId ? (
             <span
-              className="Gray_75 ThemeHoverColor3 pointer alignItemsCenter"
+              className="textSecondary ThemeHoverColor3 pointer alignItemsCenter"
               style={{ display: 'inline-flex' }}
               onClick={this.selectIntegrationApi}
             >
@@ -170,7 +170,7 @@ export default class Api extends Component {
                 <span>
                   <Icon
                     icon="swap_horiz"
-                    className="Font20 Gray_75 ThemeHoverColor3 pointer"
+                    className="Font20 textSecondary ThemeHoverColor3 pointer"
                     onClick={this.selectIntegrationApi}
                   />
                 </span>
@@ -180,7 +180,7 @@ export default class Api extends Component {
             <Fragment>
               <div
                 className="workflowApiIcon"
-                style={{ backgroundColor: getRgbaByColor(data.app.iconColor || '#757575', '0.08') }}
+                style={{ backgroundColor: getRgbaByColor(data.app.iconColor || 'var(--color-text-secondary)', '0.08') }}
               >
                 <SvgIcon url={data.app.iconName} fill={data.app.iconColor} size={32} />
                 <Tooltip title={data.app.otherApkId || _l('未命名连接')}>
@@ -201,7 +201,7 @@ export default class Api extends Component {
                   />
                 </div>
                 {(data.app.explain || data.app.describe) && (
-                  <div className="Gray_75 ellipsis">{data.app.explain || data.app.describe}</div>
+                  <div className="textSecondary ellipsis">{data.app.explain || data.app.describe}</div>
                 )}
               </div>
               <div className="flex" />
@@ -209,7 +209,7 @@ export default class Api extends Component {
                 <span>
                   <Icon
                     icon="swap_horiz"
-                    className="Font20 Gray_75 ThemeHoverColor3 pointer"
+                    className="Font20 textSecondary ThemeHoverColor3 pointer"
                     onClick={this.selectIntegrationApi}
                   />
                 </span>

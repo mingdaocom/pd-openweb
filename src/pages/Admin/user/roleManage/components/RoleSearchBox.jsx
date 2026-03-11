@@ -33,7 +33,7 @@ export default class RoleSearchBox extends Component {
     const { searchValue } = this.state;
     return (
       <div className="searchContainer Relative">
-        <Icon icon="search" className=" btnSearch Gray_75 Font18" />
+        <Icon icon="search" className=" btnSearch textSecondary Font18" />
         <input
           defaultValue={searchValue}
           ref={input => (this.input = input)}
@@ -55,7 +55,7 @@ export default class RoleSearchBox extends Component {
         />
         {searchValue !== '' ? (
           <span
-            className="Font14 icon-cancel Gray_c Hand Absolute"
+            className="Font14 icon-cancel textPlaceholder Hand Absolute"
             style={{
               top: '8px',
               right: '8px',

@@ -8,8 +8,8 @@ import GroupCon from './GroupCon';
 const Wrap = styled.div`
   width: ${props => (!props.width ? '100%' : props.width + 'px')};
   height: 100%;
-  border-right: 2px solid #ddd;
-  background-color: #fff;
+  border-right: 2px solid var(--color-border-primary);
+  background-color: var(--color-background-primary);
   flex-shrink: 0;
   .dataCon {
     .searchBar {
@@ -20,17 +20,17 @@ const Wrap = styled.div`
       .icon {
         line-height: 35px;
         font-size: 20px;
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
         &.icon-close {
           cursor: pointer;
         }
         &.icon-search {
           &:hover {
-            color: #bdbdbd;
+            color: var(--color-text-disabled);
           }
         }
         &:hover {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
       input {

@@ -81,7 +81,7 @@ class Result extends React.Component {
     } else {
       return (
         <div className="searchResult">
-          <div className="TxtCenter Gray_c" style={{ paddingTop: '80px' }}>
+          <div className="TxtCenter textPlaceholder" style={{ paddingTop: '80px' }}>
             {_l('无搜索结果')}
           </div>
         </div>

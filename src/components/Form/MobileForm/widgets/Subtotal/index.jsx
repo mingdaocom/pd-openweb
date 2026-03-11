@@ -13,7 +13,7 @@ const Tips = styled.div`
   max-width: 230;
   max-height: 200;
   overflow-y: auto;
-  color: var(--color-background-primary);
+  color: var(--color-white);
   white-space: pre-wrap;
   .customSubtotalMessage {
     color: var(--color-background-primary) !important;

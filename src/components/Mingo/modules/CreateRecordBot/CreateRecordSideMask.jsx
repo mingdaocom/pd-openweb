@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import cx from 'classnames';
 import styled from 'styled-components';
 import NewRecordLand from 'src/pages/NewRecord';
 import { emitter } from 'src/utils/common';
@@ -23,12 +24,45 @@ function clearLatestMessagesOfMingoCreateRecord(worksheetId) {
   }
 }
 
-export default function CreateRecordSideMask({ appId, worksheetId, viewId, onClose }) {
+export default function CreateRecordSideMask({
+  appId,
+  worksheetId,
+  viewId,
+  defaultFormData,
+  defaultFormDataEditable,
+  onAdd = () => {},
+  onClose,
+}) {
+  const didMountTimestamp = useRef(Date.now());
+  useEffect(() => {
+    document.querySelectorAll('.ant-modal-wrap').forEach(el => {
+      const modalRoot = el.closest('.ant-modal-root');
+      if (modalRoot) {
+        modalRoot.classList.add('hide');
+      }
+    });
+    document.querySelectorAll('.mui-dialog-container').forEach(el => {
+      el.classList.add('hide');
+    });
+    return () => {
+      document.querySelectorAll('.ant-modal-wrap').forEach(el => {
+        const modalRoot = el.closest('.ant-modal-root');
+        if (modalRoot) {
+          modalRoot.classList.remove('hide');
+        }
+      });
+      document.querySelectorAll('.mui-dialog-container').forEach(el => {
+        el.classList.remove('hide');
+      });
+    };
+  }, []);
   return createPortal(
-    <SideMaskWrap className="createRecordSideMask">
+    <SideMaskWrap
+      className={cx('createRecordSideMask withSaveShortcut', `createTimestamp-${didMountTimestamp.current}`)}
+    >
       <NewRecordLand
         isMingoCreate
-        createOptions={{ appId, worksheetId, viewId }}
+        createOptions={{ appId, worksheetId, viewId, didMountTimestamp: didMountTimestamp.current }}
         onClose={() => {
           clearLatestMessagesOfMingoCreateRecord(worksheetId);
           onClose();
@@ -38,7 +72,9 @@ export default function CreateRecordSideMask({ appId, worksheetId, viewId, onClo
             clearLatestMessagesOfMingoCreateRecord(worksheetId);
           }
           emitter.emit('RELOAD_SHEET_VIEW');
+          onAdd(rowData, { continueAdd });
         }}
+        defaultCreateRecordParams={{ defaultFormData, defaultFormDataEditable }}
       />
     </SideMaskWrap>,
     document.querySelector('#containerWrapper'),

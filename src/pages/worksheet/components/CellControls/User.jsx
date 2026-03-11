@@ -92,7 +92,7 @@ export default class User extends React.Component {
           <span className="userName flex ellipsis">{user.fullname || user.name}</span>
           {isediting && !(cell.required && value.length === 1) && (
             <i
-              className="Font14 Gray_9e icon-close Hand mLeft4"
+              className="Font14 textTertiary icon-close Hand mLeft4"
               onClick={e => {
                 e.stopPropagation();
                 this.deleteUser(user.accountId);
@@ -349,13 +349,13 @@ export default class User extends React.Component {
           {value.map((user, index) => this.renderCellUser(user, index))}
           {!single && (
             <span className="addUserBtn" onClick={this.pickUser}>
-              <i className="icon icon-add Gray_75 Font14"></i>
+              <i className="icon icon-add textSecondary Font14"></i>
             </span>
           )}
         </div>
         {error && single && (
           <CellErrorTip
-            color={ignoreErrorMessage ? '#ff933e' : undefined}
+            color={ignoreErrorMessage ? 'var(--color-warning)' : undefined}
             pos={rowIndex === 0 ? 'bottom' : 'top'}
             error={error}
           />
@@ -378,8 +378,9 @@ export default class User extends React.Component {
     return (
       <Trigger
         action={['click']}
+        zIndex={1000}
         popup={editcontent}
-        getPopupContainer={single ? getPopupContainer : getPopupContainer(popupContainer, rows)}
+        getPopupContainer={single ? undefined : getPopupContainer(popupContainer, rows)}
         popupClassName="filterTrigger LineHeight0"
         popupVisible={isediting}
         popupAlign={{

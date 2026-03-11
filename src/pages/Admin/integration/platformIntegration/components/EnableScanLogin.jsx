@@ -81,10 +81,10 @@ export default function EnableScanLogin(props) {
 
   return (
     <Fragment>
-      <h3 className="stepTitle Font16 Gray mBottom24">{(integrationText[integrationType] || {}).title}</h3>
+      <h3 className="stepTitle Font16 textPrimary mBottom24">{(integrationText[integrationType] || {}).title}</h3>
       <Switch disabled={disabled} checked={scanEnabled} onClick={handleChangeScanEnabled} />
       <div className="mTop16 syncBox">
-        <span className="Font14 Gray_75">{(integrationText[integrationType] || {}).subTitle}</span>
+        <span className="Font14 textSecondary">{(integrationText[integrationType] || {}).subTitle}</span>
       </div>
 
       {customDoc ? (

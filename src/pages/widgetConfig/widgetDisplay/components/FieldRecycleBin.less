@@ -1,7 +1,7 @@
 .fieldRecycleBinText {
   display: flex;
   align-items: center;
-  color: #757575;
+  color: var(--color-text-secondary);
   cursor: pointer;
   margin-left: 4px;
   padding: 8px 10px;
@@ -11,17 +11,17 @@
 
   i {
     font-size: 16px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   &:hover {
-    background-color: #ffffff;
-    color: #151515;
+    background-color: var(--color-background-primary);
+    color: var(--color-text-title);
   }
   &.active {
-    background-color: #ffffff;
-    color: #1677ff;
+    background-color: var(--color-background-primary);
+    color: var(--color-primary);
     i {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .recycle {
@@ -32,7 +32,7 @@
   width: 80% !important;
   .mui-dialog-header {
     padding-bottom: 14px !important;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-primary);
   }
   .mui-dialog-close-btn {
     right: 10px !important;
@@ -58,14 +58,14 @@
 
       .icon-search {
         margin-top: 2px;
-        color: #bdbdbd !important;
+        color: var(--color-text-disabled) !important;
       }
 
       .icon-cancel {
         font-size: 14px;
         position: absolute;
         cursor: pointer;
-        color: #ccc !important;
+        color: var(--color-text-placeholder) !important;
         top: 6px;
         right: 8px;
         &:hover {
@@ -117,16 +117,16 @@
         line-height: 130px;
         text-align: center;
         border-radius: 50%;
-        background-color: #f5f5f5;
+        background-color: var(--color-background-secondary);
       }
       .icon {
         vertical-align: middle;
         font-size: 66px;
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
       .emptyExplain {
         margin-top: 20px;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         font-size: 17px;
         text-align: center;
       }
@@ -135,7 +135,7 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      color: #757575;
+      color: var(--color-text-secondary);
       overflow-x: hidden;
       .tableContent {
         flex: 1;
@@ -146,7 +146,7 @@
         padding: 13px 0;
         align-items: center;
         border: 1px solid transparent;
-        border-bottom-color: #eaeaea;
+        border-bottom-color: var(--color-border-secondary);
         cursor: pointer;
         .editOption {
           width: 80px;
@@ -157,7 +157,7 @@
           i {
             margin-top: 2px;
             &:hover {
-              color: #1677ff !important;
+              color: var(--color-primary) !important;
             }
           }
         }
@@ -174,14 +174,14 @@
           }
         }
         &.active {
-          background: #e4f3ff !important;
-          border: 1px solid #1677ff !important;
+          background: var(--color-primary-transparent) !important;
+          border: 1px solid var(--color-primary) !important;
           .editOption {
             visibility: visible !important;
           }
         }
         &:not(.fieldRecycleHeader):hover {
-          background: #f8f8f8;
+          background: var(--color-background-secondary);
           .editOption {
             visibility: visible;
           }

@@ -68,7 +68,7 @@ export default class RelateBox extends Component {
       showCustom,
     } = this.props;
     const dynamicControls = isGlobal ? globalSheetControls : columns;
-    let avaControls = relateDy(conditionType, dynamicControls, control, defaultValue);
+    let avaControls = relateDy(conditionType, dynamicControls, control, defaultValue, from);
     // 当前记录支持rowid
     if (showCustom && control.type === 2 && !isGlobal) {
       avaControls = avaControls.concat(ROW_ID_CONTROL);
@@ -151,7 +151,7 @@ export default class RelateBox extends Component {
             {showResult ? (
               <React.Fragment>
                 <div className="searchInput">
-                  <Icon icon={'h5_search'} className="Gray_9e searchIcon Font16" />
+                  <Icon icon={'h5_search'} className="textTertiary searchIcon Font16" />
                   <input
                     type="text"
                     className=""
@@ -164,7 +164,7 @@ export default class RelateBox extends Component {
                 </div>
                 <div className="selectBoxCom">
                   {searchResult && (
-                    <div className="pTop20 pBottom20 LineHeight80 TxtCenter Gray_9e">{_l('暂无搜索结果')}</div>
+                    <div className="pTop20 pBottom20 LineHeight80 TxtCenter textTertiary">{_l('暂无搜索结果')}</div>
                   )}
                   {showCustom && this.renderCustom(customData, control.type, true)}
                   {columnsData.length > 0 && !_.includes(['fastFilter'], from) && (
@@ -202,7 +202,7 @@ export default class RelateBox extends Component {
                 </div>
               </React.Fragment>
             ) : (
-              <div className="LineHeight40 pLeft10 Gray_9e">{_l('没有可选字段')}</div>
+              <div className="LineHeight40 pLeft10 textTertiary">{_l('没有可选字段')}</div>
             )}
           </div>
         )}

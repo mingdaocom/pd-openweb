@@ -24,9 +24,9 @@ const Wrap = styled.div`
   }
   .cancelBtn {
     font-size: 14px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     &:hover {
-      background: #eaeaea;
+      background: var(--color-border-secondary);
     }
     font-weight: bold;
     display: inline-block;
@@ -83,7 +83,7 @@ export default function (props) {
 
   return (
     <Wrap>
-      <div className="Gray_75 mTop10">
+      <div className="textSecondary mTop10">
         {_l(
           '配置插件运行时所需要的环境参数，采用JSON格式。优先读取应用中配置的参数，应用中未配置时读取组织中配置的参数。',
         )}
@@ -125,7 +125,7 @@ export default function (props) {
           {_l('更新配置')}
         </Button>
         <div
-          className="cancelBtn Hand Gray_75 mLeft16"
+          className="cancelBtn Hand textSecondary mLeft16"
           onClick={() => {
             setState({
               environmentparams: _.get(view, 'advancedSetting.environmentparams') || '',

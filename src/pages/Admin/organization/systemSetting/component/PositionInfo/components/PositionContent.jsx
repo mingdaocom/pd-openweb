@@ -94,7 +94,7 @@ class PositionContent extends Component {
       <Fragment>
         <div className="positionContentHeader Font15">
           <span className="Bold">{currentPosition.jobName}</span>
-          {allUserCount ? <span className="Gray_9e mLeft10">{allUserCount}</span> : ''}
+          {allUserCount ? <span className="textTertiary mLeft10">{allUserCount}</span> : ''}
         </div>
         <div className="actUserBox">
           <div className="actBtn addUser Hand" onClick={this.addUser}>

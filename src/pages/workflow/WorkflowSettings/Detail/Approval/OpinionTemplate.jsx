@@ -15,7 +15,7 @@ const SortableItemBox = styled.div`
   }
   .icon-trash {
     &:hover {
-      color: #f44336 !important;
+      color: var(--color-error) !important;
     }
   }
 `;
@@ -24,14 +24,14 @@ const Btn = styled.div`
   display: inline-block;
   height: 32px;
   line-height: 32px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   border-radius: 4px;
   padding: 0 20px;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   cursor: pointer;
-  color: #757575;
+  color: var(--color-text-secondary);
   &:hover {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
   }
 `;
 
@@ -54,7 +54,7 @@ export default ({ title, description, keys, opinionTemplate, onSave, onClose }) 
       <SortableItemBox className="flexRow mTop10 alignItemsCenter">
         <DragHandle>
           <Tooltip title={dragging ? '' : _l('拖拽调整排序')}>
-            <i className="icon-drag Font16 Gray_75 ThemeHoverColor3" style={{ cursor: 'move' }} />
+            <i className="icon-drag Font16 textSecondary ThemeHoverColor3" style={{ cursor: 'move' }} />
           </Tooltip>
         </DragHandle>
         <Textarea
@@ -98,7 +98,7 @@ export default ({ title, description, keys, opinionTemplate, onSave, onClose }) 
 
         <Tooltip title={_l('删除')}>
           <i
-            className="icon-trash Font16 Gray_75 pointer mLeft10"
+            className="icon-trash Font16 textSecondary pointer mLeft10"
             onClick={() => {
               const newSource = _.cloneDeep(items);
               _.remove(newSource, (o, i) => i === index);

@@ -12,12 +12,12 @@
     height: 100%;
     box-sizing: border-box;
     overflow: hidden;
-    background-color: #ffffff;
+    background-color: var(--color-background-primary);
     .sideNavBox {
       width: 300px;
       min-width: 300px;
       max-width: 300px;
-      background: #f5f5f9;
+      background: var(--color-background-secondary);
       height: 100%;
       padding: 10px 0 0;
       .title {
@@ -43,7 +43,7 @@
 
   .publicWorksheetEnablePanel {
     width: 100%;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     border-radius: 4px;
     padding: 32px;
     h1 {
@@ -56,7 +56,7 @@
       margin: 10px 0;
       line-height: 28px;
       font-size: 13px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
     .status {
       vertical-align: text-top;
@@ -72,7 +72,7 @@
     z-index: 2;
     width: 300px;
     box-shadow: 0px 4px 8px #00000029;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
 
     .publishSwitch {
       margin-left: 12px;
@@ -86,7 +86,7 @@
       }
 
       &.Switch--on {
-        background-color: #4caf50;
+        background-color: var(--color-success);
 
         .dot {
           left: 18px;
@@ -100,7 +100,7 @@
 
       .icon-refresh1 {
         &:hover {
-          color: #1677ff !important;
+          color: var(--color-primary) !important;
         }
       }
     }
@@ -124,7 +124,7 @@
       padding: 0 2px;
 
       .formContentHeader {
-        background: #fff;
+        background: var(--color-background-primary);
         padding: 0 20px;
       }
 
@@ -141,21 +141,21 @@
         width: 60px;
         height: 60px;
         border-radius: 4px;
-        border: 2px dashed #e0e0e0;
-        background: #fff;
+        border: 2px dashed var(--color-border-secondary);
+        background: var(--color-background-primary);
         cursor: pointer;
         i {
-          color: #bdbdbd;
+          color: var(--color-text-disabled);
           font-size: 40px;
         }
         &:hover {
-          background: #f7f7f7;
+          background: var(--color-background-hover);
         }
         &.isActive {
-          background: #f7f7f7;
-          border-color: #1677ff;
+          background: var(--color-background-secondary);
+          border-color: var(--color-primary);
           i {
-            color: #1677ff;
+            color: var(--color-primary);
           }
         }
       }
@@ -182,16 +182,16 @@
           justify-content: center;
           width: 30px;
           height: 28px;
-          background: #ffffff;
+          background: var(--color-background-primary);
           box-shadow: 0px 2px 4px 1px rgba(0, 0, 0, 0.2);
           border-radius: 14px;
           cursor: pointer;
           i {
-            color: #9e9e9e;
+            color: var(--color-text-tertiary);
           }
           &:hover {
             i {
-              color: #1677ff;
+              color: var(--color-primary);
             }
           }
         }
@@ -234,8 +234,8 @@
           &.customFormEditor {
             padding: 0 12px;
             height: auto;
-            background: #fff !important;
-            border: 1px solid #1677ff !important;
+            background: var(--color-background-primary) !important;
+            border: 1px solid var(--color-primary) !important;
           }
         }
       }
@@ -245,7 +245,7 @@
   .promptText {
     padding: 12px 10px;
     background: rgba(254, 249, 233, 1);
-    color: #757575;
+    color: var(--color-text-secondary);
     line-height: 22px;
     font-weight: 700;
   }
@@ -253,7 +253,7 @@
 
 .publicWorksheetForm.customWidgetForWorksheetWrap {
   position: relative;
-  background: #fff;
+  background: var(--color-background-primary);
   padding: 0 35px;
 
   #dragPreview {
@@ -283,7 +283,7 @@
 }
 
 #publicConfig_extendInput::placeholder {
-  color: #bdbdbd;
+  color: var(--color-text-disabled);
 }
 
 .rotate {
@@ -302,7 +302,7 @@
 
 .publicConfigSettingDrawer {
   .ant-drawer-header {
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     border-bottom: 0;
     padding: 24px 24px 16px;
     .ant-drawer-header-title {
@@ -320,7 +320,7 @@
     height: 100%;
     padding: 0;
     .headerTab {
-      background: #f8f8f8;
+      background: var(--color-background-secondary);
       > div {
         padding: 0 24px !important;
       }
@@ -340,13 +340,13 @@
         -webkit-appearance: none;
         min-height: 90px;
         max-height: 700px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--color-border-primary);
         padding: 0 12px;
 
         &.customFormEditor {
           height: auto;
-          background: #fff !important;
-          border: 1px solid #1677ff !important;
+          background: var(--color-background-primary) !important;
+          border: 1px solid var(--color-primary) !important;
           min-height: 250px;
           max-height: 700px;
         }
@@ -365,8 +365,8 @@
           width: 240px;
           &.deleteCode {
             .Dropdown--border {
-              border-color: #f44336;
-              background-color: #fff2f4;
+              border-color: var(--color-error);
+              background-color: var(--color-error-bg);
             }
           }
         }
@@ -405,17 +405,17 @@
       .passwordInput {
         width: 380px;
         font-size: 13px;
-        border-color: #ddd;
+        border-color: var(--color-border-primary);
       }
       .ant-picker {
         width: 380px;
         height: 36px;
         border-radius: 4px !important;
-        border-color: #ddd;
+        border-color: var(--color-border-primary);
         box-shadow: none;
         &:hover,
         &.ant-picker-focused {
-          border-color: #1677ff;
+          border-color: var(--color-primary);
         }
       }
       .Width380 {
@@ -426,7 +426,7 @@
       }
       .btnPositionSwitch {
         display: flex;
-        background: #f5f5f5;
+        background: var(--color-background-secondary);
         border-radius: 5px;
         padding: 4px;
         .positionItem {
@@ -436,8 +436,8 @@
           text-align: center;
           cursor: pointer;
           &.isActive {
-            background: #fff;
-            color: #1677ff;
+            background: var(--color-background-primary);
+            color: var(--color-primary);
             font-weight: bold;
           }
         }
@@ -462,17 +462,17 @@
       &.ming.MenuItem {
         .Item-content {
           &:hover {
-            color: #151515 !important;
-            background: #fff !important;
+            color: var(--color-text-title) !important;
+            background: var(--color-background-primary) !important;
           }
         }
         .itemText {
-          border-bottom: 1px solid #ddd;
+          border-bottom: 1px solid var(--color-border-primary);
         }
       }
       .searchInput {
         width: 100%;
-        background: #fff;
+        background: var(--color-background-primary);
         border-radius: 0;
         padding: 0;
       }
@@ -487,7 +487,7 @@
     display: inline-block;
     height: 36px;
     line-height: 36px;
-    background: #f4f4f4;
+    background: var(--color-background-disabled);
     padding: 0 12px;
     font-weight: 500;
     border-radius: 4px;

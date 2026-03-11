@@ -10,14 +10,14 @@ import img5 from './images/3x6.png';
 const Con = styled.div`
   flex: 1;
   height: 100%;
-  background: #eaeaea;
+  background: var(--color-border-secondary);
   display: flex;
   justify-content: center;
   align-items: center;
 `;
 
 const Label = styled.div`
-  box-shadow: 0px 3px 6px 1px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-lg);
   border-radius: 12px;
   overflow: hidden;
   font-size: 0px;

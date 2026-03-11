@@ -29,16 +29,16 @@ const Department = styled.div`
   padding: 4px;
   border-radius: 3px;
   &:hover {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-hover);
   }
   &.active {
-    background-color: #d6ecfe;
+    background-color: var(--color-primary-transparent);
     .icon,
     div {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
     .icon:hover {
-      background-color: #f5f5f5 !important;
+      background-color: var(--color-background-hover) !important;
     }
   }
   .iconArrow {
@@ -46,7 +46,7 @@ const Department = styled.div`
     padding: 7px 0px 5px 2px;
     border-radius: 4px;
     &:hover {
-      background-color: #eaeaea;
+      background-color: var(--color-border-secondary);
     }
   }
 `;
@@ -263,7 +263,7 @@ export default class DepartmentTree extends Component {
         >
           <Icon
             icon={subVisible ? 'arrow-down' : 'arrow-right-tip'}
-            className={cx('Gray_75 iconArrow', { Visibility: !item.haveSubDepartment })}
+            className={cx('textSecondary iconArrow', { Visibility: !item.haveSubDepartment })}
             onClick={event => {
               event.stopPropagation();
               this.expandNext(item.id);
@@ -279,7 +279,7 @@ export default class DepartmentTree extends Component {
               }
             }}
           />
-          <Icon className="Gray_9e Font16 mLeft2 mRight5" icon="folder" />
+          <Icon className="textTertiary Font16 mLeft2 mRight5" icon="folder" />
           <div className="ellipsis Font13">{item.name}</div>
         </Department>
         {subVisible && <div className="subs">{item.subs.map(item => this.renderDepartment(item))}</div>}
@@ -363,7 +363,7 @@ export default class DepartmentTree extends Component {
                     />
                   </span>
                 </Tooltip>
-                <div className="Gray_75">
+                <div className="textSecondary">
                   {res.length ? _l('已选 %0/%1', res.length, groupList.length) : _l('全选')}
                 </div>
               </div>
@@ -386,7 +386,7 @@ export default class DepartmentTree extends Component {
               </ScrollView>
             </div>
           ) : (
-            <div className="Gray_9e TxtCenter justifyCenter flexRow valignWrapper h100">
+            <div className="textTertiary TxtCenter justifyCenter flexRow valignWrapper h100">
               {groupId ? _l('部门下没有可选成员') : _l('从左侧选择部门后显示成员')}
             </div>
           )}

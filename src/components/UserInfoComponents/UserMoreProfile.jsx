@@ -17,7 +17,7 @@ const Wrap = styled.div`
   .materialInfo {
     display: flex;
     flex-wrap: wrap;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-primary);
     .materialInfoItem {
       width: ${({ rowNum }) => (rowNum ? `calc((100% - 0px) / ${rowNum})` : '100%')};
       overflow: hidden;
@@ -27,7 +27,7 @@ const Wrap = styled.div`
   .resumeItem {
     padding: 10px 8px;
     line-height: 30px;
-    border-bottom: 1px dashed #ddd;
+    border-bottom: 1px dashed var(--color-border-primary);
     word-wrap: break-word;
     word-break: break-word;
   }
@@ -70,8 +70,8 @@ export default function UserMoreProfile(props) {
                 <span className="mRight10">{item.title}</span>
               </div>
               <div>
-                <span className="mRight5 Gray_75">{_l('描述：')}</span>
-                <span className={`mRight10 ${item.description ? '' : 'Gray_bd'}`}>
+                <span className="mRight5 textSecondary">{_l('描述：')}</span>
+                <span className={`mRight10 ${item.description ? '' : 'textDisabled'}`}>
                   {item.description || _l('未填写')}
                 </span>
               </div>
@@ -102,8 +102,8 @@ export default function UserMoreProfile(props) {
                 <span className="mRight10">{item.title}</span>
               </div>
               <div>
-                <span className="mRight5 Gray_75">{_l('描述：')}</span>
-                <span className={`mRight10 ${item.description ? '' : 'Gray_bd'}`}>
+                <span className="mRight5 textSecondary">{_l('描述：')}</span>
+                <span className={`mRight10 ${item.description ? '' : 'textDisabled'}`}>
                   {item.description || _l('未填写')}
                 </span>
               </div>
@@ -128,7 +128,7 @@ export default function UserMoreProfile(props) {
           >
             {MaterialInfoData.map(item => (
               <div key={item.id} className="materialInfoItem flexRow">
-                <div className="Gray_75">{item.text}：</div>
+                <div className="textSecondary">{item.text}：</div>
                 <div className="flex ellipsis">
                   {item.id === 'birthdate' && userInfo.birthdate ? (
                     moment(userInfo.birthdate).format('YYYY-MM-DD')
@@ -137,7 +137,7 @@ export default function UserMoreProfile(props) {
                   ) : userInfo[item.id] ? (
                     userInfo[item.id]
                   ) : (
-                    <span className="Gray_bd">{_l('未填写')}</span>
+                    <span className="textDisabled">{_l('未填写')}</span>
                   )}
                 </div>
               </div>
@@ -152,7 +152,7 @@ export default function UserMoreProfile(props) {
         </div>
       )}
       <div
-        className="Hand Gray_9e pBottom20 InlineBlock"
+        className="Hand textTertiary pBottom20 InlineBlock"
         onClick={() => {
           setState({ visible: !visible });
           $('.infoList').slideToggle();

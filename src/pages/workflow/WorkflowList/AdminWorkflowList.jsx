@@ -36,6 +36,7 @@ const typeList = [
   { label: _l('循环'), value: 13 },
   { label: _l('子流程'), value: 8 },
   { label: _l('自定义动作'), value: 7 },
+  { label: _l('AI 动作'), value: 15 },
   { label: _l('对话'), value: 14 },
   { label: _l('审批流程'), value: 11 },
   { label: _l('封装业务流程'), value: 10 },
@@ -263,14 +264,18 @@ export default class AdminWorkflowList extends Component {
   renderListItem(item) {
     const { projectId } = this.props.match.params;
     const { list, loading } = this.state;
+    const startNode =
+      START_APP_TYPE[item.child ? 'subprocess' : item.moduleType === 1 ? 'ai_actions' : item.startAppType] || {};
 
     return (
       <div className="flexRow manageList" key={item.id}>
         <div
           className={cx('iconWrap mLeft10', { unable: !item.enabled })}
-          style={{ backgroundColor: (START_APP_TYPE[item.child ? 'subprocess' : item.startAppType] || {}).iconColor }}
+          style={{
+            backgroundColor: startNode.iconColor,
+          }}
         >
-          <Icon icon={(START_APP_TYPE[item.child ? 'subprocess' : item.startAppType] || {}).iconName} />
+          <Icon icon={startNode.iconName} />
         </div>
         <div className="flex name mLeft10 mRight40">
           <div
@@ -289,7 +294,7 @@ export default class AdminWorkflowList extends Component {
             <div className="ellipsis Font14" title={item.processName}>
               {item.processName}
             </div>
-            <div className="ellipsis Font12 Gray_bd" title={item.apkName}>
+            <div className="ellipsis Font12 textDisabled" title={item.apkName}>
               {item.apkName}
             </div>
           </div>
@@ -303,11 +308,9 @@ export default class AdminWorkflowList extends Component {
             updateSource={list => this.setState({ list })}
           />
         </div>
-        <div className="columnWidth Gray_75">
-          {(START_APP_TYPE[item.child ? 'subprocess' : item.startAppType] || {}).text}
-        </div>
-        <div className="columnWidth Gray_75">{moment(item.createdDate).format('YYYY-MM-DD')}</div>
-        <div className="columnWidth Gray_75 flexRow">
+        <div className="columnWidth textSecondary">{startNode.text}</div>
+        <div className="columnWidth textSecondary">{moment(item.createdDate).format('YYYY-MM-DD')}</div>
+        <div className="columnWidth textSecondary flexRow">
           <UserHead
             projectId={projectId}
             size={28}
@@ -318,7 +321,7 @@ export default class AdminWorkflowList extends Component {
         <MdLink to={`/workflowedit/${item.id}/2`} className="w20 mRight20 TxtCenter">
           <Tooltip title={_l('历史')}>
             <span>
-              <Icon icon="restore2" className="listBtn ThemeHoverColor3 Gray_75" />
+              <Icon icon="restore2" className="listBtn ThemeHoverColor3 textSecondary" />
             </span>
           </Tooltip>
         </MdLink>
@@ -441,7 +444,7 @@ export default class AdminWorkflowList extends Component {
 
             {md.global.SysSettings.enableSmsCustomContent && activeTab === 'workflowList' && (
               <div
-                className="pointer ThemeHoverColor3 Gray_75 Font13 Normal mLeft24"
+                className="pointer ThemeHoverColor3 textSecondary Font13 Normal mLeft24"
                 onClick={() => this.setState({ msgVisible: true })}
               >
                 <Icon icon="forum" />
@@ -455,7 +458,7 @@ export default class AdminWorkflowList extends Component {
             <div className="adminWorkflowCount flexRow">
               {useCount ? (
                 <Fragment>
-                  <span className="Gray_75 mRight5">{_l('本月执行数')}</span>
+                  <span className="textSecondary mRight5">{_l('本月执行数')}</span>
                   <span className="bold mRight5">{`${useExecCount
                     .toString()
                     .replace(/(\d)(?=(\d{3})+$)/g, '$1,')} / ${limitExecCount
@@ -463,7 +466,7 @@ export default class AdminWorkflowList extends Component {
                     .replace(/(\d)(?=(\d{3})+$)/g, '$1,')}`}</span>
 
                   {!!(quantity.quantityLicense || quantity.quantityMonthly) && (
-                    <span className="Gray_75">
+                    <span className="textSecondary">
                       （{_l('包含')}
                       {!!quantity.quantityLicense && (
                         <span className="mLeft3">
@@ -480,11 +483,16 @@ export default class AdminWorkflowList extends Component {
                     </span>
                   )}
 
-                  <span className="Gray_75 mLeft15 mRight5">{_l('剩余')}</span>
+                  <span className="textSecondary mLeft15 mRight5">{_l('剩余')}</span>
 
                   <span
                     className="bold"
-                    style={{ color: (limitExecCount - useExecCount) / limitExecCount > 0.1 ? '#151515' : '#f44336' }}
+                    style={{
+                      color:
+                        (limitExecCount - useExecCount) / limitExecCount > 0.1
+                          ? 'var(--color-text-title)'
+                          : 'var(--color-error)',
+                    }}
                   >
                     {(overage || 0).toFixed(2)}%
                   </span>
@@ -492,7 +500,7 @@ export default class AdminWorkflowList extends Component {
               ) : (
                 _l('加载中...')
               )}
-              {!md.global.Config.IsLocal && (
+              {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
                 <div className="workflowAutoOrder">
                   <Switch
                     checked={autoPurchaseWorkflowExtPack}
@@ -502,7 +510,7 @@ export default class AdminWorkflowList extends Component {
                     placement="bottom"
                     title={_l('本月剩余执行额度到达2%时，自动购买100信用点/1万次的单月包，从账户信用点余额中扣款')}
                   >
-                    <span className="Gray_75 Hand">{_l('自动订购')}</span>
+                    <span className="textSecondary Hand">{_l('自动订购')}</span>
                   </Tooltip>
                 </div>
               )}
@@ -521,7 +529,7 @@ export default class AdminWorkflowList extends Component {
                     .indexOf(inputValue.toLowerCase()) > -1
                 }
                 suffixIcon={<Icon icon="arrow-down-border Font14" />}
-                notFoundContent={<span className="Gray_75">{_l('无搜索结果')}</span>}
+                notFoundContent={<span className="textSecondary">{_l('无搜索结果')}</span>}
                 onSearch={_.debounce(
                   val => this.setState({ keyword: val, appPageIndex: 1 }, () => this.getAppList(params.projectId)),
                   500,
@@ -556,6 +564,7 @@ export default class AdminWorkflowList extends Component {
                 placeholder={_l('搜索创建人')}
                 projectId={params.projectId}
                 userInfo={userInfo}
+                isAdmin
                 changeData={data => this.updateState({ userInfo: data })}
               />
               <div className="flex" />
@@ -635,7 +644,7 @@ export default class AdminWorkflowList extends Component {
                 dangerouslySetInnerHTML={{
                   __html: _l(
                     '开启后，当月剩余执行额度为2%时，自动购买 %0 100信用点/1万次 %1 的单月包，从账户信用点中扣款',
-                    '<span class="Bold Gray">',
+                    '<span class="Bold textPrimary">',
                     '</span>',
                   ),
                 }}

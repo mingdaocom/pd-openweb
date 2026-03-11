@@ -33,6 +33,18 @@ export default class ChartSetting extends Component {
   constructor(props) {
     super(props);
   }
+  handleChangeStyle = (data, isRequest = false) => {
+    const { style } = this.props.currentReport;
+    this.props.changeCurrentReport(
+      {
+        style: {
+          ...style,
+          ...data,
+        },
+      },
+      isRequest,
+    );
+  };
   handleChangeFilterItem = (filterItem, conditions) => {
     const { currentReport } = this.props;
     this.props.changeFilterItem(filterItem);
@@ -71,7 +83,7 @@ export default class ChartSetting extends Component {
             {chartType[reportType].items.map(item => (
               <div
                 key={item.value}
-                className={cx('flex styleItem centerAlign pointer Gray_75', {
+                className={cx('flex styleItem centerAlign pointer textSecondary', {
                   active: displaySetup.showChartType == item.value,
                 })}
                 onClick={() => handleClick(item)}
@@ -88,7 +100,9 @@ export default class ChartSetting extends Component {
             {chartType[reportType].items.map(item => (
               <div
                 key={item.value}
-                className={cx('flex centerAlign pointer Gray_75', { active: displaySetup.showChartType == item.value })}
+                className={cx('flex centerAlign pointer textSecondary', {
+                  active: displaySetup.showChartType == item.value,
+                })}
                 onClick={() => handleClick(item)}
               >
                 {item.name}
@@ -108,7 +122,7 @@ export default class ChartSetting extends Component {
           {funnelShapeList.map(item => (
             <div
               key={item.value}
-              className={cx('flex centerAlign pointer Gray_75', {
+              className={cx('flex centerAlign pointer textSecondary', {
                 active: (style.funnelShape || 'funnel') == item.value,
               })}
               onClick={() => {
@@ -136,7 +150,9 @@ export default class ChartSetting extends Component {
           {funnelCurvatureList.map(item => (
             <div
               key={item.value}
-              className={cx('flex centerAlign pointer Gray_75', { active: (style.funnelCurvature || 2) == item.value })}
+              className={cx('flex centerAlign pointer textSecondary', {
+                active: (style.funnelCurvature || 2) == item.value,
+              })}
               onClick={() => {
                 this.props.changeCurrentReport({
                   style: {
@@ -270,10 +286,16 @@ export default class ChartSetting extends Component {
                 });
               }}
               onRemoveAxis={() => {
-                yaxisList[0] = {};
-                this.props.changeYaxisList({
-                  yaxisList,
-                });
+                if (yaxisList.length === 1) {
+                  this.props.changeYaxisList({
+                    yaxisList: [],
+                  });
+                } else {
+                  yaxisList[0] = {};
+                  this.props.changeYaxisList({
+                    yaxisList,
+                  });
+                }
               }}
               onAddAxis={data => {
                 this.props.addIndexYaxisList(data, 0);
@@ -304,6 +326,7 @@ export default class ChartSetting extends Component {
             />
             <YAxis
               name={_l('点大小')}
+              inheritLastYaxis={!_.isEmpty(yaxisList[0]) && !_.isEmpty(yaxisList[1]) && !yaxisList[2]}
               yaxisList={_.isEmpty(yaxisList[2]) ? [] : [yaxisList[2]]}
               currentReport={currentReport}
               axisControls={axisControls.concat(formulas)}
@@ -324,6 +347,7 @@ export default class ChartSetting extends Component {
               onAddAxis={data => {
                 this.props.addIndexYaxisList(data, 2);
               }}
+              onChangeStyle={this.handleChangeStyle}
             />
           </Fragment>
         );
@@ -345,10 +369,16 @@ export default class ChartSetting extends Component {
                 });
               }}
               onRemoveAxis={() => {
-                yaxisList[0] = {};
-                this.props.changeYaxisList({
-                  yaxisList,
-                });
+                if (yaxisList.length === 1) {
+                  this.props.changeYaxisList({
+                    yaxisList: [],
+                  });
+                } else {
+                  yaxisList[0] = {};
+                  this.props.changeYaxisList({
+                    yaxisList,
+                  });
+                }
               }}
               onAddAxis={data => {
                 this.props.addIndexYaxisList(data, 0);
@@ -356,6 +386,7 @@ export default class ChartSetting extends Component {
             />
             <YAxis
               name={_l('点大小')}
+              inheritLastYaxis={!_.isEmpty(yaxisList[0]) && !yaxisList[1]}
               yaxisList={_.isEmpty(yaxisList[1]) ? [] : [yaxisList[1]]}
               currentReport={currentReport}
               axisControls={axisControls.concat(formulas)}
@@ -376,6 +407,7 @@ export default class ChartSetting extends Component {
               onAddAxis={data => {
                 this.props.addIndexYaxisList(data, 1);
               }}
+              onChangeStyle={this.handleChangeStyle}
             />
           </Fragment>
         );
@@ -537,7 +569,7 @@ export default class ChartSetting extends Component {
         <div className="Bold mBottom12">{_l('目标值')}</div>
         {!yaxisList.length && (
           <Fragment>
-            <div className="mBottom12 Gray_75">{_l('请先配置数值')}</div>
+            <div className="mBottom12 textSecondary">{_l('请先配置数值')}</div>
             <WithoutFidldItem disable={true} allowInput={true} />
           </Fragment>
         )}

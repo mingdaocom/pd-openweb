@@ -10,7 +10,7 @@ const TabContainer = styled.div`
   flex-shrink: 0;
   padding: 2px;
   border-radius: 4px;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
 `;
 
 const Tab = styled.div`
@@ -18,7 +18,7 @@ const Tab = styled.div`
   cursor: pointer;
   border-radius: 4px;
   font-size: 13px;
-  color: ${props => (props.active ? '#151515' : '#757575')};
+  color: ${props => (props.active ? 'var(--color-text-title)' : 'var(--color-text-secondary)')};
   background: ${props => (props.active ? '#fff' : 'transparent')};
   opacity: ${props => (props.disabled ? 0.5 : 1)};
   cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
@@ -68,9 +68,9 @@ const Con = styled.div`
 const DeleteIcon = styled.i`
   margin-top: 9px;
   display: inline-block;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   &:hover {
-    color: #f44336;
+    color: var(--color-error);
   }
 `;
 
@@ -89,10 +89,10 @@ const WidgetCon = styled.div`
 
 const EmptyTag = styled.div`
   margin-top: 15px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   height: 6px;
   width: 22px;
-  background: #eaeaea;
+  background: var(--color-border-secondary);
   border-radius: 3px;
 `;
 

@@ -21,7 +21,7 @@ import SubControlConfig from './SubControlConfig';
 
 const AllWidgetsWrap = styled.div`
   overflow: auto;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   max-height: 400px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
 
@@ -30,7 +30,7 @@ const AllWidgetsWrap = styled.div`
     align-items: center;
     width: 100%;
     padding: 0 16px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-primary);
     input {
       line-height: 36px;
       border: none;
@@ -56,15 +56,15 @@ const AllWidgetsWrap = styled.div`
   .title {
     font-size: 13px;
     font-weight: bold;
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-primary);
     line-height: 30px;
     padding-left: 16px;
     padding-top: 6px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .emptyText {
     margin: 20px 0 32px 0;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     font-size: 13px;
     text-align: center;
     line-height: unset;
@@ -72,17 +72,17 @@ const AllWidgetsWrap = styled.div`
 `;
 
 const WidgetInfo = styled.div`
-  border: 1px solid #eaeaea;
+  border: 1px solid var(--color-border-primary);
   border-radius: 3px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-top: 6px;
   .del {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     &:hover {
-      color: #f44336;
+      color: var(--color-error);
     }
   }
   .widgetItem {
@@ -92,7 +92,7 @@ const WidgetInfo = styled.div`
     margin-right: 16px;
     line-height: 36px;
     &:hover {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
 
     .name {
@@ -112,10 +112,10 @@ const ControlsWrap = styled.div`
   margin-top: 8px;
   display: flex;
   line-height: 36px;
-  color: #1677ff;
+  color: var(--color-primary);
   position: relative;
   &:hover {
-    color: #1565c0;
+    color: var(--color-link-hover);
   }
   align-items: center;
   padding-left: 12px;
@@ -124,10 +124,10 @@ const ControlsWrap = styled.div`
     margin-left: 6px;
   }
   &.isBg {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
   }
   &.disabled {
-    color: #bdbdbd !important;
+    color: var(--color-text-disabled) !important;
     cursor: not-allowed;
   }
 `;
@@ -167,18 +167,18 @@ const SortableItem = ({ item, deleteWidget, copyWidget, configureWidget, DragHan
     <WidgetInfo>
       <DragHandle>
         <div className="iconOption grab">
-          <i className="icon-drag Gray_9e ThemeHoverColor3"></i>
+          <i className="icon-drag textTertiary ThemeHoverColor3"></i>
         </div>
       </DragHandle>
       <div className="widgetItem noSelect overflow_ellipsis pointer" onMouseDown={configureWidget}>
-        <i className={`icon-${icon} Gray_9e Font_16`}></i>
+        <i className={`icon-${icon} textTertiary Font_16`}></i>
         <div className="name overflow_ellipsis" title={controlName || widgetName}>
           {controlName || widgetName}
         </div>
       </div>
       <div className="iconOption">
         <Tooltip title={_l('复制')}>
-          <i className="copy icon-copy pointer Gray_9e ThemeHoverColor3 Font16" onMouseDown={copyWidget}></i>
+          <i className="copy icon-copy pointer textTertiary ThemeHoverColor3 Font16" onMouseDown={copyWidget}></i>
         </Tooltip>
       </div>
       <div className="iconOption mRight5">
@@ -225,7 +225,7 @@ export default function ConfigureControl(props) {
     <AllWidgetsWrap>
       <Menu>
         <div className="searchWrap" onClick={e => e.stopPropagation()}>
-          <i className="icon-search Font16 Gray_75"></i>
+          <i className="icon-search Font16 textSecondary"></i>
           <input
             autoFocus
             className="flex"
@@ -235,7 +235,7 @@ export default function ConfigureControl(props) {
               setSearchValue(e.target.value);
             }}
           />
-          {searchValue && <i className="Gray_9e pointer Font15 icon-cancel" onClick={() => setSearchValue('')} />}
+          {searchValue && <i className="textTertiary pointer Font15 icon-cancel" onClick={() => setSearchValue('')} />}
         </div>
         {_.isEmpty(filterData) ? (
           <div className="emptyText">{_l('没有搜索结果')}</div>
@@ -288,7 +288,7 @@ export default function ConfigureControl(props) {
                               title: _l('选择工作表'),
                               children: (
                                 <Fragment>
-                                  <div className="intro" style={{ color: '#9e9e9e' }}>
+                                  <div className="intro" style={{ color: 'var(--color-text-tertiary)' }}>
                                     {_l('在表单中显示关联的记录。如：订单关联客户')}
                                     <Support
                                       type={3}
@@ -378,7 +378,7 @@ export default function ConfigureControl(props) {
     });
     window.clearLocalDataTime({
       requestData: { worksheetId: data.dataSource },
-      clearSpecificKey: 'Worksheet_GetWorksheetInfo',
+      clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetBaseInfo'],
     });
   };
 

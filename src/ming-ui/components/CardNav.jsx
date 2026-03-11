@@ -10,33 +10,33 @@ const Wrap = styled.ul`
   margin: 12px 14px 0;
   li {
     padding: 14px;
-    color: #151515;
+    color: var(--color-text-title);
     font-size: 14px;
     cursor: pointer;
-    background: #ffffff 0% 0% no-repeat padding-box;
-    border: 1px solid #eaeaea;
+    background: var(--color-background-primary) 0% 0% no-repeat padding-box;
+    border: 1px solid var(--color-border-secondary);
     box-sizing: border-box;
 
     .Icon {
       width: 30px;
-      color: #757575;
+      color: var(--color-text-secondary);
       text-align: left;
       font-size: 18px;
       font-weight: normal;
     }
     &.current {
-      background: #f2f9ff;
-      box-shadow: inset 0 0 0 2px #1677ff;
-      color: #1677ff;
+      background: var(--color-primary-transparent-light);
+      box-shadow: inset 0 0 0 2px var(--color-primary);
+      color: var(--color-primary);
       box-sizing: border-box;
       z-index: 1;
       position: relative;
       .icon {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     p {
-      color: #aaaaaa;
+      color: var(--color-text-tertiary);
       margin-bottom: 0;
     }
   }

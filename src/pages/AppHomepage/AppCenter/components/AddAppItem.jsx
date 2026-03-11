@@ -129,7 +129,7 @@ export default class AddAppItem extends Component {
             this.setState({ importAppDialog: false, importAppParams: params });
             const hasDataBase =
               getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
-              (!md.global.Config.IsPlatformLocal || !md.global.Config.IsLocal);
+              (!window.platformENV.isPlatform || (!window.platformENV.isOverseas && !window.platformENV.isLocal));
             if (hasDataBase && hasAppResourceAuth) {
               return this.getMyDbInstances('importApp');
             }
@@ -237,7 +237,11 @@ export default class AddAppItem extends Component {
             <Menu className="addAppItemMenu">
               {ADD_APP_MODE.filter(
                 o =>
-                  !(md.global.Config.IsLocal && o.id === 'installFromLib' && md.global.SysSettings.hideTemplateLibrary),
+                  !(
+                    (window.platformENV.isOverseas || window.platformENV.isLocal) &&
+                    o.id === 'installFromLib' &&
+                    md.global.SysSettings.hideTemplateLibrary
+                  ),
               ).map(({ id, icon, text, href, featureId }) => {
                 const featureType = getFeatureStatus(projectId, VersionProductType.appImportExport);
                 if (featureId && !featureType) return;
@@ -254,7 +258,8 @@ export default class AddAppItem extends Component {
                       if (id === 'createFromEmpty') {
                         const hasDataBase =
                           getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
-                          (!md.global.Config.IsPlatformLocal || !md.global.Config.IsLocal);
+                          (!window.platformENV.isPlatform ||
+                            (!window.platformENV.isOverseas && !window.platformENV.isLocal));
                         if (hasDataBase && hasAppResourceAuth) {
                           this.getMyDbInstances('createFromEmpty');
                           return;
@@ -268,7 +273,7 @@ export default class AddAppItem extends Component {
                       if (id === 'createFromEmpty') {
                         const hasDataBase =
                           getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
-                          !md.global.Config.IsPlatformLocal;
+                          !window.platformENV.isPlatform;
 
                         if (hasDataBase && hasAppResourceAuth) {
                           this.getMyDbInstances({ id, href }, 'createFromEmpty');

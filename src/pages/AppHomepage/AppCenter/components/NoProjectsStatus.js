@@ -16,7 +16,7 @@ const FullCon = styled(FlexCenter)`
     width: 130px;
     height: 130px;
     border-radius: 50%;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
   }
 `;
 
@@ -28,11 +28,11 @@ const JoinGroupCon = styled.div`
     font-size: 14px;
     padding: 0 30px;
     line-height: 44px;
-    background: rgba(33, 150, 243, 0.08);
+    background: var(--color-primary-transparent);
     border-radius: 22px;
-    color: #757575;
+    color: var(--color-text-secondary);
     span {
-      color: #1677ff;
+      color: var(--color-primary);
       cursor: pointer;
       &:hover {
         text-decoration: underline;
@@ -54,19 +54,32 @@ export default function NoProjectsStatus(props) {
       </JoinGroupCon>
     );
   }
+  const canCreateProject = md.global.Account.superAdmin || md.global.SysSettings.enableCreateProject;
+
   return (
     <FullCon>
       <div className="iconWrapper">
-        <Icon icon="organization_add" className="Gray_9e Font64" />
+        <Icon icon="organization_add" className="textTertiary Font64" />
       </div>
       <div className="Font20 bold mTop32">
+        {canCreateProject && (
+          <>
+            <span
+              className="colorPrimary pointer mLeft5 mRight5"
+              onClick={() => window.open('/enterpriseRegister?type=create', '__blank')}
+            >
+              {_l('创建')}
+            </span>
+            <span className="textSecondary">{_l('或')}</span>
+          </>
+        )}
         <span
-          className="ThemeColor pointer mLeft5 mRight5"
+          className="colorPrimary pointer mLeft5 mRight5"
           onClick={() => window.open('/enterpriseRegister?type=add', '__blank')}
         >
           {_l('申请加入')}
         </span>
-        <span className="Gray_75">{_l('组织，创建自己的应用')}</span>
+        <span className="textSecondary">{_l('组织，创建自己的应用')}</span>
       </div>
     </FullCon>
   );

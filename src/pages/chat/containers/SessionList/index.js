@@ -483,25 +483,25 @@ class SessionList extends Component {
     return (
       <div className="ChatPanel-addToolbar-menu">
         {isSet ? (
-          <div className="menuItem ThemeBGColor3" onClick={this.handleStick.bind(this)}>
+          <div className="menuItem" onClick={this.handleStick.bind(this)}>
             <Icon icon={isTop ? 'unpin' : 'set_top'} className="Font16" />
             <div className="menuItem-text">{isTop ? _l('取消置顶') : _l('置顶')}</div>
           </div>
         ) : undefined}
         {isFeed ? (
-          <div className="menuItem ThemeBGColor3" onClick={this.handleOpenFeed.bind(this)}>
+          <div className="menuItem" onClick={this.handleOpenFeed.bind(this)}>
             <Icon icon="chat1" className="Font16" />
             <div className="menuItem-text">{_l('查看动态')}</div>
           </div>
         ) : undefined}
         {isPushNotice && (
-          <div className="menuItem ThemeBGColor3" onClick={this.handleUpdatePushNotice.bind(this)}>
+          <div className="menuItem" onClick={this.handleUpdatePushNotice.bind(this)}>
             <Icon icon={isPushNoticeValue ? 'notifications_off' : 'notifications'} className="Font16" />
             <div className="menuItem-text">{isPushNoticeValue ? _l('消息免打扰') : _l('允许提醒')}</div>
           </div>
         )}
         <div
-          className="menuItem ThemeBGColor3"
+          className="menuItem"
           onClick={event => {
             this.handleRemoveSession(this.state.hoverItem, event);
             this.handleClickAway();
@@ -516,7 +516,7 @@ class SessionList extends Component {
   renderClearMenu() {
     return (
       <div className="ChatPanel-addToolbar-menu">
-        <div className="menuItem ThemeBGColor3" onClick={this.handleClearAllCount.bind(this, true)}>
+        <div className="menuItem" onClick={this.handleClearAllCount.bind(this, true)}>
           <div className="menuItem-text">{_l('忽略全部消息')}</div>
         </div>
       </div>
@@ -627,7 +627,7 @@ class SessionList extends Component {
         <div className="flex minHeight0">
           <ScrollView
             onScrollEnd={this.handleScrollEnd.bind(this)}
-            className="SessionList-scrollView ThemeBGColor9"
+            className="SessionList-scrollView"
             options={{ scrollbars: visible ? {} : { visibility: 'hidden' } }}
             ref={scrollView => {
               this.scrollView = scrollView;

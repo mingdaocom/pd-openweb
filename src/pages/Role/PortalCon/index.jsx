@@ -50,14 +50,14 @@ const Wrap = styled.div`
     margin-left: 6px;
     line-height: 32px;
     padding: 0 20px;
-    background: #1677ff;
+    background: var(--color-primary);
     border-radius: 3px;
     text-align: center;
-    color: #fff;
+    color: var(--color-white);
     font-weight: 700;
     overflow: hidden;
     &:hover {
-      background: #1e88e5;
+      background: var(--color-primary);
     }
   }
 `;

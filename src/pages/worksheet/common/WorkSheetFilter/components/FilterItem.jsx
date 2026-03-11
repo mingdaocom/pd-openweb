@@ -299,7 +299,7 @@ export default class FilterItem extends Component {
             />
           </div>
           {!disableSave && this.checkNewFilter(filter) && (
-            <span className="ThemeHoverColor3 Hand mTop15 mRight6 Gray_75" onClick={onSaveNew}>
+            <span className="ThemeHoverColor3 Hand mTop15 mRight6 textSecondary" onClick={onSaveNew}>
               {_l('保存')}
             </span>
           )}

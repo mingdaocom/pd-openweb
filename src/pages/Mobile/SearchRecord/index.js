@@ -104,6 +104,15 @@ class Search extends Component {
         langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
       })
       .then(({ data }) => {
+        data = _.some(data, item => !item.rowid)
+          ? _.reduce(
+              data,
+              (result, item) => {
+                return result.concat(item.rows || []);
+              },
+              [],
+            ).map(v => JSON.parse(v))
+          : data;
         const { rows } = this.state;
         const newRows = rows.concat(data);
         if (newRows.length === 1) {

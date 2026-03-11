@@ -1,8 +1,7 @@
 import _, { get, includes, isArray, isObject, isString } from 'lodash';
-import { isEmptyValue } from 'src/utils/control';
+import { controlState, isEmptyValue } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 import { allSwitchKeys, HAVE_VALUE_STYLE_WIDGET } from '../../core/enum';
-import { controlState } from '../../core/formUtils';
 import { FIELD_SIZE_OPTIONS, TITLE_SIZE_OPTIONS } from './config';
 
 export const getTabTypeBySelectUser = (control = {}) => {

@@ -65,7 +65,7 @@ export default ({
         }
       >
         <Radio className="Font15" text={_l('添加普通分支')} checked={isOrdinary} onClick={() => setIsOrdinary(true)} />
-        <div className="Gray_75 Font13 pLeft30 mTop5 mBottom15">
+        <div className="textSecondary Font13 pLeft30 mTop5 mBottom15">
           {typeId === NODE_TYPE.APPROVAL
             ? _l('只对“通过”审批的数据进行分支处理')
             : _l('对查找到的数据进行分支处理。未查找到数据时，流程中止')}
@@ -76,7 +76,7 @@ export default ({
           checked={!isOrdinary}
           onClick={() => setIsOrdinary(false)}
         />
-        <div className="Gray_75 Font13 pLeft30 mTop5">
+        <div className="textSecondary Font13 pLeft30 mTop5">
           {typeId === NODE_TYPE.APPROVAL
             ? _l('分支固定为“通过”和“否决”。如果你同时需要对“否决”审批的数据进行处理时选择此分支')
             : _l(
@@ -103,7 +103,7 @@ export default ({
           <Radio className="Font15" text={o.text} checked={moveType === o.value} onClick={() => setMoveType(o.value)} />
         </div>
       ))}
-      <div className="Gray_75 Font13 pLeft30" style={{ marginTop: -10 }}>
+      <div className="textSecondary Font13 pLeft30" style={{ marginTop: -10 }}>
         {_l('等待分支汇集后再执行下方节点')}
       </div>
     </Dialog>

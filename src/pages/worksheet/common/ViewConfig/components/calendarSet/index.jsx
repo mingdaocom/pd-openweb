@@ -13,8 +13,7 @@ import { Checkbox, Icon } from 'ming-ui';
 import { TimeDropdownChoose } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
 import { AnimationWrap } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
 import { getCalendartypeData, getCalendarViewType, getTimeControls } from 'src/pages/worksheet/views/CalendarView/util';
-import { isTimeStyle } from 'src/pages/worksheet/views/CalendarView/util';
-import { getAdvanceSetting } from 'src/utils/control';
+import { getAdvanceSetting, isTimeStyle } from 'src/utils/control';
 import SelectStartOrEndGroups from '../SelectStartOrEndControl/SelectStartOrEndGroups';
 
 let obj = [_l('月'), _l('周'), _l('日')];
@@ -24,16 +23,16 @@ const locale = locales[md.global.Account.lang];
 
 const ShowChoose = styled.div`
   .showtimeCon {
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 3px;
-    color: #757575;
+    color: var(--color-text-secondary);
     padding: 6px 12px;
-    background: #fff;
+    background: var(--color-background-primary);
     display: flex;
     justify-content: space-between;
     cursor: pointer;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
   .hiddenDaysBox {
@@ -47,7 +46,7 @@ const ShowChoose = styled.div`
       text-align: center;
       cursor: pointer;
       line-height: 36px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border-secondary);
       overflow: hidden;
       margin-right: -1px;
       position: relative;
@@ -60,16 +59,16 @@ const ShowChoose = styled.div`
         overflow: hidden;
       }
       &.checked {
-        background: #1677ff;
-        color: #fff;
-        border-top: 1px solid #1677ff;
-        border-bottom: 1px solid #1677ff;
+        background: var(--color-primary);
+        color: var(--color-white);
+        border-top: 1px solid var(--color-primary);
+        border-bottom: 1px solid var(--color-primary);
         z-index: 1;
         &:last-child {
-          border-right: 1px solid #1677ff;
+          border-right: 1px solid var(--color-primary);
         }
         &:first-child {
-          border-left: 1px solid #1677ff;
+          border-left: 1px solid var(--color-primary);
         }
       }
     }

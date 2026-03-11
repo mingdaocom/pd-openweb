@@ -18,8 +18,8 @@ const NoProjectCardInfoData = [
 
 const UserProjectInfoWrap = styled.div`
   padding-bottom: 10px;
-  border-bottom: 1px solid #ededed;
-  color: #151515;
+  border-bottom: 1px solid var(--color-border-secondary);
+  color: var(--color-text-title);
   font-size: 14px;
   .projectsWrap {
     display: inline-block;
@@ -60,7 +60,7 @@ const UserProjectInfoWrap = styled.div`
   .multipleJobs {
     padding-bottom: 10px;
     margin-bottom: 12px;
-    border-bottom: 1px solid #ededed;
+    border-bottom: 1px solid var(--color-border-secondary);
     &.noBorder {
       border-bottom: none;
       padding-bottom: 0;
@@ -74,12 +74,10 @@ const ProjectsMenuCon = styled.div`
   height: 300px;
   overflow-y: auto;
   overflow-x: hidden;
-  background: #fff;
+  background: var(--color-background-card);
   border-radius: 3px;
   padding-bottom: 5px;
-  box-shadow:
-    0 4px 20px rgb(0 0 0 / 13%),
-    0 2px 6px rgb(0 0 0 / 10%);
+  box-shadow: var(--shadow-lg);
 
   .projectsMenu {
     padding-top: 5px;
@@ -93,11 +91,11 @@ const ProjectsMenuCon = styled.div`
     height: 40px;
     line-height: 40px;
     &.active {
-      color: #1677ff;
+      color: var(--color-primary);
       background: rgb(33, 150, 243, 0.08);
     }
     &:not(.active):hover {
-      background: #f7f7f7;
+      background: var(--color-background-hover);
     }
   }
 `;
@@ -193,7 +191,7 @@ export default function UserBaseProfile(props) {
             >
               <div className="projectsWrap mBottom6 Hand">
                 <span className="bold">{currentUserProject.companyName || _l('个人资料')}</span>
-                <span className="icon-arrow-down mLeft8 Gray_75 Hand"></span>
+                <span className="icon-arrow-down mLeft8 textSecondary Hand"></span>
               </div>
             </Trigger>
           ) : (
@@ -208,14 +206,19 @@ export default function UserBaseProfile(props) {
               {currentUserProject.departmentJobInfos.map((item, index) => (
                 <div key={index} className="mTop8">
                   <div className="flexRow alignItemsCenter LineHeight30">
-                    <div className="Gray_75 Font14">{_l('任职信息%0', index + 1)}</div>
+                    <div className="textSecondary Font14">{_l('任职信息%0', index + 1)}</div>
                     {isAddressBook && (
-                      <Divider className="flex mTop0 mBottom0 mLeft5 minWidth0" style={{ borderColor: '#ededed' }} />
+                      <Divider
+                        className="flex mTop0 mBottom0 mLeft5 minWidth0"
+                        style={{ borderColor: 'var(--color-border-secondary)' }}
+                      />
                     )}
                   </div>
                   <div className={isAddressBook ? 'flexColumn' : 'flexRow'}>
                     <div className="itemInfo flexRow">
-                      <div className={cx('Gray_75', { mRight8: isCard })}>{isCard ? _l('部门') : _l('部门：')}</div>
+                      <div className={cx('textSecondary', { mRight8: isCard })}>
+                        {isCard ? _l('部门') : _l('部门：')}
+                      </div>
                       <DepartmentFullName
                         className="flex mRight5 personalDepartment"
                         projectId={currentUserProject.projectId}
@@ -229,13 +232,15 @@ export default function UserBaseProfile(props) {
                       />
                     </div>
                     <div className="itemInfo flexRow">
-                      <div className={cx('Gray_75', { mRight8: isCard })}>{isCard ? _l('职位') : _l('职位：')}</div>
+                      <div className={cx('textSecondary', { mRight8: isCard })}>
+                        {isCard ? _l('职位') : _l('职位：')}
+                      </div>
                       {item.jobs.length ? (
                         <div className="flex ellipsis mRight5" title={item.jobs.map(job => job.name).join(';')}>
                           {item.jobs.map(job => job.name).join(';')}
                         </div>
                       ) : (
-                        <div className="Gray_bd">{_l('未填写')}</div>
+                        <div className="textDisabled">{_l('未填写')}</div>
                       )}
                     </div>
                   </div>
@@ -255,7 +260,7 @@ export default function UserBaseProfile(props) {
 
           return (
             <div key={item.id} className="itemInfo flexRow">
-              <div className={cx('Gray_75', { mRight8: isCard })}>
+              <div className={cx('textSecondary', { mRight8: isCard })}>
                 {item.text}
                 {isCard ? '' : '：'}
               </div>
@@ -294,7 +299,7 @@ export default function UserBaseProfile(props) {
                     currentUserProject[item.id]
                   )
                 ) : (
-                  <span className="Gray_bd">{_l('未填写')}</span>
+                  <span className="textDisabled">{_l('未填写')}</span>
                 )}
 
                 {_.includes(['mobilePhone', 'email'], item.id) && item.isMask && !noProject && userInfo[item.id] && (
@@ -323,7 +328,7 @@ export default function UserBaseProfile(props) {
                       }
                     }}
                   >
-                    <i className="icon icon-eye_off Gray_bd" />
+                    <i className="icon icon-eye_off textDisabled" />
                   </span>
                 )}
               </div>

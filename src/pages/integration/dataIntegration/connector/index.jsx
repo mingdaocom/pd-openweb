@@ -17,7 +17,7 @@ import { AddConnector } from './components';
 import './style.less';
 
 const ConnectorWrapper = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   min-height: 100%;
 
   .headerWrapper {
@@ -55,7 +55,7 @@ const ConnectorWrapper = styled.div`
     }
     .nameText {
       margin-left: 10px;
-      color: #151515;
+      color: var(--color-text-title);
       font-size: 14px;
     }
   }
@@ -70,7 +70,7 @@ const FormCard = styled.div`
   max-width: 1500px;
   margin: -80px auto 0 auto;
   padding: 48px;
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 16px;
   box-shadow:
     rgba(0, 0, 0, 0.1) 0px 3px 8px 0px,
@@ -80,7 +80,7 @@ const FormCard = styled.div`
     line-height: 20px;
   }
   .arrowIcon {
-    color: #d0d0d0;
+    color: var(--color-border-primary);
     font-size: 24px;
     margin: 26px 16px 0 16px;
     transform: rotate(-90deg);
@@ -93,7 +93,7 @@ const FormCard = styled.div`
     .ant-select-selector {
       min-height: 48px;
       padding: 8px 11px !important;
-      border: 2px solid #eaeaea !important;
+      border: 2px solid var(--color-border-secondary) !important;
       border-radius: 8px !important;
       box-shadow: none !important;
 
@@ -104,7 +104,7 @@ const FormCard = styled.div`
 
     &.ant-select-focused {
       .ant-select-selector {
-        border-color: #1677ff !important;
+        border-color: var(--color-primary) !important;
       }
     }
   }
@@ -115,11 +115,11 @@ const FormCard = styled.div`
     margin-left: 16px;
     min-width: 180px;
     max-width: 180px;
-    background: #1677ff;
+    background: var(--color-primary);
     border-radius: 8px !important;
 
     &.disabled {
-      background: #6dc5fd !important;
+      background: var(--color-primary-light) !important;
     }
   }
 `;
@@ -158,15 +158,15 @@ const ConnectorCard = styled.div`
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    background: #fff;
-    border: 1px solid #eaeaea;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-secondary);
     border-radius: 16px;
     padding: 40px 55px;
     cursor: pointer;
 
     &:hover {
       box-shadow: rgba(0, 0, 0, 0.12) 0px 2px 5px;
-      border: 1px solid #fff;
+      border: 1px solid var(--color-white);
     }
 
     .typeIcon {
@@ -182,7 +182,7 @@ const ConnectorCard = styled.div`
       }
     }
     .arrowIcon {
-      color: #ddd;
+      color: var(--color-border-primary);
       transform: rotate(-90deg);
     }
     .nameText {
@@ -190,7 +190,7 @@ const ConnectorCard = styled.div`
       margin-top: 15px;
       font-size: 15px;
       line-height: 20px;
-      color: #151515;
+      color: var(--color-text-title);
     }
   }
 `;
@@ -243,9 +243,10 @@ function Connector(props) {
           upgradeVersionDialog({
             projectId: props.currentProjectId,
             hint: _l('余量已达到最大值'),
-            explainText: md.global.Config.IsLocal
-              ? _l('当前版本最多可创建%0个同步任务, 请升级版本以创建更多同步任务', res.maxTaskNum)
-              : _l('免费版最多可创建%0个同步任务, 请升级版本以创建更多同步任务', res.maxTaskNum),
+            explainText:
+              window.platformENV.isOverseas || window.platformENV.isLocal
+                ? _l('当前版本最多可创建%0个同步任务, 请升级版本以创建更多同步任务', res.maxTaskNum)
+                : _l('免费版最多可创建%0个同步任务, 请升级版本以创建更多同步任务', res.maxTaskNum),
             isFree: true,
           });
         } else {
@@ -325,7 +326,7 @@ function Connector(props) {
         </div>
 
         <ContentWrapper>
-          <h5 className="Bold Font17 Gray_75 mBottom0">{_l('常用连接器')}</h5>
+          <h5 className="Bold Font17 textSecondary mBottom0">{_l('常用连接器')}</h5>
           <div className="mTop16" style={{ margin: '0 -12px' }}>
             {connectorList.map((item, index) => (
               <ConnectorCard key={index} className={`connectorCardWidth${getRowCount()}`}>

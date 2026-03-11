@@ -17,7 +17,7 @@ const HeaderWrap = styled.div`
   height: 50px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
   z-index: 15;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   padding: 0 24px 0 16px;
   .applicationIcon {
     width: 28px;
@@ -29,9 +29,9 @@ const HeaderWrap = styled.div`
     line-height: normal;
     margin-left: -3px;
   }
-  .Gray_bd {
+  .textDisabled {
     &:hover {
-      color: #9e9e9e !important;
+      color: var(--color-text-tertiary) !important;
       .applicationIcon {
         box-shadow: 0 0 20px 20px rgb(0 0 0 / 10%) inset;
       }
@@ -88,7 +88,7 @@ function AppPkgSimpleHeader(props) {
 
       <Tooltip placement="bottomLeft" title={_l('应用：%0', name)}>
         <div
-          className="flexRow pointer Gray_bd alignItemsCenter"
+          className="flexRow pointer textDisabled alignItemsCenter"
           onClick={() => {
             window.disabledSideButton = true;
 

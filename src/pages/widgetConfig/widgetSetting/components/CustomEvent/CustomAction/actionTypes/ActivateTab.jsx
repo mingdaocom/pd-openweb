@@ -36,7 +36,7 @@ export default function ActivateTab(props) {
       }}
     >
       <CustomActionWrap>
-        <div className="Gray_9e">{_l('激活显示的标签页。标签页被隐藏时，激活动作将不生效。')}</div>
+        <div className="textTertiary">{_l('激活显示的标签页。标签页被隐藏时，激活动作将不生效。')}</div>
         <SelectFields
           {...props}
           allControls={allControls.filter(fixedBottomWidgets).map(i => ({ ...i, relationControls: [] }))}

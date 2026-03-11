@@ -63,7 +63,7 @@ function DepartmentSelect(props) {
         ) : (
           item.departmentName
         )}
-        {item.deleteCount > 1 && <span className="Gray mLeft5">{item.deleteCount}</span>}
+        {item.deleteCount > 1 && <span className="textPrimary mLeft5">{item.deleteCount}</span>}
 
         {!isUnique && !disabled && (
           <i className="icon-minus-square capsuleDel" onClick={() => removeDepartment(item.departmentId)} />
@@ -86,9 +86,9 @@ function DepartmentSelect(props) {
           {!_.isEmpty(selectDepartments) ? (
             <div className="flex">{renderItem(selectDepartments[0])}</div>
           ) : (
-            <div className="flex Gray_bd">{_l('请选择')}</div>
+            <div className="flex textDisabled">{_l('请选择')}</div>
           )}
-          {!formDisabled && <i className="icon icon-arrow-right-border Font16 Gray_bd" />}
+          {!formDisabled && <i className="icon icon-arrow-right-border Font16 textDisabled" />}
         </div>
       ) : (
         <Fragment>

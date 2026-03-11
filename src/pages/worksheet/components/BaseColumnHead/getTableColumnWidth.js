@@ -69,3 +69,38 @@ export default function getTableColumnWidth(
     return 150;
   }
 }
+
+export function getMaxControlNameWidthOfControls(controls) {
+  function getControlNameWidth(control) {
+    const conForRender = document.createElement('div');
+    conForRender.style.zIndex = '-1';
+    conForRender.style.display = 'inline-block';
+    conForRender.style.position = 'absolute';
+    conForRender.style.top = '-10000px';
+    conForRender.style.left = '-10000px';
+    conForRender.style.maxWidth = '320px';
+    conForRender.style.backgroundColor = '#fff';
+    conForRender.style.fontWeight = 'bold';
+    conForRender.style.fontSize = 13;
+    conForRender.innerText = control.controlName;
+    document.body.appendChild(conForRender);
+    let width = conForRender.offsetWidth;
+    conForRender.remove();
+    if (width < 60) {
+      width = 60;
+    }
+    width = width + 12 * 2 + 15;
+    if (width > 320) {
+      width = 320;
+    }
+    return width;
+  }
+  let result = 60;
+  controls.forEach(control => {
+    const widthOfControl = getControlNameWidth(control);
+    if (widthOfControl > result) {
+      result = widthOfControl;
+    }
+  });
+  return result;
+}

@@ -11,7 +11,7 @@ import './OrgSelect.less';
 const OrgSelectCon = styled.div`
   .orgShowCon {
     padding: 0 14px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 14px;
     height: 28px;
     line-height: 28px;
@@ -21,15 +21,15 @@ const OrgSelectCon = styled.div`
     max-width: 287px;
   }
   .orgShowCon:hover {
-    border-color: #1677ff;
-    color: #1677ff;
+    border-color: var(--color-primary);
+    color: var(--color-primary);
   }
   .mLeft9 {
     margin-left: 9px !important;
   }
 `;
 
-const ALL_ORG = { companyName: '全部组织', projectId: 'all' };
+const ALL_ORG = { companyName: _l('全部组织'), projectId: 'all' };
 
 export default function OrgSelect(props) {
   const { currentProjectId, needAll = false, onChange, style = {}, filterFucntion = l => l } = props;
@@ -81,10 +81,10 @@ export default function OrgSelect(props) {
         popup={
           <div className="orgDrowSelectCon">
             <div className="orgSearchCon">
-              <Icon icon="search Font16 Gray_9d" />
+              <Icon icon="search Font16 textTertiary" />
               <Input placeholder={_l('搜索')} className="flex" value={search} onChange={searchHandle} />
               <Tooltip title={_l('记录仅支持单个组织搜索，且不支持外部协作组织')}>
-                <Icon icon="info_outline" className="Font14 Gray_9d" />
+                <Icon icon="info_outline" className="Font14 textTertiary" />
               </Tooltip>
             </div>
             <ul className="orgList">
@@ -102,7 +102,7 @@ export default function OrgSelect(props) {
                 );
               })}
               {orgList.filter(filterFucntion).length === 0 && (
-                <span className="orgListItem Gray_9">{_l('暂无搜索结果')}</span>
+                <span className="orgListItem textTertiary">{_l('暂无搜索结果')}</span>
               )}
             </ul>
           </div>
@@ -110,7 +110,7 @@ export default function OrgSelect(props) {
       >
         <div className="orgShowCon">
           <span className="ellipsis">{selected && selected.companyName}</span>{' '}
-          <Icon icon="expand_more" className="Font20 Gray_bd mLeft9" />
+          <Icon icon="expand_more" className="Font20 textDisabled mLeft9" />
         </div>
       </Trigger>
     </OrgSelectCon>

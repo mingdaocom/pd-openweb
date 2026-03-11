@@ -442,7 +442,7 @@ export default class GanttDialog extends Component {
               onCancel={() => this.setState({ showExportDialog: false })}
               onOk={this.onOk}
             >
-              <span className="Gray_9e">
+              <span className="textTertiary">
                 {buildImgSuccess ? _l('已生成图片') : _l('正在整理要导出的数据，请稍候...')}
               </span>
             </Dialog>

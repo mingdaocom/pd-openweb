@@ -17,42 +17,42 @@ const Wrap = styled.div`
       line-height: unset;
       margin-right: 10px;
       min-width: 0;
-      border: 1px solid #fff;
+      border: 1px solid var(--color-white);
       a {
-        color: #151515;
+        color: var(--color-text-title);
         display: inline-block;
         padding: 3px 8px;
         text-align: center;
         vertical-align: middle;
-        border: 1px solid #fff;
+        border: 1px solid transparent;
         font-size: 13px;
         border-radius: 5px;
       }
       a:hover {
-        background-color: #f5f5f5;
-        border: 1px solid #f5f5f5;
-        color: #151515;
+        background-color: var(--color-background-hover);
+        border: 1px solid var(--color-background-secondary);
+        color: var(--color-text-title);
       }
     }
     .ant-pagination-item-active {
-      border: 1px solid #fff;
-      color: #151515;
+      border: 1px solid var(--color-white);
+      color: var(--color-text-title);
       a {
         text-decoration: none;
-        color: #1294f7;
+        color: var(--color-link);
         font-weight: 600;
-        border: 1px solid #1294f7 !important;
+        border: 1px solid var(--color-link) !important;
         &:hover {
-          background-color: #fff;
+          background-color: var(--color-background-primary);
         }
       }
     }
     .ant-pagination-prev,
     .ant-pagination-next {
       a {
-        color: #151515;
+        color: var(--color-text-title);
         &:hover {
-          color: #1294f7;
+          color: var(--color-link);
         }
       }
       a[disabled] {

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { allSwitchKeys } from 'src/pages/FormSet/containers/FunctionalSwitch/config.js';
 
 export const isOpenPermit = (type, list = [], viewId) => {
@@ -46,4 +47,38 @@ export const formatSwitches = switches => {
     }
     return it;
   });
+};
+
+/**
+ *
+ * 使用范围
+ * @param {*} item
+ * @param {*} views
+ * @returns
+ */
+export const renderViewScopeText = ({ item = {}, views = [] }) => {
+  if (item.isAllView) {
+    return _l('所有记录');
+  }
+
+  let listViews = safeParse(_.get(item, 'advancedSetting.listviews'), 'array');
+  const canBatchViewIds = views
+    .filter(o => o.viewType === 0 || (o.viewType === 2 && _.get(o, 'advancedSetting.hierarchyViewType') === '3'))
+    .map(o => o.viewId);
+  listViews = listViews.filter(o => canBatchViewIds.includes(o));
+  const dt = safeParse(_.get(item, 'advancedSetting.detailviews'), 'array');
+  const noBatch = (item.writeObject === 2 || item.writeType === 2) && item.clickType === 3; //填写且配置了关联=>不能设置成批量按钮
+  const allList = !noBatch ? [...dt, ...listViews] : dt;
+  const data = _.uniq(allList);
+  if (data.length > 0) {
+    let str = data
+      .map(item => {
+        let view = views.find(o => o.viewId === item) || {};
+        return view.name;
+      })
+      .filter(l => l)
+      .join(',');
+    return str;
+  }
+  return _l('未分配视图');
 };

@@ -126,7 +126,7 @@ export default class Snapshot extends Component {
             return (
               <li key={i} onClick={() => this.updateSource({ actionId: item.value, appDetails: {} })}>
                 <Radio className="Font16" text={item.text} />
-                <div className="Gray_75 Font13 mLeft30 mTop5">{item.desc}</div>
+                <div className="textSecondary Font13 mLeft30 mTop5">{item.desc}</div>
               </li>
             );
           })}
@@ -153,7 +153,7 @@ export default class Snapshot extends Component {
 
     return (
       <Fragment>
-        <div className="Font14 Gray_75 workflowDetailDesc">{TEXT[data.actionId]}</div>
+        <div className="Font14 textSecondary workflowDetailDesc">{TEXT[data.actionId]}</div>
 
         <div className="mTop20 bold">{_l('页面类型')}</div>
         <Dropdown
@@ -173,7 +173,7 @@ export default class Snapshot extends Component {
               {data.actionId === '2' && (
                 <Tooltip title={_l('快照不能获取已配置按权限访问的图表')} placement="topRight">
                   <span className="mLeft5" style={{ height: 18 }}>
-                    <Icon className="Font16 Gray_9e" icon="info" />
+                    <Icon className="Font16 textTertiary" icon="info" />
                   </span>
                 </Tooltip>
               )}
@@ -204,7 +204,7 @@ export default class Snapshot extends Component {
                       : `${data.appDetails.appName}-${data.appDetails.reportName}(${data.appDetails.apkName})`}
                 </span>
               ) : (
-                <span className="Gray_75">{_l('请选择')}</span>
+                <span className="textSecondary">{_l('请选择')}</span>
               )}
             </div>
           </Fragment>
@@ -216,7 +216,7 @@ export default class Snapshot extends Component {
               {_l('输入页面地址')}
               <span className="mLeft5 red">*</span>
             </div>
-            <div className="mTop5 Gray_75">
+            <div className="mTop5 textSecondary">
               {_l(
                 '请输入外部公开页面的完整URL地址。注意：无法获取需要登录的页面，且外部页面可能无法完整捕捉或可能出错，建议使用前进行简单的测试。',
               )}
@@ -273,7 +273,7 @@ export default class Snapshot extends Component {
         )}
 
         <div className="mTop20 bold">{_l('等待时长')}</div>
-        <div className="mTop5 Gray_75">
+        <div className="mTop5 textSecondary">
           {_l('等待页面加载一段时间后再开始截图。当截取页面未完全加载时，可适当延长时间。单位秒，默认60秒。')}
         </div>
         <div className="mTop10">
@@ -314,7 +314,7 @@ export default class Snapshot extends Component {
 
     return (
       <Fragment>
-        <span className={cx('Font16 Gray_75', TYPES[actionId].icon)} />
+        <span className={cx('Font16 textSecondary', TYPES[actionId].icon)} />
         <span className="Font14 mLeft10">{TYPES[actionId].text}</span>
       </Fragment>
     );

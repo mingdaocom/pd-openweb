@@ -23,7 +23,7 @@ const HierarchyViewConfigWrap = styled.div`
     }
     .controlName {
       margin: 0 4px 0 12px;
-      color: #151515;
+      color: var(--color-text-title);
     }
     li {
       display: flex;
@@ -34,13 +34,13 @@ const HierarchyViewConfigWrap = styled.div`
       .controlInfo {
         width: 260px;
         position: relative;
-        background-color: #f8f8f8;
+        background-color: var(--color-background-secondary);
         margin-left: 20px;
         border-radius: 3px;
       }
       .addRelate {
         width: 280px;
-        color: #1677ff;
+        color: var(--color-primary);
         font-weight: bold;
       }
       .deleteWrap {
@@ -126,14 +126,14 @@ export default function HierarchyViewConfig({ fields, handleSelect, currentSheet
         ) : (
           <ul className="multiSheetRelate">
             <li>
-              <span className="grade Gray_9e">{_l('第一级')}</span>
-              <i className="icon-1_worksheet Gray_9e Font15"></i>
+              <span className="grade textTertiary">{_l('第一级')}</span>
+              <i className="icon-1_worksheet textTertiary Font15"></i>
               <span className="controlName">{currentSheetInfo.name}</span>
-              <span className="Gray_9e">{_l('( 本表 )')}</span>
+              <span className="textTertiary">{_l('( 本表 )')}</span>
             </li>
             {multiRelate.map((item, index) => (
               <li>
-                <span className="Gray_9e">{_l('第%0级', index + 2)}</span>
+                <span className="textTertiary">{_l('第%0级', index + 2)}</span>
                 <div className="controlInfo">
                   <i className="icon-link_worksheet"></i>
                   <span className="controlName">{item.controlName}</span>

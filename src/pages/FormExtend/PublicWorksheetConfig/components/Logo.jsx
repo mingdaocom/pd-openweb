@@ -7,10 +7,10 @@ const Con = styled.div`
   cursor: pointer;
   width: 140px;
   height: 60px;
-  background: #f7f7f7;
-  border: 2px dashed #e0e0e0;
+  background: var(--color-background-secondary);
+  border: 2px dashed var(--color-border-secondary);
   border-radius: 4px;
-  color: #bdbdbd;
+  color: var(--color-text-disabled);
   font-size: 20px;
   text-align: center;
   line-height: 60px;
@@ -21,7 +21,7 @@ const Con = styled.div`
     display: inline-block;
   }
   :hover {
-    background: #f4f4f4;
+    background: var(--color-background-disabled);
   }
 `;
 
@@ -40,7 +40,7 @@ const ImgCon = styled.div`
     top: -15px;
     right: -15px;
     font-size: 18px;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
 `;
 export default class Logo extends React.Component {

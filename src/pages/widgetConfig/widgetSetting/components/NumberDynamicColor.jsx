@@ -15,22 +15,22 @@ const DynamicColorWrap = styled.div`
     border-radius: 3px;
     padding: 0 12px;
     box-sizing: border-box;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-primary);
     margin-left: 12px;
     &.disabled {
-      background: #f5f5f5;
-      border: 1px solid #f5f5f5;
+      background: var(--color-background-secondary);
+      border: 1px solid var(--color-background-secondary);
     }
   }
   .iconOp {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     cursor: pointer;
     font-size: 18px;
     &:hover {
-      color: #757575;
+      color: var(--color-text-secondary);
     }
     &.disabled {
-      color: #dddddd !important;
+      color: var(--color-border-primary) !important;
       cursor: not-allowed;
     }
   }
@@ -67,7 +67,7 @@ export default function NumberDynamicColor(props) {
       }}
     >
       <Fragment>
-        <div className="Gray_9e mBottom24">
+        <div className="textTertiary mBottom24">
           {_l('为进度区间设置颜色。当鼠标悬停或字段值在对应区间，显示该区间设置的颜色。')}
         </div>
         {dynamicColor.map((item, index) => {

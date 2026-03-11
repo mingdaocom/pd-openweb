@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import LoadingDots from 'src/pages/widgetConfig/widgetSetting/components/DevelopWithAI/ChatBot/LoadingDots';
-import { STEP_STATUS } from './index';
+import { STEP_STATUS } from './config';
 
 const Con = styled.div`
   font-size: 14px;
-  color: #757575;
+  color: var(--color-text-secondary);
   .loading-step:not(:first-child) {
     margin-top: 6px;
   }
@@ -33,7 +33,7 @@ export default function LoadingWithSteps({ stepStatus }) {
             {status === stepStatus ? (
               <LoadingDots dotNumber={3} />
             ) : (
-              <i className="icon icon-ok Font18" style={{ color: '#4CAF50' }} />
+              <i className="icon icon-ok Font18" style={{ color: 'var(--color-success)' }} />
             )}
             <div className="mLeft5">{getStepStatusText(status)}</div>
           </div>

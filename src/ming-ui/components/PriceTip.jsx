@@ -7,7 +7,7 @@ export default function PriceTip(props) {
   return (
     <span>
       {text}
-      {md.global?.Config?.IsPlatformLocal ? (
+      {window.platformENV.isPlatform ? (
         <a href={url} target="_blank" rel="noopener noreferrer" className="mLeft5">
           {_l('查看扣费规则')}
         </a>

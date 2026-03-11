@@ -56,7 +56,7 @@ export const pcNavList = [
 ];
 
 export default function AppNavStyle(props) {
-  const { type, data, onChangeApp } = props;
+  const { type, data, onChangeApp, className = '' } = props;
   const navList = type === 'pcNaviStyle' ? pcNavList : mobileNavList;
   const naviStyle = data[type];
 
@@ -74,9 +74,9 @@ export default function AppNavStyle(props) {
   };
 
   return (
-    <div className="AppNavStyleWrap">
+    <div className={cx('AppNavStyleWrap', className)}>
       {/*<div className="mBottom20">{_l('设置的导航方式对所有应用成员生效')}</div>*/}
-      <div className="flexRow valignWrapper">
+      <div className="flexRow valignWrapper navListWrap">
         {navList.map(item => (
           <div
             key={item.value}
@@ -91,7 +91,7 @@ export default function AppNavStyle(props) {
               </div>
             )}
             <div className={cx('navImg', type, naviStyle === item.value ? item.activeStyle : item.style)}></div>
-            <span className={cx({ ThemeColor: naviStyle === item.value })}>{item.name}</span>
+            <span className={cx({ colorPrimary: naviStyle === item.value })}>{item.name}</span>
           </div>
         ))}
       </div>

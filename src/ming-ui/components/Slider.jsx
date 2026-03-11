@@ -33,10 +33,10 @@ const Bar = styled.div`
   height: 6px;
   margin: 7px 0;
   border-radius: 3px;
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--color-background-disabled);
   cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
   &:hover {
-    ${({ disabled }) => (disabled ? '' : 'background: rgba(0, 0, 0, 0.1);')}
+    ${({ disabled }) => (disabled ? '' : 'background: var(--color-background-hover)')}
   }
 `;
 
@@ -48,7 +48,7 @@ const Content = styled.div`
 const Drag = styled.span`
   cursor: pointer;
   position: absolute;
-  background: #fff;
+  background: var(--color-background-primary);
   top: -4px;
   display: inline-block;
   width: 14px;
@@ -72,7 +72,7 @@ const ScalePointClick = styled.span`
 `;
 
 const ScalePoint = styled.span`
-  background: #fff;
+  background: var(--color-background-primary);
   display: inline-block;
   width: 8px;
   height: 8px;
@@ -120,7 +120,7 @@ const ScaleTextWrap = styled.div`
       margin: 10px 0 0 1px;
       white-space: pre-wrap;
       word-wrap: break-word;
-      word-break: break-all;
+      word-break: break-word;
       overflow: visible;
     }
   }
@@ -131,7 +131,7 @@ const InputCon = styled.div`
   margin-left: 14px;
   .percent {
     position: absolute;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     right: 10px;
     line-height: 36px;
     pointer-events: none;
@@ -145,20 +145,20 @@ const Input = styled.input`
   line-height: 36px;
   padding: 0 12px;
   border-radius: 4px;
-  background: #f7f7f7;
+  background: var(--color-background-secondary);
   ${({ showAsPercent }) => (showAsPercent ? 'padding-right: 28px;' : '')}
   &:active {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
   }
   ${({ active }) =>
     active
       ? `
-  border-color: #1677ff;
-  background: #fff;
+  border-color: var(--color-primary);
+  background: var(--color-background-primary);
   `
       : `
       &:hover {
-        background: #f2f2f2;
+        background: var(--color-background-disabled);
       }`}
 `;
 const NumberValue = styled.span`
@@ -170,7 +170,7 @@ function getColor(config, value, showAsPercent) {
   if (config.type === 1) {
     return config.color;
   } else if (config.type === 2) {
-    let result = '#1677ff';
+    let result = 'var(--color-primary)';
     const colors = config.colors
       .map(c => ({ value: Number(c.key * (showAsPercent ? 100 : 1)), color: c.value }))
       .filter(c => _.isNumber(c.value) && !_.isNaN(value))
@@ -182,7 +182,7 @@ function getColor(config, value, showAsPercent) {
     });
     return result;
   } else {
-    return '#1677ff';
+    return 'var(--color-primary)';
   }
 }
 
@@ -233,7 +233,7 @@ export default function Slider(props) {
     className,
     style,
     readonly,
-    itemcolor = { type: 1, color: '#1677ff' },
+    itemcolor = { type: 1, color: 'var(--color-primary)' },
     itemnames = [],
     numStyle = {},
     barStyle = {},
@@ -452,7 +452,7 @@ export default function Slider(props) {
                     key={i}
                     className={'scale'}
                     value={scale.value}
-                    color={scale.percent < valuePercent ? color : 'rgba(0, 0, 0, 0.06)'}
+                    color={scale.percent < valuePercent ? color : 'var(--color-background-disabled)'}
                     percent={scale.percent}
                   ></ScalePoint>
                 </Tooltip>
@@ -462,7 +462,12 @@ export default function Slider(props) {
           <ScaleTextWrap total={(100 / (scalePointsLength - 1)) * scalePointsLength}>
             {data.map(scale => (
               <div className="contentItem">
-                <span className="scaleText" style={{ color: valuePercent < scale.percent ? '#9e9e9e' : '#151515' }}>
+                <span
+                  className="scaleText"
+                  style={{
+                    color: valuePercent < scale.percent ? 'var(--color-text-tertiary)' : 'var(--color-text-title)',
+                  }}
+                >
                   {scale.text}
                 </span>
               </div>
@@ -479,7 +484,13 @@ export default function Slider(props) {
             <Drag
               className={`${isDragging ? 'hover' : ''}`}
               ref={dragRef}
-              color={!_.isUndefined(value) ? (disabled ? '#bdbdbd' : color) : '#f1f1f1'}
+              color={
+                !_.isUndefined(value)
+                  ? disabled
+                    ? 'var(--color-text-disabled)'
+                    : color
+                  : 'var(--color-background-disabled)'
+              }
               style={{ left: `calc(${valuePercent}% - 7px)`, cursor: disabled ? 'default' : 'pointer' }}
               {...(disabled
                 ? {}

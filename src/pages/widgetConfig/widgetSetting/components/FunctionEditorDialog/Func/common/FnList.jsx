@@ -11,7 +11,7 @@ const ExpandIcon = styled.i`
   display: inline-block;
   margin-top: -2px;
   font-size: 16px;
-  color: #9d9d9d;
+  color: var(--color-text-tertiary);
   vertical-align: middle !important;
   transform: ${({ isActive }) => `rotate(${isActive ? 0 : -90}deg)`};
 `;
@@ -37,11 +37,11 @@ const Con = styled.div`
     }
     .fnName {
       font-size: 12px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       cursor: pointer;
     }
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
   .ant-collapse-item {

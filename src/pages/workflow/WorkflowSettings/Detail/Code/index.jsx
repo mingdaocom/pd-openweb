@@ -12,15 +12,15 @@ import { ChatGPT, DetailFooter, DetailHeader, KeyPairs, ParameterList, TestParam
 const CodeSnippetButton = styled.div`
   padding: 0 8px;
   height: 36px;
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 5px;
-  color: #757575;
+  color: var(--color-text-secondary);
   cursor: pointer;
   &:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
   i {
-    color: #00bcd7;
+    color: var(--color-cyan-dark);
     margin-right: 3px;
   }
 `;
@@ -165,8 +165,8 @@ export default class Code extends Component {
 
     return (
       <Fragment>
-        <div className="mTop20 Gray_75">{_l('请运行代码块以获得output对象; input对象将采用测试数据')}</div>
-        <div className="flexRow pTop15 pBottom15 WhiteBG" style={{ position: 'sticky', bottom: 0 }}>
+        <div className="mTop20 textSecondary">{_l('请运行代码块以获得output对象; input对象将采用测试数据')}</div>
+        <div className="flexRow pTop15 pBottom15 bgPrimary" style={{ position: 'sticky', bottom: 0 }}>
           <div
             className={cx('webhookBtn InlineBlock', { disabled: sendRequest })}
             onClick={() => {
@@ -352,7 +352,7 @@ export default class Code extends Component {
         <div className="flex overflowHidden">
           <ScrollView>
             <div className="workflowDetailBox">
-              <div className="Font14 Gray_75 workflowDetailDesc flexRow alignItemsCenter">
+              <div className="Font14 textSecondary workflowDetailDesc flexRow alignItemsCenter">
                 <div className="flex">
                   {data.actionId === ACTION_ID.JAVASCRIPT ? _l('使用JavaScript语言') : _l('使用Python语言')}
                 </div>
@@ -362,7 +362,7 @@ export default class Code extends Component {
                       {data.actionId === ACTION_ID.JAVASCRIPT ? 'Node.js' : 'Python'} {_l('版本')}
                     </div>
                     <Dropdown
-                      className="Gray"
+                      className="textPrimary"
                       menuStyle={{ width: '100%', minWidth: 90 }}
                       data={data.versions.map(version => {
                         return { text: 'v' + version, value: version };
@@ -394,7 +394,7 @@ export default class Code extends Component {
 
               <div className="Font13 bold mTop20">{_l('代码块')}</div>
               <div className="mTop5 flexRow alignItemsCenter">
-                <div className="flex Gray_75">
+                <div className="flex textSecondary">
                   {data.actionId === ACTION_ID.JAVASCRIPT
                     ? _l('Output 示例：output = {output: "hello world" };')
                     : _l("Output 示例：output = {'hello': 'world!'}")}
@@ -428,10 +428,10 @@ export default class Code extends Component {
 
               {msg && (
                 <Fragment>
-                  <div className="mTop10" style={{ color: '#f44336' }}>
+                  <div className="mTop10" style={{ color: 'var(--color-error)' }}>
                     {_l('代码错误')}
                   </div>
-                  <div className="mTop10" style={{ color: '#f44336' }}>
+                  <div className="mTop10" style={{ color: 'var(--color-error)' }}>
                     {msg}
                   </div>
                 </Fragment>

@@ -1,17 +1,16 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import CellControl from 'worksheet/components/CellControls';
-import CustomFields from 'src/components/Form';
-import { getAdvanceSetting, getControlStyles, isRelateRecordTableControl } from 'src/utils/control';
-import { updateRulesData } from '../../../core/formUtils';
+import { getAdvanceSetting, getControlStyles } from 'src/utils/control';
+import { updateRulesData } from '../../../core/formUtils/updateRulesData';
 
 const MobileTableContent = styled.div`
   .mobileTableHeader {
-    background-color: #f7f7f7;
+    background-color: var(--color-background-secondary);
     margin-bottom: 6px;
     .mobileTableItem {
       height: auto;
@@ -45,7 +44,7 @@ const MobileTableContent = styled.div`
     background-color: #00000003;
   }
   .showAll {
-    color: #1677ff;
+    color: var(--color-primary);
     padding: 10px 0;
     justify-content: center;
   }
@@ -54,54 +53,6 @@ const MobileTableContent = styled.div`
     text-align: center;
   }
   ${({ controlStyles }) => controlStyles || ''}
-`;
-
-const FlattenContent = styled.div`
-  .childTableErrorMessage {
-    color: #f44336;
-  }
-  .rowHeader {
-    height: 36px;
-    line-height: 40px;
-    background-color: #f7f7f7;
-    padding-left: 10px;
-    border-radius: 3px;
-    &.expandHeader {
-      background-color: rgba(33, 150, 243, 0.1);
-    }
-    &.errorRow {
-      background-color: rgba(244, 67, 54, 0.1);
-    }
-    .delete,
-    .edit {
-      width: 38px;
-      text-align: center;
-    }
-    .delete {
-      color: #f44336;
-    }
-    .edit {
-      color: #1677ff;
-    }
-  }
-  .mobileChildTableFlatForm {
-    &.customMobileFormContainer {
-      padding: 0 !important;
-    }
-    &.packUp {
-      .customFormItem {
-        padding: 0 12px !important;
-      }
-      .customFormLine {
-        height: 0px;
-      }
-    }
-  }
-  .showAll {
-    color: #1677ff;
-    padding: 10px 0;
-    justify-content: center;
-  }
 `;
 
 export default function MobileTable(props) {
@@ -114,35 +65,23 @@ export default function MobileTable(props) {
     disabled,
     sheetSwitchPermit,
     onDelete,
-    showNumber,
     masterData,
-    h5showtype,
     h5abstractids = [],
-    appId,
     worksheetId,
     rules,
-    cellErrors,
     projectId,
     controlPermission,
-    allowedit,
     titleWrap,
-    isAddRowByLine,
-    from,
-    isDraft,
     useUserPermission,
     recordId,
     showExpand,
-    widgetStyle,
+    appId,
     onSave = () => {},
     submitChildTableCheckData = () => {},
-    updateIsAddByLine = () => {},
   } = props;
 
   const defaultMaxLength = 10;
   const [maxShowLength, setMaxShowLength] = useState(defaultMaxLength);
-  const [expandRowIndex, setExpandRowIndex] = useState();
-  const [random, setRandom] = useState(Date.now());
-  const customWidgetRefs = useRef([]);
 
   const showRows = isEdit || showExpand ? rows : rows.slice(0, maxShowLength);
 
@@ -181,123 +120,9 @@ export default function MobileTable(props) {
     );
   };
 
-  // 编辑平铺记录
-  const handleChangeFlattenRow = (data, ids, item, customWidgetRef) => {
-    if (!customWidgetRef) return;
-    const updateControlIds = customWidgetRef.dataFormat.getUpdateControlIds();
-    const row = [{}, ...data].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value }));
-    onSave({ ...item, ...row, empty: false }, updateControlIds);
-  };
-
-  // 平铺展开收起
-  const handleExpandFlat = (isExpand, index) => {
-    setRandom(Date.now());
-    setExpandRowIndex(!isExpand ? index : undefined);
-    updateIsAddByLine(false);
-  };
-
-  useEffect(() => {
-    setRandom(Date.now());
-  }, [isEdit]);
-
-  useEffect(() => {
-    if (h5showtype !== '2' || !isAddRowByLine) return;
-    setExpandRowIndex(rows.length - 1, isAddRowByLine);
-  }, [rows]);
-
   // 记录为空
-  const showEmpty = () => !isEdit && _.isEmpty(rows) && <div className="Gray_9e mTop15 bold">{_l('暂无记录')}</div>;
-
-  // 平铺
-  if (h5showtype === '2') {
-    return (
-      <FlattenContent>
-        {showRows.map((item, index) => {
-          const { rowid } = item;
-          const isExpand = expandRowIndex === index;
-          const ignoreLock = /^(temp|default|empty)/.test(rowid);
-
-          return (
-            <div key={rowid}>
-              <div
-                className={cx('rowHeader flexRow LineHeight40 pRight6 alignItemsCenter', {
-                  expandHeader: isExpand,
-                  errorRow: _.some(controls, v => cellErrors[rowid + '-' + v.controlId]),
-                })}
-                onClick={() => handleExpandFlat(isExpand, index)}
-              >
-                <i
-                  className={`icon ${
-                    expandRowIndex === index ? 'icon-arrow-up-border' : 'icon-arrow-down-border'
-                  } LineHeight40 mRight10 Font15`}
-                />
-                <div className="flex bold Font15">{showNumber ? index + 1 : ''}</div>
-                {!disabled && isEdit && (
-                  <Fragment>
-                    {(allowcancel || /^temp/.test(rowid)) && (
-                      <div className="delete pTop3" onClick={() => onDelete(rowid)}>
-                        <i className="icon icon-trash Red Font18" />
-                      </div>
-                    )}
-                  </Fragment>
-                )}
-              </div>
-              <div
-                className="h100 mLeft10"
-                onClick={e => {
-                  if (isEdit) return;
-                  e.stopPropagation();
-                  handleExpandFlat(isExpand, index);
-                }}
-              >
-                <CustomFields
-                  className={cx('mobileChildTableFlatForm', { packUp: !isExpand })}
-                  from={/^temp/.test(rowid) ? 2 : from}
-                  flag={random}
-                  disabledFunctions={isEdit ? ['controlRefresh'] : []}
-                  ignoreLock={ignoreLock}
-                  isDraft={isDraft}
-                  ref={el => (customWidgetRefs.current[index] = el)}
-                  recordId={rowid}
-                  data={(expandRowIndex === index ? controls : showControls).map(c => ({
-                    ...c,
-                    value: item[c.controlId],
-                    ignoreDisabled: c.type === 36 && controlPermission.editable,
-                    fieldPermission: isRelateRecordTableControl(c) ? '000' : c.fieldPermission,
-                    controlPermissions: isRelateRecordTableControl(c) ? '000' : c.controlPermissions,
-                    isSubList: true,
-                  }))}
-                  widgetStyle={
-                    widgetStyle ? widgetStyle : isEdit && isExpand ? {} : { titlelayout_app: '2', titlewidth_app: '80' }
-                  }
-                  disabled={!(isEdit && isExpand) || (!/^temp/.test(rowid) && !allowedit)}
-                  disabledChildTableCheck={!(isEdit && isExpand) || (!/^temp/.test(rowid) && !allowedit)}
-                  appId={appId}
-                  worksheetId={worksheetId}
-                  sheetSwitchPermit={sheetSwitchPermit}
-                  rules={rules}
-                  projectId={projectId}
-                  masterData={masterData}
-                  onChange={(data, ids) => {
-                    handleChangeFlattenRow(data, ids, item, customWidgetRefs.current[index]);
-
-                    if (isEdit) return;
-
-                    clearTimeout(timer);
-                    timer = setTimeout(() => {
-                      submitChildTableCheckData();
-                    }, 500);
-                  }}
-                />
-              </div>
-            </div>
-          );
-        })}
-        {showEmpty()}
-        {showAll()}
-      </FlattenContent>
-    );
-  }
+  const showEmpty = () =>
+    !isEdit && _.isEmpty(rows) && <div className="textTertiary mTop15 bold">{_l('暂无记录')}</div>;
 
   const showHeaderDelete =
     _.findIndex(
@@ -390,6 +215,7 @@ export default function MobileTable(props) {
                       projectId={projectId}
                       worksheetId={worksheetId}
                       canedit={c.type === 36 && controlPermission.editable}
+                      appId={appId}
                       updateCell={({ value }) => {
                         if (c.type !== 36) return;
 
@@ -408,7 +234,7 @@ export default function MobileTable(props) {
             })}
 
             <div className="flexRow valignWrapper">
-              <Icon className="Gray_9e" icon="arrow-right-tip" />
+              <Icon className="textTertiary" icon="arrow-right-tip" />
             </div>
           </div>
         );

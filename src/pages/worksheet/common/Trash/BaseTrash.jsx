@@ -23,13 +23,13 @@ const TableRow = styled.div`
   display: flex;
   align-items: center;
   height: 60px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-border-primary);
   padding: 0 12px;
   .operateIcon {
     opacity: 0;
   }
   &:hover {
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     .operateIcon {
       opacity: 1;
     }
@@ -75,9 +75,9 @@ const EmptyCon = styled.div`
     width: 130px;
     height: 130px;
     border-radius: 130px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     .icon {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       font-size: 66px;
     }
   }
@@ -109,8 +109,8 @@ export default function AppTrash(props) {
       onCancel={onCancel}
     >
       <Header>
-        <div className="title Font17 Gray">{title}</div>
-        <div className="desc flex Font13 Gray_9e mTop4">{desc}</div>
+        <div className="title Font17 textPrimary">{title}</div>
+        <div className="desc flex Font13 textTertiary mTop4">{desc}</div>
         <div className="search mRight20">
           <SearchInput
             clickShowInput
@@ -132,7 +132,9 @@ export default function AppTrash(props) {
           <div className="emptyIcon">
             <i className="icon icon-recycle"></i>
           </div>
-          <div className="Font17 Gray_9e mTop16">{keyword ? _l('没有找到符合条件的结果') : _l('回收站暂无内容')}</div>
+          <div className="Font17 textTertiary mTop16">
+            {keyword ? _l('没有找到符合条件的结果') : _l('回收站暂无内容')}
+          </div>
         </EmptyCon>
       )}
       {!!data.length && (
@@ -143,7 +145,7 @@ export default function AppTrash(props) {
                 {columns.map((c, i) => (
                   <Cell
                     key={i}
-                    className={cx('Font14 Gray_75', { flex: c.flex })}
+                    className={cx('Font14 textSecondary', { flex: c.flex })}
                     style={{
                       width: c.width,
                     }}
@@ -173,7 +175,7 @@ export default function AppTrash(props) {
                     <Tooltip title={_l('恢复')} placement="bottom">
                       <span className="mLeft40 mRight25">
                         <i
-                          className="operateIcon icon icon-restart Font14 Gray_9e Hand"
+                          className="operateIcon icon icon-restart Font14 textTertiary Hand"
                           onClick={() => onRestore(rowKey)}
                         ></i>
                       </span>
@@ -181,7 +183,7 @@ export default function AppTrash(props) {
                     <Tooltip title={_l('彻底删除')} placement="bottom">
                       <span className="mRight35">
                         <i
-                          className="operateIcon icon icon-trash Font16 Gray_9e Hand"
+                          className="operateIcon icon icon-trash Font16 textTertiary Hand"
                           onClick={() => onDelete(rowKey)}
                         ></i>
                       </span>

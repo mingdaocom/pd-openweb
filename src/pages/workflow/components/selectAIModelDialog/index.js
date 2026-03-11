@@ -9,7 +9,7 @@ import aIService from 'src/api/aIService';
 
 const DialogWrapper = styled(Dialog)`
   .mui-dialog-header {
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-primary);
   }
   .mui-dialog-body {
     padding: 0 !important;
@@ -17,7 +17,7 @@ const DialogWrapper = styled(Dialog)`
     display: flex;
   }
   .mui-dialog-footer {
-    border-top: 1px solid #ddd;
+    border-top: 1px solid var(--color-border-primary);
     padding-top: 16px !important;
     padding-bottom: 16px !important;
   }
@@ -31,14 +31,14 @@ const DialogWrapper = styled(Dialog)`
       width: 126px;
       height: 126px;
       margin-bottom: 15px;
-      background-color: #f5f5f5;
+      background-color: var(--color-background-secondary);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       i {
         font-size: 64px;
-        color: #bdbdbd;
+        color: var(--color-text-disabled);
       }
     }
   }
@@ -46,7 +46,7 @@ const DialogWrapper = styled(Dialog)`
 
 const NavBox = styled.div`
   width: 200px;
-  border-right: 1px solid #ddd;
+  border-right: 1px solid var(--color-border-primary);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -61,12 +61,12 @@ const NavBox = styled.div`
     align-items: center;
     cursor: pointer;
     &:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
     }
     &.active {
       font-weight: bold;
-      background-color: rgba(33, 150, 243, 0.08);
-      color: #2196f3;
+      background-color: var(--color-primary-transparent);
+      color: var(--color-primary);
     }
   }
   .listItemIcon {
@@ -87,7 +87,7 @@ const ModelList = styled.ul`
     padding: 0 10px 0 16px;
     cursor: pointer;
     &:hover {
-      background-color: #f5f5f5;
+      background-color: var(--color-background-hover);
     }
     &.active {
       background-color: rgba(33, 150, 243, 0.06);
@@ -96,7 +96,7 @@ const ModelList = styled.ul`
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background-color: #2196f3;
+      background-color: var(--color-link-hover);
       margin-left: 2px;
     }
     img {
@@ -114,7 +114,7 @@ const ContentBox = styled.div`
   }
   .number {
     margin-right: 3px;
-    color: #9709f2;
+    color: var(--color-mingo-light);
   }
   .listItem {
     height: 24px;
@@ -122,14 +122,14 @@ const ContentBox = styled.div`
     display: flex;
     align-items: center;
     border-radius: 12px;
-    border: 1px solid #bdbdbd;
+    border: 1px solid var(--color-text-disabled);
     font-size: 12px;
     margin-right: 8px;
     .dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background-color: #2196f3;
+      background-color: var(--color-link-hover);
       margin-left: 2px;
     }
   }
@@ -196,7 +196,7 @@ class SelectAIModelDialog extends Component {
 
     return (
       <ScrollView className="h100" style={{ width: 320 }}>
-        <div className="Gray_75 pLeft16 mTop18 mBottom10 Font13">{_l('选择模型')}</div>
+        <div className="textSecondary pLeft16 mTop18 mBottom10 Font13">{_l('选择模型')}</div>
         <ModelList>
           {models.map((item, index) => {
             return (
@@ -231,8 +231,8 @@ class SelectAIModelDialog extends Component {
       return (
         <ContentBox className="flex flexColumn alignItemsCenter justifyContentCenter">
           <i className="icon-AI_Agent Font50 ThemeColor3"></i>
-          <div className="Gray_75 mTop30 Font13">{_l('系统会根据任务需求智能匹配最佳模型')}</div>
-          <div className="Gray_75 Font13">{_l('适合大多数用户')}</div>
+          <div className="textSecondary mTop30 Font13">{_l('系统会根据任务需求智能匹配最佳模型')}</div>
+          <div className="textSecondary Font13">{_l('适合大多数用户')}</div>
         </ContentBox>
       );
     }
@@ -240,17 +240,17 @@ class SelectAIModelDialog extends Component {
     if (!list.find(o => o.developer.id === selectVendor).models.length) {
       return (
         <ContentBox className="flex flexColumn alignItemsCenter justifyContentCenter">
-          <i className="icon-article Font50 Gray_bd"></i>
-          <div className="Gray_9e mTop30 Font13">{_l('该服务商下暂无可用模型')}</div>
+          <i className="icon-article Font50 textDisabled"></i>
+          <div className="textTertiary mTop30 Font13">{_l('该服务商下暂无可用模型')}</div>
         </ContentBox>
       );
     }
 
     if (!selectModel) {
       return (
-        <ContentBox className="flex flexColumn alignItemsCenter justifyContentCenter GrayBG">
-          <i className="icon-article Font50 Gray_bd"></i>
-          <div className="Gray_9e mTop30 Font13">{_l('选择一个模型查看详情')}</div>
+        <ContentBox className="flex flexColumn alignItemsCenter justifyContentCenter bgTertiary">
+          <i className="icon-article Font50 textDisabled"></i>
+          <div className="textTertiary mTop30 Font13">{_l('选择一个模型查看详情')}</div>
         </ContentBox>
       );
     }
@@ -260,13 +260,13 @@ class SelectAIModelDialog extends Component {
     return (
       <ContentBox className="flex pLeft16 pRight16 blue">
         <div className="Font14 bold mTop15">{model.alias}</div>
-        <div className="Gray_75 Font12 mTop10">
+        <div className="textSecondary Font12 mTop10">
           {MODEL_DESCRIPTIONS[model.name] || model.description.map((o, index) => <div key={index}>{o}</div>)}
         </div>
 
         {model.price?.outputToken > 0 && (
           <Fragment>
-            <div className="Gray_75 bold Font12 mTop15">{_l('信用点')}</div>
+            <div className="textSecondary bold Font12 mTop15">{_l('信用点')}</div>
             <div className="mTop10 flexRow Font12">
               <div>1K tokens</div>
               <div className="flex" />
@@ -278,29 +278,29 @@ class SelectAIModelDialog extends Component {
           </Fragment>
         )}
 
-        <div className="Gray_75 bold Font12 mTop15">{_l('能力')}</div>
+        <div className="textSecondary bold Font12 mTop15">{_l('能力')}</div>
         <div className="mTop10 flexRow">
           {_.includes(model.caps, 3) && (
             <div className="listItem">
-              <i className="icon-text_bold2 Font14 mRight3 Gray_75" />
+              <i className="icon-text_bold2 Font14 mRight3 textSecondary" />
               {_l('文本输入')}
             </div>
           )}
           {_.includes(model.caps, 1) && (
             <div className="listItem">
-              <i className="icon-image Font14 mRight3 Gray_75" />
+              <i className="icon-image Font14 mRight3 textSecondary" />
               {_l('图片输入')}
             </div>
           )}
           {_.includes(model.caps, 2) && (
             <div className="listItem">
-              <i className="icon-design-services Font14 mRight3 Gray_75" />
+              <i className="icon-design-services Font14 mRight3 textSecondary" />
               {_l('工具调用')}
             </div>
           )}
         </div>
 
-        <div className="Gray_75 bold Font12 mTop15">{_l('性能')}</div>
+        <div className="textSecondary bold Font12 mTop15">{_l('性能')}</div>
         <div className="mTop10 flexRow">
           <div className="listItem">
             <span className="mRight5">{PERFORMANCE_ENUM[model.performance]}</span>
@@ -362,7 +362,7 @@ class SelectAIModelDialog extends Component {
       >
         {list === null && <LoadDiv className="mTop15" />}
         {list && list.length === 0 && (
-          <div className="emptyContent Font17 Gray_9e">
+          <div className="emptyContent Font17 textTertiary">
             <div className="emptyIcon">
               <i className="icon-AI_Agent"></i>
             </div>
@@ -373,7 +373,7 @@ class SelectAIModelDialog extends Component {
           <Fragment>
             <NavBox>
               {/* <div className="flexRow pLeft20 pRight20 alignItemsCenter mTop15">
-                <i className="icon-search Gray_9e Font20" />
+                <i className="icon-search textTertiary Font20" />
                 <input
                   className="flex mLeft5 Font13"
                   type="text"

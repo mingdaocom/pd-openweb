@@ -2,13 +2,13 @@ import update from 'immutability-helper';
 import _, { find, flatten, get, some } from 'lodash';
 import homeAppAjax from 'src/api/homeApp';
 import sheetAjax from 'src/api/worksheet';
+import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import { sortDataByCustomItems } from 'worksheet/redux/actions/util';
 import { getBoardItemKey } from 'worksheet/redux/util';
 import {
   getCalendartypeData,
   getCalendarViewType,
   getTimeControls,
-  isTimeStyle,
   setDataFormat,
 } from 'worksheet/views/CalendarView/util';
 import { handleConditionsDefault, validate } from 'src/pages/Mobile/RecordList/QuickFilter/utils.js';
@@ -19,7 +19,7 @@ import { fireWhenViewLoaded as PcFireWhenViewLoaded, refreshSheet } from 'src/pa
 import { canEditApp, sortDataByGroupItems } from 'src/pages/worksheet/redux/actions/util';
 import { getTranslateInfo } from 'src/utils/app';
 import { getFilledRequestParams, getRequest } from 'src/utils/common';
-import { getAdvanceSetting } from 'src/utils/control';
+import { getAdvanceSetting, isTimeStyle } from 'src/utils/control';
 import { formatQuickFilter, needHideViewFilters } from 'src/utils/filter';
 import { addBehaviorLog, compatibleMDJS, dateConvertToUserZone } from 'src/utils/project';
 import {
@@ -1076,12 +1076,11 @@ export const updateFormatData = listData => {
       let data = setDataFormat({
         ...item,
         worksheetControls: controls,
-        currentView: view,
+        currentView: { ...view, appId: base.appId },
         calendarData,
       });
       list.push({
         ...data[0],
-        originalProps: item,
       });
     });
     dispatch({ type: 'MOBILE_CHANGE_CALENDAR_FORMAT_DATA', data: list });
@@ -1271,5 +1270,13 @@ export function onDeleteSuccess({ rowId }) {
   return (dispatch, getState) => {
     const { currentSheetRows } = getState().mobile;
     dispatch(changeMobileSheetRows(currentSheetRows.filter(r => r.rowid !== rowId)));
+  };
+}
+
+export function addMobileNewRecord({ view }) {
+  return dispatch => {
+    if (String(view.viewType) === VIEW_DISPLAY_TYPE.board) {
+      dispatch(initBoardViewData());
+    }
   };
 }

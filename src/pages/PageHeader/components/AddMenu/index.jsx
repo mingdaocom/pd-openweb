@@ -17,25 +17,25 @@ export default function UserMenu({ onClose = () => {} }) {
     <div className="commonTopBarMenu Relative Normal" onClick={onClose}>
       <ul>
         {feedVisible && (
-          <li onClick={() => createFeed()} className="ThemeBGColor3">
+          <li onClick={() => createFeed()}>
             <i className="icon icon-edit Font14" />
             {_l('创建动态')}
           </li>
         )}
         {taskVisible && (
-          <li onClick={() => createTask()} className="ThemeBGColor3">
+          <li onClick={() => createTask()}>
             <i className="icon icon-task-responsible" />
             {_l('创建任务')}
           </li>
         )}
         {calendarVisible && (
-          <li onClick={() => createCalendar()} className="ThemeBGColor3">
+          <li onClick={() => createCalendar()}>
             <i className="icon icon-bellSchedule" />
             {_l('创建日程')}
           </li>
         )}
         {knowledgeVisible && (
-          <li onClick={() => window.open('/apps/kcupload')} className="ThemeBGColor3">
+          <li onClick={() => window.open('/apps/kcupload')}>
             <i className="icon icon-cloud_upload" />
             {_l('上传文件')}
           </li>
@@ -46,11 +46,11 @@ export default function UserMenu({ onClose = () => {} }) {
           'BorderTopGrayC mTop5 pTop5': feedVisible || taskVisible || calendarVisible || knowledgeVisible,
         })}
       >
-        <li onClick={() => addFriends({ selectProject: true })} className="inviteMember ThemeBGColor3">
+        <li onClick={() => addFriends({ selectProject: true })} className="inviteMember">
           <i className="icon icon-invite" />
           {_l('邀请')}
         </li>
-        <li onClick={() => createGroup({})} className="linkCreateGroup ThemeBGColor3">
+        <li onClick={() => createGroup({})} className="linkCreateGroup">
           <i className="icon icon-group" />
           {_l('群组')}
         </li>

@@ -1,7 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
-import { previewQiniuUrl } from 'src/components/previewAttachments';
+import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
 
 /**
  * 单条投票项
@@ -36,7 +36,7 @@ class VoteItem extends React.Component {
           <label htmlFor={itemDomId}>{option.name}</label>
         </div>
         {option.file && option.file !== 'undefined' ? (
-          <div onClick={() => previewQiniuUrl(option.file)}>
+          <div onClick={() => previewAttachments(transformQiniuUrl(option.file))}>
             <img className="mTop10 mLeft30" height={90} src={option.thumbnailFile} />
           </div>
         ) : undefined}

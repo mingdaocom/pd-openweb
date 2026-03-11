@@ -22,19 +22,22 @@ const ToolBarWrap = styled.div(
   bottom: 20px;
   left: ${isMobile ? '16px' : 'auto'};
   right:  ${isMobile ? 'auto' : '20px'};
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   border-radius: 26px;
   height: ${isMobile ? '40px' : '44px'}
   padding:${isMobile ? '0 18px' : '0 22px 0 16px'};
   z-index: 10;
   box-shadow: rgba(0, 0, 0, 0.24) 0px 1px 6px;
+  .ant-select-selector {
+    border: none !important;
+  }
   .icon-download:hover {
-    color: #1677ff !important;
+    color: var(--color-primary) !important;
   }
   .line{
     height: 20px;
     margin: 10px 0 10px 10px;
-    border: 1px solid #e8e8e8;
+    border: 1px solid var(--color-border-secondary);
   }
 `,
 );
@@ -56,7 +59,7 @@ const SelectWrap = styled(Select)`
   }
   &:hover {
     .icon-arrow-down {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
   &.mobile {
@@ -90,7 +93,7 @@ export default class ToolBar extends Component {
     return (
       <SelectWrap
         className={cx({ mobile: isMobile })}
-        suffixIcon={<Icon className="Font12 Gray_9e" icon="arrow-down" />}
+        suffixIcon={<Icon className="Font12 textTertiary" icon="arrow-down" />}
         defaultActiveFirstOption={false}
         defaultOpen={false}
         dropdownClassName="gunterToolBarSelectWrapper"
@@ -140,7 +143,7 @@ export default class ToolBar extends Component {
         {isMobile ? (
           <div onClick={this.changeMobileViewType}>
             {(_.find(PERIODS, v => v.value === periodType) || {}).name || _l('展开')}
-            <Icon className="Font12 Gray_9e mLeft6" icon="arrow-down" />
+            <Icon className="Font12 textTertiary mLeft6" icon="arrow-down" />
           </div>
         ) : (
           this.renderPeriodSelect()
@@ -160,14 +163,14 @@ export default class ToolBar extends Component {
               this.props.updateGunterSearchRecord(null);
             }}
           >
-            <Icon className="Gray_75 Font18 pLeft2 mLeft16" icon="search" />
+            <Icon className="textSecondary Font18 pLeft2 mLeft16" icon="search" />
           </SearchRecord>
         )}
         {!isMobile && (
           <Tooltip title={_l('导出为图片')}>
             <Icon
               icon="download"
-              className="Gray_75 Font18 mRight14 pointer mLeft24"
+              className="textSecondary Font18 mRight14 pointer mLeft24"
               onClick={() => {
                 const { base } = this.props;
                 window.open(

@@ -130,15 +130,17 @@ export default function (options) {
       if ($mdUpdaterTextareaUpdater) {
         var msg = $mdUpdaterTextareaUpdater.val();
         if (!msg || msg == langUploadFiles || msg == langShareLink || msg == langVoteQuestion) {
-          $mdUpdaterTextareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('Gray_a');
+          $mdUpdaterTextareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('textTertiary');
         }
       }
       if (MDUpdater.options.defaultPostType !== 9) {
         $('#MDUpdater_hidden_UpdaterType').val(MDUpdater.options.postType.post);
       }
-      $("div.MDUpdater a[targetdiv='#MDUpdater_Attachment_updater']").removeClass('ThemeColor3').addClass('Gray_c');
-      $("div.MDUpdater a[targetdiv='#MDUpdater_Link_updater']").removeClass('ThemeColor3').addClass('Gray_c');
-      $("div.MDUpdater a[targetdiv='#MDUpdater_Vote_updater']").removeClass('ThemeColor3').addClass('Gray_c');
+      $("div.MDUpdater a[targetdiv='#MDUpdater_Attachment_updater']")
+        .removeClass('ThemeColor3')
+        .addClass('textPlaceholder');
+      $("div.MDUpdater a[targetdiv='#MDUpdater_Link_updater']").removeClass('ThemeColor3').addClass('textPlaceholder');
+      $("div.MDUpdater a[targetdiv='#MDUpdater_Vote_updater']").removeClass('ThemeColor3').addClass('textPlaceholder');
       $('#MDUpdater_Attachment_updater,#MDUpdater_Link_updater,#MDUpdater_Vote_updater').hide();
 
       // 附件
@@ -149,7 +151,7 @@ export default function (options) {
       // 链接
       var $mdUpdaterLinkUpdater = $('#MDUpdater_Link_updater');
       $mdUpdaterLinkUpdater.find('.updaterLinkView').empty();
-      $mdUpdaterLinkUpdater.find('.textLinkUrl').val('http://').addClass('Gray_c');
+      $mdUpdaterLinkUpdater.find('.textLinkUrl').val('http://').addClass('textPlaceholder');
       MDUpdater.options.linkViewData = null;
       $('#MDUpdater_button_Share').attr('disabled', false).removeClass('Disabled');
       $('#MDUpdater_Link_updater .linkBtn').val(_l('预览')).attr('disabled', false).removeClass('Disabled');
@@ -367,12 +369,12 @@ export default function (options) {
           ) {
             $mdUpdaterTextareaUpdater.val('');
           }
-          $mdUpdaterTextareaUpdater.removeClass('Gray_a');
+          $mdUpdaterTextareaUpdater.removeClass('textTertiary');
         })
         .blur(function () {
           mdUpdaterTextareaUpdaterEl.store();
           if (!$(this).val().trim()) {
-            $mdUpdaterTextareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('Gray_a');
+            $mdUpdaterTextareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('textTertiary');
           }
         })
         .autoTextarea({
@@ -390,11 +392,11 @@ export default function (options) {
           if (!MDUpdater.options.postMsg) {
             mdUpdaterTextareaUpdaterEl.restore(success => {
               if (success) {
-                $mdUpdaterTextareaUpdater.removeClass('Gray_a');
+                $mdUpdaterTextareaUpdater.removeClass('textTertiary');
                 $('#myupdaterOP').show();
               } else {
                 if (!MDUpdater.options.postMsg) {
-                  $mdUpdaterTextareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('Gray_a');
+                  $mdUpdaterTextareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('textTertiary');
                 }
               }
             });
@@ -408,7 +410,7 @@ export default function (options) {
           MDUpdater.resetUpdater();
           if ($mdUpdaterTextareaUpdater) {
             if (!$mdUpdaterTextareaUpdater.val().trim()) {
-              $mdUpdaterTextareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('Gray_a');
+              $mdUpdaterTextareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('textTertiary');
             }
           }
         });
@@ -427,10 +429,10 @@ export default function (options) {
 
       $('#isToFeed').on('change', function () {
         if ($(this).prop('checked')) {
-          $('#divIsToFeedToggle').removeClass('Gray_c').addClass('ThemeColor3');
+          $('#divIsToFeedToggle').removeClass('textPlaceholder').addClass('ThemeColor3');
           $('.Updater_Textpanel').find('.groupSelect').show();
         } else {
-          $('#divIsToFeedToggle').removeClass('ThemeColor3').addClass('Gray_c');
+          $('#divIsToFeedToggle').removeClass('ThemeColor3').addClass('textPlaceholder');
           $('.Updater_Textpanel').find('.groupSelect').hide();
         }
       });
@@ -483,26 +485,26 @@ export default function (options) {
           $('#MDUpdater_Attachment_updater').show(0, function () {
             // MDUpdater.options.uploadObj.getPluploadObj().refresh();
           });
-          $(this).removeClass('Gray_c').addClass('ThemeColor3');
+          $(this).removeClass('textPlaceholder').addClass('ThemeColor3');
           $('#MDUpdater_hidden_UpdaterType').val(MDUpdater.options.postType.attachment);
           if (
             $('#MDUpdater_textarea_Updater') &&
             ($('#MDUpdater_textarea_Updater').val().trim() == '' ||
               $('#MDUpdater_textarea_Updater').val().trim() == _l('知会工作是一种美德') + '...')
           ) {
-            $('#MDUpdater_textarea_Updater').val(langUploadFiles).addClass('Gray_a');
+            $('#MDUpdater_textarea_Updater').val(langUploadFiles).addClass('textTertiary');
           }
           MDUpdater.render();
         } else if (targetDivID == '#MDUpdater_Link_updater') {
           $('#MDUpdater_Link_updater').show();
           $('#MDUpdater_hidden_UpdaterType').val(MDUpdater.options.postType.link);
-          $(this).removeClass('Gray_c').addClass('ThemeColor3');
+          $(this).removeClass('textPlaceholder').addClass('ThemeColor3');
           if (
             $('#MDUpdater_textarea_Updater') &&
             ($('#MDUpdater_textarea_Updater').val().trim() == '' ||
               $('#MDUpdater_textarea_Updater').val().trim() == _l('知会工作是一种美德') + '...')
           ) {
-            $('#MDUpdater_textarea_Updater').val(langShareLink).addClass('Gray_a');
+            $('#MDUpdater_textarea_Updater').val(langShareLink).addClass('textTertiary');
           }
 
           $('#MDUpdater_Link_updater .textLinkUrl').on('keydown', function (e) {
@@ -514,13 +516,13 @@ export default function (options) {
         } else if (targetDivID == '#MDUpdater_Vote_updater') {
           $('#MDUpdater_hidden_UpdaterType').val(MDUpdater.options.postType.vote);
 
-          $(this).removeClass('Gray_c').addClass('ThemeColor3');
+          $(this).removeClass('textPlaceholder').addClass('ThemeColor3');
           if (
             $('#MDUpdater_textarea_Updater') &&
             ($('#MDUpdater_textarea_Updater').val().trim() == '' ||
               $('#MDUpdater_textarea_Updater').val().trim() == _l('知会工作是一种美德') + '...')
           ) {
-            $('#MDUpdater_textarea_Updater').val(langVoteQuestion).addClass('Gray_a');
+            $('#MDUpdater_textarea_Updater').val(langVoteQuestion).addClass('textTertiary');
           }
 
           var index = $("a[targetDiv='#MDUpdater_Vote_updater']").prevAll(':visible').length;
@@ -598,7 +600,9 @@ export default function (options) {
         // $("div.MDUpdater a[targetDiv='#MDUpdater_Attachment_updater']").click();
         $('#MDUpdater_hidden_UpdaterType').val(9);
         $('#MDUpdater_Attachment_updater').show();
-        $("div.MDUpdater a[targetdiv='#MDUpdater_Attachment_updater']").addClass('ThemeColor3').removeClass('Gray_c');
+        $("div.MDUpdater a[targetdiv='#MDUpdater_Attachment_updater']")
+          .addClass('ThemeColor3')
+          .removeClass('textPlaceholder');
       }
     },
     renderSelectGroup: options => {

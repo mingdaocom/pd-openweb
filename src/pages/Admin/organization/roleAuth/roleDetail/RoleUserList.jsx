@@ -17,8 +17,8 @@ const UserListWrapper = styled.div`
   .userListHeader {
     .searchInput {
       height: 32px;
-      background: #fff;
-      border: 1px solid #e0e0e0;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-secondary);
       input {
         min-width: 160px;
       }
@@ -40,14 +40,14 @@ const UserListWrapper = styled.div`
       flex: 1;
     }
     &.isHeader {
-      color: #9e9e9e;
-      border-bottom: 1px solid #eaeaea;
+      color: var(--color-text-tertiary);
+      border-bottom: 1px solid var(--color-border-secondary);
       cursor: unset;
     }
     &:hover:not(.isHeader) {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
       .removeBtn {
-        color: #f44336 !important;
+        color: var(--color-error) !important;
       }
     }
   }
@@ -59,12 +59,12 @@ const UserListWrapper = styled.div`
     .icon-empty_member {
       font-size: 50px;
       line-height: 106px;
-      color: #999;
+      color: var(--color-text-tertiary);
       border-radius: 50%;
       display: inline-block;
       width: 106px;
       height: 106px;
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
     }
   }
 `;
@@ -224,7 +224,7 @@ export default function RoleUserList(props) {
                     {allowManageUser && (
                       <div className="operateColumn">
                         {!(isOwner && isRoleSuperAdmin) && (
-                          <div className="removeBtn Gray_9e" onClick={() => onRemoveMember(user)}>
+                          <div className="removeBtn textTertiary" onClick={() => onRemoveMember(user)}>
                             {isOwner ? _l('退出') : _l('移除')}
                           </div>
                         )}

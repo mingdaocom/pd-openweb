@@ -54,7 +54,7 @@ export default function SubTable(props) {
           key={c.controlId}
           onClick={() => handlePositionControl(c)}
         >
-          <Icon icon={getIconByType(c.type)} className="Gray_9e Font16" />
+          <Icon icon={getIconByType(c.type)} className="textTertiary Font16" />
           <span className="mLeft5 Font13 ellipsis">{translateInfo.name || c.controlName}</span>
         </div>
       );
@@ -64,7 +64,7 @@ export default function SubTable(props) {
       <div className="flexRow" style={{ height: document.body.offsetHeight - 180 }}>
         <div className="nav flexColumn">
           <div className="searchWrap flexRow alignItemsCenter mBottom10">
-            <Icon className="Gray_9e Font20 mRight5" icon="search" />
+            <Icon className="textTertiary Font20 mRight5" icon="search" />
             <input
               placeholder={_l('字段')}
               className="flex"
@@ -74,7 +74,7 @@ export default function SubTable(props) {
               }}
             />
             {searchValue && (
-              <Icon className="Gray_9e pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />
+              <Icon className="textTertiary pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />
             )}
           </div>
           <ScrollView className="h100">
@@ -118,7 +118,7 @@ export default function SubTable(props) {
           {!!withoutLenght && `，${_l('%0个没有译文', withoutLenght)}`}
         </div>
         <div className="flex">
-          <span className="ThemeColor pointer" onClick={() => setDialogVisible(true)}>
+          <span className="colorPrimary pointer" onClick={() => setDialogVisible(true)}>
             {_l('编辑译文')}
           </span>
         </div>
@@ -129,7 +129,7 @@ export default function SubTable(props) {
             width={860}
             title={
               <div className="flexRow alignItemsCenter mBottom10">
-                <Icon icon={getIconByType(control.type)} className="Font20 Gray_9e mRight10" />
+                <Icon icon={getIconByType(control.type)} className="Font20 textTertiary mRight10" />
                 <span>{translateInfo.name || control.controlName}</span>
               </div>
             }
@@ -145,12 +145,16 @@ export default function SubTable(props) {
     return (
       <Fragment>
         <div className="flex mRight20">
-          {appId === sheetInfo.appId ? sheetInfo.name : <span className="Gray_9e">{_l('暂不支持跨应用数据')}</span>}
+          {appId === sheetInfo.appId ? (
+            sheetInfo.name
+          ) : (
+            <span className="textTertiary">{_l('暂不支持跨应用数据')}</span>
+          )}
         </div>
         <div className="flex">
           {appId === sheetInfo.appId && (
             <span
-              className="ThemeColor pointer"
+              className="colorPrimary pointer"
               onClick={() => {
                 props.setExpandedKeys(['appItemEntrance', sheetInfo.groupId]);
                 props.onSelectedKeys([sheetInfo.worksheetId], {

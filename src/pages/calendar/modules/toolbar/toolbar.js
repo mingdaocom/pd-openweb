@@ -664,7 +664,7 @@ Toolbar.Method = {
                         ></span>
                       )}
                       <span class="TxtTop calendarName"> {name}</span>
-                      {isCalendar && <span class="Gray_6 TxtTop calendarName"> {_l('(发起人)')}</span>}
+                      {isCalendar && <span class="textSecondary TxtTop calendarName"> {_l('(发起人)')}</span>}
                     </span>
                   </UserCard>,
                 );

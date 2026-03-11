@@ -131,7 +131,7 @@ export default function WidgetIntro(props) {
           onOk: () => {
             window.clearLocalDataTime({
               requestData: { worksheetId: dataSource },
-              clearSpecificKey: 'Worksheet_GetWorksheetInfo',
+              clearSpecificKeys: ['Worksheet_GetWorksheetInfo', 'Worksheet_GetWorksheetBaseInfo'],
             });
             appManagementAjax
               .changeSheet({
@@ -241,6 +241,7 @@ export default function WidgetIntro(props) {
             size: WHOLE_SIZE,
             unique: false,
             enumDefault: 2,
+            viewId: '',
             advancedSetting: {
               allowadd: '1',
               allowcancel: '1',
@@ -384,9 +385,9 @@ export default function WidgetIntro(props) {
           getPopupContainer={() => document.body}
         >
           <div className={cx('switchType', { disabled: !isAllowSwitch })}>
-            <Icon icon={icon} className="Gray_75 Font18" />
+            <Icon icon={icon} className="textSecondary Font18" />
             <span>{widgetName}</span>
-            {isAllowSwitch() && <Icon icon="task_custom_btn_unfold" className="mLeft6 Gray_75" />}
+            {isAllowSwitch() && <Icon icon="task_custom_btn_unfold" className="mLeft6 textSecondary" />}
           </div>
         </Trigger>
         {from !== 'subList' && !isRecycle && <FixedIcon {...props} />}

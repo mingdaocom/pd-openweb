@@ -17,16 +17,16 @@
       line-height: 100px;
       text-align: center;
       border-radius: 50%;
-      background-color: #f5f5f5;
+      background-color: var(--color-background-secondary);
     }
     .icon {
       vertical-align: middle;
       font-size: 40px;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
     .emptyExplain {
       margin-top: 12px;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       font-size: 15px;
       text-align: center;
     }
@@ -47,12 +47,12 @@
   cursor: pointer;
   vertical-align: top;
   &:hover:not(.selected) {
-    background: #eaeaea;
-    border-color: #eaeaea;
+    background: var(--color-border-secondary);
+    border-color: var(--color-border-secondary);
   }
   &.selected {
     background: rgba(33, 150, 243, 0.06);
-    border-color: #1677ff;
+    border-color: var(--color-primary);
   }
 }
 
@@ -67,32 +67,32 @@
       .addColorWrap {
         width: 36px;
         height: 36px;
-        background: #ffffff;
-        border: 1px solid #d5d5d5;
+        background: var(--color-background-primary);
+        border: 1px solid var(--color-border-primary);
         border-radius: 3px;
         font-size: 16px;
-        color: #9d9d9d;
+        color: var(--color-text-tertiary);
         display: flex;
         justify-content: center;
         align-items: center;
         cursor: pointer;
         &:hover {
-          border: 1px solid #1677ff;
+          border: 1px solid var(--color-primary);
           .addIcon {
-            color: #1677ff;
+            color: var(--color-primary);
           }
         }
       }
     }
     .chartColorSetting {
       padding-top: 24px;
-      border-top: 1px solid #e3e3e3;
+      border-top: 1px solid var(--color-border-secondary);
       .chartSettingHeader {
         justify-content: space-between;
       }
       .createChartColorBtn {
         padding: 0 16px;
-        background: #1677ff;
+        background: var(--color-primary);
         font-size: 13px;
         min-height: 32px;
         line-height: 32px;

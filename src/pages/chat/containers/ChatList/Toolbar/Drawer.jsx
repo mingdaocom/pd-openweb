@@ -11,7 +11,7 @@ import SessionList from 'src/pages/chat/containers/SessionListDrawer';
 import * as actions from 'src/pages/chat/redux/actions';
 
 const FixingWrap = styled.div`
-  border-left: 2px solid #e0e0e0;
+  border-left: 2px solid var(--color-border-secondary);
 `;
 
 const Drag = styled.div(
@@ -23,7 +23,7 @@ const Drag = styled.div(
   height: 100%;
   cursor: ew-resize;
   &:hover {
-    border-left: 1px solid #ddd;
+    border-left: 1px solid var(--color-border-primary);
   }
 `,
 );

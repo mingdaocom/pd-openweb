@@ -17,16 +17,16 @@ import { browserIsMobile } from 'src/utils/common';
 import { getDefaultCount } from 'src/utils/control';
 import { isSheetDisplay } from '../../../pages/widgetConfig/util/index.js';
 import { FORM_ERROR_TYPE } from './config.js';
-import { replaceStr } from './formUtils';
 import {
   calcDefaultValueFunction,
   checkValueAvailable,
   formatSearchResultValue,
   getCurrentValue,
   getDynamicValue,
-} from './formUtils.js';
+} from './formUtils';
+import { replaceStr } from './formUtils/helper';
 import { dealAuthAccount, getParamsByConfigs, handleUpdateApi } from './searchUtils';
-import { formatControlToServer } from './utils.js';
+import { formatControlToServer } from './utils';
 
 // 显隐、只读编辑等处理
 const dealDataPermission = props => {
@@ -108,7 +108,7 @@ const canSearchMore = currentControl => {
 
 // 获取查询工作表数据
 const getSearchWorksheetData = async props => {
-  const { formData, recordId, queryConfig = {}, control } = props;
+  const { formData, recordId, queryConfig = {}, control, appId } = props;
   const { items = [], templates = [], sourceId, moreSort, controlId, id, moreType, recordsNotFound } = queryConfig;
   const currentControl = control || _.find(formData, da => da.controlId === controlId);
   const controls = _.get(templates[0] || {}, 'controls') || [];
@@ -121,6 +121,7 @@ const getSearchWorksheetData = async props => {
         recordId,
         relationControls: controls,
       },
+      appId,
       formData,
       ignoreEmptyRule: true,
     });
@@ -331,7 +332,7 @@ const handleUpdateSearchResult = async props => {
 
 // 获取查询工作表结果
 const getSearchWorksheetResult = async props => {
-  const { advancedSetting = {}, searchConfig = [], formData, recordId } = props;
+  const { advancedSetting = {}, searchConfig = [], formData, recordId, appId } = props;
   const { id } = safeParse(advancedSetting.dynamicsrc || '{}');
   const currentSearchConfig = _.find(searchConfig, s => s.id === id) || {};
   const { items = [], templates = [], sourceId, moreSort, resultType, controlId } = currentSearchConfig;
@@ -345,6 +346,7 @@ const getSearchWorksheetResult = async props => {
         relationControls: controls,
       },
       formData,
+      appId,
       ignoreEmptyRule: true,
     });
     let params = {

@@ -23,8 +23,8 @@ export default class HistoryLogs extends React.Component {
         {_.map(list, (log, index) => {
           return (
             <div className={cx('logItem Font13 clearfix ThemeColor3', { mTop0: index === 0 })} key={index}>
-              <span className="Gray" dangerouslySetInnerHTML={{ __html: log.msg }} />{' '}
-              <span className="mLeft24 Gray_9e">{dateConvertToUserZone(log.createTime)}</span>
+              <span className="textPrimary" dangerouslySetInnerHTML={{ __html: log.msg }} />{' '}
+              <span className="mLeft24 textTertiary">{dateConvertToUserZone(log.createTime)}</span>
             </div>
           );
         })}

@@ -12,17 +12,17 @@ const Con = styled.div(
     height: 36px;
     line-height: 34px;
     padding: 0 6px 0 10px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     min-width: 100px;
     cursor: ${disabled ? 'pointer' : ''};
     overflow: hidden;
-    ${disabled ? 'background-color: #f5f5f5' : ''}
+    ${disabled ? 'background-color: var(--color-background-secondary)' : ''}
     .flex {
       flex: 1;
       overflow: hidden;
     }
     .placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
     .downIcon {
       line-height: 34px;
@@ -43,7 +43,7 @@ function ControlIconItem(props) {
   const iconName = getIconByType(control.type);
   return (
     <ControlIconItemCon>
-      <i className={`icon-${iconName} Gray_9e Font16 mRight8`} />
+      <i className={`icon-${iconName} textTertiary Font16 mRight8`} />
       <span className="controlName ellipsis" title={control.controlName}>
         {control.controlName}
       </span>
@@ -87,7 +87,7 @@ export default function ControlSelect(props) {
             {!control && <span className="placeholder">{_l('请选择')}</span>}
             {control && <ControlIconItem control={control} />}
           </div>
-          <i className="icon-arrow-down-border Font18 Gray_9e downIcon"></i>
+          <i className="icon-arrow-down-border Font18 textTertiary downIcon"></i>
         </Con>
       )}
     </AddCondition>

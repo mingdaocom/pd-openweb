@@ -9,25 +9,24 @@ import homeAppApi from 'src/api/homeApp';
 import webCacheAjax from 'src/api/webCache';
 import sheetAjax from 'src/api/worksheet';
 import instance from 'src/pages/workflow/api/instanceVersion';
-import processAjax from 'src/pages/workflow/api/processVersion';
-import { updateRulesData } from 'src/components/Form/core/formUtils';
+import { updateRulesData } from 'src/components/Form/core/formUtils/updateRulesData';
+import { permitList } from 'src/pages/FormSet/config';
+import { isOpenPermit } from 'src/pages/FormSet/util';
 import CommonHeader from 'src/pages/kc/common/AttachmentsPreview/previewHeader/CommonHeader/index';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
-import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { canEditApp, isHaveCharge } from 'src/pages/worksheet/redux/actions/util.js';
+import { canEditApp, isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
 import { getAppLangDetail, getTranslateInfo } from 'src/utils/app';
 import { browserIsMobile } from 'src/utils/common';
 import { renderText as renderCellText } from 'src/utils/control';
 import { VersionProductType } from 'src/utils/enum';
 import { addBehaviorLog, getFeatureStatus } from 'src/utils/project';
-import { replaceControlsTranslateInfo } from 'src/utils/translate';
-import Con from './components/content';
-import Header from './components/header';
-import SaveDia from './components/saveDia';
-import SideNav from './components/sideNav/index';
-import { DEFAULT_FONT_SIZE, fromType, PRINT_TYPE, typeForCon } from './config';
-import { getControlsForPrint, getVisibleControls, isRelation, SYST_PRINTData, useUserPermission } from './util';
-import { getDownLoadUrl } from './util';
+import Header from './components/Header';
+import PrintContentBox from './components/PrintContentBox';
+import SaveDia from './components/SaveDia';
+import SideBar from './components/SideBar';
+import { DEFAULT_FONT_SIZE, fromType, PRINT_TYPE, typeForCon } from './core/config';
+import { getControlsForPrint, isRelation, isRToC, SYST_PRINTData } from './core/util';
+import { getDownLoadUrl } from './core/util';
 import './index.less';
 
 class PrintForm extends React.Component {
@@ -69,7 +68,25 @@ class PrintForm extends React.Component {
       showSavePreviewService: false,
       showHeader: true,
       editLoading: false,
+      // 从 rowIds 中获取的第一个 rowId，用于请求接口（rowIds 可公用）
+      basicRowId: '',
+      rowValues: [],
+      // 手动更新字段
+      flagUpdate: 0,
+      updateFlagType: '',
+      approvalCheckedMap: {},
+      // 原始审批数据源
+      originalApproval: [],
+      pagesInfo: '',
+      // 分享链接
+      shareShortUrls: {},
+      approvalParentId: '',
+      immediateGetApprovalDetail: {},
+      // 是否可以显示打印和保存按钮
+      showPrintAndSaveButtons: false,
     };
+
+    this.confirmOk = false;
   }
 
   componentWillMount = () => {
@@ -84,15 +101,6 @@ class PrintForm extends React.Component {
   componentWillUnmount() {
     $('html').removeClass('printPage');
     window.removeEventListener('keydown', this.handleKeyDown);
-    const { match = {} } = this.props;
-    let { params } = match;
-    const { key } = params;
-
-    if (key) {
-      webCacheAjax.clear({
-        key: `${key}`,
-      });
-    }
   }
 
   getApp = cb => {
@@ -126,38 +134,36 @@ class PrintForm extends React.Component {
   };
 
   getParamFn = () => {
-    if (location.href.indexOf('printForm') > -1) {
+    if (location.href.indexOf('printForm') > -1 || location.href.indexOf('printFormBatch') > -1) {
       const { params = {} } = this.state;
       const { key } = params;
 
-      webCacheAjax
-        .get({
-          key: `${key}`,
-        })
-        .then(res => {
-          if (res.data) {
-            let data = JSON.parse(res.data);
-
-            this.setState(
-              {
-                params: {
-                  ...this.state.params,
-                  ...data,
-                },
-                printData: {
-                  allowDownloadPermission: data.allowDownloadPermission,
-                  allowEditAfterPrint: data.allowEditAfterPrint,
-                  ...this.state.printData,
-                  name: data.name,
-                },
+      webCacheAjax.get({ key }).then(res => {
+        if (res.data) {
+          const data = safeParse(res.data);
+          const { params, printData } = this.state;
+          this.setState(
+            {
+              params: {
+                ...params,
+                ...data,
               },
-              () => {
-                this.getWorksheet();
+              printData: {
+                allowDownloadPermission: data.allowDownloadPermission,
+                allowEditAfterPrint: data.allowEditAfterPrint,
+                ...printData,
+                name: data.name,
               },
-            );
-          }
-        });
+              basicRowId: data.rowIds?.[0] || '',
+            },
+            () => {
+              this.getWorksheet();
+            },
+          );
+        }
+      });
     } else {
+      // 表单设置 - 编辑模板进入
       this.getWorksheet();
     }
   };
@@ -174,49 +180,46 @@ class PrintForm extends React.Component {
       })
       .then(res => {
         res.name = getTranslateInfo(res.appId, null, worksheetId).name || res.name;
-        this.setInfo(res);
+
+        const { params } = this.state;
+        const {
+          printId,
+          isDefault,
+          from = '',
+          name = '',
+          attriData = {}, // 标题字段
+          isBatch, // 是否批量打印
+        } = params;
+
+        this.setState(
+          {
+            downLoadUrl: res.downLoadUrl,
+            sheetSwitchPermit: res.switches,
+            info: res,
+          },
+          () => {
+            if (isDefault) {
+              if (params.printType === 'flow') {
+                this.initWorkflow();
+              } else {
+                this.getData();
+              }
+            } else {
+              this.setState({ isLoading: false });
+
+              if (from === fromType.PRINT && printId) {
+                document.title = `${name}-${isBatch ? _l('批量打印') : renderCellText(attriData) || _l('未命名')}`;
+              }
+
+              getDownLoadUrl(res.downLoadUrl, params, link => {
+                this.setState({ ajaxUrlStr: link }, () => {
+                  link !== 'error' && this.getFiles();
+                });
+              });
+            }
+          },
+        );
       });
-  };
-
-  setInfo = res => {
-    const { params } = this.state;
-    const {
-      printId,
-      isDefault,
-      from = '',
-      name = '',
-      attriData = {}, // 标题字段
-      isBatch, // 是否批量打印
-    } = params;
-
-    this.setState(
-      {
-        downLoadUrl: res.downLoadUrl,
-        sheetSwitchPermit: res.switches,
-        info: res,
-      },
-      () => {
-        if (isDefault) {
-          if (params.printType === 'flow') {
-            this.initWorkflow();
-          } else {
-            this.getData();
-          }
-        } else {
-          this.setState({ isLoading: false });
-
-          if (from === fromType.PRINT && printId) {
-            document.title = `${name}-${isBatch ? _l('批量打印') : renderCellText(attriData) || _l('未命名')}`;
-          }
-
-          getDownLoadUrl(res.downLoadUrl, params, link => {
-            this.setState({ ajaxUrlStr: link }, () => {
-              link !== 'error' && this.getFiles();
-            });
-          });
-        }
-      },
-    );
   };
 
   handleKeyDown = evt => {
@@ -225,189 +228,19 @@ class PrintForm extends React.Component {
     }
   };
 
-  getApproval = () => {
-    const { params, printData } = this.state;
-    const { from, printType, type } = params;
-
-    if (printType && printType === 'flow') return;
-
-    const { worksheetId, rowId, appId } = params;
-
-    let approvalIds = printData.approvalIds;
-    let promiseList = [
-      instance.getTodoList2({
-        startAppId: worksheetId,
-        startSourceId: rowId || printData.rowIdForQr,
-        complete: true,
-      }),
-      instance.getTodoList2({
-        startAppId: worksheetId,
-        startSourceId: rowId || printData.rowIdForQr,
-      }),
-    ];
-
-    if (from === fromType.FORM_SET && type !== typeForCon.PREVIEW) {
-      promiseList.push(
-        processAjax.list({
-          relationId: appId,
-          processListType: '11',
-        }),
-      );
-    }
-
-    Promise.all(promiseList).then(([res1, res2, res3 = []]) => {
-      let ajaxList = [];
-      let res = res1.concat(res2);
-      const otherProcess = res3.find(l => l.groupId === worksheetId);
-      const otherApproval = otherProcess
-        ? otherProcess.processList
-            .filter(l => !res.find(m => l.id === _.get(m, 'process.parentId')))
-            .map(l => ({ ...l, checked: !!approvalIds.find(m => m === l.id), processId: l.id }))
-        : [];
-
-      res.forEach(item => {
-        ajaxList.push(instance.get2({ id: item.id, workId: item.workId }));
-      });
-
-      axios.all(ajaxList).then(resData => {
-        let list = res.map((l, index) => {
-          return {
-            ...l,
-            processInfo: resData[index],
-          };
-        });
-        let _approval = [];
-        list.forEach(item => {
-          item.processInfo.works.forEach(work => {
-            work.flowNode.name =
-              getTranslateInfo(appId, item.process.parentId, work.flowNode.id).nodename || work.flowNode.name;
-          });
-          if (_approval.find(l => l.processId === item.process.parentId)) {
-            let _index = _approval.findIndex(m => m.processId === item.process.parentId);
-            _approval[_index].child.push({
-              ...item,
-              checked: !!approvalIds.find(l => l === item.process.parentId),
-            });
-          } else {
-            _approval.push({
-              name: item.process.name,
-              processId: item.process.parentId,
-              checked: !!approvalIds.find(l => l === item.process.parentId),
-              child: [].concat({
-                ...item,
-                checked: !!approvalIds.find(l => l === item.process.parentId),
-              }),
-            });
-          }
-        });
-
-        this.setState({
-          printData: {
-            ...this.state.printData,
-            approval: _approval.concat(otherApproval),
-          },
-          approval: _approval.concat(otherApproval),
-        });
-      });
-    });
-  };
-
-  getRowRelationRows = () => {
-    const { printData, params } = this.state;
-    const { worksheetId, rowId } = params;
-    const { receiveControls = [] } = printData;
-    let controls = receiveControls.filter(l => l.type === 51);
-
-    if (controls.length === 0) return;
-
-    let promiseList = controls.map(control => {
-      const newFilter = getFilter({
-        control: { ...control, recordId: rowId || printData.rowIdForQr },
-        formData: receiveControls,
-        filterKey: 'resultfilters',
-      });
-
-      return newFilter
-        ? sheetAjax.getRowRelationRows({
-            worksheetId,
-            controlId: control.controlId,
-            getRules: true,
-            getWorksheet: true,
-            keywords: '',
-            pageIndex: 1,
-            pageSize: control?.type === 51 && control.enumDefault === 1 ? 1 : 1000,
-            rowId,
-            filterControls: newFilter,
-            getType: 5,
-          })
-        : {};
-    });
-
-    let _printData = _.cloneDeep(printData);
-
-    Promise.all(promiseList).then(res => {
-      printData.receiveControls.forEach((item, index) => {
-        let _index = controls.findIndex(l => l.controlId === item.controlId);
-        if (_index > -1 && item.type === 51 && !_.isEmpty(res[_index])) {
-          res[_index].template.controls = replaceControlsTranslateInfo(
-            res[_index].worksheet.appId,
-            res[_index].worksheet.worksheetId,
-            res[_index].template.controls,
-          );
-          _printData.receiveControls[index].value =
-            (res[_index].data || []).length === 0 ? '' : JSON.stringify(res[_index].data);
-          _printData.receiveControls[index].relationsData = res[_index];
-
-          if ((_printData.receiveControls[index].relationControls || []).length === 0 && res[_index].template) {
-            _printData.receiveControls[index].relationControls = res[_index].template.controls;
-          } else {
-            _printData.receiveControls[index].relationControls = replaceControlsTranslateInfo(
-              res[_index].worksheet.appId,
-              res[_index].worksheet.worksheetId,
-              _printData.receiveControls[index].relationControls,
-            );
-          }
-        }
-      });
-
-      this.setState({ printData: _printData });
-    });
-  };
-
   getData = () => {
-    const { params, info } = this.state;
-    const {
-      printId,
-      projectId,
-      worksheetId,
-      rowId,
-      getType,
-      viewId,
-      appId,
-      isDefault,
-      from,
-      printType,
-      id,
-      workId,
-      type,
-    } = params;
-    const sheetArgs = {
-      id: printId,
-      projectId,
-      worksheetId,
-      rowId,
-      pageIndex: 1,
-      pageSize: 100000,
-      getType,
-      viewId,
-      appId,
-      instanceId: id,
-      workId: workId,
-    };
+    const { params, info, basicRowId } = this.state;
+    const { printId, worksheetId, viewId, appId, isDefault, from, printType, type, rowIds } = params;
 
-    let ajaxFn = printId ? sheetAjax.getPrint(sheetArgs) : sheetAjax.getPrintTemplate(sheetArgs);
+    const rowIdsList = rowIds?.[0] ? rowIds : [];
     let ajaxList = [
-      ajaxFn,
+      sheetAjax.getPrintDetailList({
+        appId,
+        worksheetId,
+        viewId,
+        printId,
+        rowIds: rowIdsList,
+      }),
       sheetAjax.getControlRules({
         //系统打印 请求规则
         worksheetId,
@@ -415,8 +248,31 @@ class PrintForm extends React.Component {
       }),
     ];
 
+    const isBatchShortUrl = rowIdsList?.length && viewId;
+    if (isBatchShortUrl) {
+      ajaxList.push(
+        sheetAjax.getRowsShortUrl({
+          appId,
+          viewId,
+          worksheetId,
+          rowIds: rowIdsList,
+        }),
+      );
+    }
+
     axios.all(ajaxList).then(resData => {
-      const res = resData[0];
+      let { printDot, rowValues } = resData[0];
+      const shareShortUrls = isBatchShortUrl ? resData[2] : {};
+
+      if (!rowValues.length) {
+        const receiveControls = printDot.receiveControls;
+        const tempData = receiveControls.map(({ controlId }) => ({
+          id: controlId,
+          value: '',
+        }));
+        rowValues = [{ rowId: 'emptyRowId', controlValues: tempData }];
+      }
+      const res = printDot;
 
       if (res.resultCode === 4 && !(isDefault && from === fromType.FORM_SET)) {
         this.setState({
@@ -426,142 +282,56 @@ class PrintForm extends React.Component {
         return;
       }
 
+      if (from === fromType.PRINT && printType !== 'flow') {
+        document.title = printId ? `${res.name}` : `${_l('系统打印')}`;
+        // 设置打印 header 页码
+        this.updatePagesInfo(`1/${rowValues.length}`);
+      }
+
       res.formName = getTranslateInfo(appId, null, worksheetId).name || res.formName;
 
-      _.forEach(res.relationMaps, function (value, key) {
-        const relaControl = res.receiveControls.find(l => l.controlId === key);
-
-        relaControl.relationControls = relaControl.relationControls.map(l => {
-          return _.assign(
-            l,
-            _.pick(
-              _.find(res.relationMaps[key].template.controls, m => m.controlId === l.controlId),
-              ['dot', 'advancedSetting'],
-            ),
-          );
-        });
-
-        res.relationMaps[key].template.controls = replaceControlsTranslateInfo(
-          appId,
-          relaControl.dataSource,
-          relaControl.relationControls,
-        );
-      });
-
       const rules = resData[1];
-      //通过规则计算
+      // 通过规则计算
       let receiveControls = updateRulesData({
         rules: [typeForCon.NEW, typeForCon.EDIT].includes(type) && from === fromType.FORM_SET ? [] : rules,
-        recordId: rowId,
+        recordId: basicRowId,
         data: res.receiveControls,
       });
       const needVisible = printId || (type === typeForCon.NEW && from === fromType.FORM_SET);
-      receiveControls = getControlsForPrint(receiveControls, res.relationMaps, needVisible, {
-        info: info,
-        fileStyle: (_.get(res, 'advanceSettings') || []).find(l => l.key === 'atta_style'),
-        user_info: (_.get(res, 'advanceSettings') || []).find(l => l.key === 'user_info'),
+      receiveControls = getControlsForPrint({
+        receiveControls,
+        relationMaps: res.relationMaps,
+        needVisible,
+        info,
       });
-      receiveControls = replaceControlsTranslateInfo(appId, worksheetId, receiveControls);
 
-      let dat = (res.receiveControls || []).filter(o => ![43, 49].includes(o.type) && o.controlId !== 'wfcotime'); //去除 文本识别 43 接口查询按钮
-      let attribute = dat.find(it => it.attribute === 1);
-      let attributeName = !attribute ? _l('未命名') : renderCellText(attribute) || _l('未命名');
+      // 读取表格的展示方式
+      const relationStyle = printId
+        ? res.relationStyle
+        : res.receiveControls.filter(o => isRToC(o)).map(o => ({ controlId: o.controlId, type: 3 }));
 
-      if (from === fromType.PRINT && printType !== 'flow') {
-        document.title = printId ? `${res.name}-${attributeName}` : `${_l('系统打印')}-${attributeName}`;
-      }
-
-      let _printData = {
+      const _printData = {
         ...this.state.printData,
-        ..._.omit(res, ['rowId']),
-        rowIdForQr: res.rowId,
+        ...res,
         receiveControls,
         rules,
-        attributeName,
         font: Number(res.font || DEFAULT_FONT_SIZE),
-        orderNumber: dat
+        orderNumber: receiveControls
           .filter(control => isRelation(control))
-          .map(it => {
-            // res.orderNumber取消序号呈现的关联表id
-            return { receiveControlId: it.controlId, checked: !(res.orderNumber || []).includes(it.controlId) };
-          }),
+          .map(it => ({ receiveControlId: it.controlId, checked: !(res.orderNumber || []).includes(it.controlId) })),
         systemControl: SYST_PRINTData(res),
         approvalIds: res.approvalIds,
         filters: res.filters,
         allControls: res.receiveControls,
+        relationStyle,
       };
 
-      let infoPromiseList = [];
-      let controlIndexList = [];
-      receiveControls.forEach((l, i) => {
-        if (l.type === 34 && useUserPermission(l)) {
-          controlIndexList.push(i);
-          infoPromiseList.push(
-            sheetAjax.getWorksheetInfo({
-              worksheetId: l.dataSource,
-              getTemplate: true,
-              relationWorksheetId: worksheetId,
-            }),
-          );
-        }
+      this.setState({
+        printData: _printData,
+        rowValues,
+        shareShortUrls,
+        isLoading: false,
       });
-
-      if (infoPromiseList.length === 0) {
-        this.setState(
-          {
-            printData: _printData,
-            isLoading: false,
-          },
-          () => {
-            this.getApproval();
-            this.getRowRelationRows();
-          },
-        );
-      } else {
-        Promise.all(infoPromiseList).then(res => {
-          res.forEach((item, index) => {
-            const oldControls = receiveControls[controlIndexList[index]].relationControls.map(l => l.controlId);
-            let newControls = getVisibleControls(
-              (
-                _.get(
-                  _printData.relationMaps,
-                  `${receiveControls[controlIndexList[index]].controlId}.template.controls`,
-                ) || []
-              ).filter(it => {
-                const itIndex = _.findIndex(oldControls, l => l === it.controlId);
-                const itControl = (_.get(item, 'template.controls') || []).find(l => l.controlId === it.controlId);
-
-                if (itIndex > -1) {
-                  it.checked = _.get(receiveControls[controlIndexList[index]], `relationControls[${itIndex}]`).checked;
-                }
-
-                if (itControl) {
-                  _.assign(it, _.pick(itControl, ['fieldPermission', 'controlPermissions', 'advancedSetting']));
-                }
-
-                return index > -1;
-              }),
-              true,
-            );
-
-            newControls = replaceControlsTranslateInfo(item.appId, item.worksheetId, newControls);
-            receiveControls[controlIndexList[index]].relationControls = newControls;
-            _printData.relationMaps[controlIndexList[index]] &&
-              (_printData.relationMaps[controlIndexList[index]].template.controls = newControls);
-          });
-
-          this.setState(
-            {
-              printData: _printData,
-              isLoading: false,
-            },
-            () => {
-              this.getApproval();
-              this.getRowRelationRows();
-            },
-          );
-        });
-      }
     });
   };
 
@@ -581,9 +351,9 @@ class PrintForm extends React.Component {
           {
             params: {
               ...this.state.params,
-              rowId: res.rowId,
               worksheetId: res.worksheetId,
             },
+            basicRowId: res.rowId,
           },
           () => {
             this.getData();
@@ -606,11 +376,57 @@ class PrintForm extends React.Component {
       });
   };
 
-  handChange = changeData =>
+  extractApprovalChecked = arr => {
+    const result = {};
+
+    arr.forEach(item => {
+      result[item.processId] = item.checked;
+    });
+    return result;
+  };
+
+  handChange = (changeData, extraData = {}) => {
     this.setState({
       printData: Object.assign(this.state.printData, changeData),
       isChange: true,
+      flagUpdate: this.state.flagUpdate + 1,
+      ...(_.has(changeData, 'approval')
+        ? {
+            approvalCheckedMap: this.extractApprovalChecked(changeData.approval),
+            updateFlagType: 'approval',
+            approvalParentId: extraData.approvalParentId,
+          }
+        : { updateFlagType: 'receiveControls' }),
     });
+  };
+
+  setApprovalList = ({ list, rowId }) => {
+    this.setState(preState => {
+      const { approval, approvalCheckedMap, immediateGetApprovalDetail } = preState;
+      const nextApproval = _.cloneDeep(approval);
+
+      list.forEach(item => {
+        const processIndex = _.findIndex(nextApproval, l => l.processId === item.processId);
+        if (processIndex === -1) {
+          nextApproval.push(item);
+        }
+      });
+      const cloneApprovalCheckedMap = _.cloneDeep(approvalCheckedMap);
+      nextApproval.forEach(item => {
+        cloneApprovalCheckedMap[item.processId] = item.checked;
+      });
+
+      return {
+        approval: nextApproval,
+        approvalCheckedMap: cloneApprovalCheckedMap,
+        immediateGetApprovalDetail: { ...immediateGetApprovalDetail, [rowId]: true },
+      };
+    });
+  };
+
+  updateShowPrintAndSaveButtons = bool => {
+    this.setState({ showPrintAndSaveButtons: bool });
+  };
 
   saveTem = () => this.setState({ showSaveDia: true });
 
@@ -621,7 +437,6 @@ class PrintForm extends React.Component {
       return;
     }
 
-    this.setState({ saveLoading: true });
     const { name, views, orderNumber, titleChecked, receiveControls, approval = [] } = printData;
 
     if (!_.trim(name)) {
@@ -629,6 +444,7 @@ class PrintForm extends React.Component {
       return;
     }
 
+    this.setState({ saveLoading: true });
     const { printId, projectId, worksheetId, type } = params;
     let controls = [];
 
@@ -778,13 +594,13 @@ class PrintForm extends React.Component {
 
   // 埋点
   handleBehaviorLog = () => {
-    const { params = {} } = this.state;
-    const { isBatch, worksheetId, rowId, printId } = params;
+    const { params = {}, basicRowId } = this.state;
+    const { isBatch, worksheetId, printId, rowIds, rowId } = params;
 
-    if (isBatch) {
-      addBehaviorLog('batchPrintWord', worksheetId, { printId, msg: [rowId.split(',').length] });
+    if (isBatch || rowIds?.length > 1) {
+      addBehaviorLog('batchPrintWord', worksheetId, { printId, msg: [(rowIds || rowId.split(',')).length] });
     } else {
-      addBehaviorLog('printWord', worksheetId, { printId, rowId });
+      addBehaviorLog('printWord', worksheetId, { printId, rowId: basicRowId || rowId });
     }
   };
 
@@ -875,9 +691,12 @@ class PrintForm extends React.Component {
         cancelText: _l('否，放弃保存'),
         okText: _l('是，保存修改'),
         onCancel: () => {
-          !this.state.showSaveDia && this.props.onBack && this.props.onBack();
+          !this.confirmOk && !this.state.showSaveDia && this.props.onBack && this.props.onBack();
+          this.confirmOk = false;
         },
         onOk: () => {
+          // 防止触发onCancel
+          this.confirmOk = true;
           this.saveFn();
         },
       });
@@ -887,6 +706,10 @@ class PrintForm extends React.Component {
   onClickPrint = () => {
     this.handleBehaviorLog();
     this.setState({ showPdf: true, showHeader: false });
+  };
+
+  updatePagesInfo = pagesInfo => {
+    this.setState({ pagesInfo });
   };
 
   renderExportRes = () => {
@@ -963,6 +786,15 @@ class PrintForm extends React.Component {
       approval,
       isUserAdmin,
       isHaveCharge,
+      rowValues,
+      flagUpdate,
+      updateFlagType,
+      approvalCheckedMap,
+      approvalParentId,
+      pagesInfo,
+      shareShortUrls,
+      immediateGetApprovalDetail,
+      showPrintAndSaveButtons,
     } = this.state;
     const { type, isDefault, worksheetId, viewId } = params;
     let { receiveControls = [], systemControl = [] } = printData;
@@ -985,19 +817,18 @@ class PrintForm extends React.Component {
             }}
           >
             <div className="unnormalIcon InlineBlock"></div>
-            <div className="Gray_75 mTop30">{_l('记录或模板已删除')}</div>
+            <div className="textSecondary mTop30">{_l('记录或模板已删除')}</div>
           </div>
         </div>
       );
     }
 
-    const visibleControls = getVisibleControls(receiveControls);
     let data = {
       handChange: this.handChange,
       params,
       systemControl,
-      controls: visibleControls.filter(control => control.type !== 42 && control.controlId !== 'wfcotime'), // 除去 签名
-      signature: visibleControls.filter(control => control.type === 42), // 签名
+      controls: receiveControls.filter(control => control.type !== 42 && control.controlId !== 'wfcotime'), // 除去 签名
+      signature: receiveControls.filter(control => control.type === 42), // 签名
       onCloseFn: this.onCloseFn,
       printData: {
         ...printData,
@@ -1010,16 +841,30 @@ class PrintForm extends React.Component {
       sheetSwitchPermit: sheetSwitchPermit,
       isUserAdmin: isUserAdmin,
       isHaveCharge: isHaveCharge,
+      showApproval: isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId),
     };
     const isMobile = browserIsMobile();
 
     return (
       <div className="printTem">
-        {showHeader && <Header {...data} />}
+        {showHeader && <Header pagesInfo={pagesInfo} showPrintAndSaveButtons={showPrintAndSaveButtons} {...data} />}
         {isDefault ? ( // 系统模板
           <div className={cx('printTemCon', { mobilePrintCon: isMobile })}>
-            {type !== typeForCon.PREVIEW && <SideNav {...data} />}
-            <Con {...data} />
+            {type !== typeForCon.PREVIEW && <SideBar {...data} />}
+            <PrintContentBox
+              rowValues={rowValues}
+              shareShortUrls={shareShortUrls}
+              params={params}
+              flagUpdate={flagUpdate}
+              updateFlagType={updateFlagType}
+              approvalCheckedMap={approvalCheckedMap}
+              approvalParentId={approvalParentId}
+              immediateGetApprovalDetail={immediateGetApprovalDetail}
+              setApprovalList={this.setApprovalList}
+              updatePagesInfo={this.updatePagesInfo}
+              updateShowPrintAndSaveButtons={this.updateShowPrintAndSaveButtons}
+              {...data}
+            />
             {showSaveDia && (
               <SaveDia
                 viewId={viewId}

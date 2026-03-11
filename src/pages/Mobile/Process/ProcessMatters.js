@@ -22,27 +22,27 @@ import './index.less';
 
 const ModalWrap = styled(Popup)`
   .content {
-    background-color: #f3f3f3;
+    background-color: var(--color-background-disabled);
   }
   .closeBtn,
   .rejectApprove {
-    color: #999;
+    color: var(--color-text-tertiary);
     text-align: center;
     padding: 4px 15px;
     border-radius: 24px;
-    border: 1px solid #dddddd;
-    background-color: #fff;
+    border: 1px solid var(--color-border-primary);
+    background-color: var(--color-background-primary);
   }
   .rejectApprove {
     &.select {
-      color: #f44336;
-      border-color: #f44336;
-      background-color: rgba(244, 67, 54, 0.12);
+      color: var(--color-error);
+      border-color: var(--color-error);
+      background-color: var(--color-error-bg);
     }
     &.all {
-      color: #fff;
-      border-color: #f44336;
-      background-color: #f44336;
+      color: var(--color-white);
+      border-color: var(--color-error);
+      background-color: var(--color-error);
     }
   }
 `;
@@ -152,6 +152,7 @@ export default class ProcessMatters extends Component {
     localStorage.removeItem('currentProcessTab');
   }
   componentWillUnmount() {
+    this.actionDeleteHandler && this.actionDeleteHandler.close();
     window.addEventListener('popstate', this.onQueryChange);
   }
   onQueryChange = () => {
@@ -314,6 +315,35 @@ export default class ProcessMatters extends Component {
       });
     }
   };
+  hanndleApproveConfirm = approveCardLength => {
+    this.actionDeleteHandler = ActionSheet.show({
+      popupClassName: 'md-adm-actionSheet',
+      actions: [],
+      extra: (
+        <div className="flexColumn w100">
+          <div className="bold textPrimary Font17 pTop10">{_l('您将通过选择的%0个审批事项 ?', approveCardLength)}</div>
+          <div className="valignWrapper flexRow mTop24">
+            <Button
+              className="flex mRight6 bold textSecondary flex ellipsis Font13"
+              onClick={() => this.actionDeleteHandler.close()}
+            >
+              {_l('取消')}
+            </Button>
+            <Button
+              className="flex mLeft6 bold ellipsis Font13"
+              color="success"
+              onClick={() => {
+                this.hanndleApprove(4, 'auth.passTypeList');
+                this.actionDeleteHandler.close();
+              }}
+            >
+              {_l('同意')}
+            </Button>
+          </div>
+        </div>
+      ),
+    });
+  };
   hanndleApprove = (type, batchType) => {
     const { approveCards } = this.state;
     const rejectCards = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
@@ -384,15 +414,15 @@ export default class ProcessMatters extends Component {
             <div className="w100">
               {!!success.length && (
                 <div className="flexRow alignItemsCenter mTop12">
-                  <Icon icon="check_circle1" className="Font36 mRight10" style={{ color: '#4CB050' }} />
-                  <div className="Gray Font20">{_l('%0 条执行完成', success.length)}</div>
+                  <Icon icon="check_circle1" className="Font36 mRight10" style={{ color: 'var(--color-success)' }} />
+                  <div className="textPrimary Font20">{_l('%0 条执行完成', success.length)}</div>
                 </div>
               )}
               {!!fail.length && (
                 <div className="flexRow mTop12">
-                  <Icon icon="report" className="Font36 mRight10" style={{ color: '#F54337' }} />
+                  <Icon icon="report" className="Font36 mRight10" style={{ color: 'var(--color-error)' }} />
                   <div className="w100">
-                    <div className="Font20 mBottom5" style={{ color: '#F54337' }}>
+                    <div className="Font20 mBottom5" style={{ color: 'var(--color-error)' }}>
                       {_l('%0 条异常', fail.length)}
                     </div>
                     <div style={{ maxHeight: 500, overflowY: 'auto' }}>
@@ -400,7 +430,7 @@ export default class ProcessMatters extends Component {
                         const [id, workId] = key.split(',');
                         const card = _.find(cards, { id, workId });
                         return card ? (
-                          <div className="Gray Font15 mBottom3">{`${card.entityName}: ${card.title || _l('未命名')}`}</div>
+                          <div className="textPrimary Font15 mBottom3">{`${card.entityName}: ${card.title || _l('未命名')}`}</div>
                         ) : null;
                       })}
                     </div>
@@ -434,7 +464,7 @@ export default class ProcessMatters extends Component {
       >
         <div className="otherActionWrapper flexColumn">
           <div className="flex pAll10">
-            <div className="Gray_75 Font14 TxtLeft mBottom10">
+            <div className="textSecondary Font14 TxtLeft mBottom10">
               {_l('其中')}
               {!!signatureApproveCards.length && _l('%0个事项需要签名', signatureApproveCards.length)}
               {!!(signatureApproveCards.length && encryptCard.length) && '，'}
@@ -521,9 +551,9 @@ export default class ProcessMatters extends Component {
           this.setState({ rejectVisible: false });
         }}
       >
-        <div className="flexColumn h100 content">
+        <div className="flexColumn h100 content bgTertiary">
           <div className="flex flexColumn" style={{ overflowY: 'auto' }}>
-            <div className="pLeft10 mTop16 mBottom10 TxtLeft Gray bold">
+            <div className="pLeft10 mTop16 mBottom14 TxtLeft textPrimary bold Font17">
               {_l('有%0个可否决的审批事项', rejectCards.length)}
             </div>
             {rejectCards.map(item => (
@@ -549,7 +579,7 @@ export default class ProcessMatters extends Component {
             ))}
             {!!noRejectCards.length && (
               <Fragment>
-                <div className="pLeft10 mTop6 mBottom10 Gray_75 TxtLeft bold">
+                <div className="pLeft10 mTop6 mBottom10 textSecondary TxtLeft bold">
                   {_l('不能否决事项')} {noRejectCards.length}
                 </div>
                 {noRejectCards.map(item => (
@@ -576,7 +606,7 @@ export default class ProcessMatters extends Component {
               </Fragment>
             )}
           </div>
-          <div className="flexRow valignWrapper pAll10 WhiteBG">
+          <div className="flexRow valignWrapper pAll10">
             <div
               className="closeBtn flex bold mRight10"
               onClick={() => {
@@ -625,7 +655,7 @@ export default class ProcessMatters extends Component {
     return (
       <div className="searchWrapper flexRow">
         <div className="inputWrap valignWrapper flex">
-          <Icon icon="search" className="Gray_75 Font20 pointer" />
+          <Icon icon="search" className="textSecondary Font20 pointer" />
           <input
             value={searchValue}
             type="text"
@@ -647,7 +677,7 @@ export default class ProcessMatters extends Component {
           {searchValue && (
             <Icon
               icon="close"
-              className="Gray_75 Font20 pointer"
+              className="textSecondary Font20 pointer"
               onClick={() => {
                 this.setState(
                   {
@@ -667,7 +697,10 @@ export default class ProcessMatters extends Component {
           )}
         </div>
         <div className="filterWrap" onClick={() => this.setState({ filterVisible: true })}>
-          <Icon icon="filter" className={cx('Font20 Gray_9e', { active: !_.isEmpty(_.omitBy(queryParam, _.isNil)) })} />
+          <Icon
+            icon="filter"
+            className={cx('Font20 textTertiary', { active: !_.isEmpty(_.omitBy(queryParam, _.isNil)) })}
+          />
         </div>
         <Filter
           tab={currentTab}
@@ -770,7 +803,7 @@ export default class ProcessMatters extends Component {
     return (
       <div className="processContent flexColumn h100">
         <div className="flexColumn h100">
-          <div className="processTabs mBottom10 z-depth-1">
+          <div className="processTabs mBottom10">
             <Tabs
               className="md-adm-tabs"
               activeLineMode="fixed"
@@ -793,7 +826,7 @@ export default class ProcessMatters extends Component {
             </Tabs>
             {batchApproval && (
               <div className="batchApprovalHeader valignWrapper Font16">
-                <div className="bold Gray">
+                <div className="bold textPrimary">
                   {_l('待审批')}
                   {countData.waitingApproval && `(${countData.waitingApproval})`}
                 </div>
@@ -837,7 +870,11 @@ export default class ProcessMatters extends Component {
                 <div
                   className={cx('passApprove flex mRight10', { all: approveCards.length })}
                   onClick={() => {
-                    this.hanndleApprove(4, 'auth.passTypeList');
+                    if (_.isEmpty(approveCards)) {
+                      alert(_l('请先勾选需要处理的审批'), 2);
+                    } else {
+                      this.hanndleApproveConfirm(approveCards.length);
+                    }
                   }}
                 >
                   {batchLoadingType === 4 ? <LoadDiv size="small" /> : _l('同意')}
@@ -909,12 +946,14 @@ export default class ProcessMatters extends Component {
         )}
         {topTab && topTab.id === 'waitingApproval' && !batchApproval && !!list.length && (
           <div
-            className="card processBatchOperation flexRow alignItemsCenter justifyContentCenter"
+            className={cx('processBatchOperation flexRow alignItemsCenter justifyContentCenter', {
+              bottom100: window.isMingDaoApp,
+            })}
             onClick={() => {
               this.setState({ batchApproval: true });
             }}
           >
-            <Icon className="Font20 Gray_9e" icon="done_all" />
+            <Icon className="Font20 textTertiary" icon="done_all" />
           </div>
         )}
         <ProcessRecordInfo

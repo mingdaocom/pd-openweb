@@ -24,8 +24,12 @@ export const getAppDetail =
           dispatch({ type: 'MOBILE_FETCH_SUCCESS' });
         }
       })
-      .catch(() => {
+      .catch(err => {
         dispatch({ type: 'MOBILE_FETCH_SUCCESS' });
+        dispatch({ type: 'UPDATE_APP_DETAIL', data: { status: err.errorCode } });
+        if (err.errorCode === 300016) {
+          dispatch({ type: 'SET_APP_STATUS', status: err.errorCode });
+        }
       });
   };
 

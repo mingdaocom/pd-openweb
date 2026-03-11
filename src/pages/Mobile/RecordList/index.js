@@ -11,6 +11,7 @@ import FixedPage from 'mobile/App/FixedPage.jsx';
 import { AddRecordBtn, BatchOperationBtn } from 'mobile/components/RecordActions';
 import { RecordInfoModal } from 'mobile/Record';
 import { openAddRecord } from 'mobile/Record/addRecord';
+import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import { addNewRecord } from 'src/pages/worksheet/redux/actions';
 import { updateHierarchyConfigLevel } from 'src/pages/worksheet/views';
 import { getShowViews } from 'src/pages/worksheet/views/util';
@@ -157,6 +158,7 @@ class RecordList extends Component {
       appDetail,
       debugRoles,
       mobileNavGroupFilters,
+      addMobileNewRecord,
     } = this.props;
     const { viewId } = base;
     const { detail } = appDetail;
@@ -177,7 +179,7 @@ class RecordList extends Component {
     if (_.isEmpty(views)) {
       return (
         <Fragment>
-          <div className="flexColumn h100 justifyContentCenter alignItemsCenter Font16 Gray_9e">
+          <div className="flexColumn h100 justifyContentCenter alignItemsCenter Font16 textTertiary">
             <img style={{ width: 70 }} src={alreadyDelete} />
             {_l('视图已隐藏')}
           </div>
@@ -224,7 +226,7 @@ class RecordList extends Component {
         >
           <DocumentTitle title={name} />
           {!batchOptVisible && (
-            <div className={cx('viewTabs z-depth-1', { isPortal: md.global.Account.isPortal })}>
+            <div className={cx('viewTabs', { isPortal: md.global.Account.isPortal })}>
               <Tabs
                 className="md-adm-tabs flexUnset"
                 activeLineMode="fixed"
@@ -314,13 +316,17 @@ class RecordList extends Component {
                       }
 
                       // 日历视图，调用内部的刷新方法视图
-                      if (view.viewType === 4) {
+                      if (String(view.viewType) === VIEW_DISPLAY_TYPE.calendar) {
                         this.viewRef.current?.viewComRef?.current?.refreshCalendarViewData();
                         return;
                       }
-
+                      // 看板视图
+                      if (String(view.viewType) === VIEW_DISPLAY_TYPE.board) {
+                        addMobileNewRecord({ data, view });
+                        return;
+                      }
                       if (view.viewType) {
-                        this.props.addNewRecord(data, view);
+                        // this.props.addNewRecord(data, view);
                       } else {
                         this.props.unshiftSheetRow(data);
                       }
@@ -360,9 +366,9 @@ class RecordList extends Component {
 
     if (isNoPublish) {
       return (
-        <div style={{ background: '#fff', height: '100%' }}>
+        <div style={{ background: 'var(--color-background-primary)', height: '100%' }}>
           <div className="flex WordBreak overflow_ellipsis pLeft20 pRight20 Height80">
-            <span className="Gray Font24 LineHeight80 InlineBlock Bold">{appName}</span>
+            <span className="textPrimary Font24 LineHeight80 InlineBlock Bold">{appName}</span>
           </div>
           <FixedPage isNoPublish={isNoPublish} />
         </div>
@@ -421,6 +427,7 @@ export default connect(
           'updateQuickFilter',
           'updateViewCard',
           'updatePreviewRecordId',
+          'addMobileNewRecord',
         ]),
         addNewRecord,
       },

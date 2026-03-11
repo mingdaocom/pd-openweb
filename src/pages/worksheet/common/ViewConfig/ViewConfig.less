@@ -1,7 +1,6 @@
 // @containerWidth: 360px;
 @containerWidth: 720px;
 @transitionTime: 0.25s;
-@blue: #1677ff;
 
 .worksheetViewConfig {
   width: @containerWidth;
@@ -10,10 +9,8 @@
   right: 0;
   top: 0;
   bottom: 0;
-  background-color: #fff;
-  box-shadow:
-    0 10px 24px rgba(0, 0, 0, 0.2),
-    0 3px 6px rgba(0, 0, 0, 0.15);
+  background-color: var(--color-background-primary);
+  box-shadow: var(--shadow-xl);
   z-index: 12;
   .Dropdown {
     .Menu.List {
@@ -24,14 +21,14 @@
   .dropdownTrigger {
     &.disabled {
       .Dropdown--input {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-secondary);
       }
     }
   }
 
   hr {
     border: none;
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-secondary);
   }
 
   > div {
@@ -147,7 +144,7 @@
     display: flex;
     align-items: center;
     justify-content: start;
-    border-bottom: 1px solid #ededed;
+    border-bottom: 1px solid var(--color-border-secondary);
 
     input {
       padding: 0;
@@ -155,47 +152,47 @@
       flex: 1;
       margin-right: 17px;
       padding: 3px 10px;
-      border: 1px solid #fff;
+      border: 1px solid transparent;
 
       &:focus,
       &:hover {
         border-radius: 4px;
-        border-color: #e0e0e0;
+        border-color: var(--color-border-secondary);
       }
 
       &:focus {
-        border-color: @blue;
+        border-color: var(--color-primary);
       }
     }
   }
   .viewTitle {
     .icon-close {
       &:hover {
-        color: @blue !important;
+        color: var(--color-primary) !important;
       }
     }
   }
 
   .sortConditions {
     .icon-drag {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     .operateBtn {
       cursor: pointer;
       font-size: 20px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       margin: 0 4px;
       line-height: 36px;
 
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
 
       &.disabled {
-        color: #ddd !important;
+        color: var(--color-border-primary) !important;
       }
     }
   }
@@ -213,8 +210,8 @@
     font-size: 13px;
     align-items: center;
     justify-content: center;
-    border-bottom: 1px solid #eaeaea;
-    background: #fafafa;
+    border-bottom: 1px solid var(--color-border-secondary);
+    background: var(--color-background-tertiary);
 
     .viewBtnsLi {
       padding: 12px 24px 0;
@@ -227,7 +224,7 @@
         content: ' ';
         width: 100%;
         display: block;
-        border-bottom: 1px solid #ededed;
+        border-bottom: 1px solid var(--color-border-secondary);
         padding-bottom: 12px;
       }
 
@@ -241,7 +238,7 @@
     }
 
     .titileP {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       font-size: 13px;
       margin: 0px;
       font-weight: 600;
@@ -262,7 +259,7 @@
       // text-overflow: ellipsis;
 
       .icon {
-        color: #757575;
+        color: var(--color-text-secondary);
         vertical-align: middle;
       }
 
@@ -275,19 +272,19 @@
       }
 
       &:hover {
-        color: @blue;
+        color: var(--color-primary);
 
         .icon {
-          color: @blue;
+          color: var(--color-primary);
         }
       }
     }
 
     .active {
-      color: @blue;
+      color: var(--color-primary);
 
       .icon {
-        color: @blue;
+        color: var(--color-primary);
       }
     }
   }
@@ -338,7 +335,7 @@
       }
       .sortColumnWrap .Dropdown--input {
         padding: 0 10px 0 12px;
-        border-color: #ddd;
+        border-color: var(--color-border-primary);
       }
 
       .viewSetText {
@@ -349,7 +346,7 @@
       .dropAbstract {
         &.placeholder {
           .value {
-            color: #bdbdbd;
+            color: var(--color-text-disabled);
           }
         }
 
@@ -368,7 +365,7 @@
     .viewSetTitle {
       padding: 25px 0 0;
       font-size: 16px;
-      color: #151515;
+      color: var(--color-text-title);
       font-weight: bold;
     }
 
@@ -377,7 +374,7 @@
     }
 
     .more {
-      color: @blue;
+      color: var(--color-primary);
     }
 
     .workSheetFilter {
@@ -389,9 +386,9 @@
       }
     }
     .batchSetBtn {
-      color: #1677ff;
+      color: var(--color-primary);
       &:hover {
-        color: #1565c0;
+        color: var(--color-link-hover);
       }
     }
   }
@@ -406,11 +403,11 @@
 
   .filterColumns {
     .Item-content .icon {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
 
     [type='hr'] {
-      border-top: 1px solid #ddd;
+      border-top: 1px solid var(--color-border-primary);
       margin-top: 5px;
       padding-top: 5px;
       margin-bottom: 5px;
@@ -423,7 +420,7 @@
 
   .role {
     border-radius: 4px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     margin-bottom: 10px;
 
     .header {
@@ -449,13 +446,13 @@
     .footer {
       cursor: pointer;
       padding: 10px 15px;
-      color: @blue;
-      border-top: 1px solid #dddddd;
+      color: var(--color-primary);
+      border-top: 1px solid var(--color-border-primary);
     }
   }
 
   .splitLine {
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     border-top: none;
     margin: 3px 0;
   }
@@ -463,7 +460,7 @@
   .addRole {
     cursor: pointer;
     border-radius: 4px;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
 
     .List {
       padding: 0;
@@ -475,7 +472,7 @@
 
   .filtersDropdown {
     [type='1']:nth-child(1) {
-      border-top: 1px solid #ccc;
+      border-top: 1px solid var(--color-border-tertiary);
 
       .Item-content {
         padding-top: 5px;
@@ -531,19 +528,19 @@
   z-index: 1000;
   position: fixed !important;
   .icon-drag {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .operateBtn {
     cursor: pointer;
     font-size: 20px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     margin: 0 4px;
     line-height: 36px;
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
     &.disabled {
-      color: #ddd !important;
+      color: var(--color-border-primary) !important;
     }
   }
   .tipsIcon {
@@ -553,13 +550,13 @@
 }
 .textCopyCon {
   padding: 17px 20px;
-  background: #151515;
+  background: var(--color-background-inverse);
   border-radius: 8px 8px 8px 8px;
-  color: #fff;
+  color: var(--color-white);
   .icon {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     &:hover {
-      color: #fff;
+      color: var(--color-white);
     }
   }
 }

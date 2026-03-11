@@ -19,13 +19,13 @@ import CellErrorTips from './comps/CellErrorTip';
 import { FROM } from './enum';
 
 const OtherOptionCon = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   height: 100%;
   padding: 7px 8px;
   .icon {
     float: right;
     font-size: 14px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     line-height: 20px;
   }
 `;
@@ -33,7 +33,7 @@ const OtherOptionCon = styled.div`
 const OtherOptionTextInputCon = styled.div`
   width: 280px;
   position: relative;
-  background: #fff;
+  background: var(--color-background-primary);
   z-index: 2;
   padding: 8px 12px;
   box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.16);
@@ -43,7 +43,7 @@ const OtherOptionTextInputCon = styled.div`
     display: flex;
   }
   .usage {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
   .reSelect {
     cursor: pointer;
@@ -54,7 +54,7 @@ const OtherOptionTextInputCon = styled.div`
   }
   &.error {
     textarea {
-      border-color: #f44336;
+      border-color: var(--color-error);
     }
   }
 `;
@@ -169,8 +169,8 @@ function getOptionStyle(option, cell) {
         color:
           (option.color && isLightColor(option.color)) ||
           (cell.controlId === 'wfstatus' && _.includes(['abort', 'other'], option.key))
-            ? '#151515'
-            : '#fff',
+            ? 'var(--color-black)'
+            : 'var(--color-white)',
       }
     : {};
 }
@@ -464,7 +464,7 @@ export default class Options extends React.Component {
           {error && !showErrorAsPopup && (
             <CellErrorTips
               error={error}
-              color={this.ignoreErrorMessage ? '#ff933e' : undefined}
+              color={this.ignoreErrorMessage ? 'var(--color-warning)' : undefined}
               pos={rowIndex === 0 ? 'bottom' : 'top'}
             />
           )}
@@ -525,7 +525,7 @@ export default class Options extends React.Component {
             </div>
           )}
           {tableType === 'classic' && !isediting && (!value || value === '[]') && cell.hint && (
-            <span className="guideText Gray_bd hide mTop2">{cell.hint}</span>
+            <span className="guideText textDisabled hide mTop2">{cell.hint}</span>
           )}
         </Fragment>
       );
@@ -566,7 +566,7 @@ export default class Options extends React.Component {
             zIndex={1050}
             popup={
               <CellErrorTips
-                color={this.ignoreErrorMessage ? '#ff933e' : undefined}
+                color={this.ignoreErrorMessage ? 'var(--color-warning)' : undefined}
                 error={error}
                 pos={rowIndex === 0 ? 'bottom' : 'top'}
               />

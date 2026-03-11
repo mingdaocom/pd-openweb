@@ -8,14 +8,14 @@ import RegExpValidator from 'src/utils/expression';
 
 const UploadWrap = styled.div`
   height: 340px;
-  border: 1px dashed #e0e0e0;
+  border: 1px dashed var(--color-border-secondary);
   .icon {
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
   &:hover {
-    border: 1px dashed #1677ff;
+    border: 1px dashed var(--color-primary);
     .icon {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
@@ -27,7 +27,7 @@ const UploadSuccess = styled.div`
   justify-content: center;
   align-items: center;
   .icon {
-    color: #58b84c;
+    color: var(--color-success);
   }
 `;
 
@@ -96,12 +96,12 @@ export default class UploadFile extends Component {
         <div className="Font14">{file.name}</div>
         <Progress
           style={{ width: 196, marginLeft: '36px' }}
-          trailColor="#eaeaea"
+          trailColor="var(--color-border-secondary)"
           strokeColor="#1677ff"
           strokeWidth={8}
           percent={Math.floor((file.loaded / (file.size || 0)) * 100)}
         />
-        <div className="Gray_9e">{formatFileSize(file.size)}</div>
+        <div className="textTertiary">{formatFileSize(file.size)}</div>
       </UploadSuccess>
     ) : (
       <UploadWrap style={style}>
@@ -112,7 +112,7 @@ export default class UploadFile extends Component {
         >
           <Icon icon="upload_file" className="Font48 mBottom18" />
           <div className="Font14 mBottom12">{_l('点击上传文件，或拖拽文件')}</div>
-          <div className="Gray_9e">{_l('支持 20MB 以内的 xls、xlsx、csv 文件')}</div>
+          <div className="textTertiary">{_l('支持 20MB 以内的 xls、xlsx、csv 文件')}</div>
         </div>
       </UploadWrap>
     );

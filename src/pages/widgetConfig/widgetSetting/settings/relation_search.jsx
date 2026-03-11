@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { Dropdown, Icon, RadioGroup } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
+import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import Sort from 'src/pages/widgetConfig/widgetSetting/components/sublist/Sort';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
@@ -19,7 +20,6 @@ import { SYSTEM_CONTROL } from '../../config/widget';
 import { AnimationWrap, EditInfo, SettingItem } from '../../styled';
 import { filterSysControls, formatControlsToDropdown, getFilterRelateControls, toEditWidgetPage } from '../../util';
 import { getAdvanceSetting, getControlsSorts, handleAdvancedSettingChange } from '../../util/setting';
-import { FilterItemTexts } from '../components/FilterData';
 import { RelateSearchWorksheet, relateSearchWorksheet } from '../components/relationSearch/relateSearchWorksheet';
 
 const FILL_TYPES = [
@@ -34,9 +34,9 @@ const SEARCH_RESULT_TYPES = [
 
 const RelateSheetWrap = styled.div`
   .filterBtn {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
 `;
@@ -54,16 +54,16 @@ const RelateSheetCover = styled.div`
     width: 36px;
     height: 36px;
     border-radius: 0px 3px 3px 0px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     text-align: center;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
     .coverIcon {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       line-height: 34px;
       &.active {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
@@ -73,7 +73,7 @@ const CoverWrap = styled.div`
   width: 308px;
   max-height: 350px;
   overflow-x: hidden;
-  background: #ffffff;
+  background: var(--color-background-primary);
   box-shadow: 0px 4px 12px 1px rgba(0, 0, 0, 0.1608);
   padding: 16px;
   .coverTitle {
@@ -84,12 +84,12 @@ const CoverWrap = styled.div`
   .coverType {
     display: Inline-block;
     border-radius: 3px 0px 0px 3px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     padding: 6px 18px;
-    color: #757575;
+    color: var(--color-text-secondary);
     &.active {
-      color: #1677ff;
-      border-color: #1677ff;
+      color: var(--color-primary);
+      border-color: var(--color-primary);
     }
     &:last-child {
       border-radius: 0px 3px 3px 0px;
@@ -192,14 +192,14 @@ export default function RelationSearch(props) {
           <span className="Bold">{_l('封面')}</span>
           {coverCid && (
             <span
-              className="Gray_9e Hover_21 Hand"
+              className="textTertiary hoverColorPrimary Hand"
               onClick={() => onChange({ ...handleAdvancedSettingChange(data, { covertype: '0' }), coverCid: '' })}
             >
               {_l('清除')}
             </span>
           )}
         </div>
-        <div className="Gray_9e mTop10">{_l('选择作为封面图片的附件字段')}</div>
+        <div className="textTertiary mTop10">{_l('选择作为封面图片的附件字段')}</div>
         <RadioGroup
           radioItemClassName="mTop10"
           disabled={!dataSource}
@@ -214,7 +214,7 @@ export default function RelationSearch(props) {
           onChange={value => onChange({ coverCid: value })}
         />
         <div className="flexCenter mTop20">
-          <span className="Gray_75 mRight20">{_l('填充方式')}</span>
+          <span className="textSecondary mRight20">{_l('填充方式')}</span>
           {FILL_TYPES.map(item => {
             return (
               <span
@@ -269,9 +269,9 @@ export default function RelationSearch(props) {
               {isDeleteWorksheet ? (
                 <div className="Red">{_l('查询表已删除')}</div>
               ) : (
-                <div className="overflow_ellipsis Gray flexCenter">
+                <div className="overflow_ellipsis textPrimary flexCenter">
                   {querytype === '1' && (
-                    <Icon className="Font20 mRight5" icon="aggregate_table" style={{ color: '#4CAF50' }} />
+                    <Icon className="Font20 mRight5" icon="aggregate_table" style={{ color: 'var(--color-success)' }} />
                   )}
                   <span
                     className="ThemeColor3 ThemeHoverColor2 Hand Bold"
@@ -344,7 +344,7 @@ export default function RelationSearch(props) {
         <SettingItem>
           <div className="settingItemTitle">{_l('排序')}</div>
           <EditInfo className="pointer" onClick={() => setVisible(true)}>
-            <div className="overflow_ellipsis Gray">
+            <div className="overflow_ellipsis textPrimary">
               {sorts.length > 0
                 ? sorts.reduce((p, item) => {
                     const sortsRelationControls = relationControls
@@ -454,7 +454,7 @@ export default function RelationSearch(props) {
       {((showtype !== '3' && enumDefault === 2) || enumDefault === 1) && (
         <SettingItem>
           <div className="settingItemTitle mBottom8">{enumDefault === 1 ? _l('显示指定字段') : _l('显示字段')}</div>
-          <RelateSheetCover hideCover={enumDefault === 1 || querytype === '1'}>
+          <RelateSheetCover hideCover={enumDefault === 1 || querytype === '1' || isSheetDisplay()}>
             <SortColumns
               sortAutoChange
               isShowColumns
@@ -479,22 +479,24 @@ export default function RelationSearch(props) {
                 );
               }}
             />
-            <Trigger
-              popup={renderCover}
-              action={['click']}
-              popupAlign={{
-                points: ['tr', 'br'],
-                offset: [0, 2],
-                overflow: { adjustX: true, adjustY: true },
-              }}
-              getPopupContainer={() => document.body}
-            >
-              <Tooltip title={_l('设置封面')} placement="bottom">
-                <div className="relateCoverSetting">
-                  <span className={cx('icon-picture coverIcon Font22 Hand', { active: !!coverCid })}></span>
-                </div>
-              </Tooltip>
-            </Trigger>
+            {!isSheetDisplay() && (
+              <Trigger
+                popup={renderCover}
+                action={['click']}
+                popupAlign={{
+                  points: ['tr', 'br'],
+                  offset: [0, 2],
+                  overflow: { adjustX: true, adjustY: true },
+                }}
+                getPopupContainer={() => document.body}
+              >
+                <Tooltip title={_l('设置封面')} placement="bottom">
+                  <div className="relateCoverSetting">
+                    <span className={cx('icon-picture coverIcon Font22 Hand', { active: !!coverCid })}></span>
+                  </div>
+                </Tooltip>
+              </Trigger>
+            )}
           </RelateSheetCover>
         </SettingItem>
       )}

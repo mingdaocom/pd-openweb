@@ -11,7 +11,7 @@ function VoteOptionMemberList(props) {
       <div className="arrowUpOuter" style={{ float: 'right', marginRight: '50px', marginTop: '-10px' }}>
         <div className="arrowUpInner" />
       </div>
-      <div className="clearfix updaterDialog_Main pAll5" style={{ border: '1px solid #D5D5D5' }}>
+      <div className="clearfix updaterDialog_Main pAll5" style={{ border: '1px solid var(--color-border-primary)' }}>
         {props.members.map(user => (
           <div className="left pAll2" key={user.accountId}>
             <UserHead title={user.name} user={{ accountId: user.accountId, userHead: user.avatarSmall }} size={24} />

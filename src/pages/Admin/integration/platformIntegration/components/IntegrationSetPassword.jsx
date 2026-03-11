@@ -11,7 +11,7 @@ import Config from '../../../config';
 
 const SetInitialPassword = styled.div`
   padding: 20px 0;
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid var(--color-border-secondary);
   .syncBox {
     max-width: 637px;
   }
@@ -20,19 +20,19 @@ const SetInitialPassword = styled.div`
     position: relative;
     .passwordlabel {
       font-size: 13px;
-      color: #151515;
+      color: var(--color-text-title);
     }
     .password {
       width: 320px;
       height: 36px;
       margin: 0 24px 0 28px;
-      border: 1px solid #1677ff;
+      border: 1px solid var(--color-primary);
     }
     .passwordError {
-      border: 1px solid #ff4d4f;
+      border: 1px solid var(--color-error);
     }
     .passwordErrorTxt {
-      color: #ff4d4f;
+      color: var(--color-error);
       padding-left: 80px;
     }
     .ant-btn-primary {
@@ -105,15 +105,15 @@ export default class IntegrationSetPassword extends Component {
     return (
       <SetInitialPassword>
         <div className="flex">
-          <h3 className="stepTitle Font16 Gray mBottom24">{_l('为同步账号设置初始密码')}</h3>
+          <h3 className="stepTitle Font16 textPrimary mBottom24">{_l('为同步账号设置初始密码')}</h3>
           <Switch disabled={disabled} checked={this.state.isSetPassword} onClick={this.changeSetInitialPassword} />
           <div className="mTop16 syncBox">
-            <span className="Font13 Gray_75 info">
+            <span className="Font13 textSecondary info">
               {_l('开启后，为同步到系统的账号设置初始密码，用户可以使用系统创建的账号和密码（初始密码）进行登录')}
             </span>
           </div>
           <div className="mTop10 syncBox">
-            <span className="Font13 Gray_75 info">{_l('注：为保证账号安全，首次使用账号登录需修改密码')}</span>
+            <span className="Font13 textSecondary info">{_l('注：为保证账号安全，首次使用账号登录需修改密码')}</span>
           </div>
           {this.state.isSetPassword && (
             <div className="initialPasswordInfo">

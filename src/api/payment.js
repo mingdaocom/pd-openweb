@@ -470,6 +470,7 @@ export default {
    * @param {string} args.startRefundTime 退款时间起始
    * @param {string} args.endRefundTime 退款时间结束
    * @param {string} args.operatorAccountId 操作用户
+   * @param {string} args.processId 工作流Id
    * @param {} args.merchantPaymentChannel
    * @param {} args.pageFilter
    * @param {Object} options 配置参数
@@ -527,6 +528,7 @@ export default {
    * @param {string} args.startRefundTime 退款时间起始
    * @param {string} args.endRefundTime 退款时间结束
    * @param {string} args.operatorAccountId 操作用户
+   * @param {string} args.processId 工作流Id
    * @param {} args.merchantPaymentChannel
    * @param {} args.pageFilter
    * @param {Object} options 配置参数

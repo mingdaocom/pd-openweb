@@ -60,7 +60,7 @@ const DropdownComp = props => {
           key={item.key}
           className={cx(
             'ellipsis mTop5 mBottom5 mRight5 Font13',
-            { White: enumDefault2 === 1 && !isLightColor(item.color), isEmpty: item.key === 'isEmpty' },
+            { textWhite: enumDefault2 === 1 && !isLightColor(item.color), isEmpty: item.key === 'isEmpty' },
             enumDefault2 === 1 ? 'customAntDropdownTitleWithBG' : 'customAntDropdownTitle',
           )}
           style={{ background: enumDefault2 === 1 ? item.color : '' }}
@@ -84,9 +84,10 @@ const DropdownComp = props => {
             'customRadioItem',
             'ellipsis',
             {
-              White: enumDefault2 === 1 && !isLightColor(item.color),
+              textWhite: enumDefault2 === 1 && !isLightColor(item.color),
               isEmpty: item.key === 'isEmpty',
             },
+            { textBlack: enumDefault2 === 1 && isLightColor(item.color) },
             {
               'pLeft12 pRight12': enumDefault2 === 1,
             },
@@ -168,7 +169,7 @@ const DropdownComp = props => {
         className={cx(
           'mTop5 mBottom5 mRight5',
           {
-            White: enumDefault2 === 1 && !isLightColor(currentItem.color),
+            textWhite: enumDefault2 === 1 && !isLightColor(currentItem.color),
             isEmpty: tagValue === 'isEmpty',
           },
           enumDefault2 === 1 ? 'customAntDropdownTitleWithBG' : 'customAntDropdownTitle',
@@ -202,7 +203,7 @@ const DropdownComp = props => {
         labelInValue={true}
         optionFilterProp="children"
         filterOption={() => true}
-        notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
+        notFoundContent={<span className="textTertiary">{_l('无搜索结果')}</span>}
         onSearch={handleSearch}
         onDropdownVisibleChange={handleDropdownVisibleChange}
         onChange={handleSelectChange}
@@ -211,7 +212,7 @@ const DropdownComp = props => {
       >
         {!keywords.length && advancedSetting.allowadd === '1' && canAddOption && (
           <Select.Option disabled className="cursorDefault">
-            <span className="ellipsis customRadioItem Gray_9e">{_l('或直接输入添加新选项')}</span>
+            <span className="ellipsis customRadioItem textTertiary">{_l('或直接输入添加新选项')}</span>
           </Select.Option>
         )}
 

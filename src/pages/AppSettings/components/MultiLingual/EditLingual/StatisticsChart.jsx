@@ -7,6 +7,7 @@ import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import report from 'statistics/api/report';
 import { getTranslateInfo } from 'src/utils/app';
 import { LANG_DATA_TYPE } from '../config';
+import BaseChart from './components/BaseChart';
 import EditInput from './EditInput';
 
 const Wrap = styled.div`
@@ -18,7 +19,7 @@ const Wrap = styled.div`
       padding: 0 10px;
       margin-right: 12px;
       &:hover {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-hover);
       }
     }
   }
@@ -48,8 +49,21 @@ export default function StatisticsChart(props) {
         pageIndex: -1,
       })
       .then(data => {
-        setLoading(false);
-        setReportList(data.reports);
+        report
+          .getReports({
+            reportIds: data.reports.map(item => item.id),
+          })
+          .then(reportInfo => {
+            setLoading(false);
+            setReportList(
+              data.reports.map(item => {
+                return {
+                  ...item,
+                  reportInfo: _.find(reportInfo, { id: item.id }),
+                };
+              }),
+            );
+          });
       });
   }, [selectNode.key]);
 
@@ -63,7 +77,7 @@ export default function StatisticsChart(props) {
 
   if (!reportList.length) {
     return (
-      <div className="flexRow alignItemsCenter justifyContentCenter h100 Gray_9e Font14">{_l('没有统计图表')}</div>
+      <div className="flexRow alignItemsCenter justifyContentCenter h100 textTertiary Font14">{_l('没有统计图表')}</div>
     );
   }
 
@@ -137,6 +151,7 @@ export default function StatisticsChart(props) {
             onChange={value => handleSave({ description: value })}
           />
         </div>
+        <BaseChart comparisonLangId={comparisonLangId} translateInfo={translateInfo} item={item} onSave={handleSave} />
       </div>
     );
   };
@@ -145,7 +160,7 @@ export default function StatisticsChart(props) {
     <Wrap className="flexRow pAll10 h100">
       <div className="reportNav flexColumn">
         <div className="searchWrap flexRow alignItemsCenter mBottom10">
-          <Icon className="Gray_9e Font20 mRight5" icon="search" />
+          <Icon className="textTertiary Font20 mRight5" icon="search" />
           <input
             placeholder={_l('统计')}
             className="flex"
@@ -154,7 +169,9 @@ export default function StatisticsChart(props) {
               setSearchValue(e.target.value);
             }}
           />
-          {searchValue && <Icon className="Gray_9e pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />}
+          {searchValue && (
+            <Icon className="textTertiary pointer Font15" icon="cancel" onClick={() => setSearchValue('')} />
+          )}
         </div>
         <ScrollView className="h100">
           {reportList.filter(report => report.name.includes(searchValue)).map(report => renderReportNav(report))}

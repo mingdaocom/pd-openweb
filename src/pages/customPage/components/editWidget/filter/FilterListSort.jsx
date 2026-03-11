@@ -7,8 +7,8 @@ const SortableBtnListWrap = styled.ul`
   li {
     display: flex;
     align-items: center;
-    color: #151515;
-    background-color: #f1f1f1;
+    color: var(--color-text-title);
+    background-color: var(--color-background-disabled);
     border-radius: 4px;
     padding: 10px;
     margin-bottom: 10px;
@@ -22,7 +22,7 @@ const SortableBtnListWrap = styled.ul`
 const renderSortableBtn = ({ item, DragHandle }) => (
   <li className="overflow_ellipsis">
     <DragHandle>
-      <i className="icon-drag Gray_bd Font18"></i>
+      <i className="icon-drag textDisabled Font18"></i>
     </DragHandle>
     <span className="mLeft10">{item.name || _l('未命名')}</span>
   </li>

@@ -63,18 +63,18 @@ export default class EditCardInfo extends Component {
     const { contactPhone } = this.state;
     return (
       <div className="editEnterpriseCardInfo clearfix">
-        <div className="Font17 Bold Gray">{_l('编辑名片')}</div>
-        <div className="Gray_9e mTop6">{_l('名片是您在该组织下的个人信息，只在本组织中展示。')}</div>
+        <div className="Font17 Bold textPrimary">{_l('编辑名片')}</div>
+        <div className="textTertiary mTop6">{_l('名片是您在该组织下的个人信息，只在本组织中展示。')}</div>
         <div className="mTop24">
           {userInfoList.map(item => {
             return (
               <Fragment>
-                <div className="Gray_75">{item.label}</div>
-                <div className="mTop6 mBottom16 Gray">{this.renderResult(item)}</div>
+                <div className="textSecondary">{item.label}</div>
+                <div className="mTop6 mBottom16 textPrimary">{this.renderResult(item)}</div>
               </Fragment>
             );
           })}
-          <div className="Gray_75">{_l('工作电话')}</div>
+          <div className="textSecondary">{_l('工作电话')}</div>
           <Input
             className="mTop6"
             placeholder={_l('工作电话')}
@@ -83,7 +83,10 @@ export default class EditCardInfo extends Component {
           />
         </div>
         <div className="mTop32 Right">
-          <span className="Font14 Gray_9e mRight32 Hover_49 Hand" onClick={() => this.props.closeDialog()}>
+          <span
+            className="Font14 textTertiary mRight32 hoverTextPrimaryLight Hand"
+            onClick={() => this.props.closeDialog()}
+          >
             {_l('取消')}
           </span>
           <button type="button" className="ming Button Button--primary submitBtn" onClick={() => this.handleSubmit()}>

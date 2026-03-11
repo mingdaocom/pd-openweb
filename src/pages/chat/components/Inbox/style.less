@@ -1,17 +1,16 @@
 .inboxHeader {
   max-height: 50px;
   text-align: center;
-  border-bottom: 1px solid #e0e0e0;
-  background: rgba(255, 255, 255, 0.2) !important;
+  border-bottom: 1px solid var(--color-border-primary);
   position: relative;
   .inboxType {
     font-size: 16px;
     line-height: 50px;
     margin: 0 5px 0 15px;
     .iconSetting {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }
@@ -22,7 +21,7 @@
     vertical-align: top;
     padding: 6px 12px 0;
     transition: border-color 0.218s;
-    color: #999;
+    color: var(--color-text-tertiary);
     border-bottom: 3px solid transparent;
     // override
     .Dropdown {
@@ -53,22 +52,22 @@
     height: 28px;
     padding: 0 10px;
     border-radius: 4px;
-    background-color: #d3eafd;
+    background-color: var(--color-primary-transparent);
     cursor: pointer;
     &.transparent {
       padding: 0;
       background-color: transparent;
       .icon-filter:hover {
-        color: #1e88e5 !important;
+        color: var(--color-primary) !important;
       }
     }
     span {
       font-size: 13px;
-      color: #1677ff;
+      color: var(--color-primary);
       padding: 0 9px 0 4px;
     }
     .icon {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .filterTrigger {
@@ -76,7 +75,7 @@
     right: 45px;
     top: 16px;
     &:hover {
-      color: #1e88e5 !important;
+      color: var(--color-primary) !important;
     }
   }
 }
@@ -85,7 +84,7 @@
   width: 400px;
   border-radius: 3px;
   padding: 17px 24px 6px 17px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow: 0px 4px 16px 0px rgba(0, 0, 0, 0.24);
   .userItemWrapper {
     height: 30px;
@@ -109,22 +108,22 @@
       height: 24px;
       padding: 0 5px 0 25px;
       border-radius: 12px;
-      background-color: #f4f4f4;
+      background-color: var(--color-background-disabled);
     }
     .icon-close {
       padding-left: 8px;
     }
   }
   .icon-plus {
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
     border-radius: 50%;
-    border: 1px dashed #bdbdbd;
+    border: 1px dashed var(--color-text-disabled);
     width: 30px;
     height: 30px;
     justify-content: center;
     &:hover {
-      color: #1677ff;
-      border-color: #1677ff;
+      color: var(--color-primary);
+      border-color: var(--color-primary);
     }
   }
   .dateScope {
@@ -135,23 +134,23 @@
       padding: 6px 12px;
       margin-bottom: 10px;
       margin-right: 10px;
-      background-color: #f5f5f5;
+      background-color: var(--color-background-secondary);
       &:hover {
-        background-color: #ededed;
+        background-color: var(--color-background-hover);
       }
     }
     .active {
-      color: #1677ff;
-      background-color: #d3eafd !important;
+      color: var(--color-primary);
+      background-color: var(--color-primary-transparent) !important;
     }
   }
   .ant-picker {
     box-shadow: none;
-    border: 1px solid #d9d9d9 !important;
+    border: 1px solid var(--color-border-primary) !important;
     border-radius: 3px;
     margin-bottom: 7px;
     &.ant-picker-focused {
-      border-color: #1677ff !important;
+      border-color: var(--color-primary) !important;
     }
     .ant-picker-active-bar {
       display: none;
@@ -181,7 +180,7 @@
       font-size: 13px;
       margin-left: 48px;
       padding-bottom: 10px;
-      border-bottom: 1px dashed #e5e5e5;
+      border-bottom: 1px dashed var(--color-border-secondary);
     }
     &:last-child .itemMain {
       border-bottom: none;
@@ -190,25 +189,27 @@
     .inboxAvatar,
     .msgIcon {
       position: relative;
-      display: inline-block;
       overflow: hidden;
       width: 32px;
       height: 32px;
       border-radius: 50%;
+      &:not(.flexRow) {
+        display: inline-block;
+      }
       img {
         width: 100%;
       }
     }
     // 来自 样式
     .comeFrom {
-      background-color: #f6f6f6;
+      background-color: var(--color-background-tertiary);
       .fromLink {
         line-height: 34px;
         display: flex;
         height: 34px;
         padding-left: 15px;
         text-decoration: none;
-        color: #151515;
+        color: var(--color-text-title);
         &:before {
           content: attr(data-title) '：';
           vertical-align: top;
@@ -228,14 +229,14 @@
       line-height: 50px;
       width: 230px;
       height: 50px;
-      border: 1px solid #eee;
-      background-color: #fafafa;
+      border: 1px solid var(--color-border-secondary);
+      background-color: var(--color-background-secondary);
       .logoContainer {
         width: 55px;
         height: 45px;
         padding-top: 5px;
         text-align: center;
-        background-color: #ededed;
+        background-color: var(--color-border-secondary);
       }
       .textContainer {
         font-size: 12px;
@@ -246,7 +247,7 @@
         margin-left: 15px;
         padding-left: 10px;
         text-align: left;
-        color: #777;
+        color: var(--color-text-secondary);
         &:hover .viewDetail {
           left: 0;
         }
@@ -259,7 +260,7 @@
         height: 50px;
         transition: left 0.3s ease-in-out;
         text-align: center;
-        background-color: #0a0303;
+        background-color: var(--color-background-primary);
         .detailBtn {
           line-height: 30px;
           display: inline-block;
@@ -268,9 +269,9 @@
           margin-top: 10px;
           cursor: pointer;
           text-align: center;
-          color: #151515;
+          color: var(--color-text-title);
           border: 0;
-          background-color: #fff;
+          background-color: var(--color-background-primary);
         }
       }
     }
@@ -288,13 +289,12 @@
   .inboxDivider {
     margin: -1px 0 0 0;
     padding: 16px 20px;
-    background-color: #fff;
     &::before,
     &::after {
-      border-color: #9e9e9e33;
+      border-color: var(--color-border-secondary);
     }
     .ant-divider-inner-text {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
   }
   // comment
@@ -306,7 +306,7 @@
     .commentContent {
       margin-left: 38px;
       padding-bottom: 10px;
-      border-bottom: 1px dashed #e5e5e5;
+      border-bottom: 1px dashed var(--color-border-secondary);
       &:hover .removeCommentButton {
         display: inline !important;
       }

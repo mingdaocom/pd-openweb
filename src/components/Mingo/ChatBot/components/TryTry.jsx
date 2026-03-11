@@ -8,14 +8,14 @@ import { Tooltip } from 'ming-ui/antd-components';
 const Con = styled.div`
   .refresh-try {
     font-size: 13px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     .refreshCon {
       display: flex !important;
       margin-left: 8px;
     }
     .icon {
       font-size: 16px !important;
-      color: #9e9e9e !important;
+      color: var(--color-text-tertiary) !important;
       &:hover {
         color: var(--mingdao-primary-color) !important;
       }
@@ -30,19 +30,19 @@ const Con = styled.div`
       align-items: center;
       cursor: pointer;
       font-size: 13px;
-      color: #515151;
+      color: var(--color-text-title);
       min-height: 28px;
       padding: 0 10px;
       border-radius: 28px;
-      border: 1px solid #dbdbdb;
+      border: 1px solid var(--color-border-primary);
       &:hover {
-        background: #f4f4f4;
+        background: var(--color-background-hover);
       }
     }
   }
   &.is-recommend {
     padding-top: 12px;
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-secondary);
   }
 `;
 

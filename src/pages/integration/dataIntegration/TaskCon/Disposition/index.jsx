@@ -18,16 +18,16 @@ const Wrap = styled.div`
 const Con = styled.div`
   width: 880px;
   margin: 22px auto;
-  background: #ffffff;
+  background: var(--color-background-primary);
   padding: 32px 24px;
-  // border: 1px solid #dddddd;
+  // border: 1px solid var(--color-border-primary);
   border-radius: 4px;
   .saveBtn {
-    background: #1677ff;
-    color: #fff;
+    background: var(--color-primary);
+    color: var(--color-white);
     height: 36px;
     line-height: 36px;
-    border: 1px solid #1677ff;
+    border: 1px solid var(--color-primary);
     border-radius: 3px;
     padding: 0 36px;
   }
@@ -41,7 +41,7 @@ const WrapCon = styled.div`
   }
   .owerItem {
     border-radius: 26px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     height: 26px;
     line-height: 26px;
     display: inline-block;
@@ -51,7 +51,7 @@ const WrapCon = styled.div`
     img {
       width: 26px;
       height: 26px;
-      background: #ffffff;
+      background: var(--color-background-primary);
       border-radius: 50%;
       overflow: hidden;
     }
@@ -64,22 +64,22 @@ const WrapCon = styled.div`
     &:hover {
       .tagDel {
         display: block;
-        color: #757575;
+        color: var(--color-text-secondary);
         cursor: pointer;
         &:hover {
-          color: red;
+          color: var(--color-error);
         }
       }
     }
   }
   .addApp {
-    color: #1677ff;
+    color: var(--color-primary);
     &:hover {
-      color: #1764c0;
+      color: var(--color-link-hover);
     }
   }
   .ant-table-thead > tr > th {
-    color: #757575 !important;
+    color: var(--color-text-secondary) !important;
   }
   .iconWrap {
     border-radius: 3px;
@@ -126,12 +126,12 @@ const WrapCon = styled.div`
       vertical-align: top;
       margin-top: 9px;
       margin-right: 5px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
     li {
       &:hover {
         i {
-          color: #fff !important;
+          color: var(--color-white) !important;
         }
       }
     }
@@ -152,8 +152,8 @@ const WrapCon = styled.div`
     border-radius: 7px !important;
   }
   .disable {
-    background: #bdbdbd;
-    border: 1px solid #bdbdbd;
+    background: var(--color-text-disabled);
+    border: 1px solid var(--color-text-disabled);
     cursor: not-allowed;
   }
 `;
@@ -302,7 +302,7 @@ function Disposition(props) {
             />
             <br />
             <span
-              className="Relative Gray_9e pointer addBtn mTop12 ThemeHoverColor3 InlineBlock"
+              className="Relative textTertiary pointer addBtn mTop12 ThemeHoverColor3 InlineBlock"
               onClick={e => {
                 addMembers(e);
               }}
@@ -337,7 +337,7 @@ function Disposition(props) {
           {showFlowSet && (
             <React.Fragment>
               <div className="title Bold Font16 mTop24">{_l('触发工作流')}</div>
-              <div className="des Gray_9e mTop10">{_l('同步数据时，是否触发工作表绑定的自动化工作流')}</div>
+              <div className="des textTertiary mTop10">{_l('同步数据时，是否触发工作表绑定的自动化工作流')}</div>
               <div className="mTop16 conCheckbox">
                 <Checkbox
                   size="small"

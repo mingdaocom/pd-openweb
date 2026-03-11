@@ -54,8 +54,8 @@ export default function PromptError(props) {
         {!_.isEmpty(actionItems) && (
           <div className="setValueContent">
             <div className="setItem">
-              <div className="itemFiledTitle Gray_70">{_l('字段')}</div>
-              <div className="itemValueTitle Gray_70">
+              <div className="itemFiledTitle textSecondary">{_l('字段')}</div>
+              <div className="itemValueTitle textSecondary">
                 {_l('错误提示')}
                 <span className="Red">*</span>
               </div>
@@ -66,7 +66,7 @@ export default function PromptError(props) {
               return (
                 <div className="setItem">
                   <div className="itemFiled itemFiledTitle ">
-                    {icon && <Icon className="mRight8 Font14 Gray_75" icon={icon} />}
+                    {icon && <Icon className="mRight8 Font14 textSecondary" icon={icon} />}
                     <span className={cx('flex overflow_ellipsis', { Red: isDelete })}>
                       {_.get(currentControl, 'controlName') || _l('已删除')}
                     </span>

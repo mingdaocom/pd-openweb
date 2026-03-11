@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import store from 'redux/configureStore';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
@@ -10,6 +9,7 @@ import abnormal from 'src/pages/worksheet/assets/abnormal.png';
 import CreateNew from 'src/pages/worksheet/common/WorkSheetLeft/CreateNew';
 import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImportExcelCreate';
 import { addWorkSheet, createAppItem, getSheetList } from 'src/pages/worksheet/redux/actions/sheetList.js';
+import store from 'src/redux/configureStore';
 import './WorksheetEmpty.less';
 
 const createWorksheetList = [
@@ -51,7 +51,7 @@ class WorksheetEmpty extends Component {
       return (
         <div className="contentBox">
           <i className="iconBox" />
-          <span className="Block TxtCenter Font20 Black">{_l('当前分组没有应用项')}</span>
+          <span className="Block TxtCenter Font20 textPrimary">{_l('当前分组没有应用项')}</span>
         </div>
       );
     }
@@ -59,7 +59,7 @@ class WorksheetEmpty extends Component {
     return (
       <div className="contentBox">
         <i className={cx('iconBox', { add: isAdd })} />
-        <span className="Block TxtCenter Font20 Black">
+        <span className="Block TxtCenter Font20 textPrimary">
           {isAdd ? _l('创建工作表，开始构建你的应用') : _l('当前分组没有应用项，创建或从其他分组移动应用项')}
         </span>
         {isAdd ? (
@@ -137,7 +137,7 @@ class WorksheetEmpty extends Component {
                 this.setState({ createType: 'customPage' });
               }}
             >
-              <Icon icon="dashboard" className="Font16 Gray_9e mRight5" />
+              <Icon icon="dashboard" className="Font16 textTertiary mRight5" />
               {_l('创建自定义页面')}
             </div>
             {workflowAgentFeatureType === '1' && !md.global?.SysSettings?.hideAIBasicFun && (
@@ -147,7 +147,7 @@ class WorksheetEmpty extends Component {
                   this.setState({ createType: 'chatbot' });
                 }}
               >
-                <Icon icon="AI_Agent" className="Font16 Gray_9e mRight5" />
+                <Icon icon="AI_Agent" className="Font16 textTertiary mRight5" />
                 {_l('创建对话机器人%12032')}
               </div>
             )}
@@ -186,7 +186,7 @@ class WorksheetEmpty extends Component {
     return (
       <div className="contentBox">
         <i className="iconFailureAppSection" />
-        <span className="Block TxtCenter Gray_75 Font17 mTop30">{_l('找不到分组')}</span>
+        <span className="Block TxtCenter textSecondary Font17 mTop30">{_l('找不到分组')}</span>
       </div>
     );
   }
@@ -194,8 +194,8 @@ class WorksheetEmpty extends Component {
     return (
       <div className="contentBox">
         <img className="Width110" src={abnormal} />
-        <span className="Block TxtCenter Gray_75 Font17 mTop30">{_l('地址无法访问')}</span>
-        <span className="Block TxtCenter Gray_75 Font17">{_l('被取消了查看权限或已删除')}</span>
+        <span className="Block TxtCenter textSecondary Font17 mTop30">{_l('地址无法访问')}</span>
+        <span className="Block TxtCenter textSecondary Font17">{_l('被取消了查看权限或已删除')}</span>
       </div>
     );
   }

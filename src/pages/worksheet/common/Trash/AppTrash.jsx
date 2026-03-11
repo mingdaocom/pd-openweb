@@ -122,7 +122,7 @@ export default function AppTrash(props) {
                 <img src={systemIcon} style={{ width: 24, height: 24 }} alt={_l('系统')} />,
                 <span className="mLeft8 LineHeight24">{_l('系统')}</span>,
               ],
-          <span className="Gray_9e">{moment(app.deleteTime).format('YYYY-MM-DD HH:mm:ss')}</span>,
+          <span className="textTertiary">{moment(app.deleteTime).format('YYYY-MM-DD HH:mm:ss')}</span>,
         ])}
         onScrollEnd={() => {
           if (!loading && !loadOuted) {
@@ -163,12 +163,12 @@ export default function AppTrash(props) {
           const app = apps[appIndex];
           VerifyPasswordConfirm.confirm({
             title: (
-              <div className="Bold" style={{ color: '#f44336' }}>
+              <div className="Bold" style={{ color: 'var(--color-error)' }}>
                 <i className="icon-error error" style={{ fontSize: '28px', marginRight: '8px' }}></i>
                 {_l('将彻底删除应用 “%0”，请认证你的身份', app.appName)}
               </div>
             ),
-            description: <div className="Font14 Gray_75">{_l('删除后无法恢复(物理删除)，请谨慎操作！')}</div>,
+            description: <div className="Font14 textSecondary">{_l('删除后无法恢复(物理删除)，请谨慎操作！')}</div>,
             confirmType: 'danger',
             allowNoVerify: false,
             isRequired: false,

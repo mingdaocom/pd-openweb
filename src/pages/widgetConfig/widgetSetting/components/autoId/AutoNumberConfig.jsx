@@ -29,7 +29,7 @@ const NumberConfigWrap = styled.div`
     .adjustWrap {
       display: flex;
       flex-direction: column;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border-primary);
       border-left: none;
     }
     .addWrap,
@@ -38,16 +38,16 @@ const NumberConfigWrap = styled.div`
       height: 16px;
     }
     .addWrap {
-      border-bottom: 1px solid #e0e0e0;
+      border-bottom: 1px solid var(--color-border-primary);
     }
   }
   .hint {
     margin: 8px 0 0 80px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     font-size: 13px;
   }
   .clickable {
-    color: #1677ff;
+    color: var(--color-primary);
     cursor: pointer;
   }
   .footerBtn {

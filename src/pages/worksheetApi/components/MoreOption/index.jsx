@@ -101,7 +101,11 @@ export default class MoreOption extends Component {
 
     VerifyPasswordConfirm.confirm({
       title:
-        type === 'cancel' ? <div>{_l('关闭授权')}</div> : <div style={{ color: '#f44336' }}>{_l('删除授权密钥')}</div>,
+        type === 'cancel' ? (
+          <div>{_l('关闭授权')}</div>
+        ) : (
+          <div style={{ color: 'var(--color-error)' }}>{_l('删除授权密钥')}</div>
+        ),
       description:
         type === 'cancel'
           ? _l('应用授权密钥是极为重要的凭证，关闭时需要验证身份')
@@ -126,7 +130,7 @@ export default class MoreOption extends Component {
           <li onClick={() => this.setState({ showDescDialog: true })}>{_l('修改备注')}</li>
           <li
             onClick={() => this.setState({ type: 'delete' }, this.renderCancelAndDeleteDialog)}
-            style={{ color: '#f44336' }}
+            style={{ color: 'var(--color-error)' }}
           >
             {_l('删除')}
           </li>

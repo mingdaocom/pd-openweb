@@ -4,9 +4,9 @@ import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Button, Icon } from 'ming-ui';
+import { dialogSelectColor } from 'ming-ui/functions';
 import projectAjax from 'src/api/projectSetting';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import AddColorDialog from 'src/pages/AppHomepage/components/SelectIcon/AddColorDialog';
 import { navigateTo } from 'src/router/navigateTo';
 import { SYS_CHART_COLORS, SYS_COLOR } from '../../config';
 import ChartColorSetting from './ChartColorSetting';
@@ -18,15 +18,15 @@ const ColorBox = styled.div(
   ({ color, select = false, hasRemove = false }) => `
   width: 36px;
   height: 36px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   border: 1px solid;
-  border-color: ${select ? '#d5d5d5' : '#fff'};
+  border-color: ${select ? 'var(--color-border-primary)' : '#fff'};
   border-radius: 4px;
   padding: 3px;
   position: relative;
   cursor: pointer;
   &:hover {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
     .removeIcon {
       opacity: ${hasRemove ? 1 : 0};
     }
@@ -42,7 +42,7 @@ const ColorBox = styled.div(
     justify-content: center;
     .selectIcon {
       font-size: 16px;
-      color: #fff;
+      color: var(--color-white);
       opacity: 1;
     }
   }
@@ -51,14 +51,14 @@ const ColorBox = styled.div(
     font-size: 16px;
     top: 0;
     right: 0;
-    background: #fff;
+    background: var(--color-background-primary);
     transform: translate(50%, -50%);
     border-radius: 50%;
     opacity: 0;
     cursor: pointer;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .hide {
@@ -82,7 +82,6 @@ export default class CustomColor extends Component {
         id: null,
       },
       mdProjectColorIndex: _.findIndex(md.global.Account.projects, l => l.projectId === props.projectId),
-      addThemeColorVisible: false,
     };
   }
 
@@ -222,7 +221,34 @@ export default class CustomColor extends Component {
           );
         })}
         {editable && (
-          <div className="addColorWrap" onClick={() => this.setState({ addThemeColorVisible: true })}>
+          <div
+            className="addColorWrap"
+            onClick={() => {
+              dialogSelectColor({
+                onSave: value => {
+                  if (custom_color.length > 17) {
+                    alert(_l('自定义主题色最多添加18个'), 3);
+                    return;
+                  }
+
+                  if (
+                    SYS_COLOR.concat(custom_color).find(
+                      l => new TinyColor(l.color).toHex8String() === new TinyColor(value).toHex8String(),
+                    )
+                  ) {
+                    alert(_l('颜色已存在'), 3);
+                    return;
+                  }
+
+                  this.setColorSetting(
+                    'custom_color',
+                    custom_color.concat({ color: value, enable: !this.isMax() }),
+                    'theme',
+                  );
+                },
+              });
+            }}
+          >
             <i className="icon-add addIcon"></i>
           </div>
         )}
@@ -293,8 +319,7 @@ export default class CustomColor extends Component {
   };
 
   render() {
-    const { system_color, custom_color, system_char, custom_char, customChartDialog, addThemeColorVisible } =
-      this.state;
+    const { system_color, custom_color, system_char, custom_char, customChartDialog } = this.state;
 
     return (
       <div className="orgManagementWrap managementCustomColor flex flexColumn">
@@ -308,29 +333,29 @@ export default class CustomColor extends Component {
             />
             <div className="Font17 bold flex mLeft10">
               {_l('自定义颜色')}
-              <span className="Font13 Gray_9 mLeft10">{_l('自定义颜色可用于应用、自定义页面等地方')}</span>
+              <span className="Font13 textTertiary mLeft10">{_l('自定义颜色可用于应用、自定义页面等地方')}</span>
             </div>
           </div>
         </div>
         <div className="managementCustomColorContent flex">
           <div className="themeColorSetting">
-            <div className="Font15 Gray Bold mBottom24">
+            <div className="Font15 textPrimary Bold mBottom24">
               {_l('主题色')}
-              <span className="Font13 Gray_9 Normal mLeft16">{_l('最多显示18个主题颜色')}</span>
+              <span className="Font13 textTertiary Normal mLeft16">{_l('最多显示18个主题颜色')}</span>
             </div>
-            <div className="Font14 Gray Bold mBottom16">{_l('系统预设')}</div>
+            <div className="Font14 textPrimary Bold mBottom16">{_l('系统预设')}</div>
             {this.renderColorList(system_color, 'system_color', false)}
             <IllustrationTrigger type="theme">
-              <div className="Font14 Gray Bold mBottom16 valignWrapper fitContent">
+              <div className="Font14 textPrimary Bold mBottom16 valignWrapper fitContent">
                 {_l('自定义')}
-                <span className="Gray_9 Font13 Normal mLeft8">{_l('对比度大于%0', '70%')}</span>
-                <Icon icon="info_outline" className="Font16 Gray_bd mLeft4" />
+                <span className="textTertiary Font13 Normal mLeft8">{_l('对比度大于%0', '70%')}</span>
+                <Icon icon="info_outline" className="Font16 textDisabled mLeft4" />
               </div>
             </IllustrationTrigger>
             {this.renderColorList(custom_color, 'custom_color', true)}
           </div>
           <div className="chartColorSetting">
-            <div className="Font15 Gray Bold flexRow chartSettingHeader">
+            <div className="Font15 textPrimary Bold flexRow chartSettingHeader">
               {_l('图表配色')}
               <Button
                 className="createChartColorBtn"
@@ -347,9 +372,9 @@ export default class CustomColor extends Component {
                 <span className="mLeft6">{_l('创建自定义颜色')}</span>
               </Button>
             </div>
-            <div className="Font14 Gray Bold mBottom16">{_l('系统预设')}</div>
+            <div className="Font14 textPrimary Bold mBottom16">{_l('系统预设')}</div>
             {this.renderChartList(system_char)}
-            <div className="Font14 Gray Bold mBottom16 mTop40">{custom_char.length ? _l('自定义') : null}</div>
+            <div className="Font14 textPrimary Bold mBottom16 mTop40">{custom_char.length ? _l('自定义') : null}</div>
             {this.renderChartList(custom_char, true)}
           </div>
         </div>
@@ -372,32 +397,6 @@ export default class CustomColor extends Component {
               );
               this.initChartDialog();
             }}
-          />
-        )}
-        {addThemeColorVisible && (
-          <AddColorDialog
-            onSave={value => {
-              if (custom_color.length > 17) {
-                alert(_l('自定义主题色最多添加18个'), 3);
-                return;
-              }
-
-              if (
-                SYS_COLOR.concat(custom_color).find(
-                  l => new TinyColor(l.color).toHex8String() === new TinyColor(value).toHex8String(),
-                )
-              ) {
-                alert(_l('颜色已存在'), 3);
-                return;
-              }
-
-              this.setColorSetting(
-                'custom_color',
-                custom_color.concat({ color: value, enable: !this.isMax() }),
-                'theme',
-              );
-            }}
-            onCancel={() => this.setState({ addThemeColorVisible: false })}
           />
         )}
       </div>

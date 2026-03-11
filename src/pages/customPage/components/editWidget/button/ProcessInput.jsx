@@ -12,7 +12,7 @@ const ProcessWrap = styled.div`
   }
   .defaultOptionsWrap {
     ${props => (props.hideDynamicValue ? 'margin-right: 0;' : '')}
-    background: #fff
+    background: var(--color-background-primary)
   }
 `;
 

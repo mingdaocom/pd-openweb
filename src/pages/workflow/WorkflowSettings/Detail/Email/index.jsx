@@ -3,7 +3,7 @@ import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import { Dropdown, LoadDiv, PriceTip, Radio, RichText, ScrollView } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
-import { ACTION_ID } from '../../enum';
+import { ACTION_ID, RELATION_TYPE } from '../../enum';
 import { getControlTypeName } from '../../utils';
 import {
   ActionFields,
@@ -168,8 +168,8 @@ export default class Email extends Component {
 
     return (
       <Fragment>
-        {md.global.Config.IsPlatformLocal && (
-          <div className="Gray_75 workflowDetailDesc">
+        {window.platformENV.isPlatform && (
+          <div className="textSecondary workflowDetailDesc">
             <PriceTip text={_l('邮件费用自动从组织信用点中扣除')} />
           </div>
         )}
@@ -190,7 +190,7 @@ export default class Email extends Component {
         <div className="mTop20 bold">{_l('收件人')}</div>
         <Member
           companyId={this.props.companyId}
-          appId={this.props.relationType === 2 ? this.props.relationId : ''}
+          appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
           accounts={data.accounts}
           updateSource={this.updateSource}
         />
@@ -201,7 +201,7 @@ export default class Email extends Component {
           <i className="Font28 icon-task-add-member-circle mRight10" />
           {_l('选择人员、邮箱地址或输入邮箱')}
           <SelectUserDropDown
-            appId={this.props.relationType === 2 ? this.props.relationId : ''}
+            appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
             specialType={5}
             visible={showSelectUserDialog}
             companyId={this.props.companyId}
@@ -219,7 +219,7 @@ export default class Email extends Component {
             <div className="mTop20 bold">{_l('抄送人')}</div>
             <Member
               companyId={this.props.companyId}
-              appId={this.props.relationType === 2 ? this.props.relationId : ''}
+              appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
               accounts={data.ccAccounts}
               updateSource={({ accounts }) => this.updateSource({ ccAccounts: accounts })}
             />
@@ -230,7 +230,7 @@ export default class Email extends Component {
               <i className="Font28 icon-task-add-member-circle mRight10" />
               {_l('选择人员、邮箱地址或输入邮箱')}
               <SelectUserDropDown
-                appId={this.props.relationType === 2 ? this.props.relationId : ''}
+                appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
                 specialType={5}
                 visible={showSelectCCUserDialog}
                 companyId={this.props.companyId}
@@ -254,7 +254,7 @@ export default class Email extends Component {
                 {singleObj.controlName}
                 {singleObj.required && <span className="mLeft5 red">*</span>}
               </div>
-              {item.fieldId === 'attachments' && <div className="mTop5 Gray_75">{_l('附件总大小不超过50M')}</div>}
+              {item.fieldId === 'attachments' && <div className="mTop5 textSecondary">{_l('附件总大小不超过50M')}</div>}
 
               {item.fieldId === 'content' && (
                 <div className="flexRow mTop10 relative">
@@ -274,7 +274,7 @@ export default class Email extends Component {
                     </div>
                   ))}
                   <div
-                    className="pointer Gray_75 ThemeHoverColor3 mLeft30"
+                    className="pointer textSecondary ThemeHoverColor3 mLeft30"
                     onClick={this.insertFields}
                     style={{ visibility: item.isRichText ? 'visible' : 'hidden' }}
                   >

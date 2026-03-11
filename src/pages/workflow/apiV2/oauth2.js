@@ -70,6 +70,15 @@ const oauth2 = {
    * null
    * @param {Object} options 配置参数
    */
+  getCodeByState: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/oauth2/getCodeByState';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'oauth2getCodeByState', args, $.extend({}, base, options));
+  },
+  /**
+   * null
+   * @param {Object} options 配置参数
+   */
   getAllTokenList: function(args, options) {
     base.ajaxOptions.url = base.server(options) + '/oauth2/getAllAccessTokenList';
     base.ajaxOptions.type = 'POST';

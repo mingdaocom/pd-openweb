@@ -29,7 +29,7 @@ export default class DelAppGroup extends Component {
         <div className="flex mLeft5">
           <span className="ellipsis">{name || _l('未命名分组')}</span>
         </div>
-        {sourceAppSectionId === id && <Icon icon="done" className="Font18 ThemeColor" />}
+        {sourceAppSectionId === id && <Icon icon="done" className="Font18 colorPrimary" />}
       </div>
     );
   }
@@ -51,7 +51,7 @@ export default class DelAppGroup extends Component {
           <span>{_l('移动到')}</span>
           <div className="groupingWrap flexColumn mTop10">
             <div className="searchWrap flexRow alignItemsCenter mBottom8 pBottom10">
-              <Icon icon="search" className="Font18 Gray_9e mRight3" />
+              <Icon icon="search" className="Font18 textTertiary mRight3" />
               <input
                 className="w100"
                 placeholder="搜索"

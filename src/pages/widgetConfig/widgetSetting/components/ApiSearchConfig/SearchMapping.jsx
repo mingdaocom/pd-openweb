@@ -30,7 +30,7 @@ const MappingWrap = styled.div`
   }
   .requireIcon {
     position: absolute;
-    color: #f44336;
+    color: var(--color-error);
     margin-top: 1px;
     left: -6px;
   }

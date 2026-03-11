@@ -13,12 +13,12 @@ const ViewErrorPageContainer = styled.div`
     font-size: 72px;
   }
   .errorTitle {
-    color: #151515;
+    color: var(--color-text-title);
     font-size: 16px;
     margin: 16px 0px 28px;
   }
   .errorInfo {
-    color: #757575;
+    color: var(--color-text-secondary);
     font-size: 14px;
   }
   .setViewBtn {
@@ -26,9 +26,9 @@ const ViewErrorPageContainer = styled.div`
     height: 40px;
     line-height: 40px;
     text-align: center;
-    border: 1px solid #1677ff;
+    border: 1px solid var(--color-primary);
     margin-top: 30px;
-    color: #1677ff;
+    color: var(--color-primary);
   }
 `;
 

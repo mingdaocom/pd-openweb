@@ -105,7 +105,7 @@ export default class SortColumns extends React.Component {
           {children || (
             <div className="Dropdown--input Dropdown--border Hand">
               {displayControls.length < 1 && empty ? empty : <span>{_l('显示 %0 个', displayControls.length)}</span>}
-              <div className="ming Icon icon icon-arrow-down-border mLeft8 Gray_9e" />
+              <div className="ming Icon icon icon-arrow-down-border mLeft8 textTertiary" />
             </div>
           )}
         </DropdownWrapper>

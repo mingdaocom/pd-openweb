@@ -11,12 +11,12 @@ const ErrorWrapper = styled.div`
   align-items: center;
   height: 100%;
   font-size: 14px;
-  color: #aaaaaa;
+  color: var(--color-text-tertiary);
 `;
 
 export default function AdvancedSettingHandler(Comp) {
   return function NewRecord(props) {
-    const { worksheetId } = props;
+    const { worksheetId, onWorksheetInfoReady } = props;
     const [loading, setLoading] = useState(_.isEmpty(props.worksheetInfo));
     const [error, setError] = useState(false);
     const [worksheetInfo, setWorksheetInfo] = useState(props.worksheetInfo || {});
@@ -45,6 +45,11 @@ export default function AdvancedSettingHandler(Comp) {
           });
       }
     }, []);
+    useEffect(() => {
+      if (!_.isEmpty(worksheetInfo) && _.isFunction(onWorksheetInfoReady)) {
+        onWorksheetInfoReady(worksheetInfo);
+      }
+    }, [worksheetInfo, onWorksheetInfoReady]);
     const advancedSettingData = worksheetInfo.advancedSetting || {};
     const advancedSetting = advancedSettingData
       ? {

@@ -24,6 +24,7 @@ rewrite (?i)^/apps/kcsharelocal /kcshare.html break;
 rewrite (?i)^/apps/kcsharefolder/ /kcsharefolder.html break;
 rewrite (?i)^/recordfileupload /recordfileupload.html break;
 rewrite (?i)^/recordfile /kcshare.html break;
+rewrite (?i)^/rowfiles /kcshare.html break;
 rewrite (?i)^/rowfile /kcshare.html break;
 rewrite (?i)^/mobileChart /mobileChart.html break;
 rewrite (?i)^/mobileLog /mobileLog.html break;
@@ -87,11 +88,13 @@ rewrite (?i)^/auth/workwx /auth-workwx.html break;
 rewrite (?i)^/auth/chatTools /auth-chat-tools.html break;
 rewrite (?i)^/auth/welink /auth-welink.html break;
 rewrite (?i)^/auth/feishu /auth-feishu.html break;
+rewrite (?i)^/auth/microsoft /auth-microsoft.html break;
 rewrite (?i)^/auth/dingding /auth-dingding.html break;
 rewrite (?i)^/sso/dingding  /sso-dingding.html break;
 rewrite (?i)^/sso/sso  /sso-sso.html break;
 rewrite (?i)^/sso/workweixin  /sso-workweixin.html break;
 rewrite (?i)^/legalportal /legalportal.html break;
+rewrite (?i)^/microsoftAuth /microsoftAuth.html break;
 
 # 主站
 rewrite (?i)^/custom /index.html break;

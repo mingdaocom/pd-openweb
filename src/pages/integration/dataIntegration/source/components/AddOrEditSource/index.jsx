@@ -20,7 +20,7 @@ const AddOrEditSourceWrapper = styled.div`
   width: 100%;
   height: 100%;
   z-index: 999;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
   display: flex;
   flex-direction: column;
 `;
@@ -32,7 +32,7 @@ const HeaderWrapper = styled.div`
   min-height: 64px;
   justify-content: space-between;
   align-items: center;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.16);
 
   .headerLeft {
@@ -44,7 +44,7 @@ const HeaderWrapper = styled.div`
 
   .headerMiddle {
     box-sizing: border-box;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-primary);
 
     ul {
       /* text-align: center; */
@@ -54,7 +54,7 @@ const HeaderWrapper = styled.div`
         box-sizing: border-box;
         border-bottom: 3px solid rgba(0, 0, 0, 0);
         a {
-          color: #151515;
+          color: var(--color-text-title);
           display: inline-block;
           height: 64px;
           padding: 26px 20px 12px 20px;
@@ -62,9 +62,9 @@ const HeaderWrapper = styled.div`
           font-weight: 600;
         }
         &.isCur {
-          border-bottom: 3px solid #1677ff;
+          border-bottom: 3px solid var(--color-primary);
           a {
-            color: #1677ff;
+            color: var(--color-primary);
           }
         }
       }
@@ -81,7 +81,7 @@ const HeaderWrapper = styled.div`
       min-width: 88px;
 
       &.disabled {
-        background: #93c4f1 !important;
+        background: var(--color-primary-light) !important;
       }
     }
   }
@@ -90,14 +90,14 @@ const HeaderWrapper = styled.div`
 const ContentWrapper = styled.div`
   display: flex;
   height: 100%;
-  background-color: #fafafa;
+  background-color: var(--color-background-secondary);
 
   .configForm {
     flex: 2;
     height: calc(100vh - 64px);
     overflow: auto;
     padding: 0px 80px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     font-size: 13px;
   }
 
@@ -185,8 +185,10 @@ export default function AddOrEditSource(props) {
     <AddOrEditSourceWrapper>
       <HeaderWrapper>
         <div className="headerLeft" onClick={isCreateDialog ? onClose : () => navigateTo('/integration/source')}>
-          <Icon icon="backspace" className="Gray_75 Font22 bold" />
-          <span className="Gray Font16 bold pLeft10">{isCreateDialog ? _l('创建数据源') : _l('编辑数据源')}</span>
+          <Icon icon="backspace" className="textSecondary Font22 bold" />
+          <span className="textPrimary Font16 bold pLeft10">
+            {isCreateDialog ? _l('创建数据源') : _l('编辑数据源')}
+          </span>
         </div>
 
         {!isCreateDialog && (

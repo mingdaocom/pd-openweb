@@ -77,11 +77,11 @@ const Dropdown = props => {
                   return <div key={item.key}>{renderItem(item)}</div>;
                 })
             ) : (
-              <span className="Gray_bd">{hint || _l('请选择')}</span>
+              <span className="textDisabled">{hint || _l('请选择')}</span>
             )}
           </OptionsWrap>
           {(!disabled || !formDisabled) && (
-            <Icon icon="arrow-right-border" className="Font16 Gray_bd" style={{ marginRight: -5 }} />
+            <Icon icon="arrow-right-border" className="Font16 textDisabled" style={{ marginRight: -5 }} />
           )}
         </div>
       </MobileRadio>

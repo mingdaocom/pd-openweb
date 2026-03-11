@@ -5,6 +5,7 @@ import { LoadDiv } from 'ming-ui';
 import accountSetting from 'src/api/accountSetting';
 import global from 'src/api/global';
 import { resetPortalUrl } from 'src/pages/AuthService/portalAccount/util.js';
+import { initThemeMode } from 'src/router/globalEvents';
 import { navigateTo, navigateToLogin, navigateToLogout, redirect } from 'src/router/navigateTo';
 import { getPssId, setPssId } from 'src/utils/pssId';
 
@@ -127,12 +128,18 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
   };
   window.md.global = formatGlobalData;
 
+  window.platformENV.isOverseas = /^nocoly/.test(md.global.Config.ProductCode);
+  window.platformENV.isLocal = /(server|server-platform)$/.test(md.global.Config.ProductCode);
+  window.platformENV.isPlatform = /(saas|platform)$/.test(md.global.Config.ProductCode);
+
   if (allowNotLogin || window.isPublicApp) return;
 
   if (!md.global.Account.accountId) {
     navigateToLogin();
     return;
   }
+
+  initThemeMode();
 
   if (
     ((window.subPath || location.href.indexOf('theportal.cn') > -1) && !md.global.Account.isPortal) ||
@@ -182,7 +189,7 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
   }
 
   // HAP显示人事
-  if (!md.global.Config.IsLocal) {
+  if (!window.platformENV.isOverseas && !window.platformENV.isLocal) {
     md.global.SysSettings.forbidSuites = md.global.SysSettings.forbidSuites.replace('5', '');
   }
 

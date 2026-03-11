@@ -1,4 +1,5 @@
 ﻿import React from 'react';
+import { findIndex, isEmpty } from 'lodash';
 import styled from 'styled-components';
 import { LoadDiv, WaterMark } from 'ming-ui';
 import preall from 'src/common/preall';
@@ -13,11 +14,11 @@ const Abnormal = styled.div`
   align-items: center;
   width: 100%;
   height: 100vh;
-  color: #151515;
+  color: var(--color-text-title);
   font-size: 17px;
   > i {
     font-size: 66px;
-    color: #f78c00;
+    color: var(--color-warning);
   }
 `;
 
@@ -33,7 +34,11 @@ class NodeShare extends React.Component {
   componentDidMount() {
     this._isMounted = true;
     getAttachment()
-      .then(({ node, allowDownload = true } = {}) => {
+      .then(({ node, attachments, fileId, allowDownload = true } = {}) => {
+        if (attachments) {
+          this.setState({ attachments, fileId, loading: false, allowDownload: true });
+          return;
+        }
         if (!node) {
           this.setState({ loading: false });
           return;
@@ -55,10 +60,10 @@ class NodeShare extends React.Component {
   }
 
   render() {
-    const { loading, allowDownload } = this.state;
+    const { loading, allowDownload, attachments, fileId } = this.state;
     if (!AttachmentsPreview || loading) {
       return <LoadDiv size="big" />;
-    } else if (!this.state.node) {
+    } else if (!this.state.node && isEmpty(attachments)) {
       return (
         <Abnormal>
           <i className="icon-error1"></i>
@@ -69,12 +74,12 @@ class NodeShare extends React.Component {
       return (
         <WaterMark projectId={this.state.node?.projectId}>
           <AttachmentsPreview
-            showTitle
+            isShare
             options={{
-              attachments: [this.state.node],
-              callFrom: this.state.node.isKc ? 'kc' : 'player',
+              attachments: attachments || [this.state.node],
+              callFrom: this.state.node?.isKc ? 'kc' : 'player',
               fromType: 6,
-              index: 0,
+              index: attachments && fileId ? findIndex(attachments, { fileID: fileId }) : 0,
               hideFunctions: allowDownload ? ['saveToKnowlege'] : ['download', 'share', 'saveToKnowlege'],
             }}
           />

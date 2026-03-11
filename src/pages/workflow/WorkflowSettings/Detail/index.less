@@ -4,12 +4,12 @@
     .ming.Menu {
       width: 100%;
       .icon-info {
-        color: #9d9d9d;
+        color: var(--color-text-tertiary);
       }
     }
   }
   .actionCustomBoxError {
-    background: #fff6ed;
+    background: var(--color-warning-bg);
   }
   .workflowPrintTrigger {
     width: 752px;
@@ -19,10 +19,10 @@
       padding-left: 36px !important;
     }
     .icon-new_word {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
     .icon-new_excel {
-      color: #4caf50 !important;
+      color: var(--color-success) !important;
     }
     .icon-doc {
       color: #465a65 !important;
@@ -33,21 +33,21 @@
 .workflowSettings {
   .workflowDetail {
     width: 800px;
-    background: #fff;
+    background: var(--color-background-card);
     box-shadow:
       0 10px 23px 2px rgba(0, 0, 0, 0.2),
       0 3px 6px rgba(0, 0, 0, 0.15);
     ::-webkit-input-placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
     :-moz-placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
     ::-moz-placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
     :-ms-input-placeholder {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
     &.workflowDetailRelease {
       .workflowDetailHeader input,
@@ -71,9 +71,9 @@
       height: 55px;
       padding: 0 20px;
       align-items: center;
-      color: #fff;
+      color: var(--color-white);
       .workflowDetailHeaderSupport {
-        color: #fff !important;
+        color: var(--color-white) !important;
         &:hover {
           i {
             color: rgba(255, 255, 255, 0.8) !important;
@@ -90,7 +90,7 @@
         }
       }
       &.BGYellow {
-        background: #ffa340;
+        background: var(--color-warning);
       }
       &.BGDarkRed {
         background: #a00416;
@@ -99,22 +99,22 @@
         background: #4c7d9e;
       }
       &.BGBlue {
-        background: #1677ff;
+        background: var(--color-primary);
       }
       &.BGSkyBlue {
-        background: #00bcd4;
+        background: var(--color-cyan);
       }
       &.BGGreen {
-        background: #01ca83;
+        background: var(--color-task);
       }
       &.BGDarkBlue {
         background: #4158db;
       }
       &.BGRed {
-        background: #f15b75;
+        background: var(--color-calendar);
       }
       &.BGDarkViolet {
-        background: #6e09f9;
+        background: var(--color-mingo);
       }
       input {
         height: 34px;
@@ -124,7 +124,7 @@
         border-radius: 3px;
         padding: 0 10px;
         box-sizing: border-box;
-        color: #fff;
+        color: var(--color-white);
         margin-left: 5px;
         font-size: 17px;
         font-weight: bold;
@@ -132,8 +132,8 @@
           background: rgba(255, 255, 255, 0.12);
         }
         &:focus {
-          background: #fff !important;
-          color: #151515;
+          background: var(--color-white) !important;
+          color: var(--color-text-primary);
           + .icon-delete {
             display: none;
           }
@@ -144,19 +144,19 @@
       height: 150px;
       align-items: center;
       justify-content: center;
-      color: #fff;
+      color: var(--color-white);
       margin-bottom: -20px;
       &.BGYellow {
-        background: #ffa340;
+        background: var(--color-warning);
       }
       &.BGBlue {
-        background: #1677ff;
+        background: var(--color-primary);
       }
       &.BGBlueAsh {
         background: #4c7d9e;
       }
       &.BGGreen {
-        background: #01ca83;
+        background: var(--color-task);
       }
       &.BGDarkBlue {
         background: #4158db;
@@ -164,25 +164,25 @@
       .flowDetailStartIcon {
         width: 68px;
         height: 68px;
-        background: #fff;
+        background: var(--color-white);
         border-radius: 50%;
         align-items: center;
         justify-content: center;
         i {
           &.blue {
-            color: #1677ff;
+            color: var(--color-primary);
           }
           &.yellow {
-            color: #ffa340;
+            color: var(--color-warning);
           }
           &.gray {
-            color: #4c7d9e;
+            color: var(--color-primary);
           }
           &.green {
-            color: #01ca83;
+            color: var(--color-task);
           }
           &.white {
-            color: #fff;
+            color: var(--color-white);
           }
         }
       }
@@ -190,10 +190,10 @@
     .workflowDetailBox {
       padding: 20px 24px 32px;
       .red {
-        color: #f44336;
+        color: var(--color-error);
       }
       .yellow {
-        color: #ffa340;
+        color: var(--color-warning);
       }
       .flowDropdown {
         min-width: 0;
@@ -226,7 +226,7 @@
         &.flowDropdownNull {
           .dropdown-btn {
             span {
-              color: #bdbdbd;
+              color: var(--color-text-disabled);
               font-size: 12px;
             }
           }
@@ -250,13 +250,13 @@
         }
         &.flowDropdownModel {
           .icon-AI_Agent {
-            color: #2196f3;
+            color: var(--color-link-hover);
           }
           .icon-deepseek {
             color: #4d6bfe;
           }
           .icon-chatgpt {
-            color: #000;
+            color: var(--color-text-primary);
           }
           .icon-Qwen {
             color: #615ced;
@@ -264,7 +264,7 @@
         }
         .Dropdown--border {
           padding: 5px 10px;
-          border-color: #ddd;
+          border-color: var(--color-border-primary);
         }
         .value {
           display: inline-flex;
@@ -275,12 +275,12 @@
           li {
             .field {
               margin-right: 5px;
-              color: #8f8f8f;
+              color: var(--color-text-secondary);
             }
           }
         }
         .dropdown-btn {
-          border: 1px solid #ccc;
+          border: 1px solid var(--color-border-tertiary);
           border-radius: 4px;
           width: 100%;
           box-sizing: border-box;
@@ -297,7 +297,7 @@
           width: 100%;
         }
         .icon-arrow-down-border {
-          color: #757575;
+          color: var(--color-text-secondary);
         }
         .tagWrap {
           display: flex;
@@ -309,12 +309,12 @@
             border-radius: 3px;
             height: 24px;
             padding: 6px 5px 6px 10px;
-            background-color: #f5f5f5;
-            border: 1px solid #ddd;
+            background-color: var(--color-background-secondary);
+            border: 1px solid var(--color-border-primary);
             &.error {
-              background-color: #fef3f2;
-              border-color: #e8dbd9;
-              color: #b53026;
+              background-color: var(--color-error-bg);
+              border-color: var(--color-error-bg);
+              color: var(--color-error);
             }
             .tag {
               margin-right: 5px;
@@ -325,9 +325,9 @@
               flex: 1;
             }
             .delTag {
-              color: rgba(0, 0, 0, 0.3);
+              color: var(--color-text-tertiary);
               &:hover {
-                color: rgba(0, 0, 0, 0.5);
+                color: var(--color-text-secondary);
               }
             }
           }
@@ -341,11 +341,11 @@
       .flowAddTypeDropdown {
         .Dropdown--input {
           padding: 0;
-          height: 21px;
+          height: 22px;
           display: flex;
           align-items: center;
           .value {
-            color: #757575;
+            color: var(--color-text-secondary);
           }
           .ming.Icon {
             margin-left: 5px !important;
@@ -354,7 +354,7 @@
       }
       .flowDetailInput {
         padding: 8px 12px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--color-border-primary);
         border-radius: 4px;
         box-sizing: border-box;
         resize: none;
@@ -362,7 +362,7 @@
         height: 40px;
         line-height: 40px;
         &.errorBorder {
-          border-color: #f44336 !important;
+          border-color: var(--color-error) !important;
         }
       }
       .workflowDetailAddBtn {
@@ -375,7 +375,7 @@
           display: inline-block;
         }
         &:not(:hover) {
-          color: #bdbdbd !important;
+          color: var(--color-text-disabled) !important;
         }
       }
       .flowSubProcessDropdown {
@@ -400,7 +400,7 @@
           cursor: pointer;
           display: none;
           &:not(:hover) {
-            color: #bdbdbd !important;
+            color: var(--color-text-disabled) !important;
           }
         }
       }
@@ -413,12 +413,12 @@
           border-style: solid;
           border-radius: 4px;
           padding: 0 20px;
-          background: #f5f5f5;
+          background: var(--color-background-secondary);
           cursor: pointer;
           margin-right: 10px;
           box-sizing: border-box;
           &:not(:hover) {
-            border-color: #ddd !important;
+            border-color: var(--color-border-primary) !important;
           }
         }
       }
@@ -452,19 +452,19 @@
       font-size: 13px;
       &:not(:hover):not(:focus):not(.errorBorder):not(.actionClearBorder),
       &:not(.ThemeBorderColor3) {
-        border-color: #ddd !important;
+        border-color: var(--color-border-primary) !important;
       }
       &.actionDisabled {
-        background: #f5f5f5;
-        border-color: #ddd !important;
+        background: var(--color-background-secondary);
+        border-color: var(--color-border-primary) !important;
       }
       &.actionCustomBox {
         position: relative;
         padding: 0 30px 0 10px;
-        background: #f8f8f8;
+        background: var(--color-background-secondary);
       }
       &.actionCustomBoxError {
-        background: #fff6ed;
+        background: var(--color-warning-bg);
       }
       &.actionControlUsers {
         height: auto;
@@ -473,10 +473,10 @@
         line-height: normal;
       }
       &.errorBorder {
-        border-color: #f44336 !important;
+        border-color: var(--color-error) !important;
       }
       &.actionClearBorder {
-        border-color: #f5f5f5 !important;
+        border-color: var(--color-background-secondary) !important;
       }
       &.actionControlBoxClear {
         position: relative;
@@ -510,7 +510,7 @@
         top: 10px;
         cursor: pointer;
         &:not(:hover) {
-          color: #757575 !important;
+          color: var(--color-text-secondary) !important;
         }
       }
       .mui-datetime-base,
@@ -533,8 +533,8 @@
           border-radius: 26px;
           height: 28px;
           padding: 6px 12px 6px 10px;
-          background-color: #f5f5f5;
-          border: 1px solid #ddd;
+          background-color: var(--color-background-secondary);
+          border: 1px solid var(--color-border-primary);
           .tag {
             margin-right: 12px;
             font-size: 13px;
@@ -544,9 +544,9 @@
             flex: 1;
           }
           .delTag {
-            color: #bdbdbd;
+            color: var(--color-text-disabled);
             &:hover {
-              color: #757575;
+              color: var(--color-text-secondary);
             }
           }
         }
@@ -561,41 +561,28 @@
     .actionControlText {
       padding: 5px 10px;
       line-height: 24px;
-      border-color: #ddd;
-    }
-    .flowDetailTips {
-      padding: 10px 14px;
-      background: #f5f5f5;
-      border-radius: 3px;
-      margin-top: 15px;
-      line-height: 22px;
-      i {
-        line-height: 20px;
-      }
-      .flowDetailTipsColor {
-        color: #1677ff;
-      }
+      border-color: var(--color-border-primary);
     }
     .actionFieldsSplit {
       margin-top: 24px;
       height: 1px;
-      background: #ddd;
+      background: var(--color-border-primary);
       margin-right: 14px;
     }
     .workflowDetailDesc {
       padding: 21px 16px;
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       border-radius: 3px;
       word-break: break-all;
       &.subProcessDesc {
-        border: 1px solid #ebebeb;
+        border: 1px solid var(--color-border-secondary);
         padding: 8px 12px;
       }
     }
     .flowDetailNumber {
       align-items: center;
       .numberInput {
-        border-color: #ddd !important;
+        border-color: var(--color-border-primary) !important;
         width: 48px;
         height: 36px;
         border-radius: 5px 0 0 5px;
@@ -614,11 +601,11 @@
         margin: 0;
         border-style: solid;
         border-width: 1px 1px 1px 0;
-        border-color: #ddd;
+        border-color: var(--color-border-primary);
         vertical-align: top;
         span {
           &:not(:hover) {
-            color: #757575 !important;
+            color: var(--color-text-secondary) !important;
           }
         }
       }
@@ -633,7 +620,7 @@
         box-sizing: border-box;
         border-width: 1px 1px 1px 0;
         border-style: solid;
-        border-color: #ccc;
+        border-color: var(--color-border-tertiary);
         cursor: pointer;
         &:first-child {
           border-left-width: 1px;
@@ -645,12 +632,12 @@
           border-bottom-right-radius: 3px;
         }
         &.ThemeBGColor3 {
-          color: #fff;
+          color: var(--color-white);
         }
       }
     }
     .flowBackBox {
-      background: #f4f4f4;
+      background: var(--color-background-disabled);
       padding: 8px 26px 8px 12px;
       border-radius: 4px;
       position: relative;
@@ -674,19 +661,19 @@
       right: 5px;
       top: 2px;
       font-size: 14px;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       cursor: pointer;
       &:hover {
-        color: #757575;
+        color: var(--color-text-secondary);
       }
     }
     .ck {
       .ck-content {
-        background: #fff !important;
+        background: var(--color-background-primary) !important;
       }
       .ck-sticky-panel .ck-toolbar,
       .ck-blurred {
-        border-color: #ddd !important;
+        border-color: var(--color-border-primary) !important;
       }
     }
     .workflowFileUpload {
@@ -700,25 +687,25 @@
     .workflowDetailSelectApi {
       padding: 20px;
       border-radius: 8px;
-      border: 1px solid #ddd;
+      border: 1px solid var(--color-border-primary);
       height: 88px;
       &.null {
         border-style: dashed;
       }
       &.error {
-        border-color: #f44336;
-        background-color: #fff2f2;
-        color: #f44336;
+        border-color: var(--color-error);
+        background-color: var(--color-error-bg);
+        color: var(--color-error);
       }
       .workflowApiIcon {
         width: 48px;
         height: 48px;
         border-radius: 8px;
-        background-color: #eaeaea;
+        background-color: var(--color-border-secondary);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #757575;
+        color: var(--color-text-secondary);
         position: relative;
         &.circle {
           border-radius: 50%;
@@ -734,8 +721,8 @@
           top: -12px;
           left: -12px;
           border-radius: 50%;
-          background-color: #eaeaea;
-          color: #757575;
+          background-color: var(--color-border-secondary);
+          color: var(--color-text-secondary);
           display: flex;
           justify-content: center;
           align-items: center;
@@ -748,30 +735,30 @@
         border-radius: 2px;
         cursor: pointer;
         &:hover {
-          background: #f5f5f5;
+          background: var(--color-background-hover);
         }
         .Radio-box {
-          background: #fff !important;
+          background: var(--color-background-primary) !important;
         }
       }
     }
     .flowSelectModel {
       border-radius: 4px;
       height: 36px;
-      border: 1px solid #ddd;
+      border: 1px solid var(--color-border-primary);
       padding: 0 10px;
       cursor: pointer;
       &:hover {
-        border-color: #2196f3;
+        border-color: var(--color-primary-focus);
       }
       .icon-AI_Agent {
-        color: #2196f3;
+        color: var(--color-link-hover);
       }
       .icon-deepseek {
         color: #4d6bfe;
       }
       .icon-chatgpt {
-        color: #000;
+        color: var(--color-text-primary);
       }
       .icon-Qwen {
         color: #615ced;
@@ -793,27 +780,32 @@
     }
     &.errorBorder {
       .tagInputareaIuput {
-        border-color: #f44336 !important;
+        border-color: var(--color-error) !important;
         &:not(.active) {
-          border-color: #f44336 !important;
+          border-color: var(--color-error) !important;
         }
       }
     }
     &.onlyOneValue {
       .CodeMirror {
-        background: #f8f8f8;
+        background: var(--color-background-secondary);
       }
       .columnTagCon {
         max-width: 95%;
       }
     }
+    &.clearBorderBottomRadius {
+      .tagInputareaIuput {
+        border-bottom-left-radius: 0;
+      }
+    }
     .tagInputareaIuput {
-      border-color: #ddd !important;
+      border-color: var(--color-border-primary) !important;
       border-radius: 4px 0 0 4px;
       box-sizing: border-box;
       min-height: 36px;
       &:not(.active) {
-        border-color: #ddd !important;
+        border-color: var(--color-border-primary) !important;
       }
     }
   }
@@ -824,7 +816,7 @@
     overflow-x: hidden;
     overflow-y: auto;
     li.hr {
-      border-top: 1px solid #ccc;
+      border-top: 1px solid var(--color-border-tertiary);
       margin: 3px 0;
     }
     .MenuItem {
@@ -836,16 +828,16 @@
     }
     .fnName {
       margin-left: 6px;
-      color: #757575;
+      color: var(--color-text-secondary);
     }
     .fnEmpty {
       padding: 10px;
-      color: #757575;
+      color: var(--color-text-secondary);
     }
   }
   .workflowMessageList {
     box-sizing: border-box;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     padding: 6px 0;
     max-height: 400px;
     overflow-x: hidden;
@@ -857,13 +849,13 @@
       box-sizing: border-box;
       cursor: pointer;
       &:hover {
-        background: #f5f5f5;
+        background: var(--color-background-hover);
       }
       .Radio-box {
-        background: #fff !important;
+        background: var(--color-background-primary) !important;
       }
       .Radio-text {
-        color: #151515 !important;
+        color: var(--color-text-title) !important;
         font-size: 16px;
       }
       .ming.Radio {
@@ -885,27 +877,27 @@
     text-align: center;
     font-size: 14px;
     box-sizing: border-box;
-    color: #fff;
+    color: var(--color-white);
     padding: 0 24px;
   }
   .flowTplBox {
     box-sizing: border-box;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     overflow: hidden;
     border-radius: 4px;
     .flowTplHeader {
       height: 40px;
       padding: 0 16px;
       &.gray {
-        background: #f5f5f5;
+        background: var(--color-background-secondary);
       }
       &.green {
         background: rgba(1, 202, 131, 0.2);
-        color: #01ca83;
+        color: var(--color-task);
       }
       &.red {
         background: rgba(244, 67, 54, 0.2);
-        color: #f44336;
+        color: var(--color-error);
       }
     }
     .flowTplContent {
@@ -922,24 +914,24 @@
       display: inline-block;
       margin-right: 20px;
       border-radius: 3px;
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       padding: 0 24px;
       border-width: 1px;
       border-style: solid;
       cursor: pointer;
       &:not(:hover) {
-        color: #151515 !important;
-        border-color: #ddd !important;
+        color: var(--color-text-title) !important;
+        border-color: var(--color-border-primary) !important;
       }
     }
   }
   .flowTplSettingContent {
     .tagInputareaIuput {
       border-radius: 4px !important;
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       .CodeMirror {
-        color: #757575;
-        background: #f5f5f5;
+        color: var(--color-text-secondary);
+        background: var(--color-background-secondary);
       }
     }
     .fieldInsertBtn {
@@ -948,14 +940,14 @@
       line-height: 28px;
       padding: 0 12px;
       border-radius: 14px;
-      color: #fff;
+      color: var(--color-white);
       cursor: pointer;
     }
   }
   .webhookLink {
     border-radius: 4px;
-    border: 1px solid #ddd;
-    background: #f4f4f4;
+    border: 1px solid var(--color-border-primary);
+    background: var(--color-background-disabled);
     height: 40px;
     line-height: 40px;
     padding: 0 12px;
@@ -967,8 +959,8 @@
     cursor: pointer;
     padding: 0 16px;
     border-radius: 4px;
-    border: 1px solid #ddd;
-    background: #f4f4f4;
+    border: 1px solid var(--color-border-primary);
+    background: var(--color-background-disabled);
   }
   .webhookBtn {
     height: 32px;
@@ -976,27 +968,27 @@
     cursor: pointer;
     padding: 0 21px;
     border-radius: 3px;
-    border: 1px solid #ddd;
-    background: #f4f4f4;
-    color: #757575;
+    border: 1px solid var(--color-border-primary);
+    background: var(--color-background-disabled);
+    color: var(--color-text-secondary);
     &.disabled {
-      color: #bdbdbd;
-      background: #f5f5f5;
+      color: var(--color-text-disabled);
+      background: var(--color-background-secondary);
       cursor: not-allowed;
     }
     &:not(.disabled):hover {
-      background: #1677ff;
-      color: #fff;
-      border-color: #1677ff;
+      background: var(--color-primary);
+      color: var(--color-white);
+      border-color: var(--color-primary);
     }
   }
   .webhookBox {
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 4px;
     box-sizing: border-box;
     overflow: hidden;
     .webhookHeader {
-      background: #f2f2f2;
+      background: var(--color-background-disabled);
       height: 40px;
       line-height: 40px;
       padding: 0 16px;
@@ -1018,9 +1010,9 @@
         min-height: 40px;
         align-items: center;
         padding: 0 16px;
-        border-top: 1px solid #ddd;
+        border-top: 1px solid var(--color-border-primary);
         &:hover {
-          background: #fafafa;
+          background: var(--color-background-hover);
         }
         div {
           word-break: break-all;
@@ -1032,7 +1024,7 @@
     width: 36px;
     height: 36px;
     border-radius: 4px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     cursor: pointer;
     margin-left: 12px;
     position: relative;
@@ -1041,7 +1033,7 @@
     .flexColumn {
       justify-content: center;
       align-items: center;
-      background: #fff;
+      background: var(--color-background-primary);
       position: absolute;
       width: 34px;
       height: 34px;
@@ -1072,27 +1064,27 @@
     }
   }
   .errorColor {
-    color: #f44336 !important;
+    color: var(--color-error) !important;
   }
   .errorBorder {
     &.ming.Dropdown {
       .Dropdown--border {
-        border-color: #f44336 !important;
+        border-color: var(--color-error) !important;
       }
     }
   }
   .errorBG {
-    background: #fff2f2 !important;
+    background: var(--color-error-bg) !important;
   }
   .flowDropdownOnlyIcon {
-    background: #fff;
+    background: var(--color-background-primary);
     position: absolute;
     top: 1px;
     right: 37px;
     height: 34px;
     display: inline-flex;
     justify-content: center;
-    border-left: 1px solid #ddd;
+    border-left: 1px solid var(--color-border-primary);
     padding: 0 10px;
     &.clearBorderRadius {
       right: 0;
@@ -1100,7 +1092,7 @@
     &:hover {
       .Dropdown--placeholder,
       .icon {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
     }
     .Dropdown--input {
@@ -1120,16 +1112,16 @@
     }
   }
   .workflowDialogSupport {
-    color: #9e9e9e !important;
+    color: var(--color-text-tertiary) !important;
     &:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
   .addConditionBtn {
     padding: 0 12px;
     height: 36px;
     line-height: 36px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     cursor: pointer;
   }
   .actionFields {
@@ -1152,15 +1144,15 @@
     box-sizing: initial;
     &:not(:hover):not(:focus):not(.errorBorder):not(.actionClearBorder),
     &:not(.ThemeBorderColor3) {
-      border-color: #ddd !important;
+      border-color: var(--color-border-primary) !important;
     }
     &.actionCustomBox {
       position: relative;
       padding: 0 30px 0 10px;
-      background: #f8f8f8;
+      background: var(--color-background-secondary);
     }
     &.actionCustomBoxError {
-      background: #fff6ed;
+      background: var(--color-warning-bg);
     }
     .actionControlDel {
       position: absolute;
@@ -1169,7 +1161,7 @@
       top: 10px;
       cursor: pointer;
       &:not(:hover) {
-        color: #757575 !important;
+        color: var(--color-text-secondary) !important;
       }
     }
   }
@@ -1205,7 +1197,7 @@
       display: inline-block;
     }
     &:not(:hover) {
-      color: #bdbdbd !important;
+      color: var(--color-text-disabled) !important;
     }
   }
   .workflowDetail {
@@ -1221,19 +1213,19 @@
     }
     &.onlyOneValue {
       .CodeMirror {
-        background: #f8f8f8;
+        background: var(--color-background-secondary);
       }
       .columnTagCon {
         max-width: 95%;
       }
     }
     .tagInputareaIuput {
-      border-color: #ddd !important;
+      border-color: var(--color-border-primary) !important;
       border-radius: 4px 0 0 4px;
       box-sizing: border-box;
       min-height: 36px;
       &:not(.active) {
-        border-color: #ddd !important;
+        border-color: var(--color-border-primary) !important;
       }
     }
   }
@@ -1250,10 +1242,10 @@
   }
   .codeEditorSmall {
     font-size: 22px;
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
     cursor: pointer;
     &:hover {
-      color: #757575;
+      color: var(--color-text-secondary);
     }
   }
   .workflowCodeMirrorBox,
@@ -1272,14 +1264,14 @@
 .deleteApprovalProcessDialog {
   .mui-dialog-footer {
     .Button--primary {
-      background: #f44336;
+      background: var(--color-error);
     }
   }
 }
 
 .workflowDetailExecDialog {
   .mui-dialog-body {
-    background-color: #0c0d0e;
+    background-color: var(--color-background-primary);
     padding-top: 10px !important;
     padding-right: 0 !important;
     padding-bottom: 10px !important;

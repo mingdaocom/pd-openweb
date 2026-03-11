@@ -6,7 +6,7 @@
   .tabBox {
     display: flex;
     align-items: center;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     .tabItem {
       height: 100%;
       display: flex;
@@ -21,20 +21,20 @@
         margin-left: 20px;
       }
       &.active {
-        color: #1677ff;
-        border-bottom-color: #1677ff;
+        color: var(--color-primary);
+        border-bottom-color: var(--color-primary);
       }
     }
   }
   .description {
-    background: #f6fafe;
+    background: var(--color-primary-transparent);
     border-radius: 3px;
     padding: 8px 16px;
     margin: 16px 20px 10px;
   }
   .apps {
     width: 260px;
-    border-right: 1px solid #eaeaea;
+    border-right: 1px solid var(--color-border-secondary);
     padding: 10px 20px;
     overflow: auto;
   }
@@ -43,7 +43,7 @@
     overflow: auto;
     .checkItem {
       &:hover {
-        background: #fff !important;
+        background: var(--color-background-primary) !important;
       }
     }
   }
@@ -52,10 +52,10 @@
     border-radius: 3px;
     padding-left: 12px;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
     &.activeApp {
-      background: #e7f4fe;
+      background: var(--color-primary-transparent);
     }
     .appIconWrap {
       width: 20px;
@@ -65,7 +65,7 @@
     }
     &.checkAll {
       &:hover {
-        background: #fff;
+        background: var(--color-background-primary);
       }
     }
   }
@@ -82,14 +82,14 @@
       height: 36px;
       line-height: 36px;
       border-radius: 3px;
-      color: #1677ff;
-      border: 1px solid #1677ff;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
       padding: 0 32px;
-      background-color: #fff;
+      background-color: var(--color-background-primary);
       &:hover {
-        color: #1565c0;
-        border: 1px solid #1565c0;
-        background-color: #fff;
+        color: var(--color-link-hover);
+        border: 1px solid var(--color-link-hover);
+        background-color: var(--color-background-primary);
       }
     }
   }

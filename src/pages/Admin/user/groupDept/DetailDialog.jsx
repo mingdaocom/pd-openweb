@@ -9,9 +9,9 @@ export default class DetailDialog extends Component {
     const { typeName, data = [], url, urlDetail } = this.props;
     return (
       <div className="mationBox pBottom20">
-        <h3 className="Font15 Normal Gray">{_l('%0列表', typeName)}</h3>
+        <h3 className="Font15 Normal textPrimary">{_l('%0列表', typeName)}</h3>
         <ul style={{ maxHeight: '300px', overflowY: 'auto' }}>
-          <li className="headerLi GrayBG LineHeight35">
+          <li className="headerLi bgTertiary LineHeight35">
             <span className="InlineBlock pLeft40 Width200">{typeName}</span>
             <span className="InlineBlock ">{_l('操作')}</span>
           </li>

@@ -48,7 +48,7 @@ export default function AbilityExpandSettings(props) {
       />
       {!titleFolded.abilityExpand && (
         <div className="mLeft25">
-          <p className="Gray_75 mBottom24">
+          <p className="textSecondary mBottom24">
             {_l('当启用"收集填写者微信信息"，或填写范围为"平台/本组织用户"时，可使用以下增强功能')}
           </p>
           <div className="mBottom24">

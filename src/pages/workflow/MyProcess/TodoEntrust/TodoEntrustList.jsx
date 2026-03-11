@@ -17,7 +17,7 @@ const CardWrapper = styled.div`
   padding: 20px;
   margin-bottom: 15px;
   box-sizing: border-box;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   border-radius: 4px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
   &:hover {
@@ -27,7 +27,7 @@ const CardWrapper = styled.div`
 
 const CardTitle = styled.div`
   margin-bottom: 20px;
-  color: #151515;
+  color: var(--color-text-title);
   font-size: 15px;
   font-weight: bold;
 `;
@@ -39,12 +39,12 @@ const FlexRow = styled.div`
 
 const RowLabelText = styled.div`
   flex: 1;
-  color: #757575;
+  color: var(--color-text-secondary);
 `;
 
 const RowValue = styled.div`
   flex: 4;
-  color: #151515;
+  color: var(--color-text-title);
   overflow: hidden;
 `;
 
@@ -56,21 +56,21 @@ const EntrustButton = styled.button`
   line-height: 36px;
   border: 0;
   border-radius: 4px;
-  background-color: #f7f7f7;
-  color: #1677ff;
+  background-color: var(--color-background-secondary);
+  color: var(--color-primary);
   font-size: 14px;
   cursor: pointer;
 
   &:hover {
-    color: #fff;
-    background-color: #1677ff;
+    color: var(--color-white);
+    background-color: var(--color-primary);
   }
 
   &.isAdd {
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
     &:hover {
-      color: #1677ff;
-      background-color: #fff;
+      color: var(--color-primary);
+      background-color: var(--color-background-primary);
     }
   }
 
@@ -79,22 +79,22 @@ const EntrustButton = styled.button`
     height: 32px;
     line-height: 32px;
     border-radius: 5px;
-    color: #fff;
-    background-color: #1677ff;
+    color: var(--color-white);
+    background-color: var(--color-primary);
     &.isAdd {
-      color: #1677ff;
-      background-color: #fff;
+      color: var(--color-primary);
+      background-color: var(--color-background-primary);
     }
   }
 `;
 
 const Btn = styled(Button)`
-  border: 1px solid #eee !important;
-  background-color: #fff !important;
+  border: 1px solid var(--color-border-secondary) !important;
+  background-color: var(--color-background-primary) !important;
   &.delete {
-    background-color: #f44336 !important;
-    border: 1px solid #f44336;
-    color: #fff;
+    background-color: var(--color-error) !important;
+    border: 1px solid var(--color-error);
+    color: var(--color-white);
   }
 `;
 
@@ -170,10 +170,10 @@ function TodoEntrustList(props) {
                   placement="bottom"
                   title={_l('待办事项如果匹配到多条待办委托，将分配给委托开始时间最早的待办委托')}
                 >
-                  <Icon icon="info_outline" className="pointer Font16 Gray_bd mLeft5" />
+                  <Icon icon="info_outline" className="pointer Font16 textDisabled mLeft5" />
                 </Tooltip>
               </div>
-              <Icon icon="close" className="pointer Font24 Gray_9d ThemeHoverColor3" onClick={onClose} />
+              <Icon icon="close" className="pointer Font24 textTertiary ThemeHoverColor3" onClick={onClose} />
             </div>
           )}
 
@@ -191,7 +191,7 @@ function TodoEntrustList(props) {
                             <div className="pointer circle">
                               <img
                                 style={{
-                                  backgroundColor: '#f5f5f5',
+                                  backgroundColor: 'var(--color-background-secondary)',
                                   borderRadius: '50%',
                                   width: '22px',
                                   height: '22px',
@@ -210,7 +210,9 @@ function TodoEntrustList(props) {
                                 }
                               />
                             </div>
-                            <div className="Gray Font13 pLeft5 pRight10 pTop1 ellipsis">{item.trustee.fullName}</div>
+                            <div className="textPrimary Font13 pLeft5 pRight10 pTop1 ellipsis">
+                              {item.trustee.fullName}
+                            </div>
                           </div>
                         ) : (
                           <div className="trusteeAvatarWrapper valignWrapper mRight10">
@@ -223,7 +225,7 @@ function TodoEntrustList(props) {
                             />
                             <UserName
                               projectId={item.companyId}
-                              className="Gray Font13 pLeft5 pRight10 pTop1"
+                              className="textPrimary Font13 pLeft5 pRight10 pTop1"
                               user={{ userName: item.trustee.fullName, accountId: item.trustee.accountId }}
                               chatButton={false}
                             />
@@ -240,7 +242,7 @@ function TodoEntrustList(props) {
                       {isShowStartDate(item.startDate) ? (
                         <React.Fragment>
                           {moment(item.startDate).format('YYYY-MM-DD HH:mm')}
-                          <span className="Gray_75">{` ~ `}</span>
+                          <span className="textSecondary">{` ~ `}</span>
                         </React.Fragment>
                       ) : (
                         ''
@@ -312,7 +314,7 @@ function TodoEntrustList(props) {
               <div className="flexRow mBottom10">
                 <Btn
                   radius
-                  className="flex mRight6 bold Gray_75 Font13"
+                  className="flex mRight6 bold textSecondary Font13"
                   onClick={() => setMobileFinishInfo({ mobileConfigVisible: false, finishItem: undefined })}
                 >
                   {_l('取消')}

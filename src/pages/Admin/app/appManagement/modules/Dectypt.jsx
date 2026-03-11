@@ -35,7 +35,7 @@ const Wrap = styled.div`
   justify-content: center;
   border-radius: 8px;
   overflow-y: auto;
-  border: 1px dashed #e0e0e0;
+  border: 1px dashed var(--color-border-secondary);
   box-sizing: border-box;
   margin-bottom: 20px;
   .uploadImg {
@@ -51,13 +51,13 @@ const Wrap = styled.div`
       padding-left: 10px;
       display: inline-block;
       line-height: 32px;
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       border-radius: 3px 3px 3px 3px;
     }
   }
   .successTxt {
     font-size: 14px;
-    color: #4caf50;
+    color: var(--color-success);
     margin-top: 20px;
   }
 `;
@@ -121,15 +121,15 @@ export default class Dectypt extends Component {
         footer={null}
         width={696}
         title={
-          <div className="Font18 Black Normal">
+          <div className="Font18 textPrimary Normal">
             <span className="TxtMiddle title">{_l('获取文件密码')}</span>
-            <span className="Gray_9e Font13"> {_l('上传应用 .mdy文件，获取导入密码、应用锁密码')}</span>
+            <span className="textTertiary Font13"> {_l('上传应用 .mdy文件，获取导入密码、应用锁密码')}</span>
           </div>
         }
       >
         <Wrap>
           <img className="uploadImg" src={file.name ? importActiveImg : importDisabledImg}></img>
-          <div className={cx('Gray_bd', { hide: file.name })}>{_l('请选择.mdy格式的应用文件')}</div>
+          <div className={cx('textDisabled', { hide: file.name })}>{_l('请选择.mdy格式的应用文件')}</div>
           <QiniuUpload
             ref={ele => (this.uploaderWrap = ele)}
             className={cx('upgradeAppUpload mTop24', { hide: file.name })}
@@ -169,13 +169,13 @@ export default class Dectypt extends Component {
           >
             <Button radius>{_l('上传文件')}</Button>
           </QiniuUpload>
-          <div className="Font15 Black w100 pLeft10 pRight10 ellipsis TxtCenter">{file.name}</div>
+          <div className="Font15 textPrimary w100 pLeft10 pRight10 ellipsis TxtCenter">{file.name}</div>
           {loading && file.name && (
             <div className="flexRow mTop16">
               <div className="notificationIconWrap">
                 <i className="icon-loading_button Font20 ThemeColor3"></i>
               </div>
-              {<span className="Gray_75 mLeft10">{_l('正在解析文件...')}</span>}
+              {<span className="textSecondary mLeft10">{_l('正在解析文件...')}</span>}
             </div>
           )}
           {!loading && (importPassword || lockPassword) && <div className="successTxt">{_l('解密成功')}</div>}
@@ -184,12 +184,12 @@ export default class Dectypt extends Component {
               if (!this.state[item.key]) return;
               return (
                 <div key={item.key} style={{ marginRight: item.key === 'importPassword' ? 68 : 0 }}>
-                  <div className="mBottom8 Gray_75 Font14">{item.title}</div>
+                  <div className="mBottom8 textSecondary Font14">{item.title}</div>
                   <div>
                     <span className="password">{this.state[item.key]}</span>
                     <Tooltip title={_l('复制')}>
                       <i
-                        className="icon icon-copy Hand Gray_9e Font16 mLeft8"
+                        className="icon icon-copy Hand textTertiary Font16 mLeft8"
                         onClick={() => {
                           copy(this.state[item.key]);
                           alert(_l('复制成功'));

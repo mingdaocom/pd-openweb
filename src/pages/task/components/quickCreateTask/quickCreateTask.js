@@ -1,6 +1,5 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import Store from 'redux/configureStore';
 import doT from 'dot';
 import { UserHead } from 'ming-ui';
 import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
@@ -8,6 +7,7 @@ import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/taskCenter';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
 import { addTask } from 'src/pages/task/redux/actions';
+import Store from 'src/redux/configureStore';
 import { checkIsProject, errorMessage } from '../../utils/utils';
 import quickCreateTask from './tpl/quickCreateTask.html';
 import './css/quickCreateTask.less';

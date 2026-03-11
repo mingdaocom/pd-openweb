@@ -1,13 +1,15 @@
 @tablePrefixCls: ming-table;
-@text-color : #666;
-@font-size-base : 13px;
+@text-color: var(--color-text-secondary);
+@font-size-base: 13px;
 @line-height: 1.5;
 @table-border-color: #e9e9e9;
-@table-head-background-color: #fff;
+@table-head-background-color: var(--color-background-primary);
 @table-head-color: @gray;
 @vertical-padding: 14px;
 @horizontal-padding: 8px;
-@table-shadow: 0 4px 16px 1px rgba(0, 0, 0, 0.24), 0 0 1px 0 rgba(0, 0, 0, 0.12);
+@table-shadow:
+  0 4px 16px 1px rgba(0, 0, 0, 0.24),
+  0 0 1px 0 rgba(0, 0, 0, 0.12);
 
 .@{tablePrefixCls}.bordered {
   table {
@@ -41,7 +43,7 @@
   }
 
   &-fixed-header &-body {
-    background: #fff;
+    background: var(--color-background-primary);
     position: relative;
   }
 
@@ -74,7 +76,7 @@
 
   .@{tablePrefixCls}-placeholder {
     padding: 16px 8px;
-    background: #fff;
+    background: var(--color-background-primary);
     border-bottom: 1px solid @table-border-color;
     text-align: center;
     position: relative;
@@ -102,10 +104,10 @@
   tr {
     transition: all 0.3s ease;
     &:hover {
-      background: #eaf8fe;
+      background: var(--color-cyan-blue);
     }
     &.@{tablePrefixCls}-row-hover {
-      background: #eaf8fe;
+      background: var(--color-cyan-blue);
     }
   }
 
@@ -131,7 +133,7 @@
       line-height: 16px;
       border: 1px solid @table-border-color;
       user-select: none;
-      background: #fff;
+      background: var(--color-background-primary);
     }
     &-spaced {
       visibility: hidden;
@@ -149,9 +151,9 @@
     }
   }
   tr&-expanded-row {
-    background: #f7f7f7;
+    background: var(--color-background-secondary);
     &:hover {
-      background: #f7f7f7;
+      background: var(--color-background-hover);
     }
   }
   &-column-hidden {
@@ -160,16 +162,16 @@
   &-prev-columns-page,
   &-next-columns-page {
     cursor: pointer;
-    color: #666;
+    color: var(--color-text-secondary);
     z-index: 1;
     &:hover {
-      color: #2db7f5;
+      color: var(--color-link-hover);
     }
     &-disabled {
       cursor: not-allowed;
-      color: #999;
+      color: var(--color-text-tertiary);
       &:hover {
-        color: #999;
+        color: var(--color-text-tertiary);
       }
     }
   }
@@ -193,7 +195,7 @@
     overflow: hidden;
     table {
       width: auto;
-      background: #fff;
+      background: var(--color-background-primary);
     }
   }
 

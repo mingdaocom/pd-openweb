@@ -118,7 +118,7 @@ class RecordList extends Component {
     const showCusTomBtn = isOpenPermit(permitList.execute, sheetSwitchPermit, view.viewId);
     if (_.isEmpty(views)) {
       return (
-        <div className="flexColumn h100 justifyContentCenter alignItemsCenter Font16 Gray_9e">
+        <div className="flexColumn h100 justifyContentCenter alignItemsCenter Font16 textTertiary">
           <img style={{ width: 70 }} src={alreadyDelete} />
           {_l('视图已隐藏')}
         </div>
@@ -159,9 +159,9 @@ class RecordList extends Component {
 
     if (webMobileDisplay) {
       return (
-        <div style={{ background: '#fff', height: '100%' }}>
+        <div style={{ background: 'var(--color-background-primary)', height: '100%' }}>
           <div className="flex WordBreak overflow_ellipsis pLeft20 pRight20 Height80">
-            <span className="Gray Font24 LineHeight80 InlineBlock Bold">{appName}</span>
+            <span className="textPrimary Font24 LineHeight80 InlineBlock Bold">{appName}</span>
           </div>
           <FixedPage isNoPublish={isNoPublish} />
         </div>

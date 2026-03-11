@@ -71,7 +71,7 @@ export default class SearchInput extends Component {
             </span>
           ) : (
             <i
-              className="icon icon-search Gray_9e"
+              className="icon icon-search textTertiary"
               onClick={() => {
                 this.setState(
                   {
@@ -116,7 +116,7 @@ export default class SearchInput extends Component {
             }}
           />
           <i
-            className={cx('icon icon-workflow_cancel Gray_9e Font16', {
+            className={cx('icon icon-workflow_cancel textTertiary Font16', {
               hide: !value,
             })}
             onClick={() => {

@@ -8,11 +8,11 @@ import { Icon } from 'ming-ui';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
 
 const ColumnHead = styled.div`
-  background-color: #fafafa !important;
+  background-color: var(--color-background-secondary) !important;
   padding: 0 5px !important;
   font-weight: bold;
   font-size: 13px;
-  color: #757575;
+  color: var(--color-text-secondary);
   line-height: 34px;
   .colorCon {
     width: 2px;
@@ -41,7 +41,7 @@ const ColumnHead = styled.div`
 `;
 
 const RowHead = styled.div`
-  color: #757575;
+  color: var(--color-text-secondary);
   text-align: center;
 `;
 
@@ -60,6 +60,7 @@ export default function ControlsDataTable(props) {
     showEmptyForResize = true,
     canSort,
     wrapControlName,
+    appId,
   } = props;
   const [{ isAsc, controlId }, setState] = useSetState({
     isAsc: undefined,
@@ -101,6 +102,7 @@ export default function ControlsDataTable(props) {
       lineNumberBegin={lineNumberBegin}
       columns={controls}
       enableRules={enableRules}
+      appId={appId}
       // rowCount={data.length}
       emptyText={emptyText}
       data={data}
@@ -135,7 +137,11 @@ export default function ControlsDataTable(props) {
           {showIcon && control.icon && (
             <React.Fragment>
               {control.color && <div className="colorCon" style={{ backgroundColor: control.color }}></div>}
-              <Icon icon={control.icon} className="Font16 mRight5" style={{ color: control.color || '#9e9e9e' }} />
+              <Icon
+                icon={control.icon}
+                className="Font16 mRight5"
+                style={{ color: control.color || 'var(--color-text-tertiary)' }}
+              />
             </React.Fragment>
           )}
           <span className="ellipsis">{control.controlName}</span>

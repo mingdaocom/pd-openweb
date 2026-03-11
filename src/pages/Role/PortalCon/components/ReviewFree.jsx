@@ -20,7 +20,7 @@ const Wrap = styled.div`
     .relation {
       display: inline-block;
       &:hover {
-        background-color: #fff !important;
+        background-color: var(--color-background-primary) !important;
       }
     }
   }
@@ -54,9 +54,9 @@ const Wrap = styled.div`
     min-width: 0;
   }
   .up {
-    color: #1677ff;
+    color: var(--color-primary);
     &:hover {
-      color: #1e88e5 !important;
+      color: var(--color-primary) !important;
     }
     span {
       display: inline-block;
@@ -64,7 +64,7 @@ const Wrap = styled.div`
     }
   }
   .listCon {
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     border-radius: 6px;
     padding: 13px 16px;
     display: flex;
@@ -78,7 +78,7 @@ const Wrap = styled.div`
     h6 {
     }
     .listLiHeader {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       font-size: 12px;
     }
     .listLi {
@@ -87,7 +87,7 @@ const Wrap = styled.div`
     .columnTxt {
       flex: 1;
       height: 36px;
-      background: #f8f8f8;
+      background: var(--color-background-secondary);
       border-radius: 3px;
     }
     .iconBox {
@@ -103,8 +103,8 @@ const Wrap = styled.div`
       display: flex;
       line-height: 36px;
       padding: 0 10px !important;
-      background: #ffffff;
-      border: 1px solid #e0e0e0;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-secondary);
       border-radius: 3px;
       .value,
       .Dropdown--placeholder {
@@ -259,7 +259,7 @@ export default function ReviewFree(props) {
       }}
     >
       <Wrap>
-        <p className="Gray_9e pAll0 mBottom2 mTop2 Font14 Gray_75">
+        <p className="textTertiary pAll0 mBottom2 mTop2 Font14 textSecondary">
           {_l('用户注册时填写的内容如和免审中指定字段内容一致，则无需审核直接访问应用。')}
         </p>
         <SwitchStyle
@@ -269,7 +269,7 @@ export default function ReviewFree(props) {
           }}
         >
           <Icon icon={status === 0 ? 'ic_toggle_on' : 'ic_toggle_off'} className="Font40" />
-          <div className="switchText switchTextP mLeft8 InlineBlock Gray Hand">
+          <div className="switchText switchTextP mLeft8 InlineBlock textPrimary Hand">
             {status === 0 ? _l('开启') : _l('关闭')}
           </div>
         </SwitchStyle>
@@ -312,7 +312,7 @@ export default function ReviewFree(props) {
               <React.Fragment>
                 <div className="listCon flexRow alignItemsCenter">
                   <span className="txt flex flexRow">
-                    <Icon className="Font18 TxtMiddle" type="new_excel" style={{ color: '#4CAF50' }} />
+                    <Icon className="Font18 TxtMiddle" type="new_excel" style={{ color: 'var(--color-success)' }} />
                     <span className="mLeft8 mRight8 flex overflow_ellipsis Font13 WordBreak"> {fileName}</span>
                   </span>
                   {canDown && (

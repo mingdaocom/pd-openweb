@@ -119,6 +119,14 @@ export function queryConfigs(state = [], action) {
       return state;
   }
 }
+export function saveLoading(state = false, action) {
+  switch (action.type) {
+    case 'SAVE_LOADING':
+      return action.data;
+    default:
+      return state;
+  }
+}
 
 export default combineReducers({
   columnRulesListData,
@@ -133,4 +141,5 @@ export default combineReducers({
   worksheetId,
   worksheetInfo,
   queryConfigs,
+  saveLoading,
 });

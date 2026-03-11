@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import UserController from 'src/api/user';
 import { WIDGET_VALUE_ID } from 'src/components/Form/core/config';
-import { controlState } from '../../../core/utils';
+import { controlState } from 'src/utils/control';
 
 const QuickOperateWrap = styled.div`
   .operateItem {
@@ -15,14 +15,14 @@ const QuickOperateWrap = styled.div`
     padding: 0 16px;
     line-height: 36px;
     &:hover {
-      background: var(--color-background-tertiary);
+      background: var(--color-background-hover);
     }
   }
   .showLine {
     width: 100%;
     height: 1px;
     margin: 4px 0;
-    background: #ebebeb;
+    background: var(--color-border-secondary);
   }
 `;
 
@@ -201,11 +201,11 @@ export default function QuickOperate(props) {
           content={item.isPopover ? renderSelect(item) : null}
         >
           <div className="operateItem" onClick={() => (item.isPopover ? {} : handleClick(item))}>
-            {item.icon && <Icon className="Gray_75 Font16" icon={item.icon} />}
+            {item.icon && <Icon className="textSecondary Font16" icon={item.icon} />}
             <div className="flex mLeft8 overflow_ellipsis" title={item.text}>
               {item.text}
             </div>
-            {item.isPopover && <Icon className="Gray_9e Font12" icon="arrow-right" />}
+            {item.isPopover && <Icon className="textTertiary Font12" icon="arrow-right" />}
           </div>
         </Popover>
       </Fragment>

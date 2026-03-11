@@ -3,7 +3,7 @@
   font-size: 14px;
   height: 54px;
   color: rgba(255, 255, 255, 0.8);
-  background-color: #000;
+  background-color: var(--color-background-inverse);
   transition: transform 0.4s;
   &.isMobile {
     height: 108px;
@@ -26,9 +26,9 @@
     line-height: 54px;
     padding: 0 11px;
     &:hover {
-      color: #fff;
+      color: var(--color-white);
       .editBtn {
-        color: #fff;
+        color: var(--color-white);
       }
     }
     .content {
@@ -47,7 +47,7 @@
       border: none;
       background-color: rgba(97, 97, 97, 0.7);
       font-size: 14px;
-      color: #fff;
+      color: var(--color-white);
       height: 34px;
       padding: 0 5px;
       margin-top: 10px;
@@ -71,12 +71,12 @@
       height: 100%;
       cursor: pointer;
       &:hover ~ span {
-        color: rgb(255, 255, 255);
+        color: var(--color-white);
       }
     }
     .mingPopup {
       // padding: 5px;
-      color: #151515;
+      color: var(--color-text-title);
       .MdLoader {
         margin: 10px auto;
       }
@@ -89,10 +89,10 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #424242;
+    background: var(--color-text-title);
     cursor: pointer;
     border-radius: 18px 18px 18px 18px;
-    color: #fff;
+    color: var(--color-white);
     margin-top: 9px;
     position: relative;
     &.centerStyle {
@@ -123,10 +123,10 @@
       }
     }
     &.editFileBtn {
-      background-color: #4caf50;
+      background-color: var(--color-success);
       padding: 0 16px;
       &:hover {
-        background-color: #48a64d;
+        background-color: var(--color-success-hover);
       }
     }
   }
@@ -135,12 +135,12 @@
   }
   .versionList {
     overflow: hidden;
-    color: #999;
+    color: var(--color-text-tertiary);
     font-size: 12px;
     user-select: text;
     .versionItem {
       line-height: 40px;
-      border-top: 1px dashed #ccc;
+      border-top: 1px dashed var(--color-border-tertiary);
       margin-top: -1px;
       display: flex;
       &.active {
@@ -170,7 +170,7 @@
         i {
           font-size: 14px;
           cursor: pointer;
-          color: #7cafe2;
+          color: var(--color-primary-light);
         }
       }
     }
@@ -202,7 +202,7 @@
       line-height: inherit;
     }
     &:hover {
-      color: rgb(255, 255, 255);
+      color: var(--color-white);
     }
   }
   .normal {
@@ -211,7 +211,7 @@
   .officeEdit {
     display: flex;
     align-items: center;
-    color: #fff;
+    color: var(--color-white);
     padding: 6px 15px;
     margin: auto 0;
     border-radius: 4px;
@@ -234,12 +234,12 @@
       font-size: 20px;
     }
     &.disable {
-      color: rgb(255, 255, 255);
+      color: var(--color-white);
       background-color: rgba(244, 67, 54, 0.68);
     }
   }
   .download:hover {
-    color: rgb(255, 255, 255);
+    color: var(--color-white);
   }
   .more {
     .deletePopup {

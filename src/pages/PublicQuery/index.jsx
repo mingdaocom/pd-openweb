@@ -5,6 +5,7 @@ import LoadDiv from 'ming-ui/components/LoadDiv';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import sheetAjax from 'src/api/worksheet';
 import preall from 'src/common/preall';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 import globalEvents from 'src/router/globalEvents';
@@ -143,6 +144,9 @@ class WorksheetSahre extends React.Component {
             this.setState({ loading: false, error: !viewId && !appId });
           },
         );
+      })
+      .catch(err => {
+        this.setState({ loading: false, error: err.errorCode === 300016 ? err.errorCode : false });
       });
   };
 
@@ -267,6 +271,10 @@ class WorksheetSahre extends React.Component {
           <LoadDiv />
         </div>
       );
+    }
+
+    if (error === 300016) {
+      return <RestrictAccessStatus />;
     }
 
     if (isSearch) {

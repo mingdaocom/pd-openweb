@@ -11,27 +11,26 @@ const Wrap = styled.div`
   padding: 0 24px 24px;
   .apiCard {
     max-width: 800px;
-    width: 100%;
-    margin: 24px auto 0;
+    margin-top: 24px;
     align-items: center;
     padding: 12px 24px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     border-radius: 6px;
     img {
       width: 46px;
       height: 46px;
-      background: #ffffff;
+      background: var(--color-background-primary);
       border-radius: 50%;
     }
   }
   .toConnect {
-    color: #757575;
-    border: 1px solid #ebebeb;
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border-secondary);
     padding: 3px 19px;
     border-radius: 28px;
     &:hover {
-      color: #1677ff;
-      border: 1px solid #1677ff;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
     }
   }
 `;
@@ -45,7 +44,7 @@ function ItemCon(props) {
         icon={'worksheet_API'}
         support={'https://help.mingdao.com/integration/api#enter-parameters'}
       />
-      <Icon icon={'arrow'} className="Font24 TxtCenter InlineBlock" style={{ color: '#ddd' }} />
+      <Icon icon={'arrow'} className="Font24 TxtCenter InlineBlock" style={{ color: 'var(--color-border-primary)' }} />
     </React.Fragment>
   );
 }
@@ -73,10 +72,10 @@ export default function Set(props) {
   }, []);
 
   return (
-    <Wrap className="flexColumn">
+    <Wrap className="flexColumn w100">
       {(props.connectInfo || {}).name &&
         (location.href.indexOf('/integrationApi') >= 0 || location.href.indexOf('/api') >= 0) && (
-          <div className="apiCard flexRow">
+          <div className="apiCard flexRow divCenter w100">
             <ConnectAvator {...props.connectInfo} width={46} size={32} />
             <div className="flex mLeft15 overflowHidden">
               <h5 className="Font14 Bold InlineBlock">{props.connectInfo.name}</h5>
@@ -93,10 +92,12 @@ export default function Set(props) {
               <p className="Font13">
                 <span>
                   {props.connectInfo.apiCount > 0 && (
-                    <span className="Gray_75">{_l('%0 个API', props.connectInfo.apiCount)}</span>
+                    <span className="textSecondary">{_l('%0 个API', props.connectInfo.apiCount)}</span>
                   )}
                   {(props.connectInfo.apks || []).length > 0 && (
-                    <span className="Gray_75 mLeft6">{_l('已授权给 %0 个应用', props.connectInfo.apks.length)}</span>
+                    <span className="textSecondary mLeft6">
+                      {_l('已授权给 %0 个应用', props.connectInfo.apks.length)}
+                    </span>
                   )}
                 </span>
               </p>
@@ -136,7 +137,11 @@ export default function Set(props) {
                 }}
               />
               {i < list.length - 1 && (
-                <Icon icon={'arrow'} className="Font24 TxtCenter InlineBlock" style={{ color: '#ddd' }} />
+                <Icon
+                  icon={'arrow'}
+                  className="Font24 TxtCenter InlineBlock"
+                  style={{ color: 'var(--color-border-primary)' }}
+                />
               )}
               {newPreId === o.typeId && [23, 8].includes(o.typeId) && (
                 <ItemCon

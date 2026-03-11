@@ -33,7 +33,7 @@ function AddTabWidget(props) {
       okText={_l('添加')}
       footerLeftElement={() => (
         <div className="addTabWidgetLeftWrap">
-          <div className="Gray_75 mRight12">{_l('标签页位置')}</div>
+          <div className="textSecondary mRight12">{_l('标签页位置')}</div>
           <div className="tabPositionWrap">
             {TAB_POSITION_TYPE.map(item => {
               const active = item.value === position;
@@ -56,7 +56,7 @@ function AddTabWidget(props) {
       onOk={() => handleOk(position, () => setVisible(false))}
     >
       <Fragment>
-        <div className="Gray_75">{_l('使用标签页归类字段，保持页面简洁')}</div>
+        <div className="textSecondary">{_l('使用标签页归类字段，保持页面简洁')}</div>
         <img src={imgSrc} height="100%" width="100%" />
       </Fragment>
     </Dialog>

@@ -6,12 +6,12 @@ import GroupFilterList from './GroupFilterList';
 const FilterWrap = styled.div`
   height: 40px;
   padding: 0 12px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
 `;
 const CloseIcon = styled.i`
   padding: 5px;
   border-radius: 50%;
-  background-color: #e6e6e6;
+  background-color: var(--color-border-secondary);
 `;
 
 export default function SlideGroupFilter(props) {
@@ -45,8 +45,8 @@ export default function SlideGroupFilter(props) {
         onMaskClick={() => setDrawerVisible(false)}
       >
         <div className="valignWrapper pLeft16 pRight10 pTop15 pBottom15">
-          <div className="flex Gray_9e Font13">{_l('筛选列表')}</div>
-          <CloseIcon className="icon-close Gray_9e" onClick={() => setDrawerVisible(false)} />
+          <div className="flex textTertiary Font13">{_l('筛选列表')}</div>
+          <CloseIcon className="icon-close textTertiary" onClick={() => setDrawerVisible(false)} />
         </div>
         <GroupFilterList
           {...props}

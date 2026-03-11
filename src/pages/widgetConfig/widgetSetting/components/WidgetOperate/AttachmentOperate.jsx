@@ -28,7 +28,7 @@ export default function AttachmentOperate(props) {
       <div className="labelWrap">
         <Checkbox
           size="small"
-          text={_l('允许从移动设备输入')}
+          text={_l('允许从移动设备扫码上传')}
           checked={allowappupload !== '0'}
           onClick={checked => onChange(handleAdvancedSettingChange(data, { allowappupload: String(+!checked) }))}
         />

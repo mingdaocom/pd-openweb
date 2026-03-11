@@ -12,7 +12,7 @@ import { getRequest } from 'src/utils/common';
 import AppPermissions from '../components/AppPermissions';
 
 const Wrap = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   .header {
     padding: 8px 10px;
   }
@@ -58,7 +58,7 @@ export const Chatbot = props => {
 
   if (_.isEmpty(chatbot)) {
     return (
-      <div className="flexRow justifyContentCenter alignItemsCenter Font18 Gray_9e w100 h100">
+      <div className="flexRow justifyContentCenter alignItemsCenter Font18 textTertiary w100 h100">
         {_l('对话机器人不存在或者被删除')}
       </div>
     );
@@ -70,7 +70,7 @@ export const Chatbot = props => {
       <div className="flexRow alignItemsCenter justifyContentBetween header">
         <Icon
           icon="access_time"
-          className="Font24 Gray_9e pRight16"
+          className="Font24 textTertiary pRight16"
           onClick={() => {
             setHistoryVisible(true);
           }}
@@ -80,7 +80,7 @@ export const Chatbot = props => {
             navigateToConversation('');
           }}
         >
-          <Icon icon="newchat" className="Font24 ThemeColor" />
+          <Icon icon="newchat" className="Font24 colorPrimary" />
         </div>
       </div>
       <div className="flex minHeight0">

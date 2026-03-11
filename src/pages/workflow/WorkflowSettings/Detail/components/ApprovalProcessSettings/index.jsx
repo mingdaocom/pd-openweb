@@ -7,7 +7,7 @@ import { Checkbox, Dropdown, Icon, Menu, MenuItem, Radio, SortableList } from 'm
 import { Tooltip } from 'ming-ui/antd-components';
 import { quickSelectUser } from 'ming-ui/functions';
 import sheetAjax from 'src/api/worksheet';
-import { NODE_TYPE, OPERATION_TYPE, USER_TYPE } from '../../../enum';
+import { NODE_TYPE, OPERATION_TYPE, RELATION_TYPE, USER_TYPE } from '../../../enum';
 import CustomTextarea from '../CustomTextarea';
 import EmailApproval from '../EmailApproval';
 import Member from '../Member';
@@ -32,7 +32,7 @@ const TABS_ITEM = styled.div`
       right: 0;
       content: '';
       height: 0;
-      border-bottom: 3px solid #1677ff;
+      border-bottom: 3px solid var(--color-primary);
     }
   }
 `;
@@ -42,25 +42,25 @@ const SortableItemBox = styled.div`
   .workflowPrintItem {
     height: 36px;
     padding: 0 10px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     border-radius: 4px;
   }
   .icon-trash {
     &:hover {
-      color: #f44336 !important;
+      color: var(--color-error) !important;
     }
   }
   .icon-new_word {
-    color: #1677ff;
+    color: var(--color-primary);
   }
   .icon-new_excel {
-    color: #4caf50;
+    color: var(--color-success);
   }
   .icon-doc {
     color: #465a65;
   }
   .red {
-    color: #f44336;
+    color: var(--color-error);
   }
 `;
 
@@ -223,7 +223,7 @@ export default props => {
                     {item.desc && (
                       <Tooltip title={item.desc}>
                         <span style={{ height: 16, marginLeft: -35 }}>
-                          <Icon className="Font16 Gray_9e" icon="info" />
+                          <Icon className="Font16 textTertiary" icon="info" />
                         </span>
                       </Tooltip>
                     )}
@@ -258,7 +258,7 @@ export default props => {
       <SortableItemBox className="flexRow mTop10 alignItemsCenter">
         <DragHandle>
           <Tooltip title={dragging ? '' : _l('拖拽调整排序')}>
-            <i className="icon-drag Font16 Gray_75 ThemeHoverColor3" style={{ cursor: 'move' }} />
+            <i className="icon-drag Font16 textSecondary ThemeHoverColor3" style={{ cursor: 'move' }} />
           </Tooltip>
         </DragHandle>
         <div className="flex mLeft10 Font13 workflowPrintItem flexRow alignItemsCenter">
@@ -276,7 +276,7 @@ export default props => {
         </div>
         <Tooltip title={_l('删除')}>
           <i
-            className="icon-trash Font16 Gray_75 pointer mLeft10"
+            className="icon-trash Font16 textSecondary pointer mLeft10"
             onClick={() =>
               updateSource({
                 processConfig: Object.assign({}, data.processConfig, { printIds: items.filter(id => id !== item) }),
@@ -364,7 +364,7 @@ export default props => {
     <Fragment>
       <div className="Font13 mTop20">
         <span className="bold">{_l('待办标题')}</span>
-        <span className="Gray_75">{_l('（未设置时显示记录的标题）')}</span>
+        <span className="textSecondary">{_l('（未设置时显示记录的标题）')}</span>
       </div>
       <CustomTextarea
         projectId={companyId}
@@ -433,7 +433,7 @@ export default props => {
             '设置发起人为空时的处理方式。当设为自动进行下一节点时，如果退回到流程发起节点，也会自动由下一个节点进行处理',
           )}
         >
-          <Icon className="Font16 Gray_9e mLeft5" icon="info" />
+          <Icon className="Font16 textTertiary mLeft5" icon="info" />
         </Tooltip>
       </div>
       <Dropdown
@@ -450,7 +450,7 @@ export default props => {
       />
 
       {initiator === 2 && !data.processConfig.agents.length && (
-        <div className="Gray_75 mTop5">{_l('当前流程还没有流程拥有者，请在 流程发起节点 中配置')}</div>
+        <div className="textSecondary mTop5">{_l('当前流程还没有流程拥有者，请在 流程发起节点 中配置')}</div>
       )}
 
       {initiator === 5 && (
@@ -458,7 +458,7 @@ export default props => {
           <div className="mRight10 mTop12">{_l('代理人')}</div>
           <Member companyId={companyId} leastOne accounts={data.processConfig.initiatorMaps[initiator]} />
           <div
-            className={cx('Gray_c ThemeHoverColor3 mTop12 pointer', {
+            className={cx('textPlaceholder ThemeHoverColor3 mTop12 pointer', {
               mLeft8: data.processConfig.initiatorMaps[initiator].length,
             })}
             style={{ height: 28 }}
@@ -484,7 +484,7 @@ export default props => {
         </div>
       )}
 
-      <div className="mTop25" style={{ borderBottom: '1px solid #ddd' }}>
+      <div className="mTop25" style={{ borderBottom: '1px solid var(--color-border-primary)' }}>
         {TABS.map(item => {
           return (
             <TABS_ITEM
@@ -502,12 +502,14 @@ export default props => {
         <Fragment>
           <div className="Font13 mTop20">
             <span className="bold">{_l('流程拥有者')}</span>
-            <span className="Gray_75">{_l('（代理审批流程中负责人为空时的发起、审批、填写节点）')}</span>
+            <span className="textSecondary">{_l('（代理审批流程中负责人为空时的发起、审批、填写节点）')}</span>
           </div>
           <div className="flexRow alignItemsCenter">
             <Member companyId={companyId} leastOne accounts={data.processConfig.agents} />
             <div
-              className={cx('Gray_c ThemeHoverColor3 mTop12 pointer', { mLeft8: data.processConfig.agents.length })}
+              className={cx('textPlaceholder ThemeHoverColor3 mTop12 pointer', {
+                mLeft8: data.processConfig.agents.length,
+              })}
               style={{ height: 28 }}
               onClick={event =>
                 selectCharge(event, accounts => {
@@ -541,7 +543,7 @@ export default props => {
 
           {(data.processConfig.startEventPass || data.processConfig.userTaskPass) && (
             <div className="mTop15 mLeft25">
-              <div className="Gray_75">{_l('以下情况不自动通过')}</div>
+              <div className="textSecondary">{_l('以下情况不自动通过')}</div>
               <div className="flexRow mTop15 alignItemsCenter">
                 <Checkbox
                   text={_l('必填字段为空时')}
@@ -553,7 +555,7 @@ export default props => {
                   }
                 />
                 <Tooltip title={_l('勾选后，当有必填字段为空时不自动通过，仍需进行审批操作。')}>
-                  <Icon icon="info" className="Gray_9e Font16 mLeft5" />
+                  <Icon icon="info" className="textTertiary Font16 mLeft5" />
                 </Tooltip>
               </div>
               <div className="flexRow mTop15 alignItemsCenter">
@@ -624,7 +626,7 @@ export default props => {
           <OperatorEmpty
             hideGoToSettings
             projectId={companyId}
-            appId={props.relationType === 2 ? props.relationId : ''}
+            appId={props.relationType === RELATION_TYPE.APP ? props.relationId : ''}
             processId={!data.processConfig.agents.length ? processId : ''}
             title={_l('审批/填写人为空时（默认设置）')}
             titleInfo={_l('设置节点负责人为空时的默认处理方式，在每个节点中也可单独设置。')}
@@ -689,7 +691,7 @@ export default props => {
                 overflow: { adjustX: true, adjustY: true },
               }}
             >
-              <span className={cx('Gray_75', { 'pointer ThemeHoverColor3': !!printList.length })}>
+              <span className={cx('textSecondary', { 'pointer ThemeHoverColor3': !!printList.length })}>
                 {printList.length ? `+ ${_l('添加打印模板')}` : _l('无打印模板')}
               </span>
             </Trigger>
@@ -722,7 +724,7 @@ export default props => {
                 '指在审批流程中当人员设置为直属上级、上级部门负责人时。如果当前人员没有直属上级，则由本人自己处理；如果当前人员、部门没有上级部门，则由本部门负责人处理。未勾选时，则按照为空处理。',
               )}
             >
-              <Icon icon="info" className="Gray_9e Font16 mLeft5" />
+              <Icon icon="info" className="textTertiary Font16 mLeft5" />
             </Tooltip>
           </div>
           <div className="flexRow mTop15 alignItemsCenter">
@@ -752,7 +754,7 @@ export default props => {
                 </div>
               }
             >
-              <Icon icon="info" className="Gray_9e Font16 mLeft5" />
+              <Icon icon="info" className="textTertiary Font16 mLeft5" />
             </Tooltip>
           </div>
 
@@ -776,11 +778,11 @@ export default props => {
 
       {tabIndex === 2 && (
         <Fragment>
-          <div className="Gray_75 mTop20">
+          <div className="textSecondary mTop20">
             {_l('设置发起人撤回或被退回重新处理时可以查看、编辑、必填的字段。未设置时按照发起人在应用中的原始记录权限')}
           </div>
 
-          {props.selectNodeId ? (
+          {props.selectNodeId && (
             <div className="Font13 mTop15">
               <WriteFields
                 data={data.formProperties}
@@ -788,11 +790,6 @@ export default props => {
                 updateSource={updateSource}
                 showCard={true}
               />
-            </div>
-          ) : (
-            <div className="Gray_75 Font13 flexRow flowDetailTips mTop15">
-              <i className="icon-error1 Font16 Gray_9e" />
-              <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置字段权限')}</div>
             </div>
           )}
         </Fragment>
@@ -803,7 +800,7 @@ export default props => {
           {data.flowNodeMap ? (
             <Fragment>
               <div className="Font13 bold mTop20">{_l('回到发起节点时')}</div>
-              <div className="Font13 Gray_75 mTop10">{_l('当流程退回至此节点时触发更新')}</div>
+              <div className="Font13 textSecondary mTop10">{_l('当流程退回至此节点时触发更新')}</div>
               <UpdateFields
                 type={1}
                 companyId={companyId}
@@ -830,7 +827,7 @@ export default props => {
               <ProcessDetails {...props} />
             </Fragment>
           ) : (
-            <div className="mTop20 Gray_75">{_l('节点异常，无法配置')}</div>
+            <div className="mTop20 textSecondary">{_l('节点异常，无法配置')}</div>
           )}
         </Fragment>
       )}

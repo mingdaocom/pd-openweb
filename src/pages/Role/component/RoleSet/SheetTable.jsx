@@ -171,13 +171,13 @@ export default class extends PureComponent {
               {!!(sheet.sheetId && viewList && viewList.length) && (
                 <Icon
                   icon="arrow-right-tip"
-                  className={classNames('Gray_75 arrowIcon', {
+                  className={classNames('textSecondary arrowIcon', {
                     rotated: this.state.show,
                   })}
                 />
               )}
               <span className="mRight6 InlineBlock">
-                <SvgIcon url={sheet.iconUrl} fill={'#757575'} size={18} />
+                <SvgIcon url={sheet.iconUrl} fill={'var(--color-text-secondary)'} size={18} />
               </span>
               <span className="flex overflow_ellipsis ThemeHoverColor3 InlineBlock">
                 {sheet.sheetName || sheet.name}
@@ -242,7 +242,7 @@ export default class extends PureComponent {
                     <div className={'boxSizing TxtLeft overflow_ellipsis w35'}>
                       <div className="mLeft52 overflow_ellipsis WordBreak">
                         <Icon
-                          className="Gray_bd mRight8 Font14"
+                          className="textDisabled mRight8 Font14"
                           icon={_.find(VIEW_TYPE_ICON, { id: VIEW_DISPLAY_TYPE[view.type] }).icon}
                         />
                         {view.viewName}
@@ -317,7 +317,7 @@ export default class extends PureComponent {
               {_l('设置')}
             </span>
           ) : (
-            <span className="Gray_9">-</span>
+            <span className="textTertiary">-</span>
           )}
         </div>
         {showRoleSet && (

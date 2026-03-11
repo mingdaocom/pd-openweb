@@ -1,16 +1,15 @@
-@delColor: #f44336;
 .delAppItemDialog {
   .mui-dialog-default-title {
-    color: @delColor !important;
+    color: var(--color-error) !important;
   }
   .groupingWrap {
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     border-radius: 4px;
     padding: 10px;
     height: 400px;
     .searchWrap {
       padding: 0 5px;
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-secondary);
       input {
         border: none;
       }
@@ -19,8 +18,8 @@
       height: 33px;
       padding: 0 10px 0 8px;
       &.active {
-        color: #1677ff;
-        background-color: #e5f3fe;
+        color: var(--color-primary);
+        background-color: var(--color-primary-transparent);
         .ellipsis {
           font-weight: 600;
         }
@@ -36,7 +35,7 @@
       line-height: 36px;
       padding: 0;
       text-align: center;
-      background-color: #fff;
+      background-color: var(--color-background-primary);
       border-radius: 4px;
       border: none;
       outline: none;
@@ -45,17 +44,17 @@
     .btnCancel {
       background-color: transparent;
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     .btnOk {
-      color: #fff;
-      background-color: #bdbdbd;
+      color: var(--color-white);
+      background-color: var(--color-text-disabled);
     }
     .btnDel {
-      background-color: @delColor;
+      background-color: var(--color-error);
       &:hover {
-        background-color: darken(@delColor, 10%);
+        background-color: var(--color-error-hover);
       }
     }
   }

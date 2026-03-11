@@ -58,7 +58,7 @@ export default ({ companyId, processId, relationId, selectNodeId, data, selectPr
           </div>
         )}
       </div>
-      <div className="Font13 Gray_75 mTop10">{desc}</div>
+      <div className="Font13 textSecondary mTop10">{desc}</div>
 
       <UpdateFields
         type={2}

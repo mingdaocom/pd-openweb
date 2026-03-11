@@ -31,7 +31,7 @@ export default class Invoice extends Component {
   componentDidMount() {
     const { type } = this.props.match.params;
     const myPermissions = getMyPermissions(Config.projectId);
-    const tabKeys = TABS.filter(item => hasPermission(myPermissions, item.permissionKey)).map(item => item.key);
+    const tabKeys = TABS.filter(item => hasPermission(myPermissions, item.permissionKeys)).map(item => item.key);
 
     if (type) {
       const initialTab = ['create', 'taxNo'].includes(type) ? 'taxNo' : 'list';
@@ -93,7 +93,7 @@ export default class Invoice extends Component {
         return;
       }
 
-      if (md.global.Config.IsLocal && !taxNo) {
+      if ((window.platformENV.isOverseas || window.platformENV.isLocal) && !taxNo) {
         merchantInvoiceApi.getInvoiceInfoUsage({ projectId }).then(res => {
           res?.canCreate < 1
             ? alert(_l('开票税号数量已达上限，请先购买'), 3)
@@ -127,7 +127,7 @@ export default class Invoice extends Component {
                 <span>{_l('创建开票税号')}</span>
               </Fragment>
             ) : (
-              TABS.filter(item => hasPermission(myPermissions, item.permissionKey)).map(item => (
+              TABS.filter(item => hasPermission(myPermissions, item.permissionKeys)).map(item => (
                 <span
                   key={item.key}
                   className={cx('tabItem Hand', { active: currentTab === item.key })}
@@ -145,7 +145,7 @@ export default class Invoice extends Component {
             <div className="flexRow alignItemsCenter">
               <Icon
                 icon="task-later"
-                className="Gray_9 hoverText Font17"
+                className="textTertiary hoverText Font17"
                 onClick={() => {
                   if (this.com) {
                     if (currentTab === 'list') {
@@ -180,6 +180,7 @@ export default class Invoice extends Component {
               onCreateTax={taxNo => handleActionClick({ type: 'create', taxNo })}
               taxList={taxList}
               onShowCreateTaxBtn={() => this.setState({ showCreateTaxBtn: true })}
+              myPermissions={myPermissions}
             />
           )}
 

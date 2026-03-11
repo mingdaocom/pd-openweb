@@ -7,7 +7,7 @@ import { expireDialogAsync } from 'src/components/upgradeVersion';
 
 const Box = styled.div`
   padding: 12px;
-  background: #fffae6;
+  background: var(--color-yellow-black);
   font-size: 13px;
   .pointer {
     margin: 6px 0 2px;
@@ -69,7 +69,7 @@ export default ({ session, onChangeIsPost }) => {
           onOk={updateGroup}
           onCancel={() => setVisible(false)}
         >
-          <div className="mTop15 Gray_6 flexRow alignItemsCenter">
+          <div className="mTop15 textSecondary flexRow alignItemsCenter">
             <div>{_l('所属组织')}</div>
             <div className="mLeft15 flex">
               <Dropdown
@@ -85,7 +85,7 @@ export default ({ session, onChangeIsPost }) => {
               />
             </div>
           </div>
-          <p className="mTop15 Gray_6">{_l('点选转换后，该长期群组将永久隶属于此组织，不可更改')}</p>
+          <p className="mTop15 textSecondary">{_l('点选转换后，该长期群组将永久隶属于此组织，不可更改')}</p>
         </Dialog>
       )}
     </Fragment>

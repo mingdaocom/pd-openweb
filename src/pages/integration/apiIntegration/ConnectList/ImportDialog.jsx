@@ -36,10 +36,10 @@ const Wrap = styled.div`
       margin-bottom: 20px;
     }
     .dashBorder {
-      border: 2px dashed #eaeaea;
+      border: 2px dashed var(--color-border-secondary);
     }
     .solidBorder {
-      border: 1px solid #eaeaea;
+      border: 1px solid var(--color-border-secondary);
     }
     .importAppContent {
       width: 100%;
@@ -59,7 +59,7 @@ const Wrap = styled.div`
       }
 
       .errorColor {
-        color: #f51744;
+        color: var(--color-error);
       }
 
       .notificationIconWrap {
@@ -72,17 +72,17 @@ const Wrap = styled.div`
         width: 95px;
         height: 36px;
         line-height: 36px;
-        background: #1677ff;
+        background: var(--color-primary);
         border-radius: 18px;
         &:hover {
-          background: #0073ce;
+          background: var(--color-link-hover);
         }
       }
 
       .passwordInputBox {
         width: 250px;
         line-height: 34px;
-        border: 1px solid #1677ff;
+        border: 1px solid var(--color-primary);
         border-radius: 3px;
         padding: 0 12px;
         box-sizing: border-box;
@@ -92,12 +92,12 @@ const Wrap = styled.div`
         width: 95px;
         height: 36px;
         line-height: 36px;
-        background: #1677ff;
+        background: var(--color-primary);
         &.disabled {
-          background: #bdbdbd !important;
+          background: var(--color-text-disabled) !important;
         }
         &:hover {
-          background: #0073ce;
+          background: var(--color-link-hover);
         }
       }
     }
@@ -113,7 +113,7 @@ const Wrap = styled.div`
         width: 107px;
         height: 36px;
         border-radius: 2px;
-        color: #fff !important;
+        color: var(--color-white) !important;
       }
     }
   }
@@ -159,12 +159,12 @@ export default function ImportDialog(props) {
               <span>{_l(errTip)}</span>
             </div>
           ) : (
-            <div className="Gray_75 mTop6">{_l('大小：%0', formatFileSize(file.size))}</div>
+            <div className="textSecondary mTop6">{_l('大小：%0', formatFileSize(file.size))}</div>
           )}
         </Fragment>
       );
     } else {
-      return <div className="Gray_bd">{_l('请选择.mdy格式的应用文件')}</div>;
+      return <div className="textDisabled">{_l('请选择.mdy格式的应用文件')}</div>;
     }
   };
 
@@ -255,7 +255,7 @@ export default function ImportDialog(props) {
             </Button>
           ) : (
             <div
-              className={cx('ThemeColor Hand', {
+              className={cx('colorPrimary Hand', {
                 Visibility: analyzeLoading,
               })}
             >
@@ -267,13 +267,13 @@ export default function ImportDialog(props) {
           <div className={cx('flexRow mTop16', { Hidden: file.loaded === file.size })}>
             <Progress
               style={{ width: 250 }}
-              trailColor="#eaeaea"
-              strokeColor="#1677ff"
+              trailColor="var(--color-border-secondary)"
+              strokeColor="var(--color-primary)"
               strokeWidth={8}
               percent={Math.floor((file.loaded / (file.size || 0)) * 100)}
             />
             <span
-              className="icon-cancel Gray_9e Font16 Hover_49 mLeft12 LineHeight22"
+              className="icon-cancel textTertiary Font16 hoverTextPrimaryLight mLeft12 LineHeight22"
               onClick={() => {
                 uploaderWrap.current.uploader.stop();
                 uploaderWrap.current.uploader.removeFile(file);
@@ -292,7 +292,7 @@ export default function ImportDialog(props) {
             <div className="notificationIconWrap">
               <i className="icon-loading_button Font20 ThemeColor3"></i>
             </div>
-            <span className="Gray_75 mLeft10">{_l('正在解析文件...')}</span>
+            <span className="textSecondary mLeft10">{_l('正在解析文件...')}</span>
           </div>
         )} */}
       </div>
@@ -309,18 +309,22 @@ export default function ImportDialog(props) {
     >
       <Wrap className="importAppContainer">
         <div className="mBottom24">
-          <span className="Gray_75">{_l('导入连接配置文件，生成一个新的连接')}</span>
+          <span className="textSecondary">{_l('导入连接配置文件，生成一个新的连接')}</span>
           <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/application/import-export" />
         </div>
         {renderStepContent()}
         {file.name && upgradeId && (
           <div className="exportBottomOption mTop16">
-            <button type="button" className="ming Button Button--link Hover_49 Bold" onClick={() => onClose()}>
+            <button
+              type="button"
+              className="ming Button Button--link hoverTextPrimaryLight Bold"
+              onClick={() => onClose()}
+            >
               {_l('取消')}
             </button>
             <button
               type="button"
-              className="ming Button Button--primary Hover_49 importBtn Bold mLeft20"
+              className="ming Button Button--primary hoverTextPrimaryLight importBtn Bold mLeft20"
               onClick={() => importConnect()}
             >
               {_l('立即导入')}

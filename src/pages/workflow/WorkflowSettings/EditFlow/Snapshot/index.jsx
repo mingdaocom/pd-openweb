@@ -20,7 +20,7 @@ export default class Snapshot extends Component {
     return (
       <Fragment>
         <div className="pLeft8 pRight8">
-          <span className="Gray_75">{_l('获取：')}</span>
+          <span className="textSecondary">{_l('获取：')}</span>
           {item.actionId === '1' ? _l('自定义页面') : item.actionId === '2' ? _l('统计图表') : _l('链接地址')}
         </div>
       </Fragment>
@@ -47,7 +47,11 @@ export default class Snapshot extends Component {
             </div>
             <NodeOperate nodeClassName="BGBlueAsh" {...this.props} />
             <div className="workflowContent Font13">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? (
+                <span className="pLeft8 pRight8 textSecondary">{_l('加载中...')}</span>
+              ) : (
+                this.renderContent()
+              )}
             </div>
           </div>
           <CreateNode {...this.props} />

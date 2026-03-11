@@ -61,7 +61,9 @@ const Signature = props => {
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
     canvas.getContext('2d');
+    const penColor = getComputedStyle(document.body).getPropertyValue('--color-text-primary');
     signaturePad.current = new SignaturePad.default(canvas, {
+      penColor,
       onBegin: () => setIsEdit(true),
     });
   };
@@ -227,8 +229,8 @@ const Signature = props => {
         <Popup visible={popupVisible} className="mobileModal topRadius">
           <div className="flexColumn leftAlign h100">
             <div className="flexRow pTop15 pLeft20 pRight20 pBottom8">
-              <div className="Font18 Gray flex bold ellipsis">{_l('请在下方空白区域横向书写签名')}</div>
-              <i className="icon-close Gray_9e Font20" onClick={closePopup}></i>
+              <div className="Font18 textPrimary flex bold ellipsis">{_l('请在下方空白区域横向书写签名')}</div>
+              <i className="icon-close textTertiary Font20" onClick={closePopup}></i>
             </div>
             {lastInfo ? (
               <div className="flex">

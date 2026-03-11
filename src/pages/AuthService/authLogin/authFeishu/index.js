@@ -67,7 +67,7 @@ if (code) {
         const { agentId, state, callBackUrl, isLark } = result.data;
         const defaultCallBackUrl = isLark ? 'https://accounts.larksuite.com' : 'https://open.feishu.cn/open-apis';
         const redirect_uri = encodeURIComponent(
-          `${location.origin}/auth/feishu?url=${newUrl ? encodeURIComponent(newUrl) : ''}`,
+          `${location.origin}/auth/feishu?url=${newUrl ? encodeURIComponent(newUrl) : ''}&open_in_browser=true`,
         );
         location.replace(
           `${

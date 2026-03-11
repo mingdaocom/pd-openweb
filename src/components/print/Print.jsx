@@ -912,7 +912,9 @@ export default class Print extends Component {
               )}
             </tbody>
           </table>
-          {item.checkListData.length ? undefined : <div style={{ borderBottom: '1px solid #555' }}></div>}
+          {item.checkListData.length ? undefined : (
+            <div style={{ borderBottom: '1px solid var(--color-text-title)' }}></div>
+          )}
         </div>
       </div>
     ));
@@ -940,7 +942,7 @@ export default class Print extends Component {
               )}
             </tbody>
           </table>
-          {subTask.length ? undefined : <div style={{ borderBottom: '1px solid #555' }}></div>}
+          {subTask.length ? undefined : <div style={{ borderBottom: '1px solid var(--color-text-title)' }}></div>}
         </div>
       </div>
     );
@@ -1369,7 +1371,9 @@ export default class Print extends Component {
                       <td
                         style={{
                           borderTopColor:
-                            key !== '0' && dataIndex === 0 && this.beforeControlIsDetail(key) ? '#555' : '#bbb',
+                            key !== '0' && dataIndex === 0 && this.beforeControlIsDetail(key)
+                              ? 'var(--color-text-title)'
+                              : 'var(--color-text-disabled)',
                         }}
                         className="noHalf rowItem BorderRight0"
                         colSpan={colSpan}
@@ -1389,7 +1393,10 @@ export default class Print extends Component {
                   >
                     <td
                       style={{
-                        borderTopColor: key !== '0' && this.beforeControlIsDetail(key) ? '#555' : '#bbb',
+                        borderTopColor:
+                          key !== '0' && this.beforeControlIsDetail(key)
+                            ? 'var(--color-text-title)'
+                            : 'var(--color-text-disabled)',
                       }}
                       className="noHalf rowItem BorderRight0"
                       colSpan={colSpan}
@@ -1418,7 +1425,10 @@ export default class Print extends Component {
                   >
                     <td
                       style={{
-                        borderTopColor: key !== '0' && this.beforeControlIsDetail(key) ? '#555' : '#bbb',
+                        borderTopColor:
+                          key !== '0' && this.beforeControlIsDetail(key)
+                            ? 'var(--color-text-title)'
+                            : 'var(--color-text-disabled)',
                         paddingLeft: 105,
                       }}
                       className="noHalf rowItem BorderRight0 pLeft0"
@@ -1452,10 +1462,10 @@ export default class Print extends Component {
                       style={{
                         borderTopColor:
                           key !== '0' && this.beforeControlIsDetail(key)
-                            ? '#555'
+                            ? 'var(--color-text-title)'
                             : this.state.type !== 'hr' && key === '0'
-                              ? '#555'
-                              : '#bbb',
+                              ? 'var(--color-text-title)'
+                              : 'var(--color-text-disabled)',
                       }}
                       className="noHalf rowItem BorderRight0"
                       colSpan={colSpan}
@@ -1483,7 +1493,10 @@ export default class Print extends Component {
                   {!controlItem.filter(rowChildren => rowChildren.col === 0)[0].printHide && (
                     <td
                       style={{
-                        borderTopColor: key !== '0' && this.beforeControlIsDetail(key) ? '#555' : '#bbb',
+                        borderTopColor:
+                          key !== '0' && this.beforeControlIsDetail(key)
+                            ? 'var(--color-text-title)'
+                            : 'var(--color-text-disabled)',
                       }}
                       className="half rowItem"
                     >
@@ -1503,7 +1516,10 @@ export default class Print extends Component {
                     : controlItem.filter(rowChildren => rowChildren.col === 0)[1].printHide) && (
                     <td
                       style={{
-                        borderTopColor: key !== '0' && this.beforeControlIsDetail(key) ? '#555' : '#bbb',
+                        borderTopColor:
+                          key !== '0' && this.beforeControlIsDetail(key)
+                            ? 'var(--color-text-title)'
+                            : 'var(--color-text-disabled)',
                       }}
                       className="half rowItem Relative"
                     >
@@ -1579,7 +1595,7 @@ export default class Print extends Component {
         <div className="printStartBox clearfix">
           <div className="width1000">
             <span className="contentHide InlineBlock pointer TxtMiddle" onClick={this.showPrintDialog}>
-              <Icon icon="visibility" className="Gray_9e font14 mRight8 InlineBlock TxtMiddle" />
+              <Icon icon="visibility" className="textTertiary font14 mRight8 InlineBlock TxtMiddle" />
               <span className="TxtMiddle">{_l('设置打印内容显隐')}</span>
             </span>
             {(params.printType === 'hr' || params.printType === 'worksheet') && (

@@ -29,7 +29,7 @@ export default function ConnectAvator(props) {
         <img src={props.iconName} alt="" width={props.width} height={props.width} srcset="" className="logo" />
       ) : (
         <span className="logo iconLogo mRight12 InlineBlock TxtCenter">
-          <Icon icon="connect" className={'Gray_9e TxtMiddle'} onClick={() => {}} />
+          <Icon icon="connect" className={'textTertiary TxtMiddle'} onClick={() => {}} />
         </span>
       )}
     </Wrap>

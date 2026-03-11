@@ -20,7 +20,7 @@ export default function SelectControl({ className, list, searchable = true, onCl
     <SelectFieldsWrap ref={ref} className={className}>
       {searchable && (
         <div className="search" onClick={e => e.stopPropagation()}>
-          <i className="icon-search Gray_9e" />
+          <i className="icon-search textTertiary" />
           <input
             autoFocus
             ref={inputEl}

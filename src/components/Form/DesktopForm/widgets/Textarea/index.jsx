@@ -36,6 +36,7 @@ const Text = props => {
   const {
     controlId,
     disabled,
+    recordId,
     formItemId,
     value = '',
     enumDefault,
@@ -55,6 +56,7 @@ const Text = props => {
   const [originValue, setOriginValue] = useState('');
 
   const textRef = useRef(null);
+  const boxRef = useRef(null);
   const valueRef = useRef(value);
 
   useEffect(() => {
@@ -107,19 +109,21 @@ const Text = props => {
   useEffect(() => {
     if (textRef.current) {
       textRef.current.value = getEditValue();
-      // 手动触发 input 事件以调整 textarea 高度
-      $(textRef.current).trigger('input');
-      // 当value为空时，直接重置高度为最小高度
-      if (!getEditValue()) {
-        const minH = enumDefault === 1 ? Number(advancedSetting.minheight || '90') : 36;
-        $(textRef.current).height(minH);
+      if (!isEditing) {
+        setTimeout(() => {
+          if ($(textRef.current).outerHeight() !== $(boxRef.current).outerHeight()) {
+            $(textRef.current).css('height', $(boxRef.current).outerHeight());
+          }
+        }, 0);
+      } else {
+        $(textRef.current).trigger('input');
       }
     }
-  }, [enumDefault, value, advancedSetting.minheight]);
+  }, [value, recordId, isEditing]);
 
   useEffect(() => {
     if (isEditing) {
-      textRef.current && textRef.current.focus();
+      textRef.current && textRef.current.focus({ preventScroll: true });
     }
   }, [isEditing]);
 
@@ -223,10 +227,11 @@ const Text = props => {
       <div
         className={cx(
           'customFormControlBox customFormTextareaBox',
-          { Gray_bd: !value },
+          { textDisabled: !value },
           { controlDisabled: disabled },
           { textAreaDisabledControl: enumDefault === 1 && disabled },
         )}
+        ref={boxRef}
         style={{
           minHeight: enumDefault === 1 ? minHeight : 36,
           ...(disabled ? { wordBreak: 'break-all' } : {}),

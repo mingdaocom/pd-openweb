@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import worksheetAjax from 'src/api/worksheet';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { isPublicLink } from '../../../core/utils';
 
@@ -73,6 +74,7 @@ const Embed = props => {
   const viewControlsRef = useRef([]);
 
   const latestResultData = useRef(resultData);
+  const [errorCode, setErrorCode] = useState(null);
   const propsRef = useRef(props);
   propsRef.current = props;
   latestResultData.current = resultData;
@@ -102,13 +104,18 @@ const Embed = props => {
     component => {
       const { reportid, wsid } = safeParse(dataSource || '{}');
 
-      worksheetAjax.getWorksheetInfo({ worksheetId: wsid, getViews: true }).then(({ template = {}, views = [] }) => {
-        const curView = _.find(views, v => v.viewId === reportid);
-        setChartComponents(component);
-        setViewType(String(_.get(curView, 'viewType')));
-        viewControlsRef.current = _.get(template, 'controls') || [];
-        setValue();
-      });
+      worksheetAjax
+        .getWorksheetInfo({ worksheetId: wsid, getViews: true })
+        .then(({ template = {}, views = [] }) => {
+          const curView = _.find(views, v => v.viewId === reportid);
+          setChartComponents(component);
+          setViewType(String(_.get(curView, 'viewType')));
+          viewControlsRef.current = _.get(template, 'controls') || [];
+          setValue();
+        })
+        .catch(err => {
+          setErrorCode(err.errorCode);
+        });
     },
     [dataSource],
   );
@@ -134,6 +141,7 @@ const Embed = props => {
           recordId: currentRecordId,
           ignoreFilterControl: currentEnumDefault === 2,
         },
+        appId,
         formData: currentFormData,
         ignoreEmptyRule: true,
       }) || [{}];
@@ -190,10 +198,18 @@ const Embed = props => {
     const isLegal = enumDefault === 1 ? /^https?:\/\/.+$/.test(resultData) : dataSource;
     const isShareView = _.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage');
 
+    if (errorCode === 300016) {
+      return (
+        <div className="embedContainer">
+          <RestrictAccessStatus />
+        </div>
+      );
+    }
+
     if (!isLegal) {
       return (
         <div className="embedContainer">
-          <div className="w100 h100 Gray_9e BGF7F7F7 Font15 flexRow alignItemsCenter justifyContentCenter">
+          <div className="w100 h100 textTertiary bgTertiary Font15 flexRow alignItemsCenter justifyContentCenter">
             {_l('嵌入内容无法解析')}
           </div>
         </div>
@@ -203,7 +219,7 @@ const Embed = props => {
     if (enumDefault === 3 && (isPublicLink() || viewType === VIEW_DISPLAY_TYPE.detail)) {
       return (
         <div className="embedContainer">
-          <div className="w100 h100 Gray_9e BGF7F7F7 Font15 flexRow alignItemsCenter justifyContentCenter">
+          <div className="w100 h100 textTertiary bgTertiary Font15 flexRow alignItemsCenter justifyContentCenter">
             {viewType === VIEW_DISPLAY_TYPE.detail ? _l('暂不支持显示详情视图') : _l('暂不支持显示视图')}
           </div>
         </div>

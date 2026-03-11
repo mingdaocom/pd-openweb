@@ -18,7 +18,7 @@ const Wrap = styled.div`
   .emptyIcon {
     width: 130px;
     height: 130px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     border-radius: 50%;
     opacity: 1;
     margin: 200px auto 0;
@@ -37,7 +37,7 @@ const Wrap = styled.div`
   }
   .manageListHeader {
     height: 40px;
-    border-bottom: 1px solid #dddddd;
+    border-bottom: 1px solid var(--color-border-primary);
     margin: 0 40px;
     .Dropdown {
       .Dropdown--input {
@@ -77,7 +77,7 @@ const Wrap = styled.div`
 const ArrowUp = styled.span`
   border-width: 5px;
   border-style: solid;
-  border-color: transparent transparent #9e9e9e transparent;
+  border-color: transparent transparent var(--color-text-tertiary) transparent;
   cursor: pointer;
   &:hover,
   &.active {
@@ -88,12 +88,12 @@ const ArrowUp = styled.span`
 const ArrowDown = styled.span`
   border-width: 5px;
   border-style: solid;
-  border-color: #9e9e9e transparent transparent transparent;
+  border-color: var(--color-text-tertiary) transparent transparent transparent;
   cursor: pointer;
   margin-top: 2px;
   &:hover,
   &.active {
-    border-color: #1677ff transparent transparent transparent;
+    border-color: var(--color-primary) transparent transparent transparent;
   }
 `;
 let ajaxPromise = null;
@@ -186,9 +186,9 @@ export default function AggregationTables(props) {
     return (
       <React.Fragment>
         <div className="emptyIcon flexRow alignItemsCenter TxtCenter">
-          <Icon icon="aggregate_table" className="Gray_bd Font50" />
+          <Icon icon="aggregate_table" className="textDisabled Font50" />
         </div>
-        <div className="emptyHint TxtCenter Gray_9e Font17 mTop20">{txt || _l('暂无聚合表')}</div>
+        <div className="emptyHint TxtCenter textTertiary Font17 mTop20">{txt || _l('暂无聚合表')}</div>
       </React.Fragment>
     );
   };
@@ -201,7 +201,7 @@ export default function AggregationTables(props) {
       <Fragment>
         <div className="flexRow manageListHeader bold alignItemsCenter">
           <div className="flex mLeft10 mRight20 flexRow alignItemsCenter" style={{ minWidth: 120 }}>
-            <div className="flex Gray_75">{_l('名称')}</div>
+            <div className="flex textSecondary">{_l('名称')}</div>
             <div className="flexColumn">
               <ArrowUp
                 className={cx({ active: sort.fieldName === 'name' && sort.sortDirection === 'ASC' })}
@@ -225,8 +225,8 @@ export default function AggregationTables(props) {
               />
             </div>
           </div>
-          <div className="flex mRight20 flexRow alignItemsCenter Gray_75 minWidth100">{_l('数据源')}</div>
-          <div className="w150px mRight20 minWidth100 Gray_75">{_l('状态')}</div>
+          <div className="flex mRight20 flexRow alignItemsCenter textSecondary minWidth100">{_l('数据源')}</div>
+          <div className="w150px mRight20 minWidth100 textSecondary">{_l('状态')}</div>
           <div className="w180px pRight20 mRight20 flexRow alignItemsCenter">
             <div className="flex">
               <Dropdown
@@ -237,7 +237,7 @@ export default function AggregationTables(props) {
                 ]}
                 value={displayType}
                 renderTitle={() => (
-                  <span className="Gray_75 bold TxtTop">
+                  <span className="textSecondary bold TxtTop">
                     {displayType === 'createDate' ? _l('创建时间') : _l('更新时间')}
                   </span>
                 )}
@@ -282,8 +282,8 @@ export default function AggregationTables(props) {
               />
             </div>
           </div>
-          <div className="w100px mRight20 minWidth100 Gray_75">{_l('创建人')}</div>
-          <div className="w50px mRight20 Gray_75">{_l('操作')}</div>
+          <div className="w100px mRight20 minWidth100 textSecondary">{_l('创建人')}</div>
+          <div className="w50px mRight20 textSecondary">{_l('操作')}</div>
           <div className="w20px mRight20" />
         </div>
         {loading && pageNo <= 0 ? (

@@ -91,6 +91,7 @@ module.exports = [
       'no-case-declarations': 'off',
       'no-control-regex': 'off',
       'no-useless-escape': 'off',
+      'no-prototype-builtins': 'off',
     },
     settings: {
       react: {

@@ -104,7 +104,7 @@ class TabList extends React.Component {
                   this.handleClick(0);
                 }}
               >
-                <Icon className={cx('Font16 Gray_9e listName mRight10')} icon="person" />
+                <Icon className={cx('Font16 textTertiary listName mRight10')} icon="person" />
                 <span>{_l('全组织')}</span>
               </div>
               <Dropdown
@@ -130,7 +130,7 @@ class TabList extends React.Component {
               }}
               className={cx('Hand', { current: !cursor && typeCursor === 2 })}
             >
-              <Icon className="Font16 Gray_9e listName mRight10" icon="check_circle" />
+              <Icon className="Font16 textTertiary listName mRight10" icon="check_circle" />
               <span>
                 {_l('未激活')}
                 {inActiveNumber > 0 && <span className="numTag">{inActiveNumber > 99 ? '99+' : inActiveNumber}</span>}
@@ -142,7 +142,7 @@ class TabList extends React.Component {
               }}
               className={cx('Hand', { current: !cursor && typeCursor === 3 })}
             >
-              <Icon className="Font16 Gray_9e listName mRight10" icon="watch_later" />
+              <Icon className="Font16 textTertiary listName mRight10" icon="watch_later" />
               <span>
                 {_l('待审核')}
                 {approveNumber > 0 && <span className="numTag">{approveNumber > 99 ? '99+' : approveNumber}</span>}

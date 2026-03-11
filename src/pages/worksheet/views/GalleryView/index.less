@@ -1,13 +1,13 @@
-.galleryScrollWrap {
+﻿.galleryScrollWrap {
   overflow: hidden;
-  background-color: #f5f5f9;
+  background-color: var(--color-background-secondary);
   .galleryViewContentWrap {
     padding: 8px;
     .groupByControlForGallery {
       position: sticky;
       top: 0;
       z-index: 1;
-      background-color: #f5f5f9;
+      background-color: var(--color-background-secondary);
     }
     .galleryItem {
       width: 100%;
@@ -17,8 +17,8 @@
       overflow: hidden;
       vertical-align: top;
       & > div {
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16) !important;
-        background: #fff !important;
+        box-shadow: var(--shadow-sm) !important;
+        background: var(--color-background-primary) !important;
         width: 100%;
         border-radius: 3px;
         margin: 0 auto;
@@ -30,7 +30,7 @@
     .addNewGallery {
       .addRow {
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.16) !important;
-        background: #fff !important;
+        background: var(--color-background-primary) !important;
         width: 100%;
         border-radius: 3px;
         margin: 0 auto;

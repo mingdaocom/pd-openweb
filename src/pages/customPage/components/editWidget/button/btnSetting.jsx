@@ -28,7 +28,7 @@ const BtnSettingWrap = styled.div`
   flex-direction: column;
   flex-basis: 360px;
   max-width: 360px;
-  background-color: #f8f8f8;
+  background-color: var(--color-background-disabled);
   padding: 16px 0;
   .btnDisplayTab {
     display: flex;
@@ -37,20 +37,20 @@ const BtnSettingWrap = styled.div`
       flex: 1;
       padding-bottom: 16px;
       text-align: center;
-      border-bottom: 3px solid #eee;
+      border-bottom: 3px solid var(--color-border-secondary);
       transition: all 0.25s;
       cursor: pointer;
       &.active {
-        color: #1677ff;
-        border-bottom-color: #1677ff;
+        color: var(--color-primary);
+        border-bottom-color: var(--color-primary);
       }
     }
   }
   .selectActionBox {
     border-radius: 3px;
     padding: 5px 0;
-    border: 1px solid #e5e5e5;
-    background-color: #fff;
+    border: 1px solid var(--color-border-secondary);
+    background-color: var(--color-background-card);
     .ant-radio-group,
     .ant-space {
       width: 100%;
@@ -62,7 +62,7 @@ const BtnSettingWrap = styled.div`
       padding: 7px 10px;
       margin-bottom: 0 !important;
       &:hover {
-        background-color: #fafafa;
+        background-color: var(--color-background-hover);
       }
     }
   }
@@ -76,11 +76,11 @@ const BtnSettingWrap = styled.div`
     justify-content: flex-end;
     padding: 10px 24px 2px;
     .iconWrap {
-      color: #9d9d9d;
+      color: var(--color-text-tertiary);
       cursor: pointer;
       display: flex;
       &:hover {
-        color: #757575;
+        color: var(--color-text-secondary);
       }
     }
   }
@@ -91,7 +91,7 @@ const BtnSettingWrap = styled.div`
       margin-top: 0;
     }
     .Dropdown--input {
-      background-color: #fff;
+      background-color: var(--color-background-primary);
     }
     .settingTitle {
       font-weight: bold;
@@ -101,7 +101,7 @@ const BtnSettingWrap = styled.div`
       font-size: 13px;
       border-radius: 3px;
       padding: 3px;
-      background-color: #eff0f0;
+      background-color: var(--color-background-disabled);
       > div {
         height: 25px;
         line-height: 25px;
@@ -110,11 +110,11 @@ const BtnSettingWrap = styled.div`
         justify-content: center;
       }
       .active {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
         border-radius: 3px;
         padding: 3px 0;
         font-weight: bold;
-        background-color: #fff;
+        background-color: var(--color-background-card);
       }
     }
     .colorsWrap {
@@ -143,7 +143,7 @@ const BtnSettingWrap = styled.div`
           }
         }
         & > .icon {
-          color: #fff;
+          color: var(--color-white);
         }
       }
     }
@@ -157,9 +157,9 @@ const BtnSettingWrap = styled.div`
         margin-right: 3px;
         border-radius: 3px;
         cursor: pointer;
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
         &.isCurrent {
-          color: #fff;
+          color: var(--color-white);
         }
         & > .icon {
           font-size: 24px;
@@ -410,7 +410,7 @@ function BtnSetting(props) {
               value={viewId || undefined}
               data={views}
               onChange={value => setBtnSetting({ ...btnSetting, viewId: value })}
-              style={{ width: '100%', background: '#fff' }}
+              style={{ width: '100%', background: 'var(--color-background-primary)' }}
               menuStyle={{ width: '100%' }}
               placeholder={_l('选择视图')}
               border
@@ -422,7 +422,7 @@ function BtnSetting(props) {
               {OPEN_MODE.map(({ value, text }) => (
                 <div
                   key={value}
-                  className={cx('flex centerAlign pointer Gray_75', { active: value === openMode })}
+                  className={cx('flex centerAlign pointer textSecondary', { active: value === openMode })}
                   onClick={() => setBtnSetting({ ...btnSetting, openMode: value })}
                 >
                   {text}
@@ -456,7 +456,7 @@ function BtnSetting(props) {
               {OPEN_MODE.map(({ value, text }) => (
                 <div
                   key={value}
-                  className={cx('flex centerAlign pointer Gray_75', { active: value === openMode })}
+                  className={cx('flex centerAlign pointer textSecondary', { active: value === openMode })}
                   onClick={() => setBtnSetting({ ...btnSetting, openMode: value })}
                 >
                   {text}
@@ -474,6 +474,7 @@ function BtnSetting(props) {
           <div className="settingItem">
             <div className="settingTitle">{_l('链接')}</div>
             <Input
+              className="Font13"
               style={{ width: '100%' }}
               value={value}
               onChange={value => setBtnSetting({ ...btnSetting, value })}
@@ -495,7 +496,7 @@ function BtnSetting(props) {
               {OPEN_MODE.concat([{ value: 3, text: _l('弹窗') }]).map(({ value, text }) => (
                 <div
                   key={value}
-                  className={cx('flex centerAlign pointer Gray_75', { active: value === openMode })}
+                  className={cx('flex centerAlign pointer textSecondary', { active: value === openMode })}
                   onClick={() => setBtnSetting({ ...btnSetting, openMode: value })}
                 >
                   {text}
@@ -516,7 +517,7 @@ function BtnSetting(props) {
           <div className="settingItem">
             <div className="settingTitle">{_l('引导文字')}</div>
             <Input
-              className="w100"
+              className="w100 Font13"
               value={placeholder}
               onChange={value => {
                 setBtnSetting({
@@ -535,6 +536,7 @@ function BtnSetting(props) {
             <div className="flexRow">
               <div className="flex">
                 <Checkbox
+                  className="Font13"
                   checked={qrCodeIsOpen}
                   onChange={e => {
                     const { checked } = e.target;
@@ -555,6 +557,7 @@ function BtnSetting(props) {
               </div>
               <div className="flex">
                 <Checkbox
+                  className="Font13"
                   checked={barCodeIsOpen}
                   onChange={e => {
                     const { checked } = e.target;
@@ -605,7 +608,7 @@ function BtnSetting(props) {
                     });
                   }}
                   menuStyle={{ width: '100%' }}
-                  style={{ width: '100%', background: '#fff' }}
+                  style={{ width: '100%', background: 'var(--color-background-primary)' }}
                   border
                 />
               </div>
@@ -633,7 +636,7 @@ function BtnSetting(props) {
                     });
                   }}
                   menuStyle={{ width: '100%' }}
-                  style={{ width: '100%', background: '#fff' }}
+                  style={{ width: '100%', background: 'var(--color-background-primary)' }}
                   border
                 />
               </div>
@@ -668,14 +671,14 @@ function BtnSetting(props) {
                 });
               }}
               menuStyle={{ width: '100%' }}
-              style={{ width: '100%', background: '#fff' }}
+              style={{ width: '100%', background: 'var(--color-background-primary)' }}
               border
             />
           </div>
           {text === 1 && (
             <Fragment>
               <div className="settingItem">
-                <div className="Gray_75">
+                <div className="textSecondary">
                   {_l('根据扫码的文本结果搜索数据，搜索到一条时直接打开记录，搜索到多条后进入搜索结果列表。')}
                 </div>
               </div>
@@ -713,7 +716,7 @@ function BtnSetting(props) {
                     };
                   })}
                   onChange={value => setBtnSetting({ ...btnSetting, viewId: value })}
-                  style={{ width: '100%', background: '#fff' }}
+                  style={{ width: '100%', background: 'var(--color-background-primary)' }}
                   menuStyle={{ width: '100%' }}
                   placeholder={_l('选择视图')}
                   border
@@ -749,7 +752,7 @@ function BtnSetting(props) {
                       onChange={value => {
                         setBtnSetting({ ...btnSetting, searchId: value });
                       }}
-                      style={{ width: '100%', background: '#fff' }}
+                      style={{ width: '100%', background: 'var(--color-background-primary)' }}
                       menuStyle={{ width: '100%' }}
                       placeholder={_l('选择搜索字段')}
                       border
@@ -762,7 +765,7 @@ function BtnSetting(props) {
           {text === 2 && (
             <Fragment>
               <div className="settingItem">
-                <div className="Gray_75">{_l('将扫码的文本结果作为参数传入PBC流程')}</div>
+                <div className="textSecondary">{_l('将扫码的文本结果作为参数传入PBC流程')}</div>
               </div>
               <SelectProcess
                 appId={appId}
@@ -876,7 +879,7 @@ function BtnSetting(props) {
                     changeAction(value);
                   }}
                   menuStyle={{ width: '100%' }}
-                  style={{ width: '100%', background: '#fff' }}
+                  style={{ width: '100%', background: 'var(--color-background-primary)' }}
                   placeholder={_l('选择执行操作')}
                   border
                 />

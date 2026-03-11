@@ -19,13 +19,13 @@ const ContentWrapper = styled.div`
       flex: 1;
       border: none;
       border-radius: 26px;
-      background-color: #f5f5f5;
+      background-color: var(--color-background-secondary);
       padding: 0 18px 0 40px;
       &:hover {
-        background-color: #f0f0f0;
+        background-color: var(--color-background-hover);
       }
       &:focus {
-        background-color: #fff;
+        background-color: var(--color-background-primary);
         box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.2);
       }
     }
@@ -46,7 +46,7 @@ const ContentWrapper = styled.div`
       border-radius: 50%;
       cursor: pointer;
       &:hover {
-        background: #f8f8f8;
+        background: var(--color-background-hover);
       }
     }
   }
@@ -55,7 +55,7 @@ const ContentWrapper = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #757575;
+    color: var(--color-text-secondary);
     font-size: 15px;
   }
   .appList {
@@ -74,10 +74,10 @@ const Item = styled.div`
   .expandIcon {
     font-size: 10px;
     margin-right: 8px;
-    color: #9d9d9d;
+    color: var(--color-text-tertiary);
     cursor: pointer;
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
   }
   .ming.Checkbox {
@@ -104,7 +104,7 @@ const Item = styled.div`
     line-height: 16px;
   }
   &:hover {
-    background: #f8f8f8;
+    background: var(--color-background-hover);
   }
 `;
 
@@ -288,7 +288,7 @@ function SelectWorksheet(props) {
                     );
                   })
                 ) : (
-                  <div className="Gray_75 mLeft26">{_l('没有可用工作表')}</div>
+                  <div className="textSecondary mLeft26">{_l('没有可用工作表')}</div>
                 )
               ) : (
                 ''
@@ -315,7 +315,7 @@ function SelectWorksheet(props) {
     >
       <ContentWrapper>
         <div className="appSearchInput">
-          <Icon icon="search" className="searchIcon Font16 Gray_75" />
+          <Icon icon="search" className="searchIcon Font16 textSecondary" />
           <input
             type="text"
             autoFocus
@@ -336,7 +336,7 @@ function SelectWorksheet(props) {
                 onSearch('');
               }}
             >
-              <Icon type="cancel" className="Gray_9e Font16" />
+              <Icon type="cancel" className="textTertiary Font16" />
             </div>
           )}
         </div>

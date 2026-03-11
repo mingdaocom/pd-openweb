@@ -58,7 +58,7 @@ export default function (props) {
               ' mLeft20 TxtTop',
               DATE_TYPE_PASS.filter(o => defaultRange.includes(o)).length > 0
                 ? 'Hand ThemeColor3'
-                : 'Gray_bd disabledBtn',
+                : 'textDisabled disabledBtn',
             )}
             onClick={() => {
               setState({ daterange: DATE_TYPE_PASS.filter(o => defaultRange.includes(o)) });
@@ -71,7 +71,7 @@ export default function (props) {
               'mLeft20 TxtTop',
               DATE_TYPE_FUTURE.filter(o => defaultRange.includes(o)).length > 0
                 ? 'Hand ThemeColor3'
-                : 'Gray_bd disabledBtn',
+                : 'textDisabled disabledBtn',
             )}
             onClick={() => {
               setState({ daterange: DATE_TYPE_FUTURE.filter(o => defaultRange.includes(o)) });

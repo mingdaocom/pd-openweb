@@ -119,7 +119,10 @@ class PostMessage extends React.Component {
       const children = parent.childNodes;
       for (let i = children.length - 1; i >= 0; i--) {
         if (children[i] && children[i].nodeType === 3 && children[i].nodeValue) {
-          const text = children[i].nodeValue.replace(regex, '<font class="HighLightColor">$1</font>');
+          const text = children[i].nodeValue.replace(
+            regex,
+            '<font style="background-color: var(--color-warning-border);">$1</font>',
+          );
           const node = document.createElement('span');
           node.innerHTML = text;
           parent.replaceChild(node, children[i]);

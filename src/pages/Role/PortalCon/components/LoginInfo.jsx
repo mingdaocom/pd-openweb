@@ -21,8 +21,8 @@ const Wrap = styled.div`
     .searchWrapper {
       width: 230px;
       height: 32px;
-      background: #ffffff;
-      border: 1px solid #e0e0e0;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-secondary);
       border-radius: 3px;
       vertical-align: middle;
       .cursorText {
@@ -51,8 +51,8 @@ const Wrap = styled.div`
       width: 410px;
       .ant-picker-input {
         height: 32px;
-        background: #ffffff;
-        border: 1px solid #e0e0e0;
+        background: var(--color-background-primary);
+        border: 1px solid var(--color-border-secondary);
         border-radius: 3px;
         padding: 0 15px;
       }
@@ -156,9 +156,9 @@ function LoginInfo(props) {
   return (
     <Wrap>
       <div className="topAct">
-        <span className="title InlineBlock Gray_75">{_l('用户')}</span>
+        <span className="title InlineBlock textSecondary">{_l('用户')}</span>
         <div className="searchWrapper InlineBlock mLeft16">
-          <Icon icon="search" className="Font18 Gray_9e" />
+          <Icon icon="search" className="Font18 textTertiary" />
           <input
             type="text"
             className="cursorText"
@@ -181,7 +181,7 @@ function LoginInfo(props) {
           {info.searchValue && (
             <Icon
               icon="cancel"
-              className="Font18 Hand Gray_9e"
+              className="Font18 Hand textTertiary"
               onClick={() => {
                 getList({
                   searchValue: '',
@@ -191,7 +191,7 @@ function LoginInfo(props) {
             />
           )}
         </div>
-        <span className="Gray_75 mLeft50 InlineBlock">{_l('登录时间')}</span>
+        <span className="textSecondary mLeft50 InlineBlock">{_l('登录时间')}</span>
         <MdAntDateRangePicker
           defaultValue={[]}
           showTime={{ format: 'HH:mm' }}

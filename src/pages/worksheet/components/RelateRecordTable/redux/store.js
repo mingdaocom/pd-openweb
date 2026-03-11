@@ -4,7 +4,7 @@ import { find, get, includes, isEmpty } from 'lodash';
 import { v4 } from 'uuid';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { isRelateRecordTableControl } from 'src/utils/control';
-import { init, refresh } from './action';
+import { init } from './action';
 import reducer from './reducer';
 
 export default function generateStore(
@@ -46,6 +46,7 @@ export default function generateStore(
       appId,
       recordId,
       allowEdit: allowEdit && !get(window, 'shareState.isPublicWorkflowRecord') && !(control && control.disabled),
+      direction: get(control, 'advancedSetting.direction') === '1' ? 'vertical' : 'horizontal',
       formData,
       instanceId,
       workId,

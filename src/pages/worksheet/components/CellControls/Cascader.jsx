@@ -2,6 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import Trigger from 'rc-trigger';
 import CascaderDropdown from 'src/components/Form/DesktopForm/widgets/Cascader';
 import { isKeyBoardInputChar } from 'src/utils/common';
 import { checkCellIsEmpty } from 'src/utils/control';
@@ -18,6 +19,7 @@ export default class Cascader extends React.Component {
     updateCell: PropTypes.func,
     updateEditingStatus: PropTypes.func,
     onClick: PropTypes.func,
+    popupContainer: PropTypes.any,
   };
   constructor(props) {
     super(props);
@@ -75,54 +77,74 @@ export default class Cascader extends React.Component {
       worksheetId,
       recordId,
       rowFormData = () => {},
+      popupContainer,
     } = this.props;
     const { value } = this.state;
-    return (
-      <EditableCellCon
-        conRef={this.con}
-        onClick={onClick}
-        className={cx(className, 'cellControlCascader', { canedit: editable, focusInput: editable })}
-        style={style}
-        isediting={isediting}
-        hideOutline
-        iconName={'arrow-down-border'}
-        // onClear={value && this.handleClear}
-        onIconClick={() => updateEditingStatus(true)}
+    const editcontent = (
+      <div
+        className="cellControlCascaderPopup cellControlEdittingStatus bgPrimary"
+        onClick={e => e.stopPropagation()}
+        style={{ width: style.width }}
       >
-        {!isediting && (
-          <div
-            className="cellread linelimit"
-            title={checkCellIsEmpty(value) ? '' : renderText({ ...cell, value }) || _l('未命名')}
-          >
-            {checkCellIsEmpty(value) ? '' : renderText({ ...cell, value }) || _l('未命名')}
-          </div>
-        )}
-        {isediting && (
-          <div onClick={e => e.stopPropagation()}>
-            <CascaderDropdown
-              value={value}
-              from={from}
-              {...cell}
-              recordId={recordId}
-              visible={isediting}
-              disabled={!editable}
-              onChange={this.handleChange}
-              worksheetId={worksheetId}
-              formData={_.isFunction(rowFormData) ? rowFormData() : rowFormData}
-              onPopupVisibleChange={visible => {
-                if (!visible) {
-                  if (!_.isUndefined(this.value)) {
-                    updateCell({
-                      value: this.value,
-                    });
-                  }
-                  updateEditingStatus(false);
-                }
-              }}
-            />
-          </div>
-        )}
-      </EditableCellCon>
+        <CascaderDropdown
+          value={value}
+          from={from}
+          {...cell}
+          recordId={recordId}
+          visible={isediting}
+          disabled={!editable}
+          onChange={this.handleChange}
+          worksheetId={worksheetId}
+          formData={_.isFunction(rowFormData) ? rowFormData() : rowFormData}
+          onPopupVisibleChange={visible => {
+            if (!visible) {
+              if (!_.isUndefined(this.value)) {
+                updateCell({
+                  value: this.value,
+                });
+              }
+              updateEditingStatus(false);
+            }
+          }}
+        />
+      </div>
+    );
+    return (
+      <Trigger
+        action={['click']}
+        popup={editcontent}
+        getPopupContainer={popupContainer}
+        popupClassName="filterTrigger"
+        popupVisible={isediting}
+        destroyPopupOnHide={!window.isSafari}
+        popupAlign={{
+          points: ['tl', 'tl'],
+          overflow: {
+            adjustY: true,
+          },
+        }}
+      >
+        <EditableCellCon
+          conRef={this.con}
+          onClick={onClick}
+          className={cx(className, 'cellControlCascader', { canedit: editable, focusInput: editable })}
+          style={style}
+          isediting={isediting}
+          hideOutline
+          iconName={'arrow-down-border'}
+          // onClear={value && this.handleClear}
+          onIconClick={() => updateEditingStatus(true)}
+        >
+          {!isediting && (
+            <div
+              className="cellread linelimit"
+              title={checkCellIsEmpty(value) ? '' : renderText({ ...cell, value }) || _l('未命名')}
+            >
+              {checkCellIsEmpty(value) ? '' : renderText({ ...cell, value }) || _l('未命名')}
+            </div>
+          )}
+        </EditableCellCon>
+      </Trigger>
     );
   }
 }

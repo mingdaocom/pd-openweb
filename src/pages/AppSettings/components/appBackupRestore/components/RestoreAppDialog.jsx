@@ -61,7 +61,7 @@ export const RestoreContent = props => {
                 onClick={checked => setData({ [`${item.type}Checked`]: !checked })}
               />
             </div>
-            <div className="Font12 Gray_9e pLeft24">
+            <div className="Font12 textTertiary pLeft24">
               {item.type === 'appItem' && appItemTotal
                 ? _l('共有 %0 个应用项', appItemTotal)
                 : item.type === 'data'

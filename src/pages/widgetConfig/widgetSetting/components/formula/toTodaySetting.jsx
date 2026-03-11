@@ -21,7 +21,7 @@ export default function ToTodaySetting({ data, onChange, ...rest }) {
   const { dateformulatype = '1', autocarry = '0' } = getAdvanceSetting(data);
   return (
     <Fragment>
-      <div className="Font12 Gray_9e mTop5">
+      <div className="Font12 textTertiary mTop5">
         {_l('距离今天的运算方式为实时运算。不支持作为他表字段或继续用于公式计算')}
       </div>
       <SettingItem>

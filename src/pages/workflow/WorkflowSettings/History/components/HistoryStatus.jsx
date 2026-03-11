@@ -18,7 +18,7 @@ export default ({
   statusCode = 1,
   config = FLOW_STATUS,
   size = 30,
-  color = '#151515',
+  color = 'var(--color-text-primary)',
   textSize = 14,
 }) => {
   const { status, text } = config[statusCode];

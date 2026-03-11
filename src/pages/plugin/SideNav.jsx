@@ -9,8 +9,8 @@ import { sideNavList } from './config';
 const Wrap = styled.div`
   width: 241px;
   height: 100%;
-  background: #fff;
-  border-right: 1px solid #ededed;
+  background: var(--color-background-primary);
+  border-right: 1px solid var(--color-border-secondary);
   .pLeft18 {
     padding-left: 18px;
   }
@@ -31,7 +31,7 @@ const Wrap = styled.div`
       font-size: 14px;
     }
     i {
-      color: #757575;
+      color: var(--color-text-secondary);
       font-size: 16px;
       margin-right: 8px;
     }
@@ -40,50 +40,50 @@ const Wrap = styled.div`
       align-items: center;
       width: 100%;
       line-height: 44px;
-      color: #151515;
+      color: var(--color-text-primary);
     }
     .freeTag {
       display: inline-block;
       line-height: 16px;
       padding: 2px 4px;
       border-radius: 2px;
-      background: #f19f39;
-      color: #fff;
+      background: var(--color-warning);
+      color: var(--color-white);
       margin-left: 4px;
       font-size: 12px;
       font-weight: 500;
     }
     .upgradeIcon {
-      color: #fdb432;
+      color: var(--color-warning);
       margin-left: 6px;
       font-size: 16px;
     }
 
     &.isDisabled {
-      color: #757575;
+      color: var(--color-text-secondary);
       &:hover {
-        background: #fff;
+        background: var(--color-background-primary);
       }
     }
 
     &.isCurrent {
-      background: #e3f2fe;
+      background: var(--color-primary-transparent);
       a {
-        color: #1677ff;
+        color: var(--color-primary);
         i {
-          color: #1677ff;
+          color: var(--color-primary);
         }
         .upgradeIcon {
-          color: #fdb432 !important;
+          color: var(--color-warning) !important;
         }
       }
       &:hover {
-        background: #e3f2fe;
+        background: var(--color-primary-transparent);
       }
     }
 
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
 `;
@@ -105,12 +105,13 @@ class SideNav extends React.Component {
           .map((group, index) => {
             return (
               <React.Fragment key={index}>
-                {group.title && <div className="Gray_9e mTop28 pLeft18">{group.title}</div>}
+                {group.title && <div className="textTertiary mTop28 pLeft18">{group.title}</div>}
                 <ul className={index === 0 ? 'mTop16' : 'mTop12'}>
                   {group.list
                     .filter(
                       o =>
-                        (o.type !== 'node' || featureType) && !(md.global.Config.IsLocal && o.type === 'pluginMarket'),
+                        (o.type !== 'node' || featureType) &&
+                        !((window.platformENV.isOverseas || window.platformENV.isLocal) && o.type === 'pluginMarket'),
                     )
                     .map((item, index) => {
                       return (

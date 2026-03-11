@@ -12,25 +12,25 @@ const TABLIST = ['请求参数', '返回值'];
 
 const Wrap = styled.div`
   .tabCon {
-    border-bottom: 1px solid #f5f5f5;
+    border-bottom: 1px solid var(--color-background-secondary);
     li {
       font-size: 15px;
       font-weight: 600;
-      color: #151515;
+      color: var(--color-text-title);
       display: inline-block;
       margin: 0 18px;
       padding: 0 20px 10px;
       box-sizing: border-box;
       border-bottom: 3px solid rgba(0, 0, 0, 0);
       &.isCur {
-        color: #1677ff;
-        border-bottom: 3px solid #1677ff;
+        color: var(--color-primary);
+        border-bottom: 3px solid var(--color-primary);
       }
     }
   }
   .con {
     height: 380px;
-    background: #efffff;
+    background: var(--color-cyan-blue);
     overflow: auto;
     padding: 16px;
   }
@@ -94,7 +94,7 @@ export default function LogDialog(props) {
         ) : (
           <React.Fragment>
             {renderTabCon()}
-            <p className="Gray_9e mTop24 WordBreak">
+            <p className="textTertiary mTop24 WordBreak">
               {tab === 0 ? (
                 <React.Fragment>
                   {`(${(METHODS_TYPE.find(o => o.value === data.method) || {}).text})`} {data.url}

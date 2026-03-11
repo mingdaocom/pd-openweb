@@ -25,7 +25,7 @@ export default function SplitLine(props) {
         <SectionItem>
           <div className="label">{_l('文字')}</div>
           <ColorSetting
-            defaultValue="#151515"
+            defaultValue="var(--color-text-title)"
             value={color}
             onChange={value => onChange(handleAdvancedSettingChange(data, { color: value }))}
           />

@@ -6,9 +6,9 @@ const Wrap = styled.div`
   width: 174px;
   height: 48px;
   line-height: 48px;
-  color: #f51744;
+  color: var(--color-error);
   padding-left: 20px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   box-shadow: 0px 4px 16px 1px rgba(0, 0, 0, 0.24);
   border-radius: 3px;
   cursor: pointer;
@@ -27,7 +27,7 @@ export default function CancelIntegration(props) {
         overflow: { adjustX: true, adjustY: true },
       }}
     >
-      <i className="icon-moreop Font18 Gray_9e" />
+      <i className="icon-moreop Font18 textTertiary" />
     </Trigger>
   );
 }

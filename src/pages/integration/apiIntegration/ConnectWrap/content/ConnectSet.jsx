@@ -14,7 +14,7 @@ const Wrap = styled.div`
     width: 880px;
     margin: 24px auto 0;
     border-radius: 10px
-    background: #ffffff;
+    background: var(--color-background-primary);
     .mdEditorHeader {
     }
     .appIntroHeader {
@@ -23,15 +23,15 @@ const Wrap = styled.div`
       display: flex;
       justify-content: space-between;
       padding: 16px 24px;
-      border-bottom: 1px solid #eaeaea;
+      border-bottom: 1px solid var(--color-border-secondary);
       .caption {
         font-size: 17px;
         font-weight: bold;
-        color: #151515;
+        color: var(--color-text-title);
       }
       .editAppIntro {
         cursor: pointer;
-        color: #757575;
+        color: var(--color-text-secondary);
         margin-right: 8px;
         span {
           margin-left: 5px;
@@ -43,8 +43,8 @@ const Wrap = styled.div`
       width: 100%;
       .editorNull {
         padding: 0 24px;
-        color: #ccc;
-        border: 1px solid #fff;
+        color: var(--color-text-placeholder);
+        border: 1px solid var(--color-white);
         border-radius: 0 0 10px 10px;
       }
       .editorContent {
@@ -64,8 +64,8 @@ const Wrap = styled.div`
           overflow: auto;
         }
         .ck-focused {
-          background: #fff !important;
-          border: 1px solid #1677ff !important;
+          background: var(--color-background-primary) !important;
+          border: 1px solid var(--color-primary) !important;
           border-radius: 0 0 10px 10px!important;
         }
       }
@@ -108,23 +108,23 @@ const Wrap = styled.div`
         .caption {
           font-size: 17px;
           font-weight: bold;
-          color: #151515;
+          color: var(--color-text-title);
         }
         .mdEditorTipColor {
-          color: #9e9e9e;
+          color: var(--color-text-tertiary);
         }
         .mdEditorCancel {
           font-size: 13px;
           cursor: pointer;
 
           &:not(:hover) {
-            color: #9e9e9e !important;
+            color: var(--color-text-tertiary) !important;
           }
         }
         .mdEditorSave {
           font-size: 13px;
           cursor: pointer;
-          color: #fff;
+          color: var(--color-white);
           border-radius: 3px;
           margin-left: 32px;
           height: 32px;
@@ -168,7 +168,11 @@ function ConnectSet(props) {
         <React.Fragment>
           {data.appType === 32 && props.connectType === 1 && (
             <React.Fragment>
-              <Icon icon={'arrow'} className="Font24 TxtCenter InlineBlock" style={{ color: '#ddd' }} />
+              <Icon
+                icon={'arrow'}
+                className="Font24 TxtCenter InlineBlock"
+                style={{ color: 'var(--color-border-primary)' }}
+              />
               <ConnectItem
                 {...props}
                 info={{ id: props.id, relationId: props.relationId, relationType: props.relationType }}
@@ -184,7 +188,11 @@ function ConnectSet(props) {
               />
             </React.Fragment>
           )}
-          <Icon icon={'arrow'} className="Font24 TxtCenter InlineBlock" style={{ color: '#ddd' }} />
+          <Icon
+            icon={'arrow'}
+            className="Font24 TxtCenter InlineBlock"
+            style={{ color: 'var(--color-border-primary)' }}
+          />
           <ConnectAuth
             {...props}
             id={props.id}
@@ -202,7 +210,11 @@ function ConnectSet(props) {
     }
     return (
       <React.Fragment>
-        <Icon icon={'arrow'} className="Font24 TxtCenter InlineBlock" style={{ color: '#ddd' }} />
+        <Icon
+          icon={'arrow'}
+          className="Font24 TxtCenter InlineBlock"
+          style={{ color: 'var(--color-border-primary)' }}
+        />
         <AuthParam
           {...props}
           id={props.id}

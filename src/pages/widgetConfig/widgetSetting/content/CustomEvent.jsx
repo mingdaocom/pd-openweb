@@ -9,6 +9,7 @@ import { Dropdown, Icon, LoadDiv, Menu, MenuItem } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
 import { getTextById } from 'src/pages/FormSet/components/columnRules/config.js';
+import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import { getFilterControls } from '../../util/data';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import EventOptions from '../components/CustomEvent/components/EventOptions';
@@ -31,7 +32,6 @@ import {
 } from '../components/CustomEvent/config';
 import { ActionWrap, AddEventWrap, EventActionWrap, IconWrap, SpliceWrap } from '../components/CustomEvent/style';
 import DynamicText from '../components/DynamicDefaultValue/components/DynamicText';
-import { FilterItemTexts } from '../components/FilterData';
 import WidgetWarning from '../components/WidgetBase/WidgetWarning';
 import { SettingCollapseWrap } from './styled';
 
@@ -114,7 +114,10 @@ export default function CustomEvent(props) {
     const cannotSupport = !_.find(EVENT_DISPLAY, a => a.value === eventType);
     return (
       <div className="flexCenter w100">
-        <span className="flex" style={cannotSupport ? { color: '#9e9e9e', textDecoration: 'line-through' } : {}}>
+        <span
+          className="flex"
+          style={cannotSupport ? { color: 'var(--color-text-tertiary)', textDecoration: 'line-through' } : {}}
+        >
           {_.get(
             _.find(dealEventDisplay(data, ADD_EVENT_DISPLAY), a => a.value === eventType),
             'text',
@@ -122,7 +125,7 @@ export default function CustomEvent(props) {
 
           {eventType === ADD_EVENT_ENUM.SHOW && (
             <Tooltip placement="bottom" title={_l('字段在当前页面中可见时触发此事件')}>
-              <i className="icon-help Gray_9e Font16 Hand mLeft8"></i>
+              <i className="icon-help textTertiary Font16 Hand mLeft8"></i>
             </Tooltip>
           )}
         </span>
@@ -254,7 +257,7 @@ export default function CustomEvent(props) {
             </div>
             <div className="textCon mTop8">
               {_.isEmpty(safeParse(advancedSetting.responsemap)) ? (
-                <span className="Gray_9e">{_l('未设置数据写入字段')}</span>
+                <span className="textTertiary">{_l('未设置数据写入字段')}</span>
               ) : (
                 <span>{_l('已设置数据写入字段')}</span>
               )}

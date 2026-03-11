@@ -55,7 +55,7 @@ export default class Label extends Component {
                 <div className="flexColumn">
                   <Icon
                     icon="expand_less"
-                    className="Gray_9e Font20 pointer mBottom2"
+                    className="textTertiary Font20 pointer mBottom2"
                     onClick={() => {
                       let newYdot = Number(percent.dot);
                       onChangeDisplayValue('percent', {
@@ -66,7 +66,7 @@ export default class Label extends Component {
                   />
                   <Icon
                     icon="expand_more"
-                    className="Gray_9e Font20 pointer mTop2"
+                    className="textTertiary Font20 pointer mTop2"
                     onClick={() => {
                       let newYdot = Number(percent.dot);
                       onChangeDisplayValue('percent', {
@@ -81,7 +81,7 @@ export default class Label extends Component {
             <Select
               className="chartSelect w100 mTop10"
               value={percent.roundType}
-              suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+              suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
               onChange={value => {
                 onChangeDisplayValue('percent', {
                   ...percent,
@@ -114,7 +114,7 @@ export default class Label extends Component {
                 placement="bottom"
                 arrowPointAtCenter
               >
-                <Icon className="Gray_9e Font18 pointer" icon="info" />
+                <Icon className="textTertiary Font18 pointer" icon="info" />
               </Tooltip>
             </div>
           </div>
@@ -219,7 +219,7 @@ export default class Label extends Component {
                   this.setState({ ruleColorModalVisible: true });
                 }}
               >
-                <Icon className="Font16 Gray_9e" icon="formula" />
+                <Icon className="Font16 textTertiary" icon="formula" />
               </div>
               {!_.isEmpty(colorRule) && (
                 <div
@@ -229,7 +229,7 @@ export default class Label extends Component {
                     onChangeDisplayValue('colorRules', newColorRules);
                   }}
                 >
-                  <Icon className="Font16 Gray_9e" icon="trash" />
+                  <Icon className="Font16 textTertiary" icon="trash" />
                 </div>
               )}
             </div>
@@ -448,7 +448,7 @@ export default class Label extends Component {
             mode="multiple"
             className="chartSelect mBottom16 w100"
             value={_.isEmpty(style.chartShowLabelIds) ? ['all'] : style.chartShowLabelIds}
-            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             tagRender={props => {
               const { label, value, closable, onClose } = props;
               const isExist = value == 'all' ? true : _.find(yaxisList, { controlId: value });

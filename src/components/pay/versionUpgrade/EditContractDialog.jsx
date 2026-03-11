@@ -32,13 +32,13 @@ const FormGroup = styled.div`
   width: 512px;
   .required {
     margin-right: 2px;
-    color: #ff4d4f;
+    color: var(--color-error);
     font-size: 14px;
     vertical-align: text-top;
   }
   .formBox {
-    background: #f7f7f7;
-    border: 1px solid #f7f7f7;
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-background-secondary);
     border-radius: 4px;
     input {
       background: transparent;
@@ -47,8 +47,8 @@ const FormGroup = styled.div`
         border-color: transparent;
       }
       &:focus {
-        background-color: #fff;
-        border: 1px solid #1677ff;
+        background-color: var(--color-background-primary);
+        border: 1px solid var(--color-primary);
       }
     }
   }

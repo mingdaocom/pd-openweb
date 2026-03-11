@@ -6,16 +6,16 @@ import { FIELD_TYPE_LIST } from '../../../enum';
 
 const Box = styled.div`
   margin-top: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   border-radius: 4px;
   box-sizing: border-box;
   overflow: hidden;
   .header {
-    background: #f2f2f2;
+    background: var(--color-background-disabled);
     height: 40px;
     line-height: 40px;
     > div {
-      border-right: 1px solid #ddd;
+      border-right: 1px solid var(--color-border-primary);
       &:last-child {
         border: none;
       }
@@ -29,7 +29,7 @@ const Box = styled.div`
       left: 0;
       right: 0;
       height: 1px;
-      background: #fff;
+      background: var(--color-background-primary);
       z-index: 1;
     }
   }
@@ -45,11 +45,11 @@ const Box = styled.div`
   .list {
     li {
       min-height: 40px;
-      border-top: 1px solid #ddd;
+      border-top: 1px solid var(--color-border-primary);
       line-height: 20px;
       div {
         min-height: 40px;
-        border-right: 1px solid #ddd;
+        border-right: 1px solid var(--color-border-primary);
         word-break: break-all;
         &:last-child {
           border: none;
@@ -71,10 +71,10 @@ const ErrorTips = styled.div`
   z-index: 1;
   left: 130px;
   border-radius: 3px;
-  color: #fff;
+  color: var(--color-white);
   padding: 5px 12px;
   white-space: nowrap;
-  background: #f44336;
+  background: var(--color-error);
   font-size: 12px;
   min-height: auto !important;
   .errorArrow {
@@ -84,7 +84,7 @@ const ErrorTips = styled.div`
     left: 12px;
     background: transparent;
     border: 6px solid transparent;
-    border-top-color: #f44336;
+    border-top-color: var(--color-error);
     bottom: -17px;
   }
 `;

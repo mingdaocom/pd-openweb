@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { captcha } from 'ming-ui/functions';
 
 const Con = styled.div`
-  background: #f5f5f9;
+  background: var(--color-background-secondary);
   padding: 0 20px;
   min-height: 100%;
   .queryBox {
@@ -16,60 +16,60 @@ const Con = styled.div`
     h3 {
       font-size: 22px;
       text-align: center;
-      color: #151515;
+      color: var(--color-text-title);
       padding-bottom: 32px;
     }
     .err {
       line-height: 72px;
       opacity: 1;
-      background: #ffffff;
-      border: 1px solid #dddddd;
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-primary);
       border-radius: 4px;
       font-size: 13px;
       font-weight: 400;
       text-align: center;
     }
     .customFieldsContainer {
-      background: #f5f5f9;
+      background: var(--color-background-secondary);
     }
     .customFieldsContainer .customFormItemControl .customAntPicker,
     .customAntSelect .ant-select-selector,
     .customFieldsContainer .customFormItemControl .customFormControlBox,
     .customFieldsContainer .customFormItemControl > div {
-      border-color: #eaeaea !important;
-      background-color: #fff !important;
+      border-color: var(--color-border-secondary) !important;
+      background-color: var(--color-background-primary) !important;
     }
     .customFieldsContainer .customFormItemControl .customFormControlBox.formBoxNoBorder {
-      border-color: #eaeaea !important;
-      background-color: #f5f5f9 !important;
+      border-color: var(--color-border-secondary) !important;
+      background-color: var(--color-background-secondary) !important;
     }
     .btn {
       margin-top: 24px;
       height: 36px;
       opacity: 1;
-      background: #1677ff;
+      background: var(--color-primary);
       border-radius: 3px;
       font-size: 13px;
       font-weight: 700;
-      color: #ffffff;
+      color: var(--color-white);
       line-height: 36px;
       width: 100%;
       &.disable {
-        background: #bdbdbd !important;
+        background: var(--color-text-disabled) !important;
       }
       &:hover {
-        background: #2365c0;
+        background: var(--color-link-hover);
       }
     }
     .fot {
       font-size: 12px;
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       margin-top: 40px;
       text-align: center;
       a {
-        color: #757575;
+        color: var(--color-text-secondary);
         &:hover {
-          color: #1677ff;
+          color: var(--color-primary);
         }
       }
     }

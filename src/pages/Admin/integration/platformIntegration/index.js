@@ -5,56 +5,26 @@ import roleAjax from 'src/api/role';
 import { buriedUpgradeVersionDialog } from 'src/components/upgradeVersion';
 import { getFeatureStatus } from 'src/utils/project';
 import Config from '../../config';
+import { isPlatformHidden } from '../../util';
 import Ding from './ding';
 import FeiShu from './feishu';
 import dingIng from './images/ding.png';
 import feishuImg from './images/feishu.png';
+import microsoftImg from './images/microsoft.png';
 import welinkImg from './images/welink.png';
 import workwxImg from './images/workwx.png';
+import Microsoft from './microsoft';
 import Welink from './welink';
 import Workwx from './workwx';
 import './index.less';
 
 const configs = [
-  {
-    type: 'workwx',
-    src: workwxImg,
-    text: _l('企业微信'),
-    featureId: 19,
-    projectIntergrationType: 3,
-    privatePermission: 'hideWorkWeixin',
-  },
-  {
-    type: 'ding',
-    src: dingIng,
-    text: _l('钉钉'),
-    featureId: 10,
-    projectIntergrationType: 1,
-    privatePermission: 'hideDingding',
-  },
-  {
-    type: 'welink',
-    src: welinkImg,
-    text: _l('Welink'),
-    featureId: 18,
-    projectIntergrationType: 4,
-    privatePermission: 'hideWelink',
-  },
-  {
-    type: 'feishu',
-    src: feishuImg,
-    text: _l('飞书'),
-    featureId: 12,
-    projectIntergrationType: 6,
-    privatePermission: 'hideFeishu',
-  },
-  {
-    type: 'lark',
-    src: feishuImg,
-    text: _l('Lark'),
-    featureId: 12,
-    projectIntergrationType: 6,
-  },
+  { type: 'workwx', src: workwxImg, text: _l('企业微信'), featureId: 19, projectIntergrationType: 3 },
+  { type: 'ding', src: dingIng, text: _l('钉钉'), featureId: 10, projectIntergrationType: 1 },
+  { type: 'welink', src: welinkImg, text: _l('Welink'), featureId: 18, projectIntergrationType: 4 },
+  { type: 'feishu', src: feishuImg, text: _l('飞书'), featureId: 12, projectIntergrationType: 6 },
+  { type: 'lark', src: feishuImg, text: _l('Lark'), featureId: 12, projectIntergrationType: 6 },
+  { type: 'microsoft', src: microsoftImg, text: _l('Microsoft Entra'), featureId: 53, projectIntergrationType: 7 },
 ];
 
 export default class PlatformIntegration extends Component {
@@ -63,11 +33,16 @@ export default class PlatformIntegration extends Component {
     this.state = {
       loading: true,
     };
-    Config.setPageTitle(_l('第三方平台'));
+    Config.setPageTitle(_l('企业身份'));
   }
 
   componentDidMount() {
-    const { projectId } = _.get(this.props, 'match.params') || {};
+    const { projectId, type } = _.get(this.props, 'match.params') || {};
+
+    if (type === 'microsoft') {
+      this.setState({ microsoftVisible: true, loading: false, projectIntergrationType: 7 });
+      return;
+    }
 
     roleAjax
       .getProjectPermissionsByUser({ projectId })
@@ -98,8 +73,15 @@ export default class PlatformIntegration extends Component {
 
   handleShowIntegration = () => {
     const { projectId } = _.get(this.props, 'match.params') || {};
-    const { workwxVisible, dingVisible, welinkVisible, feishuVisible, larkVisible, projectIntergrationType } =
-      this.state;
+    const {
+      workwxVisible,
+      dingVisible,
+      welinkVisible,
+      feishuVisible,
+      larkVisible,
+      microsoftVisible,
+      projectIntergrationType,
+    } = this.state;
     const { featureId } = _.find(configs, ({ type }) => this.state[`${type}Visible`]) || {};
     let featureType = getFeatureStatus(projectId, featureId);
 
@@ -134,6 +116,15 @@ export default class PlatformIntegration extends Component {
           onClose={() => this.setState({ feishuVisible: false, larkVisible: false })}
         />
       );
+    } else if (microsoftVisible) {
+      return (
+        <Microsoft
+          projectId={projectId}
+          featureType={featureType}
+          featureId={featureId}
+          onClose={() => this.setState({ microsoftVisible: false })}
+        />
+      );
     }
     return null;
   };
@@ -155,13 +146,15 @@ export default class PlatformIntegration extends Component {
     return (
       <div className="orgManagementWrap platform">
         <div className="platformIntegrationWrap">
-          <div className="mBottom16 Font22 bold TxtCenter">{_l('第三方平台')}</div>
-          <div className="Gray_9e Font14 mBottom40 TxtCenter">{_l('从第三方同步通讯录，只能集成一个平台')}</div>
+          <div className="mBottom16 Font22 bold TxtCenter">{_l('企业身份集成')}</div>
+          <div className="textTertiary Font14 mBottom40 TxtCenter">{_l('从第三方同步通讯录，只能集成一个平台')}</div>
           {configs.map(item => {
             const { src, text, featureId, privatePermission } = item;
             if (md.global.SysSettings[privatePermission]) return;
             let featureType = getFeatureStatus(projectId, featureId);
             if (!featureType) return null;
+
+            if (isPlatformHidden(item.type)) return null;
 
             return (
               <div

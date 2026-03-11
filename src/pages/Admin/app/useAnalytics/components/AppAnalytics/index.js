@@ -14,7 +14,7 @@ const NoAuthorWrap = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: #fff;
+  background: var(--color-background-primary);
   .imgWrap {
     display: flex;
     align-items: center;
@@ -24,7 +24,7 @@ const NoAuthorWrap = styled.div`
     line-height: 130px;
     border-radius: 50%;
     text-align: center;
-    background-color: #f5f5f5;
+    background-color: var(--color-background-secondary);
     img {
       width: 100%;
     }
@@ -32,7 +32,7 @@ const NoAuthorWrap = styled.div`
   .explainText {
     margin: 30px 0 50px 0;
     font-size: 17px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
 `;
 

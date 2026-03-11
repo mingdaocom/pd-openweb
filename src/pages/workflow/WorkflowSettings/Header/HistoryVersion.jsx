@@ -9,7 +9,7 @@ import { Tooltip } from 'ming-ui/antd-components';
 import process from '../../api/process';
 
 const HistoryBox = styled.span`
-  border-bottom: 1px dashed #757575;
+  border-bottom: 1px dashed var(--color-text-secondary);
   cursor: pointer;
 `;
 
@@ -17,7 +17,7 @@ const HistoryListBox = styled.div`
   padding: 12px 0px;
   width: 440px;
   display: flex;
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 5px;
   box-shadow: 0 20px 24px 1px rgba(0, 0, 0, 0.1608);
   left: 12px;
@@ -32,7 +32,7 @@ const HistoryListBox = styled.div`
   }
 
   .historyLine {
-    background: #ddd;
+    background: var(--color-border-primary);
     height: 1px;
     margin-top: 8px;
     margin-bottom: 8px;
@@ -40,7 +40,7 @@ const HistoryListBox = styled.div`
 
   .red {
     &:hover {
-      color: #ff0d0d !important;
+      color: var(--color-error) !important;
     }
   }
 `;
@@ -55,7 +55,7 @@ const ListItem = styled.div`
   border-radius: 8px;
   margin-bottom: 8px;
   &:not(.disabled):hover {
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     .icon-more_horiz {
       visibility: visible;
     }
@@ -63,28 +63,28 @@ const ListItem = styled.div`
   .historyListAvatar {
     width: 36px;
     height: 36px;
-    border: 1px solid #e6e6e6;
-    color: #fff;
+    border: 1px solid var(--color-border-secondary);
+    color: var(--color-white);
     border-radius: 50%;
     font-size: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     &.edit {
-      background: #ff9d00;
-      border-color: #ff9d00;
+      background: var(--color-warning);
+      border-color: var(--color-warning);
     }
   }
   .historyListTag {
     border-radius: 11px;
     padding: 2px 9px;
     font-size: 12px;
-    color: #fff;
+    color: var(--color-white);
     &.blue {
-      background: #1677ff;
+      background: var(--color-primary);
     }
     &.black {
-      background: #151515;
+      background: var(--color-background-inverse);
     }
   }
   .icon-more_horiz:not(.active) {
@@ -96,7 +96,7 @@ const MenuBox = styled.div`
   min-width: 180px;
   padding: 5px 0;
   border-radius: 3px;
-  background: white;
+  background: var(--color-background-primary);
   box-shadow: 0 3px 6px 1px rgba(0, 0, 0, 0.1608);
 `;
 
@@ -213,8 +213,11 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
                 <span className="mLeft5 mRight5">|</span>
               </Fragment>
             )}
-            <span className="Gray_75 WordBreak">
-              {_l('%0 发布于 %1', item.publisher.fullName, createTimeSpan(item.date))}
+            <span className="textSecondary WordBreak">
+              <span className="ellipsis mRight3 InlineBlock" style={{ maxWidth: 150 }}>
+                {item.publisher.fullName}
+              </span>
+              {_l('发布于 %0', createTimeSpan(item.date))}
             </span>
           </div>
         </div>
@@ -245,7 +248,7 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
           >
             <Icon
               icon="more_horiz"
-              className={cx('Font16 Gray_75 ThemeHoverColor3 pointer', { active: item.id === selectId })}
+              className={cx('Font16 textSecondary ThemeHoverColor3 pointer', { active: item.id === selectId })}
             />
           </Trigger>
         </div>
@@ -273,7 +276,11 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
         <HistoryListBox className={cx('flexColumn', wrapClassName)}>
           <header className="Font16 bold flexRow alignItemsCenter mBottom12">
             <div className="flex">{_l('版本')}</div>
-            <Icon icon="delete" className="Gray_75 ThemeHoverColor3 pointer Font20" onClick={() => setVisible(false)} />
+            <Icon
+              icon="delete"
+              className="textSecondary ThemeHoverColor3 pointer Font20"
+              onClick={() => setVisible(false)}
+            />
           </header>
           <ScrollView className="flex" onScrollEnd={() => isMore && !isLoading && getList(pageIndex + 1)}>
             <HistoryListCon>
@@ -288,13 +295,13 @@ export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = 
                         <div className="bold Font14">{_l('编辑中…')}</div>
                       </div>
                       <div className="Font12 mTop5">
-                        <span className="Gray_75">{_l('更新于 %0', createTimeSpan(list[0].date))}</span>
+                        <span className="textSecondary">{_l('更新于 %0', createTimeSpan(list[0].date))}</span>
                       </div>
                     </div>
                     <div className="flexRow alignItemsCenter justifyContentCenter">
                       <Tooltip title={_l('删除更改')}>
                         <Icon
-                          className="Font16 Gray_75 red pointer"
+                          className="Font16 textSecondary red pointer"
                           icon="trash"
                           onClick={() => {
                             restoreVision({ ...list[0], currentFlowId: flowInfo.id, isIntegration });

@@ -31,10 +31,10 @@ const Con = styled.div`
     }
   }
   &:hover:not(.active) {
-    border-color: #ccc;
+    border-color: var(--color-border-tertiary);
   }
   &.active {
-    border-color: #1677ff;
+    border-color: var(--color-primary);
   }
   &:hover {
     .clearIcon {
@@ -60,7 +60,7 @@ const Content = styled.div`
   &.isEmpty {
     .Dropdown--input .value,
     .mui-datetime-picker {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
     }
   }
 `;
@@ -76,19 +76,19 @@ const RangePickerCon = styled.div`
 
 const Icon = styled.i`
   font-size: 13px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   margin-right: 8px;
   &.icon-cancel {
     cursor: pointer;
     &:hover {
-      color: #777;
+      color: var(--color-text-secondary);
     }
   }
   &.clearIcon {
     display: none;
     position: absolute;
     right: 0;
-    background: #fff;
+    background: var(--color-background-primary);
   }
 `;
 

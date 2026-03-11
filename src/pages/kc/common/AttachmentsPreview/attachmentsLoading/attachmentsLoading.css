@@ -16,7 +16,7 @@
   height: 10px;
   margin-left: 5px;
   margin-right: 5px;
-  background-color: #eee;
+  background-color: var(--color-border-secondary);
   border-radius: 50%;
   background-clip: padding-box;
   display: inline-block;

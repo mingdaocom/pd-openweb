@@ -87,7 +87,7 @@ const Wrap = styled.div`
   .ant-table-header {
     & > tr.ant-table-row-selected {
       &:hover > td {
-        background: #fafafa;
+        background: var(--color-background-secondary);
       }
     }
     input[type='radio'],
@@ -105,7 +105,7 @@ const Wrap = styled.div`
     }
   }
   .ant-table-tbody > tr.ant-table-row-selected > td {
-    background: #fff;
+    background: var(--color-background-primary);
   }
 `;
 
@@ -124,7 +124,7 @@ function PorTalTable(props) {
     <div className="emptyCon">
       <div className="TxtCenter">
         <i class="iconBox mBottom12"></i>
-        <span class="Gray_9e Block mBottom20 TxtCenter Font17 Gray_9e">{_l('暂无数据')}</span>
+        <span class="textTertiary Block mBottom20 TxtCenter Font17 textTertiary">{_l('暂无数据')}</span>
       </div>
     </div>
   );

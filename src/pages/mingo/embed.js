@@ -23,7 +23,7 @@ function embedMingo() {
       right: 84px;
       width: 360px;
       height: 600px;
-      background: white;
+      background: var(--color-background-primary);
       border-radius: 10px;
       overflow: hidden;
       display: none;
@@ -47,7 +47,7 @@ function embedMingo() {
       width: 50px;
       height: 50px;
       border-radius: 50%;
-      border: 1px solid #EAEAEA;
+      border: 1px solid var(--color-border-secondary);
       cursor: pointer;
       transition: all 0.3s ease;
       box-shadow: 0px 8px 16px 1px rgba(0,0,0,0.16);
@@ -102,7 +102,7 @@ function embedMingo() {
   const iframe = document.createElement('iframe');
   iframe.className = 'mingo-iframe';
   iframe.src = embedUrl;
-  iframe.title = 'Mingo嵌入页面';
+  iframe.title = _l('%0嵌入页面', md.global.SysSettings.aiBrandName || 'Mingo');
 
   // 创建关闭图标
   const closeIcon = document.createElement('div');
@@ -111,7 +111,7 @@ function embedMingo() {
   closeIcon.style.backgroundSize = 'cover';
   closeIcon.style.backgroundPosition = 'center';
   closeIcon.style.backgroundRepeat = 'no-repeat';
-  closeIcon.title = '关闭Mingo';
+  closeIcon.title = _l('关闭%0', md.global.SysSettings.aiBrandName || 'Mingo');
 
   // 组装DOM结构
   iframeContainer.appendChild(iframe);

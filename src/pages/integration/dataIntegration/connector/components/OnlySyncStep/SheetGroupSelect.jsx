@@ -9,7 +9,7 @@ import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput'
 
 const PopupWrapper = styled.div`
   width: 400px;
-  background: #fff;
+  background: var(--color-background-primary);
   box-shadow:
     0 3px 6px -4px rgba(0, 0, 0, 0.12),
     0 6px 16px 0 rgba(0, 0, 0, 0.08),
@@ -20,8 +20,8 @@ const PopupWrapper = styled.div`
   .searchInput {
     width: 100%;
     border-radius: 0;
-    background: #fff;
-    border-bottom: 1px solid #eaeaea;
+    background: var(--color-background-primary);
+    border-bottom: 1px solid var(--color-border-secondary);
     margin-bottom: 8px;
   }
   .contentWrapper {
@@ -31,8 +31,8 @@ const PopupWrapper = styled.div`
     height: 32px;
     padding: 0 10px;
     &.active {
-      color: #1677ff;
-      background-color: #e5f3fe;
+      color: var(--color-primary);
+      background-color: var(--color-primary-transparent);
       .ellipsis {
         font-weight: 600;
       }
@@ -93,7 +93,7 @@ export default function SheetGroupSelect(props) {
         {!isChild && (
           <Icon
             icon={subVisible === false ? 'arrow-right-tip' : 'arrow-down'}
-            className="Gray_9e"
+            className="textTertiary"
             onClick={e => {
               e.stopPropagation();
               const newGroups = groups.map(item => {
@@ -109,7 +109,7 @@ export default function SheetGroupSelect(props) {
         <div className="flex mLeft5">
           <span className="ellipsis">{name || _l('未命名分组')}</span>
         </div>
-        {value === appSectionId && <Icon icon="done" className="Font18 ThemeColor" />}
+        {value === appSectionId && <Icon icon="done" className="Font18 colorPrimary" />}
       </div>
     );
   };
@@ -145,7 +145,7 @@ export default function SheetGroupSelect(props) {
               </ScrollView>
             </div>
           ) : (
-            <div className="groupItem flexRow alignItemsCenter Gray_9e">{_l('暂无数据')}</div>
+            <div className="groupItem flexRow alignItemsCenter textTertiary">{_l('暂无数据')}</div>
           )}
         </PopupWrapper>
       }

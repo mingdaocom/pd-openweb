@@ -4,7 +4,7 @@ import { ConfigProvider, Table } from 'antd';
 import cx from 'classnames';
 import moment from 'moment';
 import styled from 'styled-components';
-import { Dropdown, Icon, LoadDiv } from 'ming-ui';
+import { Dropdown, Icon, LoadDiv, UserHead } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import DateRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
 import { dialogSelectUser } from 'ming-ui/functions';
@@ -15,33 +15,29 @@ import { FLOW_STATUS } from 'src/pages/workflow/WorkflowSettings/History/config.
 import LogDialog from '../../components/LogDialog';
 
 const Wrap = styled.div`
-  background: #ffffff;
+  background: var(--color-background-primary);
   padding: 30px 24px;
-  width: 100%;
   max-width: 800px;
-  margin: 0 auto;
   .optionConTb {
     min-width: 90px;
   }
   .moreBtn {
     height: 36px;
     line-height: 36px;
-    border: 1px solid #e8e8e8;
+    border: 1px solid var(--color-border-secondary);
     border-radius: 20px;
     padding: 0 48px;
-    color: #1677ff;
+    color: var(--color-primary);
   }
   .noData {
-    text-align: center;
     padding-bottom: 140px;
     .iconCon {
       width: 130px;
       height: 130px;
       line-height: 130px;
-      background: #f5f5f5 !important;
-      color: #9e9e9e;
+      background: var(--color-background-secondary) !important;
+      color: var(--color-text-tertiary);
       border-radius: 50%;
-      margin: 80px auto 0;
     }
   }
   .ant-table {
@@ -52,8 +48,12 @@ const Wrap = styled.div`
     th {
       padding: 15px 8px !important;
       flex: 1;
+      flex-shrink: 0;
+      min-width: 0;
+      align-items: center;
+      display: inline-flex;
       .fromTxt a {
-        color: #151515 !important;
+        color: var(--color-text-title) !important;
       }
       &:nth-child(1),
       &:nth-child(2) {
@@ -67,10 +67,23 @@ const Wrap = styled.div`
       td,
       th {
         .fromTxt {
-          color: #1677ff !important;
+          color: var(--color-primary) !important;
           a {
-            color: #1677ff !important;
+            color: var(--color-primary) !important;
           }
+        }
+      }
+    }
+  }
+  &.integrationApi {
+    .ant-table {
+      td,
+      th {
+        &:nth-child(5) {
+          max-width: 110px;
+        }
+        &:last-child {
+          max-width: 60px;
         }
       }
     }
@@ -84,7 +97,7 @@ const Wrap = styled.div`
   .pickUser {
     border-width: 1px;
     border-style: solid;
-    border-color: #ddd;
+    border-color: var(--color-border-primary);
     height: 36px;
     width: 100px;
     box-sizing: border-box;
@@ -112,7 +125,7 @@ const Wrap = styled.div`
       opacity: 0;
     }
     &:hover {
-      border-color: #1677ff;
+      border-color: var(--color-primary);
     }
     &.hs {
       &:hover {
@@ -136,10 +149,10 @@ const Wrap = styled.div`
     justify-content: space-between;
     min-width: 170px;
     padding: 5px 8px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-primary);
     border-radius: 3px;
     &:hover {
-      border: 1px solid #1677ff;
+      border: 1px solid var(--color-primary);
     }
   }
   .dropSearchType,
@@ -238,7 +251,7 @@ export default function Log(props) {
               {record.primaryName}
             </a>
             <br />
-            <span className="Gray_bd Font13">{record.type === 1 ? _l('工作表') : _l('工作流')}</span>
+            <span className="textDisabled Font13">{record.type === 1 ? _l('工作表') : _l('工作流')}</span>
           </div>
         );
       },
@@ -266,14 +279,23 @@ export default function Log(props) {
       dataIndex: 'user',
       width: 10,
       render: (text, record) => {
-        return <span className="WordBreak">{(record.createBy || {}).fullName}</span>;
+        return (
+          <UserHead
+            user={{
+              userHead: record?.createBy?.avatar,
+              accountId: record?.createBy?.accountId,
+            }}
+            size={24}
+            newPageChat={true}
+          />
+        );
       },
     },
     {
       title: _l('时间'),
       dataIndex: 'createDate',
       render: (text, record) => {
-        return <span className="Gray_9e">{record.createDate}</span>;
+        return <span className="textTertiary">{record.createDate}</span>;
       },
     },
     {
@@ -283,7 +305,8 @@ export default function Log(props) {
         if (!record.completeDate) {
           return '';
         }
-        return `${moment(record.completeDate).diff(moment(record.createDate), 'seconds')} 秒`;
+        const time = moment(record.completeDate).diff(moment(record.createDate), 'seconds');
+        return `${time < 1 ? 1 : time} 秒`;
       },
     },
     {
@@ -313,7 +336,7 @@ export default function Log(props) {
                 });
               }}
             >
-              {_l('查看详情')}
+              {_l('查看')}
             </span>
           </div>
         );
@@ -323,10 +346,10 @@ export default function Log(props) {
   const noDataRender = () => {
     return (
       <div className="noData TxtCenter">
-        <span className="iconCon InlineBlock TxtCenter ">
+        <span className="iconCon InlineBlock TxtCenter mTop80 divCenter">
           <Icon icon="manage" className="icon InlineBlock Font64 TxtMiddle" />
         </span>
-        <p className="Gray_9e mTop20 mBottom0">{_l('暂无 API 请求记录')}</p>
+        <p className="textTertiary mTop20 mBottom0">{_l('暂无 API 请求记录')}</p>
       </div>
     );
   };
@@ -379,8 +402,8 @@ export default function Log(props) {
   };
 
   return (
-    <Wrap className="">
-      <p className="Gray_9e">{_l('查看所有引用此 API 发送的请求日志')}</p>
+    <Wrap className={cx('w100 divCenter', { integrationApi: location.href.indexOf('integrationApi') === -1 })}>
+      <p className="textTertiary">{_l('查看所有引用此 API 发送的请求日志')}</p>
       <div className="flexRow mTop12">
         <Search
           handleChange={keyWord => {
@@ -458,7 +481,7 @@ export default function Log(props) {
               selectUsers(e);
             }}
           >
-            {user.fullname ? user.fullname : <span className="Gray_bd">{_l('触发者')}</span>}
+            {user.fullname ? user.fullname : <span className="textDisabled">{_l('触发者')}</span>}
           </div>
           <div className={cx('Relative activeCon')}>
             <Icon
@@ -466,11 +489,11 @@ export default function Log(props) {
               onClick={e => {
                 selectUsers(e);
               }}
-              className="Gray_bd Font18 ThemeHoverColor3 mLeft3 add Absolute"
+              className="textDisabled Font18 ThemeHoverColor3 mLeft3 add Absolute"
             />
             <Icon
               icon="cancel"
-              className="Gray_bd Font18 ThemeHoverColor3 mLeft3 closeIcon Absolute"
+              className="textDisabled Font18 ThemeHoverColor3 mLeft3 closeIcon Absolute"
               onClick={() => {
                 setState({ user: {}, loading: false, isAll: false });
               }}
@@ -486,7 +509,7 @@ export default function Log(props) {
           children={
             <div className="filterTimeRange mLeft10">
               <div className="timeContent">{renderTimePlaceholder()}</div>
-              <Icon icon="bellSchedule" className="Gray_9e Font18" />
+              <Icon icon="bellSchedule" className="textTertiary Font18" />
             </div>
           }
           onOk={time => setState({ time, pageIndex: 1, isAll: false })}

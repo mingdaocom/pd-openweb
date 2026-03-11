@@ -23,7 +23,7 @@
         .icon {
           margin: 0 2px;
           font-size: 16px;
-          color: #9f9f9f;
+          color: var(--color-text-tertiary);
         }
       }
 
@@ -41,22 +41,22 @@
         }
 
         a.replyBtn {
-          color: #1677ff !important;
+          color: var(--color-primary) !important;
 
           &:hover {
-            color: #0063b2 !important;
+            color: var(--color-link-hover) !important;
           }
         }
 
         a.moreBtn {
-          color: #9d9d9d;
+          color: var(--color-text-tertiary);
         }
 
         a.deleteBtn {
-          color: #ff4336 !important;
+          color: var(--color-error) !important;
 
           &:hover {
-            color: #c91f12 !important;
+            color: var(--color-error-hover) !important;
           }
         }
       }
@@ -69,13 +69,13 @@
 
       .singleTop {
         width: 100%;
-        color: #757575;
+        color: var(--color-text-secondary);
 
         .userName {
           font-weight: bold;
 
           &:not(:hover) {
-            color: #151515 !important;
+            color: var(--color-text-title) !important;
           }
         }
 
@@ -83,12 +83,12 @@
           user-select: none;
 
           .commentDate:not(:hover) {
-            color: #aaa !important;
+            color: var(--color-text-tertiary) !important;
           }
         }
 
         .msgTip:not(:hover) {
-          color: #aaa !important;
+          color: var(--color-text-tertiary) !important;
         }
       }
 

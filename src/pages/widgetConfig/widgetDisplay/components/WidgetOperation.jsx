@@ -2,12 +2,16 @@ import React, { useState } from 'react';
 import { Button } from 'antd';
 import cx from 'classnames';
 import _, { get, includes } from 'lodash';
+import Trigger from 'rc-trigger';
 import styled from 'styled-components';
+import { Menu, MenuItem } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import worksheetAjax from 'src/api/worksheet';
+import { canAdjustWidth } from 'src/pages/widgetConfig/util/setting';
 import { NOT_NEED_DELETE_CONFIRM } from '../../config';
 import { canSetAsTitle, isCustomWidget } from '../../util';
 import { handleAdvancedSettingChange } from '../../util/setting';
+import { adjustWidthList } from '../../util/setting';
 import { openDevelopWithAI } from '../../widgetSetting/components/DevelopWithAI';
 import DeleteConfirm from './DeleteConfirm';
 
@@ -31,8 +35,8 @@ const OperationWrap = styled.div`
     &.isBatchActive {
       .batchControl {
         visibility: visible;
-        background-color: #3c3c3c !important;
-        color: #fff !important;
+        background-color: var(--color-background-inverse) !important;
+        color: var(--color-white) !important;
       }
     }
     &.batchMode {
@@ -49,10 +53,10 @@ const OperationWrap = styled.div`
     padding: 0 5px;
     cursor: pointer;
     transition: color background-color 0.4s;
-    color: #757575;
+    color: var(--color-text-secondary);
     padding: 0 4px;
     margin-right: 4px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     box-shadow: rgba(0, 0, 0, 0.05) 0 0 4px 2px;
     border-radius: 50%;
     font-size: 0;
@@ -61,17 +65,42 @@ const OperationWrap = styled.div`
       vertical-align: middle;
     }
     &:hover:not(.customIcon) {
-      color: #1677ff;
-      background-color: #edf7fe;
+      color: var(--color-primary);
     }
     &.delWidget {
       &:hover {
-        color: #f44336;
-        background-color: #ffebe9;
+        color: var(--color-error);
+        background-color: var(--color-error-bg);
       }
     }
   }
 `;
+
+const WidthMenuItem = styled(MenuItem)`
+  &.isActive {
+    background: var(--color-link-hover);
+    color: var(--color-white);
+
+    &.ming.MenuItem .Item-content:not(.disabled):hover {
+      background: var(--color-link-hover) !important;
+    }
+  }
+  &.menuTitle {
+    &.ming.MenuItem .Item-content.disabled {
+      cursor: default;
+      color: var(--color-text-disabled);
+    }
+  }
+`;
+
+const WidthSettings = [
+  { text: '1/4', size: 3 },
+  { text: '1/3', size: 4 },
+  { text: '1/2', size: 6 },
+  { text: '2/3', size: 8 },
+  { text: '3/4', size: 9 },
+  { text: '1', size: 12 },
+];
 
 export default function WidgetOperation(props) {
   const {
@@ -84,9 +113,12 @@ export default function WidgetOperation(props) {
     globalSheetInfo = {},
     rest,
   } = props;
-  const { type, controlId, attribute, dataSource, sourceControl } = data;
+  const { type, controlId, attribute, dataSource, sourceControl, size } = data;
+  const { widgets } = rest || {};
+  const availableWidth = adjustWidthList(widgets, data);
 
   const [deleteConfirmVisible, setVisible] = useState(false);
+  const [widthPopupVisible, setWidthPopupVisible] = useState(false);
 
   const isFree =
     _.get(
@@ -99,6 +131,49 @@ export default function WidgetOperation(props) {
     return (
       <OperationWrap>
         <div className="operationWrap">
+          {canAdjustWidth(widgets, data) && (
+            <Trigger
+              action={['click']}
+              popupVisible={widthPopupVisible}
+              onPopupVisibleChange={visible => setWidthPopupVisible(visible)}
+              popupAlign={{
+                points: ['tr', 'br'],
+                offset: [0, 10],
+                overflow: { adjustX: true, adjustY: true },
+              }}
+              popup={
+                <Menu style={{ width: 150 }} className="Relative">
+                  <WidthMenuItem disabled className="menuTitle">
+                    {_l('宽度（占比）')}
+                  </WidthMenuItem>
+                  {WidthSettings.map(item => {
+                    const disabled = !availableWidth.includes(item.size);
+                    const isActive = size === item.size;
+                    return (
+                      <WidthMenuItem
+                        disabled={disabled}
+                        key={item.size}
+                        onClick={() => {
+                          if (disabled || isActive) return;
+                          handleOperate('width', { size: item.size });
+                          setWidthPopupVisible(false);
+                        }}
+                        className={cx({ isActive })}
+                      >
+                        {item.text}
+                      </WidthMenuItem>
+                    );
+                  })}
+                </Menu>
+              }
+            >
+              <Tooltip placement="bottom" trigger={['hover']} title={_l('宽度(占比)')}>
+                <div className="operationIconWrap" onClick={e => e.stopPropagation()}>
+                  <i className="icon-resize_width" />
+                </div>
+              </Tooltip>
+            </Trigger>
+          )}
           <Tooltip placement="bottom" trigger={['hover']} title={_l('隐藏')}>
             <div
               className="operationIconWrap"
@@ -257,7 +332,7 @@ export default function WidgetOperation(props) {
             <i className="icon-copy" />
           </div>
         </Tooltip>
-        {renderDelete()}
+
         {type !== 52 && (
           <Tooltip placement="bottom" trigger={['hover']} title={_l('批量选择')}>
             <div
@@ -271,6 +346,7 @@ export default function WidgetOperation(props) {
             </div>
           </Tooltip>
         )}
+        {renderDelete()}
       </div>
     </OperationWrap>
   );

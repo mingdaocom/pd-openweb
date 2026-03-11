@@ -35,7 +35,7 @@ export default function CustomDragLayer(props) {
     return {
       transform: transform,
       WebkitTransform: transform,
-      background: '#fff',
+      background: 'var(--color-background-primary)',
       width: '280px',
     };
   }

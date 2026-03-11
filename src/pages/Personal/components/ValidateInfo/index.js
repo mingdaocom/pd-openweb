@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
-import { Dialog, intlTelInput, VerifyPasswordInput } from 'ming-ui';
+import { Button, Dialog, intlTelInput, VerifyPasswordInput } from 'ming-ui';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import { captcha } from 'ming-ui/functions';
 import accountController from 'src/api/account';
@@ -11,7 +11,7 @@ const InputCom = styled.input`
   width: 100%;
   line-height: 38px;
   height: 38px;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
   border-radius: 3px;
   padding-left: 10px;
   border: 0px;
@@ -34,7 +34,7 @@ const StepLine = styled.div`
     width: 100%;
     height: 4px;
     border-radius: 2px;
-    background-color: ${({ step }) => (step === 1 ? ' #ececec' : '#1e88e5')};
+    background-color: ${({ step }) => (step === 1 ? ' var(--color-border-secondary)' : 'var(--color-primary)')};
     position: relative;
     .dot {
       width: 12px;
@@ -42,16 +42,17 @@ const StepLine = styled.div`
       border-radius: 50%;
       position: absolute;
       top: -4px;
-      border: ${({ step }) => (step === 1 ? '2px solid #ececec' : '2px solid #1e88e5')};
-      background-color: ${({ step }) => (step === 1 ? ' #ececec' : '#1e88e5')};
+      border: ${({ step }) =>
+        step === 1 ? '2px solid var(--color-border-secondary)' : '2px solid var(--color-primary)'};
+      background-color: ${({ step }) => (step === 1 ? ' var(--color-border-secondary)' : 'var(--color-primary)')};
     }
     &:first-child {
       margin-left: 8px;
-      background-color: #1e88e5;
+      background-color: var(--color-primary);
       .dot {
         left: 15px;
-        border: 2px solid #1e88e5;
-        background-color: #1e88e5;
+        border: 2px solid var(--color-primary);
+        background-color: var(--color-primary);
       }
     }
     &:nth-child(2) {
@@ -81,9 +82,16 @@ export default class ValidateInfoCon extends Component {
     this.iti = null;
   }
 
+  componentDidMount() {
+    const { passVerifyPassword, type } = this.props;
+    if (passVerifyPassword && type === 'mobilePhone') {
+      this.initTel();
+    }
+  }
+
   changeValue = (e, filed) => {
     let val = e.target.value;
-    this.setState({ [filed]: val.trim() });
+    this.setState({ [filed]: ['verifyCode', 'mobile'].includes(filed) ? val.replace(/[^\d]/g, '') : val.trim() });
   };
 
   clickNext = () => {
@@ -179,6 +187,9 @@ export default class ValidateInfoCon extends Component {
           if (data === 1) {
             alert(_l('验证码发送成功'), 1);
             _this.countdown();
+            if (_this.verifyCode) {
+              _this.verifyCode.focus();
+            }
           } else {
             const accountTypeDesc = type === 'email' ? _l('邮箱') : _l('手机号');
             if (data === 2) {
@@ -193,7 +204,10 @@ export default class ValidateInfoCon extends Component {
             _this.setState({ sendCodeLoading: false, sendCodeTxt: _l('发送验证码') });
           }
         })
-        .catch(() => _this.setState({ sendCodeLoading: false, sendCodeTxt: _l('发送验证码') }));
+
+        .catch(() => {
+          _this.setState({ sendCodeLoading: false, sendCodeTxt: _l('获取验证码') });
+        });
     };
     new captcha(callback);
   };
@@ -214,9 +228,9 @@ export default class ValidateInfoCon extends Component {
 
   // 更新绑定账号
   updateAccount = () => {
-    if (!this.validate()) return;
+    if (!this.validate() || this.state.submitLoading) return;
 
-    const { type, callback = () => {} } = this.props;
+    const { type, callback = () => {}, onCancel } = this.props;
     const { verifyCode, email } = this.state;
 
     if (!md.global.SysSettings.allowBindAccountNoVerify && !verifyCode) {
@@ -234,6 +248,7 @@ export default class ValidateInfoCon extends Component {
       })
       .then(data => {
         let accountTypeDesc = type === 'email' ? _l('邮箱') : _l('手机号');
+        this.setState({ submitLoading: false });
 
         if (data === 1) {
           alert(_l('%0修改绑定成功', accountTypeDesc), 1);
@@ -248,6 +263,7 @@ export default class ValidateInfoCon extends Component {
           ) {
             safeLocalStorageSetItem('LoginName', type === 'email' ? email : this.iti.getNumber());
           }
+          onCancel();
           setTimeout(function () {
             callback();
           }, 2000);
@@ -258,16 +274,19 @@ export default class ValidateInfoCon extends Component {
         } else {
           alert(_l('%0修改失败', accountTypeDesc), 2);
         }
+      })
+      .catch(() => {
+        this.setState({ submitLoading: false });
       });
   };
 
   render() {
-    const { title, des, showStep, type, onCancel = () => {} } = this.props;
-    const { nextBtnDisabled, sendCodeLoading, step, sendCodeTxt } = this.state;
+    const { title, des, showStep, type, passVerifyPassword, onCancel = () => {} } = this.props;
+    const { nextBtnDisabled, sendCodeLoading, step, sendCodeTxt, submitLoading, email, verifyCode } = this.state;
 
     return (
       <Dialog title={title} visible onCancel={onCancel} showFooter={false}>
-        {des && <div className="Gray_9 Font13 mBottom5">{des}</div>}
+        {des && <div className="textTertiary Font13 mBottom5">{des}</div>}
         {showStep && (
           <StepLine step={step}>
             <div className="stepName flexRow mBottom15">
@@ -284,16 +303,18 @@ export default class ValidateInfoCon extends Component {
             </div>
           </StepLine>
         )}
-        {step === 2 ? (
+        {step === 2 || passVerifyPassword ? (
           <Fragment>
             {type == 'email' ? (
               <MobileInputWrap>
                 <InputCom
+                  autoFocus
                   type="text"
                   ref={ele => (this.email = ele)}
                   placeholder={_l('请输入邮箱地址')}
                   className="inputBox txtEmail w100"
-                  maxlength={64}
+                  maxLength={64}
+                  value={email}
                   onChange={e => this.changeValue(e, 'email')}
                 />
               </MobileInputWrap>
@@ -301,13 +322,16 @@ export default class ValidateInfoCon extends Component {
               <MobileInputWrap>
                 <InputCom
                   type="text"
+                  autoFocus
                   ref={ele => (this.mobile = ele)}
                   placeholder={_l('请输入手机号')}
                   className="inputBox txtMobilePhone w100 box-sizing"
-                  maxlength={64}
+                  maxLength={64}
+                  onChange={e => this.changeValue(e, 'mobile')}
                 />
               </MobileInputWrap>
             )}
+
             {!md.global.SysSettings.allowBindAccountNoVerify && (
               <div className="flexRow mBottom20">
                 <InputCom
@@ -315,7 +339,8 @@ export default class ValidateInfoCon extends Component {
                   ref={ele => (this.verifyCode = ele)}
                   placeholder={_l('请输入验证码')}
                   className="mRight15 inputBox txtVerifyCode flex"
-                  maxlength={6}
+                  maxLength={6}
+                  value={verifyCode}
                   onChange={e => this.changeValue(e, 'verifyCode')}
                   onKeyUp={e => {
                     if (e.keyCode === 13) {
@@ -323,27 +348,25 @@ export default class ValidateInfoCon extends Component {
                     }
                   }}
                 />
-                <button
+                <Button
                   disabled={sendCodeLoading}
-                  className="Button ming Button--primary Button--medium pLeft0 pRight0"
+                  className="pLeft0 pRight0"
                   style={{ minWidth: 120 }}
                   onClick={this.sendChangeAccountVerifyCode}
                 >
                   {sendCodeTxt}
-                </button>
+                </Button>
               </div>
             )}
-            <button
-              className="Button ming Button--primary Button--medium btnUpdateAccount w100"
-              onClick={this.updateAccount}
-            >
-              {_l('确认')}
-            </button>
+            <Button disabled={submitLoading} className="w100" onClick={this.updateAccount}>
+              {submitLoading ? _l('确认中...') : _l('确认')}
+            </Button>
           </Fragment>
         ) : (
           <Fragment>
             <VerifyPasswordInput
               showAccountEmail={type === 'email'}
+              autoFocus
               className="mBottom10"
               showSubTitle={false}
               onChange={({ password }) => this.setState({ password })}

@@ -14,6 +14,7 @@ import WrapBg from '../components/Bg';
 import Header from '../components/Header';
 import { WrapCom } from '../style';
 import { isTel, loginSuccessRedirect } from '../util';
+import { IntegrationAccountType } from './config';
 import Container from './Container';
 import { loginCallback, ssoLogin } from './util';
 
@@ -23,7 +24,7 @@ export default function Login() {
     modeType: 1, // 1:手机号邮箱 2:用户名登录 其他:不使用账户登录方式
     verifyType: request.loginModeType === 'verify' ? 'verifyCode' : 'password', //验证方式 'passWord' 密码 'verifyCode' 验证码
     step: '', //verifyCode 验证码 默认账户
-    isNetwork: location.href.indexOf('network') >= 0 || md.global.Config.IsLocal,
+    isNetwork: location.href.indexOf('network') >= 0 || window.platformENV.isOverseas || window.platformENV.isLocal,
     hideOther:
       window.isMiniProgram || // 小程序隐藏第三方登录入口
       !!request.unionId || //第三方
@@ -41,7 +42,7 @@ export default function Login() {
     projectNameLang: '', // 组织简称多语言翻译
     verifyResult: '',
 
-    projectId: request.projectId || '',
+    projectId: request.projectId || request.projectid || '',
     dialCode: '',
     emailOrTel: '', // 邮箱或手机
     verifyCode: '', // 验证码
@@ -53,6 +54,7 @@ export default function Login() {
     isDefaultLogo: false,
     state: request.state || '',
     firstSendVerifyCode: false,
+    appscheme: request.appscheme || '', //兼容移动端的登录参数
   });
 
   useEffect(() => {
@@ -61,6 +63,22 @@ export default function Login() {
 
   const onInit = () => {
     const request = getRequest();
+    //兼容移动端app的只允许企业单点登录
+    if (
+      request.appscheme && //只有移动端app会带appscheme参数
+      (request.projectIntergrationType || request.projectintergrationtype) + '' ===
+        IntegrationAccountType.microsoftEntra + '' &&
+      (request.projectId || request.projectid)
+    ) {
+      setState({
+        step: 'integrationLogin',
+        integrationAccountType: IntegrationAccountType.microsoftEntra,
+        projectId: request.projectId || request.projectid,
+        loading: false,
+        appscheme: request.appscheme,
+      });
+      return;
+    }
     //检测是否已登录
     loginController.checkLogin().then(data => {
       if (data) {
@@ -68,6 +86,7 @@ export default function Login() {
         return;
       }
     });
+
     //检查是否sso登录
     ssoLogin(request.ReturnUrl);
     //获取本地缓存的登录信息
@@ -126,37 +145,50 @@ export default function Login() {
   //获取登录页面相关配置信息
   const getProjectBaseInfo = () => {
     const request = getRequest();
-    projectApi.getProjectSubDomainInfo({ host: location.host, projectId: request.projectId || '' }).then(async res => {
-      if (!res || !res.companyName) {
-        location.replace('/privateImageInstall');
-        return;
-      }
-      let googleSsoSet;
-      if (md.global.Config.IsLocal && !request.projectId) {
-        googleSsoSet = await privateSysSetting.getSsonSettingsFroLogin({});
-      }
-      //request.loginMode === 'systemLogin' 指定平台账号登录方式
-      if (request.loginMode === 'systemLogin') {
-        res.openLDAP = false;
-        res.isOpenSystemLogin = true;
-      }
-      setState({
-        ...res,
-        googleSsoSet,
-        modeType: res.openLDAP ? 2 : 1, // 1:手机号邮箱 2:用户名登录
-        linkInvite: res.projectId ? `/linkInvite?projectId=${res.projectId}` : '',
-        title: res.companyName,
-        homeImage: res.homeImage,
-        logo: res.logo,
-        isDefaultLogo: res.isDefaultLogo,
-        hasGetLogo: true,
+    projectApi
+      .getProjectSubDomainInfo({
+        host: location.host,
+        projectId: request.projectId || request.projectid || '', //'167046ff-fe94-4d7d-8a5e-b9148be9c13f', //
+      })
+      .then(async res => {
+        if (!res || !res.companyName) {
+          location.replace('/privateImageInstall');
+          return;
+        }
+        //request.loginMode === 'systemLogin' 指定平台账号登录方式
+        if (request.loginMode === 'systemLogin') {
+          res.openLDAP = false;
+          res.isOpenSystemLogin = true;
+        }
+        let googleSsoSet;
+        if ((window.platformENV.isOverseas || window.platformENV.isLocal) && !request.projectId) {
+          googleSsoSet = await privateSysSetting.getSsonSettingsFroLogin({});
+        }
+        setState({
+          ...res,
+          googleSsoSet,
+          modeType: res.openLDAP ? 2 : 1, // 1:手机号邮箱 2:用户名登录
+          linkInvite: res.projectId ? `/linkInvite?projectId=${res.projectId}` : '',
+          title: res.companyName,
+          homeImage: res.homeImage,
+          logo: res.logo,
+          isDefaultLogo: res.isDefaultLogo,
+          hasGetLogo: true,
+        });
+        //只允许企业单点登录
+        if (res.entraOnlyLogin) {
+          setState({
+            step: 'integrationLogin',
+            integrationAccountType: res.projectIntergrationType || IntegrationAccountType.microsoftEntra,
+            projectId: res.projectId,
+          });
+        }
+        if (res.projectId) {
+          getProjectLang(res.projectId);
+        } else {
+          setState({ loading: false });
+        }
       });
-      if (res.projectId) {
-        getProjectLang(res.projectId);
-      } else {
-        setState({ loading: false });
-      }
-    });
   };
 
   //网络名称多语言

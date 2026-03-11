@@ -119,12 +119,12 @@ export default class IntegrationSync extends Component {
 
     return (
       <div className="stepItem">
-        <h3 className="stepTitle Font16 Gray">{_l('%0数据同步', step)}</h3>
+        <h3 className="stepTitle Font16 textPrimary">{_l('%0数据同步', step)}</h3>
         <div className="mTop16 syncBox">
-          <span className="Font14 syncTxt Gray_75">
+          <span className="Font14 syncTxt textSecondary">
             {_l('从%0通讯录同步到系统。', text)}
             <span
-              className="ThemeColor Hand"
+              className="colorPrimary Hand"
               onClick={() => {
                 this.setState({
                   showSyncDiaLog: true,

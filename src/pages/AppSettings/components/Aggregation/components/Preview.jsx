@@ -534,7 +534,7 @@ function Preview(props) {
                   <span className="Bold">{_l('预览失败')}</span>
                   {(errorMsgList || []).length > 0 && (
                     <Tooltip placement="bottom" title={<span className="InlineBlock WordBreak">{errorMsgList}</span>}>
-                      <Icon type={'error'} className="Gray_9e Font16 mLeft5 TxtMiddle InlineBlock" />
+                      <Icon type={'error'} className="textTertiary Font16 mLeft5 TxtMiddle InlineBlock" />
                     </Tooltip>
                   )}
                 </React.Fragment>
@@ -572,7 +572,7 @@ function Preview(props) {
     return (
       <React.Fragment>
         {!disablePreview && (
-          <div className="Font16 Gray flexRow alignItemsCenter Height36 previewHeader">
+          <div className="Font16 textPrimary flexRow alignItemsCenter Height36 previewHeader">
             <span className="flex Bold">{hsPublish ? _l('查看数据') : _l('预览')}</span>
             {'PREPARE' !== syncTaskStatus && (
               <React.Fragment>
@@ -581,7 +581,7 @@ function Preview(props) {
                   <Tooltip placement="bottom" title={_l('刷新')}>
                     <Icon
                       icon="task-later"
-                      className="Gray_9e Font18 pointer mLeft10 mRight2 ThemeHoverColor3"
+                      className="textTertiary Font18 pointer mLeft10 mRight2 ThemeHoverColor3"
                       onClick={() => {
                         getData({ worksheetId, pI: 1, withCount: false, withLoading: true });
                       }}
@@ -611,7 +611,7 @@ function Preview(props) {
           </div>
         )}
         {!disablePreview && !hsPublish && (
-          <div className="Gray_75 Normal Font13 pLeft24 pRight25 mTop5">
+          <div className="textSecondary Normal Font13 pLeft24 pRight25 mTop5">
             {_l(
               '预览时将从每个工作表获取最新的1000行数据进行聚合，点击右上角发布后会在后台异步聚合工作表内所有数据（注：数据量越多聚合速度越慢，请耐心等待）',
             )}
@@ -633,9 +633,9 @@ function Preview(props) {
                       renderCon={() => {
                         if (['ERROR', 'UN_PUBLIC', 'STOP'].includes(syncTaskStatus) && data.length <= 0) {
                           return (
-                            <TextAbsoluteCenter style={{ color: '#9e9e9e' }}>
+                            <TextAbsoluteCenter style={{ color: 'var(--color-text-tertiary)' }}>
                               <div className="iconBox">
-                                <i className="icon Icon icon-ic-line Gray_bd"></i>
+                                <i className="icon Icon icon-ic-line textDisabled"></i>
                               </div>
                               <div className="mTop16 Font17">{_l('查看失败')}</div>
                             </TextAbsoluteCenter>
@@ -665,7 +665,7 @@ function Preview(props) {
                   <div className="previewEmpty flex TxtCenter alignItemsCenter justifyContentCenter">
                     <div className="">
                       <img src={emptyImg} height={130} />
-                      <div className="Gray_9e Font14 mTop20">{_l('从左侧面板中选择数据源和字段')}</div>
+                      <div className="textTertiary Font14 mTop20">{_l('从左侧面板中选择数据源和字段')}</div>
                     </div>
                   </div>
                 )}

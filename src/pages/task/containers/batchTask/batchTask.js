@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
-import Store from 'redux/configureStore';
 import doT from 'dot';
 import _ from 'lodash';
 import moment from 'moment';
@@ -9,6 +8,7 @@ import styled from 'styled-components';
 import { Checkbox, Dialog, LoadDiv } from 'ming-ui';
 import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/taskCenter';
+import Store from 'src/redux/configureStore';
 import { htmlEncodeReg } from 'src/utils/common';
 import config from '../../config/config';
 import { afterDeleteTask, afterUpdateTaskDate } from '../../utils/taskComm';
@@ -19,7 +19,7 @@ import './css/batchTask.less';
 
 const SearchFolderCon = styled.ul`
   width: 438px;
-  background: #fff;
+  background: var(--color-background-primary);
   max-height: 400px;
   padding: 6px 0;
   overflow-y: auto;
@@ -29,7 +29,7 @@ const SearchFolderCon = styled.ul`
   -webkit-box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.13),
     0 2px 6px rgba(0, 0, 0, 0.1);
-  background: #fff;
+  background: var(--color-background-primary);
   padding: 6px 0;
   z-index: 9999;
   position: absolute;
@@ -64,7 +64,7 @@ const SearchFolderCon = styled.ul`
       right: 5px;
       top: 0;
       span {
-        color: #999;
+        color: var(--color-text-tertiary);
         font-size: 14px;
         line-height: 40px;
       }
@@ -72,7 +72,7 @@ const SearchFolderCon = styled.ul`
     .icon-folder-public {
       font-size: 18px;
       margin-right: 5px;
-      color: #999;
+      color: var(--color-text-tertiary);
       line-height: 40px;
     }
   }
@@ -729,7 +729,7 @@ BatchTask.updateTaskStatus = function (status) {
       okText: _l('确定'),
       children: (
         <Checkbox
-          className="Gray_9"
+          className="textTertiary"
           defaultChecked={false}
           text={status ? _l('同时将子任务标为已完成') : _l('同时将子任务标为未完成')}
         />

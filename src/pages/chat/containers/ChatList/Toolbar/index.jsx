@@ -21,24 +21,24 @@ const Wrap = styled.div`
     justify-content: center;
     border-radius: 4px;
     &:hover {
-      background-color: #f2f3f4;
+      background-color: var(--color-background-hover);
     }
     &.active {
       .icon {
-        color: #1677ff !important;
+        color: var(--color-primary) !important;
       }
-      background-color: #e8f2ff;
+      background-color: var(--color-primary-transparent);
     }
   }
   .unread {
-    color: #fff;
+    color: var(--color-white);
     position: absolute;
     right: 6px;
     top: -2px;
     border-radius: 16px;
     text-align: center;
     min-width: 18px;
-    background-color: red;
+    background-color: var(--color-error);
     z-index: 1;
     font-size: 12px;
     font-weight: bold;
@@ -106,10 +106,10 @@ const Toolbar = props => {
         >
           <Tooltip title={isShowToolName ? '' : `${_l('消息')}`} shortcut="w" placement="left" mouseLeaveDelay={0.1}>
             <div className={cx('iconWrap', { active: sessionListVisible })}>
-              <Icon className="Font22 Gray_75" icon={sessionListVisible ? 'chat-full' : 'chat-line'} />
+              <Icon className="Font22 textSecondary" icon={sessionListVisible ? 'chat-full' : 'chat-line'} />
             </div>
           </Tooltip>
-          {isShowToolName && <div className="Font12 Gray_75">{_l('消息')}</div>}
+          {isShowToolName && <div className="Font12 textSecondary">{_l('消息')}</div>}
           {!!count && !isOpenMessageList && <div className="unread">{count > 99 ? 99 : count}</div>}
         </div>
         {ss && isOpenSearch && (
@@ -124,10 +124,10 @@ const Toolbar = props => {
               mouseLeaveDelay={0.1}
             >
               <div className="iconWrap">
-                <Icon className="Font22 Gray_75" icon="search" />
+                <Icon className="Font22 textSecondary" icon="search" />
               </div>
             </Tooltip>
-            {isShowToolName && <div className="Font12 Gray_75">{_l('搜索')}</div>}
+            {isShowToolName && <div className="Font12 textSecondary">{_l('搜索')}</div>}
           </div>
         )}
         {/*isOpenFavorite && (
@@ -140,10 +140,10 @@ const Toolbar = props => {
           >
             <Tooltip title={isShowToolName ? '' : _l('收藏')} placement="left" mouseLeaveDelay={0.1}>
               <div className={cx('iconWrap', { active: favoriteVisible })}>
-                <Icon className="Font22 Gray_75" icon={favoriteVisible ? 'fav-full' : 'fav-line'} />
+                <Icon className="Font22 textSecondary" icon={favoriteVisible ? 'fav-full' : 'fav-line'} />
               </div>
             </Tooltip>
-            {isShowToolName && <div className="Font12 Gray_75">{_l('收藏')}</div>}
+            {isShowToolName && <div className="Font12 textSecondary">{_l('收藏')}</div>}
           </div>
         )*/}
       </div>

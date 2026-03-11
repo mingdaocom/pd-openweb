@@ -264,20 +264,24 @@ export function mapWidgetTypeToControlType(type) {
 
 function formatMediaToFiles(media) {
   if (typeof media === 'string') {
-    return safeParse(media, 'array').map(item => ({
-      id: item.fileID,
-      name: item.oldOriginalFileName + item.fileExt,
-      url: item.url,
-      type: getMimeTypeByExt(item.fileExt),
-    }));
+    return safeParse(media, 'array')
+      .filter(item => !!item)
+      .map(item => ({
+        id: item.fileID,
+        name: item.oldOriginalFileName + item.fileExt,
+        url: item.url,
+        type: getMimeTypeByExt(item.fileExt),
+      }));
   }
-  return media.map(item => ({
-    id: item.fileID,
-    name: item.originalFilename + item.ext,
-    url: item.viewUrl,
-    type: getMimeTypeByExt(item.ext),
-    source: item,
-  }));
+  return media
+    .filter(item => !!item)
+    .map(item => ({
+      id: item.fileID,
+      name: item.originalFilename + item.ext,
+      url: item.viewUrl,
+      type: getMimeTypeByExt(item.ext),
+      source: item,
+    }));
 }
 
 function formatImageUrlToFiles(imageUrl) {

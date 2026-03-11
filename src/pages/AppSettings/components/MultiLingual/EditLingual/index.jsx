@@ -24,7 +24,7 @@ const Drag = styled.div(
   height: 100%;
   cursor: ew-resize;
   &:hover {
-    border-left: 1px solid #ddd;
+    border-left: 1px solid var(--color-border-primary);
   }
 `,
 );
@@ -148,7 +148,7 @@ export default function Edit(props) {
     return (
       <div className="header flexRow">
         <div className="flexRow alignItemsCenter Font15">
-          <span className="bold mRight5 pointer ThemeColor backHome" onClick={onBack}>
+          <span className="bold mRight5 pointer colorPrimary backHome" onClick={onBack}>
             {_l('语言')}
           </span>
           /<span className="bold mLeft5">{langInfoText}</span>
@@ -162,7 +162,7 @@ export default function Edit(props) {
               content={
                 <PopoverWrap>
                   <div className="flexRow alignItemsCenter">
-                    <Icon className="Font26 ThemeColor mRight5" icon="translate_language" />
+                    <Icon className="Font26 colorPrimary mRight5" icon="translate_language" />
                     <div className="Font17 bold">{_l('将本应用的%0翻译为 %1', original, langInfoText)}</div>
                   </div>
                   <div className="mTop40 mBottom40">
@@ -195,7 +195,7 @@ export default function Edit(props) {
                 className="flexRow alignItemsCenter mRight20 pointer translateWrap"
                 style={{ pointerEvents: translateStatus ? 'none' : undefined }}
               >
-                <Icon className="Font20 ThemeColor mRight5" icon="translate_language" />
+                <Icon className="Font20 colorPrimary mRight5" icon="translate_language" />
                 <div className="Font13">{translateStatus ? _l('翻译中...') : _l('智能翻译')}</div>
               </div>
             </Popover>
@@ -204,7 +204,7 @@ export default function Edit(props) {
           <Select
             style={{ width: 260 }}
             value={comparisonLangId}
-            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             onChange={value => {
               handleChangeComparisonLangId(value);
             }}

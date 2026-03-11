@@ -3,7 +3,7 @@ import { Checkbox } from 'antd';
 import { Dialog } from 'ming-ui';
 import worksheetApi from 'src/api/worksheet';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config';
-import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import FilterItemTexts from 'src/pages/widgetConfig/widgetSetting/components/FilterData/FilterItemTexts';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 
 export default function FilterData(props) {

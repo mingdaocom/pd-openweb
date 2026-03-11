@@ -89,7 +89,7 @@ export default function Validity(props) {
             onOpenChange={setOpen}
             format={'YYYY-MM-DD HH:mm'}
             value={customDate}
-            clearIcon={<Icon icon="cancel" className="Gray_bd Font17" />}
+            clearIcon={<Icon icon="cancel" className="textDisabled Font17" />}
             disabledDate={current => {
               if (current) {
                 return current < moment();
@@ -112,9 +112,9 @@ export default function Validity(props) {
           <Select
             value={isAlways ? alwaysValue : validTime ? moment(validTime).format('YYYY-MM-DD HH:mm') : null}
             className="dateSelect"
-            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             allowClear={validTime ? true : false}
-            clearIcon={<Icon icon="cancel" className="Gray_bd Font17" />}
+            clearIcon={<Icon icon="cancel" className="textDisabled Font17" />}
             onChange={(value = alwaysValue) => {
               const target = _.find(validityDateTypes, { value });
               if (target && target.getValidTime) {
@@ -130,7 +130,7 @@ export default function Validity(props) {
               <Select.Option key={data.value} value={data.value} className="validityDateOption pLeft20 pRight20">
                 <div className="Font13 ellipsis">
                   <span>{data.label}</span>
-                  {data.getSubLabel && <span className="Gray_9e mLeft5">{data.getSubLabel()}</span>}
+                  {data.getSubLabel && <span className="textTertiary mLeft5">{data.getSubLabel()}</span>}
                 </div>
               </Select.Option>
             ))}

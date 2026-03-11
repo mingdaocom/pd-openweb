@@ -242,7 +242,6 @@ const featureData = [
     value1: 'basicNo',
     value2: 'basicPng',
     value3: 'basicPng',
-    isNew: true,
   },
   {
     className: 'multiLanguage',
@@ -409,7 +408,6 @@ const featureData = [
     value1: _l('1500元/税号/年'),
     value2: _l('1500元/税号/年'),
     value3: _l('1500元/税号/年'),
-    isNew: true,
   },
   {
     className: 'computing',
@@ -466,7 +464,6 @@ const featureData = [
     value1: 'basicPng',
     value2: 'basicPng',
     value3: 'basicPng',
-    isNew: true,
   },
   {
     className: 'agent',
@@ -476,7 +473,6 @@ const featureData = [
     value1: 'basicPng',
     value2: 'basicPng',
     value3: 'basicPng',
-    isNew: true,
   },
   { className: 'subTitle', subTitle: _l('整合') },
   {
@@ -501,6 +497,15 @@ const featureData = [
     className: 'feishu',
     name: _l('飞书整合'),
     dataTip: _l('在飞书中使用HAP'),
+    value0: 'basicNo',
+    value1: 'basicPng',
+    value2: 'basicPng',
+    value3: 'basicPng',
+  },
+  {
+    className: 'microsoft',
+    name: _l('Microsoft Entra 整合'),
+    dataTip: _l('明道云可与您的Microsoft Entra目录进行整合， 终端用户可实现单点登录'),
     value0: 'basicNo',
     value1: 'basicPng',
     value2: 'basicPng',

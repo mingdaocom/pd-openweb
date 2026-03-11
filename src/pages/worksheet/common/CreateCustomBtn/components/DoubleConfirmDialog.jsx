@@ -6,7 +6,7 @@ import OpinionTemplate from 'src/pages/workflow/WorkflowSettings/Detail/Approval
 
 const Wrap = styled.div`
   .line {
-    border-top: 1px solid #eaeaea;
+    border-top: 1px solid var(--color-border-secondary);
     margin: 24px 0;
   }
   .btnTxt {
@@ -18,7 +18,7 @@ const Wrap = styled.div`
     }
   }
   .icon-ic_toggle_off {
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
   .icon-ic_toggle_on {
     color: #00c345;
@@ -27,9 +27,9 @@ const Wrap = styled.div`
     font-weight: 400;
   }
   .remarkWrap {
-    background: #f8f8f8;
+    background: var(--color-background-secondary);
     border-radius: 3px 3px 3px 3px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
     line-height: 36px;
     padding: 0 12px;
   }
@@ -163,7 +163,7 @@ class DoubleConfirmDialog extends React.Component {
           </div>
           <div className="line"></div>
           <p className="Bold">{_l('填写备注')}</p>
-          <p className="Gray_75 mTop16">{_l('启用后，用户需要对操作进行备注说明')}</p>
+          <p className="textSecondary mTop16">{_l('启用后，用户需要对操作进行备注说明')}</p>
           <Icon
             icon={enableremark === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
             className="switchIcon Font50 Hand"
@@ -256,7 +256,7 @@ class DoubleConfirmDialog extends React.Component {
                       <span className="ho">{_l('已设置')}</span>
                       {remarktype !== '1' && ` (${_l('允许用户修改')})`}
                     </div>
-                    <Icon icon={'edit'} className="Gray_9e Hand LineHeight36 ThemeHoverColor3" />
+                    <Icon icon={'edit'} className="textTertiary Hand LineHeight36 ThemeHoverColor3" />
                   </div>
                 </div>
               )}

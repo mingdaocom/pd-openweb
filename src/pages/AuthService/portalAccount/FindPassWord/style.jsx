@@ -8,7 +8,7 @@ export const Wrap = styled.div`
   background-size: cover;
   overflow: hidden;
   .backImageUrl {
-    background-color: #ebebeb;
+    background-color: var(--color-border-secondary);
     background-position: center;
     flex: 1;
     background-repeat: no-repeat;
@@ -25,13 +25,13 @@ export const Wrap = styled.div`
   }
   .btnUseOldAccount {
     font-size: 14px;
-    color: #1677ff;
+    color: var(--color-primary);
     display: block;
     margin: 20px auto 0;
     text-align: center;
 
     &:hover {
-      color: #1182dd;
+      color: var(--color-link-hover);
     }
   }
 `;
@@ -41,7 +41,7 @@ export const WrapCon = styled.div`
   }
   .back {
     &:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
   img {
@@ -55,7 +55,7 @@ export const WrapCon = styled.div`
   max-width: 840px;
   min-width: 360px;
   height: 100%;
-  background: #fff;
+  background: var(--color-background-primary);
   .logoImageUrlIcon {
     width: 40px;
     height: 40px;
@@ -82,7 +82,7 @@ export const WrapCon = styled.div`
   &.isCenterCon {
     border-radius: 4px;
     width: 480px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     height: auto;
     box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.16);
     position: absolute;
@@ -136,22 +136,22 @@ export const WrapCon = styled.div`
     line-height: 1.5;
   }
   .loginBtn {
-    background: #1677ff;
+    background: var(--color-primary);
     height: 48px;
     border-radius: 4px;
     line-height: 48px;
-    color: #fff;
+    color: var(--color-white);
     font-weight: bold;
     font-size: 16px;
     &:hover {
-      background: #42a5f5;
+      background: var(--color-link-hover);
     }
     &.sending {
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
     }
     &.disable {
       cursor: default;
-      background: #bdbdbd !important;
+      background: var(--color-text-disabled) !important;
     }
   }
   &.isR {

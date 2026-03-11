@@ -1,3 +1,4 @@
+import workMicrosoftAjax from 'src/api/workMicrosoft';
 import workWeiXinAjax from 'src/api/workWeiXin';
 
 export const INTEGRATION_INFO = {
@@ -25,12 +26,20 @@ export const INTEGRATION_INFO = {
     unbindRelationAjax: workWeiXinAjax.unbindFeiShuUserRelation,
     syncAjax: workWeiXinAjax.syncFeishuToMingByApp,
   },
-  7: {
+  62: {
     text: 'Lark',
     checkAjax: workWeiXinAjax.checkFeiShuToMingByApp,
     getAddressAjax: workWeiXinAjax.getFeiShuStructureInfo,
     getRelationsAjax: workWeiXinAjax.getFeiShuUserRelations,
     unbindRelationAjax: workWeiXinAjax.unbindFeiShuUserRelation,
     syncAjax: workWeiXinAjax.syncFeishuToMingByApp,
+  },
+  7: {
+    text: 'Microsoft Entra',
+    checkAjax: workMicrosoftAjax.checkMicrosoftToMingByApp,
+    getAddressAjax: workMicrosoftAjax.getMicrosoftStructureInfo,
+    getRelationsAjax: workMicrosoftAjax.getMicrosoftUserRelations,
+    unbindRelationAjax: workMicrosoftAjax.unbindMicrosoftUserRelation,
+    syncAjax: workMicrosoftAjax.syncMicrosoftToMingByApp,
   },
 };

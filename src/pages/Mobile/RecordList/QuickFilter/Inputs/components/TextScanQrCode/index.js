@@ -25,7 +25,7 @@ export default class Widgets extends Component {
     const { onChange, ...otherProps } = this.props;
     return (
       <Box onScanQRCodeResult={onChange} {...otherProps}>
-        <Icon icon="qr_code_19" className="Font20 Gray_75" />
+        <Icon icon="qr_code_19" className="Font20 textSecondary" />
       </Box>
     );
   }

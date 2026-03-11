@@ -1,5 +1,4 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import store from 'redux/configureStore';
 import { Dropdown } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -12,18 +11,19 @@ import { LINK_PARA_FIELDS } from 'src/pages/customPage/config';
 import { updatePageInfo } from 'src/pages/customPage/redux/action';
 import { getAppSectionRef } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
 import { DropdownContent } from 'src/pages/widgetConfig/styled';
+import store from 'src/redux/configureStore';
 
 const ControlTag = styled.div`
   line-height: 24px;
   padding: 0 12px;
   border-radius: 16px;
   background: #d8eeff;
-  color: #174c76;
-  border: 1px solid #bbd6ea;
+  color: var(--color-link-hover);
+  border: 1px solid var(--color-primary-transparent);
   &.invalid {
-    color: #f44336;
+    color: var(--color-error);
     background: rgba(244, 67, 54, 0.06);
-    border-color: #f44336;
+    border-color: var(--color-error);
   }
 `;
 
@@ -32,11 +32,11 @@ const TagTextareaWrap = styled.div`
     border-radius: 3px 0 3px 3px !important;
   }
   .CodeMirror-placeholder {
-    color: #9e9e9e !important;
+    color: var(--color-text-tertiary) !important;
     padding-left: 10px !important;
   }
   .iconWrap {
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     padding: 5px;
     border-radius: 0 3px 3px 0;
     width: 28px;
@@ -46,7 +46,7 @@ const TagTextareaWrap = styled.div`
     align-items: center;
     justify-content: center;
     &:hover .icon-workflow_other {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
 `;
@@ -152,7 +152,7 @@ const ExternalLink = props => {
               onChange={value => setCustomPageType(value)}
             />
           </div>
-          <div className="Gray_9e" style={{ marginLeft: 75 }}>
+          <div className="textTertiary" style={{ marginLeft: 75 }}>
             {customPageType === '1' && _l('创建一个画布页面，在页面中添加统计报表、按钮、视图等组件')}
             {customPageType === '2' && _l('将一个已有外部链接作为页面')}
           </div>
@@ -203,7 +203,7 @@ const ExternalLink = props => {
               >
                 <Tooltip title={_l('使用动态参数')} placement="bottom">
                   <div className="iconWrap Font17 pointer">
-                    <Icon className="Gray_9e" icon="workflow_other" />
+                    <Icon className="textTertiary" icon="workflow_other" />
                   </div>
                 </Tooltip>
               </Dropdown>

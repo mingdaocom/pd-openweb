@@ -13,13 +13,13 @@ const SearchWrap = styled.div`
   input {
     border: none;
     border-radius: 17px;
-    background: #f5f5f5;
-    border: 1px solid #f5f5f5;
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-background-secondary);
     padding: 4px 5px 4px 35px;
     width: 100%;
     &:focus {
-      border-color: #1677ff;
-      background: #fff;
+      border-color: var(--color-primary);
+      background: var(--color-background-primary);
     }
   }
   .icon-cancel {
@@ -173,10 +173,10 @@ class SearchMember extends Component {
       >
         <img src={account.avatarMiddle} />
         <div className="flexColumn flex minWidth0 mLeft10">
-          <span className="username Gray bold Font13" title={account.fullname}>
+          <span className="username textPrimary bold Font13" title={account.fullname}>
             {account.fullname}
           </span>
-          <span className="department Gray_75 ellipsis Font12">
+          <span className="department textSecondary ellipsis Font12">
             {account.profession}
             {account.profession && account.companyName && ' | '}
             {account.companyName}
@@ -196,7 +196,7 @@ class SearchMember extends Component {
       >
         <img src={group.avatar} />
         <div className="flex minWidth0 mLeft10 ellipsis">
-          <span className="groupname Gray bold Font13" title={group.name}>
+          <span className="groupname textPrimary bold Font13" title={group.name}>
             {group.name}
           </span>
         </div>
@@ -217,9 +217,9 @@ class SearchMember extends Component {
             >
               <div className="flex bold">
                 {_l('联系人')}
-                <span className="mLeft5 ThemeColor">{result.accounts.list.length}</span>
+                <span className="mLeft5 colorPrimary">{result.accounts.list.length}</span>
               </div>
-              <Icon icon={accountsVisible ? 'arrow-up-border' : 'arrow-down-border'} className="Gray_75 Font16" />
+              <Icon icon={accountsVisible ? 'arrow-up-border' : 'arrow-down-border'} className="textSecondary Font16" />
             </div>
             {accountsVisible && (
               <div>{result.accounts.list.map(account => this.renderAccount(account, currentResult))}</div>
@@ -234,9 +234,9 @@ class SearchMember extends Component {
             >
               <div className="flex bold">
                 {_l('聊天/群组')}
-                <span className="mLeft5 ThemeColor">{result.groups.list.length}</span>
+                <span className="mLeft5 colorPrimary">{result.groups.list.length}</span>
               </div>
-              <Icon icon={groupsVisible ? 'arrow-up-border' : 'arrow-down-border'} className="Gray_75 Font16" />
+              <Icon icon={groupsVisible ? 'arrow-up-border' : 'arrow-down-border'} className="textSecondary Font16" />
             </div>
             {groupsVisible && <div>{result.groups.list.map(group => this.renderGroup(group, currentResult))}</div>}
           </div>
@@ -276,7 +276,7 @@ class SearchMember extends Component {
     return (
       <Fragment>
         <SearchWrap className="searchWrap flexRow alignItemsCenter flex mRight10 Relative">
-          <Icon icon="search" className="Gray_75 Font20 mLeft10 Absolute" />
+          <Icon icon="search" className="textSecondary Font20 mLeft10 Absolute" />
           <input
             ref={this.inputRef}
             type="text"
@@ -294,7 +294,7 @@ class SearchMember extends Component {
           {value.trim() && (
             <Icon
               icon="cancel"
-              className="Gray_75 Font20 pointer Absolute"
+              className="textSecondary Font20 pointer Absolute"
               onClick={() => this.setState({ value: '' })}
             />
           )}

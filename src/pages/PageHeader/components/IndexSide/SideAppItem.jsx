@@ -12,13 +12,13 @@ const AppStatus = styled.div`
   padding: 0 8px;
   line-height: 22px;
   box-sizing: border-box;
-  background: #151515;
-  color: #fff;
+  background: #515151;
+  color: var(--color-white);
   margin-left: 8px;
   text-align: center;
   white-space: nowrap;
   &.isOverdue {
-    background: #bdbdbd;
+    background: var(--color-text-disabled);
   }
   &.fixed {
     background: #fd7558;
@@ -65,7 +65,7 @@ function SideAppItem({
       }}
     >
       <li>
-        <div className="iconWrap" style={{ backgroundColor: iconColor || '#1677ff' }}>
+        <div className="iconWrap" style={{ backgroundColor: iconColor || 'var(--color-primary)' }}>
           <SvgIcon url={iconUrl} fill="#fff" size={18} />
         </div>
         <div className="appInfo">

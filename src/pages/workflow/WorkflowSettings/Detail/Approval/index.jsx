@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Checkbox, Dropdown, Icon, LoadDiv, Radio, ScrollView, Support } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import flowNode from '../../../api/flowNode';
-import { OPERATION_TYPE } from '../../enum';
+import { OPERATION_TYPE, RELATION_TYPE } from '../../enum';
 import { clearFlowNodeMapParameter } from '../../utils';
 import {
   ButtonName,
@@ -33,7 +33,7 @@ const GraduallyMemberBox = styled.div`
   height: 36px;
   display: flex;
   align-items: center;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border-primary);
   min-width: 0;
   cursor: pointer;
   position: relative;
@@ -45,12 +45,12 @@ const GraduallyMemberBox = styled.div`
 
 const CustomMessageBox = styled.div`
   height: 36px;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   border-radius: 4px;
   align-items: center;
   padding: 0 12px;
   .icon-trash:hover {
-    color: #f44336 !important;
+    color: var(--color-error) !important;
   }
 `;
 
@@ -70,7 +70,7 @@ const TABS_ITEM = styled.div`
       right: 0;
       content: '';
       height: 0;
-      border-bottom: 3px solid #1677ff;
+      border-bottom: 3px solid var(--color-primary);
     }
   }
 `;
@@ -126,9 +126,12 @@ export default class Approval extends Component {
             flowNodeMap: Object.assign({}, data.flowNodeMap, {
               [OPERATION_TYPE.PASS]: result.flowNodeMap[OPERATION_TYPE.PASS],
               [OPERATION_TYPE.OVERRULE]: result.flowNodeMap[OPERATION_TYPE.OVERRULE],
-              [OPERATION_TYPE.BEFORE]: result.flowNodeMap[OPERATION_TYPE.BEFORE],
-              [OPERATION_TYPE.RETURN]: result.flowNodeMap[OPERATION_TYPE.RETURN],
+              [OPERATION_TYPE.FORWARD]: result.flowNodeMap[OPERATION_TYPE.FORWARD],
+              [OPERATION_TYPE.SIGN]: result.flowNodeMap[OPERATION_TYPE.SIGN],
               [OPERATION_TYPE.WORK]: result.flowNodeMap[OPERATION_TYPE.WORK],
+              [OPERATION_TYPE.RETURN]: result.flowNodeMap[OPERATION_TYPE.RETURN],
+              [OPERATION_TYPE.TASK_REVOKE]: result.flowNodeMap[OPERATION_TYPE.TASK_REVOKE],
+              [OPERATION_TYPE.BEFORE]: result.flowNodeMap[OPERATION_TYPE.BEFORE],
               [OPERATION_TYPE.PROMPT_SOUND]: result.flowNodeMap[OPERATION_TYPE.PROMPT_SOUND],
             }),
             formProperties: result.formProperties,
@@ -347,7 +350,7 @@ export default class Approval extends Component {
                   }
                 >
                   <Icon
-                    className="Font16 Gray_9e InlineBlock mTop4"
+                    className="Font16 textTertiary InlineBlock mTop4"
                     style={{ verticalAlign: 'top', marginLeft: -15 }}
                     icon="info"
                   />
@@ -374,7 +377,7 @@ export default class Approval extends Component {
         {data.multipleLevelType === 11 && <div className="mBottom10 Font13 bold">{_l('选择范围')}</div>}
         <Member
           companyId={this.props.companyId}
-          appId={this.props.relationType === 2 ? this.props.relationId : ''}
+          appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
           accounts={accounts}
           updateSource={this.updateSource}
         />
@@ -386,7 +389,7 @@ export default class Approval extends Component {
           <i className="Font28 icon-task-add-member-circle mRight10" />
           {_l('添加审批人')}
           <SelectUserDropDown
-            appId={this.props.relationType === 2 ? this.props.relationId : ''}
+            appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
             visible={showSelectUserDialog}
             companyId={this.props.companyId}
             processId={this.props.processId}
@@ -481,11 +484,11 @@ export default class Approval extends Component {
           {userType !== '11' && (
             <GraduallyMemberBox className="flex mLeft10" onClick={() => this.setState({ showSelectUserDialog: true })}>
               {!((data.candidateUserMap || {})[userType] || []).concat(data.accounts).length ? (
-                <span className="Gray_75">{userType === '12' ? _l('选择人员字段') : _l('选择部门字段')}</span>
+                <span className="textSecondary">{userType === '12' ? _l('选择人员字段') : _l('选择部门字段')}</span>
               ) : (
                 <Member
                   companyId={this.props.companyId}
-                  appId={this.props.relationType === 2 ? this.props.relationId : ''}
+                  appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
                   leastOne
                   accounts={
                     data.candidateUserMap && data.candidateUserMap[userType]
@@ -500,10 +503,10 @@ export default class Approval extends Component {
                 <div className="mLeft5">{_l('部门负责人')}</div>
               )}
               <div className="flex" />
-              <i className="icon-arrow-down-border mLeft8 Gray_75" />
+              <i className="icon-arrow-down-border mLeft8 textSecondary" />
 
               <SelectUserDropDown
-                appId={this.props.relationType === 2 ? this.props.relationId : ''}
+                appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
                 visible={showSelectUserDialog}
                 companyId={this.props.companyId}
                 processId={this.props.processId}
@@ -581,7 +584,7 @@ export default class Approval extends Component {
               }}
             />
             <Tooltip title={_l('如不勾选，则需要触发者所属的所有部门的对应层级的部门负责人一起审批')}>
-              <i className="Font14 icon-help Gray_9e mLeft5" />
+              <i className="Font14 icon-help textTertiary mLeft5" />
             </Tooltip>
           </div>
         )}
@@ -675,7 +678,7 @@ export default class Approval extends Component {
     ];
 
     return (
-      <div className="mTop25" style={{ borderBottom: '1px solid #ddd' }}>
+      <div className="mTop25" style={{ borderBottom: '1px solid var(--color-border-primary)' }}>
         {TABS.map(item => {
           return (
             <TABS_ITEM
@@ -745,7 +748,7 @@ export default class Approval extends Component {
             {data.isCallBack && (
               <div className="flowBackBox Font12 mTop10">
                 <div>
-                  <span className="Gray_75 mRight5">{_l('可退回到的节点')}</span>
+                  <span className="textSecondary mRight5">{_l('可退回到的节点')}</span>
                   {data.callBackNodeType === 0 && (
                     <Fragment>
                       {data.callBackNodes.map(o => Object.values(o)).join('、') || _l('无可退回的节点')}
@@ -760,7 +763,7 @@ export default class Approval extends Component {
                       .join('、')}
                 </div>
                 <div className="mTop4">
-                  <span className="Gray_75 mRight5">{_l('被退回的节点重新提交时')}</span>
+                  <span className="textSecondary mRight5">{_l('被退回的节点重新提交时')}</span>
                   {data.callBackType === 0 && _l('重新执行流程')}
                   {data.callBackType === 1
                     ? data.callBackMultipleLevel === 1
@@ -772,7 +775,7 @@ export default class Approval extends Component {
                 </div>
                 <Icon
                   type="edit"
-                  className="Gray_75 ThemeHoverColor3 Font14 pointer"
+                  className="textSecondary ThemeHoverColor3 Font14 pointer"
                   onClick={() => this.setState({ showCallbackDialog: true })}
                 />
               </div>
@@ -823,7 +826,7 @@ export default class Approval extends Component {
             {_.includes(data.operationTypeList, 7) && (
               <Fragment>
                 <div className="mLeft25 relative">
-                  <div className="Font13 mTop5 Gray_75">{_l('加签方式')}</div>
+                  <div className="Font13 mTop5 textSecondary">{_l('加签方式')}</div>
                   <div className="flexRow mTop10">
                     {SIGN_TYPE.map((item, i) => (
                       <div className="mRight40" key={i}>
@@ -883,7 +886,7 @@ export default class Approval extends Component {
 
         <OperatorEmpty
           projectId={this.props.companyId}
-          appId={this.props.relationType === 2 ? this.props.relationId : ''}
+          appId={this.props.relationType === RELATION_TYPE.APP ? this.props.relationId : ''}
           isApproval={this.props.isApproval}
           title={_l('审批人为空时')}
           titleInfo={_l('设置当前节点负责人为空时的处理方式。当使用默认设置时，按照流程发起节点中设置的统一的处理方式')}
@@ -1010,7 +1013,7 @@ export default class Approval extends Component {
                   </div>
                   <Icon
                     type="edit"
-                    className="Gray_75 ThemeHoverColor3 Font14 pointer"
+                    className="textSecondary ThemeHoverColor3 Font14 pointer"
                     onClick={() => this.setState({ selectMsgKey: item.msgKey })}
                   />
                 </CustomMessageBox>
@@ -1057,7 +1060,7 @@ export default class Approval extends Component {
                 {o.text}
                 {o.tips && (
                   <Tooltip title={o.tips}>
-                    <Icon className="Font16 Gray_9e mLeft5" style={{ verticalAlign: 'text-bottom' }} icon="info" />
+                    <Icon className="Font16 textTertiary mLeft5" style={{ verticalAlign: 'text-bottom' }} icon="info" />
                   </Tooltip>
                 )}
               </span>
@@ -1125,9 +1128,24 @@ export default class Approval extends Component {
         key: OPERATION_TYPE.OVERRULE,
       },
       {
+        title: _l('节点加签后更新'),
+        desc: _l('节点加签后，更新数据对象的字段值'),
+        key: OPERATION_TYPE.SIGN,
+      },
+      {
+        title: _l('节点转审后更新'),
+        desc: _l('节点转审后，更新数据对象的字段值'),
+        key: OPERATION_TYPE.FORWARD,
+      },
+      {
         title: _l('节点退回后更新'),
         desc: _l('节点退回后，更新数据对象的字段值'),
         key: OPERATION_TYPE.RETURN,
+      },
+      {
+        title: _l('节点撤回后更新'),
+        desc: _l('节点撤回后，更新数据对象的字段值'),
+        key: OPERATION_TYPE.TASK_REVOKE,
       },
       {
         title: _l('审批过程中更新'),
@@ -1176,7 +1194,7 @@ export default class Approval extends Component {
                         '当发起节点启用邮件通知功能后，这边同步开启相应设置，审批结果将通过邮件的形式及时发送给发起人。',
                       )}
                     >
-                      <Icon className="Font16 Gray_9e mLeft5" icon="info" />
+                      <Icon className="Font16 textTertiary mLeft5" icon="info" />
                     </Tooltip>
                   </div>
                   {this.renderMessage()}
@@ -1236,7 +1254,7 @@ export default class Approval extends Component {
                           <span>
                             <Icon
                               type="trash"
-                              className="Gray_75 Font14 pointer"
+                              className="textSecondary Font14 pointer"
                               onClick={() =>
                                 this.updateSource({
                                   opinionTemplate: { inputType: data.opinionTemplate.inputType, opinions: {} },
@@ -1248,7 +1266,7 @@ export default class Approval extends Component {
 
                         <Icon
                           type="edit"
-                          className="Gray_75 ThemeHoverColor3 Font14 pointer mLeft20"
+                          className="textSecondary ThemeHoverColor3 Font14 pointer mLeft20"
                           onClick={() => this.setState({ showApprovalTemplate: true })}
                         />
                       </Fragment>
@@ -1303,7 +1321,7 @@ export default class Approval extends Component {
                         {_l('登录密码验证')}
                         <Tooltip title={_l('启用后，用户输入登录密码后才可进行通过/否决')}>
                           <Icon
-                            className="Font16 Gray_9e mLeft5"
+                            className="Font16 textTertiary mLeft5"
                             style={{ verticalAlign: 'text-bottom' }}
                             icon="info"
                           />
@@ -1321,7 +1339,7 @@ export default class Approval extends Component {
                   <div className="Font13 bold mTop25">
                     {_l('审批说明')}
                     <Tooltip title={_l('在审批记录详情页，右侧的当前节点卡片内会显示对审批内容或操作的提示信息')}>
-                      <Icon className="Font16 Gray_9e mLeft5" icon="info" />
+                      <Icon className="Font16 textTertiary mLeft5" icon="info" />
                     </Tooltip>
                   </div>
                   <CustomTextarea
@@ -1361,7 +1379,7 @@ export default class Approval extends Component {
 
               {tabIndex === 2 && (
                 <Fragment>
-                  <div className="Gray_75 mTop20">
+                  <div className="textSecondary mTop20">
                     {_l(
                       '设置审批时可以查看、编辑、必填的字段。设为摘要的字段可以在流程待办列表和邮件通知中直接显示，使审批人无需打开详情即可快速完成审批。',
                     )}
@@ -1373,7 +1391,7 @@ export default class Approval extends Component {
                     />
                   </div>
 
-                  {data.selectNodeId ? (
+                  {data.selectNodeId && (
                     <div className="Font13 mTop15">
                       <WriteFields
                         data={data.formProperties}
@@ -1382,59 +1400,45 @@ export default class Approval extends Component {
                         showCard={true}
                       />
                     </div>
-                  ) : (
-                    <div className="Gray_75 Font13 flexRow flowDetailTips mTop15">
-                      <i className="icon-error1 Font16 Gray_9e" />
-                      <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置字段权限')}</div>
-                    </div>
                   )}
                 </Fragment>
               )}
 
-              {tabIndex === 3 && (
+              {tabIndex === 3 && data.selectNodeId && (
                 <Fragment>
-                  {data.selectNodeId ? (
-                    SOURCE_HANDLE_LIST.map((item, index) => {
-                      const sourceData = data.flowNodeMap[item.key] || {};
+                  {SOURCE_HANDLE_LIST.map((item, index) => {
+                    const sourceData = data.flowNodeMap[item.key] || {};
 
-                      return (
-                        <Fragment key={item.key}>
-                          <div className={cx('Font13 bold', index === 0 ? 'mTop20' : 'mTop25')}>{item.title}</div>
-                          <div className="Font13 Gray_75 mTop10">{item.desc}</div>
-                          <UpdateFields
-                            type={1}
-                            companyId={this.props.companyId}
-                            processId={this.props.processId}
-                            relationId={this.props.relationId}
-                            selectNodeId={this.props.selectNodeId}
-                            nodeId={sourceData.selectNodeId}
-                            controls={sourceData.controls.filter(o => o.type !== 29)}
-                            fields={sourceData.fields}
-                            showCurrent={true}
-                            filterType={
-                              item.key === OPERATION_TYPE.BEFORE ? 7 : item.key === OPERATION_TYPE.WORK ? 8 : 0
-                            }
-                            formulaMap={sourceData.formulaMap}
-                            updateSource={(obj, callback = () => {}) =>
-                              this.updateSource(
-                                {
-                                  flowNodeMap: Object.assign({}, data.flowNodeMap, {
-                                    [item.key]: Object.assign({}, data.flowNodeMap[item.key], obj),
-                                  }),
-                                },
-                                callback,
-                              )
-                            }
-                          />
-                        </Fragment>
-                      );
-                    })
-                  ) : (
-                    <div className="Gray_75 Font13 flexRow flowDetailTips mTop25">
-                      <i className="icon-error1 Font16 Gray_9e" />
-                      <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置数据更新')}</div>
-                    </div>
-                  )}
+                    return (
+                      <Fragment key={item.key}>
+                        <div className={cx('Font13 bold', index === 0 ? 'mTop20' : 'mTop25')}>{item.title}</div>
+                        <div className="Font13 textSecondary mTop10">{item.desc}</div>
+                        <UpdateFields
+                          type={1}
+                          companyId={this.props.companyId}
+                          processId={this.props.processId}
+                          relationId={this.props.relationId}
+                          selectNodeId={this.props.selectNodeId}
+                          nodeId={sourceData.selectNodeId}
+                          controls={sourceData.controls.filter(o => o.type !== 29)}
+                          fields={sourceData.fields}
+                          showCurrent={true}
+                          filterType={item.key === OPERATION_TYPE.BEFORE ? 7 : item.key === OPERATION_TYPE.WORK ? 8 : 0}
+                          formulaMap={sourceData.formulaMap}
+                          updateSource={(obj, callback = () => {}) =>
+                            this.updateSource(
+                              {
+                                flowNodeMap: Object.assign({}, data.flowNodeMap, {
+                                  [item.key]: Object.assign({}, data.flowNodeMap[item.key], obj),
+                                }),
+                              },
+                              callback,
+                            )
+                          }
+                        />
+                      </Fragment>
+                    );
+                  })}
                 </Fragment>
               )}
             </div>

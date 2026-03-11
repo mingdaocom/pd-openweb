@@ -9,7 +9,7 @@ import { Chatbot } from 'mobile/Chatbot';
 import CustomPage from 'mobile/CustomPage';
 import RecordList from 'mobile/RecordList';
 import WorksheetUnNormal from 'mobile/RecordList/State';
-import { getEmbedValue } from 'src/components/Form/core/formUtils';
+import { getEmbedValue } from 'src/components/Form/core/formUtils/helper';
 import UpgradeContent from 'src/components/UpgradeContent';
 import PortalUserSet from 'src/pages/PageHeader/components/PortalUserSet/index.jsx';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
@@ -303,7 +303,7 @@ class App extends Component {
                 this.handleOpenSheet(data, item);
               }}
             >
-              <div className="Font15 Gray ellipsis">
+              <div className="Font15 textPrimary ellipsis">
                 {getTranslateInfo(detail.id, null, item.workSheetId).name || item.workSheetName}
               </div>
             </List.Item>
@@ -398,7 +398,7 @@ class App extends Component {
                         fill={detail.iconColor}
                         size={detail.gridDisplayMode === 1 && screenWidth <= 600 ? 26 : 30}
                       />
-                      <div className="name Gray">
+                      <div className="name textPrimary">
                         {getTranslateInfo(detail.id, null, v.workSheetId).name || v.workSheetName}
                       </div>
                     </div>
@@ -418,7 +418,7 @@ class App extends Component {
     if (level == 'level1') {
       return (
         <div className="accordionHeaderWrap appSectionHeader">
-          <div className="Bold flex ellipsis Gray">{name || _l('未命名分组')}</div>
+          <div className="Bold flex ellipsis textPrimary">{name || _l('未命名分组')}</div>
           {_.includes(expandGroupKeys, data.appSectionId) ? (
             <Icon icon="minus" className="appSectionIcon" />
           ) : (
@@ -429,7 +429,12 @@ class App extends Component {
     }
     if (appNaviStyle === 1) {
       return (
-        <div className={cx('Gray_75 Font14 pLeft15 ellipsis mTop8', { mBottom12: name, mTop28: !name && index !== 0 })}>
+        <div
+          className={cx('textSecondary Font14 pLeft15 ellipsis mTop8', {
+            mBottom12: name,
+            mTop28: !name && index !== 0,
+          })}
+        >
           {name}
         </div>
       );
@@ -438,9 +443,12 @@ class App extends Component {
       <div className="accordionHeaderWrap">
         <div className="flexRow mLeft5">
           <SvgIcon url={data.iconUrl} fill={data.iconColor} size={22} className="mRight12" />
-          <div className="flex ellipsis Font15 Bold Gray">{name}</div>
+          <div className="flex ellipsis Font15 Bold textPrimary">{name}</div>
         </div>
-        <Icon icon="expand_more" className={cx('Gray_75', { open: _.includes(level2ExpandKeys, data.appSectionId) })} />
+        <Icon
+          icon="expand_more"
+          className={cx('textSecondary', { open: _.includes(level2ExpandKeys, data.appSectionId) })}
+        />
       </div>
     );
   }
@@ -467,7 +475,7 @@ class App extends Component {
       return (
         <div className="flexRow valignWrapper appNaviStyle2Header">
           <div
-            className={cx('flex flexRow valignWrapper Gray_75 process Relative', { hide: window.isPublicApp })}
+            className={cx('flex flexRow valignWrapper textSecondary process Relative', { hide: window.isPublicApp })}
             onClick={() => {
               if (processCount) {
                 this.navigateTo(`/mobile/processMatters?appId=${params.appId}`);
@@ -485,7 +493,7 @@ class App extends Component {
             )}
           </div>
           <div
-            className={cx('flex flexRow valignWrapper Gray_75 ')}
+            className={cx('flex flexRow valignWrapper textSecondary ')}
             onClick={() => this.setState({ appMoreActionVisible: true })}
           >
             <Icon className="Font17" icon="more_horiz" />
@@ -496,16 +504,16 @@ class App extends Component {
     }
     return (
       <div className="appName flexColumn pLeft15 pRight20">
-        <div className="content flex White flexRow valignWrapper">
+        <div className="content flex textWhite flexRow valignWrapper">
           <div className="Font24 flex WordBreak overflow_ellipsis appNameTxt">
-            <span className="Gray">{appName}</span>
+            <span className="textPrimary">{appName}</span>
           </div>
           {!webMobileDisplay && (
             <React.Fragment>
               <div className={cx('Relative flexRow valignWrapper', { hide: window.isPublicApp })}>
                 <Icon
                   icon="knowledge_file"
-                  className="Font26 Gray_bd"
+                  className="Font26 textDisabled"
                   onClick={() => {
                     if (processCount) {
                       this.navigateTo(`/mobile/processMatters?appId=${params.appId}`);
@@ -520,7 +528,7 @@ class App extends Component {
               </div>
               <Icon
                 icon="more_horiz"
-                className="mLeft16 Font26 Gray_9e"
+                className="mLeft16 Font26 textTertiary"
                 onClick={() => this.setState({ appMoreActionVisible: true })}
               />
             </React.Fragment>
@@ -573,11 +581,11 @@ class App extends Component {
       <div className="guideWrapper">
         <div className="guide" />
         <img className="guideImg Absolute" src={guideImg} />
-        <div className="text Absolute Font18 White bold">
+        <div className="text Absolute Font18 textWhite bold">
           {_l('新应用仅您自己可见，请在“人员设置”将角色分配给协作者，再开始使用。')}
         </div>
         <div
-          className="ok Absolute Font18 White bold"
+          className="ok Absolute Font18 textWhite bold"
           onClick={() => {
             this.navigateTo(`/mobile/app/${params.appId}`);
           }}
@@ -649,7 +657,11 @@ class App extends Component {
           {params.isNewApp && this.renderGuide()}
           <div
             className="flexColumn h100"
-            style={(fixed && permissionType !== APP_ROLE_TYPE.ADMIN_ROLE) || isNoPublish ? { background: '#fff' } : {}}
+            style={
+              (fixed && permissionType !== APP_ROLE_TYPE.ADMIN_ROLE) || isNoPublish
+                ? { background: 'var(--color-background-primary)' }
+                : {}
+            }
           >
             {this.renderAppHeader()}
             {isUpgrade || (fixed && !isAuthorityApp) || isNoPublish ? (
@@ -870,7 +882,7 @@ class App extends Component {
                 icon={
                   <SvgIcon
                     url={item.iconUrl}
-                    fill={selectedTab === item.workSheetId ? detail.iconColor : '#757575'}
+                    fill={selectedTab === item.workSheetId ? detail.iconColor : 'var(--color-text-secondary)'}
                     size={20}
                   />
                 }

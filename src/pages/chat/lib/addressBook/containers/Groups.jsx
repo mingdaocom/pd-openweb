@@ -247,7 +247,7 @@ export default class ProjectGroups extends React.Component {
   // renderTip() {
   //     const { showTip, tip } = this.state;
   //     if (showTip && tip) {
-  //         return <div className='list-packet fixed Gray_75 Font12'>{tip}</div>
+  //         return <div className='list-packet fixed textSecondary Font12'>{tip}</div>
   //     } else {
   //         return null;
   //     }

@@ -44,7 +44,7 @@ export default ({
         />
       ))}
       {_.includes([2, 3, 4, 6], status) && (
-        <div className="TxtCenter Gray_75 mTop5" style={{ marginLeft: 34 }}>
+        <div className="TxtCenter textSecondary mTop5" style={{ marginLeft: 34 }}>
           {_l('流程结束')}
         </div>
       )}

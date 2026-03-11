@@ -10,11 +10,12 @@ import downloadApi from 'src/api/download';
 import worksheetApi from 'src/api/worksheet';
 import { UploadFileWrapper } from 'mobile/components/AttachmentFiles';
 import GenScanUploadQr from 'worksheet/components/GenScanUploadQr';
-import { checkValueByFilterRegex, controlState } from 'src/components/Form/core/formUtils';
+import { checkValueByFilterRegex } from 'src/components/Form/core/formUtils';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { getRowGetType } from 'src/utils/common';
+import { controlState } from 'src/utils/control';
 import RegExpValidator from 'src/utils/expression';
 import { compatibleMDJS } from 'src/utils/project';
 import Files from '../../../components/Files';
@@ -480,8 +481,8 @@ export default class Widgets extends Component {
 
     const Content = (
       <Fragment>
-        <Icon className={cx('Gray_9e TxtMiddle', { iconClass })} icon={icon ? icon : 'attachment'} />
-        <span className="Gray Font13 mLeft5 addFileName overflow_ellipsis flex">{addFileName}</span>
+        <Icon className={cx('textTertiary TxtMiddle', { iconClass })} icon={icon ? icon : 'attachment'} />
+        <span className="textPrimary Font13 mLeft5 addFileName overflow_ellipsis flex">{addFileName}</span>
         {!!mingdaoAppUploading && (
           <span className="mLeft5 ThemeColor3 fileUpdateLoading Font13">
             {_l('%0个附件正在上传', mingdaoAppUploading)}
@@ -588,6 +589,7 @@ export default class Widgets extends Component {
       from,
       appId,
       worksheetId,
+      worksheetIdForScan,
       recordId,
       sheetSwitchPermit = [],
       strDefault = '10',
@@ -630,8 +632,8 @@ export default class Widgets extends Component {
 
     if (!value && isOnlyAllowMobile) {
       return (
-        <div className={cx('customFormControlBox Gray_bd')}>
-          <div className="Gray_9e" style={{ height: 34, lineHeight: '34px' }}>
+        <div className={cx('customFormControlBox textDisabled')}>
+          <div className="textTertiary" style={{ height: 34, lineHeight: '34px' }}>
             {_l('请在移动端拍摄后上传')}
           </div>
         </div>
@@ -730,6 +732,7 @@ export default class Widgets extends Component {
                 controlId={controlId}
                 viewId={viewIdForPermit}
                 worksheetId={worksheetId}
+                worksheetIdForScan={worksheetIdForScan}
                 offset={[0, 2]}
                 canAddLink={false}
                 canAddKnowledge={canAddKnowledge}
@@ -757,9 +760,9 @@ export default class Widgets extends Component {
                 checkValueByFilterRegex={this.checkValueByFilterRegex}
                 popupVisible={popupVisible}
               >
-                <div className="pointer flexRow Font13 Gray_9e alignItemsCenter" style={{ height: 34 }}>
+                <div className="pointer flexRow Font13 textTertiary alignItemsCenter" style={{ height: 34 }}>
                   <Icon icon="attachment" className="Font16" />
-                  <span className="mLeft5 Gray addFileName overflow_ellipsis">{addFileName}</span>
+                  <span className="mLeft5 textPrimary addFileName overflow_ellipsis">{addFileName}</span>
                   {isComplete === false && uploadStart && (
                     <span className="mLeft5 ThemeColor3 fileUpdateLoading">
                       {_l(
@@ -792,7 +795,7 @@ export default class Widgets extends Component {
                     <Tooltip title={_l('从移动设备输入')} placement="bottom" mouseEnterDelay={0}>
                       <Icon
                         icon="mobile"
-                        className="Font20 Gray_9e"
+                        className="Font20 textTertiary"
                         style={{
                           width: 34,
                           height: 34,
@@ -814,7 +817,7 @@ export default class Widgets extends Component {
               <Fragment>
                 <Tooltip title={_l('管理附件')} placement="bottom">
                   <Icon
-                    className="handleBtn Gray_9e Font18 pointer"
+                    className="handleBtn textTertiary Font18 pointer"
                     icon="application_custom"
                     onClick={() => this.setState({ fileEditModalVisible: true })}
                   />
@@ -832,7 +835,11 @@ export default class Widgets extends Component {
             {allAownload && !_.isEmpty(attachmentData) && (
               <div className="flexRow valignWrapper">
                 <Tooltip title={_l('全部下载')} placement="bottom">
-                  <Icon className="handleBtn Gray_9e Font18 pointer" icon="download" onClick={this.handleDownloadAll} />
+                  <Icon
+                    className="handleBtn textTertiary Font18 pointer"
+                    icon="download"
+                    onClick={this.handleDownloadAll}
+                  />
                 </Tooltip>
               </div>
             )}

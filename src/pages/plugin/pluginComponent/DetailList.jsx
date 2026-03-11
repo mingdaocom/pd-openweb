@@ -17,18 +17,18 @@ const ListWrapper = styled.div`
     align-items: center;
     margin: 0;
     padding: 12px 16px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-primary);
     .operate {
       text-align: right;
     }
   }
   .headTr {
-    color: #757575;
+    color: var(--color-text-secondary);
     font-weight: 500;
   }
   .dataItem {
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-secondary);
       .operateCon {
         display: block;
       }
@@ -37,9 +37,9 @@ const ListWrapper = styled.div`
       height: 24px;
       line-height: 24px;
       padding: 0px 8px;
-      background: rgba(76, 175, 80, 0.12);
+      background: var(--color-success-bg);
       border-radius: 36px;
-      color: #4caf50;
+      color: var(--color-success);
       font-weight: 600;
       font-size: 12px;
       margin: 0px 6px;
@@ -55,7 +55,7 @@ const ListWrapper = styled.div`
       display: none;
 
       .redBtn {
-        color: #f44336;
+        color: var(--color-error);
         margin-left: 12px;
       }
       span {
@@ -125,9 +125,9 @@ const ListWrapper = styled.div`
       align-items: center;
       cursor: pointer;
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
         i {
-          color: #1677ff !important;
+          color: var(--color-primary) !important;
         }
       }
     }
@@ -155,10 +155,10 @@ const NoDataWrapper = styled.div`
     width: 130px;
     height: 130px;
     line-height: 130px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     border-radius: 50%;
     margin: 64px auto 0;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 `;
 
@@ -167,7 +167,7 @@ const SecretDetailItem = styled.div`
   margin-bottom: 16px;
   .labelText {
     width: 140px;
-    color: #757575;
+    color: var(--color-text-secondary);
   }
   .passwordBox {
     width: 180px;
@@ -175,10 +175,10 @@ const SecretDetailItem = styled.div`
     line-height: 36px;
     padding: 0 12px;
     border-radius: 3px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
   }
   .expired {
-    color: #f44336;
+    color: var(--color-error);
   }
 `;
 
@@ -195,7 +195,7 @@ function SecretKeyDialog(props) {
         <div className="flex flexRow alignItemsCenter">
           <div className="passwordBox">{password}</div>
           <ClipboardButton
-            className="pointer Gray_9e ThemeHoverColor3 mLeft16"
+            className="pointer textTertiary ThemeHoverColor3 mLeft16"
             component="span"
             data-clipboard-text={password}
             onSuccess={() => alert(_l('复制成功'))}
@@ -212,7 +212,7 @@ function SecretKeyDialog(props) {
           <div className="labelText">{_l('授权到期时间')}</div>
           <div className="flex">
             <span>{moment(validityPeriod).format('YYYY-MM-DD 00:00')}</span>
-            <span className={`mLeft8 ${expireDays > 0 ? 'Gray_75' : 'expired'}`}>
+            <span className={`mLeft8 ${expireDays > 0 ? 'textSecondary' : 'expired'}`}>
               {expireDays > 0 ? _l('(剩余') + expireDays + _l('天)') : _l('(已过期)')}
             </span>
           </div>
@@ -285,7 +285,7 @@ export default function DetailList(props) {
         <div className="overflow_ellipsis" title={content}>
           {content || '-'}
         </div>
-        {content && <Icon icon="launch" className="mLeft4 Gray_9e" />}
+        {content && <Icon icon="launch" className="mLeft4 textTertiary" />}
       </div>
     ) : (
       <div className="overflow_ellipsis" title={content}>
@@ -335,11 +335,15 @@ export default function DetailList(props) {
       {
         dataIndex: 'operate',
         renderTitle: () => (
-          <Icon icon="refresh1" className="Font18 pointer Gray_9e Hover_21" onClick={() => onRefreshList()} />
+          <Icon
+            icon="refresh1"
+            className="Font18 pointer textTertiary hoverColorPrimary"
+            onClick={() => onRefreshList()}
+          />
         ),
         render: item => (
           <div className="operateCon">
-            <span className="ThemeColor" onClick={() => setPublishDialog({ visible: true, commitId: item.id })}>
+            <span className="colorPrimary" onClick={() => setPublishDialog({ visible: true, commitId: item.id })}>
               {_l('发布')}
             </span>
             <span className="redBtn" onClick={() => onDel(pluginConfigType.commit, item.id)}>
@@ -397,7 +401,11 @@ export default function DetailList(props) {
       {
         dataIndex: 'operate',
         renderTitle: () => (
-          <Icon icon="refresh1" className="Font18 pointer Gray_9e Hover_21" onClick={() => onRefreshList()} />
+          <Icon
+            icon="refresh1"
+            className="Font18 pointer textTertiary hoverColorPrimary"
+            onClick={() => onRefreshList()}
+          />
         ),
         render: item => (
           <div className="operateCon">
@@ -405,7 +413,7 @@ export default function DetailList(props) {
               <React.Fragment>
                 {source === 0 && (
                   <span
-                    className="mRight12 ThemeColor"
+                    className="mRight12 colorPrimary"
                     onClick={() => ExportPlugin({ pluginId, releaseId: item.id, source, onExportSuccess, pluginType })}
                   >
                     {_l('导出')}
@@ -417,7 +425,7 @@ export default function DetailList(props) {
                   (item.expireDays === 0 ? (
                     <span className="redBtn">{_l('(已过期)')}</span>
                   ) : (
-                    <span className="Gray_75">{_l('(剩余') + item.expireDays + _l('天)')}</span>
+                    <span className="textSecondary">{_l('(剩余') + item.expireDays + _l('天)')}</span>
                   ))}
               </React.Fragment>
             )}
@@ -428,7 +436,7 @@ export default function DetailList(props) {
               ) : (
                 publishType !== 3 && (
                   <span
-                    className="ThemeColor"
+                    className="colorPrimary"
                     onClick={() => {
                       Dialog.confirm({
                         title: _l(`切换到当前版本 （%0）`, item.versionCode),
@@ -512,7 +520,7 @@ export default function DetailList(props) {
         render: item =>
           item.url ? (
             <span
-              className="ThemeColor pointer ThemeHoverColor2"
+              className="colorPrimary pointer ThemeHoverColor2"
               onClick={() =>
                 window.open(
                   downloadFile(`${md.global.Config.AjaxApiUrl}Download/Plugin?projectId=${projectId}&id=${item.id}`),
@@ -522,7 +530,7 @@ export default function DetailList(props) {
               {_l('下载')}
             </span>
           ) : (
-            <span className="Gray_9e">{_l('下载')}</span>
+            <span className="textTertiary">{_l('下载')}</span>
           ),
       },
       {
@@ -531,19 +539,23 @@ export default function DetailList(props) {
         render: item =>
           item.profile ? (
             <span
-              className="ThemeColor pointer ThemeHoverColor2"
+              className="colorPrimary pointer ThemeHoverColor2"
               onClick={() => setSecretKeyDetail({ visible: true, data: item.profile })}
             >
               {_l('查看')}
             </span>
           ) : (
-            <span className="Gray_9e">{_l('无')}</span>
+            <span className="textTertiary">{_l('无')}</span>
           ),
       },
       {
         dataIndex: 'operate',
         renderTitle: () => (
-          <Icon icon="refresh1" className="Font18 pointer Gray_9e Hover_21" onClick={() => onRefreshList()} />
+          <Icon
+            icon="refresh1"
+            className="Font18 pointer textTertiary hoverColorPrimary"
+            onClick={() => onRefreshList()}
+          />
         ),
       },
     ],
@@ -606,7 +618,7 @@ export default function DetailList(props) {
           <span className="iconCon InlineBlock TxtCenter ">
             <Icon icon={emptyInfo[configType].icon} className="Font64 TxtMiddle" />
           </span>
-          <p className="Gray_9e mTop20 mBottom0">{keywords ? _l('暂无搜索结果') : emptyInfo[configType].text}</p>
+          <p className="textTertiary mTop20 mBottom0">{keywords ? _l('暂无搜索结果') : emptyInfo[configType].text}</p>
         </NoDataWrapper>
       )}
 

@@ -23,7 +23,7 @@ const Wrap = styled.div`
   max-width: 840px;
   min-width: 360px;
   height: 100%;
-  background: #fff;
+  background: var(--color-background-primary);
   .logoImageUrlIcon {
     width: 40px;
     height: 40px;
@@ -48,7 +48,7 @@ const Wrap = styled.div`
     border-radius: 4px;
     margin: 32px auto;
     min-width: 800px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     height: auto;
     box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.16);
     overflow: auto;
@@ -71,15 +71,15 @@ const Wrap = styled.div`
     }
   }
   .send {
-    background: #1677ff;
+    background: var(--color-primary);
     height: 40px;
     border-radius: 4px;
     line-height: 40px;
-    color: #fff;
+    color: var(--color-white);
     max-width: 120px;
     margin: 0 auto;
     &:hover {
-      background: #0f82dd;
+      background: var(--color-link-hover);
     }
   }
 `;

@@ -17,18 +17,18 @@ const SideMaskWrap = styled.div`
   height: 100%;
   z-index: 21;
   padding: 16px 18px;
-  background: #f5f5f5;
+  background: var(--color-background-secondary);
   display: flex;
   flex-direction: column;
   .title {
     font-size: 18px;
     font-weight: bold;
-    color: #151515;
+    color: var(--color-text-title);
     margin-bottom: 20px;
   }
   .rowHeadNumber {
     font-size: 13px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     text-align: center;
   }
   .append-button {
@@ -39,7 +39,7 @@ const SideMaskWrap = styled.div`
   }
   &:not(.disabled).clean-button {
     &:hover {
-      background: #fff;
+      background: var(--color-background-primary);
     }
   }
 `;

@@ -30,7 +30,7 @@ const RoleTagsWrap = styled.div`
   gap: 8px;
   flex-wrap: wrap;
   .roleTag {
-    background: #eaeaea;
+    background: var(--color-border-secondary);
     border-radius: 12px 12px 12px 12px;
     padding: 0 8px;
     height: 24px;
@@ -49,9 +49,9 @@ const DelIconWrap = styled.div`
   cursor: pointer;
   margin-left: 8px;
   &:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
     i {
-      color: #f44336 !important;
+      color: var(--color-error) !important;
     }
   }
 `;
@@ -137,7 +137,7 @@ export default class BaseFormInfo extends Component {
         width: 520,
         title: _l('添加多任职'),
         description: (
-          <div className="Gray">
+          <div className="textPrimary">
             {_l(
               '添加后，支持设置部门对应的职位信息，设置后在成员的个人资料中展示。原本的“职位”将显示为“全部职位”汇总多任职信息中的职位信息，并在系统中使用。',
             )}
@@ -401,7 +401,7 @@ export default class BaseFormInfo extends Component {
         }
       >
         <Icon
-          className="Font16 Hand Gray_9e TxtMiddle ThemeHoverColor"
+          className="Font16 Hand textTertiary TxtMiddle ThemeHoverColor"
           icon="moreop"
           onClick={e => {
             e.stopPropagation();
@@ -435,7 +435,7 @@ export default class BaseFormInfo extends Component {
         }
         {i === 0 && (
           <Tooltip placement="top" title={_l('主属部门')}>
-            <Icon icon="main-department" className="Font22 ThemeColor mLeft8 mRight8" />
+            <Icon icon="main-department" className="Font22 colorPrimary mLeft8 mRight8" />
           </Tooltip>
         )}
         {typeCursor !== 2 && !useMultiJobs && this.renderMoreOption(item, i)}
@@ -502,15 +502,15 @@ export default class BaseFormInfo extends Component {
           <div className="flexRow alignItemsCenter">
             {index === 0 && (
               <Tooltip placement="top" title={_l('主属部门')}>
-                <Icon icon="main-department" className="Font22 ThemeColor mRight6" />
+                <Icon icon="main-department" className="Font22 colorPrimary mRight6" />
               </Tooltip>
             )}
-            <span className="Gray_75">{_l('任职信息%0', index + 1)}</span>
+            <span className="textSecondary">{_l('任职信息%0', index + 1)}</span>
             {typeCursor !== 2 && this.renderMoreOption(departmentItem, index)}
             <Divider className="mLeft8 minWidth0 flex" />
             <Tooltip placement="top" title={_l('删除')}>
               <DelIconWrap onClick={() => this.onDeleteMultiJobItem(departmentItem)}>
-                <Icon icon="trash" className="Font14 Gray_bd" />
+                <Icon icon="trash" className="Font14 textDisabled" />
               </DelIconWrap>
             </Tooltip>
           </div>
@@ -527,7 +527,7 @@ export default class BaseFormInfo extends Component {
 
                 {typeCursor !== 2 && (
                   <Icon
-                    className="Font26 Hand Gray_9e mAll5 TxtMiddle ThemeHoverColor"
+                    className="Font26 Hand textTertiary mAll5 TxtMiddle ThemeHoverColor"
                     icon={useMultiJobs && departmentItem.departmentId ? 'Circle-replace' : 'task_add-02'}
                     onClick={e => this.dialogSelectDeptFn(e, departmentItem)}
                   />
@@ -544,7 +544,7 @@ export default class BaseFormInfo extends Component {
             <span>{type === 'allJobs' ? _l('全部职位') : _l('职位')}</span>
             {['single', 'allJobs'].includes(type) && hasPermission(authority, PERMISSION_ENUM.BASIC_SETTING) && (
               <span
-                className="Gray_9e Hover_21 Hand Right"
+                className="textTertiary hoverColorPrimary Hand Right"
                 onClick={() => location.assign(`/admin/sysinfo/${projectId}?level5`)}
               >
                 {_l('管理')}
@@ -563,7 +563,7 @@ export default class BaseFormInfo extends Component {
             placeholder={_l('请选择')}
             suffixIcon={<Icon icon="arrow-down-border Font14" />}
             filterOption={() => true}
-            notFoundContent={<span className="Gray_99">{_l('可直接输入创建新的职位')}</span>}
+            notFoundContent={<span className="textTertiary">{_l('可直接输入创建新的职位')}</span>}
             onSearch={keywords =>
               this.setState({ keywords, jobIds: jobIds.filter(item => item.indexOf('add_') === -1) })
             }
@@ -576,7 +576,7 @@ export default class BaseFormInfo extends Component {
           >
             {!!keywords && _.isEmpty(jobList) && (
               <Option disabled>
-                <span className="ellipsis customRadioItem Gray_9e">{_l('可直接输入创建新的职位')}</span>
+                <span className="ellipsis customRadioItem textTertiary">{_l('可直接输入创建新的职位')}</span>
               </Option>
             )}
             {jobResult.map(item => (
@@ -621,7 +621,7 @@ export default class BaseFormInfo extends Component {
           : this.renderDepartmentJob()}
         {typeCursor !== 2 && (
           <div
-            className="ThemeColor ThemeHoverColor2 flexRow alignItemsCenter mTop20 Hand"
+            className="colorPrimary ThemeHoverColor2 flexRow alignItemsCenter mTop20 Hand"
             style={{ width: 'fit-content' }}
             onClick={this.handleAddMultipleJob}
           >
@@ -640,7 +640,7 @@ export default class BaseFormInfo extends Component {
               {orgRoles.map(item => {
                 return (
                   <span className="roleTag" key={item.id}>
-                    <Icon icon="person_new" className="Gray_9e Font18 mRight8 TxtMiddle" />
+                    <Icon icon="person_new" className="textTertiary Font18 mRight8 TxtMiddle" />
                     <span>{item.name}</span>
                     {typeCursor !== 2 && (
                       <Icon
@@ -654,7 +654,7 @@ export default class BaseFormInfo extends Component {
               })}
               {typeCursor !== 2 && (
                 <Icon
-                  className="Font26 Hand Gray_9e mAll5 TxtMiddle ThemeHoverColor"
+                  className="Font26 Hand textTertiary mAll5 TxtMiddle ThemeHoverColor"
                   icon="task_add-02"
                   onClick={e => this.dialogSelectRoleFn(e)}
                 />
@@ -669,7 +669,7 @@ export default class BaseFormInfo extends Component {
             <span>{_l('工作地点')}</span>
             {hasPermission(authority, PERMISSION_ENUM.BASIC_SETTING) && (
               <span
-                className="Gray_9e Hover_21 Hand Right"
+                className="textTertiary hoverColorPrimary Hand Right"
                 onClick={() => {
                   location.assign(`/admin/sysinfo/${projectId}?level3`);
                 }}
@@ -692,7 +692,7 @@ export default class BaseFormInfo extends Component {
             placeholder={_l('请选择')}
             suffixIcon={<Icon icon="arrow-down-border Font14" />}
             filterOption={() => true}
-            notFoundContent={<span className="Gray_99">{_l('可直接输入创建新的工作地点')}</span>}
+            notFoundContent={<span className="textTertiary">{_l('可直接输入创建新的工作地点')}</span>}
             onSearch={worksiteKeywords => this.setState({ worksiteKeywords })}
             onDropdownVisibleChange={open => {
               this.setState({ worksiteKeywords: '' });
@@ -712,7 +712,7 @@ export default class BaseFormInfo extends Component {
           >
             {!!worksiteKeywords && _.isEmpty(worksiteList) && (
               <Option disabled>
-                <span className="ellipsis customRadioItem Gray_9e">{_l('可直接输入创建新的工作地点')}</span>
+                <span className="ellipsis customRadioItem textTertiary">{_l('可直接输入创建新的工作地点')}</span>
               </Option>
             )}
             {worksiteResult.map(item => (

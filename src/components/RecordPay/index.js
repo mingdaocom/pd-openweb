@@ -11,6 +11,7 @@ import { browserIsMobile } from 'src/utils/common';
 import { formatNumberThousand } from 'src/utils/control';
 
 const PayWrap = styled.div`
+  color: var(--color-black);
   padding: 12px 25px;
   background: #f2fcf2;
   z-index: 4;
@@ -22,7 +23,7 @@ const PayButton = styled.div`
   padding: 0 25px;
   line-height: 32px;
   border-radius: 3px;
-  color: #fff;
+  color: var(--color-white);
   background: rgba(76, 175, 80, 0.9);
   &:hover {
     background: rgba(76, 175, 80, 1);
@@ -32,14 +33,14 @@ const PayButton = styled.div`
 const PayShare = styled.div`
   width: 32px;
   height: 32px;
-  background: #f2fcf2;
-  border: 1px solid #4caf50;
-  color: #4caf50;
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success);
+  color: var(--color-success);
   text-align: center;
   margin-left: 6px;
   border-radius: 3px;
   &:hover {
-    background: #e2fce2;
+    background: var(--color-success-bg);
   }
 `;
 
@@ -116,7 +117,7 @@ export default function RecordPay(props) {
   return (
     <PayWrap className="flexRow alignItemsCenter">
       <div className="flex Bold Font14 ellipsis">{_l('支付内容：%0', payConfig.payDescription)}</div>
-      <span className="Gray mLeft25 Font17 Bold">{_l('%0 元', formatNumberThousand(payConfig.payAmount))}</span>
+      <span className="mLeft25 Font17 Bold">{_l('%0 元', formatNumberThousand(payConfig.payAmount))}</span>
       <PayButton
         className="mLeft25 Bold Hand"
         onClick={() => {

@@ -23,15 +23,15 @@ const WrapBtn = styled.div`
   background: #2296f3;
   border-radius: 4px;
   font-size: 14px;
-  color: #fff;
+  color: var(--color-white);
   margin-top: 32px;
   text-align: center;
 
   &:hover {
-    background: #1182dd;
+    background: var(--color-link-hover);
   }
   &:active {
-    background: #1585dd;
+    background: var(--color-primary-focus);
   }
 `;
 
@@ -175,7 +175,7 @@ export default class ResetPassword extends React.Component {
         <div className="titleHeader">
           <div className={cx('title mTop20')}>{_l('修改密码')}</div>
           <div className="mTop8">
-            <span style={{ color: '#757575' }}>
+            <span style={{ color: 'var(--color-text-secondary)' }}>
               {type == 2 ? _l('旧密码已过期，请重新设置密码') : _l('首次登录需设置密码')}
             </span>
           </div>
@@ -223,7 +223,7 @@ export default class ResetPassword extends React.Component {
             </div>
             {renderWarn('passwordCopy')}
           </div>
-          <div className="tipWar mTop10 Gray_9e">{this.state.passwordRegexTip}</div>
+          <div className="tipWar mTop10 textTertiary">{this.state.passwordRegexTip}</div>
           <WrapBtn
             className="Hand mTop80"
             onClick={() => {

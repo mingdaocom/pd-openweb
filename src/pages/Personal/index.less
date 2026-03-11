@@ -7,7 +7,7 @@
 
   .accountTabWrap {
     width: 240px;
-    border-right: 1px solid #eaeaea;
+    border-right: 1px solid var(--color-border-secondary);
   }
 
   .accountTitle {
@@ -32,12 +32,12 @@
     height: 40px;
     line-height: 40px;
     padding-left: 24px;
-    color: #151515;
+    color: var(--color-text-title);
     &.active {
-      color: #ffffff !important;
-      background-color: #1294f7 !important;
+      color: var(--color-white) !important;
+      background-color: var(--color-link) !important;
       span {
-        color: #ffffff !important;
+        color: var(--color-white) !important;
       }
     }
   }
@@ -47,12 +47,12 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
   .accountTipIcon {
-    color: #ffffff;
-    background-color: #ddd;
-    border: 1px solid #ddd;
+    color: var(--color-white);
+    background-color: var(--color-border-primary);
+    border: 1px solid var(--color-border-primary);
     border-radius: 50%;
     width: 16px;
     height: 16px;
@@ -62,8 +62,8 @@
     vertical-align: middle;
   }
   .accountTipIcon:hover {
-    background-color: #666;
-    border: 1px solid #666;
+    background-color: var(--color-text-secondary);
+    border: 1px solid var(--color-text-secondary);
   }
   .accountTipIcon > span {
     line-height: 16px;

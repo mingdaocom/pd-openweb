@@ -673,7 +673,7 @@ export class CreateActions {
           });
         } else {
           Dialog.confirm({
-            title: <span style={{ color: '#f44336' }}>{_l('无法退出通过部门加入的应用')}</span>,
+            title: <span style={{ color: 'var(--color-error)' }}>{_l('无法退出通过部门加入的应用')}</span>,
             description: _l('您所在的部门被加入了此应用，只能由应用管理员进行操作'),
             closable: false,
             removeCancelBtn: true,
@@ -756,7 +756,7 @@ export class CreateActions {
         }
       })
       .catch(() => {
-        !md.global.Config.IsLocal && alert(_l('新建应用失败！'), 2);
+        !window.platformENV.isOverseas && !window.platformENV.isLocal && alert(_l('新建应用失败！'), 2);
       });
   }
   updateAppSort({ sortType, appIds, projectId, groupId }) {

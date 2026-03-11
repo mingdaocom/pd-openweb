@@ -22,21 +22,19 @@ const ProjectSwitch = styled(VerticalMiddle)`
     margin-left: 4px;
     display: inline-block;
     font-size: 18px;
-    color: #9d9d9d;
+    color: var(--color-text-tertiary);
   }
   &:hover {
-    background: #f2f2f2;
+    background: var(--color-background-disabled);
   }
 `;
 
 const ProjectsMenuCon = styled.div`
   width: 300px;
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 3px;
   padding-bottom: 5px;
-  box-shadow:
-    0 4px 20px rgb(0 0 0 / 13%),
-    0 2px 6px rgb(0 0 0 / 10%);
+  box-shadow: var(--shadow-lg);
 `;
 
 const ProjectsMenu = styled.div`
@@ -52,11 +50,11 @@ const ProjectItem = styled.div`
   height: 40px;
   line-height: 40px;
   &.active {
-    color: #1677ff;
+    color: var(--color-primary);
     background: rgb(33, 150, 243, 0.08);
   }
   &:not(.active):hover {
-    background: #f7f7f7;
+    background: var(--color-background-hover);
   }
 `;
 
@@ -66,7 +64,7 @@ const ScrollCon = styled(ScrollView)`
 
 const Hr = styled.div`
   height: 0px;
-  border-top: 1px solid #eaeaea;
+  border-top: 1px solid var(--color-border-secondary);
   margin: 5px 0;
 `;
 
@@ -74,7 +72,7 @@ const NewMenuItem = styled(MenuItem)`
   &.ming.Item.MenuItem .Item-content {
     &:not(.disabled):hover {
       color: inherit !important;
-      background-color: #f7f7f7 !important;
+      background-color: var(--color-background-secondary) !important;
     }
   }
 `;
@@ -122,6 +120,7 @@ function SwitchProject() {
   if (projects.length > Math.ceil((window.innerHeight - 160) / 40)) {
     menuContent = <ScrollCon height={Math.ceil((window.innerHeight - 160) / 40) * 40}>{menuContent}</ScrollCon>;
   }
+  const canCreateProject = md.global.Account.superAdmin || md.global.SysSettings.enableCreateProject;
   return currentProject ? (
     <Trigger
       popupVisible={popupVisible}
@@ -134,27 +133,41 @@ function SwitchProject() {
         <ProjectsMenuCon>
           {menuContent}
           <Hr />
-          <Trigger
-            action={['hover']}
-            popupAlign={{
-              points: ['bl', 'br'],
-              offset: [2, 5],
-            }}
-            popup={
-              <Menu className="Relative">
-                <NewMenuItem onClick={() => window.open('/enterpriseRegister?type=add')}>{_l('加入组织')}</NewMenuItem>
-              </Menu>
-            }
-            getPopupContainer={() => createRef.current}
-            destroyPopupOnHide
-          >
+          {canCreateProject ? (
+            <Trigger
+              action={['hover']}
+              popupAlign={{
+                points: ['bl', 'br'],
+                offset: [2, 5],
+              }}
+              popup={
+                <Menu className="Relative">
+                  <NewMenuItem onClick={() => window.open('/enterpriseRegister?type=add')}>
+                    {_l('加入组织')}
+                  </NewMenuItem>
+                  <NewMenuItem onClick={() => window.open('/enterpriseRegister?type=create')}>
+                    {_l('创建组织')}
+                  </NewMenuItem>
+                </Menu>
+              }
+              getPopupContainer={() => createRef.current}
+              destroyPopupOnHide
+            >
+              <div ref={createRef}>
+                <NewMenuItem className="ThemeColor3">
+                  <i className="icon icon-add ThemeColor3 Font16 mRight6"></i>
+                  <span className="Font15">{_l('加入/创建组织')}</span>
+                </NewMenuItem>
+              </div>
+            </Trigger>
+          ) : (
             <div ref={createRef}>
-              <NewMenuItem className="ThemeColor3">
+              <NewMenuItem className="ThemeColor3" onClick={() => window.open('/enterpriseRegister?type=add')}>
                 <i className="icon icon-add ThemeColor3 Font16 mRight6"></i>
                 <span className="Font15">{_l('加入组织')}</span>
               </NewMenuItem>
             </div>
-          </Trigger>
+          )}
         </ProjectsMenuCon>
       }
       onPopupVisibleChange={setPopupVisible}

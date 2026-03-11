@@ -28,18 +28,18 @@ const Wrap = styled.div`
 const WrapBar = styled.div`
   .addUser {
     line-height: 37px;
-    background: #1677ff;
+    background: var(--color-primary);
     border-radius: 3px;
-    color: #fff;
+    color: var(--color-white);
     padding: 0 12px;
     display: inline-block;
   }
   .search .roleSearch {
     width: 244px;
     height: 37px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     border-radius: 3px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--color-border-secondary);
   }
 `;
 
@@ -215,7 +215,7 @@ function Others(props) {
       <div className="bar flexRow alignItemsCenter barActionCon">
         <div className="title flex">
           <span className="Font17 Bold">{props.title}</span>
-          <span className="Gray_9e mLeft10">{_l('%0个外协用户', total || 0)}</span>
+          <span className="textTertiary mLeft10">{_l('%0个外协用户', total || 0)}</span>
         </div>
         {selectedIds.length > 0 && (
           <div>

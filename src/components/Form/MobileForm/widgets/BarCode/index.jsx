@@ -2,7 +2,7 @@ import React, { memo, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { BarCode, Qr } from 'ming-ui';
-import { previewQiniuUrl } from 'src/components/previewAttachments';
+import previewAttachments, { transformQiniuUrl } from 'src/components/previewAttachments/previewAttachments';
 import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
 import { FROM } from '../../../core/config';
 import { getBarCodeValue } from '../../../core/utils';
@@ -78,7 +78,7 @@ const BarCodeWidget = props => {
     e.stopPropagation();
     const url = imgCodeRef.current.childNodes[0] ? imgCodeRef.current.childNodes[0].src : '';
     if (!url) return;
-    previewQiniuUrl(url, { disableDownload: true, ext: 'png', name: 'code.png', theme: 'light' });
+    previewAttachments(transformQiniuUrl(url, { disableDownload: true, ext: 'png', name: 'code.png', theme: 'light' }));
   };
 
   useEffect(() => {

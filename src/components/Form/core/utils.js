@@ -6,13 +6,7 @@ import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import { isCustomWidget, isOldSheetList, isTabSheetList, supportDisplayRow } from 'src/pages/widgetConfig/util';
 import { browserIsMobile } from 'src/utils/common';
 import { getStringBytes } from 'src/utils/common';
-import {
-  checkCellIsEmpty,
-  controlState,
-  getTitleTextFromControls,
-  getTitleTextFromRelateControl,
-  getValueStyle,
-} from 'src/utils/control';
+import { checkCellIsEmpty, controlState } from 'src/utils/control';
 import { filterEmptyChildTableRows, getNewRecordPageUrl, getRelateRecordCountFromValue } from 'src/utils/record';
 import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, FROM, WIDGET_VALUE_ID } from './config';
 
@@ -741,8 +735,7 @@ export const dealUserRange = (control = {}, data = [], masterData = {}) => {
 
 // 加载第三方集成 SDK
 export function loadSDK() {
-  const { IsLocal } = md.global.Config;
-  const isWx = window.isWeiXin && !IsLocal && !window.isWxWork;
+  const isWx = window.isWeiXin && !window.platformENV.isOverseas && !window.platformENV.isLocal && !window.isWxWork;
 
   if (window.isDingTalk && !window.dd) {
     loadScript('https://g.alicdn.com/dingding/dingtalk-jsapi/2.6.41/dingtalk.open.js');
@@ -1070,5 +1063,3 @@ export const getUserValue = value => {
     return [];
   }
 };
-
-export { controlState, getValueStyle, getTitleTextFromControls, getTitleTextFromRelateControl };

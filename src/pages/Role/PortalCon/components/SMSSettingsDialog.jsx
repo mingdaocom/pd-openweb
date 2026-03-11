@@ -80,7 +80,7 @@ export default function Con(props) {
           }}
           className="Block mTop10"
         />
-        <p className="Gray_9e mTop10">
+        <p className="textTertiary mTop10">
           {_l(
             '已输入 %0  个字（含签名），短信按 %1 条计费',
             `[${sign}]${approvedSms || ''}`.length,
@@ -110,7 +110,7 @@ export default function Con(props) {
           }}
           className="Block mTop10"
         />
-        <p className="Gray_9e mTop10">
+        <p className="textTertiary mTop10">
           {_l(
             '已输入 %0  个字（含签名），短信按 %1 条计费',
             `[${sign}]${refusedSms || ''}`.length,
@@ -137,7 +137,7 @@ export default function Con(props) {
           }}
           className="Block mTop10"
         />
-        <p className="Gray_9e mTop10">
+        <p className="textTertiary mTop10">
           {_l(
             '已输入 %0  个字（含签名），短信按 %1 条计费',
             `[${sign}]${inviteSms || ''}`.length,

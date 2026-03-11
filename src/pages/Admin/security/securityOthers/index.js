@@ -131,7 +131,9 @@ export default class SecurityOthers extends Component {
               switchChecked: noneVerificationEnabled,
               clickSwitch: this.setEnabledNoneVerification,
             },
-          ].filter(v => (md.global.Config.IsLocal ? true : v.key !== 'limitFileDownload'))}
+          ].filter(v =>
+            window.platformENV.isOverseas || window.platformENV.isLocal ? true : v.key !== 'limitFileDownload',
+          )}
         />
       </div>
     );

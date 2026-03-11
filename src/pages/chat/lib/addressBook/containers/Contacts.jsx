@@ -135,7 +135,7 @@ export default class Contacts extends React.Component {
   renderFilter() {
     const { isFilterOther } = this.state;
     return (
-      <div className="pBottom2 pTop10 pLeft15 Gray_75">
+      <div className="pBottom2 pTop10 pLeft15 textSecondary">
         <Checkbox checked={isFilterOther} text={_l('不显示其他协作关系')} onClick={this.changeFilter} />
       </div>
     );

@@ -8,6 +8,7 @@ import AttachmentFiles, { UploadFileWrapper } from 'mobile/components/Attachment
 import SelectUser from 'mobile/components/SelectUser';
 import verifyPassword from 'src/components/verifyPassword';
 import { ACTION_TO_TEXT } from 'src/pages/workflow/components/ExecDialog/config';
+import { compatibleMDJS, handlePushState, handleReplaceState } from 'src/utils/project';
 import functionTemplateModal from '../FunctionTemplateModal';
 import './index.less';
 
@@ -47,6 +48,7 @@ export default class extends Component {
       countersignType: 1,
       opinionList: [],
       nextUserRange: {},
+      sessionId: Date.now().toString(),
     };
   }
   componentDidMount() {
@@ -64,11 +66,54 @@ export default class extends Component {
     }
 
     this.getOperationDetail();
+    this.takeOverNavigation(true, this.props.action);
+    window.addEventListener('popstate', this.onQueryChange);
   }
 
   componentWillUnmount() {
     this.actionHandler && this.actionHandler.close();
+    window.removeEventListener('popstate', this.onQueryChange);
+    compatibleMDJS('handOverNavigation', { sessionId: this.state.sessionId });
   }
+
+  onQueryChange = () => {
+    if (!window.isMingDaoApp || !this.props.action) {
+      return;
+    }
+
+    handleReplaceState('page', `otherAction-${this.props.action}`, () => {
+      this.takeOverNavigation(false, this.props.action);
+      this.props.onHide();
+    });
+  };
+
+  // 有弹层时，拦截APP自身返回，将弹层关闭后交还控制权给APP
+  takeOverNavigation = (disabled, action) => {
+    if (!window.isMingDaoApp) {
+      return;
+    }
+    if (disabled) {
+      if (action) {
+        handlePushState('page', `otherAction-${action}`);
+      }
+
+      compatibleMDJS('takeOverNavigation', {
+        sessionId: this.state.sessionId,
+        appWillGoBack: ({ sessionId }) => {
+          this.setState({ sessionId });
+          if (action) {
+            this.props.onHide();
+            history.back();
+            return 2;
+          }
+          return 1;
+        },
+      });
+    } else {
+      compatibleMDJS('handOverNavigation', { sessionId: this.state.sessionId });
+      this.props.onHide();
+    }
+  };
 
   /**
    * 获取历史意见列表
@@ -229,7 +274,7 @@ export default class extends Component {
           key: 1,
           text: (
             <div className="flexRow alignItemsCenter">
-              <div className="Gray_75 mRight10 Font13">{_l('将委托给')}</div>
+              <div className="textSecondary mRight10 Font13">{_l('将委托给')}</div>
               <img className="mLeft10 boderRadAll_50 selectedUser" style={{ width: 30 }} src={data.trustee.avatar} />
               <div className="mLeft10 Font15 ellipsis">{data.trustee.fullName}</div>
             </div>
@@ -239,7 +284,7 @@ export default class extends Component {
           key: 1,
           text: (
             <div className="flexRow alignItemsCenter">
-              <div className="Gray_75 mRight10 Font13">{_l('委托截止')}</div>
+              <div className="textSecondary mRight10 Font13">{_l('委托截止')}</div>
               <div className="mLeft10 Font15">{data.endDate}</div>
             </div>
           ),
@@ -273,7 +318,7 @@ export default class extends Component {
           >
             <span>{_l('取消')}</span>
           </div>
-          <div className="flex Font17 Gray TxtCenter">{_l('选择退回节点')}</div>
+          <div className="flex Font17 textPrimary TxtCenter">{_l('选择退回节点')}</div>
           <div
             className="right"
             onClick={() => {
@@ -296,7 +341,7 @@ export default class extends Component {
                 });
               }}
             >
-              <span className="Gray flex">{item.name}</span>
+              <span className="textPrimary flex">{item.name}</span>
               {backNodeId === item.id ? <Icon icon="ok" /> : null}
             </div>
           ))}
@@ -313,7 +358,7 @@ export default class extends Component {
       const node = backFlowNodes.filter(item => item.id === backNodeId)[0];
       const { name } = node ? node : {};
       return (
-        <div className="itemWrap flexRow valignWrapper Gray Font13">
+        <div className="itemWrap flexRow valignWrapper textPrimary Font13">
           <div className="bold">{_l('退回到')}</div>
           <div
             className="flex flexRow valignWrapper flexEnd mLeft30"
@@ -322,7 +367,7 @@ export default class extends Component {
             }}
           >
             <span>{name}</span>
-            <Icon icon="navigate_next" className="Gray_9e Font22" />
+            <Icon icon="navigate_next" className="textTertiary Font22" />
           </div>
         </div>
       );
@@ -330,7 +375,7 @@ export default class extends Component {
     if (_.includes(['transfer', 'transferApprove', 'after', 'before', 'addApprove'], action)) {
       return (
         <div className="itemWrap flexRow valignWrapper">
-          <div className="Gray Font13 bold">{currentAction.headerText}</div>
+          <div className="textPrimary Font13 bold">{currentAction.headerText}</div>
           {selectedUser.length ? (
             <div className="flex flexRow valignWrapper flexEnd mRight10 mLeft30">
               {_l('已选 %0 人', selectedUser.length)}
@@ -339,7 +384,7 @@ export default class extends Component {
             <div className="flex"></div>
           )}
           <Icon
-            className="Gray_9e Font28"
+            className="textTertiary Font28"
             icon={selectedUser.length ? 'task-folder-charge' : 'task-add-member-circle'}
             onClick={() => this.setState({ selectUserVisible: true })}
           />
@@ -375,7 +420,7 @@ export default class extends Component {
       };
       return (
         <div className="itemWrap flexRow valignWrapper" onClick={handleOpen}>
-          <div className="Gray Font13 bold flex">{_l('多人审批时采用的审批方式')}</div>
+          <div className="textPrimary Font13 bold flex">{_l('多人审批时采用的审批方式')}</div>
           <div className="flex ellipsis">{_.find(personsPassing, { value: countersignType }).text}</div>
         </div>
       );
@@ -423,10 +468,10 @@ export default class extends Component {
     return (
       <Fragment>
         <div className="title flexRow valignWrapper relative">
-          <div className="Absolute bold" style={{ margin: '1px 0px 0px -8px', color: '#f44336' }}>
+          <div className="Absolute bold" style={{ margin: '1px 0px 0px -8px', color: 'var(--color-error)' }}>
             *
           </div>
-          <div className="Font13 bold flex Gray">{_l('签名')}</div>
+          <div className="Font13 bold flex textPrimary">{_l('签名')}</div>
         </div>
         <div className="flexRow am-textarea-item">
           <Signature
@@ -446,10 +491,10 @@ export default class extends Component {
 
     return (
       <div className="itemWrap flexRow valignWrapper">
-        <div className="Absolute bold" style={{ margin: '1px 0px 0px -8px', color: '#f44336' }}>
+        <div className="Absolute bold" style={{ margin: '1px 0px 0px -8px', color: 'var(--color-error)' }}>
           *
         </div>
-        <div className="Gray Font13 bold">{_l('选择下一节点审批人')}</div>
+        <div className="textPrimary Font13 bold">{_l('选择下一节点审批人')}</div>
         {selectedUser.length ? (
           <div className="flex flexRow valignWrapper flexEnd mRight10 mLeft30">
             {_l('已选 %0 人', selectedUser.length)}
@@ -458,7 +503,7 @@ export default class extends Component {
           <div className="flex"></div>
         )}
         <Icon
-          className="Gray_9e Font28"
+          className="textTertiary Font28"
           icon={selectedUser.length ? 'task-folder-charge' : 'task-add-member-circle'}
           onClick={() => this.setState({ selectUserVisible: true })}
         />
@@ -543,7 +588,7 @@ export default class extends Component {
     return (
       <Fragment>
         <div className="flex otherActionContent">
-          <div className="title Gray bold Font15 pTop13">
+          <div className="title textPrimary bold Font15 pTop13">
             {currentAction.headerText}
             {action === 'pass' && (btnMap[4] || _l('同意'))}
             {action === 'overrule' && (btnMap[5] || _l('拒绝'))}
@@ -555,16 +600,16 @@ export default class extends Component {
               <div className="flex flexColumn">
                 <div className="title flexRow valignWrapper relative pTop10">
                   {(passContent || overruleContent) && (
-                    <div className="Absolute bold" style={{ margin: '1px 0px 0px -8px', color: '#f44336' }}>
+                    <div className="Absolute bold" style={{ margin: '1px 0px 0px -8px', color: 'var(--color-error)' }}>
                       *
                     </div>
                   )}
-                  <div className="Font13 bold flex Gray">{_l('意见')}</div>
+                  <div className="Font13 bold flex textPrimary">{_l('意见')}</div>
                   {customApproveContent &&
                     _.includes(['pass', 'after', 'overrule', 'return'], action) &&
                     (!_.isEmpty(opinions) || !!opinionList.length) && (
                       <div
-                        className="ThemeColor Font14"
+                        className="colorPrimary Font14"
                         onClick={() => this.handleOpenTemplate({ inputType, opinions, opinionList })}
                       >
                         {_l('使用模板')}
@@ -578,9 +623,9 @@ export default class extends Component {
                       onClick={() => this.handleOpenTemplate({ inputType, opinions, opinionList })}
                     >
                       {content ? (
-                        <div className="flex Font14 Gray">{content}</div>
+                        <div className="flex Font14 textPrimary">{content}</div>
                       ) : (
-                        <div className="flex Font14" style={{ color: '#b3b3b3' }}>
+                        <div className="flex Font14" style={{ color: 'var(--color-text-disabled)' }}>
                           {currentAction.placeholder}
                         </div>
                       )}
@@ -632,7 +677,7 @@ export default class extends Component {
                         });
                       }}
                     >
-                      <Icon className="Font16 Gray_75" icon="attachment" />
+                      <Icon className="Font16 textSecondary" icon="attachment" />
                     </UploadFileWrapper>
                   )}
                 </div>
@@ -647,7 +692,13 @@ export default class extends Component {
           {action === 'pass' && this.renderNextApprovalUser()}
         </div>
         <div className="flexRow actionBtnWrapper">
-          <div className="flex actionBtn bold Gray_75" onClick={this.props.onHide}>
+          <div
+            className="flex actionBtn bold textSecondary"
+            onClick={() => {
+              this.takeOverNavigation(false, this.props.action);
+              this.props.onHide();
+            }}
+          >
             {_l('取消')}
           </div>
           <div
@@ -671,6 +722,7 @@ export default class extends Component {
         className="otherActionModal mobileModal"
         onClose={() => {
           if (edit) return;
+          this.takeOverNavigation(false, this.props.action);
           onHide();
         }}
         closeOnMaskClick={true}

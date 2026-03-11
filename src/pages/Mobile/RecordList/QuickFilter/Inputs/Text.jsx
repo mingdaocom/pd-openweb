@@ -8,7 +8,7 @@ import TextScanQRCode from './components/TextScanQrCode';
 const InputCon = styled.input`
   width: 100%;
   border: none;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
   height: 36px;
   border-radius: 3px;
   padding: 0 12px;
@@ -19,21 +19,21 @@ const SearchTypeWrap = styled.div`
   margin-top: 10px;
   .searchType {
     border-radius: 13px;
-    background: #f5f5f5;
+    background: var(--color-background-secondary);
     padding: 0px 16px;
     line-height: 26px;
     .icon {
       margin-right: 2px;
-      color: #757575;
+      color: var(--color-text-secondary);
     }
     .icon-case {
       font-weight: 600;
     }
     &.active {
-      background: #1677ff;
-      color: #fff;
+      background: var(--color-primary);
+      color: var(--color-white);
       .icon {
-        color: #fff;
+        color: var(--color-white);
       }
     }
   }

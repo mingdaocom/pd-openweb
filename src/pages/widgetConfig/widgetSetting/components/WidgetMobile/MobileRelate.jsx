@@ -28,7 +28,7 @@ export default function WidgetRelate(props) {
             placement="bottom"
             title={_l('通过启用设备摄像头实现扫码输入。仅移动app中扫码支持区分条形码、二维码，其他平台扫码不做区分。')}
           >
-            <i className="icon-help Gray_9e Font16 pointer"></i>
+            <i className="icon-help textTertiary Font16 pointer"></i>
           </Tooltip>
         </div>
         <Checkbox
@@ -102,7 +102,7 @@ export default function WidgetRelate(props) {
                 text={_l('禁止手动输入')}
               />
               <Tooltip placement="bottom" title={_l('勾选后禁止PC端和移动端手动添加关联记录')}>
-                <i className="icon-help Gray_9e Font16 pointer mLeft8"></i>
+                <i className="icon-help textTertiary Font16 pointer mLeft8"></i>
               </Tooltip>
             </div>
             <div className="labelWrap">

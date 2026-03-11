@@ -65,13 +65,13 @@ export default class GunterExport extends Component {
         <div className="flexColumn">
           {error ? (
             <Fragment>
-              <div className="mTop10 Gray_75">{_l('导出失败，请缩小视图类型再尝试~')}</div>
+              <div className="mTop10 textSecondary">{_l('导出失败，请缩小视图类型再尝试~')}</div>
               <DocumentTitle title={_l('导出失败')} />
             </Fragment>
           ) : (
             <Fragment>
               <LoadDiv size="big" />
-              <div className="mTop10 Gray_75">{_l('%0正在导出，请稍等...', view ? view.name : '')}</div>
+              <div className="mTop10 textSecondary">{_l('%0正在导出，请稍等...', view ? view.name : '')}</div>
             </Fragment>
           )}
         </div>

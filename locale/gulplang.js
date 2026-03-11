@@ -6,7 +6,7 @@ const gettextToI18next = require('i18next-conv').gettextToI18next;
 const UglifyJS = require('uglify-js');
 const _ = require('lodash');
 const moment = require('moment');
-const fetch = require('node-fetch');
+const fetch = require('node-fetch').default;
 const langs = eval(
   fs
     .readFileSync(path.join(__dirname, '../src/common/langConfig.js'))

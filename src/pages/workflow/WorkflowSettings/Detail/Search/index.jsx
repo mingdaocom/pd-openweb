@@ -7,6 +7,7 @@ import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWor
 import { ACTION_ID, APP_TYPE, OPERATION_TYPE, RELATION_TYPE } from '../../enum';
 import { checkConditionsIsNull, clearFlowNodeMapParameter, getControlTypeName } from '../../utils';
 import {
+  AddOptions,
   CustomTextarea,
   DetailFooter,
   DetailHeader,
@@ -220,7 +221,7 @@ export default class Search extends Component {
 
     return (
       <Fragment>
-        <div className="Gray_75 workflowDetailDesc pTop15 pBottom15">
+        <div className="textSecondary workflowDetailDesc pTop15 pBottom15">
           {MESSAGE[data.actionId] ||
             _l('基于一种获取方式，通过筛选条件和排序规则获得符合条件的唯一数据，供流程中的其他节点使用。')}
         </div>
@@ -329,10 +330,10 @@ export default class Search extends Component {
               className="workflowDetailDesc pTop15 pBottom15 mTop20"
               style={{ background: 'rgba(255, 163, 64, 0.12)' }}
             >
-              <div className="Gray_75">{_l('新版查找方式支持通过多个筛选条件和排序规则来实现更精准查找。')}</div>
+              <div className="textSecondary">{_l('新版查找方式支持通过多个筛选条件和排序规则来实现更精准查找。')}</div>
               <div className="mBottom5">
                 {_l('注意：切换后您需要重新配置查找规则')}
-                <span className="Gray_75">{_l('，是否切换为新版？')}</span>
+                <span className="textSecondary">{_l('，是否切换为新版？')}</span>
               </div>
               <span
                 className="ThemeColor3 ThemeHoverColor2 pointer"
@@ -369,7 +370,7 @@ export default class Search extends Component {
                   checked={data.returnNew === item.value}
                   onClick={() => this.updateSource({ returnNew: item.value })}
                 />
-                <div className="mTop5 mLeft30 Gray_75">{item.desc}</div>
+                <div className="mTop5 mLeft30 textSecondary">{item.desc}</div>
               </div>
             ))}
           </Fragment>
@@ -385,7 +386,7 @@ export default class Search extends Component {
                 onClick={checked => this.updateSource({ returnNew: !checked ? false : null })}
               />
             </div>
-            <div className="Gray_75 mTop5 mLeft26">{_l('删除前保留记录数据，供之后的流程节点使用')}</div>
+            <div className="textSecondary mTop5 mLeft26">{_l('删除前保留记录数据，供之后的流程节点使用')}</div>
 
             <div className="mTop20 flexRow">
               <Checkbox
@@ -395,7 +396,7 @@ export default class Search extends Component {
                 onClick={checked => this.updateSource({ destroy: !checked })}
               />
             </div>
-            <div className="Gray_75 mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
+            <div className="textSecondary mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
           </Fragment>
         )}
 
@@ -450,7 +451,7 @@ export default class Search extends Component {
       {
         text: isAggregationSheet ? _l('其它应用下的聚合表') : _l('其它应用下的工作表'),
         value: 'other',
-        className: 'Gray_75',
+        className: 'textSecondary',
       },
     ];
 
@@ -466,7 +467,9 @@ export default class Search extends Component {
         value={data.appId}
         renderTitle={
           !data.appId
-            ? () => <span className="Gray_75">{isAggregationSheet ? _l('请选择聚合表') : _l('请选择工作表')}</span>
+            ? () => (
+                <span className="textSecondary">{isAggregationSheet ? _l('请选择聚合表') : _l('请选择工作表')}</span>
+              )
             : data.appId && !selectAppItem
               ? () => (
                   <span className="errorColor">
@@ -476,7 +479,9 @@ export default class Search extends Component {
               : () => (
                   <Fragment>
                     <span>{selectAppItem.name}</span>
-                    {selectAppItem.otherApkName && <span className="Gray_75">（{selectAppItem.otherApkName}）</span>}
+                    {selectAppItem.otherApkName && (
+                      <span className="textSecondary">（{selectAppItem.otherApkName}）</span>
+                    )}
                   </Fragment>
                 )
         }
@@ -501,12 +506,12 @@ export default class Search extends Component {
    */
   renderFieldsTitle(item) {
     if (!item) {
-      return <span style={{ color: '#f44336' }}>{_l('字段已删除')}</span>;
+      return <span style={{ color: 'var(--color-error)' }}>{_l('字段已删除')}</span>;
     }
 
     return (
       <Fragment>
-        <span className="Gray_75 mRight5">[{getControlTypeName(item)}]</span>
+        <span className="textSecondary mRight5">[{getControlTypeName(item)}]</span>
         <span>{item.controlName}</span>
       </Fragment>
     );
@@ -628,7 +633,7 @@ export default class Search extends Component {
     return (
       <Fragment>
         <div className="mTop20 bold">{_l('选择记录链接')}</div>
-        <div className="Font13 Gray_75 mTop10">
+        <div className="Font13 textSecondary mTop10">
           {_l('当前流程节点中的文本类型字段，系统将根据此链接获取相应的记录，供流程中其他节点使用')}
         </div>
         <div className="mTop10">
@@ -647,7 +652,7 @@ export default class Search extends Component {
         </div>
 
         <div className="mTop20 bold">{_l('选择目标工作表')}</div>
-        <div className="Font13 Gray_75 mTop10">{_l('预计解析出的记录归属的工作表')}</div>
+        <div className="Font13 textSecondary mTop10">{_l('预计解析出的记录归属的工作表')}</div>
         {this.selectWorksheet()}
 
         <FindResult executeType={data.executeType} switchExecuteType={this.switchExecuteType} />
@@ -670,10 +675,22 @@ export default class Search extends Component {
           const { controlName, sourceEntityName } = singleObj;
           return (
             <div key={i} className="relative">
-              <div className="mTop15 ellipsis Font13">
-                {controlName || singleObj.controlName}
-                {singleObj.required && <span className="mLeft5 red">*</span>}
-                {singleObj.type === 29 && <span className="Gray_75">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>}
+              <div className="flexRow alignItemsCenter mTop15">
+                <div className="ellipsis Font13 flex mRight20">
+                  {controlName || singleObj.controlName}
+                  {singleObj.required && <span className="mLeft5 red">*</span>}
+                  {singleObj.type === 29 && (
+                    <span className="textSecondary">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>
+                  )}
+                </div>
+                {data.appType === APP_TYPE.SHEET && _.includes([9, 10, 11], singleObj.type) && item.fieldValueId && (
+                  <AddOptions
+                    checked={item.allowAddOptions || false}
+                    fields={data.fields}
+                    index={i}
+                    updateSource={updateSource}
+                  />
+                )}
               </div>
               <SingleControlValue
                 key={cacheKey + i}

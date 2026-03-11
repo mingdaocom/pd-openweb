@@ -11,18 +11,18 @@ import { getNodeName } from 'src/pages/integration/dataIntegration/TaskCon/TaskC
 
 const Wrap = styled.div`
   .addSource {
-    background: #ffffff;
-    border: 1px dashed #dddddd;
+    background: var(--color-background-primary);
+    border: 1px dashed var(--color-border-primary);
     border-radius: 4px;
-    color: #1677ff;
+    color: var(--color-primary);
     &:hover {
-      border: 1px dashed #1677ff;
+      border: 1px dashed var(--color-primary);
     }
   }
   .sourceCard {
     padding: 12px 20px;
-    background: #ffffff;
-    border: 1px solid #e2e2e2;
+    background: var(--color-background-primary);
+    border: 1px solid var(--color-border-secondary);
     border-radius: 4px;
     .imgCon {
       width: 32px;
@@ -38,14 +38,14 @@ const Wrap = styled.div`
 const PopupWrap = styled.div(
   ({ width }) => `
   padding: 6px 0;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.24);
+  box-shadow: var(--shadow-lg);
   opacity: 1;
-  background: #ffffff;
+  background: var(--color-background-primary);
   border-radius: 4px;
   width:${width}px;
   .item {
     padding: 12px 20px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     .title {
       font-size: 15px;
       font-weight: 500;
@@ -53,11 +53,11 @@ const PopupWrap = styled.div(
     .des {
       font-size: 13px;
       font-weight: 400;
-      color: #9E9E9E;
+      color: var(--color-text-tertiary);
     }
     &.isCur,
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
 `,
@@ -166,7 +166,7 @@ function AddSourceOrDest(props) {
                   />
                 )}
               </div>
-              <div className="des Gray_9e">{tableName}</div>
+              <div className="des textTertiary">{tableName}</div>
             </div>
             {props.canEdit && <i className="icon icon-expand_more Font20 Hand Block" />}
           </div>

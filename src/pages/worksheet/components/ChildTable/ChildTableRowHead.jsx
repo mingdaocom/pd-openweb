@@ -16,7 +16,7 @@ const Con = styled.span`
     text-align: center;
     .num {
       font-size: 13px;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
     .Checkbox-box {
       margin-right: -2px !important;
@@ -37,12 +37,12 @@ const Con = styled.span`
   .operateBtn,
   .open .icon {
     font-size: 18px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     cursor: pointer;
     top: 2px;
     position: relative;
     &.delete:hover {
-      color: #f44336;
+      color: var(--color-error);
     }
   }
   .delete {
@@ -62,7 +62,7 @@ const Con = styled.span`
       top: 0;
       bottom: 0;
       width: 2px;
-      background: #1677ff;
+      background: var(--color-primary);
     }
   }
   &:not(.disabled).hover {
@@ -131,7 +131,7 @@ export default function RowHead(props) {
   const hideOperate = disabled || (isSavedData && (!allowAdd || !allowCancel));
   if (rowIndex === -1) {
     return showCheckbox ? (
-      <div className={className} style={style}>
+      <div className={cx(className, 'noRightBorder')} style={style}>
         <span
           className="rowIndex TxtCenter InlineBlock"
           style={{
@@ -150,7 +150,7 @@ export default function RowHead(props) {
         </span>
       </div>
     ) : (
-      <div className={className} style={style}>
+      <div className={cx(className, 'noRightBorder')} style={style}>
         {changeSheetLayoutVisible && (
           <ChangeSheetLayout
             description={_l('保存当前表格的列宽、列冻结配置，并应用给所有用户')}
@@ -162,11 +162,11 @@ export default function RowHead(props) {
     );
   }
   if (!row.rowid || row.rowid.startsWith('empty')) {
-    return <Con className={cx(className, 'placeholder')} style={style} />;
+    return <Con className={cx(className, 'noRightBorder placeholder')} style={style} />;
   }
   return (
     <Con
-      className={cx(className, {
+      className={cx(className, 'noRightBorder', {
         disabled: disabled || (isSavedData && (!allowAdd || !allowCopy) && !allowCancel),
         showNumber,
         showCheckbox,

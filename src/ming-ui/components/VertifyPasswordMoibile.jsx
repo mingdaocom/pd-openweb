@@ -13,19 +13,19 @@ const VertifyPasswordDialogWrap = styled(Popup)`
     padding: 20px 20px 0px;
   }
   .ming.Textarea {
-    border: 1px solid #e6e6e6;
+    border: 1px solid var(--color-border-secondary);
   }
   .ming.Textarea:hover:not(:disabled),
   .ming.Textarea:focus,
   .ant-input-affix-wrapper:focus,
   .ant-input-affix-wrapper-focused,
   .ant-input-affix-wrapper:not(.ant-input-affix-wrapper-disabled):hover {
-    border: 1px solid #e6e6e6;
+    border: 1px solid var(--color-border-secondary);
     box-shadow: none !important;
   }
   .ant-input-password-icon,
   .ant-input-password-icon:hover {
-    color: #9e9e9e !important;
+    color: var(--color-text-tertiary) !important;
   }
   .actionsWrap {
     margin-bottom: 10px;
@@ -36,13 +36,13 @@ const VertifyPasswordDialogWrap = styled(Popup)`
       border-radius: 18px;
     }
     .ming.Button--link {
-      border: 1px solid #ddd;
+      border: 1px solid var(--color-border-primary);
     }
     .ming.Button--primary {
-      background: #1677ff;
+      background: var(--color-primary);
     }
     .ming.Button--primary:hover {
-      background: #1677ff;
+      background: var(--color-primary);
     }
   }
 `;
@@ -66,7 +66,7 @@ export default function MobileVertifyPassword(props) {
         }}
       />
       <div className="actionsWrap flexRow">
-        <Button type="link" onClick={onClose} className="Gray_75 Font14 mRight10">
+        <Button type="link" onClick={onClose} className="textSecondary Font14 mRight10">
           {cancelText || _l('取消')}
         </Button>
         <Button

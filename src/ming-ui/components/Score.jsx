@@ -48,7 +48,7 @@ class Score extends Component {
     count: 5,
     score: 0,
     foregroundColor: '#0085e4',
-    backgroundColor: '#e0e0e0',
+    backgroundColor: 'var(--color-border-secondary)',
     callback: () => {},
     disabled: false,
     hover: () => false,

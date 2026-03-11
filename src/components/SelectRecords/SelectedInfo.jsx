@@ -15,7 +15,7 @@ const Con = styled.div`
       margin-left: 8px;
     }
     .summary_title {
-      color: #757575;
+      color: var(--color-text-secondary);
     }
     .summary_value {
       margin-left: 4px;

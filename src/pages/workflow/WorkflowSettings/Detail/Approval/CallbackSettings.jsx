@@ -69,8 +69,8 @@ export default ({ data, getCallBackNodeNames, updateSource, onClose }) => {
 
       {callbackOptions.callBackNodeType === 0 && (
         <div
-          className="mTop10 flexRow alignItemsCenter boderRadAll_4 pLeft12 pRight12 Gray_75"
-          style={{ minHeight: 36, background: '#F4F4F4' }}
+          className="mTop10 flexRow alignItemsCenter boderRadAll_4 pLeft12 pRight12 textSecondary"
+          style={{ minHeight: 36, background: 'var(--color-background-disabled)' }}
         >
           {data.callBackNodes.map(o => Object.values(o)).join('、') || _l('无可退回的节点')}
         </div>
@@ -105,7 +105,7 @@ export default ({ data, getCallBackNodeNames, updateSource, onClose }) => {
               return (
                 <div className="flex triggerConditionNum triggerConditionDropdown">
                   {!callbackOptions.callBackNodeIds.length ? (
-                    <div className="Gray_bd pLeft10 pRight10">{_l('请选择')}</div>
+                    <div className="textDisabled pLeft10 pRight10">{_l('请选择')}</div>
                   ) : (
                     <ul className="pLeft6 tagWrap">
                       {callbackOptions.callBackNodeIds.map((key, index) => {
@@ -117,7 +117,7 @@ export default ({ data, getCallBackNodeNames, updateSource, onClose }) => {
                               {currentNode ? (
                                 currentNode[key]
                               ) : (
-                                <span style={{ color: '#f44336' }}>{_l('节点已删除')}</span>
+                                <span style={{ color: 'var(--color-error)' }}>{_l('节点已删除')}</span>
                               )}
                             </span>
                             <span

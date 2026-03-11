@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 const TextBox = styled.span`
   .hightLine {
-    background: #dbf0ff;
+    background: var(--color-primary-transparent);
     border-radius: 2px;
   }
 `;

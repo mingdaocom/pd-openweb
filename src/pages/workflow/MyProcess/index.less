@@ -5,7 +5,7 @@
   width: 100%;
   height: 100%;
   z-index: 98;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
   display: flex;
   flex-direction: column;
 
@@ -33,7 +33,6 @@
     height: 50px;
     display: flex;
     align-items: center;
-    background-color: #fff;
 
     .title {
       padding-left: 20px;
@@ -42,7 +41,7 @@
         font-size: 21px;
       }
       span {
-        color: #151515;
+        color: var(--color-text-primary);
         font-size: 17px;
         margin-left: 7px;
       }
@@ -62,7 +61,7 @@
     align-items: center;
     justify-content: center;
     .item {
-      color: #757575;
+      color: var(--color-text-secondary);
       font-size: 14px;
       padding: 0 28px;
       cursor: pointer;
@@ -74,18 +73,18 @@
         content: '';
         width: 100%;
         height: 3px;
-        background-color: #1677ff;
+        background-color: var(--color-primary);
         position: absolute;
         left: 0;
         bottom: 0;
         display: none;
       }
       &:hover {
-        color: #151515;
+        color: var(--color-text-title);
       }
       &.active {
         &.item {
-          color: #151515;
+          color: var(--color-text-title);
         }
         &:before {
           display: block;
@@ -93,7 +92,7 @@
       }
     }
     .processCount {
-      color: #757575;
+      color: var(--color-text-secondary);
       margin-left: 4px;
     }
     .darkRed,
@@ -110,18 +109,18 @@
     }
     .darkRed {
       font-weight: bold;
-      color: #fff;
-      background-color: #f44336;
+      color: var(--color-white);
+      background-color: var(--color-error);
     }
     .red {
-      color: #f44336;
-      background-color: #fce4e3;
+      color: var(--color-error);
+      background-color: var(--color-error-bg);
     }
   }
   .cuttingLine {
     height: 20px;
     width: 1px;
-    background-color: #bdbdbd8a;
+    background-color: var(--color-text-disabled);
   }
 
   .withoutData {
@@ -135,17 +134,17 @@
       width: 130px;
       height: 130px;
       border-radius: 50%;
-      background-color: #efefef;
+      background-color: var(--color-border-secondary);
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .icon {
-      color: #bdbdbd;
+      color: var(--color-text-disabled);
       font-size: 90px;
     }
     span {
-      color: #757575;
+      color: var(--color-text-secondary);
       margin-top: 22px;
     }
   }
@@ -157,40 +156,40 @@
     align-items: center;
 
     .allRead {
-      color: #757575;
+      color: var(--color-text-secondary);
       padding: 3px 15px 3px 9px;
       border-radius: 25px;
       &:hover {
-        color: #1677ff;
-        background-color: #1677ff33;
+        color: var(--color-primary);
+        background-color: var(--color-primary) 33;
       }
     }
     .passApprove,
     .rejectApprove {
-      color: #999;
+      color: var(--color-text-tertiary);
       padding: 3px 15px;
       border-radius: 24px;
-      border: 1px solid #dddddd;
-      background-color: #fff;
+      border: 1px solid var(--color-border-primary);
+      background-color: var(--color-background-primary);
     }
     .passApprove {
       margin-right: 5px;
       &.all {
-        color: #fff;
-        border-color: #4caf50;
-        background-color: #4caf50;
+        color: var(--color-white);
+        border-color: var(--color-success);
+        background-color: var(--color-success);
       }
     }
     .rejectApprove {
       &.select {
-        color: #f44336;
-        border-color: #f44336;
-        background-color: rgba(244, 67, 54, 0.12);
+        color: var(--color-error);
+        border-color: var(--color-error);
+        background-color: var(--color-error-bg);
       }
       &.all {
-        color: #fff;
-        border-color: #f44336;
-        background-color: #f44336;
+        color: var(--color-white);
+        border-color: var(--color-error);
+        background-color: var(--color-error);
       }
     }
     .ant-checkbox-input {
@@ -201,34 +200,34 @@
   .filterNav {
     font-size: 13px;
     border-radius: 4px;
-    background-color: #eaeaea;
+    background-color: var(--color-background-tertiary);
     padding: 3px;
     margin-right: 20px;
     .item {
-      color: #757575;
+      color: var(--color-text-secondary);
       padding: 3px 23px;
       cursor: pointer;
       font-weight: bold;
     }
     .active {
-      color: #1677ff;
+      color: var(--color-primary);
       border-radius: 4px;
-      background-color: #fff;
+      background-color: var(--color-background-card);
     }
   }
   .processFilterTarget {
     padding: 5px 12px 5px 15px;
     margin-right: 10px;
     .icon-close {
-      color: #1677ff;
+      color: var(--color-primary);
       &:hover {
-        color: #2094f3b3;
+        color: var(--color-primary-focus) b3;
       }
     }
     &.active {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
       border-radius: 3px;
-      background-color: #e4eff5;
+      background-color: var(--color-primary-transparent);
     }
   }
 

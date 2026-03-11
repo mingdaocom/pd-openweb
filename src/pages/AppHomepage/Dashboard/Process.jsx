@@ -18,11 +18,11 @@ const Wrapper = styled.div`
   .finishedCon {
     padding: 8px 10px;
     border-radius: 3px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     font-size: 14px;
     cursor: pointer;
     &:hover {
-      background: #f8f8f8;
+      background: var(--color-background-hover);
     }
   }
   .processItem {
@@ -39,18 +39,18 @@ const Wrapper = styled.div`
       font-weight: bold;
       font-family: Arial;
       .icon {
-        color: #4caf50;
+        color: var(--color-success);
       }
     }
 
     &:hover {
-      background: #f8f8f8;
+      background: var(--color-background-hover);
     }
   }
   .divider {
     margin: 20px;
     width: 1px;
-    background: #d5d5d5;
+    background: var(--color-border-primary);
   }
 `;
 
@@ -78,7 +78,7 @@ const TodoTabList = styled.div`
       padding: 0 6px;
       border-radius: 10px;
       background: rgba(244, 67, 54, 0.16);
-      color: #f44336;
+      color: var(--color-error);
       font-size: 12px;
       font-weight: bold;
     }
@@ -99,11 +99,11 @@ const TodoTabList = styled.div`
         background-color: ${({ themeColor }) => themeColor};
       }
       &:hover {
-        background: #fff !important;
+        background: var(--color-background-hover) !important;
       }
     }
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
     }
   }
 
@@ -112,10 +112,10 @@ const TodoTabList = styled.div`
     align-items: center;
     padding: 6px 4px 6px 10px;
     border-radius: 4px;
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
     cursor: pointer;
     &:hover {
-      background-color: #f8f8f8;
+      background-color: var(--color-background-hover);
     }
   }
 `;
@@ -138,7 +138,7 @@ const DataListWrapper = styled.div`
     border-radius: 3px;
     cursor: pointer;
     &:hover {
-      background: #f5f5f5;
+      background: var(--color-background-hover);
       .rightText {
         display: none;
       }
@@ -155,14 +155,14 @@ const DataListWrapper = styled.div`
       border-radius: 50%;
     }
     .rightText {
-      color: #9f9f9f;
+      color: var(--color-text-tertiary);
       max-width: 180px;
       text-align: right;
     }
     .dateText {
       display: none;
       span {
-        color: #9f9f9f;
+        color: var(--color-text-tertiary);
       }
       .openIcon {
         width: 28px;
@@ -174,7 +174,7 @@ const DataListWrapper = styled.div`
         margin-left: 12px;
         cursor: pointer;
         &:hover {
-          background: #fff;
+          background: var(--color-background-hover);
         }
       }
     }
@@ -201,7 +201,7 @@ const ProcessSkeleton = styled.div`
   .skeletonBlock {
     width: 100%;
     height: 100%;
-    background-color: #f6f6f6;
+    background-color: var(--color-background-secondary);
     border-radius: 11px;
   }
 `;
@@ -324,7 +324,7 @@ export default function Process(props) {
                   <div className={cx('tabItem', { isCur: currentTab === item.tab })}>
                     <span className="itemText">{item.text}</span>
                     {!!countData[item.key] && (
-                      <div className={item.key !== 'mySponsor' ? 'itemCount' : 'mLeft4 bold Gray_9e'}>
+                      <div className={item.key !== 'mySponsor' ? 'itemCount' : 'mLeft4 bold textTertiary'}>
                         {countData[item.key] > 99 ? '99+' : countData[item.key]}
                       </div>
                     )}
@@ -345,7 +345,7 @@ export default function Process(props) {
           <div className="flex flexColumn alignItemsCenter justifyContentCenter mTop32 mBottom32">
             <img src={todoEmpty} width={80} />
             <div className="Font14">
-              <span className="Gray_75">{currentTab === TABS.MY_SPONSOR ? _l('暂无流程') : _l('没有待办')}</span>
+              <span className="textSecondary">{currentTab === TABS.MY_SPONSOR ? _l('暂无流程') : _l('没有待办')}</span>
             </div>
           </div>
         )}

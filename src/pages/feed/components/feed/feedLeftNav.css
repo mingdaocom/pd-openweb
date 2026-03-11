@@ -24,18 +24,21 @@
   left: 20px !important;
 }
 .feedLeftNav .feedFixedList .Icon.icon-mingdao {
-  color: #0091ea !important;
+  color: var(--color-primary) !important;
 }
 .feedLeftNav .feedFixedList .Icon.icon-charger {
-  color: #00bcd4 !important;
+  color: var(--color-cyan) !important;
   font-size: 16px;
 }
 .feedLeftNav .feedFixedList .Icon.icon-task-star {
-  color: #ff9800 !important;
+  color: var(--color-warning) !important;
   font-size: 16px;
 }
+.feedLeftNav .feedFixedList .Item.ThemeBGColor8 .Item-content:hover {
+  background-color: initial !important;
+}
 .feedLeftNav .avatarList .icon-official-group {
-  color: #ffc85f !important;
+  color: var(--color-warning-border) !important;
   font-size: 12px;
   right: 22px;
 }

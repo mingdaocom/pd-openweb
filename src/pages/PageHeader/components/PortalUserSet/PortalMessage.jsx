@@ -15,14 +15,14 @@ const Wrap = styled.div`
   align-items: center;
   justify-content: center;
   position: relative;
-  color: #fff;
+  color: var(--color-white);
   margin-right: 15px;
   .unread {
     position: absolute;
     border-radius: 8px;
     text-align: center;
     line-height: 12px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
     z-index: 1;
     left: 22px;
     top: 50%;
@@ -30,11 +30,11 @@ const Wrap = styled.div`
     transform: translate(0px, -100%);
     font-size: 12px;
     &.isMobile {
-      background-color: red;
+      background-color: var(--color-error);
     }
   }
   .isMobile {
-    color: #9e9e9e;
+    color: var(--color-text-tertiary);
   }
 `;
 
@@ -104,7 +104,7 @@ class PortalMessage extends Component {
               {count > 99 ? '99+' : count}
             </div>
           )}
-          <i className={cx('icon icon-notifications Font20 Hand', { Gray_9e: isMobile })} onClick={() => {}}></i>
+          <i className={cx('icon icon-notifications Font20 Hand', { textTertiary: isMobile })} onClick={() => {}}></i>
         </Wrap>
         <div id="chatPanel">{rp && <PortalMg />}</div>
       </React.Fragment>

@@ -112,7 +112,7 @@ class View extends Component {
     return (
       <div
         className="withoutRows flex flexColumn alignItemsCenter justifyContentCenter"
-        style={{ backgroundColor: '#f5f5f5' }}
+        style={{ backgroundColor: 'var(--color-background-secondary)' }}
       >
         <i className="icon icon-computer" style={{ fontSize: 100 }} />
         <div className="Font17 mTop12">{_l('移动端暂不支持此视图')}</div>

@@ -19,7 +19,7 @@ const SORT_TYPE = [
       <div className="flexCenter" style={{ justifyContent: 'space-between' }}>
         <span>{_l('自定义')}</span>
         <Tooltip title={_l('附件默认旧文件在前，可拖拽调整顺序，但新上传文件仍会按默认规则排序')} placement="bottom">
-          <span className="icon-info Gray_9e Font16 subText" />
+          <span className="icon-info textTertiary Font16 subText" />
         </Tooltip>
       </div>
     ),
@@ -163,7 +163,7 @@ export default function Attachment(props) {
             }}
           />
         )}
-        {desc && <div className="Gray_9e mTop8">{desc}</div>}
+        {desc && <div className="textTertiary mTop8">{desc}</div>}
       </SettingItem>
       <SettingItem>
         <div className="settingItemTitle">{_l('排序')}</div>

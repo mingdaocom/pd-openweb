@@ -68,7 +68,7 @@ class MemberList extends Component {
           key: index,
           text: (
             <Fragment>
-              <Icon className={cx('mRight15 Gray_9e', item.iconClass)} icon={item.icon} />
+              <Icon className={cx('mRight15 textTertiary', item.iconClass)} icon={item.icon} />
               <span className="Bold">{item.name}</span>
             </Fragment>
           ),
@@ -191,14 +191,14 @@ class MemberList extends Component {
     const isAdmin = detail.permissionType === APP_ROLE_TYPE.ADMIN_ROLE;
     let BUTTONS = [
       isRoleCharger
-        ? { name: _l('取消角色负责人'), icon: 'people_5', iconClass: 'Gray_9e Font18' }
-        : { name: _l('设为角色负责人'), icon: 'people_5', iconClass: 'Gray_9e Font18' },
-      { name: _l('移到其他角色'), icon: 'loop', iconClass: 'Gray_9e Font18' },
+        ? { name: _l('取消角色负责人'), icon: 'people_5', iconClass: 'textTertiary Font18' }
+        : { name: _l('设为角色负责人'), icon: 'people_5', iconClass: 'textTertiary Font18' },
+      { name: _l('移到其他角色'), icon: 'loop', iconClass: 'textTertiary Font18' },
       isSysRole && isAdmin && isMe && !((detail.debugRole || {}).canDebug && !_.isEmpty(debugRoles))
         ? { name: _l('退出'), icon: 'exit_to_app', iconClass: 'Font20' }
         : { name: _l('移除'), icon: 'trash', iconClass: 'Font18' },
     ];
-    const BUTTONS_Owers = [{ name: _l('将应用托付给他人'), icon: 'forward2', iconClass: 'Gray_9e' }];
+    const BUTTONS_Owers = [{ name: _l('将应用托付给他人'), icon: 'forward2', iconClass: 'textTertiary' }];
     const isAllOrganization = departmentId && departmentId.includes('org'); // 全组织不支持设为角色负责人
 
     if ((isSysRole && !(isOwner && isMe)) || isAllOrganization || (!isSysRole && !accountId)) {
@@ -251,9 +251,11 @@ class MemberList extends Component {
             });
           } else {
             Dialog.confirm({
-              title: <span className="Font16 Gray bold">{_l('确认设置为角色负责人？')}</span>,
+              title: <span className="Font16 textPrimary bold">{_l('确认设置为角色负责人？')}</span>,
               content: (
-                <div className="Font13 Gray pLeft15 pRight15">{_l('角色负责人可添加、移出当前角色下的成员')}</div>
+                <div className="Font13 textPrimary pLeft15 pRight15">
+                  {_l('角色负责人可添加、移出当前角色下的成员')}
+                </div>
               ),
               onConfirm: () => {
                 AppManagement.setRoleCharger(param).then(res => {
@@ -449,7 +451,7 @@ class MemberList extends Component {
           <div className="flex flexColumn valignWrapper">
             <img src={noMmberImg} alt={_l('暂无成员')} width="110" />
             <br />
-            <p className="mTop0 Gray_bd Font17">{_l('暂无成员')}</p>
+            <p className="mTop0 textDisabled Font17">{_l('暂无成员')}</p>
             {canEditUser && !window.isPublicApp && (
               <Button
                 className="addUserButton"
@@ -530,9 +532,11 @@ class MemberList extends Component {
               });
           }}
         >
-          <span className="Font16 Gray bold">{name}</span>
+          <span className="Font16 textPrimary bold">{name}</span>
           {!item.accountId && <span className="tag Font14">{tag}</span>}
-          {item.isRoleCharger && <Icon icon="people_5" className="Font14 mLeft10" style={{ color: '#FBBB44' }} />}
+          {item.isRoleCharger && (
+            <Icon icon="people_5" className="Font14 mLeft10" style={{ color: 'var(--color-warning-border)' }} />
+          )}
           {item.accountId && this.renderUserTag(data.roleType, item.isOwner)}
         </List.Item>
       );

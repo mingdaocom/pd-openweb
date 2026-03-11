@@ -10,7 +10,7 @@ const Wrap = styled.div`
   display: flex;
   flex-direction: column;
   padding: 16px 10px;
-  background-color: #f5f5f5;
+  background-color: var(--color-background-secondary);
   height: 100%;
   overflow-y: auto;
   .loadingWrap {
@@ -19,7 +19,7 @@ const Wrap = styled.div`
   }
   .chartItemWrap {
     height: 300px;
-    background: #ffffff;
+    background: var(--color-background-primary);
     box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
     border-radius: 2px;
     margin-bottom: 10px;

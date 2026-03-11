@@ -9,33 +9,34 @@ import SendButtons from './SendButtons';
 
 const Con = styled.div`
   border-radius: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-border-tertiary);
   overflow: hidden;
+  ${() => (md.global.SysSettings.aiBrandThemeColor ? `--color-mingo: ${md.global.SysSettings.aiBrandThemeColor};` : '')}
   .try-try-con {
     margin: 10px 12px 0;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--color-border-secondary);
   }
   &.focused {
-    border-color: var(--ai-primary-color);
+    border-color: var(--color-mingo);
   }
   &:not(.focused):hover {
     border-color: var(--color-border-hover);
   }
   &.disabled {
-    border-color: #ddd;
-    background-color: #eee;
+    border-color: var(--color-border-primary);
+    background-color: var(--color-border-secondary);
     textarea {
-      background-color: #eee;
+      background-color: var(--color-border-secondary);
       &::placeholder {
-        color: #999;
+        color: var(--color-text-tertiary);
       }
     }
     .sendButton {
-      background-color: #aaa !important;
+      background-color: var(--color-text-tertiary) !important;
     }
   }
   &.useAppThemeColor.focused {
-    border-color: var(--app-primary-color, var(--ai-primary-color));
+    border-color: var(--app-primary-color, var(--color-mingo));
   }
 `;
 
@@ -46,6 +47,7 @@ const SendTextArea = styled(AutoHeightTextArea)`
   resize: none;
   padding: 8px 12px;
   font-size: 15px;
+  background: transparent;
   &::placeholder {
     font-size: 15px;
     color: var(--color-text-placeholder)
@@ -76,6 +78,7 @@ function Send(
     abortRequest,
     setAutoPlay,
     rightButtons = null,
+    uploadPermission,
   },
   ref,
 ) {
@@ -91,6 +94,8 @@ function Send(
   const [recordingText, setRecordingText] = useState('');
   const sendTextAreaRef = useRef(null);
   const sendButtonsRef = useRef(null);
+  const isComposingRef = useRef(false);
+  const compositionEndTimeRef = useRef(0);
   const handSend = useCallback(
     (forceValue = '') => {
       onSend(forceValue || value, { files });
@@ -134,7 +139,7 @@ function Send(
     },
   }));
   return (
-    <Con className={cx('t-flex t-flex-col', { disabled, focused, useAppThemeColor })}>
+    <Con className={cx('textAreaCon t-flex t-flex-col', { disabled, focused, useAppThemeColor })}>
       {focused && sendHeader && cloneElement(sendHeader, { onFocus: () => sendTextAreaRef.current.focus() })}
       {!!files.length && (
         <AddedFiles
@@ -173,9 +178,36 @@ function Send(
         onChange={e => {
           localStorage.setItem(`chatbot_textarea_value_${chatbotId}_${conversationId}`, e.target.value);
           setValue(e.target.value);
+          // 如果不在输入法组合状态，且距离 compositionend 已超过 100ms，清除时间戳
+          // 这样可以确保正常输入后能正常发送，同时不影响输入法选择候选词的判断
+          if (!isComposingRef.current) {
+            const timeSinceCompositionEnd = Date.now() - compositionEndTimeRef.current;
+            if (timeSinceCompositionEnd > 100) {
+              compositionEndTimeRef.current = 0;
+            }
+          }
+        }}
+        onCompositionStart={() => {
+          isComposingRef.current = true;
+        }}
+        onCompositionEnd={() => {
+          // 记录 compositionend 的时间戳，用于 Safari 兼容性处理
+          compositionEndTimeRef.current = Date.now();
+          isComposingRef.current = false;
         }}
         onKeyDown={e => {
-          if (e.key !== 'Enter' || e.nativeEvent.isComposing) {
+          if (e.key !== 'Enter') {
+            return;
+          }
+          // 检查是否正在输入法组合中
+          if (isComposingRef.current || e.nativeEvent.isComposing) {
+            return;
+          }
+          // Safari 中，当用户按 Enter 选择候选词时，compositionend 和 keydown 几乎同时触发
+          // 如果 compositionend 在 50ms 内触发，则认为是选择候选词的操作
+          // 使用较短的时间窗口，避免误判正常输入后的快速回车
+          const timeSinceCompositionEnd = Date.now() - compositionEndTimeRef.current;
+          if (timeSinceCompositionEnd < 50) {
             return;
           }
           if (e.shiftKey) {
@@ -207,6 +239,7 @@ function Send(
           loading={loading}
           sendDisabled={sendDisabled}
           abortRequest={abortRequest}
+          uploadPermission={uploadPermission}
           onBeginRecord={() => {
             cache.current.isRecording = true;
             setIsRecording(true);

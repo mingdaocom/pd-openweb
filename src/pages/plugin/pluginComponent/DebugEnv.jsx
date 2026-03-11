@@ -19,10 +19,10 @@ const Wrapper = styled.div`
       align-items: center;
       margin: 0;
       padding: 15px 12px;
-      border-bottom: 1px solid #ddd;
+      border-bottom: 1px solid var(--color-border-primary);
     }
     .headTr {
-      color: #757575;
+      color: var(--color-text-secondary);
       font-weight: 500;
     }
     .dataItem {
@@ -30,9 +30,9 @@ const Wrapper = styled.div`
         width: 220px;
       }
       .confirmBtn {
-        background: #1677ff;
+        background: var(--color-primary);
         :hover {
-          background: #1565c0;
+          background: var(--color-link-hover);
         }
       }
       .viewCon {
@@ -42,9 +42,9 @@ const Wrapper = styled.div`
         &.isValidView {
           cursor: pointer;
           &:hover {
-            color: #1677ff;
+            color: var(--color-primary);
             i {
-              color: #1677ff !important;
+              color: var(--color-primary) !important;
             }
           }
         }
@@ -61,17 +61,17 @@ const Wrapper = styled.div`
       padding-right: 8px;
 
       .isDel {
-        color: #f44336;
+        color: var(--color-error);
       }
     }
     .operate {
       flex: 1;
       .icon-trash {
-        color: #9d9d9d;
+        color: var(--color-text-tertiary);
         font-size: 14px;
         cursor: pointer;
         &:hover {
-          color: #f44336;
+          color: var(--color-error);
         }
       }
     }
@@ -147,7 +147,13 @@ export default function DebugEnv(props) {
           />
         ) : (
           <div className={cx('overflow_ellipsis', { isDel: !item.worksheetName })} title={item.worksheetName}>
-            {!item.worksheetName ? <Tooltip title={item.worksheetId}>{_l('已删除')}</Tooltip> : item.worksheetName}
+            {!item.worksheetName ? (
+              <Tooltip title={item.worksheetId}>
+                <span>{_l('已删除')}</span>
+              </Tooltip>
+            ) : (
+              item.worksheetName
+            )}
           </div>
         ),
     },
@@ -212,7 +218,7 @@ export default function DebugEnv(props) {
             <div className="overflow_ellipsis" title={item.viewName}>
               {item.viewName || '-'}
             </div>
-            {isValidView && <Icon icon="launch" className="mLeft4 Gray_9e" />}
+            {isValidView && <Icon icon="launch" className="mLeft4 textTertiary" />}
           </div>
         );
       },
@@ -286,7 +292,7 @@ export default function DebugEnv(props) {
       </div>
       {configType !== pluginConfigType.create && !debugEnvList.filter(item => item.isEdit).length && (
         <div
-          className="mTop24 InlineBlock ThemeColor ThemeHoverColor2 pointer"
+          className="mTop24 InlineBlock colorPrimary ThemeHoverColor2 pointer"
           onClick={() => {
             const newDebugEnvList = debugEnvList.concat([{ isEdit: true }]);
             onChangeDebugEnvList(newDebugEnvList);

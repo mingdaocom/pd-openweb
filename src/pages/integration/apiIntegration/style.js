@@ -3,8 +3,8 @@ import { Menu, MenuItem } from 'ming-ui';
 
 export const TableWrap = styled.div`
   .ant-table-thead > tr > th {
-    background: #fff !important;
-    color: #151515;
+    background: var(--color-background-primary) !important;
+    color: var(--color-text-title);
     font-size: 13px;
     font-weight: normal;
     &:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before {
@@ -24,10 +24,10 @@ export const LogoWrap = styled.div(
   width: ${width || 48}px;
   height: ${width || 48}px;
   min-width: ${width || 48}px;
-  background: #ffffff;
+  background: var(--color-background-primary);
   opacity: 1;
   border-radius: 8px;
-  color: #bdbdbd;
+  color: var(--color-text-disabled);
   svg,
   .ming {
     display: inline-block;
@@ -48,19 +48,19 @@ export const ActWrap = styled.div`
   display: inline-block;
   width: 34px;
   height: 34px;
-  background: #fff;
+  background: var(--color-background-primary);
   opacity: 1;
   border-radius: 17px;
   line-height: 34px;
   &:hover {
-    background: #f7f7f7;
+    background: var(--color-background-hover);
   }
   margin-left: 8px;
 `;
 export const BtnWrap = styled.div`
-  background: #1677ff;
+  background: var(--color-primary);
   &:hover {
-    background: #1764c0;
+    background: var(--color-link-hover);
   }
 `;
 export const MenuItemWrap = styled(MenuItem)`
@@ -71,31 +71,31 @@ export const MenuItemWrap = styled(MenuItem)`
 
 export const RedMenuItemWrap = styled(MenuItemWrap)`
   .Item-content {
-    color: #f44336 !important;
+    color: var(--color-error) !important;
     .Icon {
-      color: #f44336 !important;
+      color: var(--color-error) !important;
     }
   }
 `;
 export const WrapFooter = styled.div`
   .btn {
     padding: 0 32px;
-    background: #1677ff;
-    color: #fff;
+    background: var(--color-primary);
+    color: var(--color-white);
     line-height: 36px;
     border-radius: 3px;
     &:hover {
-      background: #1764c0;
+      background: var(--color-link-hover);
     }
     &.disable {
       opacity: 0.5;
     }
   }
   .cancel {
-    color: #757575;
+    color: var(--color-text-secondary);
     margin-right: 52px;
     &:hover {
-      color: #1677ff;
+      color: var(--color-primary);
     }
     padding: 8px 32px;
   }
@@ -108,17 +108,17 @@ export const CardTopWrap = styled.div`
     .iconCon {
       width: 44px;
       height: 44px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--color-border-secondary);
       border-radius: 6px;
       position: relative;
       .iconParam {
-        color: #757575;
+        color: var(--color-text-secondary);
       }
       &.isEdit {
         .iconParam {
-          color: #1677ff;
+          color: var(--color-primary);
         }
-        border: 1px solid #1677ff;
+        border: 1px solid var(--color-primary);
       }
       .tip {
         position: absolute;
@@ -131,8 +131,8 @@ export const CardTopWrap = styled.div`
       padding: 0 20px;
       margin-right: 12px;
       line-height: 26px;
-      color: #1677ff;
-      border: 1px solid #1677ff;
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
       border-radius: 26px;
       height: 28px;
       &:hover {
@@ -143,23 +143,23 @@ export const CardTopWrap = styled.div`
   }
 `;
 export const WrapBtn = styled.div`
-  background: #ffffff;
+  background: var(--color-background-primary);
   border-radius: 18px;
-  color: #bdbdbd;
+  color: var(--color-text-disabled);
   padding: 8px 12px;
   margin: 0 auto;
   &:hover {
-    color: #1677ff;
+    color: var(--color-primary);
   }
   &.btnToAccount {
-    background: #fff;
+    background: var(--color-background-primary);
     border-radius: 4px 4px 4px 4px;
-    border: 1px solid #1677ff;
-    color: #1677ff;
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
     &.disable {
-      border: 1px solid #e0e0e0;
-      color: #151515;
-      background: #f4f4f3;
+      border: 1px solid var(--color-border-secondary);
+      color: var(--color-text-title);
+      background: var(--color-background-disabled);
     }
   }
 `;
@@ -172,10 +172,10 @@ export const MoreOperate = styled.span`
   display: inline-block;
   width: 24px;
   height: 24px;
-  color: #9e9e9e;
+  color: var(--color-text-tertiary);
   font-size: 18px;
   &:hover {
-    color: #1677ff;
+    color: var(--color-primary);
   }
 `;
 

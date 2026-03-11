@@ -78,7 +78,7 @@ export default class DataBarColor extends Component {
             >
               <div className="palette valignWrapper pointer" style={{ width: 56 }}>
                 <div className="colorBox" style={{ backgroundColor: positiveNumberColor }}></div>
-                <Icon icon="expand_more" className="Gray_9e Font20" />
+                <Icon icon="expand_more" className="textTertiary Font20" />
               </div>
             </ColorPicker>
             <div className="mTop12 mBottom8">{_l('负值条形图')}</div>
@@ -91,7 +91,7 @@ export default class DataBarColor extends Component {
             >
               <div className="palette valignWrapper pointer" style={{ width: 56 }}>
                 <div className="colorBox" style={{ backgroundColor: negativeNumberColor }}></div>
-                <Icon icon="expand_more" className="Gray_9e Font20" />
+                <Icon icon="expand_more" className="textTertiary Font20" />
               </div>
             </ColorPicker>
             <div className="mTop12">
@@ -124,7 +124,7 @@ export default class DataBarColor extends Component {
               style={{ width: 230 }}
               className="chartSelect mRight10"
               value={direction}
-              suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+              suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
               onChange={type => {
                 this.setState({ direction: type });
               }}
@@ -146,7 +146,7 @@ export default class DataBarColor extends Component {
             >
               <div className="palette valignWrapper pointer" style={{ width: 56 }}>
                 <div className="colorBox" style={{ backgroundColor: axisColor }}></div>
-                <Icon icon="expand_more" className="Gray_9e Font20" />
+                <Icon icon="expand_more" className="textTertiary Font20" />
               </div>
             </ColorPicker>
           </div>
@@ -164,7 +164,7 @@ export default class DataBarColor extends Component {
         visible={visible}
         centered={true}
         destroyOnClose={true}
-        closeIcon={<Icon icon="close" className="Font20 pointer Gray_9e" />}
+        closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
         footer={this.renderRuleColorFooter()}
         onCancel={onCancel}
       >

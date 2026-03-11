@@ -4,12 +4,12 @@
   box-sizing: border-box;
   overflow-x: hidden;
   position: relative;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   border-radius: 3px;
   display: flex;
   flex-direction: column;
   button:disabled {
-    background: #9e9e9e !important;
+    background: var(--color-text-tertiary) !important;
     cursor: not-allowed;
   }
   .nextBtn {
@@ -26,7 +26,7 @@
 
   .valueAddServerHeader {
     height: 56px;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid var(--color-border-secondary);
     display: flex;
     align-items: center;
     padding-left: 24px;
@@ -41,7 +41,7 @@
     .exclusiveSpecsCard {
       width: 240px;
       height: 80px;
-      border: 2px solid #eaeaea;
+      border: 2px solid var(--color-border-secondary);
       border-radius: 3px;
       margin-right: 16px;
       display: flex;
@@ -50,7 +50,7 @@
       align-items: center;
       cursor: pointer;
       &.active {
-        border-color: #1677ff;
+        border-color: var(--color-primary);
       }
     }
   }
@@ -59,12 +59,12 @@
     display: flex;
     align-items: center;
     .addUserLabl {
-      color: #757575;
+      color: var(--color-text-secondary);
       font-size: 13px;
       margin-right: 15px;
     }
     .color_9e {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
   }
 
@@ -73,7 +73,7 @@
     align-items: center;
     width: 180px;
     height: 32px;
-    border: 1px solid #eaeaea;
+    border: 1px solid var(--color-border-secondary);
     border-radius: 3px;
     .bagNum {
       width: 113px;
@@ -82,8 +82,8 @@
       text-align: center;
       border-top: none;
       border-bottom: none;
-      border-left: 1px solid #eaeaea;
-      border-right: 1px solid #eaeaea;
+      border-left: 1px solid var(--color-border-secondary);
+      border-right: 1px solid var(--color-border-secondary);
       font-size: 14px;
       font-weight: bold;
     }
@@ -92,12 +92,12 @@
       margin: 0 10px;
       cursor: pointer;
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
     &.disabled {
       cursor: not-allowed;
-      background: #fafafa;
+      background: var(--color-background-secondary);
     }
   }
 
@@ -105,7 +105,7 @@
     margin: 0 55px;
     box-sizing: border-box;
     height: 1px;
-    background-color: #eaeaea;
+    background-color: var(--color-border-secondary);
   }
 
   .stepTitle {
@@ -113,18 +113,18 @@
     align-items: center;
     font-weight: bolder;
     font-size: 17px;
-    color: #151515;
+    color: var(--color-text-title);
   }
 
   .color_bd {
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
     .stepNum {
-      background-color: #bdbdbd;
+      background-color: var(--color-text-disabled);
     }
   }
 
   .stepContent .unClick {
-    color: #9d9d9d !important;
+    color: var(--color-text-tertiary) !important;
     cursor: not-allowed;
   }
 
@@ -134,19 +134,19 @@
     line-height: 16px;
     text-align: center;
     border-radius: 50%;
-    background-color: #1677ff;
+    background-color: var(--color-primary);
     margin-right: 10px;
-    color: #fff;
+    color: var(--color-white);
   }
 
   .stepNumDefaultBorder {
-    border: 1px solid #ccc !important;
-    color: #ccc;
+    border: 1px solid var(--color-border-tertiary) !important;
+    color: var(--color-text-placeholder);
   }
   .stepContent .selectAddCount {
     float: left;
     width: 205px;
-    border: 1px solid #b8b1b1;
+    border: 1px solid var(--color-text-disabled);
     border-radius: 3px;
     height: 40px;
     line-height: 40px;
@@ -202,7 +202,7 @@
   .warpTowStep .warpNeedHelp {
     margin-top: 25px;
     label {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       font-size: 13px;
       input {
         display: none;
@@ -220,7 +220,7 @@
     height: 80px;
     border-radius: 3px;
     opacity: 1;
-    border: 2px solid #bdbdbd;
+    border: 2px solid var(--color-text-disabled);
     text-align: center;
     margin-right: 15px;
     cursor: pointer;
@@ -228,7 +228,7 @@
       margin-right: 0;
     }
     &.active {
-      border: 2px solid #1677ff;
+      border: 2px solid var(--color-primary);
     }
   }
 
@@ -238,16 +238,16 @@
       width: 40px;
       display: inline-block;
       margin-right: 14px;
-      color: #757575;
+      color: var(--color-text-secondary);
     }
   }
 
   .renewExclusiveCard {
     width: 231px;
     padding: 20px 0;
-    background: #ffffff;
+    background: var(--color-background-primary);
     border-radius: 3px 3px 3px 3px;
-    border: 2px solid #1677ff;
+    border: 2px solid var(--color-primary);
     text-align: center;
   }
 }
@@ -330,8 +330,8 @@
       position: absolute;
       width: 24px;
       height: 24px;
-      background-color: #1677ff;
-      border: 3px solid #ffffff;
+      background-color: var(--color-primary);
+      border: 3px solid var(--color-white);
       border-radius: 50%;
       right: auto;
       top: 0;
@@ -341,8 +341,4 @@
       z-index: 2;
     }
   }
-}
-
-.Gray_b4 {
-  color: #b4b4b4;
 }

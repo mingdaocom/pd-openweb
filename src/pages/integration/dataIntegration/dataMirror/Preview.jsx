@@ -8,12 +8,12 @@ import dataMirrorAjax from 'src/pages/integration/api/dw.js';
 import ControlsDataTable from 'src/pages/worksheet/components/ControlsDataTable';
 
 const Wrap = styled.div`
-  background: #ffffff;
+  background: var(--color-background-primary);
   padding: 30px 20px;
   .header {
-    border-bottom: 1px solid #dddddd;
+    border-bottom: 1px solid var(--color-border-primary);
     padding: 16px 10px;
-    background: #fff;
+    background: var(--color-background-primary);
   }
   .pagination {
     margin-top: -3px;
@@ -23,14 +23,14 @@ const Wrap = styled.div`
     }
   }
   .statusIcon {
-    color: #e0e0e0;
+    color: var(--color-border-secondary);
     font-size: 84px;
   }
   .icon-task-later {
     margin-top: -2px;
   }
   .dataMirrorPreview {
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
   }
 `;
 
@@ -88,7 +88,7 @@ export default function Preview(props) {
     <Wrap className="h100 flexColumn">
       <DocumentTitle title={`${_l('集成')} - ${_l('镜像数据')}`} />
       <React.Fragment>
-        <div className="Gray_75 Normal Font13 mTop5">{_l('预览%0的前100行数据', tableName)}</div>
+        <div className="textSecondary Normal Font13 mTop5">{_l('预览%0的前100行数据', tableName)}</div>
         <div className="overflowHidden flex mTop36 dataMirrorPreview">
           <ControlsDataTable
             wrapControlName

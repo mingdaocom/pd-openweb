@@ -11,11 +11,12 @@ const DefaultBtn = styled.div`
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  color: #1677ff;
+  color: var(--color-primary);
   text-align: center;
   cursor: pointer;
+  background: var(--color-background-secondary);
   &:hover {
-    background: #f5f5f5;
+    background: var(--color-background-hover);
   }
 `;
 
@@ -72,7 +73,7 @@ const getProps = (props, type = 'success') => {
     closeIcon: <i className="closeNotice icon-close"></i>,
     onClose: () => {
       // 多窗口关闭
-      if (props.key && !md.global.Config.IsLocal) {
+      if (props.key && !window.platformENV.isOverseas && !window.platformENV.isLocal) {
         window.mdyAPI(
           '',
           '',

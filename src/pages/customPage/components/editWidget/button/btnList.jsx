@@ -14,7 +14,7 @@ const ButtonDisplayWrap = styled.div`
   min-height: 200px;
   padding: 24px 20px;
   text-align: center;
-  background-color: #fff;
+  background-color: var(--color-background-card);
   overflow: auto;
   border-radius: 3px;
   .title,
@@ -57,11 +57,11 @@ const BtnWrap = styled.div`
       padding: 4px 20px;
     }
     &:hover {
-      border: 1px dashed #ddd;
+      border: 1px dashed var(--color-border-primary);
       border-radius: 3px;
     }
     &.active {
-      border: 1px solid #1677ff;
+      border: 1px solid var(--color-primary);
       border-radius: 3px;
     }
     &.error {
@@ -83,21 +83,21 @@ const BtnWrap = styled.div`
 
   .adjustText {
     button {
-      background-color: #f8f8f8;
+      background-color: var(--color-background-secondary);
       color: ${props => props.color};
       &:hover {
-        background-color: #f8f8f8;
+        background-color: var(--color-background-hover);
       }
     }
     .iconWrap {
       color: ${props => props.color};
-      background-color: #f8f8f8;
+      background-color: var(--color-background-secondary);
     }
   }
 `;
 const SortableButtonListWrap = styled.div`
   margin-top: 16px;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid var(--color-border-primary);
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -106,7 +106,7 @@ const SortableButtonListWrap = styled.div`
   .hint {
     margin: 24px 0;
     text-align: center;
-    color: #aaa;
+    color: var(--color-text-tertiary);
   }
 `;
 

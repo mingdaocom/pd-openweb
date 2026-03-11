@@ -303,7 +303,7 @@ export default class DropDownItem extends Component {
         }}
       >
         {this.renderChecked(item, parentControl)}
-        <Icon icon={getNewIconByType(item)} className="Font14 Gray_9e mRight6" />
+        <Icon icon={getNewIconByType(item)} className="Font14 textTertiary mRight6" />
         <span className="ellipsis controlNameBox" title={item.controlName}>
           {item.controlName}
         </span>
@@ -428,7 +428,7 @@ export default class DropDownItem extends Component {
               placeholder={_l('搜索字段')}
               onChange={e => this.setState({ keyword: e.target.value }, this.handleSearch)}
             />
-            <Icon icon="search" className="search Gray_9e Font16" />
+            <Icon icon="search" className="search textTertiary Font16" />
             {keyword && (
               <Icon
                 icon="close"
@@ -441,7 +441,7 @@ export default class DropDownItem extends Component {
           {dropDownData.length > 0 ? (
             this.renderContent(dropDownData)
           ) : (
-            <div className="pTop20 pBottom20 LineHeight80 TxtCenter Gray_9e">{_l('暂无搜索结果')}</div>
+            <div className="pTop20 pBottom20 LineHeight80 TxtCenter textTertiary">{_l('暂无搜索结果')}</div>
           )}
         </Fragment>
       </div>
@@ -468,13 +468,13 @@ export default class DropDownItem extends Component {
             {!_.isEmpty(values) ? (
               this.getTextByValue()
             ) : (
-              <span className="Gray_9e LineHeight34">
+              <span className="textTertiary LineHeight34">
                 {activeTab === TAB_TYPES.CHECK_RULE ? _l('对指定字段提示') : _l('选择字段')}
               </span>
             )}
           </span>
           <span className="iconArrow">
-            <i className="icon-arrow-down-border Gray_9e" />
+            <i className="icon-arrow-down-border textTertiary" />
           </span>
         </div>
       </Trigger>

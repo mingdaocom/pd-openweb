@@ -33,7 +33,7 @@ class LinkContent extends React.Component {
             );
           }
         })()}
-        {linkItem.linkDesc && <div className="Gray mTop5">{linkItem.linkDesc.toLowerCase()}</div>}
+        {linkItem.linkDesc && <div className="textPrimary mTop5">{linkItem.linkDesc.toLowerCase()}</div>}
       </div>
     );
   }

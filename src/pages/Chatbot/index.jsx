@@ -20,24 +20,9 @@ import Edit from './Edit';
 import MoreMenu from './MoreMenu';
 
 const Wrap = styled.div`
-  &.light {
-    --bg-color: #fff;
-    --title-color: #000;
-    --sub-title-color: #9e9e9e;
-    --input-bg-color: #fff;
-    --hover-bg-color: #f5f5f5;
-  }
-  &.dark {
-    --bg-color: #212121;
-    --title-color: #fff;
-    --sub-title-color: #fff;
-    --input-bg-color: #303030;
-    --hover-bg-color: #424242;
-  }
   flex: 1;
   height: 100%;
-  background-color: var(--bg-color);
-
+  background-color: var(--color-background-primary);
   .selfStart {
     align-items: self-start;
   }
@@ -50,17 +35,17 @@ const Wrap = styled.div`
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--color-border-primary);
   }
   .headerLeft,
   .headerRight {
     padding: 17px;
   }
   .chatbotName {
-    color: var(--title-color);
+    color: var(--color-text-primary);
   }
   .navWrap {
-    border-right: 1px solid #e0e0e0;
+    border-right: 1px solid var(--color-border-tertiary);
   }
   .content {
     width: 100%;
@@ -75,7 +60,7 @@ const Wrap = styled.div`
     align-items: center;
     justify-content: center;
     &:hover {
-      background: var(--hover-bg-color);
+      background: var(--color-background-hover);
     }
   }
 `;
@@ -95,20 +80,6 @@ const Chatbot = props => {
   const handleNavVisible = value => {
     setNavVisible(value);
     value ? localStorage.setItem(`chatbotNavVisible`, true) : localStorage.removeItem(`chatbotNavVisible`);
-  };
-
-  const handleChangeIsDark = () => {
-    const config = {
-      isDark: !isDark,
-    };
-    processApi
-      .saveChatbotConfig({
-        chatbotId: data.chatbotId,
-        config,
-      })
-      .then(() => {
-        setChatbotConfig(values => ({ ...values, config }));
-      });
   };
 
   useEffect(() => {
@@ -150,7 +121,11 @@ const Chatbot = props => {
     <div className="flexRow alignItemsCenter headerLeft">
       {!navVisible && (
         <div className="iconWrap">
-          <Icon icon="menu_right" className="Font20 Gray_9e pointer" onClick={() => handleNavVisible(!navVisible)} />
+          <Icon
+            icon="menu_right"
+            className="Font20 textTertiary pointer"
+            onClick={() => handleNavVisible(!navVisible)}
+          />
         </div>
       )}
       <div className="flexRow alignItemsCenter flex">
@@ -163,14 +138,18 @@ const Chatbot = props => {
             onChangeDesc={value => setChatbotAppItem(values => ({ ...values, desc: value }))}
           >
             <div className="iconWrap">
-              <Icon icon="more_horiz" className="Font20 Gray_9e pointer" />
+              <Icon icon="more_horiz" className="Font20 textTertiary pointer" />
             </div>
           </MoreMenu>
         )}
       </div>
       {navVisible && (
         <div className="iconWrap">
-          <Icon icon="menu_left" className="Font20 Gray_9e pointer" onClick={() => handleNavVisible(!navVisible)} />
+          <Icon
+            icon="menu_left"
+            className="Font20 textTertiary pointer"
+            onClick={() => handleNavVisible(!navVisible)}
+          />
         </div>
       )}
     </div>
@@ -182,7 +161,7 @@ const Chatbot = props => {
           <div className="iconWrap mRight10">
             <Icon
               icon="launch"
-              className="Font20 Gray_9e pointer"
+              className="Font20 textTertiary pointer"
               onClick={() => {
                 window.open(`/embed/chatbot/${appPkg.id}/${data.chatbotId}/${data.conversationId || ''}`);
               }}
@@ -199,13 +178,13 @@ const Chatbot = props => {
               <Menu style={{ width: 180 }}>
                 <Menu.Item key="edit" onClick={() => setEditVisible(!editVisible)}>
                   <div className="flexRow valignWrapper">
-                    <Icon icon="edit" className="Font18 mLeft5 mRight10 Gray_9e" />
+                    <Icon icon="edit" className="Font18 mLeft5 mRight10 textTertiary" />
                     <div>{_l('编辑对话机器人')}</div>
                   </div>
                 </Menu.Item>
                 <Menu.Item key="flow" onClick={() => window.open(`/workflowedit/${data.chatbotId}`)}>
                   <div className="flexRow valignWrapper">
-                    <Icon icon="hr_structure" className="Font18 mLeft5 mRight10 Gray_9e" />
+                    <Icon icon="hr_structure" className="Font18 mLeft5 mRight10 textTertiary" />
                     <div>{_l('配置流程')}</div>
                   </div>
                 </Menu.Item>
@@ -213,7 +192,7 @@ const Chatbot = props => {
             }
           >
             <div className="iconWrap">
-              <Icon icon="settings" className="Font20 Gray_9e pointer" />
+              <Icon icon="settings" className="Font20 textTertiary pointer" />
             </div>
           </Dropdown>
         </Tooltip>
@@ -223,8 +202,9 @@ const Chatbot = props => {
   const Content = (
     <div className="content flex">
       <WorkflowChatBot
+        appId={appId}
+        isCharge={isCharge}
         maxWidth={800}
-        isDark={isDark}
         chatbotId={data.chatbotId}
         conversationId={data.conversationId}
         chatbotConfig={chatbotConfig}
@@ -252,12 +232,6 @@ const Chatbot = props => {
                 currentConversationId={data.conversationId}
                 onSelect={navigateToConversation}
               />
-              {/* <div
-                    className="iconWrap flexRow alignItemsCenter justifyContentCenter pointer mAll10"
-                    onClick={handleChangeIsDark}
-                  >
-                    <Icon icon="dark-mode" className="Font22 Gray_9e" />
-                  </div> */}
             </div>
           </div>
         ) : (

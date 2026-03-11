@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
+import cx from 'classnames';
 import _ from 'lodash';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import homeAppAjax from 'src/api/homeApp';
@@ -72,12 +73,12 @@ class WorksheetRowLand extends Component {
     });
   }
   render() {
-    const { loading, worksheetId, rowId, appId, viewId, loadingSwitchPermit } = this.state;
+    const { loading, worksheetId, rowId, appId, viewId, loadingSwitchPermit, landRightComp } = this.state;
     const { appPkg } = this.props;
     const { fixed, permissionType, pcDisplay, projectId } = appPkg;
     const isAuthorityApp = canEditApp(permissionType);
     return (
-      <div className="worksheetRowLand">
+      <div className={cx('worksheetRowLand', { hasLandRightComp: !!landRightComp })}>
         {loading || loadingSwitchPermit || _.isEmpty(appPkg) ? (
           <div className="workSheetRecordInfo">
             <LoadDiv className="mTop32" />
@@ -96,8 +97,12 @@ class WorksheetRowLand extends Component {
             viewId={viewId}
             recordId={rowId}
             hideRecordInfo={() => navigateTo(worksheetId ? `/worksheet/${worksheetId}` : `/app/${appId}`)}
+            setLandRightComp={comp => {
+              this.setState({ landRightComp: comp });
+            }}
           />
         )}
+        {landRightComp && <div className="landRightComp">{landRightComp}</div>}
       </div>
     );
   }

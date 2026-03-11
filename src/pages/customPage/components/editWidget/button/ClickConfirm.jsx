@@ -7,19 +7,19 @@ import DoubleConfirmDialog from './DoubleConfirmDialog';
 
 const FilterTextCon = styled.div`
   width: 100%;
-  background: #f5f5f5;
-  border: 1px solid #dddddd;
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-border-primary);
   border-radius: 3px;
   padding: 8px 16px 10px;
   box-sizing: border-box;
-  color: #151515;
+  color: var(--color-text-title);
   margin-top: 10px;
   display: flex;
 
   .txtFilter {
     flex: 1;
     font-size: 13px;
-    color: #151515;
+    color: var(--color-text-title);
     line-height: 20px;
 
     p {
@@ -47,13 +47,13 @@ const FilterTextCon = styled.div`
     width: 20px;
 
     &:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
 
   .editWorkflow {
     width: auto;
-    color: #1677ff;
+    color: var(--color-primary);
   }
 `;
 
@@ -77,8 +77,12 @@ export default function ClickConfirm(props) {
             });
           }}
         >
-          <Radio value={1}>{_l('立即执行')}</Radio>
-          <Radio value={2}>{_l('需要二次确认')}</Radio>
+          <Radio value={1} className="Font13">
+            {_l('立即执行')}
+          </Radio>
+          <Radio value={2} className="Font13">
+            {_l('需要二次确认')}
+          </Radio>
         </Radio.Group>
       </div>
       {clickType === 2 && (
@@ -86,21 +90,21 @@ export default function ClickConfirm(props) {
           <FilterTextCon>
             <div className="txtFilter">
               <p>
-                <span className="titleTxt Gray">{_l('提示文字')}</span>
-                <span className="txt Gray breakAll">{confirmMsg}</span>
+                <span className="titleTxt textPrimary">{_l('提示文字')}</span>
+                <span className="txt textPrimary breakAll">{confirmMsg}</span>
               </p>
               <p className="mTop5">
-                <span className="titleTxt Gray">{_l('确认按钮文字')}</span>
-                <span className="txt Gray breakAll">{sureName}</span>
+                <span className="titleTxt textPrimary">{_l('确认按钮文字')}</span>
+                <span className="txt textPrimary breakAll">{sureName}</span>
               </p>
               <p className="mTop5">
-                <span className="titleTxt Gray">{_l('取消按钮文字')}</span>
-                <span className="txt Gray breakAll">{cancelName}</span>
+                <span className="titleTxt textPrimary">{_l('取消按钮文字')}</span>
+                <span className="txt textPrimary breakAll">{cancelName}</span>
               </p>
             </div>
             <Icon
               icon="hr_edit"
-              className="Gray_9d Font18 editFilter Hand"
+              className="textTertiary Font18 editFilter Hand"
               onClick={() => {
                 setVisible(true);
               }}

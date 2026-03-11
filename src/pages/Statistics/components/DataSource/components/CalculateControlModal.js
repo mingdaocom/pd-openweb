@@ -15,12 +15,12 @@ const ControlTag = styled.div`
   padding: 0 12px;
   border-radius: 16px;
   background: #d8eeff;
-  color: #174c76;
-  border: 1px solid #bbd6ea;
+  color: var(--color-link-hover);
+  border: 1px solid var(--color-primary-transparent);
   &.invalid {
-    color: #f44336;
+    color: var(--color-error);
     background: rgba(244, 67, 54, 0.06);
-    border-color: #f44336;
+    border-color: var(--color-error);
   }
 `;
 
@@ -138,7 +138,7 @@ class CalculateControl extends Component {
         {(isNumber ? calculateControlNormTypes : textControlNormTypes).map(item => (
           <Menu.Item
             key={item.value}
-            style={{ color: norm.value === item.value ? '#1677ff' : null }}
+            style={{ color: norm.value === item.value ? 'var(--color-primary) !important' : null }}
             onClick={() => {
               const newFormulaStr = this.state.formulaStr.replace(
                 new RegExp(`${controlId}-${norm.value || '\\d'}`),
@@ -263,7 +263,7 @@ class CalculateControl extends Component {
               },
             }}
           >
-            <div className="flexRow valignWrapper pointer" style={{ color: '#1677ff' }}>
+            <div className="flexRow valignWrapper pointer" style={{ color: 'var(--color-primary) !important' }}>
               <Icon className="Font20" icon="add" />
               <span className="Font13">{_l('选择字段')}</span>
             </div>
@@ -282,7 +282,7 @@ class CalculateControl extends Component {
           />
           {this.renderDropdown()}
         </div>
-        <div className="mTop8 Font12 Gray_75">
+        <div className="mTop8 Font12 textSecondary">
           {_l('英文输入+、-、*、/、( ) 进行运算，支持输入数值或全数值的计算，不支持公式')}
         </div>
         <div className="mTop16 mBottom10">{_l('保留小数位数')}</div>
@@ -297,7 +297,7 @@ class CalculateControl extends Component {
             <div className="flexColumn">
               <Icon
                 icon="expand_less"
-                className="Gray_9e Font20 pointer mBottom2"
+                className="textTertiary Font20 pointer mBottom2"
                 onClick={() => {
                   let newYdot = Number(dot);
                   this.handleChangeDot(newYdot + 1);
@@ -305,7 +305,7 @@ class CalculateControl extends Component {
               />
               <Icon
                 icon="expand_more"
-                className="Gray_9e Font20 pointer mTop2"
+                className="textTertiary Font20 pointer mTop2"
                 onClick={() => {
                   let newYdot = Number(dot);
                   this.handleChangeDot(newYdot ? newYdot - 1 : 0);
@@ -357,7 +357,7 @@ export default class CalculateControlModal extends Component {
         visible={dialogVisible}
         centered={true}
         destroyOnClose={true}
-        closeIcon={<Icon icon="close" className="Font20 pointer Gray_9e" />}
+        closeIcon={<Icon icon="close" className="Font20 pointer textTertiary" />}
         footer={this.renderFooter()}
         onCancel={() => {
           this.props.onChangeDialogVisible(false);

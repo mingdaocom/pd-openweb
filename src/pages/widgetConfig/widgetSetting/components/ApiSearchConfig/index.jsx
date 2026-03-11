@@ -24,11 +24,12 @@ const SearchMode = styled.div`
   justify-content: space-between;
   padding: 8px 12px;
   border-radius: 3px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--color-border-primary);
   cursor: pointer;
-  ${({ isDelete }) => (isDelete ? 'border: 1px solid #F51744;background: #FFF2F4;color: #F51744;' : '')}
+  ${({ isDelete }) =>
+    isDelete ? 'border: 1px solid var(--color-error);background: var(--color-error-bg);color: var(--color-error);' : ''}
   &:hover {
-    border-color: #ccc;
+    border-color: var(--color-border-tertiary);
   }
   .apiWrap {
     display: flex;
@@ -58,15 +59,15 @@ const SearchMode = styled.div`
         top: -4px;
       }
       img {
-        border: 1px solid #fff;
+        border: 1px solid var(--color-white);
       }
       .defaultIcon {
-        background: #fff;
-        color: #9e9e9e;
+        background: var(--color-background-primary);
+        color: var(--color-text-tertiary);
         font-size: 12px;
         text-align: center;
         line-height: 16px;
-        border: 1px solid #efefef;
+        border: 1px solid var(--color-border-primary);
       }
     }
     .iconDesc {
@@ -82,7 +83,7 @@ const AuthWrap = styled.div`
   margin-top: 16px;
   position: relative;
   .authRequired {
-    color: #f44336;
+    color: var(--color-error);
     position: absolute;
     margin-top: 1px;
     left: -6px;
@@ -90,17 +91,17 @@ const AuthWrap = styled.div`
   .actionControlMore {
     width: 36px;
     height: 36px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-tertiary);
     border-left: none;
     border-radius: 0 3px 3px 0;
-    color: #757575;
+    color: var(--color-text-secondary);
     font-size: 22px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     &:hover {
-      color: #1677ff !important;
+      color: var(--color-primary) !important;
     }
   }
 `;
@@ -117,7 +118,7 @@ function BasicInfo(props) {
             <Fragment>
               <div
                 className="iconWrap"
-                style={{ backgroundColor: getRgbaByColor(apiInfo.iconColor || '#757575', '0.08') }}
+                style={{ backgroundColor: getRgbaByColor(apiInfo.iconColor || 'var(--color-text-secondary)', '0.08') }}
               >
                 <SvgIcon url={apiInfo.iconName} fill={apiInfo.iconColor} size={28} />
                 <Tooltip placement="bottom" title={apiInfo.linkName}>
@@ -134,7 +135,7 @@ function BasicInfo(props) {
                 <span className="flexCenter">
                   <span className="Bold ellipsis">{apiInfo.name}</span>{' '}
                   <i
-                    className="icon-launch Gray_9e mLeft5 ThemeHoverColor3 Hand"
+                    className="icon-launch textTertiary mLeft5 ThemeHoverColor3 Hand"
                     onClick={e => {
                       e.stopPropagation();
                       window.open(`/integrationApi/${data.dataSource}`);
@@ -143,7 +144,7 @@ function BasicInfo(props) {
                 </span>
                 {apiInfo.explain && (
                   <Tooltip placement="bottom" title={apiInfo.explain}>
-                    <span className="Font12 Gray_a ellipsis">{apiInfo.explain}</span>
+                    <span className="Font12 textTertiary ellipsis">{apiInfo.explain}</span>
                   </Tooltip>
                 )}
               </div>
@@ -151,9 +152,9 @@ function BasicInfo(props) {
           )}
         </div>
       ) : (
-        <span className="Gray_9e">{_l('请选择')}</span>
+        <span className="textTertiary">{_l('请选择')}</span>
       )}
-      <i className="icon-arrow-down-border Font14 Gray_9e mLeft8" />
+      <i className="icon-arrow-down-border Font14 textTertiary mLeft8" />
     </SearchMode>
   );
 }

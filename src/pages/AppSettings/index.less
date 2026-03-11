@@ -2,11 +2,11 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   .manageAppLeft {
     overflow: auto;
     width: 240px;
-    border-right: 1px solid #dddddd;
+    border-right: 1px solid var(--color-border-primary);
     padding: 8px 8px 0;
     box-sizing: border-box;
     display: flex;
@@ -17,7 +17,7 @@
     }
     .line {
       width: 100%;
-      border-top: 1px solid #eaeaea;
+      border-top: 1px solid var(--color-border-secondary);
       margin: 8px 0;
     }
     .configItem {
@@ -28,18 +28,18 @@
       border-radius: 4px;
       cursor: pointer;
       i {
-        color: #9e9e9e;
+        color: var(--color-text-tertiary);
       }
       &:hover {
-        background-color: #f8f8f8;
+        background-color: var(--color-background-hover);
       }
       &.active {
-        color: #1677ff;
-        background-color: #ecf7fe;
+        color: var(--color-primary);
+        background-color: var(--color-primary-transparent);
         position: relative;
         font-weight: 600;
         i {
-          color: #1677ff;
+          color: var(--color-primary);
         }
         &::before {
           content: '';
@@ -48,14 +48,14 @@
           top: 14px;
           width: 3px;
           height: 16px;
-          background-color: #1677ff;
+          background-color: var(--color-primary);
           z-index: 1;
         }
       }
       &.del {
-        color: #f51744;
+        color: var(--color-error);
         i {
-          color: #f51744 !important;
+          color: var(--color-error) !important;
         }
       }
       &.collapseItem {
@@ -104,7 +104,7 @@
   .tabWrap {
     height: 40px;
     display: flex;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-primary);
     .tabItem {
       width: 96px;
       height: 42px;
@@ -116,8 +116,8 @@
         margin-left: 32px;
       }
       &.active {
-        border-bottom: 2px solid #1890ff;
-        color: #1890ff;
+        border-bottom: 2px solid var(--color-link-hover);
+        color: var(--color-link-hover);
       }
     }
   }
@@ -155,7 +155,7 @@
       width: 47px;
     }
     .colorGray {
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
     }
     .settingBtn,
     .submitBtn {
@@ -163,9 +163,9 @@
       height: 37px;
       text-align: center;
       line-height: 37px;
-      background: #1677ff;
+      background: var(--color-primary);
       border-radius: 19px;
-      color: #fff;
+      color: var(--color-white);
       margin-top: 80px;
     }
     .submitBtn {
@@ -181,7 +181,7 @@
 
 .backupRestoreCon {
   width: 180px;
-  background-color: #fff;
+  background-color: var(--color-background-primary);
   z-index: 1;
   padding: 6px 0;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.24);
@@ -189,11 +189,11 @@
     height: 36px;
     line-height: 36px;
     font-size: 14;
-    color: #151515;
+    color: var(--color-text-title);
     padding-left: 20px;
   }
   .backupRestoreItem:hover {
-    background-color: #1677ff;
-    color: #fff;
+    background-color: var(--color-primary);
+    color: var(--color-white);
   }
 }

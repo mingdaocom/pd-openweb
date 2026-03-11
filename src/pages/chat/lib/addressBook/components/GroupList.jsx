@@ -29,7 +29,7 @@ export default class GroupList extends React.Component {
     const { title, list } = listProps;
     return (
       <div className="list-wrapper" key={title}>
-        <div className="list-packet list-packet-name Gray_75 Font12">{title}</div>
+        <div className="list-packet list-packet-name textSecondary Font12">{title}</div>
         <div>
           {_.map(list, item => (
             <GroupItem

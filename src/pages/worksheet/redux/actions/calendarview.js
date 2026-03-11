@@ -1,11 +1,16 @@
 import _ from 'lodash';
 import moment from 'moment';
 import sheetAjax from 'src/api/worksheet';
-import { getShowExternalData, setDataFormat } from 'src/pages/worksheet/views/CalendarView/util';
-import { getCalendarViewType } from 'src/pages/worksheet/views/CalendarView/util';
-import { getCalendartypeData, getTimeControls, isTimeStyle } from 'src/pages/worksheet/views/CalendarView/util';
+import {
+  getCalendartypeData,
+  getCalendarViewType,
+  getCurrentView,
+  getShowExternalData,
+  getTimeControls,
+  setDataFormat,
+} from 'src/pages/worksheet/views/CalendarView/util';
 import { getFilledRequestParams } from 'src/utils/common';
-import { getAdvanceSetting } from 'src/utils/control';
+import { getAdvanceSetting, isTimeStyle } from 'src/utils/control';
 import { formatQuickFilter } from 'src/utils/filter';
 
 let getRows;
@@ -64,8 +69,7 @@ export const fetch = searchArgs => {
 
 export function updateFormatData() {
   return (dispatch, getState) => {
-    const { views = [], base = {}, controls, calendarview = {} } = getState().sheet;
-    const { viewId } = base;
+    const { controls, calendarview = {} } = getState().sheet;
     const { calendar = [], calendarData = {} } = calendarview;
     let list = [];
     calendar.forEach(item => {
@@ -73,10 +77,10 @@ export function updateFormatData() {
         ...item,
         // allowNoBegin: true, //允许开始时间为空的数据
         worksheetControls: controls,
-        currentView: views.find(o => o.viewId === viewId) || {},
+        currentView: getCurrentView(getState().sheet),
         calendarData,
       });
-      list.push(...data);
+      list.push({ ...data[0], row: item });
     });
     dispatch({ type: 'CHANGE_CALENDAR_FORMAT', data: list });
   };
@@ -322,10 +326,10 @@ export function getEventList({
   cb = null,
 }) {
   return (dispatch, getState) => {
-    const { calendarview, controls, views, base, filters } = getState().sheet;
+    const { calendarview, controls, base, filters } = getState().sheet;
     const { calendarData, calenderEventList = {} } = calendarview;
     const { appId, worksheetId, viewId } = base;
-    const currentView = views.find(o => o.viewId === viewId) || {};
+    const currentView = getCurrentView(getState().sheet);
     const { calendarInfo = [] } = calendarData;
     if (getFilterRows && getFilterRowsIds.includes(viewId)) {
       getFilterRows.abort();
@@ -603,9 +607,9 @@ export function updateCalendarEventIsAdd(data) {
 // 更改 已获取的  排期/未排期数据
 export function updateEventData(rowId, data, time) {
   return (dispatch, getState) => {
-    const { calendarview, controls, base, views } = getState().sheet;
+    const { calendarview, controls } = getState().sheet;
     const { calendarData, calenderEventList = {} } = calendarview;
-    const currentView = views.find(o => o.viewId === base.viewId) || {};
+    const currentView = getCurrentView(getState().sheet);
     let { keyWords, searchData, eventScheduledDtResort = [], updataRowIds = [] } = calenderEventList;
     const typeEvent = dispatch(getInitType());
     if (keyWords) {

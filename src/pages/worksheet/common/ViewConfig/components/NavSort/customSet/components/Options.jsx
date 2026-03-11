@@ -12,7 +12,7 @@ export default function (props) {
   let style = {};
   const data = props.controlInfo.options.find(o => o.key === props.item) || {};
   if (_.get(props, 'controlInfo.enumDefault2') === 1) {
-    const fontColor = !isLightColor(data.color) ? '#fff' : '#151515';
+    const fontColor = !isLightColor(data.color) ? '#fff' : 'var(--color-text-title)';
     style = { background: data.color, color: fontColor };
   }
   return (

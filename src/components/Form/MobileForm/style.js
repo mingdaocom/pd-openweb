@@ -1,5 +1,15 @@
 import styled from 'styled-components';
 
+// 通用普通胶囊
+export const CustomCommonCapsule = styled.span`
+  display: inline-block;
+  padding: 2px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--color-border-primary);
+  word-break: break-all;
+  white-space: pre-wrap;
+`;
+
 // 选项胶囊
 export const CustomOptionCapsule = styled.span`
   position: relative;
@@ -20,6 +30,6 @@ export const CustomOptionCapsule = styled.span`
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: ${props => props.tagColor || 'var(--color-background-tertiary)'};
+    background: ${props => props.tagColor || 'var(--color-background-secondary)'};
   }
 `;

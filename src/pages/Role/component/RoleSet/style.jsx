@@ -10,14 +10,14 @@ export const Wrap = styled.div`
   flex: 1;
   display: flex;
   flex-flow: column nowrap;
-  background: #fff;
+  background: var(--color-background-primary);
   .header {
     padding: 14px 32px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-primary);
   }
   .footer {
     padding: 15px 48px 28px;
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
   .setBody {
     flex: 1 1 0;
@@ -36,7 +36,7 @@ export const Wrap = styled.div`
 
     .authTable {
       .tableHeader {
-        background-color: #f5f5f5;
+        background-color: var(--color-background-secondary);
         display: flex;
         flex-flow: row nowrap;
         height: 40px;
@@ -67,8 +67,8 @@ export const Wrap = styled.div`
         }
       }
       .emptyContent {
-        border-bottom: 1px solid #eaeaea;
-        color: #bdbdbd;
+        border-bottom: 1px solid var(--color-border-secondary);
+        color: var(--color-text-disabled);
         line-height: 45px;
         padding-left: 24px;
       }
@@ -76,11 +76,11 @@ export const Wrap = styled.div`
         display: flex;
         flex-flow: row nowrap;
         align-items: center;
-        border-bottom: 1px solid #eaeaea;
+        border-bottom: 1px solid var(--color-border-secondary);
         text-align: center;
 
         .viewsGroup {
-          border-right: 1px solid #eaeaea;
+          border-right: 1px solid var(--color-border-secondary);
         }
 
         .viewSetting {
@@ -101,20 +101,20 @@ export const Wrap = styled.div`
             width: 32px;
             text-align: center;
             i {
-              color: #bdbdbd;
+              color: var(--color-text-disabled);
               line-height: 1;
             }
             &.canShow:hover {
-              background-color: #f7f7f7;
+              background-color: var(--color-background-hover);
               opacity: 1;
               i {
-                color: #1677ff;
+                color: var(--color-primary);
               }
             }
             &.show {
               opacity: 1;
               i {
-                color: #ff8a00 !important;
+                color: var(--color-warning) !important;
               }
             }
           }
@@ -141,7 +141,7 @@ export const Wrap = styled.div`
             span {
               padding: 5px 10px;
               &:hover {
-                background-color: #f7f7f7;
+                background-color: var(--color-background-hover);
                 border-radius: 5px;
               }
             }

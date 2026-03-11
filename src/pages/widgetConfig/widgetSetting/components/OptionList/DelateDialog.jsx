@@ -13,7 +13,7 @@ const DelateDialogWrap = styled.ul`
     align-items: center;
     justify-content: space-between;
     padding: 0px 8;
-    border-bottom: 1px solid #dddddd;
+    border-bottom: 1px solid var(--color-border-primary);
     line-height: 36px;
     .name {
       display: flex;
@@ -27,7 +27,7 @@ const DelateDialogWrap = styled.ul`
           width: 0;
           height: 0;
           border: 4px solid transparent;
-          border-top-color: #fff;
+          border-top-color: var(--color-background-primary);
           &.isLight {
             border-top-color: rgba(0, 0, 0, 0.7);
           }
@@ -39,9 +39,9 @@ const DelateDialogWrap = styled.ul`
       font-size: 16px;
       margin-left: 12px;
       cursor: pointer;
-      color: #9e9e9e;
+      color: var(--color-text-tertiary);
       &:hover {
-        color: #1677ff;
+        color: var(--color-primary);
       }
     }
   }

@@ -1186,7 +1186,16 @@ export const receiveMessage = (id, message) => (dispatch, getState) => {
   const currentMessage = messages[id];
   const unnecessary = _.findIndex(currentMessage, { id: message.id }) === -1 ? false : true;
   if (currentMessage && !unnecessary) {
-    message = utils.formatNewMessage(message, currentMessage[currentMessage.length - 1]);
+    const prevMessage = currentMessage[currentMessage.length - 1];
+    message = utils.formatNewMessage(message, prevMessage);
+    if (
+      prevMessage &&
+      prevMessage.isMineMessage &&
+      prevMessage.from === message.from &&
+      _.get(prevMessage, 'msg.con') === _.get(message, 'msg.con')
+    ) {
+      return;
+    }
     const isGroup = 'groupname' in message;
     const sessionId = isGroup ? message.to : message.isMine ? message.to : message.from;
     const bottom = $(`#ChatPanel-${sessionId}`).data('isBottom');

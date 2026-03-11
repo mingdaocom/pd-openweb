@@ -13,7 +13,7 @@ const SignatureWrap = styled.div`
   padding: 12px 15px;
   .tip {
     font-size: 14px;
-    color: #151515;
+    color: var(--color-text-title);
     font-weight: bold;
     margin-bottom: 10px;
   }

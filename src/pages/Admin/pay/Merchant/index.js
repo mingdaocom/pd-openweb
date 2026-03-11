@@ -13,7 +13,7 @@ import MerchantCom from './components/MerchantCom';
 
 const CreateButton = styled(Button)`
   &.createDisabled {
-    background: #eee !important;
+    background: var(--color-border-secondary) !important;
   }
 `;
 
@@ -50,12 +50,12 @@ export default class Merchant extends Component {
             <div className="flexRow alignItemsCenter">
               <Icon
                 icon="task-later"
-                className="Gray_9 hoverText Font17 mRight24"
+                className="textTertiary hoverText Font17 mRight24"
                 onClick={() => this.com && this.com.getDataList()}
               />
               {showCreateMerchant && hasManageMerchantAuth && (
                 <CreateButton
-                  className={cx('pLeft15 pRight15', { 'Gray createDisabled': featureType === '2' })}
+                  className={cx('pLeft15 pRight15', { 'textPrimary createDisabled': featureType === '2' })}
                   type="primary"
                   radius={featureType === '2'}
                   onClick={() => {

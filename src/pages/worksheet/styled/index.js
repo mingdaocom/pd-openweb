@@ -13,7 +13,7 @@ export const TextEllipsis = styled.div`
 
 export const Text = styled.p`
   font-size: 13px;
-  color: ${props => (props.color ? props.color : '#151515')};
+  color: ${props => (props.color ? props.color : 'var(--color-text-title)')};
   text-align: ${props => props.align || 'initial'};
 `;
 
@@ -30,8 +30,8 @@ export const Button = styled.button`
   padding: 0 32px;
   line-height: 36px;
   height: 36px;
-  color: #fff;
-  background-color: ${props => props.bgColor || '#1677ff'};
+  color: var(--color-white);
+  background-color: ${props => props.bgColor || 'var(--color-primary)'};
   border-radius: 4px;
   outline: none;
   cursor: pointer;
@@ -39,11 +39,11 @@ export const Button = styled.button`
 `;
 
 export const RevertButton = styled(Button)`
-  color: ${props => props.color || '#1677ff'};
+  color: ${props => props.color || 'var(--color-primary)'};
   border: 1px solid currentColor;
   background: ${props => props.bgColor || 'transparent'};
   &:hover {
-    background-color: #edf7fe;
+    background-color: var(--color-primary-transparent);
   }
 `;
 

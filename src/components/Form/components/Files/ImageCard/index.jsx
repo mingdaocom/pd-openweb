@@ -12,7 +12,7 @@ const renderFileImage = (url, coverType, imgClassName = 'w100') => {
     return <div className="fileImage" style={{ backgroundImage: `url(${url})` }} />;
   } else {
     return (
-      <div className="flexRow alignItemsCenter justifyContentCenter overflowHidden h100 GrayBGF8">
+      <div className="flexRow alignItemsCenter justifyContentCenter overflowHidden h100 bgTertiary">
         <img className={imgClassName} src={url} />
       </div>
     );
@@ -218,13 +218,13 @@ const ImageCard = props => {
             <div
               className={cx(
                 'Font13 flexRow alignItemsCenter textEllipsis mBottom5 name',
-                isPicture ? 'White' : 'ThemeColor',
+                isPicture ? 'textWhite' : 'colorPrimary',
               )}
             >
               {data.originalFilename}
               {data.ext}
             </div>
-            <div className="flexRow alignItemsCenter Gray_bd">
+            <div className="flexRow alignItemsCenter textDisabled">
               {isKc ? (
                 <Fragment>
                   <span className="mRight10">{_l('来自知识')}</span>
@@ -269,7 +269,7 @@ const ImageCard = props => {
                   }}
                   className="panelBtn delete"
                 >
-                  <Icon className="Gray_9e Font17" icon="trash" />
+                  <Icon className="textTertiary Font17" icon="trash" />
                 </div>
               </Tooltip>
             )}
@@ -292,7 +292,7 @@ const ImageCard = props => {
                     }}
                     className="panelBtn mRight10"
                   >
-                    <Icon className="Gray_9e Font17" icon="download" />
+                    <Icon className="textTertiary Font17" icon="download" />
                   </div>
                 </Tooltip>
               )}
@@ -319,7 +319,7 @@ const ImageCard = props => {
                       }}
                       className="panelBtn"
                     >
-                      <Icon className="Gray_9e Font17" icon="more_horiz" />
+                      <Icon className="textTertiary Font17" icon="more_horiz" />
                     </div>
                   </Tooltip>
                 </Trigger>
@@ -432,13 +432,13 @@ const NotSaveImageCard = props => {
             <div
               className={cx(
                 'Font13 flexRow alignItemsCenter textEllipsis mBottom5 name',
-                isPicture ? 'White' : 'ThemeColor',
+                isPicture ? 'textWhite' : 'colorPrimary',
               )}
             >
               {data.originalFileName}
               {data.fileExt}
             </div>
-            <div className="flexRow alignItemsCenter Gray_bd">
+            <div className="flexRow alignItemsCenter textDisabled">
               {isKc ? (
                 <Fragment>
                   <span className="mRight10">{_l('来自知识')}</span>
@@ -459,7 +459,7 @@ const NotSaveImageCard = props => {
               }}
               className="panelBtn delete"
             >
-              <Icon className="Gray_9e Font17" icon="trash" />
+              <Icon className="textTertiary Font17" icon="trash" />
             </div>
           </Tooltip>
           {!isKc && (
@@ -471,7 +471,7 @@ const NotSaveImageCard = props => {
                 }}
                 className="panelBtn"
               >
-                <Icon className="Gray_9e Font17" icon="rename_input" />
+                <Icon className="textTertiary Font17" icon="rename_input" />
               </div>
             </Tooltip>
           )}
@@ -505,8 +505,8 @@ export default props => {
               isRound={false}
               strokeWidth={3}
               diameter={47}
-              foregroundColor="#BDBDBD"
-              backgroundColor="#fff"
+              foregroundColor="var(--color-text-disabled)"
+              backgroundColor="var(--color-background-primary)"
               percent={parseInt(progress)}
             />
           </div>

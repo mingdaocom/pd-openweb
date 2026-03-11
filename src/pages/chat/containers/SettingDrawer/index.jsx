@@ -14,7 +14,7 @@ import Toolbar from './Toolbar';
 const Wrap = styled.div`
   .nav {
     width: 180px;
-    background-color: #fafafa;
+    background-color: var(--color-background-tertiary);
   }
   .content {
     min-width: 0;
@@ -24,9 +24,9 @@ const Wrap = styled.div`
     padding: 10px 20px;
     position: relative;
     &.active {
-      color: #1677ff;
+      color: var(--color-primary);
       font-weight: bold;
-      background-color: #fff;
+      background-color: var(--color-background-card);
       &::before {
         content: '';
         position: absolute;
@@ -43,7 +43,7 @@ const Wrap = styled.div`
   .divider {
     width: 100%;
     height: 1px;
-    background-color: #eaeaea;
+    background-color: var(--color-border-secondary);
     margin: 0 auto;
   }
   .widthMaxContent {
@@ -61,7 +61,7 @@ const navs = [
   },
   {
     value: 'toolbar',
-    name: _l('工具栏'),
+    name: _l('右侧栏'),
   },
 ];
 
@@ -131,7 +131,7 @@ const Setting = props => {
   return (
     <Wrap className="flexRow w100 h100">
       <div className="nav">
-        <div className="Gray bold Font22 pAll20">{_l('设置')}</div>
+        <div className="textPrimary bold Font22 pAll20">{_l('设置')}</div>
         {navs.map(nav => (
           <div
             className={cx('navItem pointer', { active: nav.value === navType })}
@@ -143,7 +143,7 @@ const Setting = props => {
       </div>
       <div className="content flexColumn flex pAll20">
         <div className="flexRow alignItemsCenter justifyContentRight">
-          <Icon className="Font22 pointer Gray_75" icon="close" onClick={onClose} />
+          <Icon className="Font22 pointer textSecondary" icon="close" onClick={onClose} />
         </div>
         {loading ? (
           <div className="flexRow alignItemsCenter justifyContent flex">

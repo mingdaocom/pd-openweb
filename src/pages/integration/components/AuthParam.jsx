@@ -148,10 +148,10 @@ function AuthParam(props) {
         {withTime && node.expireAfterSeconds !== undefined && (
           <div className="flexRow mBottom20">
             {node.expireAfterSeconds <= 0 ? (
-              <div className="title Gray_75"> {_l('不刷新')}</div>
+              <div className="title textSecondary"> {_l('不刷新')}</div>
             ) : (
               <React.Fragment>
-                <div className="title Gray_75">{_l('刷新频率')}</div>
+                <div className="title textSecondary">{_l('刷新频率')}</div>
                 <div className="txt flex pLeft5">
                   {node.expireAfterSeconds} {_l('秒')}
                 </div>
@@ -177,7 +177,7 @@ function AuthParam(props) {
         </div>
         <div className="flex pLeft16">
           <p className="Font17 Bold">{info[key].name || node.name}</p>
-          <p className="Font13 Gray_75 mTop4">
+          <p className="Font13 textSecondary mTop4">
             <span className="TxtMiddle">{info[key].des}</span>
             <Support href={href} type={3} text={_l('使用帮助')} />
           </p>
@@ -257,6 +257,7 @@ function AuthParam(props) {
             }}
             hasAuth={props.hasAuth}
             customNodeName={info[key].name || node.name}
+            connectId={props.connectId}
             isIntegration
             updateNodeData={() => {
               getInfo();

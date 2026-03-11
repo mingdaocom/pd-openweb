@@ -19,18 +19,18 @@ const Wrap = styled.div`
   padding: 24px;
   display: flex;
   flex-direction: column;
-  background-color: #f8f8f8;
+  background-color: var(--color-background-secondary);
   overflow: auto;
   position: relative;
 
   .Dropdown--input {
-    background-color: #fff;
+    background-color: var(--color-background-primary);
   }
   .ant-checkbox-input {
     position: absolute;
   }
   .ming.Input::placeholder {
-    color: #bdbdbd;
+    color: var(--color-text-disabled);
   }
   .customPageSelect {
     .ant-select-selector {
@@ -48,7 +48,7 @@ const Wrap = styled.div`
   .selectCountWrapper {
     width: 100px;
     > div {
-      border: 1px solid #d9d9d9;
+      border: 1px solid var(--color-border-primary);
       border-radius: 4px;
     }
     .countWrap {
@@ -213,7 +213,7 @@ function Setting(props) {
           showSearch
           className={cx('customPageSelect w100', { Red: viewId && !_.find(views, { viewId }) })}
           value={viewId ? (_.find(views, { viewId }) ? viewId : _l('视图已删除')) : undefined}
-          suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+          suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           placeholder={_l('请选择视图')}
           notFoundContent={<div className="valignWrapper">{_l('请先选择工作表')}</div>}
           getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
@@ -240,7 +240,7 @@ function Setting(props) {
         <Select
           className={cx('customPageSelect w100', { Red: image && !_.find(controls, { controlId: image }) })}
           value={image ? (_.find(controls, { controlId: image }) ? image : _l('字段已删除')) : undefined}
-          suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+          suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           placeholder={_l('请选择字段')}
           notFoundContent={<div className="valignWrapper">{_l('暂无字段')}</div>}
           getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
@@ -253,7 +253,7 @@ function Setting(props) {
             .map(c => (
               <Select.Option className="selectOptionWrapper" key={c.controlId} value={c.controlId}>
                 <div className="valignWrapper h100">
-                  <Icon className="Gray_9e Font16" icon={getIconByType(c.type)} />
+                  <Icon className="textTertiary Font16" icon={getIconByType(c.type)} />
                   <span className="mLeft5 Font13 ellipsis">{c.controlName}</span>
                 </div>
               </Select.Option>
@@ -304,7 +304,7 @@ function Setting(props) {
               <Select
                 className="customPageSelect w100 fillSelect"
                 value={config.fill}
-                suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                 getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
                 onChange={value => {
                   setConfig({ fill: value });
@@ -325,7 +325,7 @@ function Setting(props) {
                 <Select
                   className="customPageSelect w100"
                   value={config.fillColor}
-                  suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                  suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
                   getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
                   onChange={value => {
                     setConfig({ fillColor: value });
@@ -350,9 +350,9 @@ function Setting(props) {
         <Select
           className={cx('customPageSelect w100', { Red: title && !_.find(controls, { controlId: title }) })}
           value={title ? (_.find(controls, { controlId: title }) ? title : _l('字段已删除')) : undefined}
-          suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+          suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           allowClear={true}
-          clearIcon={<Icon icon="cancel" className="Gray_bd Font20" />}
+          clearIcon={<Icon icon="cancel" className="textDisabled Font20" />}
           placeholder={_l('请选择文本字段')}
           notFoundContent={<div className="valignWrapper">{_l('暂无文本字段')}</div>}
           getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
@@ -365,7 +365,7 @@ function Setting(props) {
             .map(c => (
               <Select.Option className="selectOptionWrapper" key={c.controlId} value={c.controlId}>
                 <div className="valignWrapper h100">
-                  <Icon className="Gray_9e Font16" icon={getIconByType(c.type)} />
+                  <Icon className="textTertiary Font16" icon={getIconByType(c.type)} />
                   <span className="mLeft5 Font13 ellipsis">{c.controlName}</span>
                 </div>
               </Select.Option>
@@ -377,10 +377,10 @@ function Setting(props) {
         <Select
           className={cx('customPageSelect w100', { Red: subTitle && !_.find(controls, { controlId: subTitle }) })}
           value={subTitle ? (_.find(controls, { controlId: subTitle }) ? subTitle : _l('字段已删除')) : undefined}
-          suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+          suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           placeholder={_l('请选择文本字段')}
           allowClear={true}
-          clearIcon={<Icon icon="cancel" className="Gray_bd Font20" />}
+          clearIcon={<Icon icon="cancel" className="textDisabled Font20" />}
           notFoundContent={<div className="valignWrapper">{_l('暂无文本字段')}</div>}
           getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
           onChange={value => {
@@ -392,7 +392,7 @@ function Setting(props) {
             .map(c => (
               <Select.Option className="selectOptionWrapper" key={c.controlId} value={c.controlId}>
                 <div className="valignWrapper h100">
-                  <Icon className="Gray_9e Font16" icon={getIconByType(c.type)} />
+                  <Icon className="textTertiary Font16" icon={getIconByType(c.type)} />
                   <span className="mLeft5 Font13 ellipsis">{c.controlName}</span>
                 </div>
               </Select.Option>
@@ -404,7 +404,7 @@ function Setting(props) {
         <Select
           className="customPageSelect w100"
           value={action}
-          suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+          suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
           onChange={value => {
             const data = { action: value };
@@ -427,7 +427,7 @@ function Setting(props) {
         <Select
           className="customPageSelect w100 mBottom16"
           value={url}
-          suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+          suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
           placeholder={_l('请选择文本字段')}
           notFoundContent={<div className="valignWrapper">{_l('暂无文本字段')}</div>}
           getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
@@ -440,7 +440,7 @@ function Setting(props) {
             .map(c => (
               <Select.Option className="selectOptionWrapper" key={c.controlId} value={c.controlId}>
                 <div className="valignWrapper h100">
-                  <Icon className="Gray_9e Font16" icon={getIconByType(c.type)} />
+                  <Icon className="textTertiary Font16" icon={getIconByType(c.type)} />
                   <span className="mLeft5 Font13 ellipsis">{c.controlName}</span>
                 </div>
               </Select.Option>
@@ -453,7 +453,7 @@ function Setting(props) {
           <Select
             className="customPageSelect w100 mBottom16"
             value={openMode}
-            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            suffixIcon={<Icon icon="expand_more" className="textTertiary Font20" />}
             getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
             onChange={value => {
               setComponentConfig({ openMode: value });

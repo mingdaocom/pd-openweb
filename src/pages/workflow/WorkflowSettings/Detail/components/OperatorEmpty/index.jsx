@@ -66,7 +66,7 @@ export default ({
         {title}
         {titleInfo && (
           <Tooltip title={titleInfo}>
-            <Icon className="Font16 Gray_9e mLeft5" icon="info" />
+            <Icon className="Font16 textTertiary mLeft5" icon="info" />
           </Tooltip>
         )}
       </div>
@@ -85,7 +85,7 @@ export default ({
                   '流程的拥有者默认为流程创建者，在流程配置中可修改流程拥有者。（当没有流程拥有者时，由应用拥有者代理）',
                 )}
               >
-                <Icon className="Font14 Gray_9e Absolute" icon="info" style={{ right: 30 }} />
+                <Icon className="Font14 textTertiary Absolute" icon="info" style={{ right: 30 }} />
               </Tooltip>
             )}
           </Fragment>
@@ -94,7 +94,7 @@ export default ({
       />
 
       {processId && userTaskNullType === 2 && (
-        <div className="Gray_75 mTop5">
+        <div className="textSecondary mTop5">
           {_l('当前流程还没有流程拥有者')}
           {hideGoToSettings ? (
             _l('，请在 流程发起节点 中配置')
@@ -114,7 +114,7 @@ export default ({
           <div className="mRight10 mTop12">{_l('代理人')}</div>
           <Member companyId={projectId} appId={appId} leastOne accounts={userTaskNullMap[userTaskNullType]} />
           <div
-            className={cx('Gray_c ThemeHoverColor3 mTop12 pointer', {
+            className={cx('textPlaceholder ThemeHoverColor3 mTop12 pointer', {
               mLeft8: userTaskNullMap[userTaskNullType].length,
             })}
             onClick={selectCharge}

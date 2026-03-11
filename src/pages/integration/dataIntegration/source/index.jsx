@@ -5,7 +5,7 @@ import SourceSelectModal from '../components/SourceSelectModal';
 import { AddOrEditSource, SourceList } from './components';
 
 const DataSourceWrapper = styled.div`
-  background: #fff;
+  background: var(--color-background-primary);
   min-height: 100%;
   padding: 32px;
 
@@ -17,14 +17,14 @@ const DataSourceWrapper = styled.div`
 
     .addSourceButton {
       padding: 8px 24px;
-      background: #1677ff;
+      background: var(--color-primary);
       border-radius: 18px;
-      color: #fff;
+      color: var(--color-white);
       display: inline-block;
       cursor: pointer;
 
       &:hover {
-        background: #1764c0;
+        background: var(--color-link-hover);
       }
     }
   }

@@ -1,0 +1,93 @@
+// Mingo 弹层样式
+.toastWrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  font-size: 16px;
+  white-space: nowrap;
+  .toastMask {
+    width: 100%;
+    height: 100%;
+    background: var(--color-background-primary);
+    opacity: 0.9;
+  }
+  .toastContent {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // 录入区域
+  .inputContentBox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--color-background-primary);
+    box-shadow: 0px 2px 4px 1px rgba(0, 0, 0, 0.16);
+    border-radius: 0px 0px 10px 10px;
+    font-size: 17px;
+    color: var(--color-text-primary);
+    .content {
+      padding: 20px 16px 10px;
+      .placeholder,
+      textarea::placeholder {
+        color: var(--color-text-placeholder);
+      }
+      .placeholder {
+        height: 150px;
+      }
+      .recordingContent {
+        height: 150px;
+        word-break: break-all;
+        white-space: pre-wrap;
+        textarea {
+          width: 100%;
+          height: 100%;
+          overflow-y: auto;
+          border: none;
+          resize: none;
+          font-size: 17px;
+          color: var(--color-text-primary);
+          // 解决 safari 聚焦光标不显示的问题
+          -webkit-transform: translateZ(0);
+        }
+      }
+    }
+    .footer {
+      padding: 10px;
+      .basicBtnBox {
+        display: flex;
+        gap: 10px;
+        .basicBtn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 36px;
+          border-radius: 36px;
+          font-size: 13px;
+          font-weight: 700;
+          &.common {
+            color: var(--color-text-secondary);
+            border: 1px solid var(--color-border-primary);
+          }
+          &.primary {
+            color: var(--color-white);
+            background: linear-gradient(129deg, #d56dfd 0%, #3e15fd 100%);
+          }
+          &.disabled {
+            opacity: 0.5;
+          }
+        }
+      }
+    }
+  }
+}

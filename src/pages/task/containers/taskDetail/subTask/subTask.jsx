@@ -56,7 +56,7 @@ class SingleItem extends Component {
 
     return (
       <span
-        className="Gray_9e ThemeHoverColor3 pointer w100 oaButton updateSubTaskCharge"
+        className="textTertiary ThemeHoverColor3 pointer w100 oaButton updateSubTaskCharge"
         onClick={() => this.props.clickOp(projectID, taskID, charge.accountID)}
       >
         {_l('更改负责人')}

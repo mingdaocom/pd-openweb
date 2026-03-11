@@ -5,6 +5,7 @@ import { Button, Dialog, Skeleton, SvgIcon, Textarea, UserHead } from 'ming-ui';
 import api from 'src/api/appManagement';
 import marketplaceApi from 'src/api/marketplace';
 import { checkCertification } from 'src/components/checkCertification';
+import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import overduePic from './overdue.png';
 import turnoffPic from './turnoff.png';
 import unauthorizedPic from './unauthorized.png';
@@ -69,10 +70,10 @@ export default class UnusualContent extends Component {
         >
           <SvgIcon url={iconUrl} fill="#fff" size={56} />
         </div>
-        <div className="Font24 Gray bold mBottom5">{name}</div>
-        {companyName && <div className="Font14 Gray_9e">{companyName}</div>}
+        <div className="Font24 textPrimary bold mBottom5">{name}</div>
+        {companyName && <div className="Font14 textTertiary">{companyName}</div>}
         <div className="mTop15 mBottom30 flexRow alignItemsCenter">
-          <div className="Gray_9e mRight20">{_l('管理员')}</div>
+          <div className="textTertiary mRight20">{_l('管理员')}</div>
           <div className="flexRow">
             {managers.slice(0, 20).map(data => (
               <UserHead
@@ -96,7 +97,7 @@ export default class UnusualContent extends Component {
     return (
       <Fragment>
         <div className="imgWrap mBottom14">
-          <i className="icon-unarchive Font56" style={{ color: '#4caf50' }} />
+          <i className="icon-unarchive Font56" style={{ color: 'var(--color-success)' }} />
         </div>
         <div className="Font17 bold">{_l('应用正在升级中...')}</div>
       </Fragment>
@@ -112,7 +113,9 @@ export default class UnusualContent extends Component {
           <Skeleton active={false} />
         </div>
         <div className="unusualContent">
-          {status === 4 && _.get(appPkg, 'managers.length') ? (
+          {status === 300016 ? (
+            <RestrictAccessStatus />
+          ) : status === 4 && _.get(appPkg, 'managers.length') ? (
             this.renderApply()
           ) : status === 10 ? (
             this.renderUpgrade()
@@ -153,7 +156,7 @@ export default class UnusualContent extends Component {
           {_.includes([20], status) && _.get(appPkg.license, 'status') === 2 && (
             <Button
               onClick={() => {
-                if (md.global.Config.IsLocal) {
+                if (window.platformENV.isOverseas || window.platformENV.isLocal) {
                   alert(_l('请前往市场操作续订'), 3);
                   return;
                 }

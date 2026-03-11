@@ -6,7 +6,7 @@ export default props => (
       <path
         data-name="\u8DEF\u5F84 60120"
         d="M72.366 0H5.134A5.133 5.133 0 00.001 5.133v51.716a5.133 5.133 0 005.133 5.133h67.232a5.133 5.133 0 005.133-5.133V5.133A5.133 5.133 0 0072.366 0zm-2.615 54.34h-62V19.266h62z"
-        fill="#ffa340"
+        fill="var(--color-warning)"
       />
       <path
         data-name="\u8DEF\u5F84 60121"
@@ -16,7 +16,7 @@ export default props => (
       <path
         data-name="\u77E9\u5F62 14053"
         d="M5.1 0h67.3a5.1 5.1 0 015.1 5.1v5.167H0V5.1A5.1 5.1 0 015.1 0z"
-        fill="#f44336"
+        fill="var(--color-error)"
       />
     </g>
   </svg>

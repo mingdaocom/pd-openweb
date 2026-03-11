@@ -34,7 +34,7 @@ export default function (props) {
   };
   return (
     <>
-      <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('通知设置')}</h6>
+      <h6 className="Font16 textPrimary Bold mBottom0 mTop24">{_l('通知设置')}</h6>
       <div className="mTop12">
         <SwitchStyle>
           <Icon
@@ -49,7 +49,7 @@ export default function (props) {
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
+          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">
             {_l('新用户注册、激活时通知管理员')}
           </div>
         </SwitchStyle>
@@ -68,7 +68,7 @@ export default function (props) {
               });
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
+          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">
             {_l('审核结果短信通知外部用户')}
           </div>
         </SwitchStyle>
@@ -92,10 +92,10 @@ export default function (props) {
               }
             }}
           />
-          <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
+          <div className="switchText LineHeight32 InlineBlock Normal textPrimary mLeft12">
             <div>{_l('有讨论消息时（被提到、被回复）通知外部用户')}</div>
           </div>
-          <div className="Gray_9e Font12" style={{ marginLeft: 44, marginTop: -5 }}>
+          <div className="textTertiary Font12" style={{ marginLeft: 44, marginTop: -5 }}>
             {_l('消息通过短信、邮件、服务号消息发送给外部用户')}
           </div>
         </SwitchStyle>
