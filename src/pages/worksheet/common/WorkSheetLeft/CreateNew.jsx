@@ -396,6 +396,7 @@ class CreateChatbot extends Component {
         loadingAIsuggestions={generateLoading}
         generateLoading={generateChatRobotInfoLoading}
         aiList={chatRobotInfos}
+        refresh={() => this.handleGenerate(true)}
         updateData={(data, callback = () => {}) => this.setState({ ...data }, callback)}
         onOk={this.handleOk}
         onCancel={onCancel}

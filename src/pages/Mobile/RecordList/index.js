@@ -325,11 +325,7 @@ class RecordList extends Component {
                         addMobileNewRecord({ data, view });
                         return;
                       }
-                      if (view.viewType) {
-                        // this.props.addNewRecord(data, view);
-                      } else {
-                        this.props.unshiftSheetRow(data);
-                      }
+                      this.props.fetchSheetRows();
                     },
                     showDraftsEntry: true,
                     sheetSwitchPermit,
@@ -428,6 +424,7 @@ export default connect(
           'updateViewCard',
           'updatePreviewRecordId',
           'addMobileNewRecord',
+          'fetchSheetRows',
         ]),
         addNewRecord,
       },

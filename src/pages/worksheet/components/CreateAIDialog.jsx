@@ -105,6 +105,12 @@ const AIActionDialogWrap = styled(Dialog)`
       min-height: 36px;
     }
   }
+  .icon-refresh1 {
+    vertical-align: text-bottom;
+    &:hover {
+      color: var(--color-link-hover) !important;
+    }
+  }
 `;
 
 export default function CreateAIDialog(props) {
@@ -126,6 +132,7 @@ export default function CreateAIDialog(props) {
     onOk,
     onCancel,
     updateData = () => {},
+    refresh = () => {},
   } = props;
   const [name, setName] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -220,7 +227,12 @@ export default function CreateAIDialog(props) {
         }}
       />
       <div className="line"></div>
-      <div className="bold mBottom10">{aiTitle}</div>
+      <div className="mBottom10">
+        <span className="bold">{aiTitle}</span>
+        <Tooltip title={_l('重新生成')}>
+          <Icon icon="refresh1" className="textTertiary Font16 pointer mLeft10" onClick={refresh} />
+        </Tooltip>
+      </div>
       <div className="aiContentWrap overflowHidden Relative">
         {loadingAIsuggestions ? (
           <div className="aiContent flexRow">
@@ -279,8 +291,11 @@ CreateAIDialog.propTypes = {
   onCancel: PropTypes.func,
   aiTitle: PropTypes.string,
   customTitle: PropTypes.string,
+  customDescription: PropTypes.string,
+  placeholder: PropTypes.string,
   loadingAIsuggestions: PropTypes.bool,
   generateLoading: PropTypes.bool,
   aiList: PropTypes.array,
   updateData: PropTypes.func,
+  refresh: PropTypes.func,
 };

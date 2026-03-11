@@ -11,13 +11,13 @@ export default function CreateAIActionDialog(props) {
     suggestionList: [],
   });
 
-  const generateSuggestionList = () => {
+  const generateSuggestionList = (isReload = false) => {
     setState({ loadingAIsuggestions: true });
     mingoAjax
       .generateAIActionInfo({
         appId,
         worksheetId,
-        isReload: false,
+        isReload,
         langType: window.getCurrentLangCode(),
       })
       .then(({ recommendations = [] }) => {
@@ -80,6 +80,7 @@ export default function CreateAIActionDialog(props) {
       loadingAIsuggestions={loadingAIsuggestions}
       generateLoading={generateLoading}
       aiList={suggestionList}
+      refresh={() => generateSuggestionList(true)}
       defaultAIsuggestions={[
         { summary: _l('总结记录内容'), description: _l('分析记录字段值，提炼当前记录内容的核心信息') },
       ]}

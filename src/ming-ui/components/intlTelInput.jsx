@@ -326,7 +326,7 @@ export default function MDIntlTelInput(element, options) {
 
 // 特殊手机号验证是否合法
 export const specialTelVerify = value => {
-  return /\+61\d{9,10}$|\+861[3-9]\d{9}$/.test(value || '');
+  return /\+61\d{9,10}$|\+861[3-9]\d{9}$|\+84\d{9,10}$/.test(value || '');
 };
 
 export const getDefaultCountry = () => {
