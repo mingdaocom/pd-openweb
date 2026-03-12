@@ -748,16 +748,13 @@ class PrintForm extends React.Component {
   };
 
   getFiles = () => {
-    let ajaxUrl = this.state.ajaxUrlStr;
-    // 2次编码
-    ajaxUrl = encodeURIComponent(encodeURIComponent(ajaxUrl));
-    // PDF预览服务url
-    let docviewEndUrl =
-      '&access_token=1&access_token_ttl=0&z=b432588ffd3940b33ca7851eb241ab51c60d8ac029c786e083d5f31a1b17e74e&type=printpdf';
-    ajaxUrl = md.global.Config.DocviewStartUrl + ajaxUrl + docviewEndUrl;
+    let { params, ajaxUrlStr } = this.state;
+
     this.setState(
       {
-        pdfUrl: ajaxUrl,
+        pdfUrl: `${md.global.Config.AjaxApiUrl}file/docview?fileName=${params.name}.${
+          params.fileTypeNum === 5 ? 'xlsx' : 'docx'
+        }&filePath=${ajaxUrlStr.replace(/\?.*/, '')}`,
         isLoading: false,
       },
       () => {
@@ -817,7 +814,7 @@ class PrintForm extends React.Component {
           <div className="pdfPng"></div>
           <p className="dec">
             <LoadDiv size="small" className="mRight10 InlineBlock" />
-            {_l('正在生成pdf文件...')}
+            {_l('正在生成文件...')}
           </p>
         </div>
         <CommonHeader
@@ -853,13 +850,7 @@ class PrintForm extends React.Component {
             $('.iframeLoad').hide();
             $('.iframeDiv').show();
           }}
-          src={
-            useWps || fileTypeNum === 5 || md.global.Config.EnableWpsDocPreview
-              ? `${md.global.Config.WpsDocPreviewUrl}/print?url=${encodeURIComponent(this.state.ajaxUrlStr)}&attname=${
-                  printData.name
-                }.${fileTypeNum === 5 ? 'xlsx' : 'docx'}`
-              : this.state.pdfUrl
-          }
+          src={this.state.pdfUrl}
           width="100%"
           height="100%"
           style={{ height: 'calc(100% - 54px)' }}
