@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+﻿import React, { useEffect } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import update from 'immutability-helper';
@@ -171,12 +171,14 @@ export default function RelateSheet(props) {
       };
 
       onChange({
+        ...(showtype !== '3' && openfastfilters === '0'
+          ? handleAdvancedSettingChange(data, {
+              openfastfilters: '1',
+            })
+          : {}),
         relationControls: controls,
         sourceEntityName: worksheetInfo.name,
         showControls: getShowControls(controls),
-        ...handleAdvancedSettingChange(data, {
-          openfastfilters: showtype !== '3' && openfastfilters === '0' ? '1' : openfastfilters,
-        }),
       });
     }
     if (!getAdvanceSetting(data, 'showtype')) {
@@ -431,6 +433,7 @@ export default function RelateSheet(props) {
                         showtype: value,
                         chooseshowids: value === '3' ? JSON.stringify(showControls) : '',
                         ddset: '0',
+                        ...(value !== '3' && openfastfilters === '0' ? { openfastfilters: '1' } : {}),
                       }),
                       strDefault: updateConfig({
                         config: strDefault,
@@ -467,6 +470,10 @@ export default function RelateSheet(props) {
               // 非卡片 铺满整行
               if (value !== '3') {
                 nextData = { ...nextData, showControls: getShowControls(nextData.relationControls, value) };
+
+                if (openfastfilters === '0') {
+                  nextData = handleAdvancedSettingChange(nextData, { openfastfilters: '1' });
+                }
               } else {
                 // 下拉框清空
                 nextData = {

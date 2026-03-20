@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import axios from 'axios';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -9,7 +9,7 @@ import homeAppApi from 'src/api/homeApp';
 import webCacheAjax from 'src/api/webCache';
 import sheetAjax from 'src/api/worksheet';
 import instance from 'src/pages/workflow/api/instanceVersion';
-import { updateRulesData } from 'src/components/Form/core/formUtils/updateRulesData';
+// import { updateRulesData } from 'src/components/Form/core/formUtils/updateRulesData';
 import { permitList } from 'src/pages/FormSet/config';
 import { isOpenPermit } from 'src/pages/FormSet/util';
 import CommonHeader from 'src/pages/kc/common/AttachmentsPreview/previewHeader/CommonHeader/index';
@@ -229,7 +229,7 @@ class PrintForm extends React.Component {
   };
 
   getData = () => {
-    const { params, info, basicRowId } = this.state;
+    const { params, info } = this.state;
     const { printId, worksheetId, viewId, appId, isDefault, from, printType, type, rowIds } = params;
 
     const rowIdsList = rowIds?.[0] ? rowIds : [];
@@ -291,12 +291,13 @@ class PrintForm extends React.Component {
       res.formName = getTranslateInfo(appId, null, worksheetId).name || res.formName;
 
       const rules = resData[1];
-      // 通过规则计算
-      let receiveControls = updateRulesData({
-        rules: [typeForCon.NEW, typeForCon.EDIT].includes(type) && from === fromType.FORM_SET ? [] : rules,
-        recordId: basicRowId,
-        data: res.receiveControls,
-      });
+      // // 通过规则计算
+      // let receiveControls = updateRulesData({
+      //   rules: [typeForCon.NEW, typeForCon.EDIT].includes(type) && from === fromType.FORM_SET ? [] : rules,
+      //   recordId: basicRowId,
+      //   data: res.receiveControls,
+      // });
+      let receiveControls = _.cloneDeep(res.receiveControls);
       const needVisible = printId || (type === typeForCon.NEW && from === fromType.FORM_SET);
       receiveControls = getControlsForPrint({
         receiveControls,
@@ -594,13 +595,13 @@ class PrintForm extends React.Component {
 
   // 埋点
   handleBehaviorLog = () => {
-    const { params = {}, basicRowId } = this.state;
-    const { isBatch, worksheetId, printId, rowIds, rowId } = params;
+    const { params = {} } = this.state;
+    const { isBatch, worksheetId, rowId, printId } = params;
 
-    if (isBatch || rowIds?.length > 1) {
-      addBehaviorLog('batchPrintWord', worksheetId, { printId, msg: [(rowIds || rowId.split(',')).length] });
+    if (isBatch) {
+      addBehaviorLog('batchPrintWord', worksheetId, { printId, msg: [rowId?.split(',')?.length] });
     } else {
-      addBehaviorLog('printWord', worksheetId, { printId, rowId: basicRowId || rowId });
+      addBehaviorLog('printWord', worksheetId, { printId, rowId });
     }
   };
 

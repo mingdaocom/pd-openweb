@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+﻿import React, { Component } from 'react';
 import cx from 'classnames';
 import _, { find, get } from 'lodash';
 import PropTypes from 'prop-types';
@@ -1211,7 +1211,7 @@ export default class RecordInfo extends Component {
       });
 
     const recordbase = {
-      appId: _.isUndefined(appId) ? recordinfo.appId : appId,
+      appId: recordinfo?.appId || appId,
       worksheetId,
       appSectionId,
       viewId,

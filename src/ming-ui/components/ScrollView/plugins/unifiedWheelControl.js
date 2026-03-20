@@ -1,9 +1,10 @@
-/**
+﻿/**
  * 统一滚轮控制插件
  * disableParentScroll：滚动到底部或顶部时，是否阻止parent滚动
  * enableWheelDirectionControl：是否允许按住 shift 和 command 修改滚动方向
  */
 export default {
+  name: 'unifiedWheelControl',
   instance: (osInstance, event) => {
     const { customOptions = {} } = osInstance.options();
     const { isMobile, disableParentScroll, enableWheelDirectionControl } = customOptions;

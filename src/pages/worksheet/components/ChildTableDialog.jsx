@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+﻿import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useKey } from 'react-use';
 import cx from 'classnames';
 import _, { get, includes } from 'lodash';
@@ -104,7 +104,7 @@ const Content = styled.div`
   .childTableCon .errorTip {
     width: calc(100% - 300px);
     height: 30px;
-    top: -35px;
+    top: -20px;
   }
 `;
 

@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
+﻿import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { OverlayScrollbars } from 'overlayscrollbars';
@@ -51,6 +51,7 @@ const ScrollView = forwardRef((props, ref) => {
     theme = 'os-theme-common',
     disableParentScroll = false,
     enableWheelDirectionControl = true,
+    enableSwipeBack = true,
     springBackMode = '',
     allowance = 20,
     style = {},
@@ -69,9 +70,9 @@ const ScrollView = forwardRef((props, ref) => {
         ...(options.scrollbars || {}),
         theme,
       },
-      customOptions: { disableParentScroll, enableWheelDirectionControl, isMobile },
+      customOptions: { disableParentScroll, enableWheelDirectionControl, isMobile, enableSwipeBack },
     });
-  }, [options, disableParentScroll, enableWheelDirectionControl, theme]);
+  }, [options, disableParentScroll, enableWheelDirectionControl, theme, enableSwipeBack]);
   const osRef = useRef();
   const lastScroll = useRef({ top: 0, left: 0 });
 
@@ -203,12 +204,11 @@ const ScrollView = forwardRef((props, ref) => {
         initialized: instance => {
           const viewport = instance.elements().viewport;
           viewport.classList.add('scroll-viewport');
+
           if (isMobile && springBackMode) {
             viewport.classList.add(springBackMode);
           }
         },
-        // destroyed: () => console.log('destroyed'),
-        // updated: () => console.log('updated'),
         scroll: instance => {
           if (customScroll) {
             customScroll(instance);
@@ -234,6 +234,8 @@ ScrollView.propTypes = {
   theme: PropTypes.string,
   /** 当 disableParentScroll 为 true 时，阻止外层滚动 */
   disableParentScroll: PropTypes.bool,
+  /** 是否允许移动端滑动返回 */
+  enableSwipeBack: PropTypes.bool,
   /** 是否允许按住 shift 和 command 修改滚动方向 */
   enableWheelDirectionControl: PropTypes.bool,
   /** 是否禁用回弹效果 */

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+﻿import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -12,33 +12,18 @@ import { registerSuc } from 'src/pages/AuthService/util.js';
 import RegExpValidator from 'src/utils/expression';
 import { setPssId } from 'src/utils/pssId';
 import SelectCountry from './SelectCountry';
-import { Wrap, WrapCon, WrapConDp } from './style';
+import { Wrap, WrapConDp } from './style';
 
 export default function (props) {
   const { updateCompany = () => {}, onChange = () => {} } = props;
-  const [{ warnList, focusDiv, companyList, show, tpCompanyId, loading, extraList, geoCountryRegionCode }, setState] =
-    useSetState({
-      warnList: [],
-      focusDiv: '',
-      companyList: [],
-      show: false,
-      tpCompanyId: -1,
-      loading: true,
-      extraList: [],
-      geoCountryRegionCode: _.get(md, 'global.Config.DefaultRegion') || 'CN',
-    });
+  const [{ warnList, focusDiv, loading, extraList, geoCountryRegionCode }, setState] = useSetState({
+    warnList: [],
+    focusDiv: '',
+    loading: true,
+    extraList: [],
+    geoCountryRegionCode: _.get(md, 'global.Config.DefaultRegion') || 'CN',
+  });
   const companyNameRef = useRef();
-  let ajax = null;
-
-  const debouncedRequest = useMemo(
-    () =>
-      _.debounce(searchKeyword => {
-        getByKeywords(searchKeyword);
-      }, 500),
-    [],
-  );
-
-  const requestDebounce = searchKeyword => debouncedRequest(searchKeyword);
 
   useEffect(() => {
     fixedDataAjax.loadExtraDatas({}).then(res => {
@@ -47,7 +32,6 @@ export default function (props) {
         extraList: res,
       });
     });
-    return () => debouncedRequest.cancel();
   }, []);
 
   useEffect(() => {
@@ -63,7 +47,7 @@ export default function (props) {
       onChange({ lineLoading: true });
       let { TPParams = {}, email = '', emailOrTel = '', company = {} } = props;
       email = emailOrTel && RegExpValidator.isEmail(emailOrTel) ? emailOrTel : email;
-      const { companyName, tpCompanyId, code } = company;
+      const { companyName, code } = company;
       const extraDatas = JSON.stringify(
         extraList.map(o => {
           return {
@@ -74,7 +58,6 @@ export default function (props) {
       );
       RegisterController.createCompany({
         companyName: filterXSS(companyName),
-        tpCompanyId,
         code,
         email,
         unionId: TPParams.unionId,
@@ -151,62 +134,6 @@ export default function (props) {
     return isRight;
   };
 
-  const getByKeywords = searchKeyword => {
-    if (ajax) ajax.abort();
-    ajax = RegisterController.getCompanyInfo({ companynameKeyword: searchKeyword });
-    ajax.then(res => {
-      const ids = _.keys(res);
-      setState({
-        companyList: ids.map(o => {
-          return { name: res[o], id: o };
-        }),
-      });
-    });
-  };
-
-  const onInputBoxKeyDown = e => {
-    if (companyList.length <= 0) {
-      setState({ tpCompanyId: -1 });
-      return;
-    }
-    switch (e.keyCode) {
-      case 38: //up
-        if (tpCompanyId - 1 < 0) {
-          setCompany(companyList.length - 1);
-        } else {
-          setCompany(tpCompanyId - 1);
-        }
-        break;
-      case 40: //KEY.DOWN:
-        if (tpCompanyId + 1 > companyList.length - 1) {
-          setCompany(0);
-        } else {
-          setCompany(tpCompanyId + 1);
-        }
-    }
-  };
-
-  const setCompany = tpCompanyId => {
-    let o = companyList[tpCompanyId];
-    updateCompany({ companyName: o.name, tpCompanyId: o.id });
-    setState({ tpCompanyId });
-  };
-
-  const renderTxt = o => {
-    const { company = {} } = props;
-    const { companyName } = company;
-    let start = o.name.toLowerCase().indexOf(companyName.toLowerCase());
-    let l = companyName.length;
-    let str = o.name.split('');
-    let stmp = o.name;
-
-    if (start >= 0) {
-      let s = stmp.slice(start, start + l);
-      str.splice(start, l, <span class="ThemeColor3">{s}</span>);
-    }
-    return str;
-  };
-
   const renderCon = () => {
     const { company = {} } = props;
     const { companyName, extraDatas = {} } = company;
@@ -242,35 +169,13 @@ export default function (props) {
               autoComplete="off"
               autoFocus
               ref={companyNameRef}
-              onKeyDown={onInputBoxKeyDown}
               onBlur={() => setState({ focusDiv: '' })}
-              onFocus={() => setState({ show: true, focusDiv: 'companyName' })}
+              onFocus={() => setState({ focusDiv: 'companyName' })}
               onChange={e => {
                 setState({ warnList: _.filter(warnList, it => it.tipDom !== 'companyName') });
                 updateCompany({ companyName: e.target.value });
-                if (e.target.value.length >= 2) {
-                  requestDebounce(e.target.value);
-                }
               }}
             />
-            {companyName && companyList.length > 0 && show && (
-              <WrapCon className="companyList">
-                <div className="cover" onClick={() => setState({ show: false })}></div>
-                {companyList.map((o, i) => {
-                  return (
-                    <div
-                      className={cx('liBox Hand', { isCur: tpCompanyId === i })}
-                      onClick={() => {
-                        updateCompany({ companyName: o.name, tpCompanyId: o.id });
-                        setState({ companyList: [] });
-                      }}
-                    >
-                      {renderTxt(o)}
-                    </div>
-                  );
-                })}
-              </WrapCon>
-            )}
             <div className="title" onClick={() => setState({ focusDiv: 'companyName' })}>
               {_l('组织名称')}
             </div>

@@ -1,4 +1,4 @@
-import _ from 'lodash';
+﻿import _ from 'lodash';
 import moment from 'moment';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import {
@@ -438,7 +438,7 @@ export default function filterFn({ filterData, originControl, data = [], recordI
         compareValue = currentControl.value;
         //是(等于)、不是(不等于) && (OPTIONS && (单选) || USER)
       } else if (
-        _.includes([2, 6, 26, 27, 51, 52], filterType) &&
+        _.includes([2, 6, 26, 27, 28, 51, 52], filterType) &&
         ((_.includes([5], conditionGroupType) && _.includes([9, 10, 11, 27, 48], dataType)) ||
           _.includes([6], conditionGroupType))
       ) {

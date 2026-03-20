@@ -232,10 +232,13 @@ const handleUpdateSearchResult = async props => {
     return;
   }
   try {
+    const updates = {};
+
     await Promise.all(
       configs.map(async item => {
         const { pid, cid, subCid } = item;
         const currentControl = control || _.find(formData, i => i.controlId === cid);
+
         if (!pid && currentControl) {
           // 关联记录赋值
           if (_.includes([29, 35], currentControl.type)) {
@@ -244,7 +247,11 @@ const handleUpdateSearchResult = async props => {
               emptyValue(currentControl) ? [] : safeParse(_.get(searchResult[0], [subCid]) || '[]'),
               isMix,
             );
-            handleChange(newVal, currentControl.controlId, currentControl, false);
+            updates[currentControl.controlId] = {
+              value: newVal,
+              control: currentControl,
+            };
+
             // 子表赋值
           } else if (currentControl.type === 34) {
             const subMapConfigs = isMix
@@ -260,11 +267,13 @@ const handleUpdateSearchResult = async props => {
               : searchResult;
 
             const newValue = [];
+
             if (subResult.length) {
               subResult.forEach(item => {
                 let row = {};
                 subMapConfigs.map(({ cid = '', subCid = '' }) => {
                   const subItemControl = _.find(currentControl.relationControls || [], re => re.controlId === cid);
+
                   if (subItemControl) {
                     if (subCid === 'rowid') {
                       row[cid] =
@@ -299,18 +308,17 @@ const handleUpdateSearchResult = async props => {
                 }
               });
             }
-            handleChange(
-              {
+
+            updates[currentControl.controlId] = {
+              value: {
                 action: 'clearAndSet',
                 isDefault: true,
                 rows: emptyValue(currentControl) ? [] : newValue,
                 fireWhenLoaded: true,
                 ..._.pick(props, ['isSetValueFromRule']),
               },
-              currentControl.controlId,
-              currentControl,
-              false,
-            );
+              control: currentControl,
+            };
           } else {
             const itemVal = formatSearchResultValue({
               targetControl: _.find(controls, c => c.controlId === subCid),
@@ -318,11 +326,20 @@ const handleUpdateSearchResult = async props => {
               controls,
               searchResult: (searchResult[0] || {})[subCid],
             });
-            handleChange(emptyValue(currentControl) ? '' : itemVal, currentControl.controlId, currentControl, false);
+            updates[currentControl.controlId] = {
+              value: emptyValue(currentControl) ? '' : itemVal,
+              control: currentControl,
+            };
           }
         }
       }),
     );
+
+    // 处理好所有映射数据在更新，防止多次触发change
+    Object.entries(updates).forEach(([controlId, { value, control: ctrl }]) => {
+      handleChange(value, controlId, ctrl, false);
+    });
+
     return;
   } catch (error) {
     console.log(error);

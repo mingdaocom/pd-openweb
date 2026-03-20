@@ -73,7 +73,15 @@ export default class extends Component {
   componentWillUnmount() {
     this.actionHandler && this.actionHandler.close();
     window.removeEventListener('popstate', this.onQueryChange);
-    compatibleMDJS('handOverNavigation', { sessionId: this.state.sessionId });
+    compatibleMDJS(
+      'handOverNavigation',
+      { sessionId: this.state.sessionId },
+      () => {},
+      () => {
+        this.props.onHide();
+        history.back();
+      },
+    );
   }
 
   onQueryChange = () => {

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+﻿import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Provider } from 'react-redux';
 import cx from 'classnames';
 import { get, isEqual, isFunction } from 'lodash';
@@ -68,6 +68,10 @@ export default function RelateRecordTableIndex(props) {
     store.subscribe(() => {
       if (cache.current.storeVersion !== store.version) return;
       const state = store.getState();
+      const keywords = state?.tableState?.keywords;
+      if (keywords) {
+        return;
+      }
       const changed = !isEqual(cache.current.changes, state.changes) && !isEqual(state.changes, initialChanges);
       const newCount =
         !state.base.saveSync && typeof state.tableState.countForShow !== 'undefined'

@@ -701,7 +701,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
         return (
           <div>
             <span>{item.creatorName}</span>
-            <span className="textTertiary">{` 创建于 ${formatDate(item.createTime)}`}</span>
+            <span className="textTertiary mLeft4">{`${_l('创建于 %0', formatDate(item.createTime))}`}</span>
           </div>
         );
       },

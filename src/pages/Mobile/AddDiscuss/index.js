@@ -34,6 +34,7 @@ class AddDiscuss extends Component {
       exAccountDiscussEnum: 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
       temporaryDiscuss: {}, // 暂存填写内容
     };
+    this.isLock = false;
   }
   componentDidMount() {
     this.getPortalConfigSet();
@@ -119,6 +120,10 @@ class AddDiscuss extends Component {
       alert(_l('附件正在上传，请稍后'), 3);
       return;
     }
+
+    if (this.isLock) return;
+
+    this.isLock = true;
     discussionAjax
       .addDiscussion({
         sourceId: newRowId ? `${worksheetId}|${newRowId}` : worksheetId,
@@ -142,6 +147,11 @@ class AddDiscuss extends Component {
           }
           this.props.onAdd(result.data);
         }
+      })
+      .finally(() => {
+        setTimeout(() => {
+          this.isLock = false;
+        }, 300);
       });
   }
 

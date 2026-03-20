@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+﻿import React, { useEffect, useMemo, useRef, useState } from 'react';
 import cx from 'classnames';
 import _, { isFunction } from 'lodash';
 import { Icon } from 'ming-ui';
@@ -272,7 +272,11 @@ export default function DeskFormWidget(props) {
 
         // 非文本类值改变时触发自定义事件
         if (isUnTextWidget(currentItem) && currentItem.value !== value && currentItem.type !== 34) {
-          triggerCustomEvent({ ...currentItem, value, triggerType: ADD_EVENT_ENUM.CHANGE });
+          triggerCustomEvent({
+            ...currentItem,
+            newItem: { ...currentItem, value },
+            triggerType: ADD_EVENT_ENUM.CHANGE,
+          });
         }
       },
       onBlur: (originValue, newVal) => {
@@ -295,10 +299,18 @@ export default function DeskFormWidget(props) {
         }
         // 文本类失焦触发自定义事件
         if (newValue !== originValue && !isUnTextWidget(currentItem)) {
-          triggerCustomEvent({ ...currentItem, triggerType: ADD_EVENT_ENUM.CHANGE });
+          triggerCustomEvent({
+            ...currentItem,
+            newItem: { ...currentItem, value: newValue },
+            triggerType: ADD_EVENT_ENUM.CHANGE,
+          });
         }
         onBlur(controlId);
-        triggerCustomEvent({ ...currentItem, triggerType: ADD_EVENT_ENUM.BLUR });
+        triggerCustomEvent({
+          ...currentItem,
+          newItem: { ...currentItem, value: newValue },
+          triggerType: ADD_EVENT_ENUM.BLUR,
+        });
       },
       openRelateSheet,
       registerCell: cell => {

@@ -1997,7 +1997,7 @@ class WorksheetApi extends Component {
               style={{ border: 'none' }}
               allowTransparency={true}
               allowFullScreen
-              src={`${md.global.Config.OpenApiDocUrl}/${lang === 'zh-Hans' ? 'zh-Hans' : 'en'}?ts=${Date.now()}&theme=${theme}`}
+              src={`${md.global.Config.OpenApiDocUrl}/${lang === 'zh-Hans' ? 'zh-Hans' : 'en'}/?ts=${Date.now()}&theme=${theme}`}
             />
           ) : (
             <Fragment>

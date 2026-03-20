@@ -146,7 +146,7 @@ export default class ProcessRecordInfo extends Component {
   };
   render() {
     const { RecordInfo } = this.state;
-    const { workId, instanceId, onClose, onSave } = this.props;
+    const { className, workId, instanceId, onClose, onSave } = this.props;
     const { loading, workItem, instance, error, errorMsg, appInfo } = this.state;
 
     if (loading || !RecordInfo) {
@@ -164,6 +164,7 @@ export default class ProcessRecordInfo extends Component {
     return (
       <RecordInfo
         isModal={true}
+        className={className}
         from={_.get(instance, 'flowNode.type') === 5 ? 6 : 4}
         appId={instance.app.id}
         worksheetId={workItem.worksheetId}

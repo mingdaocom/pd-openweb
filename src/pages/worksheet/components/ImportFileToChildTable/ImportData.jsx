@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+﻿import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { useKey } from 'react-use';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -232,7 +232,9 @@ function PasteEdit(props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const cacheStoreStack = useRef([[]]);
-  const [data, setData] = useState(new Array(11).fill(undefined).map(() => new Array(controls.length).fill(undefined)));
+  const [data = [], setData] = useState(
+    new Array(11).fill(undefined).map(() => new Array(controls.length).fill(undefined)),
+  );
   const valuedData = data.filter(row => !_.isEmpty(row.filter(_.identity)));
   const ctrlChar = window.isMacOs ? 'Command' : 'Ctrl';
   const updateCellDataByIndex = useCallback(

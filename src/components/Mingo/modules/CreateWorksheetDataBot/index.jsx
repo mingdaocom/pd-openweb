@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+﻿import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { find, flatten, get, includes, isEmpty, isFunction, isObject, last, uniq } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import sseAjax from 'src/api/sse';
 import worksheetAjax from 'src/api/worksheet';
 import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
+import { useGlobalStore } from 'src/common/GlobalStore';
 import { formatControlToServer } from 'src/components/Form/core/utils';
 import {
   SYSTEM_CONTROL,
@@ -173,6 +174,9 @@ function MingoContent(props, ref) {
     currentJSONLStr: '',
     JSONLIsPiping: false,
   });
+  const {
+    store: { activeWorksheet },
+  } = useGlobalStore();
   const [isChatting, setIsChatting] = useState(defaultIsChatting);
   const [createdDataMap, setCreatedDataMap] = useState(defaultData.createdDataMap || {});
   const [selectedDataMessageId, setSelectedDataMessageId] = useState([]);
@@ -353,6 +357,11 @@ function MingoContent(props, ref) {
   useEffect(() => {
     updateIsChatting(isChatting);
   }, [isChatting]);
+  useEffect(() => {
+    if (!activeWorksheet) {
+      onClose();
+    }
+  }, [activeWorksheet]);
   const visibleControls = get(worksheetInfo, 'template.controls', []).filter(
     control =>
       !includes(SHEET_VIEW_HIDDEN_TYPES, control.type) &&

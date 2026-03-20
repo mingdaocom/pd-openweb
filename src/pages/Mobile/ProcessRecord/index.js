@@ -31,6 +31,7 @@ export default props => {
     const { instanceId, workId } = match.params;
     return (
       <ProcessRecordInfo
+        className="processRecordInfoPage"
         isModal={false}
         instanceId={instanceId}
         workId={workId}

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+﻿import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
@@ -233,7 +233,8 @@ function DetailView(props) {
               currentRecordId={currentRecord.rowid}
               onClick={() => {
                 const editingElements = document.getElementsByClassName('editingBar');
-                const isEditing = !![...editingElements].filter(el => el.style.overflow === '').length;
+                const isEditing =
+                  !![...editingElements].filter(el => el.style.overflow === '').length || window.cellTextIsBlurring;
                 if (isEditing) {
                   alert(_l('请先保存或取消当前更改'), 3);
                   return;

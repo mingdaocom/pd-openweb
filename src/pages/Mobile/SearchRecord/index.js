@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+﻿import React, { Component, Fragment } from 'react';
 import { SpinLoading } from 'antd-mobile';
 import _ from 'lodash';
 import sheetApi from 'src/api/worksheet';
@@ -155,6 +155,7 @@ class Search extends Component {
 
     return (
       <CustomRecordCard
+        from="search"
         className="mLeft8 mRight8"
         key={item.rowid}
         data={item}

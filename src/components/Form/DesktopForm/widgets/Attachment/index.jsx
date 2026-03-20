@@ -686,7 +686,7 @@ export default class Widgets extends Component {
       allowShare: allowDownload && !_.get(window, 'shareState.shareId') && !md.global.Account.isPortal,
       allowSort: showType === '4' ? false : enumDefault === 3 && !pcDisabled,
       allowEditName: !pcDisabled && !_.get(window, 'shareState.shareId'),
-      allowEditOnline: controlState(this.props, from).editable,
+      allowEditOnline: controlState(this.props, from).editable && !pcDisabled,
       isDraft,
       masterData,
       advancedSetting,

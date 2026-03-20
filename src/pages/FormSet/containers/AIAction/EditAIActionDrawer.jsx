@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef } from 'react';
+﻿import React, { Fragment, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import { Drawer } from 'antd';
 import _ from 'lodash';
@@ -248,7 +248,7 @@ export default function EditAIActionDrawer(props) {
         <AiActionChatBot
           defaultActiveButtonId={btnId}
           worksheetId={worksheetId}
-          recordId={recordInfo.rowid}
+          recordId={recordInfo?.rowid}
           processId={info.id}
           buttonName={name}
           conversationId={'test-' + _.get(md, 'global.Account.accountId')}

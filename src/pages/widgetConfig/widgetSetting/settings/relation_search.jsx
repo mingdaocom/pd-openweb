@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+﻿import React, { Fragment, useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import { isEmpty } from 'lodash';
@@ -461,6 +461,7 @@ export default function RelationSearch(props) {
               empty={<div />}
               min1msg={_l('至少显示一列')}
               noempty={false}
+              forbiddenScroll={true}
               ghostControlIds={[]}
               showControls={showControls}
               columns={querytype === '1' ? filterSysControls(filterControls) : filterControls}

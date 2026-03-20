@@ -1081,6 +1081,7 @@ export default class RecordInfo extends Component {
   render() {
     const {
       recordId,
+      className,
       isModal,
       getDataType,
       onClose,
@@ -1135,7 +1136,13 @@ export default class RecordInfo extends Component {
       (recordInfo.switchPermit || []).find(o => o.type === permitList.approveDetailsSwitch)?.displayFlowChart === 1;
     return (
       <Wrap {...(useWaterMark ? { projectId: recordInfo.projectId } : {})}>
-        <div className={cx('recordInfoForm mobileSheetRowRecord flexColumn h100', `mobileSheetRowRecord-${recordId}`)}>
+        <div
+          className={cx(
+            'recordInfoForm mobileSheetRowRecord flexColumn h100',
+            `mobileSheetRowRecord-${recordId}`,
+            className,
+          )}
+        >
           {submitLoading && (
             <div className="loadingMask">
               <LoadDiv />

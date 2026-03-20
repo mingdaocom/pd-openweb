@@ -438,6 +438,7 @@ export default class RecordCard extends Component {
       controls,
       onDeleteSuccess,
       updateRow,
+      from = 'view',
     } = this.props;
     const { coverCid } = view;
     let batchOptChecked = batchOptVisible && batchOptCheckedData.includes(data.rowid);
@@ -485,7 +486,7 @@ export default class RecordCard extends Component {
             </div>
           )}
         </Con>
-        {showOperateButtons && !isPublicShare && (
+        {showOperateButtons && from === 'view' && !isPublicShare && (
           <OperateButtons
             key={`operateButtons-${data.rowid}`}
             row={data}

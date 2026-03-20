@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import _, { isEmpty } from 'lodash';
 import styled from 'styled-components';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
@@ -49,8 +49,6 @@ const FilterTextWrap = styled.div`
     flex: 1;
     font-size: 13px;
     color: var(--color-text-title);
-    line-height: 20px;
-    padding-left: 20px;
 
     p {
       line-height: 22px;
@@ -78,11 +76,8 @@ const FilterTextWrap = styled.div`
   }
 
   .filterGroup {
-    position: relative;
     .spliceText {
-      position: absolute;
-      left: -20px;
-      top: -2px;
+      line-height: 22px;
       color: var(--color-text-secondary);
     }
   }
@@ -174,20 +169,24 @@ export default class FilterItemTexts extends React.Component {
             filterItemTexts.map((item, index) => {
               if (item.isGroup) {
                 return (
-                  <div className="filterGroup">
-                    {index === 0 && <span className="spliceText">{_l('当')}</span>}
-                    {index > 0 && <span className="spliceText">{item.spliceType == 1 ? _l('且') : _l('或')}</span>}
-                    {item.groupFilters.map((childItem, childIndex) =>
-                      this.renderFilterItem({
-                        item: childItem,
-                        index: childIndex,
-                        key: `${index}--${childIndex}`,
-                        spliceText:
-                          item.groupFilters[childIndex - 1] && item.groupFilters[childIndex - 1].spliceType == 1
-                            ? _l('且')
-                            : _l('或'),
-                      }),
+                  <div className="filterGroup flexRow">
+                    {index === 0 && <span className="spliceText mTop6 pRight5">{_l('当')}</span>}
+                    {index > 0 && (
+                      <span className="spliceText mTop6 pRight5">{item.spliceType == 1 ? _l('且') : _l('或')}</span>
                     )}
+                    <div className="filterGroupContent flex">
+                      {item.groupFilters.map((childItem, childIndex) =>
+                        this.renderFilterItem({
+                          item: childItem,
+                          index: childIndex,
+                          key: `${index}--${childIndex}`,
+                          spliceText:
+                            item.groupFilters[childIndex - 1] && item.groupFilters[childIndex - 1].spliceType == 1
+                              ? _l('且')
+                              : _l('或'),
+                        }),
+                      )}
+                    </div>
                   </div>
                 );
               }

@@ -369,7 +369,7 @@ export default function CreateTaxNumber(props) {
     }
   };
 
-  const onPrivateCreateTax = () => {
+  const onPrivateCreateTax = (isEdit = false) => {
     if (!onValidate()) return;
 
     const cleanedData = _.mapValues({ companyName, taxNo, account, password, appKey, appSecret, salt }, value =>
@@ -383,11 +383,21 @@ export default function CreateTaxNumber(props) {
         merchantTaxInfoConfig: _.pick(cleanedData, ['account', 'password', 'appKey', 'appSecret', 'salt']),
       })
       .then(res => {
-        if (res) {
-          setStep(step + 1);
-          setData({ taxId: res.id, account: '', password: '' });
+        if (!isEdit) {
+          if (res) {
+            setStep(step + 1);
+            setData({ taxId: res.id, account: '', password: '' });
+          } else {
+            alert(_l('创建开票税号失败'), 2);
+          }
         } else {
-          alert(_l('创建开票税号失败'), 2);
+          if (res) {
+            alert(_l('保存成功'));
+            setPwdDialogVisible(false);
+            setData({ account: '', password: '', appKey: '', appSecret: '', salt: '' });
+          } else {
+            alert(_l('修改失败'), 2);
+          }
         }
       });
   };
@@ -421,6 +431,14 @@ export default function CreateTaxNumber(props) {
     { title: _l('单价'), dataIndex: 'price' },
     { title: _l('简码'), dataIndex: 'shortCode' },
     { title: _l('增值税简易计税类型'), dataIndex: 'discountPolicyType' },
+  ];
+
+  const privateFields = [
+    { label: _l('百望账号'), key: 'account' },
+    { label: _l('百望密码'), key: 'password' },
+    { label: _l('AppKey'), key: 'appKey' },
+    { label: _l('AppSecret'), key: 'appSecret' },
+    { label: _l('用户盐值'), key: 'salt' },
   ];
 
   return (
@@ -589,13 +607,7 @@ export default function CreateTaxNumber(props) {
                     <div className="textSecondary mBottom5 bold">{_l('百望账户信息')}</div>
                     <div className="secretWrap flexRow Relative">
                       <div className="flex">
-                        {[
-                          { label: _l('百望账号'), field: 'account' },
-                          { label: _l('百望密码'), field: 'password' },
-                          { label: _l('AppKey'), field: 'appKey' },
-                          { label: _l('AppSecret'), field: 'appSecret' },
-                          { label: _l('用户盐值'), field: 'salt' },
-                        ].map(item => (
+                        {privateFields.map(item => (
                           <div className="flexRow mBottom10">
                             <div>{item.label}：</div>
                             <div className="flex ellipsis">********************</div>
@@ -722,7 +734,7 @@ export default function CreateTaxNumber(props) {
                   onClick={
                     window.platformENV.isOverseas || window.platformENV.isLocal
                       ? !taxId
-                        ? onPrivateCreateTax
+                        ? () => onPrivateCreateTax()
                         : () => setStep(step + 1)
                       : checkTaxNo
                   }
@@ -751,28 +763,25 @@ export default function CreateTaxNumber(props) {
                   title={_l('百望账号信息')}
                   description={_l('修改前请确保已在百望完成了重置密码')}
                   okText={_l('保存')}
-                  onOk={() => {
-                    merchantInvoiceApi
-                      .updateTaxInfoChannelPassword({ projectId, taxNo, account, password })
-                      .then(res => {
-                        if (res) {
-                          alert(_l('保存成功'));
-                          setPwdDialogVisible(false);
-                          setData({ account: '', password: '' });
-                        } else {
-                          alert(_l('请输入正确的账号密码'), 2);
-                        }
-                      });
-                  }}
+                  onOk={() => onPrivateCreateTax(true)}
                   onCancel={() => {
                     setPwdDialogVisible(false);
-                    setData({ account: '', password: '' });
+                    setData({ account: '', password: '', appKey: '', appSecret: '', salt: '' });
                   }}
                 >
-                  <div className="textSecondary bold mTop4 mBottom6">{_l('百望账号')}</div>
-                  <Input className="w100" value={account} onChange={value => setData({ account: value })} />
-                  <div className="textSecondary bold mTop20 mBottom6">{_l('百望密码')}</div>
-                  <Input className="w100" value={password} onChange={value => setData({ password: value })} />
+                  {privateFields.map(item => (
+                    <Fragment>
+                      <div className="textSecondary bold mTop4 mBottom6">
+                        <span>{item.label}</span>
+                        <span className="Red bold Font14">*</span>
+                      </div>
+                      <Input
+                        className="w100 mBottom10"
+                        value={data[item.key]}
+                        onChange={value => setData({ [item.key]: value })}
+                      />
+                    </Fragment>
+                  ))}
                 </Dialog>
               )}
             </Fragment>

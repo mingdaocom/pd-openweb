@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+﻿import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { isFunction } from 'lodash';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
@@ -158,7 +158,7 @@ export default function CellWithPopupOperate({
             if (document.querySelector('.relateRecordDropdownPopup')) {
               return;
             }
-            if (e.nativeEvent.target.checkVisibility()) {
+            if (e.nativeEvent.target?.checkVisibility?.()) {
               setPopupVisible(false);
             }
           }}

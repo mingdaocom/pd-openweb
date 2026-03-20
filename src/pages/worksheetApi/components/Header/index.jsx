@@ -116,7 +116,7 @@ const CommonHeader = props => {
     e.stopPropagation();
     const lang = window.getCurrentLang();
     window.open(
-      `${md.global.Config.OpenApiDocUrl}/${lang === 'zh-Hans' ? 'zh-Hans' : 'en'}?ts=${Date.now()}&theme=${theme}`,
+      `${md.global.Config.OpenApiDocUrl}/${lang === 'zh-Hans' ? 'zh-Hans' : 'en'}/?ts=${Date.now()}&theme=${theme}`,
       '_blank',
     );
   };

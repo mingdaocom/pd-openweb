@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+﻿import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import { get, includes } from 'lodash';
@@ -136,7 +136,7 @@ function Mingo(props) {
             </div>
           )}
           <BgIconButton.Group gap={6}>
-            {taskType === MINGO_TASK_TYPE.MINGDAO_HELP_ASSISTANT && (
+            {taskType === MINGO_TASK_TYPE.MINGDAO_HELP_ASSISTANT && !window?.platformENV?.isLocal && (
               <BgIconButton
                 tooltip={_l('新窗口打开')}
                 icon="launch"

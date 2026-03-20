@@ -1,4 +1,4 @@
-import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useRef, useState } from 'react';
+﻿import React, { forwardRef, Fragment, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -98,13 +98,13 @@ export function getRecorderAuthConfig() {
         return authConfig;
       } else {
         if (data.code === 10004) {
-          alert(_l('服务调用失败'), 2);
+          throw new Error(_l('服务调用失败'));
         }
-        throw _l('发生错误，请稍后重试');
+        throw new Error(_l('发生错误，请稍后重试'));
       }
     })
     .catch(() => {
-      throw _l('发生错误，请稍后重试');
+      throw new Error(_l('发生错误，请稍后重试'));
     });
 }
 

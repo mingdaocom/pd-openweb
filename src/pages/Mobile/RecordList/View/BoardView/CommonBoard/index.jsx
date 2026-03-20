@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+﻿import React, { Fragment, useEffect, useRef, useState } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { ScrollView } from 'ming-ui';
@@ -123,7 +123,7 @@ const CommonBoard = props => {
       <ScrollView
         className="commonBoardScroll"
         ref={scrollViewRef}
-        disableSpringBack
+        enableSwipeBack={false}
         allowance={50}
         options={{ overflow: { y: 'hidden' } }}
         springBackMode="disableSpringBackX"

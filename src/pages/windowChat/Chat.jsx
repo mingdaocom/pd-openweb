@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import DocumentTitle from 'react-document-title';
 import styled from 'styled-components';
 import DragMask from 'worksheet/common/DragMask';
 import 'src/pages/chat/containers/ChatList/index.less';
@@ -64,6 +65,7 @@ export default class WindowChat extends Component {
     const { sessionListWidth, dragMaskVisible } = this.state;
     return (
       <Wrap className="flexRow w100 h100 overflowHidden">
+        <DocumentTitle title={_l('消息')} />
         <div className="flexRow sessionListWrap" style={{ width: sessionListWidth }}>
           <SessionListDrawer embed={true} />
         </div>

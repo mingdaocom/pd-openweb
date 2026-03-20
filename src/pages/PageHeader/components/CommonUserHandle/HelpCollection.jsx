@@ -37,7 +37,7 @@ const collections = () => {
           id: 'api',
           text: _l('API文档'),
           icon: 'worksheet_API',
-          href: `${md.global.Config.WebUrl}apidoc/${lang === 'zh-Hans' ? 'zh-Hans/' : 'en/'}`,
+          href: `${md.global.Config.WebUrl}apidoc/${lang === 'zh-Hans' ? 'zh-Hans' : 'en'}/`,
         },
       ],
     },

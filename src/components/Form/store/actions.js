@@ -545,13 +545,14 @@ export const triggerCustomEventAction = (
   dispatch,
   { params, props, getState, dataFormat, updateRenderData, handleChange },
 ) => {
-  const { systemControlData, handleEventPermission = () => {}, from, tabControlProp = {} } = props;
+  const { systemControlData = [], handleEventPermission = () => {}, from, tabControlProp = {} } = props;
   const { searchConfig = [], renderData = [] } = getState();
+  const replaceData = params.newItem ? [...systemControlData, params.newItem] : systemControlData;
 
   const customProps = {
     ...params,
     ..._.pick(props, ['from', 'recordId', 'projectId', 'worksheetId', 'appId', 'isRecordLock']),
-    formData: mergeFormDataWidthSystem(dataFormat.getDataSource(), systemControlData),
+    formData: mergeFormDataWidthSystem(dataFormat.getDataSource(), replaceData), // 合并系统字段和最新变更字段值
     renderData,
     searchConfig: searchConfig.filter(i => i.eventType === 1),
     checkRuleValidator: (controlId, errorType, errorMessage) => {

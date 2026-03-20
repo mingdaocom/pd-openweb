@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+﻿import React, { Fragment, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
@@ -214,7 +214,7 @@ export function SearchInput(props) {
           },
         }}
       >
-        <Tooltip title={_l('搜索')} placement="bottom">
+        <Tooltip title={_l('搜索')} placement="top">
           <span className="Relative" style={{ height: 28, marginRight: 6 }}>
             <IconBtn className={cx('searchIcon Hand ThemeHoverColor3', { active: props.keywords })}>
               <i className="icon icon-search"></i>

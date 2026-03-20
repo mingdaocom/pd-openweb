@@ -62,7 +62,8 @@ export default function InvoiceSetting(props) {
 
   useEffect(() => {
     projectAjax.getProjectFinance({ projectId }).then(data => {
-      setData(data);
+      //没有发票设置时，invoiceType返回0，需要默认为1
+      setData({ ...data, invoiceType: data.invoiceType || 1 });
     });
   }, []);
 
@@ -91,7 +92,7 @@ export default function InvoiceSetting(props) {
           ])
         : _.pick(data, ['companyName', 'price', 'address', 'recipientName', 'taxNumber', 'contactPhone']);
     orderAjax
-      .applyInvoice({ projectId, orderId, ...para, invoiceType: data.invoiceType || 1 })
+      .applyInvoice({ projectId, orderId, ...para, invoiceType: data.invoiceType })
       .then(res => {
         if (!res) {
           alert(_l('申请失败'), 2);
@@ -147,7 +148,7 @@ export default function InvoiceSetting(props) {
             { value: 1, text: _l('普票') },
             { value: 2, text: _l('增票') },
           ]}
-          checkedValue={data.invoiceType || 1}
+          checkedValue={data.invoiceType}
           onChange={value => setData({ invoiceType: value })}
         />
 

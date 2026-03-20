@@ -146,7 +146,6 @@ class App extends Component {
       modal = null;
     }
     this.setState({ appMoreActionVisible: false });
-    safeLocalStorageSetItem('preventBrowserBack', true);
     window.removeEventListener('popstate', this.handleSetScrollTop);
   }
 

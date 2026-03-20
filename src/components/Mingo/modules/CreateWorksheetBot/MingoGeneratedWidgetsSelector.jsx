@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+﻿import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import cx from 'classnames';
 import { difference, filter, find, get, isEmpty, isEqual, sortBy, uniq } from 'lodash';
 import styled, { keyframes } from 'styled-components';
@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Checkbox } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement';
+import worksheetAjax from 'src/api/worksheet';
 import { mapWidgetTypeToControlType } from 'src/components/Mingo/ChatBot/utils';
 import { DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
@@ -578,7 +579,7 @@ export default function MingoGeneratedWidgetsSelector({
             <Fragment>
               <div
                 className={cx('add-widget-btn flex', { disabled: !selectedWidgetIds.length || disabled })}
-                onClick={() => {
+                onClick={async () => {
                   if (!selectedWidgetIds.length || disabled) return;
                   const controlData = selectedWidgetIds
                     .map(id => allWidgets.find(item => item.id === id))
@@ -589,6 +590,55 @@ export default function MingoGeneratedWidgetsSelector({
                     controlData,
                     control => control.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET && !control.dataSource,
                   );
+                  const relateControlsWithExistWorksheet = filter(
+                    controlData,
+                    control => control.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET && control.dataSource,
+                  );
+                  // 查看表详情，如果表字段存在关联到当前表的关联字段，把当前关联字段的 sourceControlId 设置为对应字段的 controlId
+                  if (!isEmpty(relateControlsWithExistWorksheet)) {
+                    try {
+                      const relateWorksheetIds = uniq(
+                        relateControlsWithExistWorksheet.map(c => c.dataSource).filter(Boolean),
+                      );
+                      const worksheetControlsMap = {};
+                      await Promise.all(
+                        relateWorksheetIds.map(relatedWorksheetId =>
+                          worksheetAjax
+                            .getWorksheetInfo({
+                              worksheetId: relatedWorksheetId,
+                            })
+                            .then(res => {
+                              const controls = get(res, 'template.controls') || [];
+                              worksheetControlsMap[relatedWorksheetId] = controls;
+                            })
+                            .catch(() => {}),
+                        ),
+                      );
+                      const needUpdateWidgets = relateControlsWithExistWorksheet
+                        .map(control => {
+                          const controls = worksheetControlsMap[control.dataSource] || [];
+                          const backRelateControl =
+                            controls.find(
+                              item =>
+                                item.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET && item.dataSource === worksheetId,
+                            ) || null;
+                          if (!backRelateControl) return null;
+                          return {
+                            ...control,
+                            sourceControlId: backRelateControl.controlId,
+                            sourceControl: backRelateControl,
+                          };
+                        })
+                        .filter(Boolean);
+                      if (!isEmpty(needUpdateWidgets)) {
+                        await new Promise(resolve => {
+                          emitter.emit('WIDGET_CONFIG_UPDATE_WIDGETS_ATTRIBUTE', { needUpdateWidgets }, () =>
+                            resolve(),
+                          );
+                        });
+                      }
+                    } catch (e) {}
+                  }
                   const hasRelatedTableNoWorksheet = !!relateControlsNoWorksheet.length;
                   if (hasRelatedTableNoWorksheet) {
                     setRootComp(

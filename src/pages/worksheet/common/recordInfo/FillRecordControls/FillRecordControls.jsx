@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import cx from 'classnames';
 import update from 'immutability-helper';
 import _, { get } from 'lodash';
@@ -47,7 +47,7 @@ class FillRecordControls extends React.Component {
     const { projectId } = props;
     this.hasDefaultRelateRecordTableControls = [];
     const controls = update(
-      props.formData.concat((props.masterFormData || []).map(c => ({ ...c, fromMaster: true }))),
+      (props.formData || []).concat((props.masterFormData || []).map(c => ({ ...c, fromMaster: true }))),
       {
         $apply: formData => {
           let hasDefaultControls = [];

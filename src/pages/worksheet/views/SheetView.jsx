@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+﻿import React, { useContext, useMemo } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
@@ -709,14 +709,14 @@ class TableView extends React.Component {
   activeShift = e => {
     if (e.keyCode === 16) {
       this.shiftActive = true;
-      document.querySelector('#worksheetRightContentBox').classList.add('noSelect');
+      document.querySelector('#worksheetRightContentBox')?.classList.add('noSelect');
     }
   };
 
   deActiveShift = e => {
     if (e.keyCode === 16) {
       this.shiftActive = false;
-      document.querySelector('#worksheetRightContentBox').classList.remove('noSelect');
+      document.querySelector('#worksheetRightContentBox')?.classList.remove('noSelect');
     }
   };
 

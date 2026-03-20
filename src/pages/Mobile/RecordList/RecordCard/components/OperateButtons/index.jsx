@@ -1,4 +1,5 @@
-import React, { memo, useContext, useState } from 'react';
+﻿import React, { memo, useContext, useState } from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
 import MobileSheetContext from 'mobile/RecordList/MobileSheetContext';
 import { getCoverStyle } from 'src/pages/worksheet/common/ViewConfig/utils';
@@ -25,12 +26,15 @@ const OperateButtonsWrapper = styled.div`
 
 const OperateButtons = props => {
   const { row = {}, onDeleteSuccess, updateRow } = props;
-  const context = useContext(MobileSheetContext);
-  const { base, view = {}, sheetButtons, printList, sheetSwitchPermit, controls, worksheetInfo } = context || {};
+  const context = useContext(MobileSheetContext) || {};
+  const { base, view = {}, sheetButtons, printList, sheetSwitchPermit, controls, worksheetInfo } = context;
   const { viewId, viewType, advancedSetting = {}, coverCid } = view;
   const { coverFillType, coverPosition } = getCoverStyle(view);
   const isGroupView = viewType === 1 || advancedSetting.groupsetting;
   const [btnDisable, setBtnDisable] = useState({});
+
+  if (_.isEmpty(context) || !sheetButtons?.length) return null;
+
   let buttons = getSheetOperatesButtons(view, {
     buttons: sheetButtons,
     printList,

@@ -1,4 +1,4 @@
-import { isEmpty } from 'lodash';
+﻿import { isEmpty } from 'lodash';
 import { dialogSelectDept, dialogSelectOrgRole, dialogSelectUser } from 'ming-ui/functions';
 import actionLogAjax from 'src/api/actionLog';
 import appManagementAjax from 'src/api/appManagement';
@@ -235,6 +235,7 @@ export const utils = {
           SelectUserSettings: {
             projectId: rest.projectId,
             callback: handleSelect,
+            unique,
             ...rest,
           },
         });

@@ -117,12 +117,17 @@ export default function CommonHeader(props) {
     callback = () => {},
     replaceAttachment = () => {},
   } = historyPanelInfo;
-  const { showEdit } = attachmentActionInfo;
+  const { showEdit, cauUseWpsPreview } = attachmentActionInfo;
 
   const [showKcVersionList, setShowKcVersionList] = useState(false);
   const [showSaveTo, setShowSaveTo] = useState(false);
   const eleKcVersionList = useRef(null);
   const isMobile = browserIsMobile();
+  const showWpsPreview =
+    !window.platformENV.isOverseas &&
+    !window.platformENV.isLocal &&
+    cauUseWpsPreview &&
+    !md.global.Config.EnableWpsDocPreview;
 
   const handleLogin = () => {
     Dialog.confirm({
@@ -140,11 +145,7 @@ export default function CommonHeader(props) {
       className={cx('filePreviewHeader previewHeader flexRow Relative', className, {
         isMobile,
         Relative: !showEdit && !isMobile,
-        disabledWpsPreview:
-          isMobile &&
-          ((!attachmentActionInfo.cauUseWpsPreview && !showEdit) ||
-            window.platformENV.isOverseas ||
-            window.platformENV.isLocal),
+        disabledWpsPreview: isMobile && !showWpsPreview && !showEdit,
       })}
     >
       <div className="flexRow">
@@ -312,10 +313,7 @@ export default function CommonHeader(props) {
           </div>
         )}
       </div>
-      {isMobile &&
-        !window.platformENV.isOverseas &&
-        !window.platformENV.isLocal &&
-        (attachmentActionInfo.cauUseWpsPreview || showEdit) && <AttachmentAction {...attachmentActionInfo} />}
+      {isMobile && (showWpsPreview || showEdit) && <AttachmentAction {...attachmentActionInfo} />}
     </div>
   );
 }

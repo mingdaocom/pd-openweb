@@ -110,8 +110,18 @@ export default class Text extends React.Component {
   tempKey = [];
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.cell.value !== this.props.cell.value) {
-      this.setState({ value: nextProps.cell.value });
+    const valueChanged = nextProps.cell.value !== this.props.cell.value;
+    const rowChanged = !isEqual(get(nextProps, 'row.rowid'), get(this.props, 'row.rowid'));
+    const nextState = {};
+
+    if (valueChanged || rowChanged) {
+      nextState.value = nextProps.cell.value;
+    }
+    if ((valueChanged && !nextProps.isediting) || rowChanged) {
+      nextState.oldValue = nextProps.cell.value;
+    }
+    if (!_.isEmpty(nextState)) {
+      this.setState(nextState);
     }
     // 数值类小数点自动配置，聚焦时去零
     if (
@@ -120,9 +130,6 @@ export default class Text extends React.Component {
       _.get(nextProps, 'cell.advancedSetting.dotformat') === '1'
     ) {
       this.setState({ value: formatStrZero(nextProps.cell.value) });
-    }
-    if (!isEqual(get(nextProps, 'row.rowid'), get(this.props, 'row.rowid'))) {
-      this.setState({ oldValue: nextProps.cell.value });
     }
   }
 

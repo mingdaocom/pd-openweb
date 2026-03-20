@@ -1,5 +1,7 @@
-import unifiedWheelControlPlugin from './unifiedWheelControl';
+﻿import takeOverNavigation from './takeOverNavigation';
+import unifiedWheelControl from './unifiedWheelControl';
 
 export default {
-  unifiedWheelControlPlugin,
+  takeOverNavigation,
+  unifiedWheelControl,
 };
