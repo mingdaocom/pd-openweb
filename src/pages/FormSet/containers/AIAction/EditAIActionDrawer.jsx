@@ -370,8 +370,8 @@ export default function EditAIActionDrawer(props) {
                           {tools.map(v => {
                             return (
                               <div className="flexRow alignItemsCenter LineHeight30">
-                                <i className={`toolTxtColor Font16 mRight5 ${AGENT_TOOLS[v.type].icon}`} />
-                                <span className="bold">{AGENT_TOOLS[v.type].displayName}</span>
+                                <i className={`toolTxtColor Font16 mRight5 ${AGENT_TOOLS[v.type]?.icon}`} />
+                                <span className="bold">{AGENT_TOOLS[v.type]?.displayName}</span>
                                 <span className="toolTxtColor">
                                   ({!_.isEmpty(v.configs) ? v.configs.map(o => o.appName).join('、') : _l('全部')})
                                 </span>

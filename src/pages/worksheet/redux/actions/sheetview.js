@@ -1,4 +1,4 @@
-import _, {
+﻿import _, {
   assign,
   find,
   findKey,
@@ -84,7 +84,7 @@ function flatRowsFromGroups(groups, groupControl, view, controls) {
 
 export function updateTreeNodeExpansion(row = {}, { expandAll, forceUpdate, runTimes = 0 } = {}) {
   return (dispatch, getState) => {
-    const { base = {}, sheetview = {}, navGroupFilters } = getState().sheet;
+    const { base = {}, sheetview = {}, navGroupFilters, filters: { filtersGroup } = {} } = getState().sheet;
     const { appId, viewId, worksheetId } = base;
     const { treeMap, maxLevel } = sheetview.treeTableViewData || {};
     const { rows = [] } = sheetview.sheetViewData || {};
@@ -115,6 +115,7 @@ export function updateTreeNodeExpansion(row = {}, { expandAll, forceUpdate, runT
               filterControls: [],
               kanbanKey: row.rowid,
               navGroupFilters,
+              filtersGroup,
             })
             .then(res => res.data),
       }),

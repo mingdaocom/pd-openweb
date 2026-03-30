@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+﻿import { get } from 'lodash';
 
 /**
  * 设置 md_pss_id
@@ -17,13 +17,11 @@ export const setPssId = (id, verification = false) => {
       location.href.indexOf('localhost') > -1 ||
       location.href.indexOf('share.mingdao.net') > -1 ||
       location.href.indexOf('mingdaoyun.cn') > -1 ||
-      location.href.indexOf('open_in_browser') > -1
+      location.href.indexOf('open_in_browser') > -1 ||
+      window.top !== window.self ||
+      httpOnly
     ) {
       window.setCookie('md_pss_id', id);
-    }
-
-    if (window.top !== window.self || httpOnly) {
-      window.localStorage.setItem('md_pss_id', id);
     }
   }
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import _, { find, get, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import { LoadDiv, ScrollView } from 'ming-ui';
@@ -61,6 +61,13 @@ export default class RelateRecordList extends React.PureComponent {
           relationWorksheetId: parentWorksheetId,
         })
         .then(data => {
+          if (_.get(data, 'template.controls')) {
+            data.template.controls = replaceControlsTranslateInfo(
+              data.appId,
+              control.dataSource,
+              data.template.controls,
+            );
+          }
           this.setState(
             {
               allowAdd: data.allowAdd,
@@ -369,7 +376,9 @@ export default class RelateRecordList extends React.PureComponent {
     if (maxHeight) {
       recordListHeight = maxHeight - 48 - 10;
     }
-
+    if (records.length === 1) {
+      recordListHeight = 'auto';
+    }
     return (
       <div
         className="RelateRecordList flexColumn"

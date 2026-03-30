@@ -245,6 +245,7 @@ const Numeric = props => {
             style={{ paddingRight: suffix ? 32 : 12 }}
             ref={inputRef}
             disabled={disabled}
+            defaultValue={currentValue}
             maxLength={16}
             onFocus={onFocus}
             onBlur={onBlur}

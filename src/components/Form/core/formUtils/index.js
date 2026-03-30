@@ -1,4 +1,4 @@
-import { Parser } from 'hot-formula-parser';
+﻿import { Parser } from 'hot-formula-parser';
 import _ from 'lodash';
 import moment from 'moment';
 import { telIsValidNumber } from 'ming-ui/components/intlTelInput';
@@ -1191,6 +1191,29 @@ const getIds = (arr = {}) => {
   }, []);
 };
 
+// 提示错误：单个条件组字段、条件值隐藏过滤(补充条件为或的情况)
+const getItemGroupFilters = (arrItem = {}, data = [], recordId, from) => {
+  const isOrCondition = (arrItem.groupFilters || []).findIndex(its => its.spliceType === 2) > -1;
+  let newArr = [arrItem.groupFilters || []];
+
+  if (isOrCondition) {
+    newArr = (arrItem.groupFilters || []).map(i => [i]);
+  }
+
+  newArr = newArr.filter(its => {
+    const ids = getIds({ groupFilters: its });
+    return _.some(ids, id => {
+      const da = _.find(data, d => d.controlId === id);
+      return (
+        (recordId && id === 'rowid') ||
+        _.includes(['currenttime', 'user-self'], id) ||
+        (da && controlState(da, from).visible & !da.hidden)
+      );
+    });
+  });
+  return { ...arrItem, groupFilters: _.flatten(newArr) };
+};
+
 //判断业务规则配置条件是否满足
 export const checkValueAvailable = (rule = {}, data = [], recordId, from) => {
   let isAvailable = false;
@@ -1203,17 +1226,11 @@ export const checkValueAvailable = (rule = {}, data = [], recordId, from) => {
   //条件字段或字段值都隐藏
   // 记录id存在才参与业务规则
   if (from) {
-    transFilters = transFilters.filter(arr => {
-      const ids = getIds(arr);
-      return _.some(ids, id => {
-        const da = _.find(data, d => d.controlId === id);
-        return (
-          (recordId && id === 'rowid') ||
-          _.includes(['currenttime', 'user-self'], id) ||
-          (da && controlState(da, from).visible & !da.hidden)
-        );
-      });
-    });
+    transFilters = transFilters
+      .map(arrItem => {
+        return getItemGroupFilters(arrItem, data, recordId, from);
+      })
+      .filter(i => !_.isEmpty(i.groupFilters));
   }
 
   transFilters.forEach((arr, pIdx) => {

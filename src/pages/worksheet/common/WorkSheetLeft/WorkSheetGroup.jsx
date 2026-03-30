@@ -98,10 +98,7 @@ export default function WorkSheetGroup(props) {
             className="Font16 mRight10 visibilityIcon"
             icon={icon}
             style={{
-              color:
-                [1, 3].includes(currentPcNaviStyle) && themeType === 'theme'
-                  ? 'var(--color-error-bg)'
-                  : 'var(--color-warning)',
+              color: 'var(--color-warning)',
             }}
           />
         </Tooltip>

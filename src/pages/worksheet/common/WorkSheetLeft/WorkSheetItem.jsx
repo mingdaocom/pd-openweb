@@ -81,7 +81,7 @@ export default class WorkSheetItem extends Component {
     const { workSheetId, iconUrl, status, parentStatus, type, configuration = {}, urlTemplate, layerIndex } = appItem;
     const workSheetName = getTranslateInfo(appId, null, workSheetId).name || appItem.workSheetName;
     const isActive = activeSheetId === workSheetId;
-    const { currentPcNaviStyle, themeType, displayIcon = '', hideFirstSection } = appPkg;
+    const { currentPcNaviStyle, displayIcon = '', hideFirstSection } = appPkg;
     const showIcon =
       currentPcNaviStyle === 3 && hideFirstSection && appItem.firstGroupIndex === 0
         ? true
@@ -129,10 +129,7 @@ export default class WorkSheetItem extends Component {
               className="Font16 mRight10 visibilityIcon"
               icon={icon}
               style={{
-                color:
-                  [1, 3].includes(currentPcNaviStyle) && themeType === 'theme'
-                    ? 'var(--color-error-bg)'
-                    : 'var(--color-warning)',
+                color: 'var(--color-warning)',
               }}
             />
           </Tooltip>

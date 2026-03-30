@@ -11,6 +11,7 @@ import RelateRecord from '../widgets/RelateRecord';
 import RelationSearch from '../widgets/RelationSearch';
 
 const TabCon = styled.div`
+  user-select: none;
   .md-adm-tabs {
     background-color: var(--color-background-primary);
     border-bottom: 1px solid var(--color-border-primary);

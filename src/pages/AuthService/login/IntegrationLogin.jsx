@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import DocumentTitle from 'react-document-title';
 import styled from 'styled-components';
 
@@ -27,11 +27,11 @@ export default function ({ isNetwork, account, companyName, projectId, integrati
         {!isNetwork ? (
           <div className="mTop20">
             <div className="Font15 textPrimary">
-              {_l('您正在登录的账号 ')}
-              <span className="Bold">{account || ''}</span>
-              {_l(' 为组织 ')}
-              <span className="Bold">{companyName || ''}</span>
-              {_l(' 的企业单点登录账号。')}
+              {_l('您正在登录的账号')}
+              <span className="Bold mLeft3 mRight3">{account || ''}</span>
+              {_l('为组织')}
+              <span className="Bold mLeft3 mRight3">{companyName || ''}</span>
+              {_l('的企业单点登录账号。')}
             </div>
             <div className="Font15 textPrimary mTop16">{_l('为保证安全，该组织仅允许您通过 Microsoft 登录。')}</div>
           </div>

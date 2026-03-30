@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+﻿import React, { useEffect, useRef, useState } from 'react';
 import Vditor from '@mdfe/vditor';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -111,6 +111,7 @@ const Wrap = styled.div`
   }
   .vditor-ir pre.vditor-reset[contenteditable='false'] {
     opacity: 1 !important;
+    pointer-events: none;
   }
 
   .vditor-toolbar--hide {

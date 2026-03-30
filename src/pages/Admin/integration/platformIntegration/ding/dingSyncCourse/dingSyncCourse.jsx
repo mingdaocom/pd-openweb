@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+﻿import React, { Fragment } from 'react';
 import Api from 'api/homeApp';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
@@ -11,11 +11,9 @@ import Ajax from 'src/api/workWeiXin';
 import AppLinkParamsSettings from 'src/pages/AppSettings/components/EditpublishSet/AppLinkParamsSettings';
 import { navigateTo } from '../../../../../../router/navigateTo';
 import { getIntegrationHomeUrl } from '../../utils';
-import scan1 from '../../workwx/workwxSyncCourse/img/scan1.png';
 import CreateLinkDialog from './CreateLinkDialog';
 import imgPng1 from './img/1.png';
 import imgPng2_1 from './img/2-1.png';
-import imgPng2 from './img/2.png';
 import imgPng3 from './img/3.png';
 import imgPng4_1 from './img/4-1.png';
 import imgPng4_2 from './img/4-2.png';
@@ -23,7 +21,7 @@ import imgPng4_3 from './img/4-3.png';
 import imgPng4_4 from './img/4-4.png';
 import imgPng5 from './img/5.png';
 import imgPng6 from './img/6.png';
-import imgPng7 from './img/7.png';
+import scan1 from './img/scan1.png';
 import scan2 from './img/scan2.png';
 import scan4 from './img/scan4.png';
 import scan5 from './img/scan5.png';
@@ -285,7 +283,7 @@ export default class DingSyncCourse extends React.Component {
           >
             {_l('生成企业微信链接，')}
           </a>
-          {_l('生成链接后复制进”应用首页链接“、”PC端首页地址“即可使用')}
+          {_l('生成链接后复制进”PC端首页地址“即可使用')}
         </p>
         <img src={wx6Png} alt={_l('点击“应用主页”，填写“网页地址”')} />
         <img src={wx7Png} alt={_l('点击“应用主页”，填写“网页地址”')} />
@@ -301,13 +299,11 @@ export default class DingSyncCourse extends React.Component {
 
     return (
       <React.Fragment>
-        <h3 className="Font18 textPrimary mTop40">{_l('1. 前往钉钉管理后台 — 定位到“工作台”')}</h3>
-        <img src={imgPng1} alt={_l('前往钉钉管理后台 — 定位到“工作台”')} />
-        <h3 className="Font18 textPrimary mTop40">{_l('2. 点击下方“自建应用”进入钉钉开放平台')}</h3>
-        <img src={imgPng2} alt={_l('点击下方“自建应用”进入钉钉开放平台')} />
-        <p className="Font14 textSecondary mTop24 LineHeight22">{_l('选择“应用开发”下的“企业内部开发”')}</p>
-        <img src={imgPng2_1} alt={_l('选择“应用开发”下的“企业内部开发”')} />
-        <h3 className="Font18 textPrimary mTop40">{_l('3. 点击创建应用，完善应用信息')}</h3>
+        <h3 className="Font18 textPrimary mTop40">{_l('1. 前往钉钉开发者平台 — 定位到“应用开发”')}</h3>
+        <img src={imgPng1} alt={_l('前往钉钉开发者平台 — 定位到“应用开发”')} />
+        <p className="Font14 textSecondary mTop24 LineHeight22">{_l('选择“应用开发”下的“企业内部应用”')}</p>
+        <img src={imgPng2_1} alt={_l('选择“应用开发”下的“企业内部应用”')} />
+        <h3 className="Font18 textPrimary mTop40">{_l('2. 点击创建应用，完善应用信息')}</h3>
         <p className="Font14 textSecondary mTop24 LineHeight22">
           {this.state.addApp
             ? _l('填入应用名称（建议与应用名称保持一致）、应用描述、应用图标')
@@ -332,24 +328,10 @@ export default class DingSyncCourse extends React.Component {
           </a>
         </p>
         <img src={imgPng3} alt={_l('完善应用信息')} />
-        <h3 className="Font18 textPrimary mTop40">{_l('4. 完善接口信息')}</h3>
+        <h3 className="Font18 textPrimary mTop40">{_l('3. 完善接口信息')}</h3>
         <p className="Font14 textSecondary mTop24 LineHeight22">
-          {_l('定位到“网页应用”的 H5应用配置信息，讲以下链接填入对应输入框内')}
+          {_l('定位到“网页应用”的 网页应用配置信息，讲以下链接填入对应输入框内')}
         </p>
-        <div className="inputList mTop20">
-          <span className="inputTitle">{_l('应用首页地址：')}</span>
-          <input type="text" className="inputBox" readOnly value={homeUrl} />
-          <span className="copyBtn" onClick={() => this.bindClipboard(homeUrl)}>
-            {_l('复制')}
-          </span>
-        </div>
-        <div className="inputList mTop20">
-          <span className="inputTitle">{_l('服务器出口IP：')}</span>
-          <input type="text" className="inputBox" readOnly value={this.state.serverIp} />
-          <span className="copyBtn" onClick={() => this.bindClipboard(this.state.serverIp)}>
-            {_l('复制')}
-          </span>
-        </div>
         <div className="inputList mTop20">
           <span className="inputTitle">{_l('PC端首页地址：')}</span>
           <input type="text" className="inputBox" readOnly value={homeUrl} />
@@ -367,21 +349,21 @@ export default class DingSyncCourse extends React.Component {
           >
             {_l('生成钉钉链接，')}
           </a>
-          {_l('生成链接后复制进”应用首页链接“、”PC端首页地址“即可使用')}
+          {_l('生成链接后复制进”PC端首页地址“即可使用')}
         </p>
         <img src={imgPng4_1} alt={_l('完善接口信息')} />
         {this.state.addApp ? null : (
           <Fragment>
             <p className="Font14 textSecondary mTop24 LineHeight22">
               {_l(
-                '切换至“基础信息”，将AgentId、ClientId、ClientScret分别填入系统的“组织管理 - 集成 - 钉钉 - 对接信息录入”对应输入框内',
+                '切换至“凭证与基础信息”，将AgentId、ClientId、ClientScret分别填入明道云的“组织管理 - 企业身份 - 钉钉 - 对接信息录入”对应输入框内',
               )}
             </p>
             <img src={imgPng4_2} alt={_l('完善接口信息')} />
             <img src={imgPng4_3} alt={_l('完善接口信息')} />
             <p className="Font14 textSecondary mTop24 LineHeight22">{_l('首页可以找到CorpId，填入对应输入框内')}</p>
             <img src={imgPng4_4} alt={_l('完善接口信息')} />
-            <h3 className="Font18 textPrimary mTop40">{_l('5.申请开通企业通讯录权限')}</h3>
+            <h3 className="Font18 textPrimary mTop40">{_l('4.申请开通企业通讯录权限')}</h3>
             <p className="Font14 textSecondary mTop24 LineHeight22">
               {_l('回到自建应用的“权限管理”')}
               <br /> {_l('a. 权限范围：建议选择“全部员工”')}
@@ -396,16 +378,11 @@ export default class DingSyncCourse extends React.Component {
             <img src={imgPng5} alt={_l('申请开通企业通讯录权限')} />
           </Fragment>
         )}
-        <h3 className="Font18 textPrimary mTop40">{_l('%0.发布应用', this.state.addApp ? 5 : 6)}</h3>
+        <h3 className="Font18 textPrimary mTop40">{_l('%0.发布应用', this.state.addApp ? 4 : 5)}</h3>
         <p className="Font14 textSecondary mTop24 LineHeight22">
           {_l('切换至“版本管理与发布”，配置可使用范围，点击“确认发布”后即可')}
         </p>
         <img src={imgPng6} alt={_l('发布应用')} />
-        <h3 className="Font18 textPrimary mTop40">{_l('%0.设置使用范围', this.state.addApp ? 6 : 7)}</h3>
-        <p className="Font14 textSecondary mTop24 LineHeight22">
-          {_l('应用发布后，仍然可以根据企业自身需求改变应用的可使用范围')}
-        </p>
-        <img src={imgPng7} alt={_l('设置使用范围')} />
       </React.Fragment>
     );
   };

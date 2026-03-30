@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+﻿import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -366,7 +366,7 @@ export default class WriteFields extends Component {
                 {item.type === 29 && !!(item.subFormProperties || []).length && selectNodeType !== NODE_TYPE.CC && (
                   <Tooltip title={_l('设置子表操作和列权限')} placement="bottomRight">
                     <div
-                      className="mLeft5 textSecondary ThemeHoverColor3 pointer"
+                      className="mLeft5 textSecondary ThemeHoverColor3 pointer pointerEventsAuto"
                       style={{ display: 'inline-flex' }}
                       onClick={() =>
                         this.setState({

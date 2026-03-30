@@ -123,7 +123,7 @@ export default function CreateTaxNumber(props) {
       ? {
           companyName: curTaxInfo.companyName,
           taxNo: curTaxInfo.taxNo,
-          taxId: curTaxNo,
+          taxId: curTaxInfo.id,
         }
       : { taxNo: curTaxNo, email: curTaxNo ? props.email : '' },
   );
@@ -381,6 +381,7 @@ export default function CreateTaxNumber(props) {
         projectId,
         ..._.pick(cleanedData, ['companyName', 'taxNo']),
         merchantTaxInfoConfig: _.pick(cleanedData, ['account', 'password', 'appKey', 'appSecret', 'salt']),
+        taxId: isEdit ? taxId : undefined,
       })
       .then(res => {
         if (!isEdit) {
@@ -635,7 +636,6 @@ export default function CreateTaxNumber(props) {
                     <Input
                       className="w100"
                       placeholder={_l('请输入百望账号')}
-                      disabled={!!taxId}
                       value={account}
                       onChange={value => setData({ account: value })}
                     />
@@ -647,7 +647,6 @@ export default function CreateTaxNumber(props) {
                       <Input
                         className="w100"
                         placeholder={_l('请输入百望密码')}
-                        disabled={!!taxId}
                         value={password}
                         onChange={value => setData({ password: value })}
                       />
@@ -659,7 +658,6 @@ export default function CreateTaxNumber(props) {
                     <Input
                       className="w100"
                       placeholder={_l('请输入AppKey')}
-                      disabled={!!taxId}
                       value={appKey}
                       onChange={value => setData({ appKey: value })}
                     />
@@ -670,7 +668,6 @@ export default function CreateTaxNumber(props) {
                     <Input
                       className="w100"
                       placeholder={_l('请输入AppSecret')}
-                      disabled={!!taxId}
                       value={appSecret}
                       onChange={value => setData({ appSecret: value })}
                     />
@@ -681,7 +678,6 @@ export default function CreateTaxNumber(props) {
                     <Input
                       className="w100"
                       placeholder={_l('请输入用户盐值')}
-                      disabled={!!taxId}
                       value={salt}
                       onChange={value => setData({ salt: value })}
                     />
@@ -733,9 +729,7 @@ export default function CreateTaxNumber(props) {
                   className="mTop32 mBottom24"
                   onClick={
                     window.platformENV.isOverseas || window.platformENV.isLocal
-                      ? !taxId
-                        ? () => onPrivateCreateTax()
-                        : () => setStep(step + 1)
+                      ? () => onPrivateCreateTax()
                       : checkTaxNo
                   }
                 >

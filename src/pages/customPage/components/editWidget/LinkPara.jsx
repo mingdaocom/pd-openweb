@@ -146,7 +146,7 @@ function ParaItem({ deleteItem, item, updateItem }) {
   );
 }
 export default function LinkPara(props) {
-  const { paras, setParas, config = {}, setConfig = () => {}, showActionBar } = props;
+  const { paras = [], setParas, config = {}, setConfig = () => {}, showActionBar } = props;
   let { reload = false, newTab = false } = config;
 
   return (

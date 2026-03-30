@@ -211,8 +211,8 @@ const MobilePhone = props => {
           onBlur(originValue);
         }}
       />
-      {/* 有掩码并有解码权限 || 无掩码时可拨打电话 */}
-      {(showMaskValue || renderMaskContent()) && value && formDisabled && (
+      {/* 有掩码并有解码权限（无解码权限不可拨打电话） || 无掩码时可拨打电话 */}
+      {!(showMaskValue && !renderMaskContent()) && value && formDisabled && (
         <a href={`tel:${value}`} className="customFormControlTelBtn">
           <Icon icon="phone22" className="Font16 ThemeColor3" />
         </a>

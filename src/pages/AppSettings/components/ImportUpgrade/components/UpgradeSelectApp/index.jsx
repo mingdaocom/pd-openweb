@@ -123,7 +123,7 @@ export default function UpgradeSelectApp(props) {
         unionId: _.get(files[index], 'apps[0].unionId'),
         ajaxFun: 'getsByUnionId',
         filterIds: selectIds,
-        filterFun: l => !selectIds.includes(l.appId) && !l.isLock,
+        filterFun: l => !selectIds.includes(l.appId),
         unique: true,
         onOk: selectedApps => {
           files[index].type = type;

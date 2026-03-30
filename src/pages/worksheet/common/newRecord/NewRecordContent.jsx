@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+﻿import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Dialog } from 'antd-mobile';
 import { openWorkSheetDraft } from '/src/pages/worksheet/common/WorksheetDraft';
 import cx from 'classnames';
@@ -67,7 +67,10 @@ function checkVisibility(el) {
 function focusInput(formcon) {
   if (!formcon) return;
   const isMobile = browserIsMobile();
-  const firstText = formcon.querySelector(`${isMobile ? '.customFormFocusControl' : '.customFormTextareaBox'}`);
+
+  if (isMobile) return;
+
+  const firstText = formcon.querySelector('.customFormTextareaBox');
 
   if (firstText) {
     checkVisibility(firstText).then(isVisible => {

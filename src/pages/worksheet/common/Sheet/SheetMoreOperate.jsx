@@ -12,6 +12,8 @@ import { toEditWidgetPage } from 'src/pages/widgetConfig/util/index';
 import WorksheetReference, { renderDialog } from 'src/pages/widgetConfig/widgetSetting/components/WorksheetReference';
 import { canEditApp, canEditData, isHaveCharge } from 'src/pages/worksheet/redux/actions/util';
 import { navigateTo } from 'src/router/navigateTo';
+import { VersionProductType } from 'src/utils/enum';
+import { getFeatureStatus } from 'src/utils/project';
 import { saveSelectExtensionNavType } from 'src/utils/worksheet';
 import { getHighAuthSheetSwitchPermit } from 'src/utils/worksheet';
 import { importDataFromExcel } from '../WorksheetBody/ImportDataFromExcel';
@@ -31,9 +33,15 @@ const settingMenuList = [
   { type: 'splitLine' },
   { type: 'publicform', text: _l('公开表单'), navType: 'extensionNav', subPath: 'form' },
   { type: 'query', text: _l('公开查询'), navType: 'extensionNav', subPath: 'form' },
-  { type: 'splitLine' },
-  { type: 'pay', text: _l('支付'), navType: 'extensionNav', subPath: 'form' },
-  { type: 'invoice', text: _l('开票'), navType: 'extensionNav', subPath: 'form' },
+  { type: 'splitLine', featureIds: [VersionProductType.PAY, VersionProductType.invoice] },
+  { type: 'pay', text: _l('支付'), navType: 'extensionNav', subPath: 'form', featureId: VersionProductType.PAY },
+  {
+    type: 'invoice',
+    text: _l('开票'),
+    navType: 'extensionNav',
+    subPath: 'form',
+    featureId: VersionProductType.invoice,
+  },
 ];
 
 export default function SheetMoreOperate(props) {
@@ -104,24 +112,30 @@ export default function SheetMoreOperate(props) {
                 popupAlign={{ points: ['tl', 'tr'], offset: [0, -41] }}
                 popup={
                   <Menu className="subMenu sheetHeaderOperate_subMenu">
-                    {settingMenuList
-                      .filter(item => !(md.global.SysSettings.hideAIBasicFun && item.type === 'aiAction'))
-                      .map(({ type, text, navType, subPath }, index) =>
-                        type === 'splitLine' ? (
-                          <hr className="splitLine" key={`splitLine-${index}`} />
-                        ) : (
-                          <MenuItem
-                            data-event={type}
-                            key={type}
-                            onClick={() => {
-                              saveSelectExtensionNavType(worksheetId, navType, type);
-                              navigateTo(`/worksheet/${subPath}/edit/${worksheetId}/${type}`);
-                            }}
-                          >
-                            <span className="text">{text}</span>
-                          </MenuItem>
-                        ),
-                      )}
+                    {settingMenuList.map(({ type, text, navType, subPath, featureId, featureIds }, index) => {
+                      if (
+                        (md.global.SysSettings.hideAIBasicFun && type === 'aiAction') ||
+                        (featureId && !getFeatureStatus(projectId, featureId)) ||
+                        (featureIds && featureIds.every(id => !getFeatureStatus(projectId, id)))
+                      ) {
+                        return null;
+                      }
+
+                      return type === 'splitLine' ? (
+                        <hr className="splitLine" key={`splitLine-${index}`} />
+                      ) : (
+                        <MenuItem
+                          data-event={type}
+                          key={type}
+                          onClick={() => {
+                            saveSelectExtensionNavType(worksheetId, navType, type);
+                            navigateTo(`/worksheet/${subPath}/edit/${worksheetId}/${type}`);
+                          }}
+                        >
+                          <span className="text">{text}</span>
+                        </MenuItem>
+                      );
+                    })}
                   </Menu>
                 }
               >

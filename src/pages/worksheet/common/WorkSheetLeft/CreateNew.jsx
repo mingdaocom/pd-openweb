@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+﻿import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { func, string } from 'prop-types';
@@ -392,7 +392,7 @@ class CreateChatbot extends Component {
         customDescription={_l(
           '描述机器人的目标和功能，以及他的服务对象。例如：“订单统计助手，可通过对话快速查询客户订单明细并统计金额。”',
         )}
-        placeholder={_l('AI 将根据您的描述自动生成名称、欢迎语、预设提问、提示词等配置 ')}
+        placeholder={_l('AI 将根据您的描述自动生成名称、欢迎语、预设提问、提示词等配置')}
         loadingAIsuggestions={generateLoading}
         generateLoading={generateChatRobotInfoLoading}
         aiList={chatRobotInfos}

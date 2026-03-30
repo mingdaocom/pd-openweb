@@ -248,9 +248,9 @@ let sheetRequest = null;
 function BtnSetting(props) {
   const { pageId, activeIndex, appPkg = {}, btnSetting, btnConfig, components, setBtnSetting, onDel, onCopy } = props;
   const appId = appPkg.id;
-  const btnSettingParam = _.get(btnSetting, 'param') || [];
+  const btnSettingParam = _.get(btnSetting, 'param');
   const [displayType, setDisplayType] = useState('setting');
-  const [paras, setParas] = useState(btnSettingParam);
+  const [paras, setParas] = useState(btnSettingParam || []);
   const [sheetLoading, setSheetLoading] = useState(true);
   const projectId = appPkg.projectId || appPkg.id;
 
@@ -351,7 +351,6 @@ function BtnSetting(props) {
           <div className="settingItem">
             <div className="settingTitle">{_l('工作表')}</div>
             <SelectWorksheet
-              dialogClassName={'btnSettingSelectDialog'}
               worksheetType={0}
               projectId={projectId}
               appId={appId}
@@ -393,7 +392,6 @@ function BtnSetting(props) {
           <div className="settingItem">
             <div className="settingTitle">{_l('工作表')}</div>
             <SelectWorksheet
-              dialogClassName={'btnSettingSelectDialog'}
               worksheetType={0}
               projectId={projectId}
               appId={appId}
@@ -440,7 +438,6 @@ function BtnSetting(props) {
           <div className="settingItem">
             <div className="settingTitle">{_l('页面')}</div>
             <SelectWorksheet
-              dialogClassName={'btnSettingSelectDialog'}
               worksheetType={1}
               projectId={projectId}
               appId={appId}
@@ -482,7 +479,7 @@ function BtnSetting(props) {
             />
             {value && (
               <LinkPara
-                paras={paras}
+                paras={paras || []}
                 setParas={param => {
                   setParas(param);
                   setBtnSetting({ ...btnSetting, param });
@@ -685,7 +682,6 @@ function BtnSetting(props) {
               <div className="settingItem">
                 <div className="settingTitle Normal">{_l('搜索工作表')}</div>
                 <SelectWorksheet
-                  dialogClassName={'btnSettingSelectDialog'}
                   worksheetType={0}
                   projectId={projectId}
                   appId={appId}

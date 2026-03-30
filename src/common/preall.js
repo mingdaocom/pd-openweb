@@ -167,8 +167,19 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
   if (!md.global.Account.langModified) {
     accountSetting.autoEditAccountLangSetting({ langType: getCurrentLangCode(lang) });
     !md.global.Account.isPortal && navigateTo('/app/my');
-  } else if (md.global.Account.lang !== lang) {
+  } else if (
+    md.global.Account.lang !== lang &&
+    !urlObj.hash.includes('i18n_reload') &&
+    !localStorage.getItem('i18n_reload')
+  ) {
     setCookie('i18n_langtag', md.global.Account.lang);
+
+    if (window.top !== window.self) {
+      localStorage.setItem('i18n_reload', true);
+    } else {
+      urlObj.hash = 'i18n_reload';
+    }
+
     window.location.reload();
     window.isWaiting = true;
     return;

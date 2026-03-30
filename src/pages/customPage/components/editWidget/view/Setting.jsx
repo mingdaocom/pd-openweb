@@ -96,7 +96,6 @@ function Setting(props) {
         <div className="mBottom12">
           <div className="mBottom12">{_l('工作表')}</div>
           <SelectWorksheet
-            dialogClassName={'btnSettingSelectDialog'}
             worksheetType={0}
             projectId={projectId}
             appId={appId}

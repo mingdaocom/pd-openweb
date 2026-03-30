@@ -1,5 +1,17 @@
-import { get } from 'lodash';
+﻿import { get, includes } from 'lodash';
 import moment from 'moment';
+
+/**
+ * 安全地将数据存储到本地存储中
+ * @param {...any} args - 传递给 localStorage.setItem() 方法的参数
+ */
+window.safeLocalStorageSetItem = (...args) => {
+  try {
+    window.localStorage.setItem(...args);
+  } catch (err) {
+    console.log(err);
+  }
+};
 
 /**
  * Cookies 写入
@@ -8,7 +20,10 @@ import moment from 'moment';
  * @param {Date} expire - 过期时间
  */
 window.setCookie = function setCookie(name, value, expire) {
-  if (get(window, 'md.global.Config.HttpOnly') && name === 'md_pss_id') {
+  if (
+    (get(window, 'md.global.Config.HttpOnly') || window.top !== window.self) &&
+    includes(['md_pss_id', 'i18n_langtag'], name)
+  ) {
     safeLocalStorageSetItem(name, value);
     return;
   }
@@ -32,7 +47,10 @@ window.setCookie = function setCookie(name, value, expire) {
  * @returns {string|null} - Cookie值
  */
 window.getCookie = function getCookie(name) {
-  if (get(window, 'md.global.Config.HttpOnly') && name === 'md_pss_id') {
+  if (
+    (get(window, 'md.global.Config.HttpOnly') || window.top !== window.self) &&
+    includes(['md_pss_id', 'i18n_langtag'], name)
+  ) {
     return localStorage.getItem(name) || null;
   }
 

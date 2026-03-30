@@ -1,4 +1,4 @@
-import baseAxios from 'axios';
+﻿import baseAxios from 'axios';
 import CryptoJS from 'crypto-js';
 import localForage from 'localforage';
 import _, { get, isFunction, isObject, replace, some } from 'lodash';
@@ -295,18 +295,6 @@ window.safeParse = (str, type) => {
       console.error(err);
     }
     return type === 'array' ? [] : {};
-  }
-};
-
-/**
- * 安全地将数据存储到本地存储中
- * @param {...any} args - 传递给 localStorage.setItem() 方法的参数
- */
-window.safeLocalStorageSetItem = (...args) => {
-  try {
-    window.localStorage.setItem(...args);
-  } catch (err) {
-    console.log(err);
   }
 };
 
@@ -697,7 +685,10 @@ const interfaceDataDecryption = (response, actionName = '') => {
   if (encrypted) {
     return { data: JSONParseForEncryption(getDecryptedValue(key, data)) };
   } else if (
-    _.includes(['GetRowByID', 'GetRowDetail', 'GetFilterRows', 'GetRowRelationRows'], actionName) &&
+    _.includes(
+      ['GetRowByID', 'GetRowDetail', 'GetFilterRows', 'GetRowRelationRows', 'ChooseRelationRows'],
+      actionName,
+    ) &&
     !['meihua.mingdao.com', 'www.mingdao.com'].includes(location.host)
   ) {
     let dataStr = JSON.stringify(data);
