@@ -1,4 +1,4 @@
-import _, { find, get, includes } from 'lodash';
+﻿import _, { find, get, includes } from 'lodash';
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 import MapHandler from 'ming-ui/components/amap/MapHandler';
@@ -1766,7 +1766,8 @@ export default class DataFormat {
       const controls = _.get(templates[0] || {}, 'controls') || [];
       //当前配置查询的控件
       const currentControl = _.find(this.data, da => da.controlId === controlId);
-      if (!currentControl) {
+      // 他表不执行查询
+      if (!currentControl || currentControl.type === 30) {
         this.setLoadingInfo(controlId, false, true);
         return;
       }

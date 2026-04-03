@@ -109,11 +109,7 @@ export const VersionProductHelpLink = {
   40: 'https://help.mingdao.com/org/payment',
 };
 
-export const FAST_GPT_CONFIG = JSON.parse(
-  atob(
-    'eyJiYXNlVXJsIjoiaHR0cHM6Ly9hcGkuZmFzdGdwdC5pbi9hcGkiLCJhcHBJZCI6IjY2ODY0MDFhZDA5Nzg2YWQ0Y2Y1YWYzYiIsImFwaUtleSI6ImZhc3RncHQtZ2xSVWdHNzdCd0wyZjZEUDhQMzFSenJ2WE9DRkRxTWxTOHNmcWlwZzRKY0t6bTc5ODRGU1JURHVlUVYifQ==',
-  ),
-);
+export const FAST_GPT_CONFIG = {};
 
 export const AI_FEATURE_TYPE = {
   CREATE_SHEET: 1, // 创建工作表

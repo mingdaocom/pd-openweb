@@ -914,6 +914,9 @@ export default function filterFn({ filterData, originControl, data = [], recordI
             if (state && state.rows && !state.baseLoading && !state.dataLoading) {
               return filterEmptyChildTableRows(state.rows).length <= 0;
             } else {
+              if (_.isObject(value)) {
+                return filterEmptyChildTableRows(value.rows).length <= 0;
+              }
               return value === '0' || !value;
             }
           default:

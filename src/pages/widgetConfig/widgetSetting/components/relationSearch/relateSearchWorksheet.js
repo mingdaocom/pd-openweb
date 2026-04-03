@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+﻿import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
@@ -92,6 +92,7 @@ function FilterRelateSearch(props) {
             widgetControlData={{
               ...handleAdvancedSettingChange(data, { querytype: queryType }),
               globalSheetId: globalSheetInfo.worksheetId,
+              ...(!data.dataSource ? { dataSource: sheetId } : {}),
             }}
             onConditionsChange={(conditions = []) => {
               const newConditions = conditions.some(item => item.groupFilters)

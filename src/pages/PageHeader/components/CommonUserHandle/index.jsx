@@ -63,7 +63,7 @@ export default class CommonUserHandle extends Component {
   };
 
   componentDidMount() {
-    if (md.global.Account.superAdmin) {
+    if ((window.platformENV.isOverseas || window.platformENV.isLocal) && md.global.Account.superAdmin) {
       privateGuideApi.getPlatformRemindInfo().then(data => {
         this.setState({ newVersion: data.newVersion, isLicense: data.isLicense });
       });
@@ -93,7 +93,7 @@ export default class CommonUserHandle extends Component {
     return (
       <div className={cx('commonUserHandleWrap', { dashboardCommonUserHandleWrap: type === 'dashboard' })}>
         {['native', 'integration'].includes(type) && (
-          <React.Fragment>
+          <Fragment>
             {type === 'native' && (
               <Popover
                 visible={this.state.addMenuVisible}
@@ -116,7 +116,7 @@ export default class CommonUserHandle extends Component {
               </Popover>
             )}
             <MyProcessEntry type={type} />
-          </React.Fragment>
+          </Fragment>
         )}
 
         {type !== 'appPkg' && (
@@ -128,6 +128,36 @@ export default class CommonUserHandle extends Component {
                   <span className="mLeft5 TxtMiddle">{_l('组织管理')}</span>
                 </EntryWrap>
               </MdLink>
+            )}
+            {(window.platformENV.isOverseas || window.platformENV.isLocal) && (
+              <Fragment>
+                {type === 'dashboard' && !!newVersion && (
+                  <Tooltip title={_l('发现新版本：%0，点击查看', newVersion)}>
+                    <AdminEntry
+                      onClick={() =>
+                        window.open(
+                          window.platformENV.isOverseas
+                            ? 'https://docs-pd.nocoly.com/version'
+                            : 'https://docs-pd.mingdao.com/version',
+                        )
+                      }
+                    >
+                      <Icon icon="score-up" className="Font20" style={{ color: '#20CA86' }} />
+                    </AdminEntry>
+                  </Tooltip>
+                )}
+                {type === 'dashboard' && !isLicense && (
+                  <Tooltip title={_l('平台授权已失效，点击查看')}>
+                    <AdminEntry
+                      onClick={() => {
+                        location.href = md.global.Config.PlatformUrl + 'sysconfig/hap/platform';
+                      }}
+                    >
+                      <Icon icon="error1" className="Font20" style={{ color: '#f44336' }} />
+                    </AdminEntry>
+                  </Tooltip>
+                )}
+              </Fragment>
             )}
             {type === 'dashboard' && !!newVersion && (
               <AdminEntry

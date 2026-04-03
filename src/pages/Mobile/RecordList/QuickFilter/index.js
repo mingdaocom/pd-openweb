@@ -6,6 +6,8 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import * as actions from 'mobile/RecordList/redux/actions';
+import { formatQuickFilterValueToControlValue } from 'worksheet/common/WorkSheetFilter/util';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { formatFilterValuesToServer } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import { formatForSave } from 'src/pages/worksheet/common/WorkSheetFilter/model';
@@ -87,6 +89,23 @@ const SavedItem = styled.div`
   }
 `;
 
+function getDefaultValues(items) {
+  const values = {};
+  items.forEach((item, i) => {
+    if (!_.isEmpty(item.value) || !_.isEmpty(item.values)) {
+      values[i] = {
+        values: item.values,
+        value: item.value,
+      };
+    } else if (_.get(item, 'dataType') === 29) {
+      values[i] = {
+        values: [],
+      };
+    }
+  });
+  return values;
+}
+
 export function QuickFilter(props) {
   const {
     view,
@@ -115,26 +134,25 @@ export function QuickFilter(props) {
   const showSavedFilter = !_.get(window, 'shareState.shareId') && base.type !== 'single';
   const [appFilterId, setAppFilterId] = useState('');
 
-  const items = useMemo(
-    () =>
-      filters
-        .map(filter => {
-          const controlObj = _.find(_.cloneDeep(controls), c => c.controlId === filter.controlId);
-          const newControl = controlObj && _.cloneDeep(turnControl(controlObj));
-          const isRequired =
-            _.get(view, 'advancedSetting.fastrequired') === '1' &&
-            _.includes(_.get(view, 'advancedSetting.requiredcids', ''), (newControl || {}).controlId);
-          return {
-            ...filter,
-            isRequired,
-            control: newControl,
-            dataType: newControl ? newControl.type : filter.dataType,
-            filterType: newControl && newControl.encryId ? 2 : filter.filterType,
-          };
-        })
-        .filter(c => c.control && !(window.shareState.shareId && _.includes([26, 27, 48], c.control.type))),
-    [JSON.stringify(filters)],
-  );
+  const items = useMemo(() => {
+    setValues({});
+    return filters
+      .map(filter => {
+        const controlObj = filter.control || _.find(controls, c => c.controlId === filter.controlId);
+        const newControl = controlObj && _.cloneDeep(turnControl(controlObj));
+        const isRequired =
+          _.get(view, 'advancedSetting.fastrequired') === '1' &&
+          _.includes(_.get(view, 'advancedSetting.requiredcids', ''), (newControl || {}).controlId);
+        return {
+          ...filter,
+          isRequired,
+          dataType: newControl ? newControl.type : filter.dataType,
+          control: newControl,
+          filterType: newControl && newControl.encryId ? 2 : filter.filterType,
+        };
+      })
+      .filter(c => c.control && !(window.shareState.shareId && _.includes([26, 27, 48], c.control.type)));
+  }, [JSON.stringify(filters)]);
 
   const update = newValues => {
     const valuesToUpdate = newValues || values;
@@ -203,16 +221,33 @@ export function QuickFilter(props) {
     onHideSidebar();
   };
   useEffect(() => {
-    setValues({});
+    setValues(getDefaultValues(filters));
   }, [view.viewId]);
   const filtersData = Object.keys(values)
-    .map(key => ({
-      controlId: 'fastFilter_' + _.get(items[key], 'control.controlId'),
-      filterValue: {
-        ...values[key],
-        values: formatFilterValuesToServer(_.get(items[key], 'control.type'), _.get(values[key], 'values')),
-      },
-    }))
+    .map(key => {
+      const control = _.get(items[key], 'control') || {};
+
+      return {
+        ...control,
+        type:
+          (control.type === 9 || control.type === 11) && String(_.get(items[key], 'advancedSetting.allowitem')) === '2'
+            ? 10
+            : control.type,
+        controlId: 'fastFilter_' + _.get(items[key], 'control.controlId'),
+        value: formatQuickFilterValueToControlValue(_.get(items[key], 'control.type'), values[key]),
+        filterValue: _.includes(
+          [
+            WIDGETS_TO_API_TYPE_ENUM.DATE, // 日期  * 类型无法转换成控件值
+            WIDGETS_TO_API_TYPE_ENUM.DATE_TIME, // 日期时间 * 类型无法转换成控件值
+            WIDGETS_TO_API_TYPE_ENUM.TIME, //  时间 * 类型无法转换成控件值
+          ],
+          _.get(items[key], 'control.type'),
+        ) && {
+          ..._.pick(values[key], ['value', 'values', 'dateRange', 'advancedSetting']),
+          values: formatFilterValuesToServer(_.get(items[key], 'control.type'), _.get(values[key], 'values')),
+        },
+      };
+    })
     .concat(
       quickFilter
         .filter(it => it.dataType === 2)

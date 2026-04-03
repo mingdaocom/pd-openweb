@@ -1,4 +1,4 @@
-import update from 'immutability-helper';
+﻿import update from 'immutability-helper';
 import _, { find, flatten, get, some } from 'lodash';
 import homeAppAjax from 'src/api/homeApp';
 import sheetAjax from 'src/api/worksheet';
@@ -140,11 +140,11 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
     dispatch({ type: 'WORKSHEET_PERMISSION_INIT', value: currentNavWorksheetInfo.switches || [] });
     dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: currentNavWorksheetInfo });
     dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: false });
-    currentNavWorksheetInfo.worksheetId &&
-      currentNavWorksheetInfo.type === 1 &&
-      dispatch(loadSavedFilters(currentNavWorksheetId));
+    currentNavWorksheetInfo.worksheetId && dispatch(loadSavedFilters(currentNavWorksheetId));
+    // getFilters === 'true' 用于兼容从APP直接访问通过/mobile/mobileView嵌入隐藏的视图
+
     const views =
-      base.type === 'single'
+      base.type === 'single' || getFilters === 'true'
         ? currentNavWorksheetInfo.views
         : (currentNavWorksheetInfo.views || []).filter(
             v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
@@ -343,7 +343,7 @@ export const fetchSheetRows =
       safeLocalStorageSetItem(`mobileViewSheet-${worksheetId}`, defaultViewId);
     }
     const { keyWords, requestParams } = filters;
-    const { chartId } = getRequest();
+    const { chartId, getFilters } = getRequest();
     // 看板
     const isKanban = view.viewType === 1;
     // 日历
@@ -409,7 +409,7 @@ export const fetchSheetRows =
       pageSize,
       pageIndex,
       status: 1,
-      viewId: viewId && (showCurrentView || isMobileSingleView) ? viewId : defaultViewId,
+      viewId: viewId && (showCurrentView || isMobileSingleView || getFilters === 'true') ? viewId : defaultViewId,
       keyWords,
       filterControls: filterControls,
       sortControls: [],

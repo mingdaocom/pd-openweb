@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { useSetState } from 'react-use';
 import Trigger from 'rc-trigger';
 import { Dialog, Icon } from 'ming-ui';
@@ -32,13 +32,8 @@ function ConnectOptionMenu(props) {
     return '';
   }
   const isAuthorizedFromOther = !isOwner && hasAuth; // 授权来的连接
-
-  const showPublish =
-    !window.platformENV.isOverseas &&
-    !window.platformENV.isLocal &&
-    type === 1 &&
-    !isAuthorizedFromOther &&
-    isConnectOwner; //私有部署没有上架  只有自建的连接才有上架
+  //非私有部署或nocoly-saas环境有上架  只有自建的连接才有上架
+  const showPublish = !window.platformENV.isLocal && type === 1 && !isAuthorizedFromOther && isConnectOwner;
   const showUpgrade = !isAuthorizedFromOther && isConnectOwner; // 非授权连接有权限就可以导入
   const showExport = type === 1 && !isAuthorizedFromOther && isConnectOwner; //自建的连接
   const showCopy = type === 1 && !isAuthorizedFromOther && isConnectOwner; //自建的连接
