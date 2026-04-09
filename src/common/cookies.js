@@ -1,4 +1,4 @@
-﻿import { get, includes } from 'lodash';
+﻿import { get } from 'lodash';
 import moment from 'moment';
 
 /**
@@ -20,10 +20,12 @@ window.safeLocalStorageSetItem = (...args) => {
  * @param {Date} expire - 过期时间
  */
 window.setCookie = function setCookie(name, value, expire) {
-  if (
-    (get(window, 'md.global.Config.HttpOnly') || window.top !== window.self) &&
-    includes(['md_pss_id', 'i18n_langtag'], name)
-  ) {
+  if (get(window, 'md.global.Config.HttpOnly') && name === 'md_pss_id') {
+    safeLocalStorageSetItem(name, value);
+    return;
+  }
+
+  if (window.top !== window.self && name === 'i18n_langtag') {
     safeLocalStorageSetItem(name, value);
     return;
   }
@@ -47,10 +49,11 @@ window.setCookie = function setCookie(name, value, expire) {
  * @returns {string|null} - Cookie值
  */
 window.getCookie = function getCookie(name) {
-  if (
-    (get(window, 'md.global.Config.HttpOnly') || window.top !== window.self) &&
-    includes(['md_pss_id', 'i18n_langtag'], name)
-  ) {
+  if (get(window, 'md.global.Config.HttpOnly') && name === 'md_pss_id') {
+    return localStorage.getItem(name) || null;
+  }
+
+  if (window.top !== window.self && name === 'i18n_langtag') {
     return localStorage.getItem(name) || null;
   }
 

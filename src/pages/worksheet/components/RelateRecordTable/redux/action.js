@@ -1,4 +1,4 @@
-import _, {
+﻿import _, {
   assign,
   find,
   get,
@@ -291,7 +291,7 @@ export function init() {
     const isTab = [String(RELATE_RECORD_SHOW_TYPE.LIST), String(RELATE_RECORD_SHOW_TYPE.TAB_TABLE)].includes(
       get(control, 'advancedSetting.showtype'),
     );
-    if (isTab) {
+    if (!isTab) {
       pageSize = 30;
     }
     if (direction === 'vertical') {

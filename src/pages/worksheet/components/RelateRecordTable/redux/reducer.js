@@ -1,4 +1,4 @@
-import { combineReducers } from 'redux';
+﻿import { combineReducers } from 'redux';
 import { assign, cloneDeep, findIndex, get, includes, uniq, uniqBy } from 'lodash';
 import { handleTreeNodeRow, treeTableViewData } from 'worksheet/common/TreeTableHelper/index.js';
 
@@ -190,6 +190,10 @@ export function initialized(state = false, action) {
   }
 }
 
+function lastAction(state, action) {
+  return action;
+}
+
 export default combineReducers({
   initialized,
   loading,
@@ -200,4 +204,5 @@ export default combineReducers({
   records,
   tableState,
   changes,
+  lastAction,
 });

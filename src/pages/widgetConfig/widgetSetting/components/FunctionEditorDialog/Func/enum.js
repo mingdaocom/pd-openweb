@@ -1,4 +1,4 @@
-import dayjs from 'dayjs';
+﻿import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import isBetween from 'dayjs/plugin/isBetween';
 import _ from 'lodash';
@@ -14,6 +14,7 @@ function newDate(dateStr) {
 function isDateStr(str) {
   return newDate(str).toString() !== 'Invalid Date';
 }
+
 function checkIsTime(str) {
   return /^\w\w:\w\w(:\w\w)?$/.test(str);
 }
@@ -28,27 +29,41 @@ function endTimeIsBeforeStartTime(start, end) {
   return end.isBefore(start);
 }
 
+/** FIND / FINDA 分隔符按字面量匹配，需转义正则元字符（含 . 否则会被当作“任意字符”） */
+function escapeRegExpForFind(str) {
+  return String(str || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export const functions = {
   // 两个日期间的工作日
   NETWORKDAY: function (start, end, excludeDate = [], workDays = [1, 2, 3, 4, 5]) {
+    if (!start && !end) {
+      return;
+    }
     excludeDate = excludeDate.filter(_.identity);
     if (!isDateStr(start)) {
       throw new Error(_l('开始日期不是日期类型'));
     }
+
     if (!isDateStr(end)) {
       throw new Error(_l('结束日期不是日期类型'));
     }
+
     const endIsBeforeStart = dayjs(end).isBefore(dayjs(start));
+
     if (endIsBeforeStart) {
       [start, end] = [end, start];
     }
+
     let result = dayjs(end).diff(dayjs(start), 'day') + 1;
     // 处理工作日逻辑
     const startWeekDay = dayjs(start).day();
     let endWeekDay = dayjs(end).day();
+
     if (endTimeIsBeforeStartTime(start, end)) {
       endWeekDay = dayjs(end).subtract(1, 'd').day();
     }
+
     if (result > 7) {
       const startWorkDayLength = [...new Array(7 - startWeekDay)]
         .map((d, i) => startWeekDay + i)
@@ -68,6 +83,7 @@ export const functions = {
       const days = [...new Array(result)].map((d, i) => Number((startWeekDay + i).toString(7).slice(-1)));
       result = days.filter(d => _.includes(workDays, d)).length;
     }
+
     if (excludeDate.length) {
       result =
         result -
@@ -77,6 +93,7 @@ export const functions = {
             (dayjs(d).isBetween(start, end, 'day') || dayjs(d).isSame(start, 'day') || dayjs(d).isSame(end, 'day')),
         ).length;
     }
+
     return endIsBeforeStart ? -1 * result : result;
   },
   // 返回分钟数
@@ -133,19 +150,24 @@ export const functions = {
     if (!isDateStr(begin)) {
       throw new Error(_l('开始日期不是日期类型'));
     }
+
     if (!isDateStr(end)) {
       throw new Error(_l('结束日期不是日期类型'));
     }
+
     if (!/^[YyMdhm]$/.test(unit)) {
       throw new Error(_l('单位不合法'));
     }
+
     if (unit === 'Y') {
       unit = 'y';
     }
+
     if (String(type) === '1') {
       if (/^\d{4}(-\d{2}){2}$/.test(begin)) {
         begin = dayjs(begin).startOf('day');
       }
+
       if (/^\d{4}(-\d{2}){2}$/.test(end)) {
         end = dayjs(end).startOf('day');
       }
@@ -153,10 +175,12 @@ export const functions = {
       if (/^\d{4}(-\d{2}){2}$/.test(begin)) {
         begin = dayjs(begin).startOf('day');
       }
+
       if (/^\d{4}(-\d{2}){2}$/.test(end)) {
         end = dayjs(end).add(1, 'day').startOf('day');
       }
     }
+
     const result = dayjs(end).diff(begin, unit);
     return (
       result +
@@ -177,6 +201,7 @@ export const functions = {
     if (typeof values === 'string' && _.isNumber(+values) && !_.isNaN(+values)) {
       return values;
     }
+
     return values ? values.length : 0;
   },
   // 计算赋分值
@@ -203,9 +228,11 @@ export const functions = {
     if (!_.isNumber(begin) || _.isNaN(end)) {
       throw new Error(_l('开始位置不是数字'));
     }
+
     if (!_.isNumber(end) || _.isNaN(end)) {
       throw new Error(_l('结束位置不是数字'));
     }
+
     return begin + Math.floor(Math.random() * (end - begin + 1));
   },
   // 向下舍入
@@ -215,9 +242,11 @@ export const functions = {
     if (!_.isNumber(number) || _.isNaN(number)) {
       throw new Error(_l('参数不是数字'));
     }
+
     if (!_.isNumber(precision) || _.isNaN(precision)) {
       throw new Error(_l('参数不是数字'));
     }
+
     return _.floor(number, precision);
   },
   // 向上舍入
@@ -227,9 +256,11 @@ export const functions = {
     if (!_.isNumber(number) || _.isNaN(number)) {
       throw new Error(_l('参数不是数字'));
     }
+
     if (!_.isNumber(precision) || _.isNaN(precision)) {
       throw new Error(_l('参数不是数字'));
     }
+
     return _.ceil(_.round(number, precision + 10), precision);
   },
   // 四舍五入
@@ -239,9 +270,11 @@ export const functions = {
     if (!_.isNumber(number) || _.isNaN(number)) {
       throw new Error(_l('参数不是数字'));
     }
+
     if (!_.isNumber(precision) || _.isNaN(precision)) {
       throw new Error(_l('参数不是数字'));
     }
+
     const factor = Math.pow(10, precision);
     return Math.round(number * factor) / factor;
   },
@@ -252,12 +285,15 @@ export const functions = {
     if (!_.isNumber(number) || _.isNaN(number)) {
       throw new Error(_l('参数不是数字'));
     }
+
     if (!_.isNumber(significance) || _.isNaN(significance)) {
       throw new Error(_l('参数不是数字'));
     }
+
     if (number > 0 && significance < 0) {
       throw new Error('#NUM!');
     }
+
     return Math.ceil(number / significance) * significance;
   },
   // 按指定倍数向下舍入
@@ -267,12 +303,15 @@ export const functions = {
     if (!_.isNumber(number) || _.isNaN(number)) {
       throw new Error(_l('参数不是数字'));
     }
+
     if (!_.isNumber(significance) || _.isNaN(significance)) {
       throw new Error(_l('参数不是数字'));
     }
+
     if (number > 0 && significance < 0) {
       throw new Error('#NUM!');
     }
+
     return Math.floor(number / significance) * significance;
   },
   // 求余
@@ -280,17 +319,21 @@ export const functions = {
     if (typeof number === 'undefined') {
       return;
     }
+
     number = Number(number);
     divisor = Number(divisor);
     if (!_.isNumber(number) || _.isNaN(number)) {
       throw new Error(_l('被除数不是数字'));
     }
+
     if (!_.isNumber(divisor) || _.isNaN(divisor)) {
       throw new Error(_l('除数不是数字'));
     }
+
     if (divisor === 0) {
       throw new Error(_l('除数不能为0'));
     }
+
     // 处理小数情况下的精度问题
     if (Math.floor(number) !== number || Math.floor(divisor) !== divisor) {
       // 获取小数位数
@@ -307,6 +350,7 @@ export const functions = {
         return (n % d) / factor;
       }
     }
+
     return number % divisor;
   },
   // 求整
@@ -315,6 +359,7 @@ export const functions = {
     if (!_.isNumber(value) || _.isNaN(value)) {
       throw new Error(_l('参数不是数字'));
     }
+
     return Math.floor(value);
   },
   // 绝对值
@@ -323,6 +368,7 @@ export const functions = {
     if (!_.isNumber(value) || _.isNaN(value)) {
       throw new Error(_l('参数不是数字'));
     }
+
     return Math.abs(value);
   },
   // 计数
@@ -351,6 +397,7 @@ export const functions = {
     if (_.some(args, d => !_.isNumber(d) || _.isNaN(d))) {
       return;
     }
+
     return args.reduce((a, b) => a * b);
   },
   // 最大值
@@ -359,6 +406,7 @@ export const functions = {
     if (!args.length) {
       return 0;
     }
+
     return Math.max(...args);
   },
   // 最小值
@@ -367,6 +415,7 @@ export const functions = {
     if (!args.length) {
       return 0;
     }
+
     return Math.min(...args);
   },
   // 平均值
@@ -375,6 +424,7 @@ export const functions = {
     if (!args.length) {
       return 0;
     }
+
     return _.sum(args.map(Number)) / args.length;
   },
   // 求和
@@ -383,6 +433,7 @@ export const functions = {
     if (!args.length) {
       throw new Error(_l('没有参数'));
     }
+
     return _.sum(args.map(Number));
   },
   // 转为数值
@@ -402,6 +453,7 @@ export const functions = {
     if (typeof text === 'undefined') {
       throw new Error('REPLACE: text is undefined');
     }
+
     begin = Number(begin);
     length = Number(length);
     return (
@@ -413,15 +465,19 @@ export const functions = {
     if (length > 10000) {
       throw new Error(_l('长度太大'));
     }
+
     if (char === '') {
       throw new Error(_l('重复字符不能为空'));
     }
+
     let result = '';
     let count = 0;
+
     while (count < length) {
       result += char;
       count++;
     }
+
     return result;
   },
   // 从中间提取
@@ -455,6 +511,7 @@ export const functions = {
     while (args.length) {
       result += args.shift() || '';
     }
+
     return result;
   },
   // 强制转文本
@@ -463,6 +520,7 @@ export const functions = {
       return value
         .map(item => {
           let str = '';
+
           try {
             if (typeof item === 'string') {
               str = item;
@@ -472,10 +530,12 @@ export const functions = {
           } catch (err) {
             console.log(err);
           }
+
           return str;
         })
         .join(',');
     }
+
     return String(typeof value === 'undefined' ? '' : value);
   },
   // 删除空格
@@ -530,6 +590,7 @@ export const functions = {
   // 计算经纬度坐标距离
   DISTANCE: function (location1, location2) {
     let lon1, lat1, lon2, lat2;
+
     if (_.isObject(location1)) {
       lon1 = location1.x;
       lat1 = location1.y;
@@ -537,6 +598,7 @@ export const functions = {
       lon1 = parseFloat(location1.split(',')[0]);
       lat1 = parseFloat(location1.split(',')[1]);
     }
+
     if (_.isObject(location2)) {
       lon2 = location2.x;
       lat2 = location2.y;
@@ -544,9 +606,11 @@ export const functions = {
       lon2 = parseFloat(location2.split(',')[0]);
       lat2 = parseFloat(location2.split(',')[1]);
     }
+
     if (!(lon1 && lat1 && lon2 && lat2)) {
       return;
     }
+
     if (lat1 === lat2 && lon1 === lon2) {
       return 0;
     } else {
@@ -558,6 +622,7 @@ export const functions = {
       if (dist > 1) {
         dist = 1;
       }
+
       dist = Math.acos(dist);
       dist = (dist * 180) / Math.PI;
       dist = dist * 60 * 1.1515 * 1.609344;
@@ -567,11 +632,13 @@ export const functions = {
   // 查找单个文本
   FIND: function (text = '', start, end) {
     if (start) {
-      start = start.replace(/([(?[*)|])/g, '\\$1');
+      start = escapeRegExpForFind(start);
     }
+
     if (end) {
-      end = end.replace(/([(?[*)|])/g, '\\$1');
+      end = escapeRegExpForFind(end);
     }
+
     if (!text || (!start && !end)) {
       return text;
     } else if (!start) {
@@ -587,12 +654,15 @@ export const functions = {
     if (!start || !end) {
       return [];
     }
+
     if (start) {
-      start = start.replace(/([(?[*)])/g, '\\$1');
+      start = escapeRegExpForFind(start);
     }
+
     if (end) {
-      end = end.replace(/([(?[*)])/g, '\\$1');
+      end = escapeRegExpForFind(end);
     }
+
     const regexp = new RegExp(`${start}(.+?)${end}`, 'g');
     const result = [];
     var match = regexp.exec(text);
@@ -600,6 +670,7 @@ export const functions = {
       result.push(match[1]);
       match = regexp.exec(text);
     }
+
     return result;
   },
   SPLIT: function (text = '', splitter = '') {
@@ -612,12 +683,14 @@ export const functions = {
     if (!value || !matchStr) {
       return;
     }
+
     return String(value).indexOf(matchStr) > -1;
   },
   GETPOSITION: function (value = {}, key) {
     if (key === 'x,y') {
       return value.x && value.y ? `${value.x},${value.y}` : '';
     }
+
     return value[key] || '';
   },
   COUNTCHAR: function (value) {
@@ -714,10 +787,12 @@ export const functions = {
     for (let i = 0; i < conditions.length; i += 2) {
       const condition = conditions[i];
       const value = conditions[i + 1];
+
       if (condition) {
         return value;
       }
     }
+
     return null;
   },
   // 工作日计算函数
@@ -725,6 +800,7 @@ export const functions = {
     if (!start_date) {
       return;
     }
+
     if (!isDateStr(start_date)) {
       throw new Error(_l('开始日期不是日期类型'));
     }
@@ -742,6 +818,7 @@ export const functions = {
     while (count < Math.abs(days)) {
       result = days > 0 ? result.add(1, 'day') : result.subtract(1, 'day');
       const dayOfWeek = result.day();
+
       // 如果不是周末(0是周日，6是周六)且不是假期，则计数加1
       if (dayOfWeek !== 0 && dayOfWeek !== 6 && !holidaysSet.has(result.format('YYYY-MM-DD'))) {
         count++;
@@ -755,6 +832,7 @@ export const functions = {
     if (!start_date) {
       return;
     }
+
     if (!isDateStr(start_date)) {
       throw new Error(_l('开始日期不是日期类型'));
     }
@@ -766,6 +844,7 @@ export const functions = {
 
     // 定义周末设置
     let weekendDays = [];
+
     if (weekend === 1 || weekend === undefined) {
       weekendDays = [0, 6]; // 周六、周日
     } else if (weekend === 2) {
@@ -804,6 +883,7 @@ export const functions = {
     while (count < Math.abs(days)) {
       result = days > 0 ? result.add(1, 'day') : result.subtract(1, 'day');
       const dayOfWeek = result.day();
+
       // 如果不是周末且不是假期，则计数加1
       if (!weekendDays.includes(dayOfWeek) && !holidaysSet.has(result.format('YYYY-MM-DD'))) {
         count++;
@@ -818,6 +898,7 @@ export const functions = {
     if (!date) {
       return;
     }
+
     if (!isDateStr(date)) {
       throw new Error(_l('日期不是日期类型'));
     }
@@ -848,6 +929,7 @@ export const functions = {
 
     // 计算第一周的偏移量
     let offset = 0;
+
     if (return_type === 21) {
       // ISO 周数计算方式
       offset = firstDayWeekday > 0 && firstDayWeekday <= 4 ? 1 : 0;
@@ -867,6 +949,7 @@ export const functions = {
     if (typeof text !== 'string') {
       text = String(text || '');
     }
+
     return text.split('').reverse().join('');
   },
 
@@ -918,6 +1001,7 @@ export const functions = {
 
     // 计算排列数 P(n,k) = n! / (n-k)!
     let result = 1;
+
     for (let i = number - number_chosen + 1; i <= number; i++) {
       result *= i;
     }
@@ -946,6 +1030,7 @@ export const functions = {
     // 为避免大数计算溢出，使用更高效的算法
     number_chosen = Math.min(number_chosen, number - number_chosen);
     let result = 1;
+
     for (let i = 1; i <= number_chosen; i++) {
       result = (result * (number - (i - 1))) / i;
     }
@@ -1587,7 +1672,7 @@ const functionDetailsMap = {
     type: 'string',
     title: _l('返回指定间隔符之间的文本内容，从左到右查找所有内容，并将结果打包成数组返回'),
     des: `
-        <bb>${_l(`FIND(原文本, 开始字符, 结束字符)`)}</bb><br />
+        <bb>${_l(`FINDA(原文本, 开始字符, 结束字符)`)}</bb><br />
         <li>${_l(`开始字符：如果是空，将无法得到结果`)}</li>
         <li>${_l(`结束字符：如果是空，将无法得到结果`)}</li>
         <b>${_l(`示例：=FINDA("(X2022)2f8f0af(NZP001)","(",")")，结果：X2022,NZP001`)}</b><br />

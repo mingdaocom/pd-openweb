@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+﻿import React, { useCallback, useEffect, useState } from 'react';
 import cx from 'classnames';
 import { find } from 'lodash';
 import styled from 'styled-components';
@@ -87,7 +87,7 @@ function ConversationList({
   const [isLoading, setIsLoading] = useState(false);
   const [conversationList, setConversationList] = useState([]);
   const [newCreatedConversationId, setNewCreatedConversationId] = useState();
-  const [shareChatId, setShareChatId] = useState('');
+  const [shareChatItem, setShareChatItem] = useState(null);
   const handleLoadConversationList = useCallback(
     ({ silent = false } = {}) => {
       if (!silent) {
@@ -172,7 +172,7 @@ function ConversationList({
               });
             }}
             onShare={item => {
-              setShareChatId(item.chatId || '');
+              setShareChatItem(item);
             }}
             onDelete={item => {
               chatbotAjax.clearConversation({ chatbotId, conversationId: item.chatId, deleted: true }).then(() => {
@@ -186,19 +186,20 @@ function ConversationList({
           />
         </div>
       </div>
-      {shareChatId && (
+      {shareChatItem && (
         <Share
-          title={_l('分享会话: %0', name)}
+          title={_l('分享会话: %0', shareChatItem.title)}
           from="chatbot"
+          isCustomShare
           isCharge={isCharge}
           privateShare={false}
           params={{
             appId,
-            sourceId: `${chatbotId}|${shareChatId}`,
+            sourceId: `${chatbotId}|${shareChatItem.chatId}`,
             worksheetId: chatbotId,
-            title: name,
+            title: shareChatItem.title,
           }}
-          onClose={() => setShareChatId(null)}
+          onClose={() => setShareChatItem(null)}
         />
       )}
     </ConversationListCon>

@@ -139,17 +139,17 @@ class FolderDetail extends Component {
   /**
    * 更新描述
    */
-  updateFolderDesc = describe => {
+  updateFolderDesc = ({ description }) => {
     const { data } = this.state;
 
     // 退出编辑
     this.setState({ isEditing: false });
 
-    if (data.describe !== describe) {
+    if (data.describe !== description) {
       ajaxRequest
         .updateFolderDes({
           folderID: this.props.taskConfig.folderId,
-          describe,
+          describe: description,
         })
         .then(source => {
           if (source.status) {

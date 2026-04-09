@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -55,6 +55,11 @@ export default class MobilePhone extends React.Component {
     if (nextProps.cell.value !== this.props.cell.value) {
       this.setState({ value: nextProps.cell.value });
     }
+    if (nextProps.isediting && !this.props.isediting) {
+      window.cellTextIsBlurring = true;
+    } else if (!nextProps.isediting && this.props.isediting) {
+      window.cellTextIsBlurring = false;
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -87,6 +92,9 @@ export default class MobilePhone extends React.Component {
   handleBlur = () => {
     const { error, ignoreErrorMessage, updateCell, updateEditingStatus } = this.props;
     const { tempValue, value } = this.state;
+    setTimeout(() => {
+      window.cellTextIsBlurring = false;
+    }, 100);
     if (error && !ignoreErrorMessage) {
       this.handleExit();
       return;

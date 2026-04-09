@@ -72,7 +72,10 @@ export default function RelateRecordTableIndex(props) {
       if (keywords) {
         return;
       }
-      const changed = !isEqual(cache.current.changes, state.changes) && !isEqual(state.changes, initialChanges);
+      let changed = !isEqual(cache.current.changes, state.changes) && !isEqual(state.changes, initialChanges);
+      if (get(state, 'lastAction.type') === 'DELETE_RECORDS') {
+        changed = true;
+      }
       const newCount =
         !state.base.saveSync && typeof state.tableState.countForShow !== 'undefined'
           ? state.tableState.countForShow

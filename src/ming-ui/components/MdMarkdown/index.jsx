@@ -112,6 +112,9 @@ const Wrap = styled.div`
   .vditor-ir pre.vditor-reset[contenteditable='false'] {
     opacity: 1 !important;
     pointer-events: none;
+    .vditor-ir__link {
+      pointer-events: auto;
+    }
   }
 
   .vditor-toolbar--hide {

@@ -587,48 +587,43 @@ export default class AccountChart extends React.Component {
             </div>
           </div>
         )}
+        <Fragment>
+          <div className="Font17 Bold textPrimary mBottom4 mTop20">{_l('第三方账户')}</div>
+          <div className="textSecondary mBottom20">{_l('绑定后，可通过第三方应用快速登录')}</div>
+          <div className="bindingWrap mBottom24">
+            {accountList.map(({ key, label, color, icon, needHide = false, iconIsImage = false, img }) => {
+              const data = this.state[key];
 
-        {!window.platformENV.isOverseas && !window.platformENV.isLocal && (
-          <Fragment>
-            <div className="Font17 Bold textPrimary mBottom4 mTop20">{_l('第三方账户')}</div>
-            <div className="textSecondary mBottom20">{_l('绑定后，可通过第三方应用快速登录')}</div>
-            <div className="bindingWrap mBottom24">
-              {accountList.map(({ key, label, color, icon, needHide = false, iconIsImage = false, img }) => {
-                const data = this.state[key];
+              if (!data || (needHide && !data.isBind)) return null;
 
-                if (!data || (needHide && !data.isBind)) return null;
-
-                return (
-                  <span className="bingingItem" key={`bingingItem-${key}`}>
-                    {iconIsImage ? (
-                      <img src={img} className="mRight8 iconImg" />
-                    ) : (
-                      <Icon icon={icon} className={cx(color, 'Font18 mRight8')} />
-                    )}
-                    {data.isBind && key === 'workBind' && <span>{_l('账号ID：')}</span>}
-                    <Tooltip title={!data.isBind ? '' : data.nickName || ''}>
-                      <span className="text overflow_ellipsis flex">
-                        {data.isBind ? data.nickName || label : label}
-                      </span>
-                    </Tooltip>
-                    {!needHide && (
-                      <span
-                        className={cx(
-                          data.isBind ? 'textSecondary Hover_red' : 'ThemeColor3 hoverTextPrimaryLight',
-                          'Hand',
-                        )}
-                        onClick={() => this.handleBind(key)}
-                      >
-                        {data.isBind ? _l('解绑') : _l('绑定')}
-                      </span>
-                    )}
-                  </span>
-                );
-              })}
-            </div>
-            <div className="splitLine"></div>
-          </Fragment>
-        )}
+              return (
+                <span className="bingingItem" key={`bingingItem-${key}`}>
+                  {iconIsImage ? (
+                    <img src={img} className="mRight8 iconImg" />
+                  ) : (
+                    <Icon icon={icon} className={cx(color, 'Font18 mRight8')} />
+                  )}
+                  {data.isBind && key === 'workBind' && <span>{_l('账号ID：')}</span>}
+                  <Tooltip title={!data.isBind ? '' : data.nickName || ''}>
+                    <span className="text overflow_ellipsis flex">{data.isBind ? data.nickName || label : label}</span>
+                  </Tooltip>
+                  {!needHide && (
+                    <span
+                      className={cx(
+                        data.isBind ? 'textSecondary Hover_red' : 'ThemeColor3 hoverTextPrimaryLight',
+                        'Hand',
+                      )}
+                      onClick={() => this.handleBind(key)}
+                    >
+                      {data.isBind ? _l('解绑') : _l('绑定')}
+                    </span>
+                  )}
+                </span>
+              );
+            })}
+          </div>
+          <div className="splitLine"></div>
+        </Fragment>
         <div className="Font17 Bold textPrimary mBottom16 mTop20">{_l('隐私')}</div>
         {this.joinFriend()}
         <Dialog

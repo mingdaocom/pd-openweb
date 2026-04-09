@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import cx from 'classnames';
 import _, { find, get, uniq } from 'lodash';
 import PropTypes from 'prop-types';
@@ -728,7 +728,7 @@ export default class RelateRecordDropdown extends React.Component {
       onVisibleChange,
       onChange,
     } = this.props;
-    const { selected, keywords, listvisible, deletedIds, defaultSelected } = this.state;
+    const { selected, keywords, listvisible, deletedIds } = this.state;
     let content;
     if (_.isFunction(renderSelected) && !(isQuickFilter && listvisible)) {
       content = renderSelected(selected, { handleDelete: this.handleDelete });

@@ -95,7 +95,7 @@ const getApiDynamicValue = (item, formData, keywords) => {
       if (source.cid === 'search-keyword') return keywords;
 
       if (source.cid === 'ocr-file-url' && item.type === 2) {
-        return keywords ? `${_.get(keywords, 'serverName')}${_.get(keywords, 'key')}?imageView2/2/w/1920/q/90` : '';
+        return keywords ? `${_.get(keywords, 'url')}` : '';
       }
       if (source.cid === 'ocr-file' && item.type === 14) {
         const fileId = _.get(keywords, 'fileId');

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+﻿import React, { Component } from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import RelateRecordCards from 'worksheet/components/RelateRecordCards';
@@ -230,6 +230,7 @@ export default class Widgets extends Component {
           <RelateRecordDropdown
             formIsEditing={isEditing}
             appId={appId}
+            flag={flag}
             control={{ ...this.props }}
             formData={formData}
             disabled={disabled || !controlPermission.editable}

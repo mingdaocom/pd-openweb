@@ -151,20 +151,20 @@ export default function SendToChat(props) {
   const debounceLoadChat = useCallback(debounce(loadChat, 300), []);
   const chatListComp = (
     <ChatList>
+      <div className="header">
+        <Tip9e className="flex">{_l('最近聊天')}</Tip9e>
+        <Tooltip title={_l('从通讯录中选择')}>
+          <Icon
+            icon="topbar-addressList"
+            className="Font15 textSecondary hoverColorPrimary pointer"
+            onClick={handleDialogSelectUser}
+          />
+        </Tooltip>
+      </div>
       {!loading && !list.length ? (
         <Empty>{_l('未找到相关的人员或群聊')}</Empty>
       ) : (
         <Fragment>
-          <div className="header">
-            <Tip9e className="flex">{_l('最近聊天')}</Tip9e>
-            <Tooltip title={_l('从通讯录中选择')}>
-              <Icon
-                icon="topbar-addressList"
-                className="Font15 textSecondary hoverColorPrimary pointer"
-                onClick={handleDialogSelectUser}
-              />
-            </Tooltip>
-          </div>
           <div className="list flexColumn">
             {loading && <LoadDiv size="small" />}
             {!loading && !!list.length && (

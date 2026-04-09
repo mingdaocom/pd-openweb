@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
@@ -131,7 +131,7 @@ const Entry = () => {
         isAiAction={share.data?.sourceType === 72}
         error={share.resultCode !== 1}
         isSmallMode={isSmallMode}
-        title={title}
+        title={customerPageName}
         iconUrl={iconUrl || chatBotDefaultIcon}
         onContinueChat={() => window.open(`/embed/chatbot/${appId}/${chatbotId}?share=${conversationId}`)}
         onCopyLink={() => {

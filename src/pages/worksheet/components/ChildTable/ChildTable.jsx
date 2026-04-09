@@ -421,7 +421,6 @@ class ChildTable extends React.Component {
         control.required = resetedControl.required;
         control.fieldPermission = resetedControl.fieldPermission;
       }
-      control.originalFieldPermission = control.fieldPermission;
       if (!_.find(showControls, scid => control.controlId === scid)) {
         if (control.type === 52) {
           control.hidden = true;

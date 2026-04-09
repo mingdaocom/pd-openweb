@@ -1548,26 +1548,28 @@ export default class RecordInfo extends Component {
                   tempFormData
                     .filter(c => c.type === 37 && _.includes(c.dataSource, controlId))
                     .forEach(c => {
-                      worksheetAjax.getRowDetail({ worksheetId, rowId: recordId, getType: 1 }).then(data => {
-                        const controlValue = safeParse(data.rowData)[c.controlId];
-                        const newFormData = tempFormData.map(cc =>
-                          cc.controlId === c.controlId ? { ...cc, value: controlValue } : cc,
-                        );
-                        if (!_.isUndefined(controlValue)) {
-                          this.setState({
-                            recordinfo: {
-                              ...recordinfo,
-                              formData: newFormData,
-                            },
-                            tempFormData: newFormData,
-                          });
-                          this.recordform.current.dataFormat.updateDataSource({
-                            controlId: c.controlId,
-                            value: controlValue,
-                          });
-                          this.recordform.current.updateRenderData();
-                        }
-                      });
+                      worksheetAjax
+                        .getRowDetail({ worksheetId, rowId: recordId, getType: isDraft ? 21 : 1 })
+                        .then(data => {
+                          const controlValue = safeParse(data.rowData)[c.controlId];
+                          const newFormData = tempFormData.map(cc =>
+                            cc.controlId === c.controlId ? { ...cc, value: controlValue } : cc,
+                          );
+                          if (!_.isUndefined(controlValue)) {
+                            this.setState({
+                              recordinfo: {
+                                ...recordinfo,
+                                formData: newFormData,
+                              },
+                              tempFormData: newFormData,
+                            });
+                            this.recordform.current.dataFormat.updateDataSource({
+                              controlId: c.controlId,
+                              value: controlValue,
+                            });
+                            this.recordform.current.updateRenderData();
+                          }
+                        });
                     });
                   if (_.isFunction(this.refreshEvents.loadcustombtns)) {
                     this.refreshEvents.loadcustombtns();

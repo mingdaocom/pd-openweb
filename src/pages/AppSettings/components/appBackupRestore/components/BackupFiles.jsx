@@ -337,15 +337,24 @@ export default function BackupFiles(props) {
 
                 // 已过期
                 const expired =
-                  (validLimit === -1
-                    ? moment(item.operationDateTime).add(1, 'year').format('YYYYMMDDHHmmss')
-                    : moment(item.operationDateTime).add(60, 'days').format('YYYYMMDDHHmmss')) <
+                  (window.platformENV.isOverseas || window.platformENV.isLocal
+                    ? moment(item.operationDateTime)
+                        .add(md.global.SysSettings.appBackupRecycleDays, 'days')
+                        .format('YYYYMMDDHHmmss')
+                    : validLimit === -1
+                      ? moment(item.operationDateTime).add(1, 'year').format('YYYYMMDDHHmmss')
+                      : moment(item.operationDateTime).add(60, 'days').format('YYYYMMDDHHmmss')) <
                   moment().format('YYYYMMDDHHmmss');
                 // 即将过期
                 const expiredSoon =
-                  (validLimit === -1
-                    ? moment(item.operationDateTime).add(1, 'year').subtract(10, 'days').format('YYYYMMDDHHmmss')
-                    : moment(item.operationDateTime).add(50, 'days').format('YYYYMMDDHHmmss')) <
+                  (window.platformENV.isOverseas || window.platformENV.isLocal
+                    ? moment(item.operationDateTime)
+                        .add(md.global.SysSettings.appBackupRecycleDays, 'days')
+                        .subtract(10, 'days')
+                        .format('YYYYMMDDHHmmss')
+                    : validLimit === -1
+                      ? moment(item.operationDateTime).add(1, 'year').subtract(10, 'days').format('YYYYMMDDHHmmss')
+                      : moment(item.operationDateTime).add(50, 'days').format('YYYYMMDDHHmmss')) <
                   moment().format('YYYYMMDDHHmmss');
 
                 return (

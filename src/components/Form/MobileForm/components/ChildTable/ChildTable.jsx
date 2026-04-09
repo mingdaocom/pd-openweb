@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+﻿import React, { Fragment } from 'react';
 import { flushSync } from 'react-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -284,7 +284,6 @@ class ChildTable extends React.Component {
         control.required = resetedControl.required;
         control.fieldPermission = resetedControl.fieldPermission;
       }
-      control.originalFieldPermission = control.fieldPermission;
       if (!_.find(showControls, scid => control.controlId === scid)) {
         if (control.type === 52) {
           control.hidden = true;
