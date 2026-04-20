@@ -282,7 +282,7 @@ class View extends Component {
                 style={{ width: advancedSetting.appnavwidth ? +advancedSetting.appnavwidth : 60 }}
                 showSearch={false}
               />
-              <div className="flex">
+              <div className="flex minWidth0">
                 <Component ref={this.viewComRef} {...viewProps} />
               </div>
             </div>

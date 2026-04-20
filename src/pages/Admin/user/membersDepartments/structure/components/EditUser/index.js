@@ -6,7 +6,7 @@ import { Icon, Input, intlTelInput, LoadDiv } from 'ming-ui';
 import fixedDataAjax from 'src/api/fixedData.js';
 import userController from 'src/api/user';
 import WorkHandoverDialog from 'src/pages/Admin/components/WorkHandoverDialog';
-import { checkForm } from '../../constant';
+import { checkForm, getMobilePhoneNumber } from '../../constant';
 import BaseFormInfo from '../BaseFormInfo';
 import DrawerFooterOption from '../DrawerFooterOption';
 import TextInput from '../TextInput';
@@ -255,7 +255,7 @@ export default class EditUser extends Component {
         fullname: userName,
         jobIds,
         jobNumber,
-        mobilePhone: this.iti && this.iti.getNumber(),
+        mobilePhone: getMobilePhoneNumber(this.iti, this.state.mobilePhone),
         projectId,
         workSiteId,
         contactPhone,

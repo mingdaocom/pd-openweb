@@ -85,3 +85,14 @@ export const feedbackTypes = {
   6: _l('已存在当前部门'),
   7: _l('用户待审核'),
 };
+
+// 兼容intl-tel-input getNumber()获取号码 国内长途前缀0被省略
+export const getMobilePhoneNumber = (iti, value) => {
+  if (!iti || !value) return '';
+
+  if (/^[0]+/.test(value)) {
+    return `+${iti.getSelectedCountryData().dialCode}${value}`;
+  }
+
+  return iti.getNumber();
+};

@@ -1,6 +1,6 @@
-import React, { Component, Fragment } from 'react';
+﻿import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import _, { find, get, identity, isEmpty } from 'lodash';
+import _, { find, get, identity, includes, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Icon, SortableList } from 'ming-ui';
@@ -1083,6 +1083,11 @@ class RelateRecordCards extends Component {
                       }
                     }}
                     projectId={projectId}
+                    updateRows={(rowIds = [], updatedRow = {}) => {
+                      this.setState({
+                        records: records.map(r => (includes(rowIds, r.rowid) ? { ...r, ...updatedRow } : r)),
+                      });
+                    }}
                     recordId={previewRecord && previewRecord.recordId}
                     worksheetId={dataSource}
                     relationWorksheetId={worksheetId}

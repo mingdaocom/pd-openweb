@@ -8,7 +8,7 @@ import { dialogSelectUser } from 'ming-ui/functions';
 import importUserController from 'src/api/importUser';
 import userAjax from 'src/api/user';
 import { encrypt } from 'src/utils/common';
-import { checkForm, RESULTS } from '../../constant';
+import { checkForm, getMobilePhoneNumber, RESULTS } from '../../constant';
 import { addUserFeedbackFunc } from '../AddUserFeedback';
 import BaseFormInfo from '../BaseFormInfo';
 import DrawerFooterOption from '../DrawerFooterOption';
@@ -131,11 +131,11 @@ export default class AddUser extends Component {
       type === 'selectUser'
         ? ''
         : inviteType === 'mobile'
-          ? this.iti.getNumber()
+          ? getMobilePhoneNumber(this.iti, this.state.mobile)
           : inviteType === 'email'
             ? email
             : type === 'autonomously' && this.itiAutonomously
-              ? this.itiAutonomously.getNumber()
+              ? getMobilePhoneNumber(this.itiAutonomously, this.state.autonomously)
               : autonomously;
 
     if (!userContact && !accountId) {
@@ -191,7 +191,7 @@ export default class AddUser extends Component {
   handleSubmit = isClear => {
     const _this = this;
     const { isUploading, inviteType, userName, email, user = {}, autonomouslyPasswrod, autonomously } = this.state;
-    const mobile = this.iti && this.iti.getNumber();
+    const mobile = getMobilePhoneNumber(this.iti, this.state.mobile);
     const {
       jobIds = [],
       departmentInfos = [],
@@ -209,7 +209,7 @@ export default class AddUser extends Component {
       mobile: inviteType === 'mobile' && !!checkForm['mobile'](mobile, this.iti),
       email: inviteType === 'email' && !!checkForm['email'](email),
       autonomously: !!checkForm['autonomously'](
-        this.itiAutonomously ? this.itiAutonomously.getNumber() : autonomously,
+        this.itiAutonomously ? getMobilePhoneNumber(this.itiAutonomously, this.state.autonomously) : autonomously,
         this.itiAutonomously,
       ),
       autonomouslyPasswrod: inviteType === 'autonomously' && !!checkForm['autonomouslyPasswrod'](autonomouslyPasswrod),
@@ -228,7 +228,7 @@ export default class AddUser extends Component {
         ? check
         : inviteType === 'autonomously' &&
           (!!checkForm['autonomously'](
-            this.itiAutonomously ? this.itiAutonomously.getNumber() : autonomously,
+            this.itiAutonomously ? getMobilePhoneNumber(this.itiAutonomously, this.state.autonomously) : autonomously,
             this.itiAutonomously,
           ) ||
             !!checkForm['autonomouslyPasswrod'](autonomouslyPasswrod));
@@ -265,7 +265,7 @@ export default class AddUser extends Component {
         if (inviteType === 'autonomously') {
           params.account = _.isEmpty(user)
             ? this.itiAutonomously
-              ? this.itiAutonomously.getNumber()
+              ? getMobilePhoneNumber(this.itiAutonomously, this.state.autonomously)
               : autonomously
             : '';
           params.password = encrypt(autonomouslyPasswrod);

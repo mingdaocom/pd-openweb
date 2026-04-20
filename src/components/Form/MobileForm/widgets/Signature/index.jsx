@@ -43,6 +43,7 @@ const Signature = props => {
   } = props;
   const signatureRef = useRef(null);
   const signaturePad = useRef(null);
+  const removeCanvasTouchBlockRef = useRef(null);
   const [isEdit, setIsEdit] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
   const [lastInfo, setLastInfo] = useState(null);
@@ -58,6 +59,7 @@ const Signature = props => {
 
     if (!canvas) return;
 
+    removeCanvasTouchBlockRef.current && removeCanvasTouchBlockRef.current();
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
     canvas.getContext('2d');
@@ -66,6 +68,24 @@ const Signature = props => {
       penColor,
       onBegin: () => setIsEdit(true),
     });
+
+    // 阻止签名时点到手机左侧触发浏览器返回
+    const blockSwipeBack = e => {
+      e.stopPropagation();
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+    };
+
+    ['touchstart', 'touchmove', 'touchend'].forEach(eventName => {
+      canvas.addEventListener(eventName, blockSwipeBack, { passive: false });
+    });
+
+    removeCanvasTouchBlockRef.current = () => {
+      ['touchstart', 'touchmove', 'touchend'].forEach(eventName => {
+        canvas.removeEventListener(eventName, blockSwipeBack, { passive: false });
+      });
+    };
   };
 
   const saveSignature = event => {
@@ -252,6 +272,12 @@ const Signature = props => {
       setLastInfo(null);
     }
   }, [flag, value]);
+
+  useEffect(() => {
+    return () => {
+      removeCanvasTouchBlockRef.current && removeCanvasTouchBlockRef.current();
+    };
+  }, []);
 
   // 只读
   if (disabled) {
