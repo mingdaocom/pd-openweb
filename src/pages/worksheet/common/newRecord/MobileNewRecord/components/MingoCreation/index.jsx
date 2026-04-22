@@ -1,4 +1,5 @@
 import React, { forwardRef, memo, useEffect, useImperativeHandle, useState } from 'react';
+import { get } from 'lodash';
 import { Icon } from 'ming-ui';
 import { compatibleMDJS } from 'src/utils/project';
 import composite from '../../assets/composite.png';
@@ -6,6 +7,7 @@ import paste from '../../assets/paste.png';
 import photo from '../../assets/photo.png';
 import voice from '../../assets/voice.png';
 import { COMPOSITE_INPUT_TYPE } from '../../core/config';
+import { useVoice } from '../VoiceProvider';
 import './index.less';
 
 const creationTypesList = [
@@ -21,13 +23,9 @@ const creationTypesList = [
 ];
 
 const MingoCreation = forwardRef((props, ref) => {
-  const {
-    voiceInputRef,
-    compositeInputRef,
-    onPhotoRecognition = () => {},
-    onGenerateRecord = () => {},
-    onAbort = () => {},
-  } = props;
+  const { voiceInputRef, compositeInputRef, onPhotoRecognition = () => {} } = props;
+
+  const { error, onAbort, onGenerateRecord } = useVoice();
 
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -118,6 +116,14 @@ const MingoCreation = forwardRef((props, ref) => {
         >
           {creationTypesList
             .filter(({ hidden }) => !hidden)
+            .filter(
+              ({ type }) =>
+                (type === COMPOSITE_INPUT_TYPE.VOICE &&
+                  !error &&
+                  !!get(md, 'global.Account.accountId') &&
+                  md.global.SysSettings.enableVoiceToText) ||
+                type !== COMPOSITE_INPUT_TYPE.VOICE,
+            )
             .map(({ type, icon, title }) => (
               <div className="createItem" onClick={e => handleCreateItemClick(e, type)} key={type}>
                 <img className="typeIcon" src={icon} alt={title} />

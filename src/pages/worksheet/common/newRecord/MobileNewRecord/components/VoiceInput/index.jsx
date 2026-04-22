@@ -6,7 +6,7 @@ import { useVoice } from '../VoiceProvider';
 import VoiceToText from '../VoiceToText';
 
 const VoiceInput = forwardRef((props, ref) => {
-  const { step, text, loading, error, onStart, onReset, onGenerateRecord } = useVoice();
+  const { step, text, loading, onStart, onReset, onGenerateRecord } = useVoice();
 
   const [visible, setVisible] = useState(false);
   const [value, setValue] = useState('');
@@ -90,7 +90,7 @@ const VoiceInput = forwardRef((props, ref) => {
     }
   };
 
-  if (!visible || loading || error) return null;
+  if (!visible || loading) return null;
 
   return (
     <div className="voiceInputWrapper toastWrapper">

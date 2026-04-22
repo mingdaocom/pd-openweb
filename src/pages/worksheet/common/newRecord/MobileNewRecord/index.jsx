@@ -487,16 +487,15 @@ function NewRecord(props) {
           }}
         ></i>
       )}
-      <MingoCreation
-        ref={mingoCreationRef}
-        onPhotoRecognition={handlePhotoRecognition}
-        voiceInputRef={voiceInputRef}
-        compositeInputRef={compositeInputRef}
-        onAbort={abortAiParse}
-        onGenerateRecord={handleGenerateRecord}
-      />
+
       <ProcessToast type={aiToastType} visible={aiToastVisible} onAbort={abortAiParse} />
       <VoiceProvider onGenerateRecord={handleGenerateRecord} onAbort={abortAiParse}>
+        <MingoCreation
+          ref={mingoCreationRef}
+          onPhotoRecognition={handlePhotoRecognition}
+          voiceInputRef={voiceInputRef}
+          compositeInputRef={compositeInputRef}
+        />
         <VoiceInput ref={voiceInputRef} />
         <CompositeInput ref={compositeInputRef} />
       </VoiceProvider>

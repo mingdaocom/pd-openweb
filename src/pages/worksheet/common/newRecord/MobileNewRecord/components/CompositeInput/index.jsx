@@ -1,5 +1,6 @@
 import React, { forwardRef, Fragment, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import cx from 'classnames';
+import { get } from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { compatibleMDJS } from 'src/utils/project';
@@ -147,7 +148,7 @@ const CompositeInput = forwardRef((props, ref) => {
     });
   };
 
-  if (!visible || loading || error) return null;
+  if (!visible || loading) return null;
 
   return (
     <div className="compositeInputWrapper toastWrapper">
@@ -199,9 +200,11 @@ const CompositeInput = forwardRef((props, ref) => {
                     </UploadFiles>
                   )}
                 </div>
-                <div className="iconBox" onClick={onStart}>
-                  <Icon icon="microphone" />
-                </div>
+                {!error && !!get(md, 'global.Account.accountId') && md.global.SysSettings.enableVoiceToText && (
+                  <div className="iconBox" onClick={onStart}>
+                    <Icon icon="microphone" />
+                  </div>
+                )}
               </div>
               <div className="basicBtnBox">
                 <div className="basicBtn common" onClick={onCancel}>
