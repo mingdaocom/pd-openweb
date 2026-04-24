@@ -113,6 +113,7 @@ export default class SendToolbar extends Component {
   initUpload() {
     const { session } = this.props;
     const _this = this;
+    const { fileUploadLimitSize } = _.get(md, 'global.SysSettings') || {};
 
     const config = {
       browse_button: this.uploadFile,
@@ -121,6 +122,7 @@ export default class SendToolbar extends Component {
       multi_selection: true,
       drop_element: `ChatPanel-${session.id}`,
       paste_element: `ChatPanel-${session.id}`,
+      max_file_size: fileUploadLimitSize ? `${fileUploadLimitSize}m` : undefined,
       autoUpload: false,
       method: {
         FilesAdded(uploader, files) {
@@ -208,6 +210,13 @@ export default class SendToolbar extends Component {
 
           _this.props.onSendFileMsg({ file: uploadFile, type }, msg);
         },
+        Error(uploader, error) {
+          if (error.code === window.plupload.FILE_SIZE_ERROR) {
+            alert(_l('单个文件大小超过%0MB，无法支持上传', fileUploadLimitSize), 2);
+          } else {
+            alert(_l('上传失败，请稍后再试。'), 2);
+          }
+        },
       },
     };
 
@@ -217,6 +226,7 @@ export default class SendToolbar extends Component {
     uploader.bind('BeforeUpload', config.method.BeforeUpload);
     uploader.bind('UploadProgress', config.method.UploadProgress);
     uploader.bind('FileUploaded', config.method.FileUploaded);
+    uploader.bind('Error', config.method.Error);
     uploader.bind('PostInit', function bindPluploadPaste(up) {
       var paste = document.getElementById(config.paste_element);
       if (paste) {
