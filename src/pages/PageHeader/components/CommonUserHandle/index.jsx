@@ -159,33 +159,6 @@ export default class CommonUserHandle extends Component {
                 )}
               </Fragment>
             )}
-            {type === 'dashboard' && !!newVersion && (
-              <AdminEntry
-                data-tip={_l('发现新版本：%0，点击查看', newVersion)}
-                className="tip-bottom-left"
-                onClick={() => window.open('https://docs-pd.mingdao.com/version')}
-              >
-                <Icon icon="score-up" className="Font20" style={{ color: '#20CA86' }} />
-              </AdminEntry>
-            )}
-            {type === 'dashboard' && !isLicense && (
-              <AdminEntry
-                data-tip={_l('平台授权已失效，点击查看')}
-                className="tip-bottom-left"
-                onClick={() => {
-                  location.href = md.global.Config.PlatformUrl + 'sysconfig/hap/platform';
-                }}
-              >
-                <Icon icon="error1" className="Font20" style={{ color: '#f44336' }} />
-              </AdminEntry>
-            )}
-            {/*<BtnCon
-              className={cx(`${type === 'native' ? 'mLeft10' : ''}`, { isDashboard: type === 'dashboard' })}
-              data-tip={_l('帮助')}
-              onClick={() => window.KF5SupportBoxAPI && window.KF5SupportBoxAPI.open()}
-            >
-              <Icon icon="workflow_help" />
-            </BtnCon>*/}
           </React.Fragment>
         )}
       </div>
